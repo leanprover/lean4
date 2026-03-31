@@ -1,0 +1,31 @@
+def Ex1.isEven._mutual : (x : Nat ⊕' Nat) → PSum.casesOn x (fun _x => Bool) fun _x => Bool :=
+WellFounded.Nat.fix (fun x => PSum.casesOn x (fun a => a) fun a => a) fun x a =>
+  PSum.casesOn (motive := fun x =>
+    ((y : Nat ⊕' Nat) →
+        InvImage (fun x1 x2 => x1 < x2) (fun x => PSum.casesOn x (fun a => a) fun a => a) y x →
+          PSum.casesOn y (fun _x => Bool) fun _x => Bool) →
+      PSum.casesOn x (fun _x => Bool) fun _x => Bool)
+    x
+    (fun a a_1 =>
+      (match (motive :=
+          (x : Nat) →
+            ((y : Nat ⊕' Nat) →
+                InvImage (fun x1 x2 => x1 < x2) (fun x => PSum.casesOn x (fun a => a) fun a => a) y (PSum.inl x) →
+                  PSum.casesOn y (fun _x => Bool) fun _x => Bool) →
+              Bool)
+          a with
+        | 0 => fun x => true
+        | n.succ => fun x => x (PSum.inr n) ⋯)
+        a_1)
+    (fun a a_1 =>
+      (match (motive :=
+          (x : Nat) →
+            ((y : Nat ⊕' Nat) →
+                InvImage (fun x1 x2 => x1 < x2) (fun x => PSum.casesOn x (fun a => a) fun a => a) y (PSum.inr x) →
+                  PSum.casesOn y (fun _x => Bool) fun _x => Bool) →
+              Bool)
+          a with
+        | 0 => fun x => false
+        | n.succ => fun x => x (PSum.inl n) ⋯)
+        a_1)
+    a

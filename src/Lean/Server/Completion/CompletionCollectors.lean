@@ -220,7 +220,7 @@ section IdCompletionUtils
 
   private def completeNamespaces (ctx : ContextInfo) (id : Name) (danglingDot : Bool) : M Unit := do
     let env ← getEnv
-    env.getNamespaceSet |>.forM fun ns => do
+    for ns in env.getNamespaces do
       unless ns.isInternal || env.contains ns do -- Ignore internal and namespaces that are also declaration names
         let label? ← bestLabelForDecl? ctx ns id danglingDot
         if let some bestLabel := label? then

@@ -1,0 +1,2 @@
+2018.lean:11:8-11:16: warning: declaration uses `sorry`
+2018.lean:14:8-14:27: warning: declaration uses `sorry`

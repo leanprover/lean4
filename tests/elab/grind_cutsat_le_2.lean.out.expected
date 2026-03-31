@@ -1,0 +1,2 @@
+grind_cutsat_le_2.lean:21:0-21:7: warning: declaration uses `sorry`
+grind_cutsat_le_2.lean:34:0-34:7: warning: declaration uses `sorry`

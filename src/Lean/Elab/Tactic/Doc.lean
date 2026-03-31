@@ -52,7 +52,7 @@ def firstTacticTokens [Monad m] [MonadEnv m] : m (NameMap String) := do
   let mut firstTokens : NameMap String :=
     tacticNameExt.toEnvExtension.getState env
       |>.importedEntries
-      |>.push (tacticNameExt.exportEntriesFn env (tacticNameExt.getState env) .exported)
+      |>.push ((tacticNameExt.exportEntriesFn env (tacticNameExt.getState env)).exported)
       |>.foldl (init := {}) fun names inMods =>
         inMods.foldl (init := names) fun names (k, n) =>
           names.insert k n
@@ -108,7 +108,7 @@ Displays all available tactic tags, with documentation.
 @[builtin_command_elab printTacTags] def elabPrintTacTags : CommandElab := fun _stx => do
   let all :=
     tacticTagExt.toEnvExtension.getState (← getEnv)
-      |>.importedEntries |>.push (tacticTagExt.exportEntriesFn (← getEnv) (tacticTagExt.getState (← getEnv)) .exported)
+      |>.importedEntries |>.push ((tacticTagExt.exportEntriesFn (← getEnv) (tacticTagExt.getState (← getEnv))).exported)
   let mut mapping : NameMap NameSet := {}
   for arr in all do
     for (tac, tag) in arr do
@@ -160,7 +160,7 @@ def allTacticDocs (includeUnnamed : Bool := true) : MetaM (Array TacticDoc) := d
   let env ← getEnv
   let allTags :=
     tacticTagExt.toEnvExtension.getState env |>.importedEntries
-      |>.push (tacticTagExt.exportEntriesFn env (tacticTagExt.getState env) .exported)
+      |>.push ((tacticTagExt.exportEntriesFn env (tacticTagExt.getState env)).exported)
   let mut tacTags : NameMap NameSet := {}
   for arr in allTags do
     for (tac, tag) in arr do

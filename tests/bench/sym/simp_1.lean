@@ -9,13 +9,13 @@ namespace SimpBench
 
 def getProofSize (r : Sym.Simp.Result) : MetaM Nat :=
   match r with
-  | .rfl _ => return 0
-  | .step _ p _ => p.numObjs
+  | .rfl _ _ => return 0
+  | .step _ p _ _ => p.numObjs
 
 def checkWithKernel (r : Sym.Simp.Result) : MetaM Float := do
   match r with
-  | .rfl _ => return 0.0
-  | .step _ p _ =>
+  | .rfl _ _ => return 0.0
+  | .step _ p _ _ =>
     let p := ShareCommon.shareCommon' p
     let startTime ← IO.monoNanosNow
     Meta.checkWithKernel p
@@ -36,8 +36,8 @@ def simp (e : Expr) : MetaM (Sym.Simp.Result × Float) := Sym.SymM.run do
   let endTime ← IO.monoNanosNow
   -- logInfo e
   -- match r with
-  -- | .rfl => logInfo "rfl"
-  -- | .step e' h => logInfo e'; logInfo h; check h
+  -- | .rfl _ _ => logInfo "rfl"
+  -- | .step e' h _ _ => logInfo e'; logInfo h; check h
   let timeMs := (endTime - startTime).toFloat / 1000000.0
   return (r, timeMs)
 
@@ -57,8 +57,8 @@ def ppExample (e : Expr) (info := false) : MetaM Unit := do
   IO.println (← ppExpr e)
   IO.println "====>"
   match (← simp e).1 with
-  | .rfl _ => IO.println "<no change>"
-  | .step e' h _ =>
+  | .rfl _ _ => IO.println "<no change>"
+  | .step e' h _ _ =>
     IO.println (← ppExpr e')
     IO.println "Proof:"
     if info then

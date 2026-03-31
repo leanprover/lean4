@@ -268,7 +268,7 @@ theorem drop_eq_extract {l : List α} {k : Nat} :
     | 0 => simp
     | _ + 1 =>
       simp only [List.drop_succ_cons, List.length_cons, ih]
-      simp only [List.extract_eq_drop_take, List.drop_succ_cons, Nat.succ_sub_succ]
+      simp only [List.extract_eq_take_drop, List.drop_succ_cons, Nat.succ_sub_succ]
 
 /-! ### takeWhile and dropWhile -/
 
@@ -296,6 +296,14 @@ theorem dropWhile_cons :
 @[simp] theorem dropWhile_cons_of_neg {a : α} {l : List α} (h : ¬ p a) :
     (a :: l).dropWhile p = a :: l := by
   simp [dropWhile_cons, h]
+
+theorem dropWhile_beq_eq_self_of_head?_ne [BEq α] [LawfulBEq α] {a : α} {l : List α}
+    (h : l.head? ≠ some a) : l.dropWhile (· == a) = l := by
+  cases l with
+  | nil => simp
+  | cons hd tl =>
+    rw [List.dropWhile_cons_of_neg]
+    simpa [beq_iff_eq] using h
 
 theorem head?_takeWhile {p : α → Bool} {l : List α} : (l.takeWhile p).head? = l.head?.filter p := by
   cases l with

@@ -653,7 +653,7 @@ partial def omegaImpl (m : MetaProblem) : OmegaM Expr := do
   trace[omega] "Extracted linear arithmetic problem:\nAtoms: {← atomsList}\n{p}"
   let p' ← if p.possible then p.elimination else pure p
   trace[omega] "After elimination:\nAtoms: {← atomsList}\n{p'}"
-  match p'.possible, p'.proveFalse?, p'.proveFalse?_spec with
+  match h₁ : p'.possible, h₂ : p'.proveFalse?, p'.proveFalse?_spec with
   | true, _, _ =>
     splitDisjunction m
   | false, .some prf, _ =>
@@ -661,6 +661,7 @@ partial def omegaImpl (m : MetaProblem) : OmegaM Expr := do
     let prf ← instantiateMVars (← prf)
     trace[omega] "omega found a contradiction, proving {← inferType prf}"
     return prf
+  | false, none, h₃ => by simp [h₁, h₂] at h₃
 
 end
 

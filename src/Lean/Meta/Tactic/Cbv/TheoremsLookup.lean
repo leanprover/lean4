@@ -12,6 +12,14 @@ import Lean.Meta.Match.MatchEqsExt
 import Lean.Meta.Eqns
 
 
+/-!
+# Cached Theorem Lookup
+
+Per-function cache of `Sym.Simp.Theorem` objects for equation theorems, unfold
+equations, and match equations. Avoids repeated `mkTheoremFromDecl` calls (which
+involve pattern extraction and discrimination tree insertion).
+-/
+
 namespace Lean.Meta.Sym.Simp
 
 def Theorems.insertMany (thms : Theorems) (toInsert : Array Theorem) : Theorems :=

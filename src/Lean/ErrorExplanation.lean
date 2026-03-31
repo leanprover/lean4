@@ -10,6 +10,7 @@ prelude
 public import Lean.Message
 public import Lean.EnvExtension
 public import Lean.DocString.Links
+meta import Lean.Message
 
 public section
 

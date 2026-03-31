@@ -1,0 +1,2 @@
+grind_pattern_cnstr.lean:4:8-4:16: warning: declaration uses `sorry`
+grind_pattern_cnstr.lean:7:8-7:15: warning: declaration uses `sorry`

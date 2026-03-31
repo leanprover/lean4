@@ -29,7 +29,7 @@ theorem IterM.step_uLift [Iterator α m β] [Monad n] {it : IterM (α := α) m �
       | .done h => return .deflate (.done ⟨_, h, rfl⟩)) := by
   simp only [IterM.step, Iterator.step, IterM.uLift]
   apply bind_congr; intro step
-  split <;> simp [Types.ULiftIterator.Monadic.modifyStep, *]
+  split <;> simp [Types.ULiftIterator.Monadic.modifyStep, *] <;> rfl
 
 @[simp]
 theorem IterM.toList_uLift [Iterator α m β] [Monad m] [Monad n] {it : IterM (α := α) m β}

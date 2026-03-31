@@ -1,0 +1,100 @@
+let x : Nat := 3 -- My comment 1
+  x + 2 /- another comment here -/
+
+
+Lean.SourceInfo : Type
+{ raw := Lean.Syntax.node
+           (Lean.SourceInfo.none)
+           `Lean.Parser.Term.let
+           #[Lean.Syntax.atom
+               (Lean.SourceInfo.original "".toRawSubstring { byteIdx := 446 } " ".toRawSubstring { byteIdx := 449 })
+               "let",
+             Lean.Syntax.node
+               (Lean.SourceInfo.none)
+               `Lean.Parser.Term.letConfig
+               #[Lean.Syntax.node (Lean.SourceInfo.none) `null #[]],
+             Lean.Syntax.node
+               (Lean.SourceInfo.none)
+               `Lean.Parser.Term.letDecl
+               #[Lean.Syntax.node
+                   (Lean.SourceInfo.none)
+                   `Lean.Parser.Term.letIdDecl
+                   #[Lean.Syntax.node
+                       (Lean.SourceInfo.none)
+                       `Lean.Parser.Term.letId
+                       #[Lean.Syntax.ident
+                           (Lean.SourceInfo.original
+                             "".toRawSubstring
+                             { byteIdx := 450 }
+                             " ".toRawSubstring
+                             { byteIdx := 451 })
+                           "x".toRawSubstring
+                           `x
+                           []],
+                     Lean.Syntax.node (Lean.SourceInfo.none) `null #[],
+                     Lean.Syntax.node
+                       (Lean.SourceInfo.none)
+                       `null
+                       #[Lean.Syntax.node
+                           (Lean.SourceInfo.none)
+                           `Lean.Parser.Term.typeSpec
+                           #[Lean.Syntax.atom
+                               (Lean.SourceInfo.original
+                                 "".toRawSubstring
+                                 { byteIdx := 452 }
+                                 " ".toRawSubstring
+                                 { byteIdx := 453 })
+                               ":",
+                             Lean.Syntax.ident
+                               (Lean.SourceInfo.original
+                                 "".toRawSubstring
+                                 { byteIdx := 454 }
+                                 " ".toRawSubstring
+                                 { byteIdx := 457 })
+                               "Nat".toRawSubstring
+                               `Nat
+                               []]],
+                     Lean.Syntax.atom
+                       (Lean.SourceInfo.original
+                         "".toRawSubstring
+                         { byteIdx := 458 }
+                         " ".toRawSubstring
+                         { byteIdx := 460 })
+                       ":=",
+                     Lean.Syntax.node
+                       (Lean.SourceInfo.none)
+                       `num
+                       #[Lean.Syntax.atom
+                           (Lean.SourceInfo.original
+                             "".toRawSubstring
+                             { byteIdx := 461 }
+                             " -- My comment 1\n  ".toRawSubstring
+                             { byteIdx := 462 })
+                           "3"]]],
+             Lean.Syntax.node (Lean.SourceInfo.none) `null #[],
+             Lean.Syntax.node
+               (Lean.SourceInfo.none)
+               `«term_+_»
+               #[Lean.Syntax.ident
+                   (Lean.SourceInfo.original "".toRawSubstring { byteIdx := 481 } " ".toRawSubstring { byteIdx := 482 })
+                   "x".toRawSubstring
+                   `x
+                   [],
+                 Lean.Syntax.atom
+                   (Lean.SourceInfo.original "".toRawSubstring { byteIdx := 483 } " ".toRawSubstring { byteIdx := 484 })
+                   "+",
+                 Lean.Syntax.node
+                   (Lean.SourceInfo.none)
+                   `num
+                   #[Lean.Syntax.atom
+                       (Lean.SourceInfo.original
+                         "".toRawSubstring
+                         { byteIdx := 485 }
+                         " /- another comment here -/\n\n/-\n(2) I am comfortable with the usual token level parsers but could not understand the code for `commentBody` and such parsers. How does one parse at character level?\n\n-/\n\n".toRawSubstring
+                         { byteIdx := 486 })
+                       "2"]]] }
+str := "My command comment hello world "
+Lean.Elab.runFrontend (input : String) (opts : Lean.Options) (fileName : String) (mainModuleName : Lean.Name)
+  (trustLevel : UInt32 := 0) (oleanFileName? ileanFileName? : Option System.FilePath := none)
+  (jsonOutput : Bool := false) (errorOnKinds : Array Lean.Name := #[]) (plugins : Array System.FilePath := #[])
+  (printStats : Bool := false) (setup? : Option Lean.ModuleSetup := none) : IO (Option Lean.Environment)

@@ -253,4 +253,16 @@ theorem ext_div_mod {n a b : Nat} (h0 : a / n = b / n) (h1 : a % n = b % n) : a 
 theorem ext_div_mod_iff (n a b : Nat) : a = b ↔ a / n = b / n ∧ a % n = b % n :=
   ⟨fun h => ⟨h ▸ rfl, h ▸ rfl⟩, fun ⟨h0, h1⟩ => ext_div_mod h0 h1⟩
 
+/-- An induction principle mirroring the base-`b` representation of the number. -/
+theorem base_induction {P : Nat → Prop} {n : Nat} (b : Nat) (hb : 1 < b) (single : ∀ m, m < b → P m)
+    (digit : ∀ m k, k < b → 0 < m → P m → P (b * m + k)) : P n := by
+  induction n using Nat.strongRecOn with | ind n ih
+  rcases Nat.lt_or_ge n b with hn | hn
+  · exact single _ hn
+  · have := div_add_mod n b
+    rw [← this]
+    apply digit _ _ (mod_lt _ (by omega)) _ (ih _ _)
+    · exact Nat.div_pos_iff.mpr ⟨by omega, hn⟩
+    · exact div_lt_self (by omega) (by omega)
+
 end Nat

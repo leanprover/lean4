@@ -9,7 +9,9 @@ prelude
 public import Init.Data.String.Defs
 public import Init.Grind.ToInt
 public import Init.Data.Order.Classes
+import Init.Data.Order.PackageFactories
 import Init.Omega
+public import Init.Data.Order.PackageFactories
 
 public section
 
@@ -46,14 +48,14 @@ instance : Lean.Grind.ToInt.LE String.Pos.Raw (.ci 0) where
 instance : Lean.Grind.ToInt.LT String.Pos.Raw (.ci 0) where
   lt_iff := by simp [Pos.Raw.lt_iff]
 
-instance : Std.LawfulOrderLT String.Pos.Raw where
-  lt_iff := by order
+instance : Std.Total (α := String.Pos.Raw) (· ≤ ·) := ⟨fun _ _ => by order⟩
+instance : Trans (α := String.Pos.Raw) (· ≤ ·) (· ≤ ·) (· ≤ ·) := ⟨fun _ _ => by order⟩
+instance : Std.Antisymm (α := String.Pos.Raw) (· ≤ ·) := ⟨fun _ _ => by order⟩
 
-instance : Std.IsLinearOrder String.Pos.Raw where
-  le_refl := by order
-  le_trans := by order
-  le_antisymm := by order
-  le_total := by order
+instance : Std.LawfulOrderBEq String.Pos.Raw := ⟨fun _ _ => by order⟩
+instance : Std.LawfulOrderLT String.Pos.Raw := ⟨fun _ _ => by order⟩
+
+instance : Std.LinearOrderPackage String.Pos.Raw := .ofLE _
 
 end Pos.Raw
 
@@ -73,14 +75,14 @@ instance {s : String} : Lean.Grind.ToInt.LE s.Pos (.co 0 (s.utf8ByteSize + 1)) w
 instance {s : String} : Lean.Grind.ToInt.LT s.Pos (.co 0 (s.utf8ByteSize + 1)) where
   lt_iff := by simp [Pos.lt_iff, Pos.Raw.lt_iff]
 
-instance {s : String} : Std.LawfulOrderLT s.Pos where
-  lt_iff := by order
+instance {s : String} : Std.Total (α := s.Pos) (· ≤ ·) := ⟨fun _ _ => by order⟩
+instance {s : String} : Trans (α := s.Pos) (· ≤ ·) (· ≤ ·) (· ≤ ·) := ⟨fun _ _ => by order⟩
+instance {s : String} : Std.Antisymm (α := s.Pos) (· ≤ ·) := ⟨fun _ _ => by order⟩
 
-instance {s : String} : Std.IsLinearOrder s.Pos where
-  le_refl := by order
-  le_trans := by order
-  le_antisymm := by order
-  le_total := by order
+instance {s : String} : Std.LawfulOrderBEq s.Pos := ⟨fun _ _ => by order⟩
+instance {s : String} : Std.LawfulOrderLT s.Pos := ⟨fun _ _ => by order⟩
+
+instance {s : String} : Std.LinearOrderPackage s.Pos := .ofLE _
 
 end Pos
 
@@ -100,14 +102,14 @@ instance {s : Slice} : Lean.Grind.ToInt.LE s.Pos (.co 0 (s.utf8ByteSize + 1)) wh
 instance {s : Slice} : Lean.Grind.ToInt.LT s.Pos (.co 0 (s.utf8ByteSize + 1)) where
   lt_iff := by simp [Pos.lt_iff, Pos.Raw.lt_iff]
 
-instance {s : Slice} : Std.LawfulOrderLT s.Pos where
-  lt_iff := by order
+instance {s : Slice} : Std.Total (α := s.Pos) (· ≤ ·) := ⟨fun _ _ => by order⟩
+instance {s : Slice} : Trans (α := s.Pos) (· ≤ ·) (· ≤ ·) (· ≤ ·) := ⟨fun _ _ => by order⟩
+instance {s : Slice} : Std.Antisymm (α := s.Pos) (· ≤ ·) := ⟨fun _ _ => by order⟩
 
-instance {s : Slice} : Std.IsLinearOrder s.Pos where
-  le_refl := by order
-  le_trans := by order
-  le_antisymm := by order
-  le_total := by order
+instance {s : Slice} : Std.LawfulOrderBEq s.Pos := ⟨fun _ _ => by order⟩
+instance {s : Slice} : Std.LawfulOrderLT s.Pos := ⟨fun _ _ => by order⟩
+
+instance {s : Slice} : Std.LinearOrderPackage s.Pos := .ofLE _
 
 end Slice.Pos
 

@@ -16,7 +16,7 @@ set_option autoImplicit false
 /-!
 # Hash maps with unbundled well-formedness invariant
 
-This module develops the type `Std.HashMap.Raw` of dependent hash maps with unbundled
+This module develops the type `Std.HashMap.Raw` of hash maps with unbundled
 well-formedness invariant.
 
 This version is safe to use in nested inductive types. The well-formedness predicate is

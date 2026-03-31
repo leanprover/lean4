@@ -135,7 +135,7 @@ private theorem List.getElem?_takeWhile {l : List α} {P : α → Bool} {k} :
       specialize h 0
       simp_all
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toList_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     [Finite α Id]
     {it : Iter (α := α) β} :
@@ -150,7 +150,7 @@ theorem Iter.toListRev_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     (it.takeWhile P).toListRev = (it.toList.takeWhile P).reverse := by
   rw [toListRev_eq, toList_takeWhile_of_finite]
 
-@[simp]
+@[cbv_eval, simp]
 theorem Iter.toArray_takeWhile_of_finite {α β} [Iterator α Id β] {P}
     [Finite α Id]
     {it : Iter (α := α) β} :

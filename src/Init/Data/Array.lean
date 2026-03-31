@@ -34,3 +34,4 @@ public import Init.Data.Array.MinMax
 public import Init.Data.Array.Nat
 public import Init.Data.Array.Int
 public import Init.Data.Array.Count
+public import Init.Data.Array.Sort

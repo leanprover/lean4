@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Compiler.LCNF
+import Lean.Compiler.Options
 
 public section
 
@@ -16,8 +17,9 @@ Run the code generation pipeline for all declarations in `declNames`
 that fulfill the requirements of `shouldGenerateCode`.
 -/
 def compile (declNames : Array Name) : CoreM Unit := do profileitM Exception "compiler new" (← getOptions) do
+  withOptions (compiler.postponeCompile.set · false) do
   withTraceNode `Compiler (fun _ => return m!"compiling: {declNames}") do
-    discard <| LCNF.compile declNames
+    LCNF.main declNames
 
 builtin_initialize
   registerTraceClass `Compiler

@@ -566,7 +566,7 @@ instance : HAdd PlainDateTime Millisecond.Offset PlainDateTime where
   hAdd := addMilliseconds
 
 instance : HSub PlainDateTime Millisecond.Offset PlainDateTime where
-  hSub := addMilliseconds
+  hSub := subMilliseconds
 
 instance : HAdd PlainDateTime Second.Offset PlainDateTime where
   hAdd := addSeconds

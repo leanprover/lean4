@@ -1,0 +1,20 @@
+doIssue.lean:3:2-3:3: error: Type mismatch
+  x
+has type
+  Nat
+but is expected to have type
+  IO Unit
+doIssue.lean:11:2-11:13: error: Type mismatch
+  xs.set! 0 1
+has type
+  Array Nat
+but is expected to have type
+  IO Unit
+doIssue.lean:19:7-19:20: error: Application type mismatch: The argument
+  xs.set! 0 1
+has type
+  Array Nat
+but is expected to have type
+  Unit
+in the application
+  pure (xs.set! 0 1)

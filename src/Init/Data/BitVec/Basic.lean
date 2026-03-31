@@ -210,7 +210,7 @@ protected def toHex {n : Nat} (x : BitVec n) : String :=
   String.Internal.append t s
 
 /-- `BitVec` representation. -/
-protected def BitVec.repr (a : BitVec n) : Std.Format :=
+protected def repr (a : BitVec n) : Std.Format :=
   "0x" ++ (a.toHex : Std.Format) ++ "#" ++ repr n
 
 instance : Repr (BitVec n) where

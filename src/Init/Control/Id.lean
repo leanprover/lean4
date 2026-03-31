@@ -49,6 +49,7 @@ instance : Monad Id where
 /--
 The identity monad has a `bind` operator.
 -/
+@[implicit_reducible]
 def hasBind : Bind Id :=
   inferInstance
 
@@ -58,7 +59,7 @@ Runs a computation in the identity monad.
 This function is the identity function. Because its parameter has type `Id α`, it causes
 `do`-notation in its arguments to use the `Monad Id` instance.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline, expose, implicit_reducible]
 protected def run (x : Id α) : α := x
 
 instance [OfNat α n] : OfNat (Id α) n :=
@@ -79,3 +80,11 @@ instance : LawfulMonadAttach Id where
     exact x.run.2
 
 end Id
+
+/-- Turn a collection with a pure `ForIn` instance into an array. -/
+def ForIn.toArray {α : Type u} [inst : ForIn Id ρ α] (xs : ρ) : Array α :=
+  ForIn.forIn xs Array.empty (fun a acc => pure (.yield (acc.push a))) |> Id.run
+
+/-- Turn a collection with a pure `ForIn` instance into a list. -/
+def ForIn.toList {α : Type u} [ForIn Id ρ α] (xs : ρ) : List α :=
+  ForIn.toArray xs |>.toList

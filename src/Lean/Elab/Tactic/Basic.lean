@@ -63,7 +63,7 @@ See comment at `Monad TermElabM`
 -/
 @[always_inline]
 instance : Monad TacticM :=
-  let i := inferInstanceAs (Monad TacticM);
+  let i : Monad TacticM := inferInstance;
   { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (TacticM α) where

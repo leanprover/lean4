@@ -443,32 +443,24 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
         simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
           exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool]
         rcases hf with hf | hf
-        · apply Or.inl
-          simp only [Array.set!, Array.setIfInBounds]
-          split
-          · rcases List.getElem_of_mem hf with ⟨idx, hbound, hidx⟩
-            rw [List.mem_iff_get]
-            have idx_in_bounds : idx < List.length (List.set f.clauses.toList id none) := by
-              grind
-            apply Exists.intro ⟨idx, idx_in_bounds⟩
-            by_cases id = idx
-            · next id_eq_idx =>
-              exfalso
-              have idx_in_bounds2 : idx < f.clauses.size := by
-                conv => rhs; rw [List.size_toArray]
-                exact hbound
-              simp only [id_eq_idx, getElem!_def, idx_in_bounds2, Array.getElem?_eq_getElem, ←
-                Array.getElem_toList] at heq
-              rw [hidx] at heq
-              simp only [Option.some.injEq] at heq
+        · left
+          by_cases hid : id < f.clauses.size
+          · rw [Array.mem_toList_iff] at hf ⊢
+            rcases Array.getElem_of_mem hf with ⟨idx, hbound, hidx⟩
+            simp only [Array.set!_eq_setIfInBounds, Array.setIfInBounds_def, hid, ↓reduceDIte]
+            rw [Array.mem_iff_getElem]
+            exists idx, (by simp [hbound])
+            by_cases id_eq_idx : id = idx
+            · exfalso
+              subst id_eq_idx
+              simp only [hid, getElem!_pos, hidx, Option.some.injEq] at heq
               rw [← heq] at hl
               specialize hl i
-              simp only [unit, DefaultClause.mk.injEq, List.cons.injEq, Prod.mk.injEq, true_and, and_true,
-                Bool.not_eq_false, Bool.not_eq_true] at hl
-              by_cases b_val : b <;> simp [b_val] at hl
-            · next id_ne_idx =>
-              simp [id_ne_idx]; grind only [= Array.getElem_toList]
-          · exact hf
+              cases b <;> simp [unit] at hl
+            · rw [Array.getElem_set_ne hid hbound id_eq_idx]
+              exact hidx
+          · rw [Array.set!_eq_setIfInBounds, Array.setIfInBounds_eq_of_size_le (h := by omega)]
+            exact hf
         · exact Or.inr hf
 
 theorem readyForRupAdd_delete {n : Nat} (f : DefaultFormula n) (arr : Array Nat) :

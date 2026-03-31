@@ -469,5 +469,3 @@ def prevn : Iterator → Nat → Iterator
 
 end Iterator
 end ByteArray
-
-instance : ToString ByteArray := ⟨fun bs => bs.toList.toString⟩

@@ -1,0 +1,34 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build",
+			"type": "shell",
+			"command": "make -C build/release -j$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)",
+			"problemMatcher": [],
+			"group": {
+				"kind": "build",
+				"isDefault": true
+			}
+		},
+		{
+			"label": "build-old",
+			"type": "shell",
+			"command": "make -C build/release -j$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4) LAKE_EXTRA_ARGS=--old",
+			"problemMatcher": [],
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
+			"label": "test",
+			"type": "shell",
+			"command": "NPROC=$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4); CTEST_OUTPUT_ON_FAILURE=1 make -C build/release test -j$NPROC ARGS=\"-j$NPROC\"",
+			"problemMatcher": [],
+			"group": {
+				"kind": "test",
+				"isDefault": true
+			}
+		}
+	]
+}

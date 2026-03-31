@@ -864,7 +864,7 @@ theorem dropLast_concat_getLast : ∀ {l : List α} (h : l ≠ []), dropLast l +
   | [], h => absurd rfl h
   | [_], _ => rfl
   | _ :: b :: l, _ => by
-    rw [dropLast_cons₂, cons_append, getLast_cons (cons_ne_nil _ _)]
+    rw [dropLast_cons_cons, cons_append, getLast_cons (cons_ne_nil _ _)]
     congr
     exact dropLast_concat_getLast (cons_ne_nil b l)
 

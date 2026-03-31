@@ -24,28 +24,55 @@ first connect to the session using `$/lean/rpc/connect`. -/
 namespace Lean.Lsp
 
 /--
-An object which RPC clients can refer to without marshalling.
+The address of an object in an `RpcObjectStore` that clients can refer to.
+Its JSON encoding depends on the RPC wire format.
 
-The language server may serve the same `RpcRef` multiple times and maintains a reference count
-to track how many times it has served the reference.
+The language server may serve the same `RpcRef` multiple times.
+It maintains a reference count to track how many times it has served the reference.
 If clients want to release the object associated with an `RpcRef`,
 they must release the reference as many times as they have received it from the server.
 -/
 structure RpcRef where
-  /- NOTE(WN): It is important for this to be a single-field structure
-  in order to deserialize as an `Object` on the JS side. -/
   p : USize
-  deriving Inhabited, BEq, Hashable, FromJson, ToJson
+  deriving Inhabited, BEq, Hashable
 
 instance : ToString RpcRef where
   toString r := toString r.p
+
+/-- The *RPC wire format* specifies how user data is encoded in RPC requests. -/
+inductive RpcWireFormat where
+  /-- Version `0` uses JSON.
+  Serialized RPC data is stored directly in `RpcCallParams.params` and in `JsonRpc.Response.result`
+  (as opposed to being wrapped in additional metadata).
+  General types (except RPC references) are (de)serialized via `ToJson/FromJson`.
+  RPC references are serialized as `{"p": n}`. -/
+  | v0
+  /-- Version `1` is like `0`,
+  except that RPC references are serialized as `{"__rpcref": n}`. -/
+  | v1
+  deriving FromJson, ToJson
+
+@[inline]
+def RpcWireFormat.refFieldName : RpcWireFormat → String
+  | .v0 => "p"
+  | .v1 => "__rpcref"
 
 end Lean.Lsp
 
 namespace Lean.Server
 
 /--
-Marks values to be encoded as opaque references in RPC packets.
+`WithRpcRef α` marks values that RPC clients should see as opaque references.
+This includes heavy objects such as `Lean.Environment`s
+and non-serializable objects such as closures.
+
+In the Lean server, `WithRpcRef α` is a structure containing a value of type `α`
+and an associated `id`.
+In an RPC client (e.g. the infoview), it is an opaque reference.
+Thus, `WithRpcRef α` is cheap to transmit, but its data may only be accessed server-side.
+In practice, this is used by client code to pass data
+between various RPC methods provided by the server.
+
 Two `WithRpcRef`s with the same `id` will yield the same client-side reference.
 
 See also the docstring for `RpcEncodable`.
@@ -90,6 +117,8 @@ structure RpcObjectStore : Type where
   Value to use for the next fresh `RpcRef`, monotonically increasing.
   -/
   nextRef : USize := 0
+  /-- The RPC wire format to follow. -/
+  wireFormat : Lsp.RpcWireFormat := .v1
 
 def rpcStoreRef [TypeName α] (obj : WithRpcRef α) : StateM RpcObjectStore Lsp.RpcRef := do
   let st ← get
@@ -137,29 +166,27 @@ def rpcReleaseRef (r : Lsp.RpcRef) : StateM RpcObjectStore Bool := do
   return true
 
 /--
-`RpcEncodable α` means that `α` can be deserialized from and serialized into JSON
-for the purpose of receiving arguments to and sending return values from
-Remote Procedure Calls (RPCs).
+`RpcEncodable α` means `α` can be used as an argument or return value
+in Remote Procedure Call (RPC) methods.
 
-Any type with `FromJson` and `ToJson` instances is `RpcEncodable`.
+The following types are `RpcEncodable` by default:
+- Any type with both `FromJson` and `ToJson` instances.
+- Any type all of whose components
+  (meaning the fields of a `structure`, or the arguments to `inductive` constructors)
+  are `RpcEncodable`.
+  Use `deriving RpcEncodable` to construct an instance in this case.
+- Certain common containers, if containing `RpcEncodable` data (see instances below).
+- Any `WithRpcRef α` where `[TypeName α]`.
 
-Furthermore, types that do not have these instances may still be `RpcEncodable`.
-Use `deriving RpcEncodable` to automatically derive instances for such types.
+Some names are reserved for internal use and must not appear
+as the name of a field or constructor argument in any `RpcEncodable` type,
+or as an object key in any nested JSON.
+The following are currently reserved:
+- `__rpcref`
 
-This occurs when `α` contains data that should not or cannot be serialized:
-for instance, heavy objects such as `Lean.Environment`, or closures.
-For such data, we use the `WithRpcRef` marker.
-Note that for `WithRpcRef α` to be `RpcEncodable`,
-`α` must have a `TypeName` instance
-
-On the server side, `WithRpcRef α` is a structure containing a value of type `α` and an associated
-`id`.
-On the client side, it is an opaque reference of (structural) type `Lsp.RpcRef`.
-Thus, `WithRpcRef α` is cheap to transmit over the network
-but may only be accessed on the server side.
-In practice, it is used by the client to pass data
-between various RPC methods provided by the server.
-Two `WithRpcRef`s with the same `id` will yield the same client-side reference.
+It is also possible (but discouraged for non-experts)
+to implement custom `RpcEncodable` instances.
+These must respect the `RpcObjectStore.wireFormat`.
 -/
 -- TODO(WN): for Lean.js, compile `WithRpcRef` to "opaque reference" on the client
 class RpcEncodable (α : Type) where
@@ -200,7 +227,13 @@ instance [TypeName α] : RpcEncodable (WithRpcRef α) :=
   { rpcEncode, rpcDecode }
 where
   -- separate definitions to prevent inlining
-  rpcEncode r := toJson <$> rpcStoreRef r
-  rpcDecode j := do rpcGetRef α (← fromJson? j)
+  rpcEncode r := do
+    let ref ← rpcStoreRef r
+    let fieldName := (← get).wireFormat.refFieldName
+    return Json.mkObj [(fieldName, toJson ref.p)]
+  rpcDecode j := do
+    let fieldName := (← read).wireFormat.refFieldName
+    let p ← j.getObjValAs? USize fieldName
+    rpcGetRef α ⟨p⟩
 
 end Lean.Server

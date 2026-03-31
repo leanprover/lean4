@@ -13,6 +13,84 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Lean_Data_Lsp_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_CancelParams(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_Capabilities(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_Client(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_Communication(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_Diagnostics(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_Extra(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_InitShutdown(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_Internal(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_LanguageFeatures(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_TextSync(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_Utf16(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_Workspace(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_Ipc(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_CodeActions(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_Lsp_Window(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lean_Data_Lsp(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lean_Data_Lsp_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_CancelParams(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_Capabilities(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_Client(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_Communication(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_Diagnostics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_Extra(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_InitShutdown(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_Internal(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_LanguageFeatures(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_TextSync(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_Utf16(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_Workspace(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_Ipc(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_CodeActions(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_Lsp_Window(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lean_Data_Lsp(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Lean_Data_Lsp_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Data_Lsp_CancelParams(uint8_t builtin);
 lean_object* initialize_Lean_Data_Lsp_Capabilities(uint8_t builtin);
@@ -82,7 +160,13 @@ lean_dec_ref(res);
 res = initialize_Lean_Data_Lsp_Window(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Lean_Data_Lsp(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Lean_Data_Lsp(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lean_Data_Lsp(builtin);
 }
 #ifdef __cplusplus
 }

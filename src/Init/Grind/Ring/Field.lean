@@ -38,7 +38,7 @@ class Field (α : Type u) extends CommRing α, Inv α, Div α where
   /-- Raising to a negative power is the inverse of raising to the positive power. -/
   zpow_neg : ∀ (a : α) (n : Int), a ^ (-n) = (a ^ n)⁻¹
 
-attribute [instance_reducible] Field.zpow
+attribute [implicit_reducible] Field.zpow
 attribute [instance 100] Field.toInv Field.toDiv Field.zpow
 
 namespace Field
@@ -223,6 +223,7 @@ theorem natCast_div_of_dvd {x y : Nat} (h : y ∣ x) (w : (y : α) ≠ 0) :
       mul_inv_cancel w, Semiring.mul_one]
 
 -- This is expensive as an instance. Let's see what breaks without it.
+@[implicit_reducible]
 def noNatZeroDivisors.ofIsCharPZero [IsCharP α 0] : NoNatZeroDivisors α := NoNatZeroDivisors.mk' <| by
   intro a b h w
   have := IsCharP.natCast_eq_zero_iff (α := α) 0 a

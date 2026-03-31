@@ -13,8 +13,8 @@ namespace Lean.Meta.Grind.Arith.CommRing
 def checkMaxSteps : GoalM Bool := do
   return (← get').steps >= (← getConfig).ringSteps
 
-def incSteps : GoalM Unit := do
-  modify' fun s => { s with steps := s.steps + 1 }
+def incSteps (n : Nat := 1) : GoalM Unit := do
+  modify' fun s => { s with steps := s.steps + n }
 
 structure RingM.Context where
   ringId : Nat

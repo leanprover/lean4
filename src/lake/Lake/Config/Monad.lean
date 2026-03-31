@@ -166,24 +166,38 @@ public def getLeanArgs : m (Array String) :=
 @[inline] public def getLakeCache : m Cache :=
   (·.lakeCache) <$> getWorkspace
 
-@[inline, inherit_doc Cache.getArtifact?]
+set_option linter.deprecated false in
+@[inline, inherit_doc Cache.getArtifact?,
+deprecated "Deprecated without replacelement." (since := "2025-03-04")]
 public def getArtifact? [Bind m] [MonadLiftT BaseIO m] (descr : ArtifactDescr) : m (Option Artifact) :=
   getLakeCache >>= (·.getArtifact? descr)
+
+/--
+Returns whether the package should restore its artifacts from the Lake artifact cache.
+
+If the package has not configured this option itself through
+{lean}`Package.restoreAllArtifacts?`, this will default to the workspace configuration.
+If not configured at all, this defaults to {lean}`false`.
+-/
+@[inline] public def Package.restoreAllArtifacts [MonadWorkspace m] (self : Package) : m Bool :=
+  (self.restoreAllArtifacts? <|> ·.restoreAllArtifacts? |>.getD false) <$> getWorkspace
+
+/--
+Returns whether the package should retrieve its artifacts from the Lake artifact cache.
+
+If the package has not configured the artifact cache itself through
+{lean}`Package.enableArtifactCache?`, this will default to the workspace configuration.
+If not configured at all, this defaults to {lean}`true`.
+-/
+@[inline] public def Package.isArtifactCacheReadable [MonadWorkspace m] (self : Package) : m Bool :=
+  (self.enableArtifactCache? <|> ·.enableArtifactCache? |>.getD true) <$> getWorkspace
 
 /--
 Returns whether the package should store its artifacts in the Lake artifact cache.
 
 If the package has not configured the artifact cache itself through
 {lean}`Package.enableArtifactCache?`, this will default to the workspace configuration.
--/
-@[inline] public def Package.isArtifactCacheReadable [MonadWorkspace m] (self : Package) : m Bool :=
-  (self.enableArtifactCache? <|> ·.enableArtifactCache? |>.getD true) <$> getWorkspace
-
-/--
-Returns whether the package should restore its artifacts from the Lake artifact cache.
-
-If the package has not configured the artifact cache itself through
-{lean}`Package.enableArtifactCache?`, this will default to the workspace configuration.
+If not configured at all, this defaults to {lean}`false`.
 -/
 @[inline] public def Package.isArtifactCacheWritable [MonadWorkspace m] (self : Package) : m Bool :=
   (self.enableArtifactCache? <|> ·.enableArtifactCache? |>.getD false) <$> getWorkspace
@@ -282,9 +296,17 @@ variable [Functor m]
 @[inline] public def getLean : m FilePath :=
   (·.lean) <$> getLeanInstall
 
+/-- Get the path of the {lit}`leanir` binary in the detected Lean installation. -/
+@[inline] public def getLeanir : m FilePath :=
+  (·.leanir) <$> getLeanInstall
+
 /-- Returns the path of the {lit}`leanc` binary in the detected Lean installation. -/
 @[inline] public def getLeanc : m FilePath :=
   (·.leanc) <$> getLeanInstall
+
+/-- Returns the path of the {lit}`leantar` binary in the detected Lean installation. -/
+@[inline] public def getLeantar : m FilePath :=
+  (·.leantar) <$> getLeanInstall
 
 /-- Returns the path of the {lit}`libleanshared` library in the detected Lean installation. -/
 @[inline] public def getLeanSharedLib : m FilePath :=

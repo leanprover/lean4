@@ -1,0 +1,10 @@
+f1.eq_1 (a b : Nat) : f1 (-1) a b = b
+f1.eq_2 (i : Int) (b : Nat) (x_1 : i = -1 → False) : f1 i 0 b = b + 1
+f3.eq_1 (a b : Nat) : f3 2 a b = b
+f3.eq_2 (i : Fin 5) (b : Nat) (x_1 : i = 2 → False) : f3 i 0 b = b + 1
+f4.eq_1 (a b : Nat) : f4 2 a b = b
+f4.eq_2 (i : UInt16) (b : Nat) (x_1 : i = 2 → False) : f4 i 0 b = b + 1
+f5.eq_1 (a b : Nat) : f5 (2#8) a b = b
+f5.eq_2 (i : BitVec 8) (b : Nat) (x_1 : i = 2#8 → False) : f5 i 0 b = b + 1
+f6.eq_1 (a b : Nat) : f6 (2#8) a b = b
+f6.eq_2 (i : BitVec 8) (b : Nat) (x_1 : i = 2#8 → False) : f6 i 0 b = b + 1

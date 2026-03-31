@@ -375,8 +375,7 @@ struct native_symbol_cache_entry {
 // Caches native symbol lookup successes _and_ failures; we assume no native code is loaded or
 // unloaded after the interpreter is first invoked, so this can be a global cache.
 name_hash_map<native_symbol_cache_entry> * g_native_symbol_cache;
-// could be `shared_mutex` with C++17
-std::shared_timed_mutex * g_native_symbol_cache_mutex;
+std::shared_mutex * g_native_symbol_cache_mutex;
 
 class interpreter {
     // stack of IR variable slots
@@ -752,7 +751,7 @@ private:
                     break;
                 }
                 case fn_body_kind::Del: // delete object of unique reference
-                    lean_free_object(var(fn_body_del_var(b)).m_obj);
+                    lean_del_object(var(fn_body_del_var(b)).m_obj);
                     b = fn_body_del_cont(b);
                     break;
                 case fn_body_kind::Case: { // branch according to constructor tag
@@ -830,7 +829,7 @@ private:
         if (e != m_symbol_cache.end()) {
             return e->second;
         }
-        std::shared_lock<std::shared_timed_mutex> lock(*g_native_symbol_cache_mutex);
+        std::shared_lock<std::shared_mutex> lock(*g_native_symbol_cache_mutex);
         auto ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second };
@@ -838,7 +837,7 @@ private:
             return e_new;
         }
         lock.unlock();
-        std::unique_lock<std::shared_timed_mutex> unique_lock(*g_native_symbol_cache_mutex);
+        std::unique_lock<std::shared_mutex> unique_lock(*g_native_symbol_cache_mutex);
         ne = g_native_symbol_cache->find(fn);
         if (ne != g_native_symbol_cache->end()) {
             symbol_cache_entry e_new { get_decl(fn), ne->second };
@@ -883,9 +882,6 @@ private:
         auto cached_entry = m_constant_cache.find(fn);
         if (cached_entry != m_constant_cache.end()) {
             auto cached = cached_entry->second;
-            if (!cached.m_is_scalar) {
-                inc(cached.m_val.m_obj);
-            }
             return cached.m_val;
         }
         auto o_entry = g_init_globals->find(fn);
@@ -932,9 +928,6 @@ private:
         lean_always_assert(fn_body_tag(decl_fun_body(e.m_decl)) != fn_body_kind::Unreachable);
         value r = eval_body(decl_fun_body(e.m_decl));
         pop_frame(r, decl_type(e.m_decl));
-        if (!type_is_scalar(t)) {
-            inc(r.m_obj);
-        }
         m_constant_cache.insert({ fn, constant_cache_entry { type_is_scalar(t), r } });
         return r;
     }
@@ -1074,7 +1067,11 @@ public:
         unsigned arity = decl_params(e.m_decl).size();
         object * r;
         if (arity == 0) {
-            r = box_t(load(fn, decl_type(e.m_decl)), decl_type(e.m_decl));
+            type t = decl_type(e.m_decl);
+            r = box_t(load(fn, t), t);
+            if (!type_is_scalar(t)) {
+                inc(r);
+            }
         } else {
             // First allocate a closure with zero fixed parameters. This is slightly wasteful in the under-application
             // case, but simpler to handle.
@@ -1178,8 +1175,8 @@ uint32 run_main(elab_environment const & env, options const & opts, list_ref<str
     return interpreter::with_interpreter<uint32>(env, opts, "main", [&](interpreter & interp) { return interp.run_main(args); });
 }
 
-/* runMain (env : Environment) (opts : Iptions) (args : List String) : BaseIO UInt32 */
-extern "C" LEAN_EXPORT uint32_t lean_run_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args) {
+/* runMain (env : Environment) (opts : Options) (args : List String) : BaseIO UInt32 */
+extern "C" LEAN_EXPORT uint32_t lean_eval_main(b_obj_arg env, b_obj_arg opts, b_obj_arg args) {
     uint32 ret = run_main(TO_REF(elab_environment, env), TO_REF(options, opts), TO_REF(list_ref<string_ref>, args));
     return ret;
 }
@@ -1227,7 +1224,7 @@ void initialize_ir_interpreter() {
         register_trace_class(*ir::g_interpreter_step);
     });
     ir::g_native_symbol_cache = new name_hash_map<ir::native_symbol_cache_entry>();
-    ir::g_native_symbol_cache_mutex = new std::shared_timed_mutex();
+    ir::g_native_symbol_cache_mutex = new std::shared_mutex();
 }
 
 void finalize_ir_interpreter() {

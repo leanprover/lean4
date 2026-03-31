@@ -16,6 +16,7 @@ public import Lake.Util.OrdHashSet
 public import Lake.Util.Name
 meta import all Lake.Util.OpaqueType
 import Lake.Util.OpaqueType
+import Lake.Util.IO
 
 open System Lean
 
@@ -44,7 +45,7 @@ public structure Package where
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
-  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile |>.normalize
+  relManifestFile : FilePath := defaultManifestFile
   /-- The package's scope (e.g., in Reservoir). -/
   scope : String
   /-- The URL to this package's Git remote. -/
@@ -77,16 +78,6 @@ public structure Package where
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
-  /--
-  Input-to-output(s) map for hashes of package artifacts.
-  If `none`, the artifact cache is disabled for the package.
-  -/
-  inputsRef? : Option CacheRef := none
-  /--
-  Input-to-output(s) map for hashes of package artifacts.
-  If `none`, the artifact cache is disabled for the package.
-  -/
-  outputsRef? : Option CacheRef := none
 
 deriving Inhabited
 
@@ -253,6 +244,10 @@ public def id? (self : Package) : Option PkgId :=
 @[inline] public def isPlatformIndependent (self : Package) : Bool :=
   self.config.platformIndependent == some true
 
+/-- The package's `fixedToolchain` configuration. -/
+@[inline] public def fixedToolchain (self : Package) : Bool :=
+  self.config.fixedToolchain
+
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] public def releaseRepo? (self : Package) : Option String :=
   self.config.releaseRepo
@@ -383,13 +378,21 @@ The package's `buildDir` joined with its `nativeLibDir` configuration.
 @[inline] public def enableArtifactCache? (self : Package) : Option Bool :=
   self.config.enableArtifactCache?
 
-/-- The package's `restoreAllArtifacts` configuration. -/
-@[inline] public def restoreAllArtifacts (self : Package) : Bool :=
-  self.config.restoreAllArtifacts
+/-- The package's `restoreAllArtifacts?` configuration. -/
+@[inline] public def restoreAllArtifacts? (self : Package) : Option Bool :=
+  self.config.restoreAllArtifacts?
 
 /-- The directory within the Lake cache were package-scoped files are stored. -/
-public def cacheScope (self : Package) :=
+public def cacheScope (self : Package) : String :=
   self.baseName.toString (escape := false)
+
+/-- The cache scope used to identify the package on Reservoir. -/
+def reservoirScope (self : Package) : CacheServiceScope :=
+  .ofString s!"{self.scope}/{self.origName.toString (escape := false)}"
+
+/-- The cache scope used to identify the package on Reservoir (if the package is availa ble there). -/
+@[inline] public def reservoirScope? (self : Package) : Option CacheServiceScope :=
+  if self.scope.isEmpty then none else some self.reservoirScope
 
 /-- Try to find a target configuration in the package with the given name. -/
 public def findTargetDecl? (name : Name) (self : Package) : Option (NConfigDecl self.keyName name) :=
@@ -407,5 +410,4 @@ public def isBuildableModule (mod : Name) (self : Package) : Bool :=
 
 /-- Remove the package's build outputs (i.e., delete its build directory). -/
 public def clean (self : Package) : IO PUnit := do
-  if (← self.buildDir.pathExists) then
-    IO.FS.removeDirAll self.buildDir
+  removeDirAllIfExists self.buildDir

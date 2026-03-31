@@ -7,7 +7,7 @@ Helpful links
 -------
 
 * [Development Setup](./doc/dev/index.md)
-* [Testing](./doc/dev/testing.md)
+* [Testing](./tests/README.md)
 * [Commit convention](./doc/dev/commit_convention.md)
 
 Before You Submit a Pull Request (PR):

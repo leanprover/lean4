@@ -11,6 +11,7 @@ public import Lean.Elab.Binders
 public import Lean.Elab.RecAppSyntax
 public import Lean.IdentifierSuggestion
 import all Lean.Elab.ErrorUtils
+import Lean.Elab.DeprecatedArg
 import Init.Omega
 
 public section
@@ -87,6 +88,38 @@ def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM U
 /-- Return `some namedArg` if `namedArgs` contains an entry for `binderName`. -/
 private def findBinderName? (namedArgs : List NamedArg) (binderName : Name) : Option NamedArg :=
   namedArgs.find? fun namedArg => namedArg.name == binderName
+
+/--
+If the function being applied is a constant, search `namedArgs` for an argument whose name is
+a deprecated alias of `binderName`. When `linter.deprecated.arg` is enabled (the default),
+returns `some namedArg` after emitting a deprecation warning with a code action hint. When the
+option is disabled, returns `none` (the old name falls through to the normal "invalid argument"
+error). The returned `namedArg` retains its original (old) name.
+-/
+private def findDeprecatedBinderName? (namedArgs : List NamedArg) (f : Expr) (binderName : Name) :
+    TermElabM (Option NamedArg) := do
+  unless linter.deprecated.arg.get <| ← getOptions do return .none
+  unless f.getAppFn.isConst do return none
+  let declName := f.getAppFn.constName!
+  let env ← getEnv
+  for namedArg in namedArgs do
+    if let some entry := findDeprecatedArg? env declName namedArg.name then
+      if entry.newArg? == some binderName then
+        let msg := formatDeprecatedArgMsg entry
+        let span? := namedArg.ref[1]
+        let hint ←
+          if span?.getHeadInfo matches .original .. then
+            MessageData.hint "Rename this argument:" #[{
+              suggestion := .string entry.newArg?.get!.toString
+              span?
+              toCodeActionTitle? := some fun s =>
+                s!"Rename argument `{entry.oldArg}` to `{s}`"
+            }]
+          else
+            pure .nil
+        logWarningAt namedArg.ref <| .tagged ``deprecatedArgExt msg ++ hint
+        return some namedArg
+  return none
 
 /-- Erase entry for `binderName` from `namedArgs`. -/
 def eraseNamedArg (namedArgs : List NamedArg) (binderName : Name) : List NamedArg :=
@@ -238,6 +271,23 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
     else
       for namedArg in s.namedArgs do
         let f := s.f.getAppFn
+        if f.isConst then
+          let env ← getEnv
+          if linter.deprecated.arg.get (← getOptions) then
+            if let some entry := findDeprecatedArg? env f.constName! namedArg.name then
+              if entry.newArg?.isNone then
+                let msg := formatDeprecatedArgMsg entry
+                let hint ←
+                  if namedArg.ref.getHeadInfo matches .original .. then
+                    MessageData.hint "Delete this argument:" #[{
+                      suggestion := .string ""
+                      span? := namedArg.ref
+                      toCodeActionTitle? := some fun _ =>
+                        s!"Delete deprecated argument `{entry.oldArg}`"
+                    }]
+                  else
+                    pure .nil
+                throwErrorAt namedArg.ref (msg ++ hint)
         let validNames ← getFoundNamedArgs
         let fnName? := if f.isConst then some f.constName! else none
         throwInvalidNamedArg namedArg fnName? validNames
@@ -756,13 +806,16 @@ mutual
       let binderName := fType.bindingName!
       let binfo := fType.bindingInfo!
       let s ← get
-      match findBinderName? s.namedArgs binderName with
+      let namedArg? ← match findBinderName? s.namedArgs binderName with
+        | some namedArg => pure (some namedArg)
+        | none => findDeprecatedBinderName? s.namedArgs s.f binderName
+      match namedArg? with
       | some namedArg =>
         propagateExpectedType namedArg.val
-        eraseNamedArg binderName
+        eraseNamedArg namedArg.name
         elabAndAddNewArg binderName namedArg.val
         main
-      | none          =>
+      | none =>
         unless binderName.hasMacroScopes do
           pushFoundNamedArg binderName
         match binfo with
@@ -1247,7 +1300,7 @@ inductive LValResolution where
   /-- When applied to `f`, effectively expands to `BaseStruct.fieldName (self := Struct.toBase f)`.
   This is a special named argument where it suppresses any explicit arguments depending on it so that type parameters don't need to be supplied. -/
   | projFn   (baseStructName : Name) (structName : Name) (fieldName : Name)
-  /-- Similar to `projFn`, but for extracting field indexed by `idx`. Works for structure-like inductive types in general. -/
+  /-- Similar to `projFn`, but for extracting field indexed by `idx`. Works for one-constructor inductive types in general. -/
   | projIdx  (structName : Name) (idx : Nat)
   /-- When applied to `f`, effectively expands to `constName ... (Struct.toBase f)`, with the argument placed in the correct
   positional argument if possible, or otherwise as a named argument. The `Struct.toBase` is not present if `baseStructName == structName`,
@@ -1331,9 +1384,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     if idx == 0 then
       throwError "Invalid projection: Index must be greater than 0"
     let env ← getEnv
-    let failK _ := throwError  "Invalid projection: Projection operates on structure-like types \
-      with fields. The expression{indentExpr e}\nhas type{inlineExpr eType}which does not \
-      have fields."
+    let failK _ := throwError  "Invalid projection: Projections extract constructor fields for \
+      one-constructor inductive types. \
+      The expression{indentExpr e}\nhas type{inlineExpr eType}which is not a one-constructor inductive type."
 
     matchConstStructure eType.getAppFn failK fun _ _ ctorVal => do
       let numFields := ctorVal.numFields
@@ -1347,8 +1400,9 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
           return LValResolution.projIdx structName (idx - 1)
       else
         if numFields == 0 then
-          throwError  m!"Invalid projection: Projection operates on structure-like types with \
-            fields. The expression{indentExpr e}\nhas type{inlineExpr eType}which has no fields."
+          throwError  m!"Invalid projection: Projections extract constructor fields for \
+            one-constructor inductive types. \
+            The expression{indentExpr e}\nhas type{inlineExpr eType}which has no fields."
         let tupleHint ← mkTupleHint eType idx ref
         throwError m!"Invalid projection: Index `{idx}` is invalid for this structure; \
           {numFields.plural "the only valid index is 1" s!"it must be between 1 and {numFields}"}"

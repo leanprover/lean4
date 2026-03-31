@@ -63,22 +63,22 @@ def notFollowedByRedefinedTermToken :=
   -- an "open" command follows the `do`-block.
   -- If we don't add `do`, then users would have to indent `do` blocks or use `{ ... }`.
   notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "match_expr" <|> "let" <|> "let_expr" <|> "have" <|>
-      "do" <|> "dbg_trace" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
+      "do" <|> "dbg_trace" <|> "idbg" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
     "token at 'do' element"
 
 @[builtin_doElem_parser] def doLet      := leading_parser
   "let " >> optional "mut " >> letDecl
-@[builtin_doElem_parser] def doLetElse  := leading_parser
+@[builtin_doElem_parser] def doLetElse  := leading_parser withPosition <|
   "let " >> optional "mut " >> termParser >> " := " >> termParser >>
-  checkColGt >> " | " >> doSeq
+  (checkColGe >> " | " >> doSeqIndent) >> optional (checkColGe >> doSeqIndent)
 
-@[builtin_doElem_parser] def doLetExpr  := leading_parser
+@[builtin_doElem_parser] def doLetExpr  := leading_parser withPosition <|
   "let_expr " >> matchExprPat >> " := " >> termParser >>
-  checkColGt >> " | " >> doSeq
+  (checkColGe >> " | " >> doSeqIndent) >> optional (checkColGe >> doSeqIndent)
 
-@[builtin_doElem_parser] def doLetMetaExpr  := leading_parser
+@[builtin_doElem_parser] def doLetMetaExpr  := leading_parser withPosition <|
   "let_expr " >> matchExprPat >> leftArrow >> termParser >>
-  checkColGt >> " | " >> doSeq
+  (checkColGe >> " | " >> doSeqIndent) >> optional (checkColGe >> doSeqIndent)
 
 @[builtin_doElem_parser] def doLetRec   := leading_parser
   group ("let " >> nonReservedSymbol "rec ") >> letRecDecls
@@ -86,10 +86,10 @@ def doIdDecl   := leading_parser
   atomic (ident >> optType >> ppSpace >> leftArrow) >>
   doElemParser
 def doPatDecl  := leading_parser
-  atomic (termParser >> ppSpace >> leftArrow) >>
-  doElemParser >> optional (checkColGt >> " | " >> doSeq)
-@[builtin_doElem_parser] def doLetArrow      := leading_parser
-  withPosition ("let " >> optional "mut " >> (doIdDecl <|> doPatDecl))
+  atomic (termParser >> optType >> ppSpace >> leftArrow) >>
+  doElemParser >> optional ((checkColGe >> " | " >> doSeqIndent) >> optional (checkColGe >> doSeqIndent))
+@[builtin_doElem_parser] def doLetArrow      := leading_parser withPosition <|
+  "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
 
 /-
 We use `letIdDeclNoBinders` to define `doReassign`.
@@ -98,11 +98,19 @@ Motivations:
 - we do not want `hygieneInfo` case, and
 - avoid parser conflict
 -/
-def letIdDeclNoBinders := node ``letIdDecl <|
+def letIdDeclNoBinders := leading_parser
   atomic (node ``letId ident >> pushNone >> optType >> " := ") >> termParser
 
 @[builtin_doElem_parser] def doReassign      := leading_parser
   notFollowedByRedefinedTermToken >> (letIdDeclNoBinders <|> letPatDecl)
+
+-- `doReassignElse` clashes with the `doMatch` parser in
+--   `do match e with | x := x | none => pure ()`
+-- So we do not define it for back compat reasons.
+-- @[builtin_doElem_parser] def doReassignElse      := leading_parser
+--   notFollowedByRedefinedTermToken >>
+--     (termParser >> " := " >> termParser >> (checkColGt >> " | " >> doSeqIndent) >> optional doSeqIndent)
+
 @[builtin_doElem_parser] def doReassignArrow := leading_parser
   notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
 @[builtin_doElem_parser] def doHave     := leading_parser
@@ -144,7 +152,7 @@ def doIfLetBind := leading_parser leftArrow >> termParser
 def doIfLet     := leading_parser (withAnonymousAntiquot := false)
   "let " >> termParser >> (doIfLetPure <|> doIfLetBind)
 def doIfProp    := leading_parser (withAnonymousAntiquot := false)
-  optIdent >> termParser
+  optional (atomic (binderIdent >> " : ")) >> termParser
 def doIfCond    :=
   withAntiquot (mkAntiquot "doIfCond" decl_name% (anonymous := false) (isPseudoKind := true)) <|
     doIfLet <|> doIfProp
@@ -170,9 +178,12 @@ The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 @[builtin_doElem_parser] def doFor    := leading_parser
   "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
 
+def dependentParam := leading_parser
+  atomic ("(" >> nonReservedSymbol "dependent") >> " := " >>
+    (trueVal <|> falseVal)  >> ")" >> ppSpace
 def doMatchAlts := ppDedent <| matchAlts (rhsParser := doSeq)
 @[builtin_doElem_parser] def doMatch := leading_parser:leadPrec
-  "match " >> optional Term.generalizingParam >> optional Term.motive >>
+  "match " >> optional dependentParam >> optional Term.generalizingParam >> optional Term.motive >>
   sepBy1 matchDiscr ", " >> " with" >> doMatchAlts
 
 def doMatchExprAlts := ppDedent <| matchExprAlts (rhsParser := doSeq)
@@ -212,6 +223,36 @@ It should only be used for debugging.
 -/
 @[builtin_doElem_parser] def doDbgTrace  := leading_parser:leadPrec
   "dbg_trace " >> ((interpolatedStr termParser) <|> termParser)
+/--
+*experimental*
+
+`idbg e` enables live inspection of program state from the editor. When placed in a `do` block,
+it captures all local variables in scope and the expression `e`, then:
+
+- **In the language server**: starts a TCP server on localhost waiting for the running program to
+  connect; the editor will mark this part of the program as "in progress" during this wait but that
+  will not block `lake build` of the project.
+- **In the compiled program**: on first execution of the `idbg` call site, connects to the server,
+  receives the expression, compiles and evaluates it using the program's actual runtime values, and
+  sends the `repr` result back.
+
+The result is displayed as an info diagnostic on the `idbg` keyword. The expression `e` can be
+edited while the program is running - each edit triggers re-elaboration of `e`, a new TCP exchange,
+and an updated result. This makes `idbg` a live REPL for inspecting and experimenting with
+program state at a specific point in execution. Only when `idbg` is inserted, moved, or removed does
+the program need to be recompiled and restarted.
+
+# Known Limitations
+
+* The program will poll for the server for up to 10 minutes and needs to be killed manually
+  otherwise.
+* Use of multiple `idbg` at once untested, likely too much overhead from overlapping imports without
+  further changes.
+* `LEAN_PATH` must be properly set up so compiled program can import its origin module.
+* Untested on Windows and macOS.
+-/
+@[builtin_doElem_parser] def doIdbg      := leading_parser:leadPrec
+  withPosition ("idbg " >> termParser)
 /--
 `assert! cond` panics if `cond` evaluates to `false`.
 -/

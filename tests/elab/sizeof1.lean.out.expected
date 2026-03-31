@@ -1,0 +1,36 @@
+@[defeq] theorem TreePos.leaf.sizeOf_spec.{u, v} : ∀ {α : Type u} {β : Type v} [inst : SizeOf α] [inst_1 : SizeOf β]
+  (a : α), sizeOf (TreePos.leaf a) = 1 + sizeOf a :=
+fun {α} {β} [SizeOf α] [SizeOf β] a => Eq.refl (1 + sizeOf a)
+theorem TreePos.node.sizeOf_spec.{u, v} : ∀ {α : Type u} {β : Type v} [inst : SizeOf α] [inst_1 : SizeOf β]
+  (children : List (List (TreeNeg α β))), sizeOf (TreePos.node children) = 1 + sizeOf children :=
+fun {α} {β} [SizeOf α] [SizeOf β] children => congrArg (Nat.add 1) (TreePos._sizeOf_3_eq children)
+theorem TreePos._sizeOf_3_eq.{u, v} : ∀ {α : Type u} {β : Type v} [inst : SizeOf α] [inst_1 : SizeOf β]
+  (x : List (List (TreeNeg α β))), TreePos._sizeOf_3 x = sizeOf x :=
+fun {α} {β} [SizeOf α] [SizeOf β] x =>
+  List.rec (Eq.refl (sizeOf []))
+    (fun head tail tail_ih =>
+      Eq.trans (congr (congrArg (fun x => (Nat.add 1 x).add) (TreePos._sizeOf_5_eq head)) tail_ih)
+        (Eq.symm (List.cons.sizeOf_spec head tail)))
+    x
+theorem TreePos._sizeOf_4_eq.{u, v} : ∀ {α : Type u} {β : Type v} [inst : SizeOf α] [inst_1 : SizeOf β]
+  (x : List (List (TreePos α β))), TreePos._sizeOf_4 x = sizeOf x :=
+fun {α} {β} [SizeOf α] [SizeOf β] x =>
+  List.rec (Eq.refl (sizeOf []))
+    (fun head tail tail_ih =>
+      Eq.trans (congr (congrArg (fun x => (Nat.add 1 x).add) (TreePos._sizeOf_6_eq head)) tail_ih)
+        (Eq.symm (List.cons.sizeOf_spec head tail)))
+    x
+theorem TreePos._sizeOf_5_eq.{u, v} : ∀ {α : Type u} {β : Type v} [inst : SizeOf α] [inst_1 : SizeOf β]
+  (x : List (TreeNeg α β)), TreePos._sizeOf_5 x = sizeOf x :=
+fun {α} {β} [SizeOf α] [SizeOf β] x =>
+  List.rec (Eq.refl (sizeOf []))
+    (fun head tail tail_ih =>
+      Eq.trans (congrArg (1 + sizeOf head).add tail_ih) (Eq.symm (List.cons.sizeOf_spec head tail)))
+    x
+theorem TreePos._sizeOf_6_eq.{u, v} : ∀ {α : Type u} {β : Type v} [inst : SizeOf α] [inst_1 : SizeOf β]
+  (x : List (TreePos α β)), TreePos._sizeOf_6 x = sizeOf x :=
+fun {α} {β} [SizeOf α] [SizeOf β] x =>
+  List.rec (Eq.refl (sizeOf []))
+    (fun head tail tail_ih =>
+      Eq.trans (congrArg (1 + sizeOf head).add tail_ih) (Eq.symm (List.cons.sizeOf_spec head tail)))
+    x

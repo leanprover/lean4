@@ -149,17 +149,20 @@ protected theorem one_ne_zero : (1 : Int) ≠ 0 := by decide
 
 protected theorem one_nonneg : 0 ≤ (1 : Int) := Int.le_of_lt Int.zero_lt_one
 
-protected theorem lt_iff_le_not_le {a b : Int} : a < b ↔ a ≤ b ∧ ¬b ≤ a := by
+protected theorem lt_iff_le_and_not_ge {a b : Int} : a < b ↔ a ≤ b ∧ ¬b ≤ a := by
   rw [Int.lt_iff_le_and_ne]
   constructor <;> refine fun ⟨h, h'⟩ => ⟨h, h'.imp fun h' => ?_⟩
   · exact Int.le_antisymm h h'
   · subst h'; apply Int.le_refl
 
+@[deprecated Int.lt_iff_le_and_not_ge (since := "2026-02-11")]
+protected def lt_iff_le_not_le := @Int.lt_iff_le_and_not_ge
+
 protected theorem lt_of_not_ge {a b : Int} (h : ¬a ≤ b) : b < a :=
-  Int.lt_iff_le_not_le.mpr ⟨(Int.le_total ..).resolve_right h, h⟩
+  Int.lt_iff_le_and_not_ge.mpr ⟨(Int.le_total ..).resolve_right h, h⟩
 
 protected theorem not_le_of_gt {a b : Int} (h : b < a) : ¬a ≤ b :=
-  (Int.lt_iff_le_not_le.mp h).right
+  (Int.lt_iff_le_and_not_ge.mp h).right
 
 @[simp] protected theorem not_le {a b : Int} : ¬a ≤ b ↔ b < a :=
   Iff.intro Int.lt_of_not_ge Int.not_le_of_gt
@@ -306,6 +309,12 @@ protected theorem le_of_neg_le_neg {a b : Int} (h : -b ≤ -a) : a ≤ b :=
   suffices - -a ≤ - -b by simp [Int.neg_neg] at this; assumption
   Int.neg_le_neg h
 
+protected theorem neg_le_iff {x y : Int} : -x ≤ y ↔ -y ≤ x := by
+  rw [← Int.neg_neg y, Int.neg_le_neg_iff, Int.neg_neg y]
+
+protected theorem le_neg_iff {x y : Int} : x ≤ -y ↔ y ≤ -x := by
+  rw [← Int.neg_neg x, Int.neg_le_neg_iff, Int.neg_neg x]
+
 protected theorem neg_nonpos_of_nonneg {a : Int} (h : 0 ≤ a) : -a ≤ 0 := by
   have : -a ≤ -0 := Int.neg_le_neg h
   rwa [Int.neg_zero] at this
@@ -327,6 +336,12 @@ protected theorem neg_lt_neg {a b : Int} (h : a < b) : -b < -a := by
 
 @[simp] protected theorem zero_lt_neg_iff {a : Int} : 0 < -a ↔ a < 0 := by
   rw [← Int.neg_zero, Int.neg_lt_neg_iff, Int.neg_zero]
+
+protected theorem neg_lt_iff {x y : Int} : -x < y ↔ -y < x := by
+  rw [← Int.neg_neg y, Int.neg_lt_neg_iff, Int.neg_neg y]
+
+protected theorem lt_neg_iff {x y : Int} : x < -y ↔ y < -x := by
+  rw [← Int.neg_neg x, Int.neg_lt_neg_iff, Int.neg_neg x]
 
 protected theorem neg_neg_of_pos {a : Int} (h : 0 < a) : -a < 0 :=
   Int.neg_lt_zero_iff.2 h
@@ -541,7 +556,7 @@ protected theorem mul_le_mul_of_nonneg_left {a b c : Int}
     simp [Int.le_antisymm hc0 h₂, Int.zero_mul]
   else by
     exact Int.le_of_lt <| Int.mul_lt_mul_of_pos_left
-      (Int.lt_iff_le_not_le.2 ⟨h₁, hba⟩) (Int.lt_iff_le_not_le.2 ⟨h₂, hc0⟩)
+      (Int.lt_iff_le_and_not_ge.2 ⟨h₁, hba⟩) (Int.lt_iff_le_and_not_ge.2 ⟨h₂, hc0⟩)
 
 protected theorem mul_le_mul_of_nonneg_right {a b c : Int}
     (h₁ : a ≤ b) (h₂ : 0 ≤ c) : a * c ≤ b * c := by

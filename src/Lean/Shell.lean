@@ -10,7 +10,7 @@ import Lean.Elab.Frontend
 import Lean.Elab.ParseImportsFast
 import Lean.Server.Watchdog
 import Lean.Server.FileWorker
-import Lean.Compiler.IR.EmitC
+import Lean.Compiler.LCNF.EmitC
 import Init.System.Platform
 
 /-  Lean companion to  `shell.cpp` -/
@@ -31,7 +31,7 @@ abort on files with invalid UTF-8.
 opaque decodeLossyUTF8 (a : @& ByteArray) : String
 
 /- Runs the `main` function of the module with `args` using the Lean interpreter. -/
-@[extern "lean_run_main"]
+@[extern "lean_eval_main"]
 opaque runMain (env : @& Environment) (opts : @& Options) (args : @& List String) : BaseIO UInt32
 
 /--
@@ -47,10 +47,6 @@ Before calling this function, the LLVM subsystem must first be successfully init
 -/
 @[extern "lean_emit_llvm"]
 opaque emitLLVM (env : Environment) (modName : Name) (filepath : FilePath) : IO Unit
-
-/-- Print all profiling times (if any) to standard error. -/
-@[extern "lean_display_cumulative_profiling_times"]
-opaque displayCumulativeProfilingTimes : BaseIO Unit
 
 /-- Whether Lean was built with an address sanitizer enabled. -/
 @[extern "lean_internal_has_address_sanitizer"]
@@ -545,7 +541,8 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
         | IO.eprintln s!"failed to create '{c}'"
           return 1
       profileitIO "C code generation" opts.leanOpts do
-        let data ← IO.ofExcept <| IR.emitC env mainModuleName
+        let data ← Compiler.LCNF.emitC mainModuleName
+          |>.toIO' { fileName, fileMap := default } { env }
         out.write data.toUTF8
     if let some bc := opts.bcFileName? then
       initLLVM

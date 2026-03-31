@@ -267,13 +267,13 @@ def LetValue.inferType (e : LetValue pu) : CompilerM Expr :=
   | .pure => InferType.Pure.inferLetValueType e |>.run {}
   | .impure => panic! "Infer type for impure unimplemented" -- TODO
 
-def Code.inferType (code : Code pu) : CompilerM Expr := do
+def Code.inferType (code : Code pu) : CompilerM Expr :=
   match pu with
   | .pure =>
     match code with
     | .let _ k | .fun _ k _ | .jp _ k => k.inferType
     | .return fvarId => getType fvarId
-    | .jmp fvarId args => InferType.Pure.inferAppTypeCore (← getType fvarId) args |>.run {}
+    | .jmp fvarId args => do InferType.Pure.inferAppTypeCore (← getType fvarId) args |>.run {}
     | .unreach type => return type
     | .cases c => return c.resultType
   | .impure => panic! "Infer type for impure unimplemented" -- TODO

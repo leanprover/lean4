@@ -18,5 +18,4 @@ add_library(
   quot.cpp
   inductive.cpp
   trace.cpp
-  instantiate_mvars.cpp
 )

@@ -6,8 +6,10 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
-public import Lean.Parser.Command
+public import Lean.Parser.Module.Syntax
+meta import Lean.Parser.Module.Syntax
 import Init.While
+meta import Lean.Parser.Extra
 
 public section
 
@@ -15,26 +17,6 @@ namespace Lean
 namespace Parser
 
 namespace Module
-def moduleTk   := leading_parser "module"
-def «prelude»  := leading_parser "prelude"
-def «public»   := leading_parser (withAnonymousAntiquot := false) "public"
-def «meta»     := leading_parser (withAnonymousAntiquot := false) "meta"
-def «all»      := leading_parser (withAnonymousAntiquot := false) "all"
-def «import»   := leading_parser
-  atomic (optional «public» >> optional «meta» >> "import ") >>
-  optional all >>
-  identWithPartialTrailingDot
-def header     := leading_parser optional (moduleTk >> ppLine >> ppLine) >>
-  optional («prelude» >> ppLine) >>
-  many («import» >> ppLine) >>
-  ppLine
-
-/--
-  Parser for a Lean module. We never actually run this parser but instead use the imperative definitions below that
-  return the same syntax tree structure, but add error recovery. Still, it is helpful to have a `Parser` definition
-  for it in order to auto-generate helpers such as the pretty printer. -/
-@[run_builtin_parser_attribute_hooks]
-def module     := leading_parser header >> many (commandParser >> ppLine >> ppLine)
 
 def updateTokens (tokens : TokenTable) : TokenTable :=
   match addParserTokens tokens header.info with
@@ -45,7 +27,12 @@ end Module
 
 structure ModuleParserState where
   pos        : String.Pos.Raw := 0
-  recovering : Bool       := false
+  recovering : Bool := false
+  /--
+  Whether there is leading whitespace before `pos`.
+  Used to associate whitespace at the start of the file with the first token of the file.
+  -/
+  hasLeading : Bool := true
   deriving Inhabited
 
 private partial def mkErrorMessage (c : InputContext) (pos : String.Pos.Raw) (stk : SyntaxStack) (e : Parser.Error) : Message := Id.run do
@@ -78,6 +65,12 @@ where
     Id.run <| s.toSubarray.findSomeRevM? fun stx =>
       if let .original (trailing := trailing) .. := stx.getTailInfo then pure (some trailing)
         else none
+
+private def setStartOfFileLeading (stx : Syntax) : Syntax × Bool := Id.run do
+  let some (.original leading pos trailing endPos) ← stx.getHeadInfo?
+    | return (stx, false)
+  let info := .original { leading with startPos := 0 } pos trailing endPos
+  return (stx.setHeadInfo info, true)
 
 def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × ModuleParserState × MessageLog) := do
   let dummyEnv ← mkEmptyEnvironment
@@ -115,10 +108,12 @@ def parseHeader (inputCtx : InputContext) : IO (TSyntax ``Module.header × Modul
                 consider using separate `public import {mod}` and `import all {mod}` directives \
                 in order to import public data into the public scope and private data into the \
                 private scope."
-  pure (⟨stx⟩, {pos := s.pos, recovering := s.hasError}, messages)
+  let (stx, isLeadingSet) := setStartOfFileLeading stx
+  pure (⟨stx⟩, { pos := s.pos, recovering := s.hasError, hasLeading := ! isLeadingSet }, messages)
 
-private def mkEOI (pos : String.Pos.Raw) : Syntax :=
-  let atom := mkAtom (SourceInfo.original "".toRawSubstring pos "".toRawSubstring pos) ""
+private def mkEOI (inputCtx : InputContext) (pos : String.Pos.Raw) : Syntax :=
+  let emptyAt := inputCtx.substring pos pos
+  let atom := mkAtom (SourceInfo.original emptyAt pos emptyAt pos) ""
   mkNode ``Command.eoi #[atom]
 
 def isTerminalCommand (s : Syntax) : Bool :=
@@ -141,7 +136,7 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
   let mut stx := Syntax.missing  -- will always be assigned below
   repeat
     if inputCtx.atEnd pos then
-      stx := mkEOI pos
+      stx := mkEOI inputCtx pos
       break
     let pos' := pos
     let p := andthenFn whitespace topLevelCommandParserFn
@@ -174,7 +169,10 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
       else
         stx := s.stxStack.back
         break
-  return (stx, { pos, recovering }, messages)
+  if mps.hasLeading then
+    -- File header was empty - set start-of-file leading whitespace on first token in `stx`
+    (stx, _) := setStartOfFileLeading stx
+  return (stx, { pos, recovering, hasLeading := false }, messages)
 
 -- only useful for testing since most Lean files cannot be parsed without elaboration
 
@@ -184,7 +182,7 @@ partial def testParseModuleAux (env : Environment) (inputCtx : InputContext) (s 
     | (stx, state, msgs) =>
       if isTerminalCommand stx then
         if !msgs.hasUnreported then
-          pure stxs
+          pure (stxs.push stx)
         else do
           msgs.forM fun msg => msg.toString >>= IO.println
           throw (IO.userError "failed to parse file")
@@ -192,14 +190,14 @@ partial def testParseModuleAux (env : Environment) (inputCtx : InputContext) (s 
         parse state msgs (stxs.push stx)
   parse s msgs stxs
 
-def testParseModule (env : Environment) (fname contents : String) : IO (TSyntax ``Parser.Module.module) := do
+def testParseModule (env : Environment) (fname contents : String) : IO Syntax := do
   let inputCtx := mkInputContext contents fname
   let (header, state, messages) ← parseHeader inputCtx
   let cmds ← testParseModuleAux env inputCtx state messages #[]
   let stx := mkNode `Lean.Parser.Module.module #[header, mkListNode cmds]
-  pure ⟨stx.raw.updateLeading⟩
+  pure stx
 
-def testParseFile (env : Environment) (fname : System.FilePath) : IO (TSyntax ``Parser.Module.module) := do
+def testParseFile (env : Environment) (fname : System.FilePath) : IO Syntax := do
   let contents ← IO.FS.readFile fname
   testParseModule env fname.toString contents
 

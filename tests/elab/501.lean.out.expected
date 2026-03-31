@@ -1,0 +1,4 @@
+S.b.match_1 : (motive : S → Sort u_1) →
+  (x : S) →
+    ((s : S) → (y : Nat) → (h : s = { x := true, y := y }) → motive (namedPattern s { x := true, y := y } h)) →
+      ((s : S) → motive s) → motive x

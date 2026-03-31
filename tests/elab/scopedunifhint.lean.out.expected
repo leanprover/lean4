@@ -1,0 +1,3 @@
+x*x : Nat.Magma.α
+x*x : Nat.Magma.α
+(x, x)*(x, x) : (Prod.Magma Nat.Magma Nat.Magma).α

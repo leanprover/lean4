@@ -35,8 +35,8 @@ This type is used in lemmas about iterator equivalence (`Iter.Equiv` and `IterM.
 `it.QuotStep` is the quotient of `it.Step` where two steps are identified if they agree up to
 equivalence of their successor iterator.
 -/
-def IterM.QuotStep [Iterator α m β] [Monad m] [LawfulMonad m]
-    (it : IterM (α := α) m β) :=
+abbrev IterM.QuotStep [Iterator α m β] [Monad m] [LawfulMonad m]
+    (it : IterM (α := α) m β) : Type _ :=
   Quot (fun (s₁ s₂ : it.Step) => s₁.1.bundledQuotient = s₂.1.bundledQuotient)
 
 /--

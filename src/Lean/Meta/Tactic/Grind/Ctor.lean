@@ -51,7 +51,7 @@ private def propagateCtorHomo (α : Expr) (a b : Expr) : GoalM Unit := do
     There is no guarantee that `inferType (← mkEqProof a b)` is structurally equal to `a = b`.
     -/
     let mask := mask.set! (n-1) (some (← mkExpectedTypeHint (← mkEqProof a b) (← mkEq a b)))
-    let injLemma ← mkAppOptM injDeclName mask
+    let injLemma ← withDefault <| mkAppOptM injDeclName mask
     let injLemmaType ← inferType injLemma
     let gen := max (← getGeneration a) (← getGeneration b)
     propagateInjEqs injLemmaType injLemma gen

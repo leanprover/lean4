@@ -1111,6 +1111,12 @@ theorem getD_insertMany_list_of_mem [TransCmp cmp]
     (t.insertMany l).getD k' fallback = v :=
   ExtDTreeMap.Const.getD_insertMany_list_of_mem k_eq distinct mem
 
+theorem insertMany_list_eq_foldl [TransCmp cmp] {l : List (α × β)} :
+    t.insertMany l = l.foldl (init := t) fun acc p => acc.insert p.1 p.2 := by
+  rw [ext_iff, ← List.foldl_hom inner (g₂ := fun acc p => acc.insert p.1 p.2)]
+  · exact ExtDTreeMap.Const.insertMany_list_eq_foldl
+  · exact fun _ _ => rfl
+
 section Unit
 
 variable {t : ExtTreeMap α Unit cmp}
@@ -1261,6 +1267,12 @@ theorem getD_insertManyIfNewUnit_list [TransCmp cmp]
     getD (insertManyIfNewUnit t l) k fallback = () :=
   rfl
 
+theorem insertManyIfNewUnit_list_eq_foldl [TransCmp cmp] {l : List α} :
+    insertManyIfNewUnit t l = l.foldl (init := t) fun acc a => acc.insertIfNew a () := by
+  rw [ext_iff, ← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact ExtDTreeMap.Const.insertManyIfNewUnit_list_eq_foldl
+  · exact fun _ _ => rfl
+
 end Unit
 
 @[simp, grind =]
@@ -1405,6 +1417,10 @@ theorem ofList_eq_empty_iff [TransCmp cmp] {l : List (α × β)} :
     ofList l cmp = ∅ ↔ l = [] :=
   ext_iff.trans ExtDTreeMap.Const.ofList_eq_empty_iff
 
+theorem ofList_eq_foldl [TransCmp cmp] {l : List (α × β)} :
+    ofList l cmp = l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 := by
+  rw [ofList_eq_insertMany_empty, insertMany_list_eq_foldl]
+
 @[simp]
 theorem unitOfList_nil :
     unitOfList ([] : List α) cmp =
@@ -1420,6 +1436,10 @@ theorem unitOfList_cons [TransCmp cmp] {hd : α} {tl : List α} :
     unitOfList (hd :: tl) cmp =
       insertManyIfNewUnit ((∅ : ExtTreeMap α Unit cmp).insertIfNew hd ()) tl :=
   ext ExtDTreeMap.Const.unitOfList_cons
+
+theorem unitOfList_eq_insertManyIfNewUnit_empty [TransCmp cmp] {l : List α} :
+    unitOfList l cmp = insertManyIfNewUnit ∅ l :=
+  ext ExtDTreeMap.Const.unitOfList_eq_insertManyIfNewUnit_empty
 
 @[simp]
 theorem contains_unitOfList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
@@ -1510,6 +1530,10 @@ theorem getElem!_unitOfList [TransCmp cmp] {l : List α} {k : α} :
 theorem getD_unitOfList [TransCmp cmp] {l : List α} {k : α} {fallback : Unit} :
     getD (unitOfList l cmp) k fallback = () :=
   rfl
+
+theorem unitOfList_eq_foldl [TransCmp cmp] {l : List α} :
+    unitOfList l cmp = l.foldl (init := ∅) fun acc a => acc.insertIfNew a () := by
+  rw [unitOfList_eq_insertManyIfNewUnit_empty, insertManyIfNewUnit_list_eq_foldl]
 
 section Union
 

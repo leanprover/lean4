@@ -6,6 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
+public import Init.Data.Iterators.Lemmas.Combinators.Append
 public import Init.Data.Iterators.Lemmas.Combinators.Attach
 public import Init.Data.Iterators.Lemmas.Combinators.Monadic
 public import Init.Data.Iterators.Lemmas.Combinators.FilterMap

@@ -21,7 +21,9 @@ public theorem Types.ListIterator.stepAsHetT_iterM [LawfulMonad m] {l : List β}
       | [] => pure .done
       | x :: xs => pure (.yield (xs.iterM m) x)) := by
   simp only [List.iterM, HetT.ext_iff, Equivalence.property_step, IterM.IsPlausibleStep,
-    Iterator.IsPlausibleStep, Equivalence.prun_step]
+    Equivalence.prun_step,
+    -- TODO: get rid of these
+    Iterator.IsPlausibleStep, ListIterator.instIterator]
   refine ⟨?_, ?_⟩
   · ext step
     cases step

@@ -47,6 +47,7 @@ Creates a `TypeName` instance.
 For safety, it is required that the constant `typeName` is definitionally equal
 to `α`.
 -/
+@[implicit_reducible]
 unsafe def TypeName.mk (α : Type u) (typeName : Name) : TypeName α :=
   ⟨unsafeCast typeName⟩
 

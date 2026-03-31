@@ -75,7 +75,7 @@ def mul [Mul α] (xs ys : Vector α n) : Vector α n :=
 Pointwise multiplication of vectors.
 This is not a global instance as in some applications different multiplications may be relevant.
 -/
-@[instance_reducible]
+@[implicit_reducible]
 def instMul [Mul α] : Mul (Vector α n) := ⟨mul⟩
 
 section mul

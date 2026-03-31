@@ -197,9 +197,9 @@ environment environment::add_theorem(declaration const & d, bool check) const {
         sharecommon_persistent_fn share;
         expr val(share(v.get_value().raw()));
         expr type(share(v.get_type().raw()));
+        check_constant_val(*this, v.to_constant_val(), checker);
         if (!checker.is_prop(type))
             throw theorem_type_is_not_prop(*this, v.get_name(), type);
-        check_constant_val(*this, v.to_constant_val(), checker);
         check_no_metavar_no_fvar(*this, v.get_name(), val);
         expr val_type = checker.check(val, v.get_lparams());
         if (!checker.is_def_eq(val_type, type))

@@ -35,7 +35,7 @@ def collectLocalDeclsLetValue (s : UsedLocalDecls) (e : LetValue pu) : UsedLocal
   match e with
   | .erased  | .lit .. => s
   | .proj _ _ fvarId _ | .reset _ fvarId _ | .sproj _ _ fvarId _ | .uproj _ fvarId _
-  | .oproj _ fvarId _ => s.insert fvarId
+  | .oproj _ fvarId _ | .box _ fvarId _ | .unbox fvarId _ | .isShared fvarId _ => s.insert fvarId
   | .const _ _ args _ => collectLocalDeclsArgs s args
   | .fvar fvarId args | .reuse fvarId _ _ args _   => collectLocalDeclsArgs (s.insert fvarId) args
   | .fap _ args _ | .pap _ args _ | .ctor _ args _ => collectLocalDeclsArgs s args
@@ -57,8 +57,7 @@ def LetValue.safeToElim (val : LetValue pu) : Bool :=
   | .impure =>
     match val with
     | .ctor .. | .reset .. | .reuse .. | .oproj .. | .uproj .. | .sproj .. | .lit .. | .pap ..
-    -- TODO | .box .. | .unbox .. | .isShared ..
-    | .erased .. => true
+    | .box .. | .unbox .. | .erased .. | .isShared .. => true
     -- 0-ary full applications are considered constants
     | .fap _ args => args.isEmpty
     | .fvar .. => false
@@ -95,21 +94,33 @@ partial def Code.elimDead (code : Code pu) : M (Code pu) := do
   | .return fvarId => collectFVarM fvarId; return code
   | .jmp fvarId args => collectFVarM fvarId; args.forM collectArgM; return code
   | .unreach .. => return code
-  | .uset var _ y k _ | .sset var _ _ y _ k _ =>
+  | .oset fvarId _ y k _ =>
     let k ← k.elimDead
-    if (← get).contains var then
+    if (← get).contains fvarId then
+      collectArgM y
+      return code.updateCont! k
+    else
+      return k
+  | .uset fvarId _ y k _ | .sset fvarId _ _ y _ k _ =>
+    let k ← k.elimDead
+    if (← get).contains fvarId then
       collectFVarM y
       return code.updateCont! k
     else
       return k
+  | .inc (fvarId := fvarId) (k := k) .. | .dec (fvarId := fvarId) (k := k) ..
+  | .setTag (fvarId := fvarId) (k := k) .. | .del (fvarId := fvarId) (k := k) .. =>
+    let k ← k.elimDead
+    collectFVarM fvarId
+    return code.updateCont! k
 
 end
 
-def Decl.elimDead (decl : Decl pu) : CompilerM (Decl pu) := do
+public def Decl.elimDeadVars (decl : Decl pu) : CompilerM (Decl pu) := do
   return { decl with value := (← decl.value.mapCodeM fun code => code.elimDead.run' {}) }
 
 public def elimDeadVars (phase : Phase)  (occurrence : Nat) : Pass :=
-  Pass.mkPerDeclaration `elimDeadVars phase Decl.elimDead occurrence
+  Pass.mkPerDeclaration `elimDeadVars phase Decl.elimDeadVars occurrence
 
 builtin_initialize
   registerTraceClass `Compiler.elimDeadVars (inherited := true)

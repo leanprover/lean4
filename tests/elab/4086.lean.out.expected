@@ -1,0 +1,4 @@
+4086.lean:12:8-12:19: warning: declaration uses `sorry`
+4086.lean:17:0-17:7: warning: declaration uses `sorry`
+4086.lean:24:0-24:7: warning: declaration uses `sorry`
+4086.lean:34:0-34:7: warning: declaration uses `sorry`

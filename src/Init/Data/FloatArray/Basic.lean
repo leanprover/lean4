@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Float
 import Init.Ext
 public import Init.GetElem
+public import Init.Data.ToString.Extra
 
 public section
 universe u

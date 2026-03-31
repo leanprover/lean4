@@ -78,27 +78,21 @@ private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mk
 builtin_initialize docStringExt : MapDeclarationExtension String ←
   mkMapDeclarationExtension
     (asyncMode := .async .asyncEnv)
-    (exportEntriesFn := fun _ s level =>
-      if level < .server then
-        {}
-      else
-        s.toArray)
+    (exportEntriesFn := fun _ s =>
+      let ents := s.toArray
+      { exported := #[], server := ents, «private» := ents })
 private builtin_initialize inheritDocStringExt : MapDeclarationExtension Name ←
-  mkMapDeclarationExtension (exportEntriesFn := fun _ s level =>
-    if level < .server then
-      {}
-    else
-      s.toArray)
+  mkMapDeclarationExtension (exportEntriesFn := fun _ s =>
+    let ents := s.toArray
+    { exported := #[], server := ents, «private» := ents })
 
 private builtin_initialize builtinVersoDocStrings : IO.Ref (NameMap VersoDocString) ← IO.mkRef {}
 builtin_initialize versoDocStringExt : MapDeclarationExtension VersoDocString ←
   mkMapDeclarationExtension
     (asyncMode := .async .asyncEnv)
-    (exportEntriesFn := fun _ s level =>
-      if level < .server then
-        {}
-      else
-        s.toArray)
+    (exportEntriesFn := fun _ s =>
+      let ents := s.toArray
+      { exported := #[], server := ents, «private» := ents })
 
 /--
 Adds a builtin docstring to the compiler.
@@ -196,11 +190,9 @@ private builtin_initialize moduleDocExt :
     SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
-  exportEntriesFnEx? := some fun _ _ es level =>
-    if level < .server then
-      #[]
-    else
-      es.toArray
+  exportEntriesFnEx? := some fun _ _ es =>
+    let ents := es.toArray
+    { exported := #[], server := ents, «private» := ents }
 }
 
 def addMainModuleDoc (env : Environment) (doc : ModuleDoc) : Environment :=
@@ -407,11 +399,9 @@ private builtin_initialize versoModuleDocExt :
     SimplePersistentEnvExtension VersoModuleDocs.Snippet VersoModuleDocs ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.add! e
-  exportEntriesFnEx? := some fun _ _ es level =>
-    if level < .server then
-      #[]
-    else
-      es.toArray
+  exportEntriesFnEx? := some fun _ _ es =>
+    let ents := es.toArray
+    { exported := #[], server := ents, «private» := ents }
 }
 
 

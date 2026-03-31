@@ -86,7 +86,9 @@ builtin_initialize symbolFrequencyExt : PersistentEnvExtension (NameMap Nat) Emp
     mkInitial       := pure ∅
     addImportedFn   := fun mapss _ => pure mapss
     addEntryFn      := nofun
-    exportEntriesFnEx := fun env _ _ => unsafe env.unsafeRunMetaM do return #[← cachedLocalSymbolFrequencyMap]
+    exportEntriesFnEx := fun env _ => unsafe
+      let ents := env.unsafeRunMetaM do return #[← cachedLocalSymbolFrequencyMap]
+      .uniform ents
     statsFn         := fun _ => "symbol frequency extension"
   }
 

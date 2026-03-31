@@ -1,0 +1,1 @@
+BitVec.sdiv_zero: [@BitVec.sdiv #1 #0 (BitVec.ofNat #1 `[0])]

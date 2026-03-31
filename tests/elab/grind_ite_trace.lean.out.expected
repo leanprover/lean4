@@ -1,0 +1,275 @@
+Try these:
+  [apply] 
+    instantiate only [normalized]
+    instantiate only [hasNestedIf, hasConstantIf, hasRedundantIf, disjoint]
+    cases #b01e
+    · instantiate only [eval]
+    · instantiate only [vars]
+      instantiate only [← List.not_mem_nil]
+  [apply] finish only [normalized, hasNestedIf, hasConstantIf, hasRedundantIf, disjoint, eval, vars, ← List.not_mem_nil,
+    #b01e]
+Try these:
+  [apply] 
+    instantiate only [= getElem?_pos, normalized]
+    instantiate only [hasNestedIf, hasConstantIf, hasRedundantIf, disjoint]
+    cases #a87a
+    · instantiate only [eval]
+      instantiate only [= Option.getD_none]
+    · instantiate only [vars]
+      instantiate only [= List.mem_cons]
+      instantiate only [← List.not_mem_nil]
+  [apply] finish only [= getElem?_pos, normalized, hasNestedIf, hasConstantIf, hasRedundantIf, disjoint, eval,
+    = Option.getD_none, vars, = List.mem_cons, ← List.not_mem_nil, #a87a]
+Try these:
+  [apply] 
+    instantiate only [= getElem?_neg, = getElem?_pos, normalized]
+    instantiate only [hasNestedIf, hasConstantIf, hasRedundantIf, disjoint]
+    cases #b225
+    · instantiate only [eval]
+      instantiate only [= Option.getD_some]
+    · instantiate only [vars]
+      instantiate only [← List.not_mem_nil]
+  [apply] finish only [= getElem?_neg, = getElem?_pos, normalized, hasNestedIf, hasConstantIf, hasRedundantIf, disjoint,
+    eval, = Option.getD_some, vars, ← List.not_mem_nil, #b225]
+Try these:
+  [apply] 
+    instantiate only [#3273, eval]
+    instantiate only [eval]
+  [apply] finish only [eval, #3273]
+Try these:
+  [apply] 
+    instantiate only [#3273, eval]
+    instantiate only [eval]
+  [apply] finish only [eval, #3273]
+Try these:
+  [apply] 
+    instantiate only [#4b9f, eval]
+    instantiate only [eval]
+    cases #9a7f <;> cases #b076 <;> instantiate only [eval]
+  [apply] finish only [eval, #4b9f, #9a7f, #b076]
+Try these:
+  [apply] 
+    instantiate only [= getElem?_pos]
+    instantiate only [=_ Std.HashMap.contains_iff_mem]
+    cases #9125
+    · instantiate only [#807c, #1ac2, eval]
+      instantiate only [eval]
+      cases #c6fb
+      · cases #c4c1
+        cases #ad14
+        ·
+          cases #fe3d <;>
+            cases #a866 <;>
+              cases #3b79 <;>
+                instantiate only [= Std.HashMap.getElem?_insert] <;>
+                  cases #abae14845457c6e6 <;> instantiate only [= Option.getD_some]
+        ·
+          cases #2c5b <;>
+            instantiate only [= Std.HashMap.getElem?_insert] <;>
+              cases #f02f <;>
+                instantiate only [= Option.getD_some] <;>
+                  cases #fe3d <;> cases #3b79 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #abae
+      · cases #c4c1
+        cases #ad14
+        ·
+          cases #fe3d <;>
+            cases #a866 <;>
+              instantiate only [= Std.HashMap.getElem?_insert] <;>
+                cases #3b79 <;>
+                  instantiate only [= Std.HashMap.getElem?_insert] <;>
+                    cases #abae14845457c6e6 <;> cases #f02f <;> instantiate only [= Option.getD_some]
+        · cases #2c5b
+          instantiate only [= Std.HashMap.getElem?_insert]
+          cases #f02f
+          instantiate only [= Option.getD_some]
+          cases #fe3d
+          · cases #a866 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #f02f
+          ·
+            cases #3b79 <;>
+              cases #7fad <;> cases #a866 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #f02f
+    · instantiate only [#c06f]
+      instantiate only [= Std.HashMap.mem_insert]
+  [apply] finish only [= getElem?_pos, =_ Std.HashMap.contains_iff_mem, eval, = Std.HashMap.getElem?_insert,
+    = Option.getD_some, = Std.HashMap.mem_insert, #9125, #807c, #1ac2, #c6fb, #c4c1, #ad14, #fe3d, #a866, #3b79,
+    #abae14845457c6e6, #2c5b, #f02f, #abae, #7fad, #c06f]
+Try these:
+  [apply] 
+    instantiate only [= getElem?_pos, normalized]
+    instantiate only [=_ Std.HashMap.contains_iff_mem, hasNestedIf, hasConstantIf, hasRedundantIf, disjoint]
+    instantiate only [vars, hasConstantIf, hasRedundantIf, disjoint]
+    instantiate only [List.disjoint]
+    instantiate only [#e77a, #c06f, List.disjoint]
+    cases #0dae
+    · instantiate only [= Std.HashMap.mem_insert]
+    · cases #88d5
+      · instantiate only [eval]
+        instantiate only [eval]
+        instantiate only [= Option.getD_none]
+        cases #051b
+        · instantiate only [#807c]
+          cases #c4c1 <;>
+            cases #fe3d <;>
+              cases #3b79 <;>
+                instantiate only [= Std.HashMap.getElem?_insert] <;>
+                  cases #abae <;> instantiate only [= Option.getD_some]
+        · instantiate only [#1ac2]
+          cases #c4c1 <;>
+            cases #7fad <;>
+              cases #a866 <;>
+                instantiate only [= Std.HashMap.getElem?_insert] <;>
+                  cases #f02f <;> instantiate only [= Option.getD_some]
+      · instantiate only [vars]
+        instantiate only [= List.mem_append, = List.cons_append]
+        ac
+        instantiate only [#c06f, = List.mem_cons]
+        instantiate only [= Std.HashMap.mem_insert, #e77a]
+        instantiate only [= Std.HashMap.mem_insert]
+  [apply] finish only [= getElem?_pos, normalized, =_ Std.HashMap.contains_iff_mem, hasNestedIf, hasConstantIf,
+    hasRedundantIf, disjoint, vars, List.disjoint, = Std.HashMap.mem_insert, eval, = Option.getD_none,
+    = Std.HashMap.getElem?_insert, = Option.getD_some, = List.mem_append, = List.cons_append, = List.mem_cons, #e77a,
+    #c06f, #0dae, #88d5, #051b, #807c, #c4c1, #fe3d, #3b79, #abae, #1ac2, #7fad, #a866, #f02f]
+Try these:
+  [apply] 
+    instantiate only [= getElem?_neg, = getElem?_pos, #4e0f, eval]
+    instantiate only [eval]
+    instantiate only [eval, = Option.getD_some]
+    cases #c6fb
+  [apply] finish only [= getElem?_neg, = getElem?_pos, eval, = Option.getD_some, #4e0f, #c6fb]
+Try these:
+  [apply] 
+    instantiate only [normalized]
+    instantiate only [hasNestedIf, hasConstantIf, hasRedundantIf, disjoint]
+    cases #132b
+    · instantiate only [eval]
+    · instantiate only [vars]
+      instantiate only [← List.not_mem_nil]
+  [apply] finish only [normalized, hasNestedIf, hasConstantIf, hasRedundantIf, disjoint, eval, vars, ← List.not_mem_nil,
+    #132b]
+Try these:
+  [apply] 
+    instantiate only [= getElem?_pos, normalized]
+    instantiate only [=_ Std.HashMap.contains_iff_mem, hasNestedIf, hasConstantIf, hasRedundantIf, disjoint]
+    cases #190a
+    · instantiate only [eval]
+      instantiate only [= Option.getD_none]
+    · instantiate only [vars]
+      instantiate only [= List.mem_cons]
+      instantiate only [← List.not_mem_nil]
+  [apply] finish only [= getElem?_pos, normalized, =_ Std.HashMap.contains_iff_mem, hasNestedIf, hasConstantIf,
+    hasRedundantIf, disjoint, eval, = Option.getD_none, vars, = List.mem_cons, ← List.not_mem_nil, #190a]
+Try these:
+  [apply] 
+    instantiate only [= getElem?_neg, = getElem?_pos, normalized]
+    instantiate only [hasNestedIf, hasConstantIf, hasRedundantIf, disjoint]
+    cases #d5d4
+    · instantiate only [eval]
+      instantiate only [= Option.getD_some]
+    · instantiate only [vars]
+      instantiate only [← List.not_mem_nil]
+  [apply] finish only [= getElem?_neg, = getElem?_pos, normalized, hasNestedIf, hasConstantIf, hasRedundantIf, disjoint,
+    eval, = Option.getD_some, vars, ← List.not_mem_nil, #d5d4]
+Try these:
+  [apply] 
+    instantiate only [#3273, eval]
+    instantiate only [eval]
+  [apply] finish only [eval, #3273]
+Try these:
+  [apply] 
+    instantiate only [#3273, eval]
+    instantiate only [eval]
+  [apply] finish only [eval, #3273]
+Try these:
+  [apply] 
+    instantiate only [#4b9f, eval]
+    instantiate only [eval]
+    cases #9a7f <;> cases #b076 <;> instantiate only [eval]
+  [apply] finish only [eval, #4b9f, #9a7f, #b076]
+Try these:
+  [apply] 
+    instantiate only [= getElem?_pos]
+    instantiate only [=_ Std.HashMap.contains_iff_mem]
+    cases #8a41
+    · instantiate only [#807c, #1ac2, eval]
+      instantiate only [eval]
+      cases #c6fb
+      · cases #c4c1
+        cases #ad14
+        ·
+          cases #fe3d <;>
+            cases #a866 <;>
+              cases #3b79 <;>
+                instantiate only [= Std.HashMap.getElem?_insert] <;>
+                  cases #abae14845457c6e6 <;> instantiate only [= Option.getD_some]
+        ·
+          cases #2c5b <;>
+            instantiate only [= Std.HashMap.getElem?_insert] <;>
+              cases #f02f <;>
+                instantiate only [= Option.getD_some] <;>
+                  cases #fe3d <;> cases #3b79 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #abae
+      · cases #c4c1
+        cases #ad14
+        ·
+          cases #fe3d <;>
+            cases #a866 <;>
+              instantiate only [= Std.HashMap.getElem?_insert] <;>
+                cases #3b79 <;>
+                  instantiate only [= Std.HashMap.getElem?_insert] <;>
+                    cases #abae14845457c6e6 <;> cases #f02f <;> instantiate only [= Option.getD_some]
+        · cases #2c5b
+          instantiate only [= Std.HashMap.getElem?_insert]
+          cases #f02f
+          instantiate only [= Option.getD_some]
+          cases #fe3d
+          · cases #a866 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #f02f
+          ·
+            cases #3b79 <;>
+              cases #7fad <;> cases #a866 <;> instantiate only [= Std.HashMap.getElem?_insert] <;> cases #f02f
+    · instantiate only [#bad0]
+      instantiate only [= Std.HashMap.contains_insert]
+  [apply] finish only [= getElem?_pos, =_ Std.HashMap.contains_iff_mem, eval, = Std.HashMap.getElem?_insert,
+    = Option.getD_some, = Std.HashMap.contains_insert, #8a41, #807c, #1ac2, #c6fb, #c4c1, #ad14, #fe3d, #a866, #3b79,
+    #abae14845457c6e6, #2c5b, #f02f, #abae, #7fad, #bad0]
+Try these:
+  [apply] 
+    instantiate only [= getElem?_pos, normalized]
+    instantiate only [=_ Std.HashMap.contains_iff_mem, hasNestedIf, hasConstantIf, hasRedundantIf, disjoint]
+    instantiate only [vars, hasConstantIf, hasRedundantIf, disjoint]
+    instantiate only [List.disjoint]
+    instantiate only [#a576, #bad0, List.disjoint]
+    cases #cfda
+    · instantiate only [= Std.HashMap.contains_insert]
+    · cases #8360
+      · instantiate only [eval]
+        instantiate only [eval]
+        instantiate only [= Option.getD_none]
+        cases #051b
+        · instantiate only [#807c]
+          cases #c4c1 <;>
+            cases #fe3d <;>
+              cases #3b79 <;>
+                instantiate only [= Std.HashMap.getElem?_insert] <;>
+                  cases #abae <;> instantiate only [= Option.getD_some]
+        · instantiate only [#1ac2]
+          cases #c4c1 <;>
+            cases #7fad <;>
+              cases #a866 <;>
+                instantiate only [= Std.HashMap.getElem?_insert] <;>
+                  cases #f02f <;> instantiate only [= Option.getD_some]
+      · instantiate only [vars, = Std.HashMap.contains_iff_mem]
+        instantiate only [= List.mem_append, = List.cons_append]
+        ac
+        instantiate only [#bad0, = List.mem_cons]
+        instantiate only [#a576, = Std.HashMap.contains_insert]
+        instantiate only [= Std.HashMap.contains_insert]
+  [apply] finish only [= getElem?_pos, normalized, =_ Std.HashMap.contains_iff_mem, hasNestedIf, hasConstantIf,
+    hasRedundantIf, disjoint, vars, List.disjoint, = Std.HashMap.contains_insert, eval, = Option.getD_none,
+    = Std.HashMap.getElem?_insert, = Option.getD_some, = Std.HashMap.contains_iff_mem, = List.mem_append,
+    = List.cons_append, = List.mem_cons, #a576, #bad0, #cfda, #8360, #051b, #807c, #c4c1, #fe3d, #3b79, #abae, #1ac2,
+    #7fad, #a866, #f02f]
+Try these:
+  [apply] 
+    instantiate only [= getElem?_neg, = getElem?_pos, #4e0f, eval]
+    instantiate only [eval]
+    instantiate only [eval, = Option.getD_some]
+    cases #c6fb
+  [apply] finish only [= getElem?_neg, = getElem?_pos, eval, = Option.getD_some, #4e0f, #c6fb]

@@ -304,7 +304,7 @@ def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) :
 
 builtin_initialize
   registerReservedNameAction fun name => do
-    withTraceNode `ReservedNameAction (pure m!"{exceptBoolEmoji ·} Lean.Meta.Eqns reserved name action for {name}") do
+    withTraceNode `ReservedNameAction (fun _ => pure m!"Lean.Meta.Eqns reserved name action for {name}") do
       if let some (declName, suffix) := declFromEqLikeName (← getEnv) name then
         if name == mkEqLikeNameFor (← getEnv) declName suffix then
           if isEqnReservedNameSuffix suffix then

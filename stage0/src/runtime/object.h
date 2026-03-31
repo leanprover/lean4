@@ -194,7 +194,7 @@ inline object * mk_empty_array() { return lean_mk_empty_array(); }
 inline object * mk_empty_array(b_obj_arg capacity) { return lean_mk_empty_array_with_capacity(capacity); }
 inline object * array_uget(b_obj_arg a, usize i) { return lean_array_uget(a, i); }
 inline obj_res array_fget(b_obj_arg a, b_obj_arg i) { return lean_array_fget(a, i); }
-inline object * array_get(obj_arg def_val, b_obj_arg a, b_obj_arg i) { return lean_array_get(def_val, a, i); }
+inline object * array_get(b_obj_arg def_val, b_obj_arg a, b_obj_arg i) { return lean_array_get(def_val, a, i); }
 inline obj_res copy_array(obj_arg a, bool expand = false) { return lean_copy_expand_array(a, expand); }
 inline object * array_uset(obj_arg a, usize i, obj_arg v) { return lean_array_uset(a, i, v); }
 inline object * array_fset(obj_arg a, b_obj_arg i, obj_arg v) { return lean_array_fset(a, i, v); }

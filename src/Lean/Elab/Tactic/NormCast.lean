@@ -38,7 +38,7 @@ def proveEqUsing (s : SimpTheorems) (a b : Expr) : MetaM (Option Simp.Result) :=
 
 /-- Proves `a = b` by simplifying using move and squash lemmas. -/
 def proveEqUsingDown (a b : Expr) : MetaM (Option Simp.Result) := do
-  withTraceNode `Tactic.norm_cast (return m!"{exceptOptionEmoji ·} proving: {← mkEq a b}") do
+  withTraceNode `Tactic.norm_cast (fun _ => return m!"proving: {← mkEq a b}") do
   proveEqUsing (← normCastExt.down.getTheorems) a b
 
 /-- Constructs the expression `(e : ty)`. -/
@@ -97,9 +97,8 @@ def splittingProcedure (expr : Expr) : MetaM Simp.Result := do
 
   let msg := m!"splitting {expr}"
   let msg
-    | .error _ => return m!"{bombEmoji} {msg}"
-    | .ok r => return if r.expr == expr then m!"{crossEmoji} {msg}" else
-      m!"{checkEmoji} {msg} to {r.expr}"
+    | .error _ => return msg
+    | .ok r => return if r.expr == expr then msg else m!"{msg} to {r.expr}"
   withTraceNode `Tactic.norm_cast msg do
 
   try
@@ -140,7 +139,7 @@ Discharging function used during simplification in the "squash" step.
 -- TODO: normCast takes a list of expressions to use as lemmas for the discharger
 -- TODO: a tactic to print the results the discharger fails to prove
 def prove (e : Expr) : SimpM (Option Expr) := do
-  withTraceNode `Tactic.norm_cast (return m!"{exceptOptionEmoji ·} discharging: {e}") do
+  withTraceNode `Tactic.norm_cast (fun _ => return m!"discharging: {e}") do
   return (← findLocalDeclWithType? e).map mkFVar
 
 /--

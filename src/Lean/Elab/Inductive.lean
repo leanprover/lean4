@@ -24,7 +24,8 @@ def Lean.Parser.Command.classInductive :=
 -/
 private def inductiveSyntaxToView (modifiers : Modifiers) (decl : Syntax) (isCoinductive : Bool) : TermElabM InductiveView := do
   let isClass := decl.isOfKind ``Parser.Command.classInductive
-  let modifiers := if isClass then modifiers.addAttr { name := `class } else modifiers
+  -- **Note**: We use `addFirstAttr` to make sure the `[class]` attribute is processed **before** `[univ_out_params]
+  let modifiers := if isClass then modifiers.addFirstAttr { name := `class } else modifiers
   let (binders, type?) := expandOptDeclSig decl[2]
   let declId           := decl[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
@@ -206,7 +207,8 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
   let indFamily ← isInductiveFamily params.size indFVar
   r.view.ctors.toList.mapM fun ctorView =>
     withoutExporting (when := isPrivateName ctorView.declName) do
-    Term.withAutoBoundImplicit <| Term.elabBinders ctorView.binders.getArgs fun ctorParams =>
+    let (binders, paramInfoOverrides) ← elabParamInfoUpdates params ctorView.binders.getArgs (fun _ => pure true)
+    Term.withAutoBoundImplicit <| Term.elabBinders binders fun ctorParams =>
       withRef ctorView.ref do
         let elabCtorType : TermElabM Expr := do
           match ctorView.type? with
@@ -217,10 +219,11 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
             return mkAppN indFVar params
           | some ctorType =>
             let type ← Term.elabType ctorType
-            trace[Elab.inductive] "elabType {ctorView.declName} : {type} "
+            trace[Elab.inductive] "elabType {ctorView.declName} : {type}"
             Term.synthesizeSyntheticMVars (postpone := .yes)
             let type ← instantiateMVars type
             let type ← checkParamOccs type
+            trace[Elab.inductive] "checkParamOccs {ctorView.declName} : {type}"
             forallTelescopeReducing type fun _ resultingType => do
               unless resultingType.getAppFn == indFVar do
                 throwUnexpectedResultingTypeMismatch resultingType indFVar ctorView.declName ctorType
@@ -261,6 +264,7 @@ private def elabCtors (indFVars : Array Expr) (params : Array Expr) (r : ElabHea
         let type ← mkForallFVars (extraCtorParams ++ ctorParams) type
         let type ← reorderCtorArgs type
         let type ← mkForallFVars params type
+        let type := type.updateForallBinderInfos (params |>.map (fun param => paramInfoOverrides[param]?.map Prod.snd) |>.toList)
         trace[Elab.inductive] "{ctorView.declName} : {type}"
         return { name := ctorView.declName, type }
 where

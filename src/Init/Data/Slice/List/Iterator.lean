@@ -11,6 +11,7 @@ public import Init.Data.Iterators.Producers.List
 public import Init.Data.Iterators.Combinators.Take
 import all Init.Data.Range.Polymorphic.Basic
 public import Init.Data.Slice.Operations
+public import Init.Data.ToString.Extra
 
 public section
 
@@ -22,7 +23,7 @@ open Std Slice PRange Iterators
 
 variable {α : Type u}
 
-@[inline, expose, instance_reducible]
+@[inline, expose, implicit_reducible]
 def ListSlice.instToIterator :=
   ToIterator.of (γ := Slice (Internal.ListSliceData α)) _ (fun s => match s.internalRepresentation.stop with
       | some n => s.internalRepresentation.list.iter.take n

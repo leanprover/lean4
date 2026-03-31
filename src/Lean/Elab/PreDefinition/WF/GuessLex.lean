@@ -229,7 +229,7 @@ where
         loop param f
 
   containsRecFn (e : Expr) : M recFnName α Bool := do
-    modifyGetThe (HasConstCache #[recFnName]) (·.contains e)
+    modifyGetThe (HasConstCache #[recFnName]) (HasConstCache.contains e |>.run)
 
   loop (param : Expr) (e : Expr) : M recFnName α Unit := do
     if !(← containsRecFn e) then
@@ -434,9 +434,9 @@ instance : ToFormat GuessLexRel where
 
 /-- Given a `GuessLexRel`, produce a binary `Expr` that relates two `Nat` values accordingly. -/
 def GuessLexRel.toNatRel : GuessLexRel → Expr
-  | lt => mkAppN (mkConst ``LT.lt [levelZero]) #[mkConst ``Nat, mkConst ``instLTNat]
-  | eq => mkAppN (mkConst ``Eq [levelOne]) #[mkConst ``Nat]
-  | le => mkAppN (mkConst ``LE.le [levelZero]) #[mkConst ``Nat, mkConst ``instLENat]
+  | lt => mkAppN (mkConst ``LT.lt [Level.zero]) #[mkConst ``Nat, mkConst ``instLTNat]
+  | eq => mkAppN (mkConst ``Eq [Level.one]) #[mkConst ``Nat]
+  | le => mkAppN (mkConst ``LE.le [Level.zero]) #[mkConst ``Nat, mkConst ``instLENat]
   | no_idea => unreachable!
 
 /--
@@ -551,7 +551,7 @@ try first, when the mutually recursive functions have similar argument structure
 -/
 partial def generateCombinations? (numMeasures : Array Nat) (threshold : Nat := 32) :
     Option (Array (Array Nat)) :=
-  (do goUniform 0; go 0 #[]) |>.run #[] |>.2
+  (do goUniform 0; go 0 #[]) |>.run.run #[] |>.2
 where
   -- Enumerate all permissible uniform combinations
   goUniform (idx : Nat) : OptionT (StateM (Array (Array Nat))) Unit  := do

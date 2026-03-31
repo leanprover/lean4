@@ -9,6 +9,7 @@ prelude
 public import Lean.Parser.Attr
 public import Lean.Parser.Level
 public import Lean.Parser.Term.Doc
+meta import Lean.Parser.Basic
 
 /-!
 This module contains the bare minimum of term syntax that's required to get documentation syntax to
@@ -184,11 +185,14 @@ def binderTactic  := leading_parser
 def binderDefault := leading_parser
   " := " >> termParser
 
+set_option compiler.relaxedMetaCheck true in
+private meta def binderDefaultM := binderDefault
+
 open Lean.PrettyPrinter Parenthesizer Syntax.MonadTraverser in
 @[combinator_parenthesizer Lean.Parser.Term.binderDefault, expose] def binderDefault.parenthesizer : Parenthesizer := do
   let prec := match (← getCur) with
     -- must parenthesize to distinguish from `binderTactic`
-    | `(binderDefault| := by $_) => maxPrec
+    | `(binderDefaultM| := by $_) => maxPrec
     | _                          => 0
   visitArgs do
     term.parenthesizer prec

@@ -33,12 +33,12 @@ theorem List.step_iter_cons {x : β} {xs : List β} :
     ((x :: xs).iter).step = ⟨.yield xs.iter x, rfl⟩ := by
   simp [List.iter, List.iterM, IterM.toIter, Iter.step_eq]
 
-@[simp, grind =]
+@[cbv_eval, simp, grind =]
 theorem List.toArray_iter {l : List β} :
     l.iter.toArray = l.toArray := by
   simp [List.iter, List.toArray_iterM, Iter.toArray_eq_toArray_toIterM]
 
-@[simp, grind =]
+@[cbv_eval, simp, grind =]
 theorem List.toList_iter {l : List β} :
     l.iter.toList = l := by
   simp [List.iter, List.toList_iterM]

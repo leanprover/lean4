@@ -25,6 +25,7 @@ namespace List
 
 open Nat
 
+set_option backward.isDefEq.respectTransparency false in
 @[grind =]
 theorem countP_set {p : α → Bool} {l : List α} {i : Nat} {a : α} (h : i < l.length) :
     (l.set i a).countP p = l.countP p - (if p l[i] then 1 else 0) + (if p a then 1 else 0) := by
@@ -105,7 +106,7 @@ theorem Sublist.le_countP (s : l₁ <+ l₂) (p) : countP p l₂ - (l₂.length 
     have := s.le_countP p
     have := s.length_le
     split <;> omega
-  | .cons₂ a s =>
+  | .cons_cons a s =>
     rename_i l₁ l₂
     simp only [countP_cons, length_cons]
     have := s.le_countP p

@@ -179,8 +179,16 @@ theorem append_left_inj {s₁ s₂ : String} (t : String) :
     s₁ ++ t = s₂ ++ t ↔ s₁ = s₂ := by
   simp [← toByteArray_inj]
 
+@[simp]
+theorem append_right_inj (s : String) {t₁ t₂ : String} :
+    s ++ t₁ = s ++ t₂ ↔ t₁ = t₂ := by
+  simp [← toByteArray_inj]
+
 theorem append_assoc {s₁ s₂ s₃ : String} : s₁ ++ s₂ ++ s₃ = s₁ ++ (s₂ ++ s₃) := by
   simp [← toByteArray_inj, ByteArray.append_assoc]
+
+instance : Std.Associative (α := String) (· ++ ·) where
+  assoc _ _ _ := append_assoc
 
 @[simp]
 theorem utf8ByteSize_eq_zero_iff {s : String} : s.utf8ByteSize = 0 ↔ s = "" := by
@@ -225,7 +233,7 @@ Examples:
  * `"empty".isEmpty = false`
  * `" ".isEmpty = false`
 -/
-@[inline] def isEmpty (s : String) : Bool :=
+@[inline, expose] def isEmpty (s : String) : Bool :=
   s.utf8ByteSize == 0
 
 @[export lean_string_isempty]

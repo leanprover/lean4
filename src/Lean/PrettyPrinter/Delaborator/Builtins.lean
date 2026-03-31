@@ -9,10 +9,10 @@ prelude
 public import Lean.PrettyPrinter.Delaborator.Basic
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
-import Lean.Parser.Command
 public import Lean.PrettyPrinter.Formatter
 public import Lean.PrettyPrinter.Parenthesizer
-meta import Lean.Parser.Do
+meta import Lean.Parser.Command
+meta import Lean.PrettyPrinter.Delaborator.DeclWithSig
 
 public section
 
@@ -47,8 +47,12 @@ def delabFVar : Delab := do
     let l ← fvarId.getDecl
     maybeAddBlockImplicit (mkIdent l.userName)
   catch _ =>
-    -- loose free variable, use internal name
-    maybeAddBlockImplicit <| mkIdent (fvarId.name.replacePrefix `_uniq `_fvar)
+    -- loose free variable
+    if ← getPPOption getPPFVarsAnonymous then
+      -- use internal name like `_fvar.22`
+      maybeAddBlockImplicit <| mkIdent (fvarId.name.replacePrefix `_uniq `_fvar)
+    else
+      maybeAddBlockImplicit <| mkIdent `_fvar._
 
 -- loose bound variable, use pseudo syntax
 @[builtin_delab bvar]
@@ -100,17 +104,31 @@ Rather, it is called through the `app` delaborator.
 -/
 def delabConst : Delab := do
   let Expr.const c₀ ls ← getExpr | unreachable!
-  let unresolveName (n : Name) : DelabM Name := do
-    unresolveNameGlobalAvoidingLocals n (fullNames := ← getPPOption getPPFullNames)
-  let mut c := c₀
-  if isPrivateName c₀ then
-    unless (← getPPOption getPPPrivateNames) do
-      c ← unresolveName c
-      if let some n := privateToUserName? c then
-        -- The private name could not be made non-private, so make the result inaccessible
-        c ← withFreshMacroScope <| MonadQuotation.addMacroScope n
-  else
-    c ← unresolveName c
+  let env ← getEnv
+  let c ←
+    if ← pure (isPrivateName c₀) <&&> getPPOption getPPPrivateNames then
+      pure c₀
+    else if let some c ← unresolveNameGlobalAvoidingLocals? c₀ (fullNames := ← getPPOption getPPFullNames) then
+      pure c
+    else if !env.contains c₀ then
+      -- The compiler pretty prints constants that are not defined in the environment.
+      -- Use such names as-is, without additional macro scopes.
+      -- We still remove the private prefix if the name would be accessible to the current module.
+      if isPrivateName c₀ && mkPrivateName env (privateToUserName c₀.eraseMacroScopes) == c₀.eraseMacroScopes then
+        pure <| Name.modifyBase c₀ privateToUserName
+      else
+        pure c₀
+    else
+      -- The identifier cannot be referred to. To indicate this, we add a delaboration-specific macro scope.
+      -- If the name is private, we also erase the private prefix and add it as an additional macro scope, ensuring
+      -- no collisions between names with different private prefixes.
+      let c := if let some (.num priv 0) := privatePrefix? c₀.eraseMacroScopes then
+          -- The private prefix before `0` is of the form `_private.modulename`, which works as a macro scope context
+          Lean.addMacroScope priv (Name.modifyBase c₀ privateToUserName) reservedMacroScope
+        else
+          c₀
+      pure <| Lean.addMacroScope `_delabConst c reservedMacroScope
+
   let stx ←
     if !ls.isEmpty && (← getPPOption getPPUniverses) then
       let mvars ← getPPOption getPPMVarsLevels
@@ -296,7 +314,10 @@ def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (in
   let insertExplicit := needsExplicit ((← getExpr).getBoundedAppFn numArgs) numArgs paramKinds
   let fieldNotation ← pure (fieldNotation && !insertExplicit) <&&> getPPOption getPPFieldNotation
     <&&> not <$> getPPOption getPPAnalysisNoDot
-    <&&> withBoundedAppFn numArgs do pure (← getExpr).consumeMData.isConst <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> getPPOption getPPUniverses)
+    <&&> withBoundedAppFn numArgs do
+            pure (← getExpr).consumeMData.isConst
+            <&&> not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
+            <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> getPPOption getPPUniverses)
   let field? ← if fieldNotation then appFieldNotationCandidate? else pure none
   let (fnStx, _, argStxs) ← withBoundedAppFnArgs numArgs
     (do return (← delabHead insertExplicit, paramKinds.toList, Array.mkEmpty numArgs))
@@ -357,7 +378,10 @@ Assumes `numArgs ≤ paramKinds.size`.
 -/
 def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
   let unexpand ← pure unexpand
-    <&&> withBoundedAppFn numArgs do pure (← getExpr).consumeMData.isConst <&&> not <$> withMDatasOptions (getPPOption getPPUniverses)
+    <&&> withBoundedAppFn numArgs do
+            pure (← getExpr).consumeMData.isConst
+            <&&> not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
+            <&&> not <$> withMDatasOptions (getPPOption getPPUniverses)
   let field? ←
     if ← pure unexpand <&&> getPPOption getPPFieldNotation <&&> not <$> getPPOption getPPAnalysisNoDot then
       appFieldNotationCandidate?
@@ -522,7 +546,12 @@ Default delaborator for applications.
 @[builtin_delab app]
 def delabApp : Delab := do
   let delabAppFn (insertExplicit : Bool) : Delab := do
-    let stx ← if (← getExpr).consumeMData.isConst then withMDatasOptions delabConst else delab
+    let e ← getExpr
+    let stx ←
+      if ← pure e.consumeMData.isConst <&&> not <$> (pure e.isMData <&&> getPPOption getPPMData) then
+        withMDatasOptions delabConst
+      else
+        delab
     if insertExplicit && !stx.raw.isOfKind ``Lean.Parser.Term.explicit then `(@$stx) else pure stx
   delabAppCore (← getExpr).getAppNumArgs delabAppFn (unexpand := true)
 
@@ -830,7 +859,7 @@ where
     if i < hNames?.size then
       if let some name := hNames?[i]! then
         let n' ← getUnusedName name body
-        withLocalDecl n' .default (.sort levelZero) (kind := .implDetail) fun _ =>
+        withLocalDecl n' .default (.sort Level.zero) (kind := .implDetail) fun _ =>
           withDummyBinders hNames? body m (acc.push n')
       else
         withDummyBinders hNames? body m (acc.push none)
@@ -843,18 +872,37 @@ where
     else
       x
 
+private def reflectDataValue (t : DataValue) : Term := Unhygienic.run do
+  match t with
+  | .ofBool b => return mkIdent (if b then `true else `false)
+  | .ofNat n => return quote n
+  | .ofInt n => if n ≥ 0 then return quote n.toNat else `(-$(quote n.natAbs))
+  | .ofString s => return quote s
+  | .ofName n => return mkIdent n
+  | .ofSyntax _ => `(_)
+
 @[builtin_delab mdata]
 def delabMData : Delab := do
-  if let some _ := inaccessible? (← getExpr) then
-    let s ← withMDataExpr delab
-    if (← read).inPattern then
-      `(.($s)) -- We only include the inaccessible annotation when we are delaborating patterns
-    else
-      return s
-  else if let some _ := isLHSGoal? (← getExpr) then
-    withMDataExpr <| withAppFn <| withAppArg <| delab
+  if ← getPPOption getPPMData then
+    let .mdata d _ ← getExpr | unreachable!
+    let (keys, vals?) ← d.entries.foldlM (init := (#[], #[]))
+      fun ((keys : Array Ident), (vals : Array (Option Term))) (k, v) => do
+        return (keys.push (mkIdent k), vals.push (some <| reflectDataValue v))
+    let e ← withMDataOptions delab
+    -- Annotate to prevent overwriting the terminfo for `e`, which is
+    -- already inserted at the current position.
+    annotateCurPos =<< `(mdataDiagnostic| [mdata $[$keys $[:$vals?]?]*] $e)
   else
-    withMDataOptions delab
+    if let some _ := inaccessible? (← getExpr) then
+      let s ← withMDataExpr delab
+      if (← read).inPattern then
+        `(.($s)) -- We only include the inaccessible annotation when we are delaborating patterns
+      else
+        return s
+    else if let some _ := isLHSGoal? (← getExpr) then
+      withMDataExpr <| withAppFn <| withAppArg <| delab
+    else
+      withMDataOptions delab
 
 /--
 Return `true` iff current binder should be merged with the nested
@@ -1230,10 +1278,10 @@ where
   delabBranch (h? : Option Name) : DelabM (Syntax × Name) := do
     let e ← getExpr
     guard e.isLambda
-    let h ← match h? with
-      | some h => return (← withBindingBody h delab, h)
-      | none   => withBindingBodyUnusedName fun h => do
-        return (← delab, h.getId)
+    match h? with
+    | some h => return (← withBindingBody h delab, h)
+    | none   => withBindingBodyUnusedName fun h => do
+      return (← delab, h.getId)
 
 @[builtin_delab app.cond]
 def delabCond : Delab := whenNotPPOption getPPExplicit <| whenPPOption getPPNotation <| withOverApp 4 do
@@ -1499,11 +1547,6 @@ def delabSorry : Delab := whenPPOption getPPNotation <| whenNotPPOption getPPExp
         `(sorry)
   else
     withOverApp 2 `(sorry)
-
-open Parser Command Term in
-@[run_builtin_parser_attribute_hooks]
--- use `termParser` instead of `declId` so we can reuse `delabConst`
-def declSigWithId := leading_parser termParser maxPrec >> declSig
 
 private unsafe def evalSyntaxConstantUnsafe (env : Environment) (opts : Options) (constName : Name) : ExceptT String Id Syntax :=
   env.evalConstCheck Syntax opts ``Syntax constName

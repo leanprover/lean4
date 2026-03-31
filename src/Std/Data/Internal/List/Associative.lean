@@ -7789,6 +7789,16 @@ theorem Const.perm_of_beqModel {β : Type v} [BEq α] [LawfulBEq α] [BEq β] [L
   intro hyp
   apply List.perm_of_beqModel hl₁ hl₂ hyp
 
+theorem beqModel_iff_perm [BEq α] [LawfulBEq α] [∀ k, BEq (β k)] [∀ k, LawfulBEq (β k)]
+    {l₁ l₂ : List ((a : α) × β a)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
+    beqModel l₁ l₂ ↔ l₁.Perm l₂ :=
+  ⟨perm_of_beqModel hl₁ hl₂, beqModel_eq_true_of_perm hl₁⟩
+
+theorem Const.beqModel_iff_perm {β : Type v} [BEq α] [LawfulBEq α] [BEq β] [LawfulBEq β]
+    {l₁ l₂ : List ((_ : α) × β)} (hl₁ : DistinctKeys l₁) (hl₂ : DistinctKeys l₂) :
+    beqModel l₁ l₂ ↔ l₁.Perm l₂ :=
+  ⟨perm_of_beqModel hl₁ hl₂, beqModel_eq_true_of_perm hl₁⟩
+
 namespace Const
 
 theorem getKey_getValue_mem [BEq α] [EquivBEq α] {β : Type v} {l : List ((_ : α) × β)} {k : α} {h} :

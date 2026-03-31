@@ -774,6 +774,39 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
 @[builtin_term_parser] def noImplicitLambda := leading_parser
   "no_implicit_lambda% " >> termParser maxPrec
 /--
+`inferInstanceAs α` synthesizes an instance of type `α` and then adjusts it to conform to the
+expected type `β`, which must be inferable from context.
+
+Example:
+```
+def D := Nat
+instance : Inhabited D := inferInstanceAs (Inhabited Nat)
+```
+
+The adjustment will make sure that when the resulting instance will not "leak" the RHS `Nat` when
+reduced at transparency levels below `semireducible`, i.e. where `D` would not be unfolded either,
+preventing "defeq abuse".
+
+More specifically, given the "source type" (the argument) and "target type" (the expected type),
+`inferInstanceAs` synthesizes an instance for the source type and then unfolds and rewraps its
+components (fields, nested instances) as necessary to make them compatible with the target type. The
+individual steps are represented by the following options, which all default to enabled and can be
+disabled to help with porting:
+
+* `backward.inferInstanceAs.wrap`: master switch for instance adjustment in both `inferInstanceAs`
+  and the default deriving handler
+* `backward.inferInstanceAs.wrap.reuseSubInstances`: reuse existing instances for the target type
+  for sub-instance fields to avoid non-defeq instance diamonds
+* `backward.inferInstanceAs.wrap.instances`: wrap non-reducible instances in auxiliary definitions
+* `backward.inferInstanceAs.wrap.data`: wrap data fields in auxiliary definitions (proof fields are
+  always wrapped)
+
+If you just need to synthesize an instance without transporting between types, use `inferInstance`
+instead, potentially with a type annotation for the expected type.
+-/
+@[builtin_term_parser] def «inferInstanceAs» := leading_parser
+  "inferInstanceAs" >> (((" $ " <|> " <| ") >> termParser minPrec) <|> (ppSpace >> termParser argPrec))
+/--
 `value_of% x` elaborates to the value of `x`, which can be a local or global definition.
 -/
 @[builtin_term_parser] def valueOf := leading_parser
@@ -912,6 +945,10 @@ interpolated string literal) to stderr. It should only be used for debugging.
 @[builtin_term_parser] def dbgTrace := leading_parser:leadPrec
   withPosition ("dbg_trace" >> (interpolatedStr termParser <|> termParser)) >>
   optSemicolon termParser
+/-- Term-level form of the interactive debugger. See the `doIdbg` do element for full documentation. -/
+@[builtin_term_parser] def «idbg» := leading_parser:leadPrec
+  withPosition ("idbg " >> checkColGt >> termParser) >>
+  optSemicolon termParser
 /-- `assert! cond` panics if `cond` evaluates to `false`. -/
 @[builtin_term_parser] def assert := leading_parser:leadPrec
   withPosition ("assert! " >> termParser) >> optSemicolon termParser
@@ -959,6 +996,14 @@ def matchExprAlts (rhsParser : Parser) :=
   leading_parser withPosition $
     many (ppLine >> checkColGe "irrelevant" >> notFollowedBy (symbol "| " >> " _ ") "irrelevant" >> matchExprAlt rhsParser)
     >> (ppLine >> checkColGe "else-alternative for `match_expr`, i.e., `| _ => ...`" >> matchExprElseAlt rhsParser)
+/--
+  Useful for syntax quotations. Note that generic patterns such as `` `(matchExprAltExpr| | ... => $rhs) `` should also
+  work with other `rhsParser`s (of arity 1). -/
+def matchExprAltExpr := matchExprAlt termParser
+
+instance : Coe (TSyntax ``matchExprAltExpr) (TSyntax ``matchExprAlt) where
+  coe stx := ⟨stx.raw⟩
+
 @[builtin_term_parser] def matchExpr := leading_parser:leadPrec
   "match_expr " >> termParser >> " with" >> ppDedent (matchExprAlts termParser)
 
@@ -1015,6 +1060,14 @@ string or a `MessageData` term.
 -/
 @[builtin_term_parser] def logNamedWarningAtMacro := leading_parser
   "logNamedWarningAt " >> termParser maxPrec >> ppSpace >> identWithPartialTrailingDot >> ppSpace >> (interpolatedStr termParser <|> termParser maxPrec)
+
+/--
+Representation of an expression with metadata used during pretty printing for the `pp.mdata` option.
+-/
+@[run_builtin_parser_attribute_hooks]
+def mdataDiagnostic := leading_parser
+  group ("[" >> "mdata" >> many (group <| ppSpace >> ident >> optional (":" >> termParser)) >> "]") >>
+  ppSpace >> termParser
 
 end Term
 

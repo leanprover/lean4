@@ -469,6 +469,7 @@ def seq : FirstTokens → FirstTokens → FirstTokens
   | epsilon,      tks          => tks
   | optTokens s₁, optTokens s₂ => optTokens (s₁ ++ s₂)
   | optTokens s₁, tokens s₂    => tokens (s₁ ++ s₂)
+  | optTokens _,  unknown      => unknown
   | tks,          _            => tks
 
 def toOptional : FirstTokens → FirstTokens

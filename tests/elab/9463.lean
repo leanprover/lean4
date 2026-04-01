@@ -51,7 +51,6 @@ deriving Inhabited
 
 /-!
 In this example we can see that it adds an inhabited parameter.
-Currently, even when we give a default value, the instance parameter is still added.
 -/
 structure Config''' (α : Type) where
   n : α → α
@@ -60,25 +59,25 @@ deriving Inhabited
 /-- info: instInhabitedConfig''' {a✝ : Type} [Inhabited a✝] : Inhabited (Config''' a✝) -/
 #guard_msgs in #check instInhabitedConfig'''
 
+/-!
+Providing a default value inhibits adding an inhabited parameter.
+-/
 structure Config'''' (α : Type) where
   n : α → α := id
 deriving Inhabited
 
-/-- info: instInhabitedConfig'''' {a✝ : Type} [Inhabited a✝] : Inhabited (Config'''' a✝) -/
+/-- info: instInhabitedConfig'''' {a✝ : Type} : Inhabited (Config'''' a✝) -/
 #guard_msgs in #check instInhabitedConfig''''
 
 /-!
 Mixed needs for `Inhabited` parameters.
-Currently additional such parameters are all or nothing.
 -/
 structure S (α β : Type) where
   f : α → α := id
   g : β
 deriving Inhabited
 
-/--
-info: instInhabitedS {a✝ : Type} [Inhabited a✝] {a✝¹ : Type} [Inhabited a✝¹] : Inhabited (S a✝ a✝¹)
--/
+/-- info: instInhabitedS {a✝ a✝¹ : Type} [Inhabited a✝¹] : Inhabited (S a✝ a✝¹) -/
 #guard_msgs in #check instInhabitedS
 
 /-!

@@ -220,6 +220,7 @@ def getDecl' (n : Name) (decls : Array Decl) : CompilerM Decl := do
 
 @[export lean_decl_get_sorry_dep]
 def getSorryDep (env : Environment) (declName : Name) : Option Name :=
+  -- never used in `leanir`, so `preferImported` can be used to avoid blocks
   match findEnvDecl env declName (preferImported := true) with
   | some (.fdecl (info := { sorryDep? := dep?, .. }) ..) => dep?
   | _ => none

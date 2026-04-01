@@ -78,8 +78,11 @@ def isValidMainType (type : Expr) : Bool :=
     isValidResultName resultName
   | _ => false
 
+/-- A postponed call of `compileDecls`. -/
 structure PostponedCompileDecls where
+  /-- Declaration names of this mutual group. -/
   declNames : Array Name
+  /-- Options at time of original call, to be restored for tracing etc. -/
   options : Options
 deriving BEq
 
@@ -107,6 +110,8 @@ def resumeCompilation (declName : Name) (baseOpts : Options) : CoreM Unit := do
   let opts := baseOpts.mergeBy (fun _ base _ => base) decls.options
   let opts := compiler.postponeCompile.set opts false
   modifyEnv (postponedCompileDeclsExt.modifyState · fun s => decls.declNames.foldl (·.erase) s)
+  -- NOTE: we *must* throw away the current options as they could depend on the specific recursion
+  -- we did to get here.
   withOptions (fun _ => opts) do
   Core.prependError m!"Failed to compile `{declName}`" do
     (← compileDeclsRef.get) decls.declNames baseOpts
@@ -149,6 +154,7 @@ partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit :
     -- importing `.ir` but still marked for `leanir` compilation so that we do not have to persist
     -- module-local compilation information between the two processes
     if decls.any (isMarkedMeta (← getEnv) ·.name) then
+      -- avoid re-compiling the meta defs in this process; the entry for `leanir` is not affected
       modifyEnv (postponedCompileDeclsExt.modifyState · fun s => decls.foldl (·.erase ·.name) s)
     else
       trace[Compiler] "postponing compilation of {decls.map (·.name)}"

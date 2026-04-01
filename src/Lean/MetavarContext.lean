@@ -444,12 +444,6 @@ def _root_.Lean.MVarId.isAssignedOrDelayedAssigned [Monad m] [MonadMCtx m] (mvar
   let mctx ← getMCtx
   return mctx.eAssignment.contains mvarId || mctx.dAssignment.contains mvarId
 
-def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool := do
-  let mctx ← getMCtx
-  match mctx.lDepth.find? mvarId with
-  | some d => return d >= mctx.levelAssignDepth
-  | _      => panic! s!"unknown universe metavariable {mvarId.name}"
-
 def MetavarContext.getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
   match mctx.decls.find? mvarId with
   | some decl => decl
@@ -483,30 +477,6 @@ def hasAssignedMVar [Monad m] [MonadMCtx m] : Expr → m Bool
   | .mdata _ e       => pure e.hasMVar <&&> hasAssignedMVar e
   | .proj _ _ e      => pure e.hasMVar <&&> hasAssignedMVar e
   | .mvar mvarId     => mvarId.isAssigned <||> mvarId.isDelayedAssigned
-
-/-- Return true iff the given level contains a metavariable that can be assigned. -/
-def hasAssignableLevelMVar [Monad m] [MonadMCtx m] : Level → m Bool
-  | .succ lvl       => pure lvl.hasMVar <&&> hasAssignableLevelMVar lvl
-  | .max lvl₁ lvl₂  => (pure lvl₁.hasMVar <&&> hasAssignableLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignableLevelMVar lvl₂)
-  | .imax lvl₁ lvl₂ => (pure lvl₁.hasMVar <&&> hasAssignableLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignableLevelMVar lvl₂)
-  | .mvar mvarId    => isLevelMVarAssignable mvarId
-  | .zero           => return false
-  | .param _        => return false
-
-/-- Return `true` iff expression contains a metavariable that can be assigned. -/
-def hasAssignableMVar [Monad m] [MonadMCtx m] : Expr → m Bool
-  | .const _ lvls    => lvls.anyM hasAssignableLevelMVar
-  | .sort lvl        => hasAssignableLevelMVar lvl
-  | .app f a         => (pure f.hasMVar <&&> hasAssignableMVar f) <||> (pure a.hasMVar <&&> hasAssignableMVar a)
-  | .letE _ t v b _  => (pure t.hasMVar <&&> hasAssignableMVar t) <||> (pure v.hasMVar <&&> hasAssignableMVar v) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
-  | .forallE _ d b _ => (pure d.hasMVar <&&> hasAssignableMVar d) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
-  | .lam _ d b _     => (pure d.hasMVar <&&> hasAssignableMVar d) <||> (pure b.hasMVar <&&> hasAssignableMVar b)
-  | .fvar _          => return false
-  | .bvar _          => return false
-  | .lit _           => return false
-  | .mdata _ e       => pure e.hasMVar <&&> hasAssignableMVar e
-  | .proj _ _ e      => pure e.hasMVar <&&> hasAssignableMVar e
-  | .mvar mvarId     => mvarId.isAssignable
 
 /--
   Add `mvarId := u` to the universe metavariable assignment.

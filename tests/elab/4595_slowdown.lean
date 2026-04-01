@@ -1,6 +1,8 @@
 -- The final declaration blew up by a factor of about 40x heartbeats on an earlier draft of
 -- https://github.com/leanprover/lean4/pull/4595, so this is here as a regression test.
 
+set_option maxHeartbeats 400000
+
 universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
 section Mathlib.Combinatorics.Quiver.Basic

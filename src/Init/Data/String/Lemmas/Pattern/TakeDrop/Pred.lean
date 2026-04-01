@@ -65,7 +65,7 @@ theorem startsWith_prop_eq_head? {P : Char → Prop} [DecidablePred P] {s : Slic
     s.startsWith P = s.copy.toList.head?.any (decide <| P ·) := by
   simp [startsWith_prop_eq_startsWith_decide, startsWith_bool_eq_head?]
 
-theorem eq_append_of_dropPrefix_prop_eq_some {P : Char → Prop} [DecidablePred P] {s res : Slice} (h : s.dropPrefix? P = some res) :
+theorem eq_append_of_dropPrefix?_prop_eq_some {P : Char → Prop} [DecidablePred P] {s res : Slice} (h : s.dropPrefix? P = some res) :
     ∃ c, s.copy = singleton c ++ res.copy ∧ P c := by
   rw [dropPrefix?_prop_eq_dropPrefix?_decide] at h
   simpa using eq_append_of_dropPrefix?_bool_eq_some h
@@ -162,7 +162,7 @@ theorem startsWith_prop_eq_head? {P : Char → Prop} [DecidablePred P] {s : Stri
 theorem eq_append_of_dropPrefix?_prop_eq_some {P : Char → Prop} [DecidablePred P] {s : String} {res : Slice}
     (h : s.dropPrefix? P = some res) : ∃ c, s = singleton c ++ res.copy ∧ P c := by
   rw [dropPrefix?_eq_dropPrefix?_toSlice] at h
-  simpa using Slice.eq_append_of_dropPrefix_prop_eq_some h
+  simpa using Slice.eq_append_of_dropPrefix?_prop_eq_some h
 
 theorem skipSuffix?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos : s.Pos} :
     s.skipSuffix? p = some pos ↔ ∃ h, pos = s.endPos.prev h ∧ p ((s.endPos.prev h).get (by simp)) = true := by

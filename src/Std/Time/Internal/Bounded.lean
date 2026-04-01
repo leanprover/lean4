@@ -239,7 +239,7 @@ def ofFin' {lo : Nat} (fin : Fin (Nat.succ hi)) (h : lo ≤ hi) : Bounded.LE lo 
     else ofNat' lo (And.intro (Nat.le_refl lo) h)
 
 /--
-Creates a new `Bounded.LE` using a the modulus of a number.
+Creates a new `Bounded.LE` using the modulus of a number.
 -/
 @[inline]
 def byEmod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
@@ -252,7 +252,7 @@ def byEmod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
     exact Int.emod_lt_of_pos b hi
 
 /--
-Creates a new `Bounded.LE` using a the Truncating modulus of a number.
+Creates a new `Bounded.LE` using the Truncating modulus of a number.
 -/
 @[inline]
 def byMod (b : Int) (i : Int) (hi : 0 < i) : Bounded.LE (- (i - 1)) (i - 1) := by

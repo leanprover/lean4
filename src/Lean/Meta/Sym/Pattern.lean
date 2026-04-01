@@ -18,6 +18,7 @@ import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.Offset
 import Lean.Meta.Sym.Eta
 import Lean.Meta.Sym.Util
+import Lean.Meta.HasAssignableMVar
 import Init.Data.List.MapIdx
 import Init.Data.Nat.Linear
 import Std.Do.Triple.Basic

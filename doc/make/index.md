@@ -30,6 +30,9 @@ cd lean4
 cmake --preset release
 make -C build/release -j$(nproc || sysctl -n hw.logicalcpu)
 ```
+
+For development, `cmake --preset dev` is recommended instead.
+
 You can replace `$(nproc || sysctl -n hw.logicalcpu)` with the desired parallelism amount.
 
 The above commands will compile the Lean library and binaries into the

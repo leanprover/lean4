@@ -105,3 +105,37 @@ def handleMyCmd : SimpleHandler := fun
 my_command y
 
 my_command z
+
+-- Test: empty doc strings should be treated as missing
+/---/
+def emptyDoc1 (x : Nat) := x
+
+/--
+-/
+def emptyDoc2 (x : Nat) := x
+
+/--   -/
+def emptyDoc3 (x : Nat) := x
+
+-- Test: empty doc strings on other declaration kinds
+/---/
+inductive EmptyInd where
+  /---/ | emptyCtorDoc
+  | noCtorDoc
+
+/---/
+notation:20 "empty_nota" x y => Nat.add x y
+
+/---/
+macro "empty_macro" : term => `(my_elab)
+
+/---/
+elab "empty_elab" : term => return Lean.mkConst ``false
+
+-- Test: @[inherit_doc] suppresses even with empty doc
+@[inherit_doc hasDoc]
+def inheritedDoc (x : Nat) := x
+
+-- Test: Verso doc comments with interpolated content are not empty
+/-- See {name}`hasDoc` for details. -/
+def versoDoc (x : Nat) := x

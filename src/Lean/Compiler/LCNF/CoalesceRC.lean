@@ -21,7 +21,7 @@ Within a basic block, it is always safe to:
   until the later inc) and thus doing all relevant `inc` in the beginning doesn't change
   semantics.
 - Move all decrements on a variable to the last `dec` location (summing the counts). Because the
-  value is guaranteed to stay alive until at least the last `dec` anyway so a similiar argument to
+  value is guaranteed to stay alive until at least the last `dec` anyway so a similar argument to
   `inc` holds.
 
 Crucially this pass must be placed after `expandResetReuse` as that one relies on `inc`s still being

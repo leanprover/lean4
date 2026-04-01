@@ -625,6 +625,23 @@ syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
     (" (" &"since" " := " str ")")? : attr
 
 /--
+The attribute `@[deprecated_arg old new]` marks a named parameter as deprecated.
+
+When a caller uses the old name with a replacement available, a deprecation warning is emitted
+and the argument is silently forwarded to the new parameter. When no replacement is provided,
+the parameter is treated as removed and using it produces an error.
+
+* `@[deprecated_arg old new (since := "2026-03-18")]` marks `old` as a deprecated alias for `new`.
+* `@[deprecated_arg old new "use foo instead" (since := "2026-03-18")]` adds a custom message.
+* `@[deprecated_arg old (since := "2026-03-18")]` marks `old` as a removed parameter (no replacement).
+* `@[deprecated_arg old "no longer needed" (since := "2026-03-18")]` removed with a custom message.
+
+A warning is emitted if `(since := "...")` is omitted.
+-/
+syntax (name := deprecated_arg) "deprecated_arg" ppSpace ident (ppSpace ident)? (ppSpace str)?
+    (" (" &"since" " := " str ")")? : attr
+
+/--
 The attribute `@[suggest_for ..]` on a declaration suggests likely ways in which
 someone might **incorrectly** refer to a definition.
 

@@ -446,7 +446,7 @@ protected def get : CliM PUnit := do
           logWarning endpointDeprecation
           if opts.mappingsOnly then
             error "`--mappings-only` requires services to be configured
-              via the Lake system configuration (not enviroment variables)"
+              via the Lake system configuration (not environment variables)"
           return .downloadService artifactEndpoint revisionEndpoint ws.lakeEnv.cacheService?
         | none, none =>
             return ws.defaultCacheService

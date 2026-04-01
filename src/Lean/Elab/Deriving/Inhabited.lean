@@ -112,26 +112,27 @@ where
       let auxVal ← mkLambdaFVars xs' val
       return (auxType, auxVal, usedInstIdxs)
 
-  mkInstanceCmd? : TermElabM (Option Syntax) := do
-    let ctx ← mkContext ``Inhabited "default" inductiveTypeName
-    let auxFunName := ctx.auxFunNames[0]!
-    let indVal ← getConstInfoInduct inductiveTypeName
-    let (auxType, auxVal, usedInstIdxs) ←
-      try
-        mkDefaultValue indVal
-      catch e =>
-        trace[Elab.Deriving.inhabited] "error: {e.toMessageData}"
-        return none
-    addAndCompile <| .defnDecl <| ← mkDefinitionValInferringUnsafe
-      (name        := auxFunName)
-      (levelParams := indVal.levelParams)
-      (type        := auxType)
-      (value       := auxVal)
-      (hints       := ReducibilityHints.regular (getMaxHeight (← getEnv) auxVal + 1))
-    trace[Elab.Deriving.inhabited] "defined {.ofConstName auxFunName}"
-    let cmd ← mkInstanceCmdWith ctx usedInstIdxs auxFunName
-    trace[Elab.Deriving.inhabited] "\n{cmd}"
-    return some cmd
+  mkInstanceCmd? : TermElabM (Option Syntax) :=
+    withExporting (isExporting := !isPrivateName ctorName) do
+      let ctx ← mkContext ``Inhabited "default" inductiveTypeName
+      let auxFunName := ctx.auxFunNames[0]!
+      let indVal ← getConstInfoInduct inductiveTypeName
+      let (auxType, auxVal, usedInstIdxs) ←
+        try
+          mkDefaultValue indVal
+        catch e =>
+          trace[Elab.Deriving.inhabited] "error: {e.toMessageData}"
+          return none
+      addAndCompile <| .defnDecl <| ← mkDefinitionValInferringUnsafe
+        (name        := auxFunName)
+        (levelParams := indVal.levelParams)
+        (type        := auxType)
+        (value       := auxVal)
+        (hints       := ReducibilityHints.regular (getMaxHeight (← getEnv) auxVal + 1))
+      trace[Elab.Deriving.inhabited] "defined {.ofConstName auxFunName}"
+      let cmd ← mkInstanceCmdWith ctx usedInstIdxs auxFunName
+      trace[Elab.Deriving.inhabited] "\n{cmd}"
+      return some cmd
 
 private def mkInhabitedInstance (declName : Name) : CommandElabM Unit := do
   withoutExposeFromCtors declName do

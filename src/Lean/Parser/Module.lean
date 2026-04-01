@@ -129,6 +129,9 @@ private def consumeInput (inputCtx : InputContext) (pmctx : ParserModuleContext)
 def topLevelCommandParserFn : ParserFn :=
   commandParser.fn
 
+def topLevelCommandRecoverParserFn : ParserFn :=
+  commandRecoverParser.fn
+
 partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext) (mps : ModuleParserState) (messages : MessageLog) : Syntax × ModuleParserState × MessageLog := Id.run do
   let mut pos := mps.pos
   let mut recovering := mps.recovering
@@ -154,6 +157,14 @@ partial def parseCommand (inputCtx : InputContext) (pmctx : ParserModuleContext)
       recovering := false
       break
     | some errorMsg =>
+      -- Try the recovery parser. Only accept it if it has no errors and makes at least as much progress.
+      let pr := andthenFn whitespace topLevelCommandRecoverParserFn
+      let sr := pr.run inputCtx pmctx (getTokenTable pmctx.env) { cache := initCacheForInput inputCtx.inputString, pos := pos' }
+      if !sr.hasError && sr.pos > pos' && sr.pos ≥ pos then
+        pos := sr.pos
+        stx := sr.stxStack.back
+        recovering := true
+        break
       -- advance at least one token to prevent infinite loops
       if pos == pos' then
         pos := consumeInput inputCtx pmctx pos

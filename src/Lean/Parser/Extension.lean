@@ -599,6 +599,13 @@ builtin_initialize registerBuiltinDynamicParserAttribute `command_parser `comman
 @[inline] def commandParser (rbp : Nat := 0) : Parser :=
   categoryParser `command rbp
 
+builtin_initialize registerBuiltinParserAttribute `builtin_command_recover_parser ``Category.command_recover
+
+builtin_initialize registerBuiltinDynamicParserAttribute `command_recover_parser `command_recover
+
+@[inline] def commandRecoverParser (rbp : Nat := 0) : Parser :=
+  categoryParser `command_recover rbp
+
 private def withNamespaces (ids : Array Name) (addOpenSimple : Bool) : ParserFn → ParserFn := adaptUncacheableContextFn fun c =>
   let c := ids.foldl (init := c) fun c id =>
     let nss := ResolveName.resolveNamespace c.env c.currNamespace c.openDecls id

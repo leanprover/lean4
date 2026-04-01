@@ -1,6 +1,16 @@
+import Lean
 /-!
 # Loose docstrings
 -/
+
+open Lean Parser Command in
+@[command_recover_parser]
+def looseDocComment := leading_parser docComment
+
+open Lean Elab Command in
+@[command_elab looseDocComment] def elabLooseDocComment : CommandElab := fun _ => do
+  logError m!"Unexpected doc string. Doc strings must come immediately before declarations that accept them.\n\n\
+     Hint: `set_option ... in` must come before docstrings."
 
 /-!
 Basic test

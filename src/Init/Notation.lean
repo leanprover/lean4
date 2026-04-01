@@ -27,6 +27,10 @@ adding something to the environment (like a new definition), as well as
 commands like `variable` which modify future commands within a scope. -/
 meta def command : Category := {}
 
+/-- `command_recover` is the syntax category for recovering from top-level parse errors
+and reporting more specific errors. -/
+meta def command_recover : Category := {}
+
 /-- `term` is the builtin syntax category for terms. A term denotes an expression
 in lean's type theory, for example `2 + 2` is a term. The difference between
 `Term` and `Expr` is that the former is a kind of syntax, while the latter is

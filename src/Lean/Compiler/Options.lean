@@ -42,7 +42,7 @@ register_builtin_option compiler.ignoreBorrowAnnotation : Bool := {
 }
 
 register_builtin_option compiler.postponeCompile : Bool := {
-  defValue := true
+  defValue := false
   descr := "Internal. Toggle experimental `leanir` separate compilation."
 }
 

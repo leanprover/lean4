@@ -783,6 +783,36 @@ def skipSuffixWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : s.Pos :=
   s.endPos.revSkipWhile pat
 
 /--
+Checks whether a slice only consists of matches of the pattern {name}`pat`, starting from the back
+of the string.
+
+Short-circuits at the first pattern mis-match.
+
+This function is generic over all currently supported patterns.
+
+For many types of patterns, this function can be expected to return the same result as
+{name}`Slice.all`. If mismatches are expected to occur close to the end of the string, this function
+might be more efficient.
+
+For some types of patterns, this function will return a different result than {name}`Slice.all`.
+Consider, for example, a pattern that matches the longest string at the given position that matches
+the regular expression {lean}`"a|aa|ab"`. Then, given the input string {lean}`"aab"`, performing
+{name}`Slice.all` will greedily match the prefix {lean}`"aa"` and then get stuck on the remainder
+{lean}`"b"`, causing it to return {lean}`false`. On the other hand, {name}`Slice.revAll` will match
+the suffix {lean}`"ab"` and then match the remainder {lean}`"a"`, so it will return {lean}`true`.
+
+Examples:
+ * {lean}`"brown".toSlice.revAll Char.isLower = true`
+ * {lean}`"brown and orange".toSlice.revAll Char.isLower = false`
+ * {lean}`"aaaaaa".toSlice.revAll 'a' = true`
+ * {lean}`"aaaaaa".toSlice.revAll "aa" = true`
+ * {lean}`"aaaaaaa".toSlice.revAll "aa" = false`
+-/
+@[inline]
+def revAll (s : Slice) (pat : ρ) [BackwardPattern pat] : Bool :=
+  s.skipSuffixWhile pat == s.startPos
+
+/--
 Creates a new slice that contains the longest suffix of {name}`s` for which {name}`pat` matched
 (potentially repeatedly).
 

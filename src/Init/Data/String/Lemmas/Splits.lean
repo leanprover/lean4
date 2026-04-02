@@ -781,4 +781,24 @@ theorem copy_sliceTo_cast {s t : String} (hst : s = t) {pos : s.Pos} :
     (t.sliceTo (pos.cast hst)).copy = (s.sliceTo pos).copy := by
   simpa [copy_sliceTo_eq_iff_exists_splits] using ⟨_, pos.splits⟩
 
+theorem Slice.Pos.sliceFrom_cast {s t : Slice} {hst : s.copy = t.copy} (p q : s.Pos) {h} :
+    Slice.Pos.sliceFrom (p.cast hst) (q.cast hst) h =
+      (Slice.Pos.sliceFrom p q (by simpa using h)).cast (by simp) := by
+  ext1; simp
+
+theorem Slice.Pos.sliceTo_cast {s t : Slice} {hst : s.copy = t.copy} (p q : s.Pos) {h} :
+    Slice.Pos.sliceTo (p.cast hst) (q.cast hst) h =
+      (Slice.Pos.sliceTo p q (by simpa using h)).cast (by simp) := by
+  ext1; simp
+
+theorem Pos.sliceFrom_cast {s t : String} {hst : s = t} (p q : s.Pos) {h} :
+    Pos.sliceFrom (p.cast hst) (q.cast hst) h =
+      (Pos.sliceFrom p q (by simpa using h)).cast (by simp) := by
+  ext1; simp
+
+theorem Pos.sliceTo_cast {s t : String} {hst : s = t} (p q : s.Pos) {h} :
+    Pos.sliceTo (p.cast hst) (q.cast hst) h =
+      (Pos.sliceTo p q (by simpa using h)).cast (by simp) := by
+  ext1; simp
+
 end String

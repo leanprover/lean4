@@ -12,7 +12,7 @@ public import Init.Data.Iterators.Consumers.Collect
 import all Init.Data.String.Pattern.Basic
 import Init.Data.String.OrderInstances
 import Init.Data.String.Lemmas.IsEmpty
-import Init.Data.String.Lemmas.Basic
+public import Init.Data.String.Lemmas.Basic
 import Init.Data.String.Lemmas.Order
 import Init.Data.String.Termination
 import Init.Data.Order.Lemmas
@@ -99,6 +99,16 @@ theorem isMatch_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice} (h : s.copy
     IsMatch pat (pos.cast h) ↔ IsMatch pat pos := by
   simp [isMatch_iff]
 
+@[simp]
+theorem isMatch_sliceTo_iff {pat : ρ} [PatternModel pat] {s : Slice} {pos p : s.Pos} {h} :
+    IsMatch pat (Pos.sliceTo p pos h) ↔ IsMatch pat pos := by
+  simp [isMatch_iff]
+
+@[simp]
+theorem isMatch_ofSliceTo_iff {pat : ρ} [PatternModel pat] {s : Slice} {p : s.Pos} {pos : (s.sliceTo p).Pos} :
+    IsMatch pat (Pos.ofSliceTo pos) ↔ IsMatch pat pos := by
+  rw [← isMatch_sliceTo_iff (p := p) (h := Pos.ofSliceTo_le), Pos.sliceTo_ofSliceTo]
+
 /--
 Predicate stating that the region between the position {name}`startPos` and the end of the slice
 {name}`s` matches the pattern {name}`pat`. Note that there might be a longer match.
@@ -147,6 +157,11 @@ theorem IsLongestMatch.ne_startPos {pat : ρ} [PatternModel pat] [StrictPatternM
     (h : IsLongestMatch pat pos) : pos ≠ s.startPos :=
   h.isMatch.ne_startPos
 
+@[simp]
+theorem not_isLongestMatch_startPos {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} :
+    ¬IsLongestMatch pat s.startPos :=
+  fun h => h.ne_startPos rfl
+
 theorem IsLongestMatch.eq {pat : ρ} [PatternModel pat] {s : Slice} {pos pos' : s.Pos}
     (h : IsLongestMatch pat pos) (h' : IsLongestMatch pat pos') : pos = pos' := by
   apply Std.le_antisymm
@@ -178,6 +193,22 @@ theorem isLongestMatch_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice}
   · have : p = (p.cast hst.symm).cast hst := by simp
     rw [this, isMatch_cast_iff hst]
     exact h _ (by rwa [this, Pos.cast_lt_cast_iff] at hp)
+
+theorem IsLongestMatch.of_eq {pat : ρ} [PatternModel pat] {s t : Slice} {pos : s.Pos} {pos' : t.Pos}
+    (h : IsLongestMatch pat pos) (h₁ : s.copy = t.copy) (h₂ : pos.cast h₁ = pos') :
+    IsLongestMatch pat pos' := by
+  subst h₂; simpa
+
+theorem IsLongestMatch.sliceTo {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos}
+    (h : IsLongestMatch pat pos) (p : s.Pos) (hp : pos ≤ p) : IsLongestMatch pat (Pos.sliceTo p pos hp) := by
+  simp [isLongestMatch_iff] at ⊢ h
+  refine ⟨h.1, fun p hp => ?_⟩
+  rw [← isMatch_ofSliceTo_iff]
+  exact h.2 _ (by simpa [Pos.sliceTo_lt_iff] using hp)
+
+theorem isLongestMatch_of_ofSliceTo {pat : ρ} [PatternModel pat] {s : Slice} {p : s.Pos} {pos : (s.sliceTo p).Pos}
+    (h : IsLongestMatch pat (Pos.ofSliceTo pos)) : IsLongestMatch pat pos := by
+  simpa using h.sliceTo p
 
 /--
 Predicate stating that the region between the start of the slice {name}`s` and the position
@@ -292,6 +323,15 @@ theorem IsLongestMatchAt.lt {pat : ρ} [PatternModel pat] [StrictPatternModel pa
   rw [← Pos.startPos_lt_iff, ← Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff] at this
   simpa
 
+theorem IsLongestMatchAt.ne {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+    (h : IsLongestMatchAt pat startPos endPos) : startPos ≠ endPos :=
+  Std.ne_of_lt h.lt
+
+@[simp]
+theorem not_isLongestMatchAt_self {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} {startPos : s.Pos} :
+    ¬IsLongestMatchAt pat startPos startPos :=
+  fun h => h.ne rfl
+
 theorem IsLongestMatchAt.eq {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos endPos' : s.Pos}
     (h : IsLongestMatchAt pat startPos endPos) (h' : IsLongestMatchAt pat startPos endPos') :
     endPos = endPos' := by
@@ -328,27 +368,76 @@ theorem isLongestMatchAt_startPos_iff {pat : ρ} [PatternModel pat] {s : Slice} 
     ⟨fun h => isLongestMatch_of_eq (by simp) (by simp) h,
      fun h => isLongestMatch_of_eq (by simp) (by simp) h⟩
 
+theorem isLongestMatch_iff_isLongestMatchAt_ofSliceFrom {pat : ρ} [PatternModel pat]
+    {s : Slice} {base : s.Pos} (endPos : (s.sliceFrom base).Pos) :
+    IsLongestMatch pat endPos ↔ IsLongestMatchAt pat base (Pos.ofSliceFrom endPos) := by
+  simp [← isLongestMatchAt_startPos_iff, isLongestMatchAt_iff_isLongestMatchAt_ofSliceFrom]
+
 theorem IsLongestMatchAt.matches_slice {pat : ρ} [PatternModel pat] {s : Slice}
     {startPos endPos : s.Pos} (h : IsLongestMatchAt pat startPos endPos) :
     PatternModel.Matches pat (s.slice startPos endPos h.le).copy := by
   simpa using h.isLongestMatch_sliceFrom.isMatch.matches_copy
-
--- TODO: move
-theorem Pos.sliceFrom_cast {s t : Slice} {hst : s.copy = t.copy} (p q : s.Pos) {h} :
-    Slice.Pos.sliceFrom (p.cast hst) (q.cast hst) h =
-      (Slice.Pos.sliceFrom p q (by simpa using h)).cast (by simp) := by
-  ext1; simp
-
-theorem Pos.sliceTo_cast {s t : Slice} {hst : s.copy = t.copy} (p q : s.Pos) {h} :
-    Slice.Pos.sliceTo (p.cast hst) (q.cast hst) h =
-      (Slice.Pos.sliceTo p q (by simpa using h)).cast (by simp) := by
-  ext1; simp
 
 @[simp]
 theorem isLongestMatchAt_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice} (hst : s.copy = t.copy)
     {startPos endPos : s.Pos} :
     IsLongestMatchAt pat (startPos.cast hst) (endPos.cast hst) ↔ IsLongestMatchAt pat startPos endPos := by
   simp [isLongestMatchAt_iff, Pos.sliceFrom_cast]
+
+theorem IsLongestMatchAt.of_eq {pat : ρ} [PatternModel pat] {s t : Slice} {s₁ e₁ : s.Pos} {s₂ e₂ : t.Pos}
+    (h : IsLongestMatchAt pat s₁ e₁) (h₁ : s.copy = t.copy) (h₂ : s₁.cast h₁ = s₂) (h₃ : e₁.cast h₁ = e₂) :
+    IsLongestMatchAt pat s₂ e₂ := by
+  subst h₂ h₃; simpa
+
+theorem IsLongestMatchAt.sliceTo {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+    (h : IsLongestMatchAt pat startPos endPos) (p : s.Pos) (hp : endPos ≤ p) :
+    IsLongestMatchAt pat (Pos.sliceTo p startPos (by exact Std.le_trans h.le hp)) (Pos.sliceTo p endPos hp) := by
+  simp only [isLongestMatchAt_iff, Pos.sliceTo_le_sliceTo_iff] at ⊢ h
+  obtain ⟨h, hp'⟩ := h
+  exact ⟨h, (hp'.sliceTo (Pos.sliceFrom startPos p (Std.le_trans h hp)) (by simpa)).of_eq (by simp) (by ext; simp)⟩
+
+theorem isLongestMatchAt_of_ofSliceTo {pat : ρ} [PatternModel pat] {s : Slice} {p : s.Pos} {startPos endPos : (s.sliceTo p).Pos}
+    (h : IsLongestMatchAt pat (Pos.ofSliceTo startPos) (Pos.ofSliceTo endPos)) :
+    IsLongestMatchAt pat startPos endPos := by
+  simpa using h.sliceTo p Pos.ofSliceTo_le
+
+/--
+Predicate stating that the range between two positions of {name}`s` can be covered by longest
+matches of the pattern within {name}`s`.
+-/
+inductive IsLongestMatchAtChain (pat : ρ) [PatternModel pat] {s : Slice} : s.Pos → s.Pos → Prop where
+  | nil (p : s.Pos) : IsLongestMatchAtChain pat p p
+  | cons (startPos middlePos endPos : s.Pos) : IsLongestMatchAt pat startPos middlePos →
+      IsLongestMatchAtChain pat middlePos endPos → IsLongestMatchAtChain pat startPos endPos
+
+attribute [simp] IsLongestMatchAtChain.nil
+
+theorem IsLongestMatchAtChain.eq_of_isLongestMatchAt_self {pat : ρ} [PatternModel pat] {s : Slice}
+    {startPos endPos : s.Pos} (h : IsLongestMatchAtChain pat startPos endPos) (h' : IsLongestMatchAt pat startPos startPos) :
+    startPos = endPos := by
+  induction h with
+  | nil => rfl
+  | cons p₁ p₂ p₃ h₁ h₂ ih =>
+    obtain rfl : p₁ = p₂ := h'.eq h₁
+    exact ih h₁
+
+theorem IsLongestMatchAtChain.le {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+    (h : IsLongestMatchAtChain pat startPos endPos) : startPos ≤ endPos := by
+  induction h with
+  | nil => exact Std.le_refl _
+  | cons p₁ p₂ p₃ h₁ h₂ ih => exact Std.le_trans h₁.le ih
+
+theorem IsLongestMatchAtChain.sliceTo {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+    (h : IsLongestMatchAtChain pat startPos endPos) (p : s.Pos) (hp : endPos ≤ p) :
+    IsLongestMatchAtChain pat (Pos.sliceTo p startPos (by exact Std.le_trans h.le hp)) (Pos.sliceTo p endPos hp) := by
+  induction h with
+  | nil => simp
+  | cons p₁ p₂ p₃ h₁ h₂ ih => exact .cons _ _ _ (h₁.sliceTo p (Std.le_trans h₂.le hp)) (ih hp)
+
+theorem isLongestMatchAtChain_of_ofSliceTo {pat : ρ} [PatternModel pat] {s : Slice} {p : s.Pos}
+    {startPos endPos : (s.sliceTo p).Pos} (h : IsLongestMatchAtChain pat (Pos.ofSliceTo startPos) (Pos.ofSliceTo endPos)) :
+    IsLongestMatchAtChain pat startPos endPos := by
+  simpa using h.sliceTo p Pos.ofSliceTo_le
 
 /--
 Predicate stating that the slice formed by {name}`startPos` and {name}`endPos` contains is a match

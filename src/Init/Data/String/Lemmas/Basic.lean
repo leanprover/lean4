@@ -23,6 +23,10 @@ public section
 namespace String
 
 @[simp]
+theorem singleton_inj {c d : Char} : singleton c = singleton d ↔ c = d := by
+  simp [← toList_inj]
+
+@[simp]
 theorem singleton_append_inj : singleton c ++ s = singleton d ++ t ↔ c = d ∧ s = t := by
   simp [← toList_inj]
 
@@ -347,5 +351,40 @@ theorem nextn_endPos {s : String} : s.endPos.nextn n = s.endPos := by
   cases n <;> simp [nextn_add_one]
 
 end Pos
+
+@[simp]
+theorem Slice.Pos.cast_toSlice_copy {s : Slice} {pos : s.Pos} :
+    pos.copy.toSlice.cast (by simp) = pos := by
+  ext; simp
+
+@[simp]
+theorem Slice.Pos.sliceFrom_eq_startPos {s : Slice} {p : s.Pos} :
+    (Pos.sliceFrom p p (Pos.le_refl _)) = Slice.startPos _ := by
+  simp [← Pos.ofSliceFrom_inj]
+
+@[simp]
+theorem Slice.Pos.sliceFrom_endPos {s : Slice} {p : s.Pos} :
+    (Pos.sliceFrom p s.endPos (Pos.le_endPos _)) = Slice.endPos _ := by
+  simp [← Pos.ofSliceFrom_inj]
+
+@[simp]
+theorem Slice.Pos.sliceTo_startPos {s : Slice} {p : s.Pos} :
+    (Pos.sliceTo p s.startPos (Pos.startPos_le _)) = Slice.startPos _ := by
+  simp [← Pos.ofSliceTo_inj]
+
+@[simp]
+theorem Slice.Pos.sliceTo_eq_endPos {s : Slice} {p : s.Pos} :
+    (Pos.sliceTo p p (Pos.le_refl _)) = Slice.endPos _ := by
+  simp [← Pos.ofSliceTo_inj]
+
+@[simp]
+theorem Slice.Pos.slice_eq_startPos {s : Slice} {p₀ p₁ : s.Pos} {h} :
+    (Pos.slice p₀ p₀ p₁ (Pos.le_refl _) h) = Slice.startPos _ := by
+  simp [← Pos.ofSlice_inj]
+
+@[simp]
+theorem Slice.Pos.slice_eq_endPos {s : Slice} {p₀ p₁ : s.Pos} {h} :
+    (Pos.slice p₁ p₀ p₁ h (Pos.le_refl _)) = Slice.endPos _ := by
+  simp [← Pos.ofSlice_inj]
 
 end String

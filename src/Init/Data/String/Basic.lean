@@ -1756,12 +1756,24 @@ theorem Slice.Pos.cast_cast {s t u : Slice} {hst : s.copy = t.copy} {htu : t.cop
   Slice.Pos.ext (by simp)
 
 @[simp]
+theorem Slice.Pos.cast_inj {s t : Slice} {hst : s.copy = t.copy} {p q : s.Pos} : p.cast hst = q.cast hst ↔ p = q := by
+  simp [Slice.Pos.ext_iff]
+
+@[simp]
 theorem Slice.Pos.cast_startPos {s t : Slice} {hst : s.copy = t.copy} : s.startPos.cast hst = t.startPos :=
   Slice.Pos.ext (by simp)
 
 @[simp]
+theorem Slice.Pos.cast_eq_startPos {s t : Slice} {p : s.Pos} {hst : s.copy = t.copy} : p.cast hst = t.startPos ↔ p = s.startPos := by
+  rw [← cast_startPos (hst := hst), Pos.cast_inj]
+
+@[simp]
 theorem Slice.Pos.cast_endPos {s t : Slice} {hst : s.copy = t.copy} : s.endPos.cast hst = t.endPos :=
   Slice.Pos.ext (by simp [← rawEndPos_copy, hst])
+
+@[simp]
+theorem Slice.Pos.cast_eq_endPos {s t : Slice} {p : s.Pos} {hst : s.copy = t.copy} : p.cast hst = t.endPos ↔ p = s.endPos := by
+  rw [← cast_endPos (hst := hst), Pos.cast_inj]
 
 @[simp]
 theorem Slice.Pos.cast_le_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s.copy = t.copy} :
@@ -1809,12 +1821,24 @@ theorem Pos.cast_cast {s t u : String} {hst : s = t} {htu : t = u}
   Pos.ext (by simp)
 
 @[simp]
+theorem Pos.cast_inj {s t : String} {hst : s = t} {p q : s.Pos} : p.cast hst = q.cast hst ↔ p = q := by
+  simp [Pos.ext_iff]
+
+@[simp]
 theorem Pos.cast_startPos {s t : String} {hst : s = t} : s.startPos.cast hst = t.startPos := by
   subst hst; simp
 
 @[simp]
+theorem Pos.cast_eq_startPos {s t : String} {hst : s = t} {p : s.Pos} : p.cast hst = t.startPos ↔ p = s.startPos := by
+  rw [← Pos.cast_startPos (hst := hst), Pos.cast_inj]
+
+@[simp]
 theorem Pos.cast_endPos {s t : String} {hst : s = t} : s.endPos.cast hst = t.endPos := by
   subst hst; simp
+
+@[simp]
+theorem Pos.cast_eq_endPos {s t : String} {hst : s = t} {p : s.Pos} : p.cast hst = t.endPos ↔ p = s.endPos := by
+  rw [← Pos.cast_endPos (hst := hst), Pos.cast_inj]
 
 @[simp]
 theorem Pos.cast_le_cast_iff {s t : String} {pos pos' : s.Pos} {h : s = t} :

@@ -14,6 +14,10 @@ import Init.Data.Option.Lemmas
 import Init.Data.String.Lemmas.FindPos
 import Init.Data.String.Lemmas.Intercalate
 import Init.ByCases
+import Init.Data.Order.Lemmas
+import Init.Data.String.OrderInstances
+import Init.Data.String.Lemmas.Order
+import Init.Data.String.Lemmas.Basic
 
 public section
 
@@ -59,6 +63,32 @@ theorem Pos.skip?_bool_eq_some_iff {p : Char → Bool} {s : Slice} {pos res : s.
 theorem Pos.skip?_bool_eq_none_iff {p : Char → Bool} {s : Slice} {pos : s.Pos} :
     pos.skip? p = none ↔ ∀ h, p (pos.get h) = false := by
   simp [Pattern.Model.Pos.skip?_eq_none_iff, CharPred.matchesAt_iff]
+
+theorem Pos.apply_skipWhile_bool_eq_false {p : Char → Bool} {s : Slice} {pos : s.Pos} {h} :
+    p ((pos.skipWhile p).get h) = false := by
+  have := Pattern.Model.Pos.not_matchesAt_skipWhile p pos
+  simp_all [CharPred.matchesAt_iff]
+
+theorem Pos.skipWhile_bool_eq_self_iff_get {p : Char → Bool} {s : Slice} {pos : s.Pos} :
+    pos.skipWhile p = pos ↔ ∀ h, p (pos.get h) = false := by
+  simp [Pattern.Model.Pos.skipWhile_eq_self_iff, CharPred.matchesAt_iff]
+
+theorem Pos.apply_eq_true_of_lt_skipWhile_bool {p : Char → Bool} {s : Slice} {pos pos' : s.Pos}
+    (h₁ : pos ≤ pos') (h₂ : pos' < pos.skipWhile p) : p (pos'.get (ne_endPos_of_lt h₂)) = true :=
+  (CharPred.isLongestMatchAtChain_iff.1 (Pattern.Model.Pos.isLongestMatchAtChain_skipWhile p pos)).2 _ h₁ h₂
+
+theorem apply_skipPrefixWhile_bool_eq_false {p : Char → Bool} {s : Slice} {h} :
+    p ((s.skipPrefixWhile p).get h) = false := by
+  simp [skipPrefixWhile_eq_skipWhile_startPos, Pos.apply_skipWhile_bool_eq_false]
+
+theorem apply_eq_true_of_lt_skipPrefixWhile_bool {p : Char → Bool} {s : Slice} {pos : s.Pos} (h : pos < s.skipPrefixWhile p) :
+    p (pos.get (Pos.ne_endPos_of_lt h)) = true :=
+  Pos.apply_eq_true_of_lt_skipWhile_bool (Pos.startPos_le _) (skipPrefixWhile_eq_skipWhile_startPos ▸ h)
+
+@[simp]
+theorem all_bool_eq {p : Char → Bool} {s : Slice} : s.all p = s.copy.toList.all p := by
+  rw [Bool.eq_iff_iff, Pattern.Model.all_eq_true_iff,
+    CharPred.isLongestMatchAtChain_startPos_endPos_iff_toList, List.all_eq_true]
 
 theorem skipPrefix?_prop_eq_some_iff {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos} :
     s.skipPrefix? P = some pos ↔ ∃ h, pos = s.startPos.next h ∧ P (s.startPos.get h) := by

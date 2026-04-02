@@ -18,6 +18,7 @@ import Init.Data.String.Lemmas.Basic
 import Init.Data.String.Lemmas.Order
 import Init.Data.Order.Lemmas
 import Init.Data.String.OrderInstances
+import Init.Data.String.Lemmas.Iterate
 import Init.Omega
 import Init.Data.String.Lemmas.FindPos
 
@@ -71,6 +72,39 @@ theorem isLongestMatchAt_iff {p : Char → Bool} {s : Slice} {pos pos' : s.Pos} 
     IsLongestMatchAt p pos pos' ↔ ∃ h, pos' = pos.next h ∧ p (pos.get h) := by
   simp +contextual [Model.isLongestMatchAt_iff, isLongestMatch_iff, ← Pos.ofSliceFrom_inj,
     Pos.get_eq_get_ofSliceFrom, Pos.ofSliceFrom_next]
+
+theorem isLongestMatchAtChain_iff {p : Char → Bool} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestMatchAtChain p pos pos' ↔ pos ≤ pos' ∧ ∀ pos'', pos ≤ pos'' → (h : pos'' < pos') → p (pos''.get (Pos.ne_endPos_of_lt h)) := by
+  induction pos using WellFounded.induction Pos.wellFounded_gt with | h pos ih
+  obtain (h|rfl|h) := Std.lt_trichotomy pos pos'
+  · refine ⟨fun h => ?_, fun ⟨h₁, h₂⟩ => ?_⟩
+    · cases h with
+      | nil => exact (Std.lt_irrefl h).elim
+      | cons _ mid _ h₁ h₂ =>
+        obtain ⟨h₀, rfl, h₁'⟩ := isLongestMatchAt_iff.1 h₁
+        refine ⟨Std.le_of_lt h, fun pos'' hp₁ hp₂ => ?_⟩
+        obtain (hh|rfl) := Std.le_iff_lt_or_eq.1 hp₁
+        · exact ((ih (pos.next (Pos.ne_endPos_of_lt h)) Pos.lt_next).1 h₂).2 _ (by simpa) hp₂
+        · exact h₁'
+    · refine .cons _ (pos.next (Pos.ne_endPos_of_lt h)) _ ?_ ((ih _ Pos.lt_next).2 ?_)
+      · exact isLongestMatchAt_iff.2 ⟨Pos.ne_endPos_of_lt h, rfl, h₂ _ (by simp) h⟩
+      · exact ⟨by simpa, fun pos'' hp₁ hp₂ => h₂ _ (Std.le_trans Pos.le_next hp₁) hp₂⟩
+  · simpa using fun _ h₁ h₂ => (Std.lt_irrefl (Std.lt_of_le_of_lt h₁ h₂)).elim
+  · simpa [Std.not_le.2 h] using fun h' => (Std.not_le.2 h h'.le).elim
+
+theorem isLongestMatchAtChain_iff_toList {p : Char → Bool} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestMatchAtChain p pos pos' ↔ ∃ (h : pos ≤ pos'), ∀ c, c ∈ (s.slice pos pos' h).copy.toList → p c := by
+  simp only [isLongestMatchAtChain_iff, mem_toList_copy_iff_exists_get, Pos.get_eq_get_ofSlice,
+    forall_exists_index]
+  refine ⟨fun ⟨h₁, h₂⟩ => ⟨h₁, fun c p' hp => ?_⟩, fun ⟨h₁, h₂⟩ => ⟨h₁, fun p' hp₁ hp₂ => ?_⟩⟩
+  · rintro rfl
+    exact h₂ _ Pos.le_ofSlice (by simp [Pos.ofSlice_lt_iff, h₁, hp])
+  · refine h₂ _ (Pos.slice p' _ _ hp₁ (Std.le_of_lt hp₂)) ?_ (by simp)
+    rwa [← Pos.lt_endPos_iff, ← Pos.slice_eq_endPos (h := h₁), Pos.slice_lt_slice_iff]
+
+theorem isLongestMatchAtChain_startPos_endPos_iff_toList {p : Char → Bool} {s : Slice} :
+    IsLongestMatchAtChain p s.startPos s.endPos ↔ ∀ c, c ∈ s.copy.toList → p c := by
+  simp [isLongestMatchAtChain_iff_toList]
 
 theorem isLongestRevMatchAt_iff {p : Char → Bool} {s : Slice} {pos pos' : s.Pos} :
     IsLongestRevMatchAt p pos pos' ↔ ∃ h, pos = pos'.prev h ∧ p ((pos'.prev h).get (by simp)) := by

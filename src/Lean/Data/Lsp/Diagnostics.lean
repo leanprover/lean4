@@ -159,6 +159,12 @@ abbrev Diagnostic := DiagnosticWith String
 structure PublishDiagnosticsParams where
   uri : DocumentUri
   version? : Option Int := none
+  /--
+  Extension: whether this set of published diagnostics should be appended to the previous set of
+  diagnostics. `false` implies that the previous set of diagnostics is replaced with this one.
+  `none` is equivalent to `false`.
+  -/
+  isIncremental? : Option Bool := none
   diagnostics : Array Diagnostic
   deriving Inhabited, BEq, ToJson, FromJson
 

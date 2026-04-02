@@ -1007,14 +1007,13 @@ lean_object* v___x_307_; lean_object* v___x_308_; lean_object* v___f_309_; uint8
 v___x_307_ = l_Lake_sharedLibExt;
 lean_inc_ref(v_staticLib_273_);
 v___x_308_ = l_System_FilePath_withExtension(v_staticLib_273_, v___x_307_);
-lean_inc_ref(v___x_308_);
+lean_inc_ref_n(v___x_308_, 2);
 v___f_309_ = lean_alloc_closure((void*)(l_Lake_buildLeanSharedLibOfStatic___lam__0___boxed), 11, 4);
 lean_closure_set(v___f_309_, 0, v_weakArgs_272_);
 lean_closure_set(v___f_309_, 1, v_traceArgs_271_);
 lean_closure_set(v___f_309_, 2, v___x_308_);
 lean_closure_set(v___f_309_, 3, v_staticLib_273_);
 v___x_310_ = 0;
-lean_inc_ref(v___x_308_);
 v___x_311_ = l_Lake_buildFileUnlessUpToDate_x27(v___x_308_, v___f_309_, v___x_310_, v___y_274_, v___y_275_, v___y_276_, v___y_277_, v___y_278_, v___x_306_);
 if (lean_obj_tag(v___x_311_) == 0)
 {
@@ -1250,13 +1249,12 @@ _start:
 lean_object* v_pkg_428_; lean_object* v_name_429_; lean_object* v_keyName_430_; lean_object* v_config_431_; lean_object* v___x_432_; lean_object* v___x_433_; lean_object* v___x_434_; lean_object* v___x_435_; lean_object* v___x_436_; lean_object* v___f_437_; lean_object* v___x_438_; 
 v_pkg_428_ = lean_ctor_get(v_lib_420_, 0);
 v_name_429_ = lean_ctor_get(v_lib_420_, 1);
-lean_inc(v_name_429_);
+lean_inc_n(v_name_429_, 2);
 v_keyName_430_ = lean_ctor_get(v_pkg_428_, 2);
 v_config_431_ = lean_ctor_get(v_pkg_428_, 6);
 lean_inc_ref(v_config_431_);
 v___x_432_ = l_Lake_instDataKindFilePath;
 v___x_433_ = l_Lake_ExternLib_staticFacet;
-lean_inc(v_name_429_);
 lean_inc(v_keyName_430_);
 v___x_434_ = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(v___x_434_, 0, v_keyName_430_);
@@ -1809,11 +1807,10 @@ _start:
 lean_object* v_pkg_649_; lean_object* v_name_650_; lean_object* v_keyName_651_; lean_object* v___x_652_; lean_object* v___x_653_; lean_object* v___x_654_; lean_object* v___x_655_; lean_object* v___x_656_; lean_object* v___f_657_; lean_object* v___x_658_; 
 v_pkg_649_ = lean_ctor_get(v_lib_641_, 0);
 v_name_650_ = lean_ctor_get(v_lib_641_, 1);
-lean_inc(v_name_650_);
+lean_inc_n(v_name_650_, 2);
 v_keyName_651_ = lean_ctor_get(v_pkg_649_, 2);
 v___x_652_ = l_Lake_instDataKindDynlib;
 v___x_653_ = l_Lake_ExternLib_sharedFacet;
-lean_inc(v_name_650_);
 lean_inc(v_keyName_651_);
 v___x_654_ = lean_alloc_ctor(3, 2, 0);
 lean_ctor_set(v___x_654_, 0, v_keyName_651_);

@@ -86,11 +86,11 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
     addEntryFn    := fun s d => s.insert d.name d
     -- Store `meta` closure only in `.olean`, turn all other decls into opaque externs.
     -- Leave storing the remainder for `meta import` and server `#eval` to `exportIREntries` below.
-    exportEntriesFnEx? := some fun env s entries _ =>
+    exportEntriesFnEx? := some fun env s entries =>
       let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
       let entries := sortDecls decls
       -- Do not save all IR even in .olean.private as it will be in .ir anyway
-      if env.header.isModule then
+      .uniform <| if env.header.isModule then
         entries.filterMap fun d => do
           if isDeclMeta env d.name then
             return d
@@ -126,12 +126,12 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   -- save all initializers independent of meta/private. Non-meta initializers will only be used when
   -- .ir is actually loaded, and private ones iff visible.
   let initDecls : Array (Name × Name) :=
-    regularInitAttr.ext.exportEntriesFn env (regularInitAttr.ext.getState env) .private
+    (regularInitAttr.ext.exportEntriesFn env (regularInitAttr.ext.getState env)).private
   -- safety: cast to erased type
   let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
 
   -- needed during initialization via interpreter
-  let modPkg : Array (Option PkgId) := modPkgExt.exportEntriesFn env (modPkgExt.getState env) .private
+  let modPkg : Array (Option PkgId) := (modPkgExt.exportEntriesFn env (modPkgExt.getState env)).private
   -- safety: cast to erased type
   let modPkg : Array EnvExtensionEntry := unsafe unsafeCast modPkg
 

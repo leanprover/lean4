@@ -2000,8 +2000,8 @@ return v_res_591_;
 LEAN_EXPORT lean_object* l_String_Pos_revSkip_x3f___redArg(lean_object* v_s_592_, lean_object* v_pos_593_, lean_object* v_inst_594_){
 _start:
 {
-lean_object* v_skipPrefix_x3f_595_; lean_object* v___x_597_; uint8_t v_isShared_598_; uint8_t v_isSharedCheck_614_; 
-v_skipPrefix_x3f_595_ = lean_ctor_get(v_inst_594_, 0);
+lean_object* v_skipSuffix_x3f_595_; lean_object* v___x_597_; uint8_t v_isShared_598_; uint8_t v_isSharedCheck_614_; 
+v_skipSuffix_x3f_595_ = lean_ctor_get(v_inst_594_, 0);
 v_isSharedCheck_614_ = !lean_is_exclusive(v_inst_594_);
 if (v_isSharedCheck_614_ == 0)
 {
@@ -2016,7 +2016,7 @@ goto v_resetjp_596_;
 }
 else
 {
-lean_inc(v_skipPrefix_x3f_595_);
+lean_inc(v_skipSuffix_x3f_595_);
 lean_dec(v_inst_594_);
 v___x_597_ = lean_box(0);
 v_isShared_598_ = v_isSharedCheck_614_;
@@ -2048,7 +2048,7 @@ goto v_reusejp_600_;
 v_reusejp_600_:
 {
 lean_object* v___x_602_; 
-v___x_602_ = lean_apply_1(v_skipPrefix_x3f_595_, v___x_601_);
+v___x_602_ = lean_apply_1(v_skipSuffix_x3f_595_, v___x_601_);
 if (lean_obj_tag(v___x_602_) == 0)
 {
 lean_object* v___x_603_; 
@@ -2108,8 +2108,8 @@ return v___x_610_;
 LEAN_EXPORT lean_object* l_String_Pos_revSkip_x3f(lean_object* v_00_u03c1_617_, lean_object* v_s_618_, lean_object* v_pos_619_, lean_object* v_pat_620_, lean_object* v_inst_621_){
 _start:
 {
-lean_object* v_skipPrefix_x3f_622_; lean_object* v___x_624_; uint8_t v_isShared_625_; uint8_t v_isSharedCheck_641_; 
-v_skipPrefix_x3f_622_ = lean_ctor_get(v_inst_621_, 0);
+lean_object* v_skipSuffix_x3f_622_; lean_object* v___x_624_; uint8_t v_isShared_625_; uint8_t v_isSharedCheck_641_; 
+v_skipSuffix_x3f_622_ = lean_ctor_get(v_inst_621_, 0);
 v_isSharedCheck_641_ = !lean_is_exclusive(v_inst_621_);
 if (v_isSharedCheck_641_ == 0)
 {
@@ -2124,7 +2124,7 @@ goto v_resetjp_623_;
 }
 else
 {
-lean_inc(v_skipPrefix_x3f_622_);
+lean_inc(v_skipSuffix_x3f_622_);
 lean_dec(v_inst_621_);
 v___x_624_ = lean_box(0);
 v_isShared_625_ = v_isSharedCheck_641_;
@@ -2156,7 +2156,7 @@ goto v_reusejp_627_;
 v_reusejp_627_:
 {
 lean_object* v___x_629_; 
-v___x_629_ = lean_apply_1(v_skipPrefix_x3f_622_, v___x_628_);
+v___x_629_ = lean_apply_1(v_skipSuffix_x3f_622_, v___x_628_);
 if (lean_obj_tag(v___x_629_) == 0)
 {
 lean_object* v___x_630_; 

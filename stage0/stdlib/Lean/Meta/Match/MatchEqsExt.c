@@ -1590,13 +1590,11 @@ v_resetjp_441_:
 lean_object* v___x_444_; lean_object* v_asyncMode_445_; lean_object* v___f_446_; lean_object* v___x_447_; lean_object* v___x_448_; lean_object* v___x_449_; lean_object* v___x_451_; 
 v___x_444_ = l_Lean_Meta_Match_matchEqnsExt;
 v_asyncMode_445_ = lean_ctor_get(v___x_444_, 2);
-lean_inc(v_asyncMode_445_);
 v___f_446_ = lean_alloc_closure((void*)(l_Lean_Meta_Match_registerMatchEqns___redArg___lam__0), 3, 2);
 lean_closure_set(v___f_446_, 0, v_matchEqns_429_);
 lean_closure_set(v___f_446_, 1, v_matchDeclName_428_);
 v___x_447_ = lean_box(0);
 v___x_448_ = l_Lean_EnvExtension_modifyState___redArg(v___x_444_, v_env_433_, v___f_446_, v_asyncMode_445_, v___x_447_);
-lean_dec(v_asyncMode_445_);
 v___x_449_ = lean_obj_once(&l_Lean_Meta_Match_registerMatchEqns___redArg___closed__2, &l_Lean_Meta_Match_registerMatchEqns___redArg___closed__2_once, _init_l_Lean_Meta_Match_registerMatchEqns___redArg___closed__2);
 if (v_isShared_443_ == 0)
 {

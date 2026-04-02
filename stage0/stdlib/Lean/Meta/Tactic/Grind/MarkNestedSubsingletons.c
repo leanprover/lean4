@@ -1525,9 +1525,8 @@ if (lean_obj_tag(v___x_475_) == 0)
 {
 lean_object* v_a_476_; lean_object* v___x_477_; 
 v_a_476_ = lean_ctor_get(v___x_475_, 0);
-lean_inc(v_a_476_);
+lean_inc_n(v_a_476_, 2);
 lean_dec_ref(v___x_475_);
-lean_inc(v_a_476_);
 v___x_477_ = l_Lean_Meta_isProp(v_a_476_, v_a_428_, v_a_429_, v_a_430_, v_a_431_);
 if (lean_obj_tag(v___x_477_) == 0)
 {

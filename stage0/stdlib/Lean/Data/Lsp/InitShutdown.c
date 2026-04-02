@@ -4214,19 +4214,15 @@ _start:
 {
 lean_object* v___x_1220_; lean_object* v_processId_x3f_1221_; lean_object* v___x_1222_; lean_object* v_clientInfo_x3f_1223_; lean_object* v___x_1224_; lean_object* v_rootUri_x3f_1225_; lean_object* v___x_1226_; lean_object* v_initializationOptions_x3f_1227_; lean_object* v___x_1228_; lean_object* v___x_1229_; 
 v___x_1220_ = ((lean_object*)(l_Lean_Lsp_instToJsonInitializeParams_toJson___closed__0));
-lean_inc(v_j_1219_);
+lean_inc_n(v_j_1219_, 5);
 v_processId_x3f_1221_ = l_Lean_Json_getObjValAs_x3f___redArg(v_j_1219_, v___x_1212_, v___x_1220_);
 v___x_1222_ = ((lean_object*)(l_Lean_Lsp_instToJsonInitializeParams_toJson___closed__1));
-lean_inc(v_j_1219_);
 v_clientInfo_x3f_1223_ = l_Lean_Json_getObjValAs_x3f___redArg(v_j_1219_, v___x_1213_, v___x_1222_);
 v___x_1224_ = ((lean_object*)(l_Lean_Lsp_instToJsonInitializeParams_toJson___closed__2));
-lean_inc(v_j_1219_);
 v_rootUri_x3f_1225_ = l_Lean_Json_getObjValAs_x3f___redArg(v_j_1219_, v___x_1214_, v___x_1224_);
 v___x_1226_ = ((lean_object*)(l_Lean_Lsp_instToJsonInitializeParams_toJson___closed__3));
-lean_inc(v_j_1219_);
 v_initializationOptions_x3f_1227_ = l_Lean_Json_getObjValAs_x3f___redArg(v_j_1219_, v___x_1215_, v___x_1226_);
 v___x_1228_ = ((lean_object*)(l_Lean_Lsp_instToJsonInitializeParams_toJson___closed__4));
-lean_inc(v_j_1219_);
 v___x_1229_ = l_Lean_Json_getObjValAs_x3f___redArg(v_j_1219_, v___x_1216_, v___x_1228_);
 if (lean_obj_tag(v___x_1229_) == 0)
 {

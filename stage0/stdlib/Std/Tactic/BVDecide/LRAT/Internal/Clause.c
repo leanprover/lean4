@@ -50,7 +50,7 @@ uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 size_t lean_usize_add(size_t, size_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l___private_Init_Data_List_Impl_0__List_eraseTR_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
 lean_object* l_List_toString___redArg(lean_object*, lean_object*);
 lean_object* l_instToStringBool___lam__0___boxed(lean_object*);
@@ -2153,9 +2153,10 @@ lean_object* v_fst_712_; lean_object* v_snd_713_; lean_object* v___x_714_; lean_
 v_fst_712_ = lean_ctor_get(v_l_710_, 0);
 v_snd_713_ = lean_ctor_get(v_l_710_, 1);
 v___x_714_ = lean_box(v___x_711_);
-v___x_715_ = lean_array_get_borrowed(v___x_714_, v_assignments_708_, v_fst_712_);
+v___x_715_ = lean_array_get(v___x_714_, v_assignments_708_, v_fst_712_);
 lean_dec(v___x_714_);
 v___x_716_ = lean_unbox(v___x_715_);
+lean_dec(v___x_715_);
 switch(v___x_716_)
 {
 case 0:
@@ -2217,10 +2218,11 @@ v_snd_724_ = lean_ctor_get(v_l_710_, 1);
 lean_inc(v_snd_724_);
 lean_dec_ref(v_l_710_);
 v___x_725_ = lean_box(v___x_711_);
-v___x_726_ = lean_array_get_borrowed(v___x_725_, v_assignments_708_, v_fst_723_);
+v___x_726_ = lean_array_get(v___x_725_, v_assignments_708_, v_fst_723_);
 lean_dec(v_fst_723_);
 lean_dec(v___x_725_);
 v___x_727_ = lean_unbox(v___x_726_);
+lean_dec(v___x_726_);
 switch(v___x_727_)
 {
 case 0:
@@ -2384,26 +2386,20 @@ LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_instC
 _start:
 {
 lean_object* v___x_779_; lean_object* v___x_780_; lean_object* v___x_781_; lean_object* v___x_782_; lean_object* v___x_783_; lean_object* v___x_784_; lean_object* v___x_785_; lean_object* v___x_786_; lean_object* v___x_787_; lean_object* v___x_788_; 
-lean_inc(v_n_778_);
+lean_inc_n(v_n_778_, 7);
 v___x_779_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_toList___boxed), 2, 1);
 lean_closure_set(v___x_779_, 0, v_n_778_);
-lean_inc(v_n_778_);
 v___x_780_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray___boxed), 2, 1);
 lean_closure_set(v___x_780_, 0, v_n_778_);
 v___x_781_ = lean_box(0);
-lean_inc(v_n_778_);
 v___x_782_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_unit___boxed), 2, 1);
 lean_closure_set(v___x_782_, 0, v_n_778_);
-lean_inc(v_n_778_);
 v___x_783_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_isUnit___boxed), 2, 1);
 lean_closure_set(v___x_783_, 0, v_n_778_);
-lean_inc(v_n_778_);
 v___x_784_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_negate___boxed), 2, 1);
 lean_closure_set(v___x_784_, 0, v_n_778_);
-lean_inc(v_n_778_);
 v___x_785_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_delete), 3, 1);
 lean_closure_set(v___x_785_, 0, v_n_778_);
-lean_inc(v_n_778_);
 v___x_786_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_contains___boxed), 3, 1);
 lean_closure_set(v___x_786_, 0, v_n_778_);
 v___x_787_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_reduce___boxed), 3, 1);

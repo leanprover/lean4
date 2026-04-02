@@ -778,14 +778,13 @@ lean_inc(v_currMacroScope_157_);
 lean_inc(v_quotContext_156_);
 v___x_168_ = l_Lean_addMacroScope(v_quotContext_156_, v___x_167_, v_currMacroScope_157_);
 v___x_169_ = ((lean_object*)(l_Std_TreeSet___aux__Std__Data__TreeSet__Basic______macroRules__Std__TreeSet__term___x7em____1___closed__10));
-lean_inc(v___x_164_);
+lean_inc_n(v___x_164_, 2);
 v___x_170_ = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(v___x_170_, 0, v___x_164_);
 lean_ctor_set(v___x_170_, 1, v___x_166_);
 lean_ctor_set(v___x_170_, 2, v___x_168_);
 lean_ctor_set(v___x_170_, 3, v___x_169_);
 v___x_171_ = ((lean_object*)(l_Std_TreeSet___auto__1___closed__9));
-lean_inc(v___x_164_);
 v___x_172_ = l_Lean_Syntax_node2(v___x_164_, v___x_171_, v___x_160_, v___x_162_);
 v___x_173_ = l_Lean_Syntax_node2(v___x_164_, v___x_165_, v___x_170_, v___x_172_);
 v___x_174_ = lean_alloc_ctor(0, 2, 0);
@@ -4719,12 +4718,11 @@ else
 {
 lean_object* v_head_1659_; lean_object* v_tail_1660_; uint8_t v___x_1661_; 
 v_head_1659_ = lean_ctor_get(v_as_x27_1657_, 0);
-lean_inc(v_head_1659_);
+lean_inc_n(v_head_1659_, 2);
 v_tail_1660_ = lean_ctor_get(v_as_x27_1657_, 1);
 lean_inc(v_tail_1660_);
 lean_dec_ref(v_as_x27_1657_);
 lean_inc(v_b_1658_);
-lean_inc(v_head_1659_);
 lean_inc_ref(v_cmp_1656_);
 v___x_1661_ = l_Std_DTreeMap_Internal_Impl_contains___at___00Std_TreeSet_ofList_spec__0___redArg(v_cmp_1656_, v_head_1659_, v_b_1658_);
 if (v___x_1661_ == 0)

@@ -473,9 +473,9 @@ v___x_108_ = lean_st_ref_get(v_a_101_);
 v_toGoalState_109_ = lean_ctor_get(v___x_108_, 0);
 lean_inc_ref(v_toGoalState_109_);
 lean_dec(v___x_108_);
-v_enodeMap_110_ = lean_ctor_get(v_toGoalState_109_, 2);
+v_enodeMap_110_ = lean_ctor_get(v_toGoalState_109_, 1);
 lean_inc_ref(v_enodeMap_110_);
-v_congrTable_111_ = lean_ctor_get(v_toGoalState_109_, 5);
+v_congrTable_111_ = lean_ctor_get(v_toGoalState_109_, 4);
 lean_inc_ref(v_congrTable_111_);
 lean_dec_ref(v_toGoalState_109_);
 v___x_112_ = l___private_Lean_Meta_Tactic_Grind_Diseq_0__Lean_Meta_Grind_dummyEq;
@@ -512,9 +512,8 @@ v_resetjp_118_:
 {
 lean_object* v_fst_121_; lean_object* v___x_122_; 
 v_fst_121_ = lean_ctor_get(v_val_117_, 0);
-lean_inc(v_fst_121_);
+lean_inc_n(v_fst_121_, 2);
 lean_dec(v_val_117_);
-lean_inc(v_fst_121_);
 v___x_122_ = l_Lean_Meta_Grind_isEqFalse___redArg(v_fst_121_, v_a_101_, v_a_102_, v_a_103_, v_a_104_, v_a_105_, v_a_106_);
 if (lean_obj_tag(v___x_122_) == 0)
 {

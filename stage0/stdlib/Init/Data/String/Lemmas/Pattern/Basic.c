@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas.Pattern.Basic
-// Imports: public import Init.Data.String.Pattern.Basic public import Init.Data.String.Lemmas.Splits public import Init.Data.Iterators.Consumers.Collect import all Init.Data.String.Pattern.Basic import Init.Data.String.OrderInstances import Init.Data.String.Lemmas.IsEmpty import Init.Data.String.Lemmas.Basic import Init.Data.String.Lemmas.Order import Init.Data.String.Termination import Init.Data.Order.Lemmas import Init.ByCases import Init.Data.Option.Lemmas import Init.Data.Iterators.Lemmas.Consumers.Collect
+// Imports: public import Init.Data.String.Pattern.Basic public import Init.Data.String.Lemmas.Splits public import Init.Data.Iterators.Consumers.Collect import all Init.Data.String.Pattern.Basic import Init.Data.String.OrderInstances import Init.Data.String.Lemmas.IsEmpty import Init.Data.String.Lemmas.Basic import Init.Data.String.Lemmas.Order import Init.Data.String.Termination import Init.Data.Order.Lemmas import Init.ByCases import Init.Data.Option.Lemmas import Init.Data.Iterators.Lemmas.Consumers.Collect import Init.Data.String.Lemmas.FindPos
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,9 @@ LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__St
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__Std_Iter_toArray__eq__match__step_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__Std_Iter_toArray__eq__match__step_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_instIteratorIdSearchStepOfBackwardPattern_match__3_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_instIteratorIdSearchStepOfBackwardPattern_match__3_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_instIteratorIdSearchStepOfBackwardPattern_match__3_splitter___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorIdSearchStepOfForwardPattern_match__3_splitter___redArg(lean_object* v_x_1_, lean_object* v_h__1_2_, lean_object* v_h__2_3_){
 _start:
 {
@@ -155,6 +158,61 @@ return v___x_51_;
 }
 }
 }
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_instIteratorIdSearchStepOfBackwardPattern_match__3_splitter___redArg(lean_object* v_x_52_, lean_object* v_h__1_53_, lean_object* v_h__2_54_){
+_start:
+{
+if (lean_obj_tag(v_x_52_) == 0)
+{
+lean_object* v___x_55_; 
+lean_dec(v_h__1_53_);
+v___x_55_ = lean_apply_1(v_h__2_54_, lean_box(0));
+return v___x_55_;
+}
+else
+{
+lean_object* v_val_56_; lean_object* v___x_57_; 
+lean_dec(v_h__2_54_);
+v_val_56_ = lean_ctor_get(v_x_52_, 0);
+lean_inc(v_val_56_);
+lean_dec_ref(v_x_52_);
+v___x_57_ = lean_apply_2(v_h__1_53_, v_val_56_, lean_box(0));
+return v___x_57_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_instIteratorIdSearchStepOfBackwardPattern_match__3_splitter(lean_object* v_00_u03c1_58_, lean_object* v_pat_59_, lean_object* v_s_60_, lean_object* v_it_61_, lean_object* v_motive_62_, lean_object* v_x_63_, lean_object* v_h__1_64_, lean_object* v_h__2_65_){
+_start:
+{
+if (lean_obj_tag(v_x_63_) == 0)
+{
+lean_object* v___x_66_; 
+lean_dec(v_h__1_64_);
+v___x_66_ = lean_apply_1(v_h__2_65_, lean_box(0));
+return v___x_66_;
+}
+else
+{
+lean_object* v_val_67_; lean_object* v___x_68_; 
+lean_dec(v_h__2_65_);
+v_val_67_ = lean_ctor_get(v_x_63_, 0);
+lean_inc(v_val_67_);
+lean_dec_ref(v_x_63_);
+v___x_68_ = lean_apply_2(v_h__1_64_, v_val_67_, lean_box(0));
+return v___x_68_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_instIteratorIdSearchStepOfBackwardPattern_match__3_splitter___boxed(lean_object* v_00_u03c1_69_, lean_object* v_pat_70_, lean_object* v_s_71_, lean_object* v_it_72_, lean_object* v_motive_73_, lean_object* v_x_74_, lean_object* v_h__1_75_, lean_object* v_h__2_76_){
+_start:
+{
+lean_object* v_res_77_; 
+v_res_77_ = l___private_Init_Data_String_Lemmas_Pattern_Basic_0__String_Slice_Pattern_ToBackwardSearcher_DefaultBackwardSearcher_instIteratorIdSearchStepOfBackwardPattern_match__3_splitter(v_00_u03c1_69_, v_pat_70_, v_s_71_, v_it_72_, v_motive_73_, v_x_74_, v_h__1_75_, v_h__2_76_);
+lean_dec(v_it_72_);
+lean_dec_ref(v_s_71_);
+lean_dec(v_pat_70_);
+return v_res_77_;
+}
+}
 lean_object* runtime_initialize_Init_Data_String_Pattern_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Consumers_Collect(uint8_t builtin);
@@ -168,6 +226,7 @@ lean_object* runtime_initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Basic(uint8_t builtin) {
 lean_object * res;
@@ -212,6 +271,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_FindPos(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -234,6 +296,7 @@ lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_ByCases(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas_Pattern_Basic(uint8_t builtin) {
 lean_object * res;
@@ -276,6 +339,9 @@ res = initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas_Consumers_Collect(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas_FindPos(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Lemmas_Pattern_Basic(builtin);

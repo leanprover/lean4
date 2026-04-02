@@ -63,6 +63,6 @@ where
     doElabToSyntax "else branch of if with condition {cond}" (elabDiteBranch false) fun else_ => do
     let mγ ← mkMonadicType (← read).doBlockResultType
     match h with
-    | `(_%$tk) => Term.elabTermEnsuringType (← `(if $(⟨tk⟩):hole : $cond then $then_ else $else_)) mγ
+    | `(_%$tk) => Term.elabTermEnsuringType (← `(if _%$tk : $cond then $then_ else $else_)) mγ
     | `($h:ident) => Term.elabTermEnsuringType (← `(if $h:ident : $cond then $then_ else $else_)) mγ
     | _ => throwUnsupportedSyntax

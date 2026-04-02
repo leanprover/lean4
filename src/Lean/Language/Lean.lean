@@ -478,11 +478,11 @@ where
         }
         result? := some {
           parserState
-          processedSnap := (← processHeader ⟨trimmedStx⟩ parserState)
+          processedSnap := (← processHeader ⟨trimmedStx⟩ stx parserState)
         }
       }
 
-  processHeader (stx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
+  processHeader (stx : HeaderSyntax) (origStx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
     SnapshotTask.ofIO none none (.some ⟨0, ctx.endPos⟩) <|
@@ -498,6 +498,7 @@ where
       let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
         stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
         setup.trustLevel setup.plugins setup.mainModuleName setup.package? setup.importArts
+        (headerStx? := stx) (origHeaderStx? := origStx)
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then

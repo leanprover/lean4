@@ -42,7 +42,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_string_mk(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_uint16_to_nat(uint16_t);
 lean_object* lean_usize_to_nat(size_t);
 extern lean_object* l_Std_Format_defWidth;
@@ -1864,8 +1864,9 @@ return v___x_571_;
 else
 {
 lean_object* v___x_572_; 
-v___x_572_ = lean_array_fget(v___x_562_, v_n_561_);
+v___x_572_ = lean_array_fget_borrowed(v___x_562_, v_n_561_);
 lean_dec(v_n_561_);
+lean_inc(v___x_572_);
 return v___x_572_;
 }
 }

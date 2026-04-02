@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Grind.Config
-// Imports: public import Lean.Elab.Tactic.Grind.Basic import Lean.Elab.Tactic.ConfigSetter
+// Imports: public import Lean.Elab.Tactic.Grind.Basic import Lean.Elab.Tactic.ConfigSetter import Lean.Elab.DeprecatedSyntax
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -956,9 +956,8 @@ v_a_117_ = lean_ctor_get(v___x_116_, 0);
 lean_inc(v_a_117_);
 lean_dec_ref(v___x_116_);
 v_macroStack_118_ = lean_ctor_get(v___y_108_, 1);
-lean_inc(v_macroStack_118_);
+lean_inc_n(v_macroStack_118_, 2);
 v___x_119_ = l_Lean_Elab_getBetterRef(v_ref_115_, v_macroStack_118_);
-lean_inc(v_macroStack_118_);
 v___x_120_ = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_Grind_setConfigField_spec__0_spec__1___redArg(v_a_117_, v_macroStack_118_, v___y_112_);
 v_a_121_ = lean_ctor_get(v___x_120_, 0);
 v_isSharedCheck_129_ = !lean_is_exclusive(v___x_120_);
@@ -1263,16 +1262,17 @@ _start:
 lean_object* v___x_250_; lean_object* v___x_251_; lean_object* v___x_252_; 
 v___x_250_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_Tactic_Grind_setConfigField_spec__1_spec__3_spec__6_spec__7_spec__9_spec__10_spec__11___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_Tactic_Grind_setConfigField_spec__1_spec__3_spec__6_spec__7_spec__9_spec__10_spec__11___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_mkConstWithLevelParams___at___00Lean_Elab_Tactic_Grind_setConfigField_spec__1_spec__3_spec__6_spec__7_spec__9_spec__10_spec__11___redArg___closed__1);
 v___x_251_ = lean_unsigned_to_nat(0u);
-v___x_252_ = lean_alloc_ctor(0, 9, 0);
+v___x_252_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_252_, 0, v___x_251_);
 lean_ctor_set(v___x_252_, 1, v___x_251_);
 lean_ctor_set(v___x_252_, 2, v___x_251_);
-lean_ctor_set(v___x_252_, 3, v___x_250_);
+lean_ctor_set(v___x_252_, 3, v___x_251_);
 lean_ctor_set(v___x_252_, 4, v___x_250_);
 lean_ctor_set(v___x_252_, 5, v___x_250_);
 lean_ctor_set(v___x_252_, 6, v___x_250_);
 lean_ctor_set(v___x_252_, 7, v___x_250_);
 lean_ctor_set(v___x_252_, 8, v___x_250_);
+lean_ctor_set(v___x_252_, 9, v___x_250_);
 return v___x_252_;
 }
 }
@@ -17294,6 +17294,7 @@ return v_res_5299_;
 }
 lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_ConfigSetter(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_DeprecatedSyntax(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Grind_Config(uint8_t builtin) {
 lean_object * res;
@@ -17303,6 +17304,9 @@ res = runtime_initialize_Lean_Elab_Tactic_Grind_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_ConfigSetter(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_DeprecatedSyntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -17316,6 +17320,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Elab_Tactic_Grind_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_ConfigSetter(uint8_t builtin);
+lean_object* initialize_Lean_Elab_DeprecatedSyntax(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Grind_Config(uint8_t builtin) {
 lean_object * res;
@@ -17325,6 +17330,9 @@ res = initialize_Lean_Elab_Tactic_Grind_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Tactic_ConfigSetter(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_DeprecatedSyntax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_Grind_Config(builtin);

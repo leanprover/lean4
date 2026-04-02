@@ -426,13 +426,11 @@ LEAN_EXPORT lean_object* l_Std_Do_PredTrans_instMonad(lean_object* v_ps_168_){
 _start:
 {
 lean_object* v___f_169_; lean_object* v___f_170_; lean_object* v___f_171_; lean_object* v___f_172_; lean_object* v___f_173_; lean_object* v___x_174_; lean_object* v___x_175_; lean_object* v___x_176_; lean_object* v___x_177_; lean_object* v___x_178_; 
-lean_inc(v_ps_168_);
+lean_inc_n(v_ps_168_, 4);
 v___f_169_ = lean_alloc_closure((void*)(l_Std_Do_PredTrans_instMonad___lam__0), 6, 1);
 lean_closure_set(v___f_169_, 0, v_ps_168_);
-lean_inc(v_ps_168_);
 v___f_170_ = lean_alloc_closure((void*)(l_Std_Do_PredTrans_instMonad___lam__1), 6, 1);
 lean_closure_set(v___f_170_, 0, v_ps_168_);
-lean_inc(v_ps_168_);
 v___f_171_ = lean_alloc_closure((void*)(l_Std_Do_PredTrans_instMonad___lam__3), 6, 1);
 lean_closure_set(v___f_171_, 0, v_ps_168_);
 v___f_172_ = ((lean_object*)(l_Std_Do_PredTrans_instMonad___closed__0));
@@ -440,7 +438,6 @@ v___f_173_ = ((lean_object*)(l_Std_Do_PredTrans_instMonad___closed__1));
 v___x_174_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_174_, 0, v___f_169_);
 lean_ctor_set(v___x_174_, 1, v___f_170_);
-lean_inc(v_ps_168_);
 v___x_175_ = lean_alloc_closure((void*)(l_Std_Do_PredTrans_pure___boxed), 3, 1);
 lean_closure_set(v___x_175_, 0, v_ps_168_);
 v___x_176_ = lean_alloc_ctor(0, 5, 0);

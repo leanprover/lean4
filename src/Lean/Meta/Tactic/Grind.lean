@@ -12,7 +12,6 @@ public import Lean.Meta.Tactic.Grind.Util
 public import Lean.Meta.Tactic.Grind.Cases
 public import Lean.Meta.Tactic.Grind.Injection
 public import Lean.Meta.Tactic.Grind.Core
-public import Lean.Meta.Tactic.Grind.Canon
 public import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
 public import Lean.Meta.Tactic.Grind.Inv
 public import Lean.Meta.Tactic.Grind.Proof

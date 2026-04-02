@@ -2373,9 +2373,8 @@ if (lean_obj_tag(v_pre_623_) == 0)
 {
 lean_object* v_str_624_; lean_object* v___x_625_; uint8_t v___x_626_; lean_object* v___x_627_; 
 v_str_624_ = lean_ctor_get(v_n_620_, 1);
-lean_inc_ref(v_str_624_);
+lean_inc_ref_n(v_str_624_, 2);
 lean_dec_ref(v_n_620_);
-lean_inc_ref(v_str_624_);
 v___x_625_ = lean_apply_1(v_isToken_621_, v_str_624_);
 v___x_626_ = lean_unbox(v___x_625_);
 v___x_627_ = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithSep_maybeEscape(v_escape_619_, v_str_624_, v___x_626_);
@@ -2386,13 +2385,12 @@ else
 lean_object* v_str_628_; lean_object* v_r_629_; lean_object* v___x_630_; uint8_t v___x_631_; lean_object* v___x_632_; lean_object* v_r_x27_633_; 
 lean_inc(v_pre_623_);
 v_str_628_ = lean_ctor_get(v_n_620_, 1);
-lean_inc_ref(v_str_628_);
+lean_inc_ref_n(v_str_628_, 2);
 lean_dec_ref(v_n_620_);
 lean_inc_ref(v_isToken_621_);
 v_r_629_ = l_Lean_Name_toStringWithSep(v_sep_618_, v_escape_619_, v_pre_623_, v_isToken_621_);
 v___x_630_ = lean_string_append(v_r_629_, v_sep_618_);
 v___x_631_ = 0;
-lean_inc_ref(v_str_628_);
 v___x_632_ = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithSep_maybeEscape(v_escape_619_, v_str_628_, v___x_631_);
 lean_inc_ref(v___x_630_);
 v_r_x27_633_ = lean_string_append(v___x_630_, v___x_632_);

@@ -91,10 +91,9 @@ def delabSort : Delab := do
   | Level.zero => `(Prop)
   | Level.succ .zero => `(Type)
   | _ =>
-    let mvars ← getPPOption getPPMVarsLevels
     match l.dec with
-    | some l' => `(Type $(Level.quote l' (prec := max_prec) (mvars := mvars)))
-    | none    => `(Sort $(Level.quote l (prec := max_prec) (mvars := mvars)))
+    | some l' => `(Type $(← delabLevel l' (prec := max_prec)))
+    | none    => `(Sort $(← delabLevel l (prec := max_prec)))
 
 /--
 Delaborator for `const` expressions.
@@ -131,8 +130,8 @@ def delabConst : Delab := do
 
   let stx ←
     if !ls.isEmpty && (← getPPOption getPPUniverses) then
-      let mvars ← getPPOption getPPMVarsLevels
-      `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
+      let ls' ← ls.toArray.mapM fun l => delabLevel l (prec := 0)
+      `($(mkIdent c).{$ls',*})
     else
       pure <| mkIdent c
 

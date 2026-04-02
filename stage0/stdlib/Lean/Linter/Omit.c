@@ -174,13 +174,12 @@ lean_object* v___x_10_; uint8_t v___x_11_; lean_object* v___x_12_; lean_object* 
 v___x_10_ = lean_alloc_ctor(1, 0, 1);
 v___x_11_ = lean_unbox(v_defValue_5_);
 lean_ctor_set_uint8(v___x_10_, 0, v___x_11_);
-lean_inc(v_name_1_);
+lean_inc_n(v_name_1_, 2);
 v___x_12_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_12_, 0, v_name_1_);
 lean_ctor_set(v___x_12_, 1, v_ref_3_);
 lean_ctor_set(v___x_12_, 2, v___x_10_);
 lean_ctor_set(v___x_12_, 3, v_descr_6_);
-lean_inc(v_name_1_);
 v___x_13_ = lean_register_option(v_name_1_, v___x_12_);
 if (lean_obj_tag(v___x_13_) == 0)
 {
@@ -409,16 +408,17 @@ _start:
 lean_object* v___x_93_; lean_object* v___x_94_; lean_object* v___x_95_; 
 v___x_93_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Linter_omit_spec__1_spec__2_spec__3_spec__4___redArg___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Linter_omit_spec__1_spec__2_spec__3_spec__4___redArg___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Linter_omit_spec__1_spec__2_spec__3_spec__4___redArg___closed__1);
 v___x_94_ = lean_unsigned_to_nat(0u);
-v___x_95_ = lean_alloc_ctor(0, 9, 0);
+v___x_95_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_95_, 0, v___x_94_);
 lean_ctor_set(v___x_95_, 1, v___x_94_);
 lean_ctor_set(v___x_95_, 2, v___x_94_);
-lean_ctor_set(v___x_95_, 3, v___x_93_);
+lean_ctor_set(v___x_95_, 3, v___x_94_);
 lean_ctor_set(v___x_95_, 4, v___x_93_);
 lean_ctor_set(v___x_95_, 5, v___x_93_);
 lean_ctor_set(v___x_95_, 6, v___x_93_);
 lean_ctor_set(v___x_95_, 7, v___x_93_);
 lean_ctor_set(v___x_95_, 8, v___x_93_);
+lean_ctor_set(v___x_95_, 9, v___x_93_);
 return v___x_95_;
 }
 }
@@ -543,10 +543,10 @@ return v___y_129_;
 LEAN_EXPORT lean_object* l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Linter_omit_spec__1_spec__2_spec__3___lam__0___boxed(lean_object* v___y_136_, lean_object* v_suppressElabErrors_137_, lean_object* v_x_138_){
 _start:
 {
-uint8_t v___y_3051__boxed_139_; uint8_t v_suppressElabErrors_boxed_140_; uint8_t v_res_141_; lean_object* v_r_142_; 
-v___y_3051__boxed_139_ = lean_unbox(v___y_136_);
+uint8_t v___y_3053__boxed_139_; uint8_t v_suppressElabErrors_boxed_140_; uint8_t v_res_141_; lean_object* v_r_142_; 
+v___y_3053__boxed_139_ = lean_unbox(v___y_136_);
 v_suppressElabErrors_boxed_140_ = lean_unbox(v_suppressElabErrors_137_);
-v_res_141_ = l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Linter_omit_spec__1_spec__2_spec__3___lam__0(v___y_3051__boxed_139_, v_suppressElabErrors_boxed_140_, v_x_138_);
+v_res_141_ = l_Lean_logAt___at___00Lean_logWarningAt___at___00Lean_Linter_logLint___at___00Lean_Linter_omit_spec__1_spec__2_spec__3___lam__0(v___y_3053__boxed_139_, v_suppressElabErrors_boxed_140_, v_x_138_);
 lean_dec(v_x_138_);
 v_r_142_ = lean_box(v_res_141_);
 return v_r_142_;
@@ -837,10 +837,9 @@ goto v_resetjp_226_;
 v_resetjp_226_:
 {
 lean_object* v___x_229_; lean_object* v___x_230_; lean_object* v___x_231_; lean_object* v___x_232_; 
-lean_inc_ref(v_fileMap_221_);
+lean_inc_ref_n(v_fileMap_221_, 2);
 v___x_229_ = l_Lean_FileMap_toPosition(v_fileMap_221_, v___y_216_);
 lean_dec(v___y_216_);
-lean_inc_ref(v_fileMap_221_);
 v___x_230_ = l_Lean_FileMap_toPosition(v_fileMap_221_, v___y_219_);
 lean_dec(v___y_219_);
 v___x_231_ = lean_alloc_ctor(1, 1, 0);
@@ -1226,14 +1225,10 @@ lean_inc_ref(v_env_352_);
 lean_dec(v___x_351_);
 v___x_353_ = l_Lean_Linter_linterSetsExt;
 v_toEnvExtension_354_ = lean_ctor_get(v___x_353_, 0);
-lean_inc_ref(v_toEnvExtension_354_);
 v_asyncMode_355_ = lean_ctor_get(v_toEnvExtension_354_, 2);
-lean_inc(v_asyncMode_355_);
-lean_dec_ref(v_toEnvExtension_354_);
 v___x_356_ = lean_box(1);
 v___x_357_ = lean_box(0);
 v_linterSets_358_ = l_Lean_SimplePersistentEnvExtension_getState___redArg(v___x_356_, v___x_353_, v_env_352_, v_asyncMode_355_, v___x_357_);
-lean_dec(v_asyncMode_355_);
 v___x_359_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_359_, 0, v_o_348_);
 lean_ctor_set(v___x_359_, 1, v_linterSets_358_);

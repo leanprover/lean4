@@ -6,6 +6,7 @@ open Lean Meta Elab Tactic Sym Std Do SpecAttr
 namespace GetThrowSet
 
 set_option mvcgen.warning false
+set_option backward.do.legacy false -- exercises asymmetric bind depth from new do elaborator
 
 abbrev M := ExceptT String <| StateM Nat
 

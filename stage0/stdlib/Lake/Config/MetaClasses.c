@@ -118,18 +118,14 @@ LEAN_EXPORT lean_object* l_Lake_instConfigFieldOfConfigParent___redArg(lean_obje
 _start:
 {
 lean_object* v___f_50_; lean_object* v___f_51_; lean_object* v___f_52_; lean_object* v___f_53_; lean_object* v___x_54_; 
-lean_inc_ref(v_parent_48_);
-lean_inc_ref(v_field_49_);
+lean_inc_ref_n(v_parent_48_, 3);
+lean_inc_ref_n(v_field_49_, 3);
 v___f_50_ = lean_alloc_closure((void*)(l_Lake_instConfigFieldOfConfigParent___redArg___lam__0), 3, 2);
 lean_closure_set(v___f_50_, 0, v_field_49_);
 lean_closure_set(v___f_50_, 1, v_parent_48_);
-lean_inc_ref(v_field_49_);
-lean_inc_ref(v_parent_48_);
 v___f_51_ = lean_alloc_closure((void*)(l_Lake_instConfigFieldOfConfigParent___redArg___lam__1), 4, 2);
 lean_closure_set(v___f_51_, 0, v_parent_48_);
 lean_closure_set(v___f_51_, 1, v_field_49_);
-lean_inc_ref(v_field_49_);
-lean_inc_ref(v_parent_48_);
 v___f_52_ = lean_alloc_closure((void*)(l_Lake_instConfigFieldOfConfigParent___redArg___lam__2), 4, 2);
 lean_closure_set(v___f_52_, 0, v_parent_48_);
 lean_closure_set(v___f_52_, 1, v_field_49_);

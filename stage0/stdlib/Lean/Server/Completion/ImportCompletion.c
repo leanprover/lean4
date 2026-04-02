@@ -1664,12 +1664,13 @@ return v___x_465_;
 }
 else
 {
-size_t v___x_466_; size_t v___x_467_; lean_object* v___x_468_; 
+size_t v___x_466_; size_t v___x_467_; 
 lean_dec(v___y_463_);
 v___x_466_ = ((size_t)1ULL);
 v___x_467_ = lean_usize_add(v_i_457_, v___x_466_);
-v___x_468_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00ImportCompletion_computePartialImportCompletions_spec__3(v_completionPos_454_, v_as_455_, v_sz_456_, v___x_467_, v___x_461_);
-return v___x_468_;
+v_i_457_ = v___x_467_;
+v_b_458_ = v___x_461_;
+goto _start;
 }
 }
 }

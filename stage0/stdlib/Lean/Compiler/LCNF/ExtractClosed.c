@@ -4262,8 +4262,8 @@ goto v___jp_1051_;
 }
 else
 {
-lean_dec(v_pre_1083_);
 lean_dec_ref(v_declName_1082_);
+lean_dec(v_pre_1083_);
 lean_dec_ref(v_value_1081_);
 lean_dec(v_val_1080_);
 lean_dec_ref(v_k_1040_);
@@ -4805,7 +4805,7 @@ v___jp_1285_:
 lean_object* v___x_1287_; lean_object* v_env_1288_; lean_object* v___x_1289_; lean_object* v___x_1290_; lean_object* v___x_1291_; lean_object* v___x_1292_; lean_object* v___x_1293_; lean_object* v___x_1294_; lean_object* v___x_1295_; lean_object* v___x_1296_; lean_object* v___x_1297_; lean_object* v___x_1298_; 
 v___x_1287_ = lean_st_ref_get(v_a_1269_);
 v_env_1288_ = lean_ctor_get(v___x_1287_, 0);
-lean_inc_ref(v_env_1288_);
+lean_inc_ref_n(v_env_1288_, 2);
 lean_dec(v___x_1287_);
 v___x_1289_ = lean_array_get_size(v_a_1286_);
 v___x_1290_ = lean_unsigned_to_nat(1u);
@@ -4820,7 +4820,6 @@ lean_dec_ref(v_a_1286_);
 v___x_1296_ = ((lean_object*)(l___private_Lean_Compiler_LCNF_ExtractClosed_0__Lean_Compiler_LCNF_ExtractClosed_visitCode_performExtraction___closed__4));
 lean_inc_ref(v___x_1295_);
 v___x_1297_ = l_Lean_Compiler_LCNF_Code_toExpr(v___x_1279_, v___x_1295_, v___x_1296_);
-lean_inc_ref(v_env_1288_);
 v___x_1298_ = l_Lean_getClosedTermName_x3f(v_env_1288_, v___x_1297_);
 if (lean_obj_tag(v___x_1298_) == 1)
 {
@@ -5419,11 +5418,10 @@ v_val_1694_ = lean_ctor_get(v_a_1690_, 0);
 lean_inc(v_val_1694_);
 lean_dec_ref(v_a_1690_);
 v_fst_1695_ = lean_ctor_get(v_val_1694_, 0);
-lean_inc(v_fst_1695_);
+lean_inc_n(v_fst_1695_, 2);
 v_snd_1696_ = lean_ctor_get(v_val_1694_, 1);
 lean_inc(v_snd_1696_);
 lean_dec(v_val_1694_);
-lean_inc(v_fst_1695_);
 v___x_1697_ = l___private_Lean_Compiler_LCNF_ExtractClosed_0__Lean_Compiler_LCNF_ExtractClosed_visitCode_performExtraction(v_fst_1695_, v___y_1683_, v___y_1684_, v___y_1685_, v___y_1686_, v___y_1687_, v___y_1688_);
 if (lean_obj_tag(v___x_1697_) == 0)
 {
@@ -6467,11 +6465,10 @@ v_val_1580_ = lean_ctor_get(v_a_1579_, 0);
 lean_inc(v_val_1580_);
 lean_dec_ref(v_a_1579_);
 v_fst_1581_ = lean_ctor_get(v_val_1580_, 0);
-lean_inc(v_fst_1581_);
+lean_inc_n(v_fst_1581_, 2);
 v_snd_1582_ = lean_ctor_get(v_val_1580_, 1);
 lean_inc(v_snd_1582_);
 lean_dec(v_val_1580_);
-lean_inc(v_fst_1581_);
 v___x_1583_ = l___private_Lean_Compiler_LCNF_ExtractClosed_0__Lean_Compiler_LCNF_ExtractClosed_visitCode_performExtraction(v_fst_1581_, v___y_1572_, v___y_1573_, v___y_1574_, v___y_1575_, v___y_1576_, v___y_1577_);
 if (lean_obj_tag(v___x_1583_) == 0)
 {

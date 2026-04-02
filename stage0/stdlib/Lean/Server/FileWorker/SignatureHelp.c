@@ -1305,7 +1305,6 @@ switch(lean_obj_tag(v_a_324_))
 case 0:
 {
 lean_object* v_pos_327_; lean_object* v___x_328_; 
-lean_dec(v_b_325_);
 v_pos_327_ = lean_ctor_get(v_a_324_, 0);
 lean_inc(v_pos_327_);
 lean_dec_ref(v_a_324_);
@@ -1316,7 +1315,6 @@ return v___x_328_;
 case 1:
 {
 lean_object* v_pos_329_; lean_object* v___x_331_; uint8_t v_isShared_332_; uint8_t v_isSharedCheck_338_; 
-lean_dec(v_b_325_);
 v_pos_329_ = lean_ctor_get(v_a_324_, 0);
 v_isSharedCheck_338_ = !lean_is_exclusive(v_a_324_);
 if (v_isSharedCheck_338_ == 0)
@@ -1410,12 +1408,12 @@ v___x_353_ = l_String_instDecidableLtRaw___aux__1(v_basePos_349_, v___x_323_);
 lean_dec(v_basePos_349_);
 if (v___x_353_ == 0)
 {
+lean_inc(v_b_325_);
 return v_b_325_;
 }
 else
 {
 lean_object* v___x_354_; 
-lean_dec(v_b_325_);
 v___x_354_ = lean_box(3);
 v_a_324_ = v___x_354_;
 v_b_325_ = v___x_326_;
@@ -1435,7 +1433,6 @@ if (v___x_359_ == 0)
 {
 lean_object* v___x_360_; uint8_t v___x_361_; 
 lean_dec(v___x_350_);
-lean_dec(v_b_325_);
 v___x_360_ = lean_unsigned_to_nat(0u);
 v___x_361_ = lean_nat_dec_eq(v_needlePos_342_, v___x_360_);
 if (v___x_361_ == 0)
@@ -1582,7 +1579,6 @@ lean_object* v___x_390_; lean_object* v___x_391_; lean_object* v___x_392_;
 lean_del_object(v___x_344_);
 lean_dec_ref(v_table_340_);
 lean_dec_ref(v_needle_339_);
-lean_dec(v_b_325_);
 v___x_390_ = lean_nat_sub(v_nextStackPos_383_, v_nextNeedlePos_384_);
 lean_dec(v_nextNeedlePos_384_);
 lean_dec(v_nextStackPos_383_);
@@ -1598,6 +1594,7 @@ return v___x_392_;
 }
 default: 
 {
+lean_inc(v_b_325_);
 return v_b_325_;
 }
 }
@@ -1608,6 +1605,7 @@ _start:
 {
 lean_object* v_res_399_; 
 v_res_399_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0___redArg(v_s_394_, v___x_395_, v___x_396_, v_a_397_, v_b_398_);
+lean_dec(v_b_398_);
 lean_dec(v___x_396_);
 lean_dec_ref(v___x_395_);
 lean_dec_ref(v_s_394_);
@@ -1766,6 +1764,7 @@ _start:
 {
 lean_object* v_res_454_; 
 v_res_454_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_SignatureHelp_0__Lean_Server_FileWorker_SignatureHelp_lineCommentPosition_x3f_spec__0(v_s_446_, v___x_447_, v___x_448_, v_inst_449_, v_R_450_, v_a_451_, v_b_452_, v_c_453_);
+lean_dec(v_b_452_);
 lean_dec(v___x_448_);
 lean_dec_ref(v___x_447_);
 lean_dec_ref(v_s_446_);
@@ -1939,6 +1938,7 @@ v___jp_535_:
 uint8_t v___x_537_; lean_object* v___x_538_; lean_object* v___x_539_; 
 v___x_537_ = 0;
 v___x_538_ = lean_box(v___x_537_);
+lean_inc(v_kind_x3f_536_);
 v___x_539_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_539_, 0, v_kind_x3f_536_);
 lean_ctor_set(v___x_539_, 1, v___x_538_);

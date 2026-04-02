@@ -807,13 +807,12 @@ lean_object* v___x_216_; lean_object* v___x_217_; lean_object* v___x_218_;
 lean_inc(v_defValue_211_);
 v___x_216_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_216_, 0, v_defValue_211_);
-lean_inc(v_name_207_);
+lean_inc_n(v_name_207_, 2);
 v___x_217_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_217_, 0, v_name_207_);
 lean_ctor_set(v___x_217_, 1, v_ref_209_);
 lean_ctor_set(v___x_217_, 2, v___x_216_);
 lean_ctor_set(v___x_217_, 3, v_descr_212_);
-lean_inc(v_name_207_);
 v___x_218_ = lean_register_option(v_name_207_, v___x_217_);
 if (lean_obj_tag(v___x_218_) == 0)
 {
@@ -1436,7 +1435,7 @@ _start:
 {
 lean_object* v_options_490_; lean_object* v_ref_491_; uint8_t v_autoBoundImplicit_492_; lean_object* v_kind_493_; lean_object* v___x_494_; uint8_t v___x_495_; lean_object* v_ref_496_; lean_object* v___x_497_; 
 v_options_490_ = lean_ctor_get(v_a_488_, 0);
-lean_inc_ref(v_options_490_);
+lean_inc_ref_n(v_options_490_, 2);
 v_ref_491_ = lean_ctor_get(v_a_488_, 1);
 lean_inc(v_ref_491_);
 v_autoBoundImplicit_492_ = lean_ctor_get_uint8(v_a_488_, sizeof(void*)*2);
@@ -1447,7 +1446,6 @@ v___x_494_ = ((lean_object*)(l_Lean_Elab_Level_elabLevel___closed__2));
 v___x_495_ = lean_name_eq(v_kind_493_, v___x_494_);
 v_ref_496_ = l_Lean_replaceRef(v_stx_487_, v_ref_491_);
 lean_dec(v_ref_491_);
-lean_inc_ref(v_options_490_);
 v___x_497_ = lean_alloc_ctor(0, 2, 1);
 lean_ctor_set(v___x_497_, 0, v_options_490_);
 lean_ctor_set(v___x_497_, 1, v_ref_496_);
@@ -1525,9 +1523,8 @@ else
 {
 lean_object* v_val_521_; lean_object* v___x_522_; 
 v_val_521_ = lean_ctor_get(v___x_519_, 0);
-lean_inc(v_val_521_);
+lean_inc_n(v_val_521_, 2);
 lean_dec_ref(v___x_519_);
-lean_inc(v_val_521_);
 v___x_522_ = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at___00Lean_Elab_Level_elabLevel_spec__2(v_val_521_, v___x_497_, v_a_516_);
 lean_dec_ref(v___x_497_);
 if (lean_obj_tag(v___x_522_) == 0)
@@ -1829,9 +1826,8 @@ else
 {
 lean_object* v_val_585_; lean_object* v___x_586_; 
 v_val_585_ = lean_ctor_get(v___x_583_, 0);
-lean_inc(v_val_585_);
+lean_inc_n(v_val_585_, 2);
 lean_dec_ref(v___x_583_);
-lean_inc(v_val_585_);
 v___x_586_ = l___private_Lean_Elab_Level_0__Lean_Elab_Level_checkUniverseOffset___at___00Lean_Elab_Level_elabLevel_spec__2(v_val_585_, v___x_497_, v_a_489_);
 lean_dec_ref(v___x_497_);
 if (lean_obj_tag(v___x_586_) == 0)

@@ -2058,9 +2058,8 @@ lean_object* v_ref_633_; lean_object* v_mutex_634_; lean_object* v___f_635_; lea
 v_ref_633_ = lean_ctor_get(v_mutex_630_, 0);
 lean_inc(v_ref_633_);
 v_mutex_634_ = lean_ctor_get(v_mutex_630_, 1);
-lean_inc(v_mutex_634_);
+lean_inc_n(v_mutex_634_, 2);
 lean_dec_ref(v_mutex_630_);
-lean_inc(v_mutex_634_);
 v___f_635_ = lean_alloc_closure((void*)(l_Std_Mutex_atomically___at___00Std_CancellationToken_selector_spec__1___redArg___lam__0___boxed), 3, 1);
 lean_closure_set(v___f_635_, 0, v_mutex_634_);
 v___f_636_ = lean_alloc_closure((void*)(l_Std_Mutex_atomically___at___00Std_CancellationToken_selector_spec__1___redArg___lam__1___boxed), 4, 2);
@@ -3173,11 +3172,10 @@ else
 {
 lean_object* v_head_969_; lean_object* v_tail_970_; lean_object* v___f_971_; lean_object* v_val_973_; 
 v_head_969_ = lean_ctor_get(v_x_964_, 0);
-lean_inc(v_head_969_);
+lean_inc_n(v_head_969_, 2);
 v_tail_970_ = lean_ctor_get(v_x_964_, 1);
 lean_inc(v_tail_970_);
 lean_dec_ref(v_x_964_);
-lean_inc(v_head_969_);
 v___f_971_ = lean_alloc_closure((void*)(l_List_filterAuxM___at___00Std_Queue_filterM___at___00Std_CancellationToken_selector_spec__2_spec__2___redArg___lam__0___boxed), 5, 3);
 lean_closure_set(v___f_971_, 0, v_tail_970_);
 lean_closure_set(v___f_971_, 1, v_x_965_);
@@ -3560,11 +3558,10 @@ LEAN_EXPORT lean_object* l_Std_CancellationToken_selector(lean_object* v_token_1
 _start:
 {
 lean_object* v___f_1100_; lean_object* v___f_1101_; lean_object* v___f_1102_; lean_object* v___f_1103_; lean_object* v___x_1104_; lean_object* v___x_1105_; 
-lean_inc_ref(v_token_1099_);
+lean_inc_ref_n(v_token_1099_, 2);
 v___f_1100_ = lean_alloc_closure((void*)(l_Std_CancellationToken_selector___lam__4___boxed), 3, 1);
 lean_closure_set(v___f_1100_, 0, v_token_1099_);
 v___f_1101_ = ((lean_object*)(l_Std_CancellationToken_selector___closed__0));
-lean_inc_ref(v_token_1099_);
 v___f_1102_ = lean_alloc_closure((void*)(l_Std_CancellationToken_selector___lam__6___boxed), 3, 2);
 lean_closure_set(v___f_1102_, 0, v_token_1099_);
 lean_closure_set(v___f_1102_, 1, v___f_1101_);

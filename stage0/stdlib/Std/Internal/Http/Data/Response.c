@@ -204,7 +204,7 @@ static lean_object* l_Std_Http_Response_new___closed__0;
 static lean_once_cell_t l_Std_Http_Response_new___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Std_Http_Response_new___closed__1;
 LEAN_EXPORT lean_object* l_Std_Http_Response_new;
-LEAN_EXPORT lean_object* l_Std_Http_Response_Builder_empty;
+LEAN_EXPORT lean_object* l_Std_Http_Response_Builder_new;
 LEAN_EXPORT lean_object* l_Std_Http_Response_Builder_status(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Http_Response_Builder_headers(lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_DHashMap_Internal_AssocList_contains___at___00Std_DHashMap_Internal_Raw_u2080_Const_alter___at___00Std_Http_Response_Builder_header_spec__0_spec__0___redArg(lean_object*, lean_object*);
@@ -965,7 +965,7 @@ v___x_319_ = lean_obj_once(&l_Std_Http_Response_new___closed__1, &l_Std_Http_Res
 return v___x_319_;
 }
 }
-static lean_object* _init_l_Std_Http_Response_Builder_empty(void){
+static lean_object* _init_l_Std_Http_Response_Builder_new(void){
 _start:
 {
 lean_object* v___x_320_; 
@@ -2335,7 +2335,7 @@ _start:
 {
 lean_object* v___x_718_; lean_object* v___x_719_; lean_object* v___x_720_; 
 v___x_718_ = lean_box(4);
-v___x_719_ = l_Std_Http_Response_Builder_empty;
+v___x_719_ = l_Std_Http_Response_Builder_new;
 v___x_720_ = l_Std_Http_Response_Builder_status(v___x_719_, v___x_718_);
 return v___x_720_;
 }
@@ -2352,7 +2352,7 @@ LEAN_EXPORT lean_object* l_Std_Http_Response_withStatus(lean_object* v_status_72
 _start:
 {
 lean_object* v___x_723_; lean_object* v___x_724_; 
-v___x_723_ = l_Std_Http_Response_Builder_empty;
+v___x_723_ = l_Std_Http_Response_Builder_new;
 v___x_724_ = l_Std_Http_Response_Builder_status(v___x_723_, v_status_722_);
 return v___x_724_;
 }
@@ -2362,7 +2362,7 @@ _start:
 {
 lean_object* v___x_725_; lean_object* v___x_726_; lean_object* v___x_727_; 
 v___x_725_ = lean_box(27);
-v___x_726_ = l_Std_Http_Response_Builder_empty;
+v___x_726_ = l_Std_Http_Response_Builder_new;
 v___x_727_ = l_Std_Http_Response_Builder_status(v___x_726_, v___x_725_);
 return v___x_727_;
 }
@@ -2380,7 +2380,7 @@ _start:
 {
 lean_object* v___x_729_; lean_object* v___x_730_; lean_object* v___x_731_; 
 v___x_729_ = lean_box(52);
-v___x_730_ = l_Std_Http_Response_Builder_empty;
+v___x_730_ = l_Std_Http_Response_Builder_new;
 v___x_731_ = l_Std_Http_Response_Builder_status(v___x_730_, v___x_729_);
 return v___x_731_;
 }
@@ -2398,7 +2398,7 @@ _start:
 {
 lean_object* v___x_733_; lean_object* v___x_734_; lean_object* v___x_735_; 
 v___x_733_ = lean_box(23);
-v___x_734_ = l_Std_Http_Response_Builder_empty;
+v___x_734_ = l_Std_Http_Response_Builder_new;
 v___x_735_ = l_Std_Http_Response_Builder_status(v___x_734_, v___x_733_);
 return v___x_735_;
 }
@@ -2416,7 +2416,7 @@ _start:
 {
 lean_object* v___x_737_; lean_object* v___x_738_; lean_object* v___x_739_; 
 v___x_737_ = lean_box(5);
-v___x_738_ = l_Std_Http_Response_Builder_empty;
+v___x_738_ = l_Std_Http_Response_Builder_new;
 v___x_739_ = l_Std_Http_Response_Builder_status(v___x_738_, v___x_737_);
 return v___x_739_;
 }
@@ -2434,7 +2434,7 @@ _start:
 {
 lean_object* v___x_741_; lean_object* v___x_742_; lean_object* v___x_743_; 
 v___x_741_ = lean_box(6);
-v___x_742_ = l_Std_Http_Response_Builder_empty;
+v___x_742_ = l_Std_Http_Response_Builder_new;
 v___x_743_ = l_Std_Http_Response_Builder_status(v___x_742_, v___x_741_);
 return v___x_743_;
 }
@@ -2452,7 +2452,7 @@ _start:
 {
 lean_object* v___x_745_; lean_object* v___x_746_; lean_object* v___x_747_; 
 v___x_745_ = lean_box(24);
-v___x_746_ = l_Std_Http_Response_Builder_empty;
+v___x_746_ = l_Std_Http_Response_Builder_new;
 v___x_747_ = l_Std_Http_Response_Builder_status(v___x_746_, v___x_745_);
 return v___x_747_;
 }
@@ -2470,7 +2470,7 @@ _start:
 {
 lean_object* v___x_749_; lean_object* v___x_750_; lean_object* v___x_751_; 
 v___x_749_ = lean_box(26);
-v___x_750_ = l_Std_Http_Response_Builder_empty;
+v___x_750_ = l_Std_Http_Response_Builder_new;
 v___x_751_ = l_Std_Http_Response_Builder_status(v___x_750_, v___x_749_);
 return v___x_751_;
 }
@@ -2488,7 +2488,7 @@ _start:
 {
 lean_object* v___x_753_; lean_object* v___x_754_; lean_object* v___x_755_; 
 v___x_753_ = lean_box(32);
-v___x_754_ = l_Std_Http_Response_Builder_empty;
+v___x_754_ = l_Std_Http_Response_Builder_new;
 v___x_755_ = l_Std_Http_Response_Builder_status(v___x_754_, v___x_753_);
 return v___x_755_;
 }
@@ -2506,7 +2506,7 @@ _start:
 {
 lean_object* v___x_757_; lean_object* v___x_758_; lean_object* v___x_759_; 
 v___x_757_ = lean_box(55);
-v___x_758_ = l_Std_Http_Response_Builder_empty;
+v___x_758_ = l_Std_Http_Response_Builder_new;
 v___x_759_ = l_Std_Http_Response_Builder_status(v___x_758_, v___x_757_);
 return v___x_759_;
 }
@@ -2546,8 +2546,8 @@ l_Std_Http_Response_instInhabitedHead = _init_l_Std_Http_Response_instInhabitedH
 lean_mark_persistent(l_Std_Http_Response_instInhabitedHead);
 l_Std_Http_Response_new = _init_l_Std_Http_Response_new();
 lean_mark_persistent(l_Std_Http_Response_new);
-l_Std_Http_Response_Builder_empty = _init_l_Std_Http_Response_Builder_empty();
-lean_mark_persistent(l_Std_Http_Response_Builder_empty);
+l_Std_Http_Response_Builder_new = _init_l_Std_Http_Response_Builder_new();
+lean_mark_persistent(l_Std_Http_Response_Builder_new);
 l_Std_Http_Response_ok = _init_l_Std_Http_Response_ok();
 lean_mark_persistent(l_Std_Http_Response_ok);
 l_Std_Http_Response_notFound = _init_l_Std_Http_Response_notFound();

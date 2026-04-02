@@ -3691,10 +3691,9 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_Waiter_selector___lam__7
 _start:
 {
 lean_object* v___x_1085_; uint8_t v___x_1086_; lean_object* v___x_1087_; lean_object* v___x_1088_; lean_object* v___x_1089_; uint8_t v___x_1090_; lean_object* v___x_1091_; 
-lean_inc(v___x_1081_);
+lean_inc_n(v___x_1081_, 2);
 v___x_1085_ = lean_io_as_task(v___f_1080_, v___x_1081_);
 v___x_1086_ = 1;
-lean_inc(v___x_1081_);
 v___x_1087_ = lean_task_bind(v___x_1085_, v___f_1082_, v___x_1081_, v___x_1086_);
 v___x_1088_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1088_, 0, v___x_1087_);
@@ -3922,11 +3921,10 @@ LEAN_EXPORT lean_object* l_Std_Internal_IO_Async_Signal_Waiter_selector(lean_obj
 _start:
 {
 lean_object* v___f_1170_; lean_object* v___f_1171_; lean_object* v___f_1172_; lean_object* v___f_1173_; lean_object* v___f_1174_; lean_object* v___f_1175_; lean_object* v___x_1176_; lean_object* v___f_1177_; lean_object* v___f_1178_; lean_object* v___f_1179_; lean_object* v___x_1180_; 
-lean_inc(v_s_1169_);
+lean_inc_n(v_s_1169_, 2);
 v___f_1170_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Signal_Waiter_selector___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_1170_, 0, v_s_1169_);
 v___f_1171_ = ((lean_object*)(l_Std_Internal_IO_Async_Signal_Waiter_selector___closed__0));
-lean_inc(v_s_1169_);
 v___f_1172_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Signal_Waiter_selector___lam__2___boxed), 4, 2);
 lean_closure_set(v___f_1172_, 0, v___f_1171_);
 lean_closure_set(v___f_1172_, 1, v_s_1169_);

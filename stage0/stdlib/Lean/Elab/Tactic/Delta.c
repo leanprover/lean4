@@ -646,13 +646,12 @@ if (lean_obj_tag(v___x_182_) == 0)
 {
 lean_object* v_a_183_; lean_object* v___f_184_; uint8_t v___x_185_; lean_object* v___x_186_; 
 v_a_183_ = lean_ctor_get(v___x_182_, 0);
-lean_inc(v_a_183_);
+lean_inc_n(v_a_183_, 2);
 lean_dec_ref(v___x_182_);
 lean_inc_ref(v_declNames_170_);
 v___f_184_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_deltaLocalDecl___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_184_, 0, v_declNames_170_);
 v___x_185_ = 0;
-lean_inc(v_a_183_);
 v___x_186_ = l_Lean_Meta_deltaExpand(v_a_183_, v___f_184_, v___x_185_, v_a_177_, v_a_178_);
 if (lean_obj_tag(v___x_186_) == 0)
 {
@@ -1057,16 +1056,14 @@ if (lean_obj_tag(v___x_334_) == 0)
 {
 lean_object* v_a_335_; lean_object* v___f_336_; lean_object* v___x_337_; lean_object* v___x_338_; lean_object* v___x_339_; lean_object* v___x_340_; lean_object* v___x_341_; lean_object* v___x_342_; 
 v_a_335_ = lean_ctor_get(v___x_334_, 0);
-lean_inc(v_a_335_);
+lean_inc_n(v_a_335_, 3);
 lean_dec_ref(v___x_334_);
-lean_inc(v_a_335_);
 v___f_336_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalDelta___lam__0___boxed), 11, 1);
 lean_closure_set(v___f_336_, 0, v_a_335_);
 v___x_337_ = lean_unsigned_to_nat(2u);
 v___x_338_ = l_Lean_Syntax_getArg(v_stx_319_, v___x_337_);
 v___x_339_ = l_Lean_Elab_Tactic_expandOptLocation(v___x_338_);
 lean_dec(v___x_338_);
-lean_inc(v_a_335_);
 v___x_340_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_deltaLocalDecl___boxed), 11, 1);
 lean_closure_set(v___x_340_, 0, v_a_335_);
 v___x_341_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_deltaTarget___boxed), 10, 1);

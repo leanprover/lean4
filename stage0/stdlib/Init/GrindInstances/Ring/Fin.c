@@ -183,31 +183,23 @@ LEAN_EXPORT lean_object* l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg(le
 _start:
 {
 lean_object* v___f_57_; lean_object* v___f_58_; lean_object* v___f_59_; lean_object* v___x_60_; lean_object* v___x_61_; lean_object* v___f_62_; lean_object* v___f_63_; lean_object* v___x_64_; lean_object* v___x_65_; lean_object* v___x_66_; lean_object* v___x_67_; lean_object* v___x_68_; 
-lean_inc(v_n_56_);
+lean_inc_n(v_n_56_, 9);
 v___f_57_ = lean_alloc_closure((void*)(l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_57_, 0, v_n_56_);
-lean_inc(v_n_56_);
 v___f_58_ = lean_alloc_closure((void*)(l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__1___boxed), 3, 1);
 lean_closure_set(v___f_58_, 0, v_n_56_);
-lean_inc(v_n_56_);
 v___f_59_ = lean_alloc_closure((void*)(l_Lean_Grind_Fin_instCommRingFinOfNeZeroNat___redArg___lam__2___boxed), 3, 1);
 lean_closure_set(v___f_59_, 0, v_n_56_);
-lean_inc(v_n_56_);
 v___x_60_ = lean_alloc_closure((void*)(l_Fin_add___boxed), 3, 1);
 lean_closure_set(v___x_60_, 0, v_n_56_);
-lean_inc(v_n_56_);
 v___x_61_ = lean_alloc_closure((void*)(l_Fin_mul___boxed), 3, 1);
 lean_closure_set(v___x_61_, 0, v_n_56_);
-lean_inc(v_n_56_);
 v___f_62_ = lean_alloc_closure((void*)(l_Fin_NatCast_instNatCast___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_62_, 0, v_n_56_);
-lean_inc(v_n_56_);
 v___f_63_ = lean_alloc_closure((void*)(l_Fin_neg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_63_, 0, v_n_56_);
-lean_inc(v_n_56_);
 v___x_64_ = lean_alloc_closure((void*)(l_Fin_sub___boxed), 3, 1);
 lean_closure_set(v___x_64_, 0, v_n_56_);
-lean_inc(v_n_56_);
 v___x_65_ = lean_alloc_closure((void*)(l_Lean_Grind_Fin_npow___boxed), 4, 2);
 lean_closure_set(v___x_65_, 0, v_n_56_);
 lean_closure_set(v___x_65_, 1, lean_box(0));

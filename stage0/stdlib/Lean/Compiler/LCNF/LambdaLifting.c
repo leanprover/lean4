@@ -1119,9 +1119,8 @@ if (lean_obj_tag(v___x_349_) == 0)
 {
 lean_object* v_a_350_; lean_object* v___x_351_; 
 v_a_350_ = lean_ctor_get(v___x_349_, 0);
-lean_inc(v_a_350_);
+lean_inc_n(v_a_350_, 2);
 lean_dec_ref(v___x_349_);
-lean_inc(v_a_350_);
 v___x_351_ = l_Lean_Compiler_LCNF_Code_inferType(v___x_348_, v_a_350_, v_a_334_, v_a_335_, v_a_336_, v_a_337_);
 if (lean_obj_tag(v___x_351_) == 0)
 {
@@ -1590,7 +1589,6 @@ else
 lean_object* v_mainDecl_568_; lean_object* v_inlineAttr_x3f_569_; 
 v_mainDecl_568_ = lean_ctor_get(v_a_465_, 1);
 v_inlineAttr_x3f_569_ = lean_ctor_get(v_mainDecl_568_, 2);
-lean_inc(v_inlineAttr_x3f_569_);
 v_inlineAttr_x3f_539_ = v_inlineAttr_x3f_569_;
 v___y_540_ = v_a_465_;
 v___y_541_ = v_a_466_;
@@ -1611,6 +1609,7 @@ v_toSignature_550_ = lean_ctor_get(v_mainDecl_549_, 0);
 v_safe_551_ = lean_ctor_get_uint8(v_toSignature_550_, sizeof(void*)*4);
 v___x_552_ = 0;
 v___x_553_ = 0;
+lean_inc(v_inlineAttr_x3f_539_);
 lean_inc_ref(v_decl_464_);
 lean_inc_ref(v_closure_463_);
 v___x_554_ = l___private_Lean_Compiler_LCNF_LambdaLifting_0__Lean_Compiler_LCNF_LambdaLifting_mkAuxDecl_go(v_closure_463_, v_decl_464_, v_a_537_, v_safe_551_, v_inlineAttr_x3f_539_, v___x_553_, v___x_548_, v___y_542_, v___y_543_, v___y_544_, v___y_545_);

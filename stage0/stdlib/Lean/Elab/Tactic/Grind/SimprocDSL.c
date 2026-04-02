@@ -785,11 +785,10 @@ v_env_275_ = lean_ctor_get(v___x_274_, 0);
 lean_inc_ref(v_env_275_);
 lean_dec(v___x_274_);
 v___x_276_ = l_Lean_Elab_Tactic_Grind_symSimprocElabAttribute;
-lean_inc(v_stx_264_);
+lean_inc_n(v_stx_264_, 2);
 v___x_277_ = l_Lean_Syntax_getKind(v_stx_264_);
 v___x_278_ = l_Lean_KeyedDeclsAttribute_getEntries___redArg(v___x_276_, v_env_275_, v___x_277_);
 v___x_279_ = ((lean_object*)(l_List_forIn_x27_loop___at___00Lean_Elab_Tactic_Grind_elabSymSimproc_spec__0___redArg___closed__0));
-lean_inc(v_stx_264_);
 v___x_280_ = l_List_forIn_x27_loop___at___00Lean_Elab_Tactic_Grind_elabSymSimproc_spec__0___redArg(v_stx_264_, v___x_278_, v___x_279_, v_a_265_, v_a_266_, v_a_267_, v_a_268_, v_a_269_, v_a_270_, v_a_271_, v_a_272_);
 if (lean_obj_tag(v___x_280_) == 0)
 {
@@ -1450,11 +1449,10 @@ v_env_514_ = lean_ctor_get(v___x_513_, 0);
 lean_inc_ref(v_env_514_);
 lean_dec(v___x_513_);
 v___x_515_ = l_Lean_Elab_Tactic_Grind_symDischargerElabAttribute;
-lean_inc(v_stx_503_);
+lean_inc_n(v_stx_503_, 2);
 v___x_516_ = l_Lean_Syntax_getKind(v_stx_503_);
 v___x_517_ = l_Lean_KeyedDeclsAttribute_getEntries___redArg(v___x_515_, v_env_514_, v___x_516_);
 v___x_518_ = ((lean_object*)(l_List_forIn_x27_loop___at___00Lean_Elab_Tactic_Grind_elabSymDischarger_spec__0___redArg___closed__0));
-lean_inc(v_stx_503_);
 v___x_519_ = l_List_forIn_x27_loop___at___00Lean_Elab_Tactic_Grind_elabSymDischarger_spec__0___redArg(v_stx_503_, v___x_517_, v___x_518_, v_a_504_, v_a_505_, v_a_506_, v_a_507_, v_a_508_, v_a_509_, v_a_510_, v_a_511_);
 if (lean_obj_tag(v___x_519_) == 0)
 {

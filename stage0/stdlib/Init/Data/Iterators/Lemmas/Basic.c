@@ -44,10 +44,9 @@ LEAN_EXPORT lean_object* l_Std_Iter_inductSteps___redArg(lean_object* v_step_10_
 _start:
 {
 lean_object* v___f_12_; lean_object* v___f_13_; lean_object* v___x_14_; 
-lean_inc(v_step_10_);
+lean_inc_n(v_step_10_, 2);
 v___f_12_ = lean_alloc_closure((void*)(l_Std_Iter_inductSteps___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(v___f_12_, 0, v_step_10_);
-lean_inc(v_step_10_);
 v___f_13_ = lean_alloc_closure((void*)(l_Std_Iter_inductSteps___redArg___lam__1), 3, 1);
 lean_closure_set(v___f_13_, 0, v_step_10_);
 v___x_14_ = lean_apply_3(v_step_10_, v_it_11_, v___f_12_, v___f_13_);

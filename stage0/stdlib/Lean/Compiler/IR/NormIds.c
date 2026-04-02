@@ -3833,12 +3833,11 @@ v___x_1038_ = l_Lean_IR_NormalizeIds_normFnBody(v_v_1030_, v_fst_1036_, v_snd_10
 v_fst_1039_ = lean_ctor_get(v___x_1038_, 0);
 lean_inc(v_fst_1039_);
 v_snd_1040_ = lean_ctor_get(v___x_1038_, 1);
-lean_inc(v_snd_1040_);
+lean_inc_n(v_snd_1040_, 2);
 lean_dec_ref(v___x_1038_);
 v___x_1041_ = lean_unsigned_to_nat(1u);
 v___x_1042_ = lean_nat_add(v_snd_1040_, v___x_1041_);
 lean_inc(v_a_1001_);
-lean_inc(v_snd_1040_);
 v___x_1043_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_IR_UniqueIds_checkId_spec__1___redArg(v_j_1028_, v_snd_1040_, v_a_1001_);
 v___x_1044_ = l_Lean_IR_NormalizeIds_normFnBody(v_b_1031_, v___x_1043_, v___x_1042_);
 lean_dec(v___x_1043_);
@@ -6151,9 +6150,8 @@ goto v_resetjp_1614_;
 v_resetjp_1614_:
 {
 lean_object* v___x_1617_; lean_object* v___x_1618_; lean_object* v___x_1619_; lean_object* v___x_1621_; 
-lean_inc_ref(v_f_1546_);
+lean_inc_ref_n(v_f_1546_, 2);
 v___x_1617_ = lean_apply_1(v_f_1546_, v_x_1610_);
-lean_inc_ref(v_f_1546_);
 v___x_1618_ = lean_apply_1(v_f_1546_, v_y_1612_);
 v___x_1619_ = l_Lean_IR_MapVars_mapFnBody(v_f_1546_, v_b_1613_);
 if (v_isShared_1616_ == 0)
@@ -6213,9 +6211,8 @@ goto v_resetjp_1630_;
 v_resetjp_1630_:
 {
 lean_object* v___x_1633_; lean_object* v___x_1634_; lean_object* v___x_1635_; lean_object* v___x_1637_; 
-lean_inc_ref(v_f_1546_);
+lean_inc_ref_n(v_f_1546_, 2);
 v___x_1633_ = lean_apply_1(v_f_1546_, v_x_1624_);
-lean_inc_ref(v_f_1546_);
 v___x_1634_ = lean_apply_1(v_f_1546_, v_y_1627_);
 v___x_1635_ = l_Lean_IR_MapVars_mapFnBody(v_f_1546_, v_b_1629_);
 if (v_isShared_1632_ == 0)

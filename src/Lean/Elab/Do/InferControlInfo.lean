@@ -94,12 +94,12 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
   | `(doExpr| $_:term) => return { numRegularExits := 1 }
   | `(doElem| do $doSeq) => ofSeq doSeq
   -- Let
-  | `(doElem| let $[mut]? $_:letDecl) => return .pure
-  | `(doElem| have $_:letDecl) => return .pure
+  | `(doElem| let $[mut]? $_:letConfig $_:letDecl) => return .pure
+  | `(doElem| have $_:letConfig $_:letDecl) => return .pure
   | `(doElem| let rec $_:letRecDecl) => return .pure
-  | `(doElem| let $[mut]? $_ := $_ | $otherwise $(body?)?) =>
+  | `(doElem| let $[mut]? $_:letConfig $_ := $_ | $otherwise $(body?)?) =>
     ofLetOrReassign #[] none otherwise body?
-  | `(doElem| let $[mut]? $decl) =>
+  | `(doElem| let $[mut]? $_:letConfig $decl) =>
     ofLetOrReassignArrow false decl
   | `(doElem| $decl:letIdDeclNoBinders) =>
     ofLetOrReassign (← getLetIdDeclVars ⟨decl⟩) none none none
@@ -169,15 +169,16 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     let bodyInfo ← match body? with | none => pure {} | some body => ofSeq ⟨body⟩
     return otherwiseInfo.alternative bodyInfo
   | _ =>
-    let handlers := controlInfoElemAttribute.getEntries (← getEnv) stx.raw.getKind
+    let kind := stx.raw.getKind
+    let handlers := controlInfoElemAttribute.getEntries (← getEnv) kind
     for handler in handlers do
       let res ← catchInternalId unsupportedSyntaxExceptionId
         (some <$> handler.value stx)
         (fun _ => pure none)
       if let some info := res then return info
     throwError
-      "No `ControlInfo` inference handler found for `{stx.raw.getKind}` in syntax {indentD stx}\n\
-       Register a handler with `@[doElem_control_info {stx.raw.getKind}]`."
+      "No `ControlInfo` inference handler found for `{kind}` in syntax {indentD stx}\n\
+       Register a handler with `@[doElem_control_info {kind}]`."
 
 partial def ofLetOrReassignArrow (reassignment : Bool) (decl : TSyntax [``doIdDecl, ``doPatDecl]) : TermElabM ControlInfo := do
   match decl with

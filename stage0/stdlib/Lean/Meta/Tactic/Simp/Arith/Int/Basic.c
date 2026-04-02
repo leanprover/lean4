@@ -1316,7 +1316,7 @@ lean_inc(v___y_242_);
 v___x_245_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_245_, 0, v___y_242_);
 lean_ctor_set(v___x_245_, 1, v___y_244_);
-lean_inc(v___y_243_);
+lean_inc_n(v___y_243_, 2);
 v___x_246_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_246_, 0, v___x_245_);
 lean_ctor_set(v___x_246_, 1, v___y_243_);
@@ -1878,6 +1878,7 @@ goto v_reusejp_458_;
 v_reusejp_458_:
 {
 lean_object* v___x_460_; lean_object* v___x_461_; lean_object* v___x_462_; lean_object* v___x_463_; uint8_t v___x_464_; lean_object* v___x_465_; lean_object* v___x_466_; 
+lean_inc(v___y_454_);
 v___x_460_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_460_, 0, v___x_459_);
 lean_ctor_set(v___x_460_, 1, v___y_454_);

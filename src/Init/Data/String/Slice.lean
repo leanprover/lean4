@@ -713,7 +713,7 @@ def Pos.revSkip? {s : Slice} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] : Op
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
 
 Use {name (scope := "Init.Data.String.Slice")}`String.Slice.dropSuffix` to return the slice
-unchanged when {name}`pat` does not match a prefix.
+unchanged when {name}`pat` does not match a suffix.
 
 This function is generic over all currently supported patterns.
 
@@ -775,7 +775,7 @@ def Pos.revSkipWhile {s : Slice} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] 
 termination_by pos.down
 
 /--
-Returns the position a the start of the longest suffix of {name}`s` for which {name}`pat` matches
+Returns the position at the start of the longest suffix of {name}`s` for which {name}`pat` matches
 (potentially repeatedly).
 -/
 @[inline]

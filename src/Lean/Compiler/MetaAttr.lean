@@ -39,11 +39,9 @@ private builtin_initialize declMetaExt : SimplePersistentEnvExtension Name NameS
     addEntryFn := fun s n => s.insert n
     asyncMode := .sync
     replay? := some <| SimplePersistentEnvExtension.replayOfFilter (!·.contains ·) (·.insert ·)
-    exportEntriesFnEx? := some fun env s entries => fun
-      | .private =>
-        let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
-        decls.qsort Name.quickLt
-      | _ => #[]
+    exportEntriesFnEx? := some fun env s entries =>
+      let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
+      { exported := #[], server := #[], «private» := decls.qsort Name.quickLt }
   }
 
 /-- Whether a declaration should be exported for interpretation. -/

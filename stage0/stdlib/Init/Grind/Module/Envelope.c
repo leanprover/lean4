@@ -247,10 +247,9 @@ if (v___x_80_ == 0)
 {
 lean_object* v_nsmul_81_; lean_object* v___x_82_; lean_object* v___x_83_; lean_object* v___x_84_; lean_object* v___x_86_; 
 v_nsmul_81_ = lean_ctor_get(v_inst_71_, 1);
-lean_inc(v_nsmul_81_);
+lean_inc_n(v_nsmul_81_, 2);
 lean_dec_ref(v_inst_71_);
 v___x_82_ = lean_nat_abs(v_n_72_);
-lean_inc(v_nsmul_81_);
 lean_inc(v___x_82_);
 v___x_83_ = lean_apply_2(v_nsmul_81_, v___x_82_, v_fst_74_);
 v___x_84_ = lean_apply_2(v_nsmul_81_, v___x_82_, v_snd_75_);
@@ -279,10 +278,9 @@ else
 {
 lean_object* v_nsmul_88_; lean_object* v___x_89_; lean_object* v___x_90_; lean_object* v___x_91_; lean_object* v___x_93_; 
 v_nsmul_88_ = lean_ctor_get(v_inst_71_, 1);
-lean_inc(v_nsmul_88_);
+lean_inc_n(v_nsmul_88_, 2);
 lean_dec_ref(v_inst_71_);
 v___x_89_ = lean_nat_abs(v_n_72_);
-lean_inc(v_nsmul_88_);
 lean_inc(v___x_89_);
 v___x_90_ = lean_apply_2(v_nsmul_88_, v___x_89_, v_snd_75_);
 v___x_91_ = lean_apply_2(v_nsmul_88_, v___x_89_, v_fst_74_);
@@ -605,20 +603,17 @@ LEAN_EXPORT lean_object* l_Lean_Grind_IntModule_OfNatModule_ofNatModule___redArg
 _start:
 {
 lean_object* v___x_189_; lean_object* v___x_190_; lean_object* v___x_191_; lean_object* v___x_192_; lean_object* v___x_193_; lean_object* v___x_194_; lean_object* v___x_195_; lean_object* v___x_196_; lean_object* v___x_197_; 
-lean_inc_ref(v_inst_188_);
+lean_inc_ref_n(v_inst_188_, 5);
 v___x_189_ = l_Lean_Grind_IntModule_OfNatModule_zero___redArg(v_inst_188_);
-lean_inc_ref(v_inst_188_);
 v___x_190_ = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_OfNatModule_add), 4, 2);
 lean_closure_set(v___x_190_, 0, lean_box(0));
 lean_closure_set(v___x_190_, 1, v_inst_188_);
 v___x_191_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_191_, 0, v___x_189_);
 lean_ctor_set(v___x_191_, 1, v___x_190_);
-lean_inc_ref(v_inst_188_);
 v___x_192_ = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_OfNatModule_neg___boxed), 3, 2);
 lean_closure_set(v___x_192_, 0, lean_box(0));
 lean_closure_set(v___x_192_, 1, v_inst_188_);
-lean_inc_ref(v_inst_188_);
 v___x_193_ = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_OfNatModule_sub), 4, 2);
 lean_closure_set(v___x_193_, 0, lean_box(0));
 lean_closure_set(v___x_193_, 1, v_inst_188_);
@@ -626,7 +621,6 @@ v___x_194_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_194_, 0, v___x_191_);
 lean_ctor_set(v___x_194_, 1, v___x_192_);
 lean_ctor_set(v___x_194_, 2, v___x_193_);
-lean_inc_ref(v_inst_188_);
 v___x_195_ = lean_alloc_closure((void*)(l_Lean_Grind_IntModule_OfNatModule_nsmul), 4, 2);
 lean_closure_set(v___x_195_, 0, lean_box(0));
 lean_closure_set(v___x_195_, 1, v_inst_188_);

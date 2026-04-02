@@ -2227,11 +2227,10 @@ _start:
 {
 lean_object* v_toBind_547_; lean_object* v___f_548_; lean_object* v___f_549_; lean_object* v___x_550_; lean_object* v___x_551_; 
 v_toBind_547_ = lean_ctor_get(v_inst_542_, 1);
-lean_inc(v_toBind_547_);
+lean_inc_n(v_toBind_547_, 2);
 v___f_548_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___redArg___lam__0), 3, 2);
 lean_closure_set(v___f_548_, 0, v_inst_544_);
 lean_closure_set(v___f_548_, 1, v_x_546_);
-lean_inc(v_toBind_547_);
 v___f_549_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withType___redArg___lam__1), 4, 3);
 lean_closure_set(v___f_549_, 0, v_inst_545_);
 lean_closure_set(v___f_549_, 1, v_toBind_547_);
@@ -2300,19 +2299,16 @@ _start:
 {
 lean_object* v_toBind_593_; lean_object* v___f_594_; lean_object* v___f_595_; lean_object* v___x_596_; lean_object* v___x_597_; 
 v_toBind_593_ = lean_ctor_get(v_inst_588_, 1);
-lean_inc(v_toBind_593_);
+lean_inc_n(v_toBind_593_, 2);
 lean_inc(v_inst_590_);
-lean_inc(v_inst_589_);
-lean_inc_ref(v_inst_588_);
+lean_inc_n(v_inst_589_, 2);
+lean_inc_ref_n(v_inst_588_, 2);
 lean_inc(v_xa_592_);
 v___f_594_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppFnArgs___redArg___lam__0), 5, 4);
 lean_closure_set(v___f_594_, 0, v_xa_592_);
 lean_closure_set(v___f_594_, 1, v_inst_588_);
 lean_closure_set(v___f_594_, 2, v_inst_589_);
 lean_closure_set(v___f_594_, 3, v_inst_590_);
-lean_inc(v_toBind_593_);
-lean_inc(v_inst_589_);
-lean_inc_ref(v_inst_588_);
 v___f_595_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withAppFnArgs___redArg___lam__1___boxed), 8, 7);
 lean_closure_set(v___f_595_, 0, v_xf_591_);
 lean_closure_set(v___f_595_, 1, v_inst_588_);
@@ -2402,19 +2398,16 @@ _start:
 {
 lean_object* v_toBind_645_; lean_object* v___f_646_; lean_object* v___f_647_; lean_object* v___x_648_; lean_object* v___x_649_; 
 v_toBind_645_ = lean_ctor_get(v_inst_639_, 1);
-lean_inc(v_toBind_645_);
+lean_inc_n(v_toBind_645_, 2);
 lean_inc(v_inst_641_);
-lean_inc(v_inst_640_);
-lean_inc_ref(v_inst_639_);
+lean_inc_n(v_inst_640_, 2);
+lean_inc_ref_n(v_inst_639_, 2);
 lean_inc(v_xa_644_);
 v___f_646_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withBoundedAppFnArgs___redArg___lam__0), 5, 4);
 lean_closure_set(v___f_646_, 0, v_xa_644_);
 lean_closure_set(v___f_646_, 1, v_inst_639_);
 lean_closure_set(v___f_646_, 2, v_inst_640_);
 lean_closure_set(v___f_646_, 3, v_inst_641_);
-lean_inc(v_toBind_645_);
-lean_inc(v_inst_640_);
-lean_inc_ref(v_inst_639_);
 v___f_647_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withBoundedAppFnArgs___redArg___lam__1___boxed), 9, 8);
 lean_closure_set(v___f_647_, 0, v_maxArgs_642_);
 lean_closure_set(v___f_647_, 1, v_inst_639_);
@@ -2517,8 +2510,7 @@ _start:
 {
 lean_object* v_toBind_703_; lean_object* v___f_704_; lean_object* v___x_705_; lean_object* v___x_706_; 
 v_toBind_703_ = lean_ctor_get(v_inst_698_, 1);
-lean_inc(v_toBind_703_);
-lean_inc(v_toBind_703_);
+lean_inc_n(v_toBind_703_, 2);
 lean_inc(v_inst_699_);
 lean_inc_ref(v_inst_698_);
 v___f_704_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withBoundedAppFn___redArg___lam__2), 7, 6);
@@ -2644,9 +2636,8 @@ _start:
 {
 lean_object* v_toBind_785_; lean_object* v___f_786_; lean_object* v___x_787_; lean_object* v___x_788_; 
 v_toBind_785_ = lean_ctor_get(v_inst_778_, 1);
-lean_inc(v_toBind_785_);
+lean_inc_n(v_toBind_785_, 2);
 lean_inc_ref(v_inst_778_);
-lean_inc(v_toBind_785_);
 v___f_786_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withBindingBody_x27___redArg___lam__2), 8, 7);
 lean_closure_set(v___f_786_, 0, v_x_784_);
 lean_closure_set(v___f_786_, 1, v_inst_780_);
@@ -3148,9 +3139,8 @@ _start:
 lean_object* v_toBind_1049_; lean_object* v___x_1050_; lean_object* v___x_1051_; lean_object* v___f_1052_; lean_object* v___x_1053_; 
 v_toBind_1049_ = lean_ctor_get(v_inst_1044_, 1);
 lean_inc(v_toBind_1049_);
-lean_inc_ref(v_inst_1044_);
+lean_inc_ref_n(v_inst_1044_, 2);
 v___x_1050_ = l_Lean_PrettyPrinter_Delaborator_SubExpr_getExpr___redArg(v_inst_1044_, v_inst_1045_);
-lean_inc_ref(v_inst_1044_);
 v___x_1051_ = l_instInhabitedOfMonad___redArg(v_inst_1044_, v_inst_1043_);
 v___f_1052_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withLetBody___redArg___lam__1___boxed), 6, 5);
 lean_closure_set(v___f_1052_, 0, v_inst_1046_);
@@ -3232,8 +3222,7 @@ _start:
 {
 lean_object* v_toBind_1098_; lean_object* v___f_1099_; lean_object* v___x_1100_; lean_object* v___x_1101_; 
 v_toBind_1098_ = lean_ctor_get(v_inst_1094_, 1);
-lean_inc(v_toBind_1098_);
-lean_inc(v_toBind_1098_);
+lean_inc_n(v_toBind_1098_, 2);
 lean_inc(v_inst_1095_);
 lean_inc_ref(v_inst_1094_);
 v___f_1099_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryFn___redArg___lam__2), 6, 5);
@@ -3340,9 +3329,8 @@ _start:
 {
 lean_object* v_toBind_1163_; lean_object* v___x_1164_; lean_object* v___f_1165_; lean_object* v___x_1166_; lean_object* v___x_1167_; 
 v_toBind_1163_ = lean_ctor_get(v_inst_1158_, 1);
-lean_inc(v_toBind_1163_);
+lean_inc_n(v_toBind_1163_, 2);
 v___x_1164_ = l_Lean_instInhabitedExpr;
-lean_inc(v_toBind_1163_);
 lean_inc(v_inst_1159_);
 lean_inc_ref(v_inst_1158_);
 v___f_1165_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_withNaryArg___redArg___lam__2), 8, 7);
@@ -3511,7 +3499,7 @@ lean_object* v_toApplicative_1224_; lean_object* v_toBind_1225_; lean_object* v_
 v_toApplicative_1224_ = lean_ctor_get(v_inst_1222_, 0);
 lean_inc_ref(v_toApplicative_1224_);
 v_toBind_1225_ = lean_ctor_get(v_inst_1222_, 1);
-lean_inc(v_toBind_1225_);
+lean_inc_n(v_toBind_1225_, 2);
 lean_dec_ref(v_inst_1222_);
 v_get_1226_ = lean_ctor_get(v_inst_1223_, 0);
 lean_inc(v_get_1226_);
@@ -3522,7 +3510,6 @@ v_toPure_1228_ = lean_ctor_get(v_toApplicative_1224_, 1);
 lean_inc(v_toPure_1228_);
 lean_dec_ref(v_toApplicative_1224_);
 v___f_1229_ = ((lean_object*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_nextExtraPos___redArg___closed__0));
-lean_inc(v_toBind_1225_);
 v___f_1230_ = lean_alloc_closure((void*)(l_Lean_PrettyPrinter_Delaborator_SubExpr_nextExtraPos___redArg___lam__2), 5, 4);
 lean_closure_set(v___f_1230_, 0, v_toPure_1228_);
 lean_closure_set(v___f_1230_, 1, v_modifyGet_1227_);

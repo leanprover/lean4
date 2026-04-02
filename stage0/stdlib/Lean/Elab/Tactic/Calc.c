@@ -450,10 +450,9 @@ lean_object* v_fst_171_; lean_object* v_snd_172_; lean_object* v___y_174_; lean_
 v_fst_171_ = lean_ctor_get(v_a_167_, 0);
 lean_inc(v_fst_171_);
 v_snd_172_ = lean_ctor_get(v_a_167_, 1);
-lean_inc(v_snd_172_);
+lean_inc_n(v_snd_172_, 2);
 lean_dec(v_a_167_);
 lean_inc_ref(v___x_154_);
-lean_inc(v_snd_172_);
 v___x_192_ = l_Lean_Meta_isExprDefEq(v_snd_172_, v___x_154_, v___y_161_, v___y_162_, v___y_163_, v___y_164_);
 if (lean_obj_tag(v___x_192_) == 0)
 {
@@ -1239,16 +1238,14 @@ if (lean_obj_tag(v___x_320_) == 0)
 {
 lean_object* v_a_321_; lean_object* v___x_322_; lean_object* v_a_323_; lean_object* v___f_324_; lean_object* v___f_325_; lean_object* v___x_326_; lean_object* v___f_327_; uint8_t v___x_328_; lean_object* v___x_329_; lean_object* v___x_330_; lean_object* v___x_331_; 
 v_a_321_ = lean_ctor_get(v___x_320_, 0);
-lean_inc(v_a_321_);
+lean_inc_n(v_a_321_, 3);
 lean_dec_ref(v___x_320_);
 v___x_322_ = l_Lean_instantiateMVars___at___00Lean_Elab_Tactic_evalCalc_spec__1___redArg(v_target_307_, v___y_316_);
 v_a_323_ = lean_ctor_get(v___x_322_, 0);
 lean_inc(v_a_323_);
 lean_dec_ref(v___x_322_);
-lean_inc(v_a_321_);
 v___f_324_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalCalc___lam__0___boxed), 9, 1);
 lean_closure_set(v___f_324_, 0, v_a_321_);
-lean_inc(v_a_321_);
 v___f_325_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalCalc___lam__1___boxed), 9, 1);
 lean_closure_set(v___f_325_, 0, v_a_321_);
 v___x_326_ = l_Lean_Expr_consumeMData(v_a_323_);

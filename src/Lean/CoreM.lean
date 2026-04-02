@@ -453,6 +453,9 @@ Throws an internal interrupt exception if cancellation has been requested. The e
 caught by `try catch` but is intended to be caught by `Command.withLoggingExceptions` at the top
 level of elaboration. In particular, we want to skip producing further incremental snapshots after
 the exception has been thrown.
+
+Like `checkSystem` but without the global heartbeat check, for callers that have their own
+heartbeat tracking (e.g. `SynthInstance`).
  -/
 @[inline] def checkInterrupted : CoreM Unit := do
   if let some tk := (← read).cancelTk? then
@@ -708,11 +711,11 @@ breaks the cycle by making `compileDeclsImpl` a "dynamic" call through the ref t
 to the linker. In the compiler there is a matching `builtin_initialize` to set this ref to the
 actual implementation of compileDeclsRef.
 -/
-builtin_initialize compileDeclsRef : IO.Ref (Array Name → CoreM Unit) ←
-  IO.mkRef (fun _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
+builtin_initialize compileDeclsRef : IO.Ref (Array Name → Options → CoreM Unit) ←
+  IO.mkRef (fun _ _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
 
 private def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
-  (← compileDeclsRef.get) declNames
+  (← compileDeclsRef.get) declNames {}
 
 -- `ref?` is used for error reporting if available
 def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do

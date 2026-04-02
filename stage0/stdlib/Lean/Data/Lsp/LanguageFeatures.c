@@ -12751,10 +12751,9 @@ if (lean_obj_tag(v___x_2832_) == 3)
 {
 lean_object* v_s_2833_; lean_object* v___x_2834_; lean_object* v___x_2835_; lean_object* v___x_2836_; 
 v_s_2833_ = lean_ctor_get(v___x_2832_, 0);
-lean_inc_ref(v_s_2833_);
+lean_inc_ref_n(v_s_2833_, 2);
 lean_dec_ref(v___x_2832_);
 v___x_2834_ = lean_string_utf8_byte_size(v_s_2833_);
-lean_inc_ref(v_s_2833_);
 v___x_2835_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_2835_, 0, v_s_2833_);
 lean_ctor_set(v___x_2835_, 1, v___x_2757_);

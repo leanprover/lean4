@@ -343,13 +343,12 @@ _start:
 {
 lean_object* v_lock_132_; lean_object* v_cvar_133_; lean_object* v_numThreads_134_; lean_object* v___f_135_; lean_object* v___x_136_; uint8_t v___x_137_; 
 v_lock_132_ = lean_ctor_get(v_barrier_130_, 0);
-lean_inc_ref(v_lock_132_);
+lean_inc_ref_n(v_lock_132_, 2);
 v_cvar_133_ = lean_ctor_get(v_barrier_130_, 1);
 lean_inc(v_cvar_133_);
 v_numThreads_134_ = lean_ctor_get(v_barrier_130_, 2);
 lean_inc(v_numThreads_134_);
 lean_dec_ref(v_barrier_130_);
-lean_inc_ref(v_lock_132_);
 v___f_135_ = lean_alloc_closure((void*)(l_Std_Barrier_wait___lam__1___boxed), 5, 3);
 lean_closure_set(v___f_135_, 0, v_numThreads_134_);
 lean_closure_set(v___f_135_, 1, v_cvar_133_);

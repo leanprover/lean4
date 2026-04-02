@@ -294,13 +294,12 @@ lean_object* v___x_10_; uint8_t v___x_11_; lean_object* v___x_12_; lean_object* 
 v___x_10_ = lean_alloc_ctor(1, 0, 1);
 v___x_11_ = lean_unbox(v_defValue_5_);
 lean_ctor_set_uint8(v___x_10_, 0, v___x_11_);
-lean_inc(v_name_1_);
+lean_inc_n(v_name_1_, 2);
 v___x_12_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_12_, 0, v_name_1_);
 lean_ctor_set(v___x_12_, 1, v_ref_3_);
 lean_ctor_set(v___x_12_, 2, v___x_10_);
 lean_ctor_set(v___x_12_, 3, v_descr_6_);
-lean_inc(v_name_1_);
 v___x_13_ = lean_register_option(v_name_1_, v___x_12_);
 if (lean_obj_tag(v___x_13_) == 0)
 {
@@ -524,13 +523,12 @@ lean_object* v___x_135_; lean_object* v___x_136_; lean_object* v___x_137_;
 lean_inc(v_defValue_130_);
 v___x_135_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_135_, 0, v_defValue_130_);
-lean_inc(v_name_126_);
+lean_inc_n(v_name_126_, 2);
 v___x_136_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_136_, 0, v_name_126_);
 lean_ctor_set(v___x_136_, 1, v_ref_128_);
 lean_ctor_set(v___x_136_, 2, v___x_135_);
 lean_ctor_set(v___x_136_, 3, v_descr_131_);
-lean_inc(v_name_126_);
 v___x_137_ = lean_register_option(v_name_126_, v___x_136_);
 if (lean_obj_tag(v___x_137_) == 0)
 {
@@ -3488,7 +3486,7 @@ lean_ctor_set(v___x_1165_, 2, v___x_1164_);
 lean_inc_ref(v_lctx_1156_);
 v___x_1166_ = l_Lean_LocalContext_sanitizeNames(v_lctx_1156_, v___x_1165_);
 v_fst_1167_ = lean_ctor_get(v___x_1166_, 0);
-lean_inc(v_fst_1167_);
+lean_inc_n(v_fst_1167_, 2);
 lean_dec_ref(v___x_1166_);
 v___x_1168_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_foldlM___at___00Lean_LocalContext_foldlM___at___00Lean_Meta_ppGoal_spec__0_spec__0_spec__3___closed__0, &l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_foldlM___at___00Lean_LocalContext_foldlM___at___00Lean_Meta_ppGoal_spec__0_spec__0_spec__3___closed__0_once, _init_l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_PersistentArray_foldlM___at___00Lean_LocalContext_foldlM___at___00Lean_Meta_ppGoal_spec__0_spec__0_spec__3___closed__0);
 v___x_1169_ = l_Lean_MetavarKind_isSyntheticOpaque(v_kind_1159_);
@@ -3497,7 +3495,6 @@ v___x_1171_ = lean_unsigned_to_nat(0u);
 v___x_1172_ = lean_box(v___x_1163_);
 v___x_1173_ = lean_box(v___x_1169_);
 v___x_1174_ = lean_box(v___x_1161_);
-lean_inc(v_fst_1167_);
 v___f_1175_ = lean_alloc_closure((void*)(l_Lean_Meta_ppGoal___lam__0___boxed), 15, 10);
 lean_closure_set(v___f_1175_, 0, v___x_1172_);
 lean_closure_set(v___f_1175_, 1, v___x_1173_);

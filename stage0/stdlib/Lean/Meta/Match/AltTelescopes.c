@@ -947,7 +947,7 @@ if (lean_obj_tag(v___x_333_) == 0)
 {
 lean_object* v_a_334_; size_t v_sz_335_; lean_object* v___x_336_; uint8_t v___x_337_; lean_object* v___x_338_; lean_object* v___x_339_; size_t v___x_340_; lean_object* v___x_341_; lean_object* v___x_342_; lean_object* v___x_343_; lean_object* v___x_344_; lean_object* v___x_345_; lean_object* v___x_346_; lean_object* v___x_347_; lean_object* v___x_348_; lean_object* v___x_349_; lean_object* v___x_350_; lean_object* v___x_351_; lean_object* v___x_352_; 
 v_a_334_ = lean_ctor_get(v___x_333_, 0);
-lean_inc(v_a_334_);
+lean_inc_n(v_a_334_, 2);
 lean_dec_ref(v___x_333_);
 v_sz_335_ = lean_array_size(v_args_293_);
 v___x_336_ = l_Array_eraseIdx___redArg(v_ys_292_, v_val_330_);
@@ -965,7 +965,6 @@ v___x_343_ = l_Lean_Expr_fvarId_x21(v_fst_323_);
 lean_dec(v_fst_323_);
 v___x_344_ = l_Lean_Expr_fvarId_x21(v_y_300_);
 lean_dec_ref(v_y_300_);
-lean_inc(v_a_334_);
 v___x_345_ = lean_array_push(v___x_341_, v_a_334_);
 v___x_346_ = lean_box(v___x_337_);
 v___x_347_ = lean_array_push(v___x_339_, v___x_346_);
@@ -1367,10 +1366,9 @@ if (lean_obj_tag(v___x_440_) == 0)
 {
 lean_object* v_a_441_; lean_object* v___x_442_; lean_object* v___f_443_; lean_object* v___x_444_; 
 v_a_441_ = lean_ctor_get(v___x_440_, 0);
-lean_inc(v_a_441_);
+lean_inc_n(v_a_441_, 2);
 lean_dec_ref(v___x_440_);
 v___x_442_ = lean_box(v___x_425_);
-lean_inc(v_a_441_);
 v___f_443_ = lean_alloc_closure((void*)(l___private_Lean_Meta_Match_AltTelescopes_0__Lean_Meta_Match_forallAltVarsTelescope_go___redArg___lam__0___boxed), 16, 10);
 lean_closure_set(v___f_443_, 0, v_a_441_);
 lean_closure_set(v___f_443_, 1, v_body_439_);
@@ -2026,11 +2024,10 @@ lean_object* v_binderName_752_; lean_object* v_binderType_753_; lean_object* v_b
 v_binderName_752_ = lean_ctor_get(v_a_739_, 0);
 lean_inc(v_binderName_752_);
 v_binderType_753_ = lean_ctor_get(v_a_739_, 1);
-lean_inc_ref(v_binderType_753_);
+lean_inc_ref_n(v_binderType_753_, 2);
 v_body_754_ = lean_ctor_get(v_a_739_, 2);
 lean_inc_ref(v_body_754_);
 lean_dec_ref(v_a_739_);
-lean_inc_ref(v_binderType_753_);
 v___x_763_ = l_Lean_Meta_matchEq_x3f(v_binderType_753_, v_a_733_, v_a_734_, v_a_735_, v_a_736_);
 if (lean_obj_tag(v___x_763_) == 0)
 {

@@ -30,14 +30,14 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Std_Time_Day_instInhabitedOffset;
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
 lean_object* l_Int_repr___boxed(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* l_Int_toNat(lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_mkAtom(lean_object*);
 lean_object* l_Rat_ofInt(lean_object*);
 lean_object* l_Int_mul___boxed(lean_object*, lean_object*);
@@ -2765,10 +2765,9 @@ v_isNeg_700_ = lean_int_dec_lt(v_month_698_, v_intZero_699_);
 v___x_701_ = l_Std_Time_Day_instInhabitedOffset;
 v_a_702_ = lean_nat_abs(v_month_698_);
 v_daysAcc_703_ = lean_obj_once(&l_Std_Time_Month_Ordinal_toSeconds___closed__11, &l_Std_Time_Month_Ordinal_toSeconds___closed__11_once, _init_l_Std_Time_Month_Ordinal_toSeconds___closed__11);
-v_days_704_ = lean_array_get(v___x_701_, v_daysAcc_703_, v_a_702_);
+v_days_704_ = lean_array_get_borrowed(v___x_701_, v_daysAcc_703_, v_a_702_);
 v___x_705_ = lean_obj_once(&l_Std_Time_Month_Ordinal_toSeconds___closed__12, &l_Std_Time_Month_Ordinal_toSeconds___closed__12_once, _init_l_Std_Time_Month_Ordinal_toSeconds___closed__12);
 v_time_706_ = lean_int_mul(v_days_704_, v___x_705_);
-lean_dec(v_days_704_);
 if (v_leap_697_ == 0)
 {
 lean_dec(v_a_702_);
@@ -2900,13 +2899,11 @@ _start:
 lean_object* v_ratio_747_; lean_object* v_num_748_; lean_object* v_den_749_; lean_object* v___x_750_; lean_object* v___x_751_; lean_object* v___x_752_; lean_object* v___x_753_; 
 v_ratio_747_ = lean_obj_once(&l_Std_Time_Month_Ordinal_toDays___closed__2, &l_Std_Time_Month_Ordinal_toDays___closed__2_once, _init_l_Std_Time_Month_Ordinal_toDays___closed__2);
 v_num_748_ = lean_ctor_get(v_ratio_747_, 0);
-lean_inc(v_num_748_);
 v_den_749_ = lean_ctor_get(v_ratio_747_, 1);
-lean_inc(v_den_749_);
 v___x_750_ = l_Std_Time_Month_Ordinal_toSeconds(v_leap_745_, v_month_746_);
 v___x_751_ = lean_int_mul(v___x_750_, v_num_748_);
-lean_dec(v_num_748_);
 lean_dec(v___x_750_);
+lean_inc(v_den_749_);
 v___x_752_ = lean_nat_to_int(v_den_749_);
 v___x_753_ = lean_int_ediv(v___x_751_, v___x_752_);
 lean_dec(v___x_752_);
@@ -3607,8 +3604,9 @@ v___x_984_ = lean_obj_once(&l_Std_Time_Month_Quarter_ofMonth___closed__1, &l_Std
 v___x_985_ = lean_int_add(v_month_980_, v___x_984_);
 v___x_986_ = l_Int_toNat(v___x_985_);
 lean_dec(v___x_985_);
-v___x_987_ = lean_array_fget(v___x_983_, v___x_986_);
+v___x_987_ = lean_array_fget_borrowed(v___x_983_, v___x_986_);
 lean_dec(v___x_986_);
+lean_inc(v___x_987_);
 return v___x_987_;
 }
 else
@@ -3652,13 +3650,12 @@ v___x_1001_ = lean_obj_once(&l_Std_Time_Month_Quarter_ofMonth___closed__1, &l_St
 v___x_1002_ = lean_int_add(v_month_995_, v___x_1001_);
 v___x_1003_ = l_Int_toNat(v___x_1002_);
 lean_dec(v___x_1002_);
-v_res_1004_ = lean_array_fget(v___x_999_, v___x_1003_);
+v_res_1004_ = lean_array_fget_borrowed(v___x_999_, v___x_1003_);
 lean_dec(v___x_1003_);
 if (v_leap_994_ == 0)
 {
 lean_object* v___x_1005_; 
 v___x_1005_ = lean_int_add(v_res_1004_, v___x_996_);
-lean_dec(v_res_1004_);
 return v___x_1005_;
 }
 else
@@ -3670,14 +3667,12 @@ if (v___x_1007_ == 0)
 {
 lean_object* v___x_1008_; 
 v___x_1008_ = lean_int_add(v_res_1004_, v___x_996_);
-lean_dec(v_res_1004_);
 return v___x_1008_;
 }
 else
 {
 lean_object* v___x_1009_; 
 v___x_1009_ = lean_int_add(v_res_1004_, v___x_1000_);
-lean_dec(v_res_1004_);
 return v___x_1009_;
 }
 }

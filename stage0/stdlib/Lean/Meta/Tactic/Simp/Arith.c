@@ -31,9 +31,8 @@ else
 {
 lean_object* v_val_3_; uint8_t v___y_5_; uint8_t v___x_7_; 
 v_val_3_ = lean_ctor_get(v_parent_x3f_1_, 0);
-lean_inc(v_val_3_);
+lean_inc_n(v_val_3_, 2);
 lean_dec_ref(v_parent_x3f_1_);
-lean_inc(v_val_3_);
 v___x_7_ = l_Lean_Meta_Simp_Arith_isLinearTerm(v_val_3_);
 if (v___x_7_ == 0)
 {

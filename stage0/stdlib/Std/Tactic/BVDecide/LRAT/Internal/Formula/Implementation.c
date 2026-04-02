@@ -2147,10 +2147,11 @@ v_fst_650_ = lean_ctor_get(v_l_649_, 0);
 v_snd_651_ = lean_ctor_get(v_l_649_, 1);
 v___x_652_ = 0;
 v___x_653_ = lean_box(v___x_652_);
-v___x_654_ = lean_array_get_borrowed(v___x_653_, v_fst_624_, v_fst_650_);
+v___x_654_ = lean_array_get(v___x_653_, v_fst_624_, v_fst_650_);
 lean_dec(v___x_653_);
 v___x_655_ = lean_unbox(v_snd_651_);
 v___x_656_ = lean_unbox(v___x_654_);
+lean_dec(v___x_654_);
 v___x_657_ = l_Std_Tactic_BVDecide_LRAT_Internal_Assignment_hasAssignment(v___x_655_, v___x_656_);
 if (v___x_657_ == 0)
 {

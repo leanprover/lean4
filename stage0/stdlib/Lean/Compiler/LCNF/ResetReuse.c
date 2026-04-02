@@ -2930,9 +2930,8 @@ if (lean_obj_tag(v___x_731_) == 0)
 {
 lean_object* v_a_732_; lean_object* v___x_733_; 
 v_a_732_ = lean_ctor_get(v___x_731_, 0);
-lean_inc(v_a_732_);
+lean_inc_n(v_a_732_, 2);
 lean_dec_ref(v___x_731_);
-lean_inc(v_a_732_);
 v___x_733_ = l___private_Lean_Compiler_LCNF_ResetReuse_0__Lean_Compiler_LCNF_S_go(v_info_723_, v_a_732_, v_c_724_, v_a_725_, v_a_726_, v_a_727_, v_a_728_, v_a_729_);
 if (lean_obj_tag(v___x_733_) == 0)
 {
@@ -8991,7 +8990,7 @@ v___x_2336_ = lean_unbox(v___x_2334_);
 lean_dec(v___x_2334_);
 v___x_2337_ = l_Lean_Compiler_LCNF_instBEqOwnedness_beq(v___x_2336_, v___x_2335_);
 v___x_2338_ = lean_box(0);
-lean_inc(v_discr_2323_);
+lean_inc_n(v_discr_2323_, 2);
 lean_inc_ref(v_alreadyFound_2328_);
 v___x_2339_ = l_Lean_PersistentHashMap_insert___at___00__private_Lean_Compiler_LCNF_ResetReuse_0__Lean_Compiler_LCNF_Code_insertResetReuse_spec__2___redArg(v_alreadyFound_2328_, v_discr_2323_, v___x_2338_);
 lean_inc_ref(v_ownedness_2330_);
@@ -9002,7 +9001,6 @@ lean_ctor_set_uint8(v___x_2340_, sizeof(void*)*2, v_relaxedReuse_2329_);
 v_sz_2341_ = lean_array_size(v_alts_2324_);
 v___x_2342_ = ((size_t)0ULL);
 lean_inc_ref(v_alts_2324_);
-lean_inc(v_discr_2323_);
 v___x_2343_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Compiler_LCNF_ResetReuse_0__Lean_Compiler_LCNF_Code_insertResetReuse_spec__3(v___x_2337_, v_discr_2323_, v___x_2331_, v_sz_2341_, v___x_2342_, v_alts_2324_, v___x_2340_, v_a_2241_, v_a_2242_, v_a_2243_, v_a_2244_);
 lean_dec_ref(v___x_2340_);
 if (lean_obj_tag(v___x_2343_) == 0)
@@ -11110,9 +11108,8 @@ if (lean_obj_tag(v___x_3006_) == 0)
 {
 lean_object* v_a_3007_; lean_object* v___x_3008_; 
 v_a_3007_ = lean_ctor_get(v___x_3006_, 0);
-lean_inc(v_a_3007_);
+lean_inc_n(v_a_3007_, 2);
 lean_dec_ref(v___x_3006_);
-lean_inc(v_a_3007_);
 v___x_3008_ = l_Lean_Compiler_LCNF_Decl_applyOwnedness(v_decl_2991_, v_a_3007_, v_a_2992_, v_a_2993_, v_a_2994_, v_a_2995_);
 if (lean_obj_tag(v___x_3008_) == 0)
 {

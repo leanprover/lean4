@@ -41,13 +41,34 @@ where
 public def isEtaReducible (e : Expr) : Bool :=
   !isSameExpr e (etaReduce e)
 
+public partial def etaReduceWithCache (e : Expr) (c : Std.HashMap ExprPtr Expr) : CoreM (Expr × Std.HashMap ExprPtr Expr) := do
+  visit e |>.run c
+where
+  cache (e e' : Expr) : StateRefT (Std.HashMap ExprPtr Expr) CoreM Expr := do
+    modify fun s => s.insert { expr := e } e'
+    return e'
+
+  visit (e : Expr) : StateRefT (Std.HashMap ExprPtr Expr) CoreM Expr := withIncRecDepth do
+    if let some e' := (← get).get? { expr := e } then
+      return e'
+    match e with
+    | .forallE _ d b _ => cache e (e.updateForallE! (← visit d) (← visit b))
+    | .lam _ d b _ =>
+      let e' := etaReduce.go e e 0
+      if isSameExpr e e' then
+        cache e (e.updateLambdaE! (← visit d) (← visit b))
+      else
+        cache e (← visit e')
+    | .letE _ t v b _  => cache e (e.updateLetE! (← visit t) (← visit v) (← visit b))
+    | .app f a         => cache e (e.updateApp! (← visit f) (← visit a))
+    | .mdata _ b       => cache e (e.updateMData! (← visit b))
+    | .proj _ _ b      => cache e (e.updateProj! (← visit b))
+    | _                => return e
+
 /-- Applies `etaReduce` to all subexpressions. Returns `e` unchanged if no subexpression is eta-reducible. -/
-public def etaReduceAll (e : Expr) : MetaM Expr := do
+public def etaReduceAll (e : Expr) : CoreM Expr := do
   unless Option.isSome <| e.find? isEtaReducible do return e
-  let pre (e : Expr) : MetaM TransformStep := do
-    let e' := etaReduce e
-    if isSameExpr e e' then return .continue
-    else return .visit e'
-  Meta.transform e (pre := pre)
+  let (e, _) ← etaReduceWithCache e {}
+  return e
 
 end Lean.Meta.Sym

@@ -147,6 +147,14 @@ structure Context where
   sharedExprs : SharedExprs
   config      : Config := {}
 
+structure Canon.State where
+  /-- Cache for value-level canonicalization (no type reductions applied). -/
+  cache       : Std.HashMap Expr Expr := {}
+  /-- Cache for type-level canonicalization (reductions applied). -/
+  cacheInType : Std.HashMap Expr Expr := {}
+  /-- Cache mapping instances to their canonical synthesized instances. -/
+  cacheInsts  : Std.HashMap Expr Expr := {}
+
 /-- Mutable state for the symbolic computation framework. -/
 structure State where
   /-- `ShareCommon` (aka `Hash-consing`) state. -/
@@ -191,6 +199,7 @@ structure State where
   within a `sym =>` block and reported when a tactic fails.
   -/
   issues : List MessageData := []
+  canon : Canon.State := {}
   debug : Bool := false
 
 abbrev SymM := ReaderT Context <| StateRefT State MetaM

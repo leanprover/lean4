@@ -270,16 +270,17 @@ _start:
 lean_object* v___x_4_; lean_object* v___x_5_; lean_object* v___x_6_; 
 v___x_4_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Compiler_initFn_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2__spec__2_spec__3___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Compiler_initFn_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2__spec__2_spec__3___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Compiler_initFn_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2__spec__2_spec__3___closed__1);
 v___x_5_ = lean_unsigned_to_nat(0u);
-v___x_6_ = lean_alloc_ctor(0, 9, 0);
+v___x_6_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_6_, 0, v___x_5_);
 lean_ctor_set(v___x_6_, 1, v___x_5_);
 lean_ctor_set(v___x_6_, 2, v___x_5_);
-lean_ctor_set(v___x_6_, 3, v___x_4_);
+lean_ctor_set(v___x_6_, 3, v___x_5_);
 lean_ctor_set(v___x_6_, 4, v___x_4_);
 lean_ctor_set(v___x_6_, 5, v___x_4_);
 lean_ctor_set(v___x_6_, 6, v___x_4_);
 lean_ctor_set(v___x_6_, 7, v___x_4_);
 lean_ctor_set(v___x_6_, 8, v___x_4_);
+lean_ctor_set(v___x_6_, 9, v___x_4_);
 return v___x_6_;
 }
 }
@@ -2195,9 +2196,9 @@ return v___x_636_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_initFn___lam__3_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2____boxed(lean_object* v___x_637_, lean_object* v_env_638_, lean_object* v_n_639_, lean_object* v_x_640_){
 _start:
 {
-uint8_t v___x_7085__boxed_641_; uint8_t v_res_642_; lean_object* v_r_643_; 
-v___x_7085__boxed_641_ = lean_unbox(v___x_637_);
-v_res_642_ = l_Lean_Compiler_initFn___lam__3_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2_(v___x_7085__boxed_641_, v_env_638_, v_n_639_, v_x_640_);
+uint8_t v___x_7088__boxed_641_; uint8_t v_res_642_; lean_object* v_r_643_; 
+v___x_7088__boxed_641_ = lean_unbox(v___x_637_);
+v_res_642_ = l_Lean_Compiler_initFn___lam__3_00___x40_Lean_Compiler_ImplementedByAttr_2873759278____hygCtx___hyg_2_(v___x_7088__boxed_641_, v_env_638_, v_n_639_, v_x_640_);
 lean_dec(v_x_640_);
 v_r_643_ = lean_box(v_res_642_);
 return v_r_643_;

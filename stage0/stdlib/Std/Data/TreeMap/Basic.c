@@ -918,14 +918,13 @@ lean_inc(v_currMacroScope_163_);
 lean_inc(v_quotContext_162_);
 v___x_174_ = l_Lean_addMacroScope(v_quotContext_162_, v___x_173_, v_currMacroScope_163_);
 v___x_175_ = ((lean_object*)(l_Std_TreeMap___aux__Std__Data__TreeMap__Basic______macroRules__Std__TreeMap__term___x7em____1___closed__10));
-lean_inc(v___x_170_);
+lean_inc_n(v___x_170_, 2);
 v___x_176_ = lean_alloc_ctor(3, 4, 0);
 lean_ctor_set(v___x_176_, 0, v___x_170_);
 lean_ctor_set(v___x_176_, 1, v___x_172_);
 lean_ctor_set(v___x_176_, 2, v___x_174_);
 lean_ctor_set(v___x_176_, 3, v___x_175_);
 v___x_177_ = ((lean_object*)(l_Std_TreeMap___auto__1___closed__9));
-lean_inc(v___x_170_);
 v___x_178_ = l_Lean_Syntax_node2(v___x_170_, v___x_177_, v___x_166_, v___x_168_);
 v___x_179_ = l_Lean_Syntax_node2(v___x_170_, v___x_171_, v___x_176_, v___x_178_);
 v___x_180_ = lean_alloc_ctor(0, 2, 0);
@@ -1741,10 +1740,9 @@ LEAN_EXPORT lean_object* l_Std_TreeMap_instGetElem_x3fMem___redArg(lean_object* 
 _start:
 {
 lean_object* v___f_528_; lean_object* v___f_529_; lean_object* v___f_530_; lean_object* v___x_531_; 
-lean_inc_ref(v_cmp_527_);
+lean_inc_ref_n(v_cmp_527_, 2);
 v___f_528_ = lean_alloc_closure((void*)(l_Std_TreeMap_instGetElem_x3fMem___redArg___lam__0), 4, 1);
 lean_closure_set(v___f_528_, 0, v_cmp_527_);
-lean_inc_ref(v_cmp_527_);
 v___f_529_ = lean_alloc_closure((void*)(l_Std_TreeMap_instGetElem_x3fMem___redArg___lam__1), 3, 1);
 lean_closure_set(v___f_529_, 0, v_cmp_527_);
 v___f_530_ = lean_alloc_closure((void*)(l_Std_TreeMap_instGetElem_x3fMem___redArg___lam__2___boxed), 4, 1);

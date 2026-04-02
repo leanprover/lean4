@@ -11955,9 +11955,8 @@ else
 {
 lean_object* v_a_4382_; lean_object* v___f_4383_; lean_object* v___f_4384_; lean_object* v___f_4385_; lean_object* v___x_4386_; lean_object* v___f_4387_; lean_object* v___x_4388_; uint8_t v___x_4389_; lean_object* v___x_4390_; 
 v_a_4382_ = lean_ctor_get(v_x_4371_, 0);
-lean_inc(v_a_4382_);
+lean_inc_n(v_a_4382_, 2);
 lean_dec_ref(v_x_4371_);
-lean_inc(v_a_4382_);
 v___f_4383_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_race___redArg___lam__3___boxed), 3, 1);
 lean_closure_set(v___f_4383_, 0, v_a_4382_);
 v___f_4384_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_EAsync_raceAll___redArg___lam__4___boxed), 4, 2);
@@ -15141,9 +15140,8 @@ else
 {
 lean_object* v_a_5477_; lean_object* v___f_5478_; lean_object* v___f_5479_; lean_object* v___f_5480_; lean_object* v___x_5481_; lean_object* v___f_5482_; lean_object* v___x_5483_; uint8_t v___x_5484_; lean_object* v___x_5485_; 
 v_a_5477_ = lean_ctor_get(v_x_5466_, 0);
-lean_inc(v_a_5477_);
+lean_inc_n(v_a_5477_, 2);
 lean_dec_ref(v_x_5466_);
-lean_inc(v_a_5477_);
 v___f_5478_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_race___redArg___lam__3___boxed), 3, 1);
 lean_closure_set(v___f_5478_, 0, v_a_5477_);
 v___f_5479_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Async_raceAll___redArg___lam__4___boxed), 4, 2);

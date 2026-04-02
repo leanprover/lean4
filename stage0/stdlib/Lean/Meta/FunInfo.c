@@ -682,10 +682,9 @@ lean_object* v_declName_171_; lean_object* v_us_172_; lean_object* v___f_173_; u
 v_declName_171_ = lean_ctor_get(v_fn_118_, 0);
 lean_inc(v_declName_171_);
 v_us_172_ = lean_ctor_get(v_fn_118_, 1);
-lean_inc(v_us_172_);
+lean_inc_n(v_us_172_, 2);
 lean_dec_ref(v_fn_118_);
 v___f_173_ = ((lean_object*)(l___private_Lean_Meta_FunInfo_0__Lean_Meta_checkFunInfoCache___closed__2));
-lean_inc(v_us_172_);
 v___x_174_ = l_List_any___redArg(v_us_172_, v___f_173_);
 if (v___x_174_ == 0)
 {
@@ -5698,7 +5697,7 @@ _start:
 lean_object* v___x_1765_; lean_object* v___x_1766_; lean_object* v___x_1767_; lean_object* v___x_1768_; lean_object* v___x_1769_; lean_object* v___x_1770_; 
 v___x_1765_ = ((lean_object*)(l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__4___redArg___closed__4));
 v___x_1766_ = lean_unsigned_to_nat(36u);
-v___x_1767_ = lean_unsigned_to_nat(2606u);
+v___x_1767_ = lean_unsigned_to_nat(2614u);
 v___x_1768_ = ((lean_object*)(l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__8___redArg___closed__4));
 v___x_1769_ = ((lean_object*)(l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__8___redArg___closed__3));
 v___x_1770_ = l_mkPanicMessageWithDecl(v___x_1769_, v___x_1768_, v___x_1767_, v___x_1766_, v___x_1765_);
@@ -5711,7 +5710,7 @@ _start:
 lean_object* v___x_1771_; lean_object* v___x_1772_; lean_object* v___x_1773_; lean_object* v___x_1774_; lean_object* v___x_1775_; lean_object* v___x_1776_; 
 v___x_1771_ = ((lean_object*)(l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__4___redArg___closed__4));
 v___x_1772_ = lean_unsigned_to_nat(48u);
-v___x_1773_ = lean_unsigned_to_nat(2597u);
+v___x_1773_ = lean_unsigned_to_nat(2605u);
 v___x_1774_ = ((lean_object*)(l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__8___redArg___closed__4));
 v___x_1775_ = ((lean_object*)(l_Lean_Meta_realizeValue___at___00__private_Lean_Meta_FunInfo_0__Lean_Meta_getFunInfoAux_spec__8___redArg___closed__3));
 v___x_1776_ = l_mkPanicMessageWithDecl(v___x_1775_, v___x_1774_, v___x_1773_, v___x_1772_, v___x_1771_);
@@ -5841,10 +5840,9 @@ lean_inc(v_start_1855_);
 v_stop_1856_ = lean_ctor_get(v_val_1854_, 1);
 lean_inc(v_stop_1856_);
 lean_dec(v_val_1854_);
-lean_inc_ref(v_fileMap_1793_);
+lean_inc_ref_n(v_fileMap_1793_, 2);
 v___x_1857_ = l_Lean_FileMap_toPosition(v_fileMap_1793_, v_start_1855_);
 lean_dec(v_start_1855_);
-lean_inc_ref(v_fileMap_1793_);
 v___x_1858_ = l_Lean_FileMap_toPosition(v_fileMap_1793_, v_stop_1856_);
 lean_dec(v_stop_1856_);
 v___x_1859_ = l___private_Lean_Meta_Basic_0__Lean_Meta_setAllDiagRanges(v_val_1852_, v___x_1857_, v___x_1858_);
@@ -6145,11 +6143,10 @@ if (v___x_1943_ == 0)
 {
 lean_object* v___x_1944_; lean_object* v___x_1945_; lean_object* v___x_1946_; lean_object* v___x_1947_; 
 lean_inc(v_us_1941_);
-lean_inc(v_declName_1940_);
+lean_inc_n(v_declName_1940_, 2);
 lean_dec_ref(v_fn_1888_);
 v___x_1944_ = ((lean_object*)(l___private_Lean_Meta_FunInfo_0__Lean_Meta_instImpl_00___x40_Lean_Meta_FunInfo_117766202____hygCtx___hyg_63_));
 v___x_1945_ = l_Lean_Meta_instImpl_00___x40_Lean_Meta_Basic_383016249____hygCtx___hyg_24_;
-lean_inc(v_declName_1940_);
 v___x_1946_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_1946_, 0, v_declName_1940_);
 lean_ctor_set(v___x_1946_, 1, v_us_1941_);

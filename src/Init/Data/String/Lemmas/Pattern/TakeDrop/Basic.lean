@@ -501,7 +501,7 @@ theorem Pattern.Model.Pos.revSkip?_eq_some_iff {ρ : Type} {pat : ρ} [PatternMo
 theorem Pattern.Model.Pos.revSkip?_eq_none_iff {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
     [LawfulBackwardPatternModel pat] {s : Slice} {pos : s.Pos} :
     pos.revSkip? pat = none ↔ ¬ RevMatchesAt pat pos := by
-  simp [Pos.revSkip?_eq_map_skipSuffix?, endsWith_eq_false_iff, revMatchesAt_iff_revMatchesAt_ofSliceto]
+  simp [Pos.revSkip?_eq_map_skipSuffix?, endsWith_eq_false_iff, revMatchesAt_iff_revMatchesAt_ofSliceTo]
 
 theorem Pattern.Model.Pos.revSkip?_eq_revMatchAt? {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
     [LawfulBackwardPatternModel pat] {s : Slice} {pos : s.Pos} :
@@ -728,7 +728,7 @@ theorem endsWith_dropEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [StrictP
     [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} :
     (s.dropEndWhile pat).endsWith pat = false := by
   simpa [dropEndWhile_eq_sliceTo_skipSuffixWhile, Pattern.Model.endsWith_eq_false_iff,
-    revMatchesAt_iff_revMatchesAt_ofSliceto] using not_revMatchesAt_skipSuffixWhile pat s
+    revMatchesAt_iff_revMatchesAt_ofSliceTo] using not_revMatchesAt_skipSuffixWhile pat s
 
 theorem dropEndWhile_eq_self {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
     [LawfulBackwardPatternModel pat] {s : Slice} (h : s.endsWith pat = false) :
@@ -821,7 +821,7 @@ theorem dropEndWhile_dropEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [Bac
     [LawfulBackwardPatternModel pat] {s : Slice} : (s.dropEndWhile pat).dropEndWhile pat = s.dropEndWhile pat := by
   conv => enter [1, 1]; rw [dropEndWhile_eq_sliceTo_skipSuffixWhile]
   conv => rhs; rw [dropEndWhile_eq_sliceTo_skipSuffixWhile]
-  simpa [Pattern.Model.dropEndWhile_eq_self_iff_or, revMatchesAt_iff_revMatchesAt_ofSliceto,
+  simpa [Pattern.Model.dropEndWhile_eq_self_iff_or, revMatchesAt_iff_revMatchesAt_ofSliceTo,
     isLongestRevMatch_iff_isLongestRevMatchAt_ofSliceTo] using not_revMatchesAt_or_isLongestRevMatchAt_skipSuffixWhile ..
 
 theorem takeEndWhile_takeEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]

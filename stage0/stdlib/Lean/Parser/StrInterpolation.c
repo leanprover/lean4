@@ -196,10 +196,9 @@ else
 {
 lean_object* v___x_54_; lean_object* v_s_55_; lean_object* v_s_56_; lean_object* v_pos_57_; lean_object* v_errorMsg_58_; uint8_t v___y_60_; lean_object* v___x_71_; uint8_t v___x_72_; 
 v___x_54_ = ((lean_object*)(l___private_Lean_Parser_StrInterpolation_0__Lean_Parser_interpolatedStrFn_parse___closed__1));
-lean_inc_ref(v_c_37_);
+lean_inc_ref_n(v_c_37_, 2);
 v_s_55_ = l_Lean_Parser_mkNodeToken(v___x_54_, v_startPos_36_, v___x_43_, v_c_37_, v_s_46_);
 lean_inc_ref(v_p_34_);
-lean_inc_ref(v_c_37_);
 v_s_56_ = lean_apply_2(v_p_34_, v_c_37_, v_s_55_);
 v_pos_57_ = lean_ctor_get(v_s_56_, 2);
 lean_inc(v_pos_57_);

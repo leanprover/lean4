@@ -52,8 +52,8 @@ static const lean_object* l_List_instAppendListSlice___lam__2___closed__0 = (con
 LEAN_EXPORT lean_object* l_List_instAppendListSlice___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_closure_object l_List_instAppendListSlice___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_List_instAppendListSlice___lam__0, .m_arity = 3, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_List_instAppendListSlice___closed__0 = (const lean_object*)&l_List_instAppendListSlice___closed__0_value;
-static lean_once_cell_t l_List_instAppendListSlice___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_List_instAppendListSlice___closed__1;
+static const lean_closure_object l_List_instAppendListSlice___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*2, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_List_instAppendListSlice___lam__2, .m_arity = 4, .m_num_fixed = 2, .m_objs = {((lean_object*)&l_List_instAppendListSlice___closed__0_value),((lean_object*)&l_List_instAppendListSlice___closed__0_value)} };
+static const lean_object* l_List_instAppendListSlice___closed__1 = (const lean_object*)&l_List_instAppendListSlice___closed__1_value;
 LEAN_EXPORT lean_object* l_List_instAppendListSlice(lean_object*);
 static const lean_string_object l_List_ListSlice_repr___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = ".toSlice 0 "};
 static const lean_object* l_List_ListSlice_repr___redArg___closed__0 = (const lean_object*)&l_List_ListSlice_repr___redArg___closed__0_value;
@@ -654,9 +654,8 @@ v_toBind_133_ = lean_ctor_get(v_inst_125_, 1);
 lean_inc(v_toBind_133_);
 lean_dec_ref(v_inst_125_);
 v_toPure_134_ = lean_ctor_get(v_toApplicative_132_, 1);
-lean_inc(v_toPure_134_);
+lean_inc_n(v_toPure_134_, 2);
 lean_dec_ref(v_toApplicative_132_);
-lean_inc(v_toPure_134_);
 v___f_135_ = lean_alloc_closure((void*)(l_instForInListSliceOfMonad___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_135_, 0, v_toPure_134_);
 v___f_136_ = lean_alloc_closure((void*)(l_instForInListSliceOfMonad___redArg___lam__2), 8, 4);
@@ -984,22 +983,11 @@ goto v___jp_192_;
 }
 }
 }
-static lean_object* _init_l_List_instAppendListSlice___closed__1(void){
-_start:
-{
-lean_object* v___f_247_; lean_object* v___f_248_; 
-v___f_247_ = ((lean_object*)(l_List_instAppendListSlice___closed__0));
-v___f_248_ = lean_alloc_closure((void*)(l_List_instAppendListSlice___lam__2), 4, 2);
-lean_closure_set(v___f_248_, 0, v___f_247_);
-lean_closure_set(v___f_248_, 1, v___f_247_);
-return v___f_248_;
-}
-}
 LEAN_EXPORT lean_object* l_List_instAppendListSlice(lean_object* v_00_u03b1_249_){
 _start:
 {
 lean_object* v___f_250_; 
-v___f_250_ = lean_obj_once(&l_List_instAppendListSlice___closed__1, &l_List_instAppendListSlice___closed__1_once, _init_l_List_instAppendListSlice___closed__1);
+v___f_250_ = ((lean_object*)(l_List_instAppendListSlice___closed__1));
 return v___f_250_;
 }
 }

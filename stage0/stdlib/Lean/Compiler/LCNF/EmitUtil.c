@@ -468,13 +468,11 @@ lean_object* v___x_139_; lean_object* v___y_141_; lean_object* v_env_148_; lean_
 lean_dec_ref(v___x_138_);
 v___x_139_ = lean_st_ref_get(v___y_93_);
 v_env_148_ = lean_ctor_get(v___x_139_, 0);
-lean_inc_ref(v_env_148_);
+lean_inc_ref_n(v_env_148_, 2);
 lean_dec(v___x_139_);
 v_name_149_ = lean_ctor_get(v_toSignature_133_, 0);
-lean_inc(v_name_149_);
+lean_inc_n(v_name_149_, 2);
 lean_dec_ref(v_toSignature_133_);
-lean_inc(v_name_149_);
-lean_inc_ref(v_env_148_);
 v___x_150_ = l_Lean_getBuiltinInitFnNameFor_x3f(v_env_148_, v_name_149_);
 if (lean_obj_tag(v___x_150_) == 0)
 {

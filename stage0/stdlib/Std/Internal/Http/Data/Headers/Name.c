@@ -618,9 +618,8 @@ v___x_197_ = l_String_Slice_trimAscii(v___x_196_);
 v___x_198_ = l_String_Slice_toString(v___x_197_);
 lean_dec_ref(v___x_197_);
 v_val_199_ = l_String_mapAux___at___00Std_Http_Header_Name_ofString_x3f_spec__0(v___x_198_, v___x_194_);
-lean_inc_ref(v_val_199_);
+lean_inc_ref_n(v_val_199_, 2);
 v___x_200_ = l_Std_Http_Internal_instDecidableIsLowerCase(v_val_199_);
-lean_inc_ref(v_val_199_);
 v___x_201_ = l_Std_Http_Internal_isToken(v_val_199_);
 if (v___x_201_ == 0)
 {

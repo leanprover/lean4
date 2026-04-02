@@ -244,7 +244,7 @@ def ofLevel (l : Level) : MessageData :=
   .ofLazy
     (fun ctx? => do
       let msg ← ofFormat <$> match ctx? with
-        | .none => pure (format l)
+        | .none => pure (l.format true (fun _ => none))
         | .some ctx => ppLevel ctx l
       return Dynamic.mk msg)
     (fun _ => false)

@@ -310,17 +310,15 @@ _start:
 lean_object* v_toApplicative_47_; lean_object* v_toBind_48_; lean_object* v_toPure_49_; lean_object* v___x_50_; lean_object* v___x_51_; lean_object* v___f_52_; lean_object* v___f_53_; lean_object* v___x_54_; 
 v_toApplicative_47_ = lean_ctor_get(v_inst_43_, 0);
 v_toBind_48_ = lean_ctor_get(v_inst_43_, 1);
-lean_inc(v_toBind_48_);
+lean_inc_n(v_toBind_48_, 2);
 v_toPure_49_ = lean_ctor_get(v_toApplicative_47_, 1);
-lean_inc(v_toPure_49_);
+lean_inc_n(v_toPure_49_, 2);
 v___x_50_ = lean_alloc_closure((void*)(l_System_FilePath_readDir___boxed), 2, 1);
 lean_closure_set(v___x_50_, 0, v_dir_45_);
 lean_inc(v_inst_44_);
 v___x_51_ = lean_apply_2(v_inst_44_, lean_box(0), v___x_50_);
-lean_inc(v_toPure_49_);
 v___f_52_ = lean_alloc_closure((void*)(l_Lean_forEachModuleInDir___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_52_, 0, v_toPure_49_);
-lean_inc(v_toBind_48_);
 v___f_53_ = lean_alloc_closure((void*)(l_Lean_forEachModuleInDir___redArg___lam__6), 7, 6);
 lean_closure_set(v___f_53_, 0, v_toPure_49_);
 lean_closure_set(v___f_53_, 1, v_f_46_);
@@ -597,12 +595,11 @@ else
 {
 lean_object* v_head_173_; lean_object* v_tail_174_; lean_object* v___x_178_; uint8_t v___x_179_; 
 v_head_173_ = lean_ctor_get(v_x_169_, 0);
-lean_inc(v_head_173_);
+lean_inc_n(v_head_173_, 2);
 v_tail_174_ = lean_ctor_get(v_x_169_, 1);
 lean_inc(v_tail_174_);
 lean_dec_ref(v_x_169_);
 lean_inc_ref(v_pkg_167_);
-lean_inc(v_head_173_);
 v___x_178_ = l_System_FilePath_join(v_head_173_, v_pkg_167_);
 v___x_179_ = l_System_FilePath_isDir(v___x_178_);
 if (v___x_179_ == 0)

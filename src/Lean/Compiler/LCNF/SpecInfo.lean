@@ -20,8 +20,10 @@ inductive SpecParamInfo where
   /--
   A parameter that is an type class instance (or an arrow that produces a type class instance),
   and is fixed in recursive declarations. By default, Lean always specializes this kind of argument.
+  If the `weak` parameter is set we only specialize for this parameter iff another parameter causes
+  specialization as well.
   -/
-  | fixedInst
+  | fixedInst (weak : Bool)
   /--
   A parameter that is a function and is fixed in recursive declarations. If the user tags a declaration
   with `@[specialize]` without specifying which arguments should be specialized, Lean will specialize
@@ -49,14 +51,15 @@ namespace SpecParamInfo
 
 @[inline]
 def causesSpecialization : SpecParamInfo → Bool
-  | .fixedInst | .fixedHO | .user => true
-  | .fixedNeutral | .other => false
+  | .fixedInst false | .fixedHO | .user => true
+  | .fixedInst true | .fixedNeutral | .other => false
 
 end SpecParamInfo
 
 instance : ToMessageData SpecParamInfo where
   toMessageData
-    | .fixedInst => "I"
+    | .fixedInst false => "I"
+    | .fixedInst true => "W"
     | .fixedHO => "H"
     | .fixedNeutral => "N"
     | .user => "U"
@@ -130,6 +133,18 @@ private def isNoSpecType (env : Environment) (type : Expr) : Bool :=
     else
       false
 
+/--
+Return `true` if `type` is a type tagged with `@[weak_specialize]` or an arrow that produces this kind of type.
+-/
+private def isWeakSpecType (env : Environment) (type : Expr) : Bool :=
+  match type with
+  | .forallE _ _ b _ => isWeakSpecType env b
+  | _ =>
+    if let .const declName _ := type.getAppFn then
+      hasWeakSpecializeAttribute env declName
+    else
+      false
+
 /-!
 *Note*: `fixedNeutral` must have forward dependencies.
 
@@ -160,7 +175,7 @@ See comment at `.fixedNeutral`.
 private def hasFwdDeps (decl : Decl .pure) (paramsInfo : Array SpecParamInfo) (j : Nat) : Bool := Id.run do
   let param := decl.params[j]!
   for h : k in (j+1)...decl.params.size do
-    if paramsInfo[k]!.causesSpecialization then
+    if paramsInfo[k]!.causesSpecialization || paramsInfo[k]! matches .fixedInst .. then
       let param' := decl.params[k]
       if param'.type.containsFVar param.fvarId then
         return true
@@ -199,7 +214,7 @@ def computeSpecEntries (decls : Array (Decl .pure)) (autoSpecialize : Name → O
           else if isTypeFormerType param.type then
             pure .fixedNeutral
           else if (← isArrowClass? param.type).isSome then
-            pure .fixedInst
+            pure (.fixedInst (weak := isWeakSpecType (← getEnv) param.type))
           /-
           Recall that if `specArgs? == some #[]`, then user annotated function with `@[specialize]`, but did not
           specify which arguments must be specialized besides instances. In this case, we try to specialize

@@ -2591,16 +2591,14 @@ lean_object* v___f_717_; lean_object* v___f_718_; lean_object* v___f_719_; lean_
 v___f_717_ = ((lean_object*)(l_Std_Internal_IO_Async_Waiter_race___at___00Std_Internal_IO_Async_UDP_Socket_recvSelector_spec__1___closed__0));
 v___f_718_ = ((lean_object*)(l_Std_Internal_IO_Async_UDP_Socket_recvSelector___closed__0));
 v___f_719_ = ((lean_object*)(l_Std_Internal_IO_Async_UDP_Socket_recvSelector___closed__1));
-lean_inc(v_s_715_);
+lean_inc_n(v_s_715_, 3);
 v___f_720_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__2___boxed), 2, 1);
 lean_closure_set(v___f_720_, 0, v_s_715_);
 v___x_721_ = lean_box_uint64(v_size_716_);
-lean_inc(v_s_715_);
 v___f_722_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__6___boxed), 4, 2);
 lean_closure_set(v___f_722_, 0, v_s_715_);
 lean_closure_set(v___f_722_, 1, v___x_721_);
 v___x_723_ = lean_box_uint64(v_size_716_);
-lean_inc(v_s_715_);
 v___f_724_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_UDP_Socket_recvSelector___lam__10___boxed), 7, 5);
 lean_closure_set(v___f_724_, 0, v___f_719_);
 lean_closure_set(v___f_724_, 1, v_s_715_);

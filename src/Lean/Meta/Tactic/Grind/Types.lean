@@ -5,15 +5,16 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
+public import Init.Data.Queue
+public import Init.Grind.Config
 public import Lean.Meta.Sym.SymM
 public import Lean.Meta.Tactic.Grind.Attr
 public import Lean.Meta.Tactic.Grind.CheckResult
-public import Init.Data.Queue
+public import Lean.Meta.Sym.Canon
+meta import Init.Data.String.Basic
 import Lean.Meta.AbstractNestedProofs
 import Lean.Meta.Match.MatchEqsExt
-public import Init.Grind.Config
 import Init.Data.Nat.Linear
-meta import Init.Data.String.Basic
 import Init.Omega
 import Lean.Util.ShareCommon
 public section
@@ -715,14 +716,6 @@ structure CanonArgKey where
   arg : Expr
   deriving BEq, Hashable
 
-/-- Canonicalizer state. See `Canon.lean` for additional details. -/
-structure Canon.State where
-  argMap     : PHashMap (Expr × Nat) (List (Expr × Expr)) := {}
-  canon      : PHashMap Expr Expr := {}
-  proofCanon : PHashMap Expr Expr := {}
-  canonArg   : PHashMap CanonArgKey Expr := {}
-  deriving Inhabited
-
 /-- Trace information for a case split. -/
 structure CaseTrace where
   expr   : Expr
@@ -922,7 +915,6 @@ accumulated facts.
 structure GoalState where
   /-- Next local declaration index to process. -/
   nextDeclIdx  : Nat := 0
-  canon        : Canon.State := {}
   enodeMap     : ENodeMap := default
   exprs        : PArray Expr := {}
   parents      : ParentMap := {}
@@ -1735,10 +1727,7 @@ def withoutModifyingState (x : GoalM α) : GoalM α := do
   finally
     set saved
 
-set_option compiler.ignoreBorrowAnnotation true in
-/-- Canonicalizes nested types, type formers, and instances in `e`. -/
-@[extern "lean_grind_canon"] -- Forward definition
-opaque canon (e : Expr) : GoalM Expr
+export Sym (canon)
 
 /-!
 `Action` is the *control interface* for `grind`’s search steps. It is defined in

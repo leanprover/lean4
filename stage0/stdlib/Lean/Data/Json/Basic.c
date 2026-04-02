@@ -885,18 +885,16 @@ v___jp_153_:
 {
 lean_object* v_fst_156_; lean_object* v_snd_157_; lean_object* v_fst_158_; lean_object* v_snd_159_; lean_object* v_amDigits_160_; lean_object* v_bmDigits_161_; uint8_t v___x_162_; uint8_t v___x_163_; 
 v_fst_156_ = lean_ctor_get(v_fst_154_, 0);
-lean_inc(v_fst_156_);
+lean_inc_n(v_fst_156_, 2);
 v_snd_157_ = lean_ctor_get(v_fst_154_, 1);
 lean_inc(v_snd_157_);
 lean_dec_ref(v_fst_154_);
 v_fst_158_ = lean_ctor_get(v_snd_155_, 0);
-lean_inc(v_fst_158_);
+lean_inc_n(v_fst_158_, 2);
 v_snd_159_ = lean_ctor_get(v_snd_155_, 1);
 lean_inc(v_snd_159_);
 lean_dec_ref(v_snd_155_);
-lean_inc(v_fst_156_);
 v_amDigits_160_ = l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_countDigits(v_fst_156_);
-lean_inc(v_fst_158_);
 v_bmDigits_161_ = l___private_Lean_Data_Json_Basic_0__Lean_JsonNumber_countDigits(v_fst_158_);
 v___x_162_ = lean_int_dec_lt(v_snd_157_, v_snd_159_);
 v___x_163_ = lean_nat_dec_lt(v_amDigits_160_, v_bmDigits_161_);

@@ -269,13 +269,12 @@ _start:
 {
 lean_object* v_info_41_; lean_object* v___x_42_; 
 v_info_41_ = lean_ctor_get(v_self_33_, 0);
-lean_inc_ref(v_info_41_);
+lean_inc_ref_n(v_info_41_, 2);
 lean_dec_ref(v_self_33_);
 lean_inc_ref(v_a_38_);
 lean_inc(v_a_37_);
 lean_inc(v_a_36_);
 lean_inc(v_a_35_);
-lean_inc_ref(v_info_41_);
 v___x_42_ = lean_apply_7(v_a_34_, v_info_41_, v_a_35_, v_a_36_, v_a_37_, v_a_38_, v_a_39_, lean_box(0));
 if (lean_obj_tag(v___x_42_) == 0)
 {
@@ -423,13 +422,12 @@ _start:
 {
 lean_object* v_a_94_; lean_object* v_a_95_; lean_object* v_info_98_; lean_object* v___x_99_; 
 v_info_98_ = lean_ctor_get(v_self_85_, 0);
-lean_inc_ref(v_info_98_);
+lean_inc_ref_n(v_info_98_, 2);
 lean_dec_ref(v_self_85_);
 lean_inc_ref(v_a_90_);
 lean_inc(v_a_89_);
 lean_inc(v_a_88_);
 lean_inc(v_a_87_);
-lean_inc_ref(v_info_98_);
 v___x_99_ = lean_apply_7(v_a_86_, v_info_98_, v_a_87_, v_a_88_, v_a_89_, v_a_90_, v_a_91_, lean_box(0));
 if (lean_obj_tag(v___x_99_) == 0)
 {
@@ -657,11 +655,10 @@ _start:
 {
 lean_object* v_info_173_; lean_object* v_format_174_; lean_object* v___x_175_; lean_object* v___x_176_; 
 v_info_173_ = lean_ctor_get(v_self_164_, 0);
-lean_inc_ref(v_info_173_);
+lean_inc_ref_n(v_info_173_, 2);
 v_format_174_ = lean_ctor_get(v_self_164_, 1);
 lean_inc_ref(v_format_174_);
 lean_dec_ref(v_self_164_);
-lean_inc_ref(v_info_173_);
 v___x_175_ = l_Lake_BuildInfo_key(v_info_173_);
 lean_inc_ref(v_a_170_);
 lean_inc(v_a_169_);
@@ -911,13 +908,12 @@ else
 lean_object* v_v_250_; lean_object* v_info_251_; lean_object* v___x_252_; 
 v_v_250_ = lean_array_uget_borrowed(v_bs_240_, v_i_239_);
 v_info_251_ = lean_ctor_get(v_v_250_, 0);
-lean_inc_ref(v_info_251_);
+lean_inc_ref_n(v_info_251_, 2);
 lean_inc_ref(v___y_241_);
 lean_inc_ref(v___y_245_);
 lean_inc(v___y_244_);
 lean_inc(v___y_243_);
 lean_inc(v___y_242_);
-lean_inc_ref(v_info_251_);
 v___x_252_ = lean_apply_7(v___y_241_, v_info_251_, v___y_242_, v___y_243_, v___y_244_, v___y_245_, v___y_246_, lean_box(0));
 if (lean_obj_tag(v___x_252_) == 0)
 {
@@ -1325,14 +1321,13 @@ v_v_393_ = lean_array_uget_borrowed(v_bs_383_, v_i_382_);
 v_info_394_ = lean_ctor_get(v_v_393_, 0);
 v_format_395_ = lean_ctor_get(v_v_393_, 1);
 lean_inc_ref(v_format_395_);
-lean_inc_ref(v_info_394_);
+lean_inc_ref_n(v_info_394_, 2);
 v___x_396_ = l_Lake_BuildInfo_key(v_info_394_);
 lean_inc_ref(v___y_384_);
 lean_inc_ref(v___y_388_);
 lean_inc(v___y_387_);
 lean_inc(v___y_386_);
 lean_inc(v___y_385_);
-lean_inc_ref(v_info_394_);
 v___x_397_ = lean_apply_7(v___y_384_, v_info_394_, v___y_385_, v___y_386_, v___y_387_, v___y_388_, v___y_389_, lean_box(0));
 if (lean_obj_tag(v___x_397_) == 0)
 {
@@ -1660,12 +1655,13 @@ v___x_515_ = lean_box(0);
 v___x_516_ = lean_name_eq(v_baseName_514_, v___x_507_);
 if (v___x_516_ == 0)
 {
-lean_object* v___x_517_; size_t v___x_518_; size_t v___x_519_; lean_object* v___x_520_; 
+lean_object* v___x_517_; size_t v___x_518_; size_t v___x_519_; 
 v___x_517_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_parsePackageSpec_spec__0___closed__0));
 v___x_518_ = ((size_t)1ULL);
 v___x_519_ = lean_usize_add(v_i_510_, v___x_518_);
-v___x_520_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_parsePackageSpec_spec__0(v___x_507_, v_as_508_, v_sz_509_, v___x_519_, v___x_517_);
-return v___x_520_;
+v_i_510_ = v___x_519_;
+v_b_511_ = v___x_517_;
+goto _start;
 }
 else
 {
@@ -3111,14 +3107,13 @@ _start:
 lean_object* v___x_956_; lean_object* v___x_957_; lean_object* v___x_958_; lean_object* v___x_959_; lean_object* v___x_960_; lean_object* v___x_961_; lean_object* v___x_962_; 
 v___x_956_ = lean_unsigned_to_nat(0u);
 v___x_957_ = lean_string_utf8_byte_size(v_spec_946_);
-lean_inc_ref(v_spec_946_);
+lean_inc_ref_n(v_spec_946_, 2);
 v___x_958_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_958_, 0, v_spec_946_);
 lean_ctor_set(v___x_958_, 1, v___x_956_);
 lean_ctor_set(v___x_958_, 2, v___x_957_);
 v___x_959_ = l_String_Slice_splitToSubslice___at___00__private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec_spec__0(v___x_958_);
 v___x_960_ = ((lean_object*)(l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__0));
-lean_inc_ref(v_spec_946_);
 v___x_961_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00__private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec_spec__1___redArg(v_spec_946_, v___x_958_, v___x_957_, v___x_959_, v___x_960_);
 lean_dec_ref(v___x_958_);
 v___x_962_ = lean_array_to_list(v___x_961_);
@@ -4290,14 +4285,13 @@ _start:
 lean_object* v___x_1244_; lean_object* v___x_1245_; lean_object* v___x_1246_; lean_object* v___x_1247_; lean_object* v___x_1248_; lean_object* v___x_1249_; lean_object* v___x_1250_; 
 v___x_1244_ = lean_unsigned_to_nat(0u);
 v___x_1245_ = lean_string_utf8_byte_size(v_spec_1236_);
-lean_inc_ref(v_spec_1236_);
+lean_inc_ref_n(v_spec_1236_, 2);
 v___x_1246_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_1246_, 0, v_spec_1236_);
 lean_ctor_set(v___x_1246_, 1, v___x_1244_);
 lean_ctor_set(v___x_1246_, 2, v___x_1245_);
 v___x_1247_ = l_String_Slice_splitToSubslice___at___00__private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec_spec__0(v___x_1246_);
 v___x_1248_ = ((lean_object*)(l___private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec___closed__0));
-lean_inc_ref(v_spec_1236_);
 v___x_1249_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00__private_Lake_CLI_Build_0__Lake_resolveTargetLikeSpec_spec__1___redArg(v_spec_1236_, v___x_1246_, v___x_1245_, v___x_1247_, v___x_1248_);
 lean_dec_ref(v___x_1246_);
 v___x_1250_ = lean_array_to_list(v___x_1249_);
@@ -4844,14 +4838,13 @@ uint32_t v___x_1383_; lean_object* v___x_1387_; lean_object* v___x_1388_; lean_o
 v___x_1383_ = 58;
 v___x_1387_ = lean_unsigned_to_nat(0u);
 v___x_1388_ = lean_string_utf8_byte_size(v_spec_1381_);
-lean_inc_ref(v_spec_1381_);
+lean_inc_ref_n(v_spec_1381_, 2);
 v___x_1389_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_1389_, 0, v_spec_1381_);
 lean_ctor_set(v___x_1389_, 1, v___x_1387_);
 lean_ctor_set(v___x_1389_, 2, v___x_1388_);
 v___x_1390_ = l_String_Slice_splitToSubslice___at___00Lake_parseTargetSpec_spec__0(v___x_1389_);
 v___x_1391_ = ((lean_object*)(l_Lake_parseTargetSpec___closed__0));
-lean_inc_ref(v_spec_1381_);
 v___x_1392_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_parseTargetSpec_spec__1___redArg(v_spec_1381_, v___x_1389_, v___x_1388_, v___x_1390_, v___x_1391_);
 lean_dec_ref(v___x_1389_);
 v___x_1393_ = lean_array_to_list(v___x_1392_);

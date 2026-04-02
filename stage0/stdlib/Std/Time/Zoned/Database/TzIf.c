@@ -45,7 +45,7 @@ size_t lean_array_size(lean_object*);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 extern uint8_t l_instInhabitedUInt8;
-lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 uint32_t lean_uint8_to_uint32(uint8_t);
 lean_object* lean_string_push(lean_object*, uint32_t);
@@ -5615,7 +5615,7 @@ v_resetjp_1747_:
 uint8_t v___x_1750_; lean_object* v___x_1751_; lean_object* v___x_1752_; uint8_t v___x_1753_; uint8_t v___x_1754_; uint8_t v___x_1755_; 
 v___x_1750_ = l_instInhabitedUInt8;
 v___x_1751_ = lean_box(v___x_1750_);
-v___x_1752_ = lean_array_get_borrowed(v___x_1751_, v_res_1739_, v_a_1740_);
+v___x_1752_ = lean_array_get(v___x_1751_, v_res_1739_, v_a_1740_);
 lean_dec(v___x_1751_);
 v___x_1753_ = 0;
 v___x_1754_ = lean_unbox(v___x_1752_);
@@ -5624,6 +5624,7 @@ if (v___x_1755_ == 0)
 {
 uint8_t v___x_1756_; uint32_t v___x_1757_; lean_object* v___x_1758_; lean_object* v___x_1760_; 
 v___x_1756_ = lean_unbox(v___x_1752_);
+lean_dec(v___x_1752_);
 v___x_1757_ = lean_uint8_to_uint32(v___x_1756_);
 v___x_1758_ = lean_string_push(v_snd_1746_, v___x_1757_);
 if (v_isShared_1749_ == 0)
@@ -5655,6 +5656,7 @@ goto _start;
 else
 {
 lean_object* v_current_1765_; lean_object* v___x_1766_; lean_object* v___x_1768_; 
+lean_dec(v___x_1752_);
 lean_dec(v_a_1740_);
 v_current_1765_ = ((lean_object*)(l_WellFounded_opaqueFix_u2083___at___00__private_Std_Time_Zoned_Database_TzIf_0__Std_Time_TimeZone_TZif_parseAbbreviations_spec__0___redArg___closed__0));
 v___x_1766_ = lean_array_push(v_fst_1745_, v_snd_1746_);
@@ -6733,6 +6735,7 @@ if (v___x_2057_ == 0)
 {
 lean_object* v___x_2058_; 
 lean_dec_ref(v_acc_2049_);
+lean_inc(v_err_2056_);
 v___x_2058_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_2058_, 0, v_pos_2054_);
 lean_ctor_set(v___x_2058_, 1, v_err_2056_);
@@ -6741,7 +6744,6 @@ return v___x_2058_;
 else
 {
 lean_object* v___x_2059_; 
-lean_dec(v_err_2056_);
 v___x_2059_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_2059_, 0, v_pos_2054_);
 lean_ctor_set(v___x_2059_, 1, v_acc_2049_);

@@ -1230,7 +1230,14 @@ def instantiateRevRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array (Ar
   else
     e.instantiateRevRange beginIdx endIdx (args.map (·.toExpr))
 
-/-- Lookup function for compiler extensions with sorted persisted state that works in both `lean` and `leanir`. -/
+/--
+Lookup function for compiler extensions with sorted persisted state that works in both `lean` and
+`leanir`.
+
+`preferImported` defaults to false because in `leanir`, we do not want to mix information from
+`meta` compilation in `lean` with our own state. But in `lean`, setting `preferImported` can help
+with avoiding unnecessary task blocks.
+-/
 @[inline] def findExtEntry? [Inhabited σ] (env : Environment) (ext : PersistentEnvExtension α β σ) (declName : Name)
     (findAtSorted? : Array α → Name → Option α')
     (findInState? : σ → Name → Option α') : Option α' :=

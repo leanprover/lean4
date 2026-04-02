@@ -4545,12 +4545,11 @@ else
 {
 lean_object* v_head_1677_; lean_object* v_tail_1678_; uint8_t v___x_1679_; 
 v_head_1677_ = lean_ctor_get(v_as_x27_1675_, 0);
-lean_inc(v_head_1677_);
+lean_inc_n(v_head_1677_, 2);
 v_tail_1678_ = lean_ctor_get(v_as_x27_1675_, 1);
 lean_inc(v_tail_1678_);
 lean_dec_ref(v_as_x27_1675_);
 lean_inc(v_b_1676_);
-lean_inc(v_head_1677_);
 lean_inc_ref(v_cmp_1674_);
 v___x_1679_ = l_Std_DTreeMap_Internal_Impl_contains___at___00Std_ExtTreeSet_ofList_spec__0___redArg(v_cmp_1674_, v_head_1677_, v_b_1676_);
 if (v___x_1679_ == 0)

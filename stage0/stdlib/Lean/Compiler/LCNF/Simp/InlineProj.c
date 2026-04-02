@@ -557,7 +557,7 @@ case 3:
 {
 lean_object* v_declName_165_; lean_object* v_us_166_; lean_object* v_args_167_; lean_object* v___y_169_; lean_object* v___y_170_; lean_object* v___y_171_; lean_object* v___y_172_; lean_object* v___y_173_; lean_object* v___y_174_; lean_object* v___y_175_; lean_object* v___y_176_; lean_object* v___x_230_; lean_object* v_env_231_; uint8_t v___x_232_; lean_object* v___x_233_; 
 v_declName_165_ = lean_ctor_get(v_value_160_, 0);
-lean_inc(v_declName_165_);
+lean_inc_n(v_declName_165_, 2);
 v_us_166_ = lean_ctor_get(v_value_160_, 1);
 lean_inc(v_us_166_);
 v_args_167_ = lean_ctor_get(v_value_160_, 2);
@@ -568,7 +568,6 @@ v_env_231_ = lean_ctor_get(v___x_230_, 0);
 lean_inc_ref(v_env_231_);
 lean_dec(v___x_230_);
 v___x_232_ = 0;
-lean_inc(v_declName_165_);
 v___x_233_ = l_Lean_Environment_find_x3f(v_env_231_, v_declName_165_, v___x_232_);
 if (lean_obj_tag(v___x_233_) == 1)
 {
@@ -659,10 +658,9 @@ if (lean_obj_tag(v___x_267_) == 0)
 {
 lean_object* v_a_268_; lean_object* v___x_269_; lean_object* v___x_271_; 
 v_a_268_ = lean_ctor_get(v___x_267_, 0);
-lean_inc(v_a_268_);
+lean_inc_n(v_a_268_, 2);
 lean_dec_ref(v___x_267_);
 v___x_269_ = lean_st_ref_take(v_a_138_);
-lean_inc(v_a_268_);
 if (v_isShared_241_ == 0)
 {
 lean_ctor_set_tag(v___x_240_, 0);
@@ -1434,8 +1432,7 @@ lean_object* v_idx_386_; lean_object* v_struct_387_; lean_object* v___x_388_;
 v_idx_386_ = lean_ctor_get(v_e_377_, 1);
 lean_inc(v_idx_386_);
 v_struct_387_ = lean_ctor_get(v_e_377_, 2);
-lean_inc(v_struct_387_);
-lean_inc(v_struct_387_);
+lean_inc_n(v_struct_387_, 2);
 v___x_388_ = l_Lean_Compiler_LCNF_getType(v_struct_387_, v_a_381_, v_a_382_, v_a_383_, v_a_384_);
 if (lean_obj_tag(v___x_388_) == 0)
 {

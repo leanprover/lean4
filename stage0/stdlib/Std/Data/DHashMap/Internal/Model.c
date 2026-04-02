@@ -1680,13 +1680,12 @@ goto v_resetjp_766_;
 v_resetjp_766_:
 {
 lean_object* v___f_769_; lean_object* v_buckets_x27_770_; lean_object* v___x_771_; uint8_t v___x_772_; 
-lean_inc(v_a_739_);
+lean_inc_n(v_a_739_, 2);
 lean_inc_ref(v_inst_736_);
 v___f_769_ = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_alter_u2098___redArg___lam__0), 4, 3);
 lean_closure_set(v___f_769_, 0, v_inst_736_);
 lean_closure_set(v___f_769_, 1, v_a_739_);
 lean_closure_set(v___f_769_, 2, v_f_740_);
-lean_inc(v_a_739_);
 lean_inc_ref(v_inst_737_);
 v_buckets_x27_770_ = l_Std_DHashMap_Internal_updateBucket___redArg(v_inst_737_, v_buckets_765_, v_a_739_, v___f_769_);
 lean_inc_ref(v_buckets_x27_770_);
@@ -1954,13 +1953,12 @@ goto v_resetjp_853_;
 v_resetjp_853_:
 {
 lean_object* v___f_856_; lean_object* v_buckets_x27_857_; lean_object* v___x_858_; uint8_t v___x_859_; 
-lean_inc(v_a_826_);
+lean_inc_n(v_a_826_, 2);
 lean_inc_ref(v_inst_823_);
 v___f_856_ = lean_alloc_closure((void*)(l_Std_DHashMap_Internal_Raw_u2080_Const_alter_u2098___redArg___lam__0), 4, 3);
 lean_closure_set(v___f_856_, 0, v_inst_823_);
 lean_closure_set(v___f_856_, 1, v_a_826_);
 lean_closure_set(v___f_856_, 2, v_f_827_);
-lean_inc(v_a_826_);
 lean_inc_ref(v_inst_824_);
 v_buckets_x27_857_ = l_Std_DHashMap_Internal_updateBucket___redArg(v_inst_824_, v_buckets_852_, v_a_826_, v___f_856_);
 lean_inc_ref(v_buckets_x27_857_);

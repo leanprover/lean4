@@ -1258,12 +1258,11 @@ v_resetjp_553_:
 {
 lean_object* v_gate_556_; uint8_t v_invert_557_; lean_object* v___x_558_; lean_object* v_val_559_; uint8_t v___y_561_; 
 v_gate_556_ = lean_ctor_get(v_ref_551_, 0);
-lean_inc(v_gate_556_);
+lean_inc_n(v_gate_556_, 2);
 v_invert_557_ = lean_ctor_get_uint8(v_ref_551_, sizeof(void*)*1);
 lean_dec_ref(v_ref_551_);
 lean_inc_ref(v_aig_552_);
 v___x_558_ = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_State_empty(v_aig_552_);
-lean_inc(v_gate_556_);
 v_val_559_ = l___private_Std_Sat_AIG_CNF_0__Std_Sat_AIG_toCNF_go___redArg(v_aig_552_, v_gate_556_, v___x_558_);
 lean_dec_ref(v_aig_552_);
 if (v_invert_557_ == 0)

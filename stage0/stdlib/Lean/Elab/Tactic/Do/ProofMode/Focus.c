@@ -328,19 +328,16 @@ lean_inc(v_snd_79_);
 v_snd_80_ = lean_ctor_get(v_snd_79_, 1);
 lean_inc(v_snd_80_);
 v_fst_81_ = lean_ctor_get(v_val_78_, 0);
-lean_inc(v_fst_81_);
+lean_inc_n(v_fst_81_, 2);
 lean_dec(v_val_78_);
 v_fst_82_ = lean_ctor_get(v_snd_79_, 0);
-lean_inc(v_fst_82_);
+lean_inc_n(v_fst_82_, 2);
 lean_dec(v_snd_79_);
 v_fst_83_ = lean_ctor_get(v_snd_80_, 0);
 lean_inc(v_fst_83_);
 v_snd_84_ = lean_ctor_get(v_snd_80_, 1);
-lean_inc(v_snd_84_);
+lean_inc_n(v_snd_84_, 2);
 lean_dec(v_snd_80_);
-lean_inc(v_snd_84_);
-lean_inc(v_fst_82_);
-lean_inc(v_fst_81_);
 v___x_85_ = l_Lean_Elab_Tactic_Do_ProofMode_focusHyp(v_fst_81_, v_fst_82_, v_snd_84_, v_name_49_);
 if (lean_obj_tag(v___x_85_) == 0)
 {
@@ -865,9 +862,9 @@ _start:
 {
 lean_object* v_u_239_; lean_object* v_00_u03c3s_240_; lean_object* v_hyps_241_; lean_object* v_target_242_; lean_object* v_focusHyp_243_; lean_object* v_restHyps_244_; lean_object* v_proof_245_; lean_object* v___x_246_; lean_object* v___x_247_; lean_object* v___x_248_; lean_object* v___x_249_; lean_object* v___x_250_; lean_object* v___x_251_; 
 v_u_239_ = lean_ctor_get(v_goal_237_, 0);
-lean_inc(v_u_239_);
+lean_inc_n(v_u_239_, 2);
 v_00_u03c3s_240_ = lean_ctor_get(v_goal_237_, 1);
-lean_inc_ref(v_00_u03c3s_240_);
+lean_inc_ref_n(v_00_u03c3s_240_, 2);
 v_hyps_241_ = lean_ctor_get(v_goal_237_, 2);
 lean_inc_ref(v_hyps_241_);
 v_target_242_ = lean_ctor_get(v_goal_237_, 3);
@@ -882,12 +879,10 @@ lean_inc_ref(v_proof_245_);
 lean_dec_ref(v_res_236_);
 v___x_246_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_rewriteHyps___closed__1));
 v___x_247_ = lean_box(0);
-lean_inc(v_u_239_);
 v___x_248_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_248_, 0, v_u_239_);
 lean_ctor_set(v___x_248_, 1, v___x_247_);
 v___x_249_ = l_Lean_mkConst(v___x_246_, v___x_248_);
-lean_inc_ref(v_00_u03c3s_240_);
 v___x_250_ = l_Lean_Elab_Tactic_Do_ProofMode_SPred_mkAnd_x21(v_u_239_, v_00_u03c3s_240_, v_restHyps_244_, v_focusHyp_243_);
 v___x_251_ = l_Lean_mkApp6(v___x_249_, v_00_u03c3s_240_, v_hyps_241_, v___x_250_, v_target_242_, v_proof_245_, v_e_u2082_238_);
 return v___x_251_;

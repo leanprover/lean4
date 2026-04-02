@@ -1751,6 +1751,12 @@ def isFalse (e : Expr) : Bool :=
 def isTrue (e : Expr) : Bool :=
   e.cleanupAnnotations.isConstOf ``True
 
+def isBoolFalse (e : Expr) : Bool :=
+  e.cleanupAnnotations.isConstOf ``false
+
+def isBoolTrue (e : Expr) : Bool :=
+  e.cleanupAnnotations.isConstOf ``true
+
 /--
 `getForallArity type` returns the arity of a `forall`-type. This function consumes nested annotations,
 and performs pending beta reductions. It does **not** use whnf.

@@ -2154,10 +2154,9 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instForward
 _start:
 {
 lean_object* v___f_667_; lean_object* v___x_668_; lean_object* v___x_669_; lean_object* v___x_670_; 
-lean_inc_ref(v_pat_666_);
+lean_inc_ref_n(v_pat_666_, 2);
 v___f_667_ = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardSliceSearcher_instForwardPattern___lam__0___boxed), 3, 1);
 lean_closure_set(v___f_667_, 0, v_pat_666_);
-lean_inc_ref(v_pat_666_);
 v___x_668_ = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardSliceSearcher_skipPrefix_x3f___boxed), 2, 1);
 lean_closure_set(v___x_668_, 0, v_pat_666_);
 v___x_669_ = lean_alloc_closure((void*)(l_String_Slice_Pattern_ForwardSliceSearcher_startsWith___boxed), 2, 1);
@@ -2426,10 +2425,9 @@ LEAN_EXPORT lean_object* l_String_Slice_Pattern_BackwardSliceSearcher_instBackwa
 _start:
 {
 lean_object* v___f_768_; lean_object* v___x_769_; lean_object* v___x_770_; lean_object* v___x_771_; 
-lean_inc_ref(v_pat_767_);
+lean_inc_ref_n(v_pat_767_, 2);
 v___f_768_ = lean_alloc_closure((void*)(l_String_Slice_Pattern_BackwardSliceSearcher_instBackwardPattern___lam__0___boxed), 3, 1);
 lean_closure_set(v___f_768_, 0, v_pat_767_);
-lean_inc_ref(v_pat_767_);
 v___x_769_ = lean_alloc_closure((void*)(l_String_Slice_Pattern_BackwardSliceSearcher_skipSuffix_x3f___boxed), 2, 1);
 lean_closure_set(v___x_769_, 0, v_pat_767_);
 v___x_770_ = lean_alloc_closure((void*)(l_String_Slice_Pattern_BackwardSliceSearcher_endsWith___boxed), 2, 1);

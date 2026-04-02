@@ -478,11 +478,10 @@ v_dir_171_ = lean_ctor_get(v_pkg_156_, 4);
 v_config_172_ = lean_ctor_get(v_pkg_156_, 6);
 lean_inc_ref(v_config_172_);
 v_buildArchive_173_ = lean_ctor_get(v_pkg_156_, 19);
-lean_inc_ref(v_buildArchive_173_);
+lean_inc_ref_n(v_buildArchive_173_, 2);
 v___x_174_ = l_Lake_defaultLakeDir;
 lean_inc_ref(v_dir_171_);
 v___x_175_ = l_Lake_joinRelative(v_dir_171_, v___x_174_);
-lean_inc_ref(v_buildArchive_173_);
 v___x_176_ = l_Lake_joinRelative(v___x_175_, v_buildArchive_173_);
 lean_inc_ref(v___x_176_);
 v___x_177_ = l_Lake_Package_pack(v_pkg_156_, v___x_176_, v_a_158_);
@@ -607,12 +606,13 @@ v___x_219_ = lean_box(0);
 v___x_220_ = lean_name_eq(v_baseName_218_, v___x_211_);
 if (v___x_220_ == 0)
 {
-lean_object* v___x_221_; size_t v___x_222_; size_t v___x_223_; lean_object* v___x_224_; 
+lean_object* v___x_221_; size_t v___x_222_; size_t v___x_223_; 
 v___x_221_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_Package_resolveDriver_spec__2___closed__0));
 v___x_222_ = ((size_t)1ULL);
 v___x_223_ = lean_usize_add(v_i_214_, v___x_222_);
-v___x_224_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_Package_resolveDriver_spec__2(v___x_211_, v_as_212_, v_sz_213_, v___x_223_, v___x_221_);
-return v___x_224_;
+v_i_214_ = v___x_223_;
+v_b_215_ = v___x_221_;
+goto _start;
 }
 else
 {
@@ -806,14 +806,13 @@ v___x_298_ = lean_nat_dec_eq(v___x_296_, v___x_297_);
 if (v___x_298_ == 0)
 {
 lean_object* v___x_312_; lean_object* v___x_313_; lean_object* v___x_314_; lean_object* v___x_315_; lean_object* v___x_316_; 
-lean_inc_ref(v_driver_293_);
+lean_inc_ref_n(v_driver_293_, 2);
 v___x_312_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_312_, 0, v_driver_293_);
 lean_ctor_set(v___x_312_, 1, v___x_297_);
 lean_ctor_set(v___x_312_, 2, v___x_296_);
 v___x_313_ = l_String_Slice_splitToSubslice___at___00Lake_Package_resolveDriver_spec__0(v___x_312_);
 v___x_314_ = ((lean_object*)(l_Lake_Package_pack___closed__1));
-lean_inc_ref(v_driver_293_);
 v___x_315_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00Lake_Package_resolveDriver_spec__1___redArg(v_driver_293_, v___x_312_, v___x_296_, v___x_313_, v___x_314_);
 lean_dec_ref(v___x_312_);
 v___x_316_ = lean_array_to_list(v___x_315_);
@@ -1196,7 +1195,7 @@ lean_object* v_fst_473_; lean_object* v_snd_474_; lean_object* v_testDriverArgs_
 v_fst_473_ = lean_ctor_get(v_a_469_, 0);
 lean_inc(v_fst_473_);
 v_snd_474_ = lean_ctor_get(v_a_469_, 1);
-lean_inc(v_snd_474_);
+lean_inc_n(v_snd_474_, 2);
 lean_dec(v_a_469_);
 v_testDriverArgs_475_ = lean_ctor_get(v_config_465_, 13);
 lean_inc_ref(v_testDriverArgs_475_);
@@ -1205,7 +1204,6 @@ v_baseName_476_ = lean_ctor_get(v_fst_473_, 1);
 v_keyName_477_ = lean_ctor_get(v_fst_473_, 2);
 lean_inc(v_keyName_477_);
 v_scripts_478_ = lean_ctor_get(v_fst_473_, 16);
-lean_inc(v_snd_474_);
 v___x_557_ = l_String_toName(v_snd_474_);
 v___x_558_ = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(v_scripts_478_, v___x_557_);
 if (lean_obj_tag(v___x_558_) == 1)
@@ -1752,7 +1750,7 @@ lean_object* v_fst_615_; lean_object* v_snd_616_; lean_object* v_lintDriverArgs_
 v_fst_615_ = lean_ctor_get(v_a_611_, 0);
 lean_inc(v_fst_615_);
 v_snd_616_ = lean_ctor_get(v_a_611_, 1);
-lean_inc(v_snd_616_);
+lean_inc_n(v_snd_616_, 2);
 lean_dec(v_a_611_);
 v_lintDriverArgs_617_ = lean_ctor_get(v_config_607_, 15);
 lean_inc_ref(v_lintDriverArgs_617_);
@@ -1761,7 +1759,6 @@ v_baseName_618_ = lean_ctor_get(v_fst_615_, 1);
 v_keyName_619_ = lean_ctor_get(v_fst_615_, 2);
 lean_inc(v_keyName_619_);
 v_scripts_620_ = lean_ctor_get(v_fst_615_, 16);
-lean_inc(v_snd_616_);
 v___x_633_ = l_String_toName(v_snd_616_);
 v___x_634_ = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(v_scripts_620_, v___x_633_);
 if (lean_obj_tag(v___x_634_) == 1)
@@ -2001,9 +1998,8 @@ if (lean_obj_tag(v___x_682_) == 0)
 {
 lean_object* v_a_683_; lean_object* v___x_684_; 
 v_a_683_ = lean_ctor_get(v___x_682_, 0);
-lean_inc(v_a_683_);
+lean_inc_n(v_a_683_, 2);
 lean_dec_ref(v___x_682_);
-lean_inc(v_a_683_);
 v___x_684_ = lean_io_process_spawn(v_a_683_);
 if (lean_obj_tag(v___x_684_) == 0)
 {

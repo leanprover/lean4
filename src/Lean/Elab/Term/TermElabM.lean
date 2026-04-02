@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
+import Lean.Elab.DeprecatedSyntax
 public import Lean.Elab.Attributes
 public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
@@ -1794,6 +1795,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
       (tag := stx.getKind.toString) do
     checkSystem "elaborator"
+    checkDeprecatedSyntax stx (← read).macroStack
     let env ← getEnv
     let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew?) =>
@@ -2122,11 +2124,14 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
     let const ← withoutCheckDeprecated <| mkConst declName explicitLevels
     return (const, projs) :: result
 
+def throwInvalidExplicitUniversesForLocal {α} (e : Expr) : TermElabM α :=
+  throwError "invalid use of explicit universe parameters, `{e}` is a local variable"
+
 def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
   if let some (e, projs) ← resolveLocalName n then
     unless explicitLevels.isEmpty do
-      throwError "invalid use of explicit universe parameters, `{e}` is a local variable"
+      throwInvalidExplicitUniversesForLocal e
     return [(e, projs)]
   let preresolved := preresolved.filterMap fun
     | .decl n projs => some (n, projs)

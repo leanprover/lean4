@@ -68,12 +68,8 @@ _start:
 lean_object* v___x_18_; lean_object* v_toEnvExtension_19_; lean_object* v_asyncMode_20_; uint8_t v___x_21_; 
 v___x_18_ = l_Lean_protectedExt;
 v_toEnvExtension_19_ = lean_ctor_get(v___x_18_, 0);
-lean_inc_ref(v_toEnvExtension_19_);
 v_asyncMode_20_ = lean_ctor_get(v_toEnvExtension_19_, 2);
-lean_inc(v_asyncMode_20_);
-lean_dec_ref(v_toEnvExtension_19_);
 v___x_21_ = l_Lean_TagDeclarationExtension_isTagged(v___x_18_, v_env_16_, v_n_17_, v_asyncMode_20_);
-lean_dec(v_asyncMode_20_);
 return v___x_21_;
 }
 }

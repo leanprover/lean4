@@ -878,9 +878,8 @@ _start:
 {
 uint8_t v___x_296_; lean_object* v___x_297_; lean_object* v___x_298_; lean_object* v___x_299_; 
 v___x_296_ = 0;
-lean_inc(v_scriptName_293_);
+lean_inc_n(v_scriptName_293_, 2);
 v___x_297_ = l_Lean_Name_toString(v_scriptName_293_, v___x_296_);
-lean_inc(v_scriptName_293_);
 lean_inc_ref(v_env_289_);
 v___x_298_ = l___private_Lake_Load_Lean_Eval_0__Lake_unsafeEvalConstCheck___redArg(v_env_289_, v_opts_290_, v___x_291_, v_scriptName_293_);
 v___x_299_ = l_IO_ofExcept___at___00Lake_Package_loadFromEnv_spec__2___redArg(v___x_298_);
@@ -3740,13 +3739,12 @@ _start:
 lean_object* v___x_1241_; lean_object* v___f_1242_; lean_object* v___x_1243_; lean_object* v___x_1244_; lean_object* v___x_1245_; 
 v___x_1241_ = l_Lake_instImpl_00___x40_Lake_Config_ConfigDecl_1050678479____hygCtx___hyg_43_;
 lean_inc_ref(v_opts_1238_);
-lean_inc_ref(v_env_1237_);
+lean_inc_ref_n(v_env_1237_, 2);
 v___f_1242_ = lean_alloc_closure((void*)(l_Lake_Package_loadFromEnv___lam__0___boxed), 4, 3);
 lean_closure_set(v___f_1242_, 0, v_env_1237_);
 lean_closure_set(v___f_1242_, 1, v_opts_1238_);
 lean_closure_set(v___f_1242_, 2, v___x_1241_);
 v___x_1243_ = l_Lake_targetAttr;
-lean_inc_ref(v_env_1237_);
 v___x_1244_ = l___private_Lake_Load_Lean_Eval_0__Lake_mkOrdTagMap___at___00Lake_Package_loadFromEnv_spec__3___redArg(v_env_1237_, v___x_1243_, v___f_1242_);
 v___x_1245_ = l_IO_ofExcept___at___00Lake_Package_loadFromEnv_spec__2___redArg(v___x_1244_);
 if (lean_obj_tag(v___x_1245_) == 0)
@@ -4251,11 +4249,10 @@ v_a_1383_ = lean_ctor_get(v___x_1381_, 1);
 lean_inc(v_a_1383_);
 lean_dec_ref(v___x_1381_);
 v___x_1384_ = l_Lake_postUpdateAttr;
-lean_inc_ref(v_env_1237_);
+lean_inc_ref_n(v_env_1237_, 2);
 v___x_1385_ = l_Lake_OrderedTagAttribute_getAllEntries(v___x_1384_, v_env_1237_);
 v_sz_1386_ = lean_array_size(v___x_1385_);
 lean_inc_ref(v_self_1236_);
-lean_inc_ref(v_env_1237_);
 v___x_1387_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake_Package_loadFromEnv_spec__9(v_env_1237_, v_opts_1238_, v_self_1236_, v_sz_1386_, v___x_1249_, v___x_1385_, v_a_1383_);
 if (lean_obj_tag(v___x_1387_) == 0)
 {
@@ -4282,10 +4279,9 @@ v_resetjp_1390_:
 {
 lean_object* v___x_1393_; lean_object* v___x_1394_; size_t v_sz_1395_; lean_object* v___x_1396_; lean_object* v___x_1397_; 
 v___x_1393_ = l_Lake_packageDepAttr;
-lean_inc_ref(v_env_1237_);
+lean_inc_ref_n(v_env_1237_, 2);
 v___x_1394_ = l_Lake_OrderedTagAttribute_getAllEntries(v___x_1393_, v_env_1237_);
 v_sz_1395_ = lean_array_size(v___x_1394_);
-lean_inc_ref(v_env_1237_);
 v___x_1396_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake_Package_loadFromEnv_spec__10(v_env_1237_, v_opts_1238_, v_sz_1395_, v___x_1249_, v___x_1394_);
 lean_dec_ref(v_opts_1238_);
 v___x_1397_ = l_IO_ofExcept___at___00Lake_Package_loadFromEnv_spec__2___redArg(v___x_1396_);
@@ -5475,11 +5471,10 @@ _start:
 {
 lean_object* v___x_1756_; lean_object* v___x_1757_; size_t v_sz_1758_; size_t v___x_1759_; lean_object* v___x_1760_; 
 v___x_1756_ = l_Lake_moduleFacetAttr;
-lean_inc_ref(v_env_1753_);
+lean_inc_ref_n(v_env_1753_, 2);
 v___x_1757_ = l_Lake_OrderedTagAttribute_getAllEntries(v___x_1756_, v_env_1753_);
 v_sz_1758_ = lean_array_size(v___x_1757_);
 v___x_1759_ = ((size_t)0ULL);
-lean_inc_ref(v_env_1753_);
 v___x_1760_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_Workspace_addFacetsFromEnv_spec__0(v_env_1753_, v_opts_1754_, v___x_1757_, v_sz_1758_, v___x_1759_, v_self_1755_);
 lean_dec_ref(v___x_1757_);
 if (lean_obj_tag(v___x_1760_) == 0)
@@ -5494,10 +5489,9 @@ v_a_1761_ = lean_ctor_get(v___x_1760_, 0);
 lean_inc(v_a_1761_);
 lean_dec_ref(v___x_1760_);
 v___x_1762_ = l_Lake_packageFacetAttr;
-lean_inc_ref(v_env_1753_);
+lean_inc_ref_n(v_env_1753_, 2);
 v___x_1763_ = l_Lake_OrderedTagAttribute_getAllEntries(v___x_1762_, v_env_1753_);
 v_sz_1764_ = lean_array_size(v___x_1763_);
-lean_inc_ref(v_env_1753_);
 v___x_1765_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lake_Workspace_addFacetsFromEnv_spec__1(v_env_1753_, v_opts_1754_, v___x_1763_, v_sz_1764_, v___x_1759_, v_a_1761_);
 lean_dec_ref(v___x_1763_);
 if (lean_obj_tag(v___x_1765_) == 0)

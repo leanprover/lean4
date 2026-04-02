@@ -421,19 +421,6 @@ public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Arti
   | .error e =>
     error s!"failed to retrieve artifact from cache: {e}"
 
-/--
-**For internal use only.**
-Returns path to the artifact for each output. Errors if any are missing.
--/
-public def getArtifactPaths
-  (cache : Cache) (descrs : Array ArtifactDescr)
-: LogIO (Vector FilePath descrs.size) := throwIfLogs do
-  (Vector.mk descrs rfl).mapM fun out => do
-    let art := cache.artifactDir / out.relPath
-    unless (← art.pathExists) do
-      logError s!"artifact not found in cache: {art}"
-    return art
-
 /-- The directory where input-to-output mappings are stored in the Lake cache. -/
 @[inline] public def outputsDir (cache : Cache) : FilePath :=
   cache.dir / "outputs"
@@ -778,12 +765,13 @@ where
       \n  remote URL: {info.url}"
     match cfg.kind with
     | .get =>
-      if let .ok size := out.getAs Nat "size_download" then
-        if size > 0 then
-          if let .ok contentType := out.getAs String "content_type" then
-            if contentType != artifactContentType then
-              if let .ok resp ← IO.FS.readFile info.path |>.toBaseIO then
-                msg := s!"{msg}\nunexpected response:\n{resp}"
+      unless code? matches .ok 404 do -- ignore response bodies on 404s
+        if let .ok size := out.getAs Nat "size_download" then
+          if size > 0 then
+            if let .ok contentType := out.getAs String "content_type" then
+              if contentType != artifactContentType then
+                if let .ok resp ← IO.FS.readFile info.path |>.toBaseIO then
+                  msg := s!"{msg}\nunexpected response:\n{resp}"
       removeFileIfExists info.path
     | .put =>
       if let .ok size := out.getAs Nat "size_download" then
@@ -800,7 +788,7 @@ private def transferArtifacts
     match cfg.kind with
     | .get =>
       cfg.infos.forM fun info => do
-        h.putStrLn s!"url = {info.url}"
+        h.putStrLn s!"url = {info.url.quote}"
         h.putStrLn s!"-o {info.path.toString.quote}"
       h.flush
       return #[
@@ -811,7 +799,7 @@ private def transferArtifacts
     | .put =>
       cfg.infos.forM fun info => do
         h.putStrLn s!"-T {info.path.toString.quote}"
-        h.putStrLn s!"url = {info.url}"
+        h.putStrLn s!"url = {info.url.quote}"
       h.flush
       return #[
         "-Z", "-X", "PUT", "-L",
@@ -840,6 +828,13 @@ private def transferArtifacts
   if s.didError then
     failure
 
+private def reservoirArtifactsUrl (service : CacheService) (scope : CacheServiceScope) : String :=
+  let endpoint :=
+    match scope.impl with
+    | .repo scope => appendScope s!"{service.impl.apiEndpoint}/repositories" scope
+    | .str scope => appendScope s!"{service.impl.apiEndpoint}/packages" scope
+  s!"{endpoint}/artifacts"
+
 public def downloadArtifacts
    (descrs : Array ArtifactDescr) (cache : Cache)
    (service : CacheService) (scope : CacheServiceScope) (force := false)
@@ -857,8 +852,68 @@ public def downloadArtifacts
     return s.push {url, path, descr}
   if infos.isEmpty then
     return
+  let infos ← id do
+    if service.isReservoir then
+      -- Artifact cloud storage URLs are fetched in a single request
+      -- to avoid hammering the Reservoir web host
+      fetchUrls (service.reservoirArtifactsUrl scope) infos
+    else return infos
   IO.FS.createDirAll cache.artifactDir
   transferArtifacts {scope, infos, kind := .get}
+where
+  fetchUrls url infos := IO.FS.withTempFile fun h path => do
+    let body := Json.arr <| infos.map (toJson ·.descr.hash)
+    h.putStr body.compress
+    h.flush
+    let args := #[
+        "-X", "POST", "-L", "-d", s!"@{path}",
+        "--retry", "3", -- intermittent network errors can occur
+        "-s", "-w", "%{stderr}%{json}\n",
+        "-H", "Content-Type: application/json",
+      ]
+    let args := Reservoir.lakeHeaders.foldl (· ++ #["-H", ·]) args
+    let spawnArgs := {
+      cmd := "curl", args := args.push url
+      stdout := .piped, stderr := .piped
+    }
+    logVerbose (mkCmdLog spawnArgs)
+    let {stdout, stderr, exitCode} ← IO.Process.output spawnArgs
+    match Json.parse stdout >>= fromJson? with
+    | .ok (resp :  ReservoirResp (Array String)) =>
+      match resp with
+      | .data urls =>
+        if h : infos.size = urls.size then
+          let s := infos.size.fold (init := infos.toVector) fun i hi s =>
+            s.set i {s[i] with url := urls[i]'(h ▸ hi)}
+          return s.toArray
+        else
+          error s!"failed to fetch artifact URLs\
+          \n  POST {url}\
+          \nIncorrect number of results: expected {infos.size}, got {urls.size}"
+      | .error status message =>
+        error s!"failed to fetch artifact URLs (status code: {status})\
+          \n  POST {url}\
+          \nReservoir error: {message}"
+    | .error _ =>
+      match Json.parse stderr >>= fromJson? with
+      | .ok (out : JsonObject) =>
+        let mut msg := "failed to fetch artifact URLs"
+        if let .ok code := out.getAs Nat "http_code" then
+          msg := s!"{msg} (status code: {code})"
+        msg := s!"{msg}\n  POST {url}"
+        if let .ok errMsg := out.getAs String "errormsg" then
+          msg := s!"{msg}\n  Transfer error: {errMsg}"
+        unless stdout.isEmpty do
+          msg := s!"{msg}\nstdout:\n{stdout.trimAsciiEnd}"
+        logError msg
+        logVerbose s!"curl JSON:\n{stderr.trimAsciiEnd}"
+      | .error e =>
+        logError s!"failed to fetch artifact URLs\
+          \n  POST {url}
+          \nInvalid curl JSON: {e}; received: {stderr.trimAscii}"
+        unless stdout.isEmpty do
+          logWarning s!"curl produced unexpected output:\n{stdout.trimAsciiEnd}"
+      error s!"curl exited with code {exitCode}"
 
 @[deprecated "Deprecated without replacement." (since := "2026-02-27")]
 public def downloadOutputArtifacts

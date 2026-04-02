@@ -1445,9 +1445,8 @@ else
 {
 lean_object* v_val_512_; lean_object* v___x_513_; lean_object* v___x_514_; 
 v_val_512_ = lean_ctor_get(v___x_506_, 0);
-lean_inc(v_val_512_);
+lean_inc_n(v_val_512_, 2);
 lean_dec_ref(v___x_506_);
-lean_inc(v_val_512_);
 v___x_513_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_513_, 0, v_val_512_);
 lean_ctor_set(v___x_513_, 1, v_it_494_);
@@ -1610,9 +1609,8 @@ else
 {
 lean_object* v_val_576_; lean_object* v___x_577_; lean_object* v___x_578_; lean_object* v___x_579_; 
 v_val_576_ = lean_ctor_get(v___x_569_, 0);
-lean_inc(v_val_576_);
+lean_inc_n(v_val_576_, 2);
 lean_dec_ref(v___x_569_);
-lean_inc(v_val_576_);
 v___x_577_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_577_, 0, v_val_576_);
 lean_ctor_set(v___x_577_, 1, v_it_553_);

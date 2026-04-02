@@ -665,12 +665,10 @@ v_snd_227_ = lean_ctor_get(v_val_223_, 1);
 lean_inc(v_snd_227_);
 lean_dec(v_val_223_);
 v_fst_228_ = lean_ctor_get(v_snd_227_, 0);
-lean_inc(v_fst_228_);
+lean_inc_n(v_fst_228_, 2);
 v_snd_229_ = lean_ctor_get(v_snd_227_, 1);
-lean_inc(v_snd_229_);
+lean_inc_n(v_snd_229_, 2);
 lean_dec(v_snd_227_);
-lean_inc(v_snd_229_);
-lean_inc(v_fst_228_);
 v___x_230_ = l_Lean_Meta_isExprDefEq(v_fst_228_, v_snd_229_, v_a_189_, v_a_190_, v_a_191_, v_a_192_);
 if (lean_obj_tag(v___x_230_) == 0)
 {

@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
 import Init.Grind.Util
 import Init.Omega
+public import Lean.Meta.HasAssignableMVar
 public section
 namespace Lean.Meta.Grind
 namespace EMatch

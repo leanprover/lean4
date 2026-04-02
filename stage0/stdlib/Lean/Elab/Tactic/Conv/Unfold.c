@@ -750,8 +750,7 @@ case 1:
 {
 lean_object* v_fvarId_234_; lean_object* v___x_235_; 
 v_fvarId_234_ = lean_ctor_get(v_a_205_, 0);
-lean_inc(v_fvarId_234_);
-lean_inc(v_fvarId_234_);
+lean_inc_n(v_fvarId_234_, 2);
 v___x_235_ = l_Lean_FVarId_isLetVar___redArg(v_fvarId_234_, v___x_199_, v___y_175_, v___x_203_, v___y_178_);
 if (lean_obj_tag(v___x_235_) == 0)
 {

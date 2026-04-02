@@ -8,7 +8,7 @@ endif()
 include(ExternalProject)
 project(LEAN CXX C)
 set(LEAN_VERSION_MAJOR 4 CACHE STRING "")
-set(LEAN_VERSION_MINOR 30 CACHE STRING "")
+set(LEAN_VERSION_MINOR 31 CACHE STRING "")
 set(LEAN_VERSION_PATCH 0 CACHE STRING "")
 set(LEAN_VERSION_IS_RELEASE 0 CACHE STRING "") # This number is 1 in the release revision, and 0 otherwise.
 set(LEAN_SPECIAL_VERSION_DESC "" CACHE STRING "Additional version description like 'nightly-2018-03-11'")
@@ -80,6 +80,7 @@ option(CCACHE "use ccache" ON)
 option(SPLIT_STACK "SPLIT_STACK" OFF)
 # When OFF we disable LLVM support
 option(LLVM "LLVM" OFF)
+option(STRIP_BINARIES "Strip produced binaries" ON)
 
 # When ON we include githash in the version string
 option(USE_GITHASH "GIT_HASH" ON)
@@ -614,6 +615,38 @@ else()
       OUTPUT_VARIABLE GIT_SHA1
       OUTPUT_STRIP_TRAILING_WHITESPACE
     )
+    # Fallback for jj workspaces where git cannot find .git directly.
+    # Use `jj git root` to find the backing git repo, then `jj log` to
+    # resolve the current workspace's commit (git HEAD points to the root
+    # workspace, not the current one).
+    if("${GIT_SHA1}" STREQUAL "")
+      find_program(JJ_EXECUTABLE jj)
+      if(JJ_EXECUTABLE)
+        execute_process(
+          COMMAND "${JJ_EXECUTABLE}" git root
+          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+          OUTPUT_VARIABLE _jj_git_dir
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+          ERROR_QUIET
+          RESULT_VARIABLE _jj_git_root_result
+        )
+        execute_process(
+          COMMAND "${JJ_EXECUTABLE}" log -r @ --no-graph -T "commit_id"
+          WORKING_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}"
+          OUTPUT_VARIABLE _jj_commit
+          OUTPUT_STRIP_TRAILING_WHITESPACE
+          ERROR_QUIET
+          RESULT_VARIABLE _jj_rev_result
+        )
+        if(_jj_git_root_result EQUAL 0 AND _jj_rev_result EQUAL 0)
+          execute_process(
+            COMMAND git --git-dir "${_jj_git_dir}" ls-tree "${_jj_commit}" stage0 --object-only
+            OUTPUT_VARIABLE GIT_SHA1
+            OUTPUT_STRIP_TRAILING_WHITESPACE
+          )
+        endif()
+      endif()
+    endif()
     message(STATUS "stage0 sha1: ${GIT_SHA1}")
     # Now that we've prepared the information for the next stage, we can forget that we will use
     # Lake in the future as we won't use it in this stage
@@ -797,7 +830,14 @@ if(LLVM AND STAGE GREATER 0)
   set(EXTRA_LEANMAKE_OPTS "LLVM=1")
 endif()
 
-set(STDLIBS Init Std Lean Leanc LeanIR)
+set(
+  STDLIBS
+  Init
+  Std
+  Lean
+  Leanc
+  LeanIR
+)
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   list(APPEND STDLIBS Lake LeanChecker)
 endif()
@@ -905,10 +945,7 @@ if(PREV_STAGE)
 endif()
 
 if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
-  add_custom_target(leanir ALL
-    DEPENDS leanshared
-    COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir
-    VERBATIM)
+  add_custom_target(leanir ALL DEPENDS leanshared COMMAND $(MAKE) -f ${CMAKE_BINARY_DIR}/stdlib.make leanir VERBATIM)
 endif()
 
 # use Bash version for building, use Lean version in bin/ for tests & distribution

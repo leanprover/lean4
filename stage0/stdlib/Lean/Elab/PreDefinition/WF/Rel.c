@@ -957,9 +957,8 @@ v_a_309_ = lean_ctor_get(v___x_308_, 0);
 lean_inc(v_a_309_);
 lean_dec_ref(v___x_308_);
 v_macroStack_310_ = lean_ctor_get(v___y_300_, 1);
-lean_inc(v_macroStack_310_);
+lean_inc_n(v_macroStack_310_, 2);
 v___x_311_ = l_Lean_Elab_getBetterRef(v_ref_307_, v_macroStack_310_);
-lean_inc(v_macroStack_310_);
 v___x_312_ = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_Elab_WF_checkCodomains_spec__4_spec__5_spec__8___redArg(v_a_309_, v_macroStack_310_, v___y_304_);
 v_a_313_ = lean_ctor_get(v___x_312_, 0);
 v_isSharedCheck_321_ = !lean_is_exclusive(v___x_312_);
@@ -1751,10 +1750,9 @@ if (lean_obj_tag(v___x_563_) == 0)
 {
 lean_object* v_a_564_; lean_object* v_a_565_; lean_object* v___f_566_; lean_object* v___x_568_; 
 v_a_564_ = lean_ctor_get(v___x_563_, 0);
-lean_inc(v_a_564_);
+lean_inc_n(v_a_564_, 2);
 lean_dec_ref(v___x_563_);
 v_a_565_ = lean_array_uget_borrowed(v_as_464_, v_i_466_);
-lean_inc(v_a_564_);
 lean_inc(v_a_565_);
 lean_inc(v___x_533_);
 v___f_566_ = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Elab_WF_checkCodomains_spec__6___lam__0___boxed), 13, 4);
@@ -2842,9 +2840,8 @@ if (lean_obj_tag(v___x_1025_) == 0)
 {
 lean_object* v_a_1026_; lean_object* v___x_1027_; 
 v_a_1026_ = lean_ctor_get(v___x_1025_, 0);
-lean_inc(v_a_1026_);
+lean_inc_n(v_a_1026_, 2);
 lean_dec_ref(v___x_1025_);
-lean_inc(v_a_1026_);
 v___x_1027_ = l_Lean_Meta_getLevel(v_a_1026_, v___y_1017_, v___y_1018_, v___y_1019_, v___y_1020_);
 if (lean_obj_tag(v___x_1027_) == 0)
 {

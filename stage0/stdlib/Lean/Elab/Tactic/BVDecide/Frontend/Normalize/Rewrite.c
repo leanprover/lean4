@@ -1337,10 +1337,9 @@ v_resetjp_480_:
 {
 lean_object* v_snd_483_; lean_object* v___f_484_; lean_object* v___x_485_; 
 v_snd_483_ = lean_ctor_get(v_val_479_, 1);
-lean_inc(v_snd_483_);
+lean_inc_n(v_snd_483_, 2);
 lean_dec(v_val_479_);
 v___f_484_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_rewriteRulesPass___lam__1___closed__7));
-lean_inc(v_snd_483_);
 v___x_485_ = l_Lean_MVarId_withContext___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Rewrite_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_rewriteRulesPass_getHyps_spec__2___redArg(v_snd_483_, v___f_484_, v___y_431_, v___y_432_, v___y_433_, v___y_434_, v___y_435_, v___y_436_);
 if (lean_obj_tag(v___x_485_) == 0)
 {

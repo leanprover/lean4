@@ -2718,10 +2718,9 @@ else
 {
 lean_object* v_a_700_; lean_object* v___x_701_; lean_object* v___x_702_; 
 v_a_700_ = lean_ctor_get(v___x_691_, 0);
-lean_inc(v_a_700_);
+lean_inc_n(v_a_700_, 2);
 lean_dec_ref(v___x_691_);
 v___x_701_ = ((lean_object*)(l_Lean_Json_getObjValAs_x3f___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_instFromJsonLogEntry_fromJson_spec__3___closed__6));
-lean_inc(v_a_700_);
 v___x_702_ = l_Lean_Json_getObjValAs_x3f___at___00Lean_Json_getObjValAs_x3f___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_instFromJsonLogEntry_fromJson_spec__3_spec__4(v_a_700_, v___x_701_);
 if (lean_obj_tag(v___x_702_) == 0)
 {

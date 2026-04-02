@@ -968,7 +968,7 @@ lean_object* v___x_168_; lean_object* v___x_169_; lean_object* v___x_170_; lean_
 v___x_168_ = lean_unsigned_to_nat(2u);
 v___x_169_ = lean_unsigned_to_nat(0u);
 v___x_170_ = lean_string_utf8_byte_size(v_s_165_);
-lean_inc_ref(v_s_165_);
+lean_inc_ref_n(v_s_165_, 2);
 v___x_171_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_171_, 0, v_s_165_);
 lean_ctor_set(v___x_171_, 1, v___x_169_);
@@ -976,7 +976,6 @@ lean_ctor_set(v___x_171_, 2, v___x_170_);
 v___x_172_ = l_String_Slice_Pos_prevn(v___x_171_, v___x_170_, v___x_168_);
 lean_dec_ref(v___x_171_);
 lean_inc(v___x_172_);
-lean_inc_ref(v_s_165_);
 v___x_173_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_173_, 0, v_s_165_);
 lean_ctor_set(v___x_173_, 1, v___x_172_);
@@ -1136,10 +1135,9 @@ else
 {
 lean_object* v_a_224_; lean_object* v___x_225_; lean_object* v___x_226_; 
 v_a_224_ = lean_ctor_get(v___x_222_, 0);
-lean_inc(v_a_224_);
+lean_inc_n(v_a_224_, 2);
 lean_dec_ref(v___x_222_);
 v___x_225_ = ((lean_object*)(l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_isLean3Request___closed__0));
-lean_inc(v_a_224_);
 v___x_226_ = l_Lean_Json_getObjVal_x3f(v_a_224_, v___x_225_);
 if (lean_obj_tag(v___x_226_) == 0)
 {
@@ -1684,11 +1682,10 @@ else
 lean_object* v_val_394_; lean_object* v___x_395_; lean_object* v___x_396_; lean_object* v___x_397_; lean_object* v___x_398_; 
 lean_dec(v_a_381_);
 v_val_394_ = lean_ctor_get(v___x_386_, 0);
-lean_inc(v_val_394_);
+lean_inc_n(v_val_394_, 2);
 lean_dec_ref(v___x_386_);
 v___x_395_ = lean_unsigned_to_nat(0u);
 v___x_396_ = lean_string_utf8_byte_size(v_val_394_);
-lean_inc(v_val_394_);
 v___x_397_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_397_, 0, v_val_394_);
 lean_ctor_set(v___x_397_, 1, v___x_395_);

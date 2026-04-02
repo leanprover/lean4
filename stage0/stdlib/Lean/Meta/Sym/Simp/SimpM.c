@@ -170,12 +170,12 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___lam
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_closure_object l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___lam__0___boxed, .m_arity = 11, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__0 = (const lean_object*)&l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__0_value;
-static lean_once_cell_t l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__1;
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_instInhabitedMethods_default;
+static const lean_ctor_object l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__0_value),((lean_object*)&l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__0_value)}};
+static const lean_object* l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__1 = (const lean_object*)&l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__1_value;
+LEAN_EXPORT const lean_object* l_Lean_Meta_Sym_Simp_instInhabitedMethods_default = (const lean_object*)&l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Sym_Simp_instInhabitedMethods_default_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Sym_Simp_instInhabitedMethods_default_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_instInhabitedMethods;
+LEAN_EXPORT const lean_object* l_Lean_Meta_Sym_Simp_instInhabitedMethods = (const lean_object*)&l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__1_value;
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Methods_toMethodsRefImpl(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Methods_toMethodsRefImpl___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_MethodsRef_toMethodsImpl(lean_object*);
@@ -935,19 +935,13 @@ _start:
 lean_object* v___x_209_; lean_object* v_toApplicative_210_; lean_object* v_toFunctor_211_; lean_object* v_toSeq_212_; lean_object* v_toSeqLeft_213_; lean_object* v_toSeqRight_214_; lean_object* v___f_215_; lean_object* v___f_216_; lean_object* v___f_217_; lean_object* v___f_218_; lean_object* v___x_219_; lean_object* v___f_220_; lean_object* v___f_221_; lean_object* v___f_222_; lean_object* v___x_223_; lean_object* v___x_224_; lean_object* v___x_225_; lean_object* v_toApplicative_226_; lean_object* v___x_228_; uint8_t v_isShared_229_; uint8_t v_isSharedCheck_266_; 
 v___x_209_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__1, &l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__1_once, _init_l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__1);
 v_toApplicative_210_ = lean_ctor_get(v___x_209_, 0);
-lean_inc_ref(v_toApplicative_210_);
 v_toFunctor_211_ = lean_ctor_get(v_toApplicative_210_, 0);
-lean_inc_ref(v_toFunctor_211_);
 v_toSeq_212_ = lean_ctor_get(v_toApplicative_210_, 2);
-lean_inc(v_toSeq_212_);
 v_toSeqLeft_213_ = lean_ctor_get(v_toApplicative_210_, 3);
-lean_inc(v_toSeqLeft_213_);
 v_toSeqRight_214_ = lean_ctor_get(v_toApplicative_210_, 4);
-lean_inc(v_toSeqRight_214_);
-lean_dec_ref(v_toApplicative_210_);
 v___f_215_ = ((lean_object*)(l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__2));
 v___f_216_ = ((lean_object*)(l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__3));
-lean_inc_ref(v_toFunctor_211_);
+lean_inc_ref_n(v_toFunctor_211_, 2);
 v___f_217_ = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__0), 6, 1);
 lean_closure_set(v___f_217_, 0, v_toFunctor_211_);
 v___f_218_ = lean_alloc_closure((void*)(l_ReaderT_instFunctorOfMonad___redArg___lam__1), 6, 1);
@@ -955,10 +949,13 @@ lean_closure_set(v___f_218_, 0, v_toFunctor_211_);
 v___x_219_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_219_, 0, v___f_217_);
 lean_ctor_set(v___x_219_, 1, v___f_218_);
+lean_inc(v_toSeqRight_214_);
 v___f_220_ = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__1), 6, 1);
 lean_closure_set(v___f_220_, 0, v_toSeqRight_214_);
+lean_inc(v_toSeqLeft_213_);
 v___f_221_ = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__3), 6, 1);
 lean_closure_set(v___f_221_, 0, v_toSeqLeft_213_);
+lean_inc(v_toSeq_212_);
 v___f_222_ = lean_alloc_closure((void*)(l_ReaderT_instApplicativeOfMonad___redArg___lam__4), 6, 1);
 lean_closure_set(v___f_222_, 0, v_toSeq_212_);
 v___x_223_ = lean_alloc_ctor(0, 5, 0);
@@ -1089,10 +1086,10 @@ v___x_253_ = l_ReaderT_instMonad___redArg(v___x_252_);
 v___x_254_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__26, &l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__26_once, _init_l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__26);
 v___x_255_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__37, &l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__37_once, _init_l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__37);
 v_toMonadRef_256_ = lean_ctor_get(v___x_255_, 0);
-lean_inc_ref(v_toMonadRef_256_);
 v___f_257_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__42, &l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__42_once, _init_l_Lean_Meta_Sym_Simp_instInhabitedSimpM___closed__42);
 lean_inc_ref(v___x_253_);
 v___x_258_ = l_Lean_instAddErrorMessageContextOfAddMessageContextOfMonad___redArg(v___f_257_, v___x_253_);
+lean_inc_ref(v_toMonadRef_256_);
 v___x_259_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_259_, 0, v___x_254_);
 lean_ctor_set(v___x_259_, 1, v_toMonadRef_256_);
@@ -1237,25 +1234,6 @@ lean_dec_ref(v_x_327_);
 return v_res_338_;
 }
 }
-static lean_object* _init_l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__1(void){
-_start:
-{
-lean_object* v___f_340_; lean_object* v___x_341_; 
-v___f_340_ = ((lean_object*)(l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__0));
-v___x_341_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_341_, 0, v___f_340_);
-lean_ctor_set(v___x_341_, 1, v___f_340_);
-return v___x_341_;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_Simp_instInhabitedMethods_default(void){
-_start:
-{
-lean_object* v___x_342_; 
-v___x_342_ = lean_obj_once(&l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__1, &l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__1_once, _init_l_Lean_Meta_Sym_Simp_instInhabitedMethods_default___closed__1);
-return v___x_342_;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_throwError___at___00Lean_Meta_Sym_Simp_instInhabitedMethods_default_spec__0(lean_object* v_00_u03b1_343_, lean_object* v_msg_344_, lean_object* v___y_345_, lean_object* v___y_346_, lean_object* v___y_347_, lean_object* v___y_348_, lean_object* v___y_349_, lean_object* v___y_350_, lean_object* v___y_351_, lean_object* v___y_352_, lean_object* v___y_353_){
 _start:
 {
@@ -1279,14 +1257,6 @@ lean_dec(v___y_360_);
 lean_dec_ref(v___y_359_);
 lean_dec(v___y_358_);
 return v_res_368_;
-}
-}
-static lean_object* _init_l_Lean_Meta_Sym_Simp_instInhabitedMethods(void){
-_start:
-{
-lean_object* v___x_369_; 
-v___x_369_ = l_Lean_Meta_Sym_Simp_instInhabitedMethods_default;
-return v___x_369_;
 }
 }
 LEAN_EXPORT lean_object* l_Lean_Meta_Sym_Simp_Methods_toMethodsRefImpl(lean_object* v_m_370_){
@@ -2714,10 +2684,6 @@ res = runtime_initialize_Lean_Meta_Sym_Pattern(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l___private_Lean_Meta_Sym_Simp_SimpM_0__Lean_Meta_Sym_Simp_MethodsRefPointed = _init_l___private_Lean_Meta_Sym_Simp_SimpM_0__Lean_Meta_Sym_Simp_MethodsRefPointed();
-l_Lean_Meta_Sym_Simp_instInhabitedMethods_default = _init_l_Lean_Meta_Sym_Simp_instInhabitedMethods_default();
-lean_mark_persistent(l_Lean_Meta_Sym_Simp_instInhabitedMethods_default);
-l_Lean_Meta_Sym_Simp_instInhabitedMethods = _init_l_Lean_Meta_Sym_Simp_instInhabitedMethods();
-lean_mark_persistent(l_Lean_Meta_Sym_Simp_instInhabitedMethods);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;

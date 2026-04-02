@@ -1537,10 +1537,9 @@ LEAN_EXPORT lean_object* l_Std_ExtTreeMap_instGetElem_x3fMem___redArg(lean_objec
 _start:
 {
 lean_object* v___f_426_; lean_object* v___f_427_; lean_object* v___f_428_; lean_object* v___x_429_; 
-lean_inc_ref(v_cmp_425_);
+lean_inc_ref_n(v_cmp_425_, 2);
 v___f_426_ = lean_alloc_closure((void*)(l_Std_ExtTreeMap_instGetElem_x3fMem___redArg___lam__0), 4, 1);
 lean_closure_set(v___f_426_, 0, v_cmp_425_);
-lean_inc_ref(v_cmp_425_);
 v___f_427_ = lean_alloc_closure((void*)(l_Std_ExtTreeMap_instGetElem_x3fMem___redArg___lam__1), 3, 1);
 lean_closure_set(v___f_427_, 0, v_cmp_425_);
 v___f_428_ = lean_alloc_closure((void*)(l_Std_ExtTreeMap_instGetElem_x3fMem___redArg___lam__2___boxed), 4, 1);

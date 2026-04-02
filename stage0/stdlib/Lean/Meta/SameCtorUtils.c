@@ -2192,9 +2192,8 @@ v___x_874_ = lean_mk_array(v_numIndices_868_, v_dummy_873_);
 v___x_875_ = l___private_Lean_Expr_0__Lean_Expr_getAppArgsN_loop(v_numIndices_868_, v_a_863_, v___x_874_);
 v___x_876_ = ((lean_object*)(l_Lean_Meta_withSharedCtorIndices___redArg___lam__0___closed__1));
 v___x_877_ = lean_array_to_list(v_a_872_);
-lean_inc_ref(v_zs_853_);
+lean_inc_ref_n(v_zs_853_, 2);
 v___x_878_ = lean_array_to_list(v_zs_853_);
-lean_inc_ref(v_zs_853_);
 v___x_879_ = l___private_Lean_Meta_SameCtorUtils_0__Lean_Meta_withSharedCtorIndices_go___redArg(v_ctor_851_, v_k_852_, v_zs_853_, v___x_875_, v___x_876_, v___x_877_, v___x_878_, v_zs_853_, v___y_855_, v___y_856_, v___y_857_, v___y_858_);
 return v___x_879_;
 }

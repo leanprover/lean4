@@ -28,37 +28,64 @@ open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
 set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
-open AddSubCancel in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| grind) [10]
+#eval do
+  runBenchUsingTactic ``AddSubCancel.Goal [``AddSubCancel.loop, ``AddSubCancel.step]
+    `(tactic| mvcgen') `(tactic| grind) [10]
+  runBenchUsingTactic ``AddSubCancelDeep.Goal [``AddSubCancelDeep.loop, ``AddSubCancelDeep.step]
+    `(tactic| mvcgen') `(tactic| grind) [10]
+  runBenchUsingTactic ``AddSubCancelSimp.Goal [``AddSubCancelSimp.loop, ``AddSubCancelSimp.step]
+    `(tactic| mvcgen') `(tactic| grind) [10]
+  runBenchUsingTactic ``LetBinding.Goal [``LetBinding.loop, ``LetBinding.step]
+    `(tactic| mvcgen') `(tactic| grind) [10]
+  runBenchUsingTactic ``GetThrowSet.Goal [``GetThrowSet.loop, ``GetThrowSet.step]
+    `(tactic| mvcgen') `(tactic| sorry) [10]
+  -- `mvcgen' with grind`: grind integrated into VCGen loop
+  runBenchUsingTactic ``GetThrowSet.Goal [``GetThrowSet.loop, ``GetThrowSet.step]
+    `(tactic| mvcgen' with grind) `(tactic| fail) [10]
+  -- `mvcgen' with grind` on AddSubCancel
+  runBenchUsingTactic ``AddSubCancel.Goal [``AddSubCancel.loop, ``AddSubCancel.step]
+    `(tactic| mvcgen' with grind) `(tactic| fail) [10]
+  runBenchUsingTactic ``PurePrecond.Goal [``PurePrecond.loop, ``PurePrecond.step]
+    `(tactic| mvcgen') `(tactic| fail) [10]
+  runBenchUsingTactic ``ReaderState.Goal [``ReaderState.loop, ``ReaderState.step]
+    `(tactic| mvcgen') `(tactic| sorry) [10]
+  runBenchUsingTactic ``DiteSplit.Goal [``DiteSplit.loop, ``DiteSplit.step]
+    `(tactic| mvcgen') `(tactic| sorry) [10]
+  runBenchUsingTactic ``MatchIota.Goal [``MatchIota.loop, ``MatchIota.step]
+    `(tactic| mvcgen') `(tactic| sorry) [10]
+  runBenchUsingTactic ``MatchSplit.Goal [``MatchSplit.loop, ``MatchSplit.step]
+    `(tactic| mvcgen') `(tactic| grind) [10]
 
-open AddSubCancelDeep in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| grind) [10]
-
-open AddSubCancelSimp in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| grind) [10]
-
+-- Verify `simplifying_assumptions [Nat.add_assoc]` works end-to-end with `simp only` unfolding.
+/--
+trace: s✝ : Nat
+h✝⁹ : ¬0 < s✝
+h✝⁸ : ¬1 < s✝ + 1
+h✝⁷ : ¬2 < s✝ + 2
+h✝⁶ : ¬3 < s✝ + 3
+h✝⁵ : ¬4 < s✝ + 4
+h✝⁴ : ¬5 < s✝ + 5
+h✝³ : ¬6 < s✝ + 6
+h✝² : ¬7 < s✝ + 7
+h✝¹ : ¬8 < s✝ + 8
+h✝ : ¬9 < s✝ + 9
+⊢ ⌜s✝ = 0⌝ ⊢ₛ ⌜s✝ + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 = 10⌝
+-/
+#guard_msgs in
 open GetThrowSet in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| sorry) [10]
+example : Goal 10 := by
+  simp only [Goal, loop, step]
+  mvcgen' simplifying_assumptions [Nat.add_assoc]
+  case vc11 => trace_state; grind
+  all_goals grind
 
--- Test `mvcgen' with grind`: grind integrated into VCGen loop
-open GetThrowSet in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen' with grind) `(tactic| fail) [10]
-
--- Test `mvcgen' with grind` on AddSubCancel
-open AddSubCancel in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen' with grind) `(tactic| fail) [10]
-
-open PurePrecond in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| fail) [10]
-
-open ReaderState in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| sorry) [10]
-
-open DiteSplit in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| sorry) [10]
-
-open MatchIota in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| sorry) [10]
-
-open MatchSplit in
-#eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| grind) [10]
+-- Verify that the let-binding code paths are exercised.
+-- `unfold` (unlike `simp only`) preserves letE nodes in the program, exercising:
+-- let-hoist, let-intro (non-duplicable value), and fvar-zeta (let-bound program head).
+-- Run with `set_option trace.Elab.Tactic.Do.vcgen true` to see the traces.
+open LetBinding in
+example : ∀ post, ⦃post⦄ step 5 ⦃⇓_ => post⦄ := by
+  unfold step
+  intro post
+  mvcgen'
+  grind

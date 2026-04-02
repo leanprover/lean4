@@ -758,8 +758,7 @@ if (lean_obj_tag(v_info_168_) == 8)
 {
 lean_object* v_i_170_; lean_object* v___y_172_; lean_object* v___y_173_; lean_object* v___y_174_; uint8_t v___x_178_; lean_object* v___y_180_; lean_object* v___y_181_; lean_object* v___y_182_; lean_object* v___y_189_; lean_object* v___y_190_; lean_object* v___y_196_; 
 v_i_170_ = lean_ctor_get(v_info_168_, 0);
-lean_inc_ref(v_i_170_);
-lean_inc_ref(v_i_170_);
+lean_inc_ref_n(v_i_170_, 2);
 v___x_178_ = l___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_findCompletionInfosAt_containsHoverPos(v_hoverPos_165_, v_i_170_);
 if (v___x_178_ == 0)
 {
@@ -931,13 +930,12 @@ LEAN_EXPORT lean_object* l_Lean_Server_Completion_findCompletionInfosAt(lean_obj
 _start:
 {
 uint8_t v_isComplete_217_; lean_object* v_completionInfoCandidates_218_; lean_object* v___x_222_; lean_object* v_line_223_; lean_object* v___x_224_; lean_object* v___x_225_; lean_object* v___x_226_; lean_object* v_completionInfoCandidates_227_; lean_object* v___x_228_; uint8_t v___x_229_; 
-lean_inc_ref(v_fileMap_212_);
+lean_inc_ref_n(v_fileMap_212_, 2);
 v___x_222_ = l_Lean_FileMap_toPosition(v_fileMap_212_, v_hoverPos_213_);
 v_line_223_ = lean_ctor_get(v___x_222_, 0);
 lean_inc(v_line_223_);
 lean_dec_ref(v___x_222_);
 lean_inc(v_hoverPos_213_);
-lean_inc_ref(v_fileMap_212_);
 v___x_224_ = lean_alloc_closure((void*)(l___private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_findCompletionInfosAt_go___boxed), 6, 3);
 lean_closure_set(v___x_224_, 0, v_fileMap_212_);
 lean_closure_set(v___x_224_, 1, v_hoverPos_213_);
@@ -1985,9 +1983,8 @@ else
 lean_object* v_a_558_; lean_object* v___x_559_; lean_object* v___x_560_; size_t v___x_561_; size_t v___x_562_; 
 v_a_558_ = lean_array_uget_borrowed(v_as_553_, v_i_555_);
 lean_inc_ref(v_key_552_);
-lean_inc(v_a_558_);
+lean_inc_n(v_a_558_, 2);
 v___x_559_ = lean_apply_1(v_key_552_, v_a_558_);
-lean_inc(v_a_558_);
 v___x_560_ = l_Std_DHashMap_Internal_Raw_u2080_Const_alter___at___00Array_groupByKey___at___00__private_Lean_Server_Completion_CompletionInfoSelection_0__Lean_Server_Completion_computePrioritizedCompletionPartitions_spec__2_spec__2___redArg(v_a_558_, v_b_556_, v___x_559_);
 v___x_561_ = ((size_t)1ULL);
 v___x_562_ = lean_usize_add(v_i_555_, v___x_561_);

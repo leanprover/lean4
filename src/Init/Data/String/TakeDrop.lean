@@ -508,7 +508,7 @@ def dropPrefix? (s : String) (pat : ρ) [ForwardPattern pat] : Option String.Sli
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
 
 Use {name (scope := "Init.Data.String.TakeDrop")}`String.dropSuffix` to return the slice
-unchanged when {name}`pat` does not match a prefix.
+unchanged when {name}`pat` does not match a suffix.
 
 This is a cheap operation because it does not allocate a new string to hold the result.
 To convert the result into a string, use {name}`String.Slice.copy`.

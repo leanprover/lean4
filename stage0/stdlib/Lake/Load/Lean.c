@@ -1693,6 +1693,8 @@ v_testDriver_392_ = lean_ctor_get(v_config_380_, 12);
 lean_inc_ref(v_testDriver_392_);
 v_lintDriver_393_ = lean_ctor_get(v_config_380_, 14);
 lean_inc_ref(v_lintDriver_393_);
+lean_inc(v___y_387_);
+lean_inc(v___y_383_);
 lean_inc_ref(v___y_384_);
 lean_inc_ref(v___y_385_);
 lean_inc_ref(v___y_386_);

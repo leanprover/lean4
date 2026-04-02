@@ -772,11 +772,10 @@ _start:
 {
 lean_object* v_fst_220_; lean_object* v_snd_221_; lean_object* v___x_222_; lean_object* v___x_223_; lean_object* v___x_224_; uint8_t v___x_225_; 
 v_fst_220_ = lean_ctor_get(v_x_219_, 0);
-lean_inc(v_fst_220_);
+lean_inc_n(v_fst_220_, 2);
 v_snd_221_ = lean_ctor_get(v_x_219_, 1);
 lean_inc(v_snd_221_);
 lean_dec_ref(v_x_219_);
-lean_inc(v_fst_220_);
 v___x_222_ = lean_apply_1(v_inst_216_, v_fst_220_);
 v___x_223_ = l_Std_Internal_List_getValueCast_x3f___redArg(v_inst_217_, v_fst_220_, v_l_u2082_218_);
 v___x_224_ = lean_alloc_ctor(1, 1, 0);
@@ -1443,11 +1442,10 @@ v_tail_554_ = lean_ctor_get(v_x_551_, 1);
 lean_inc(v_tail_554_);
 lean_dec_ref(v_x_551_);
 v_fst_555_ = lean_ctor_get(v_head_553_, 0);
-lean_inc(v_fst_555_);
+lean_inc_n(v_fst_555_, 2);
 lean_dec(v_head_553_);
 lean_inc_ref(v_inst_549_);
 lean_inc(v_a_550_);
-lean_inc(v_fst_555_);
 v___x_556_ = lean_apply_2(v_inst_549_, v_fst_555_, v_a_550_);
 v___x_557_ = lean_unbox(v___x_556_);
 if (v___x_557_ == 0)

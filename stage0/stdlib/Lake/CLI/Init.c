@@ -3972,9 +3972,8 @@ if (v___x_1268_ == 0)
 {
 uint8_t v___x_1269_; lean_object* v___x_1270_; lean_object* v___x_1271_; 
 v___x_1269_ = 1;
-lean_inc(v___y_1265_);
+lean_inc_n(v___y_1265_, 2);
 v___x_1270_ = l_Lean_Name_toString(v___y_1265_, v___x_1269_);
-lean_inc(v___y_1265_);
 v___x_1271_ = l___private_Lake_CLI_Init_0__Lake_libRootFileContents(v___x_1270_, v___y_1265_);
 lean_dec_ref(v___x_1270_);
 v___y_1239_ = v___y_1266_;
@@ -4174,10 +4173,9 @@ if (lean_obj_tag(v___y_1315_) == 1)
 {
 lean_object* v_val_1322_; lean_object* v___x_1323_; lean_object* v___x_1324_; lean_object* v___x_1325_; lean_object* v___x_1326_; uint8_t v___x_1327_; lean_object* v___x_1328_; uint8_t v___x_1329_; 
 v_val_1322_ = lean_ctor_get(v___y_1315_, 0);
-lean_inc(v_val_1322_);
+lean_inc_n(v_val_1322_, 2);
 lean_dec_ref(v___y_1315_);
 v___x_1323_ = ((lean_object*)(l___private_Lake_CLI_Init_0__Lake_escapeIdent___closed__0));
-lean_inc(v_val_1322_);
 v___x_1324_ = l_System_FilePath_withExtension(v_val_1322_, v___x_1323_);
 v___x_1325_ = ((lean_object*)(l___private_Lake_CLI_Init_0__Lake_initPkg___closed__15));
 lean_inc_ref(v___x_1324_);
@@ -6777,9 +6775,8 @@ if (v___x_1964_ == 0)
 {
 uint8_t v___x_1965_; lean_object* v___x_1966_; lean_object* v___x_1967_; 
 v___x_1965_ = 1;
-lean_inc(v___y_1958_);
+lean_inc_n(v___y_1958_, 2);
 v___x_1966_ = l_Lean_Name_toString(v___y_1958_, v___x_1965_);
-lean_inc(v___y_1958_);
 v___x_1967_ = l___private_Lake_CLI_Init_0__Lake_libRootFileContents(v___x_1966_, v___y_1958_);
 lean_dec_ref(v___x_1966_);
 v___y_1935_ = v___y_1958_;
@@ -6979,10 +6976,9 @@ if (lean_obj_tag(v___y_2013_) == 1)
 {
 lean_object* v_val_2018_; lean_object* v___x_2019_; lean_object* v___x_2020_; lean_object* v___x_2021_; lean_object* v___x_2022_; uint8_t v___x_2023_; lean_object* v___x_2024_; uint8_t v___x_2025_; 
 v_val_2018_ = lean_ctor_get(v___y_2013_, 0);
-lean_inc(v_val_2018_);
+lean_inc_n(v_val_2018_, 2);
 lean_dec_ref(v___y_2013_);
 v___x_2019_ = ((lean_object*)(l___private_Lake_CLI_Init_0__Lake_escapeIdent___closed__0));
-lean_inc(v_val_2018_);
 v___x_2020_ = l_System_FilePath_withExtension(v_val_2018_, v___x_2019_);
 v___x_2021_ = ((lean_object*)(l___private_Lake_CLI_Init_0__Lake_initPkg___closed__15));
 lean_inc_ref(v___x_2020_);

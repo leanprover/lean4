@@ -245,7 +245,7 @@ We use this combinator to prevent stack overflows.
 @[inline] def withIncRecDepth [Monad m] [MonadError m] [MonadRecDepth m] (x : m α) : m α := do
   let curr ← MonadRecDepth.getRecDepth
   let max  ← MonadRecDepth.getMaxRecDepth
-  if curr == max then
+  if max != 0 && curr == max then
     throwMaxRecDepthAt (← getRef)
   else
     MonadRecDepth.withRecDepth (curr+1) x

@@ -83,13 +83,12 @@ _start:
 {
 lean_object* v___x_12_; lean_object* v___x_13_; lean_object* v_a_14_; lean_object* v___x_15_; lean_object* v___x_16_; lean_object* v_a_17_; lean_object* v___x_18_; lean_object* v___x_19_; lean_object* v_a_20_; lean_object* v___x_22_; uint8_t v_isShared_23_; uint8_t v_isSharedCheck_28_; 
 v___x_12_ = ((lean_object*)(l_Lean_Widget_instFromJsonRpcEncodablePacket_fromJson___closed__0_00___x40_Lean_Widget_Types_3328362917____hygCtx___hyg_14_));
-lean_inc(v_json_11_);
+lean_inc_n(v_json_11_, 2);
 v___x_13_ = l_Lean_Json_getObjValAs_x3f___at___00Lean_Widget_instFromJsonRpcEncodablePacket_fromJson_00___x40_Lean_Widget_Types_3328362917____hygCtx___hyg_14__spec__0(v_json_11_, v___x_12_);
 v_a_14_ = lean_ctor_get(v___x_13_, 0);
 lean_inc(v_a_14_);
 lean_dec_ref(v___x_13_);
 v___x_15_ = ((lean_object*)(l_Lean_Widget_instFromJsonRpcEncodablePacket_fromJson___closed__1_00___x40_Lean_Widget_Types_3328362917____hygCtx___hyg_14_));
-lean_inc(v_json_11_);
 v___x_16_ = l_Lean_Json_getObjValAs_x3f___at___00Lean_Widget_instFromJsonRpcEncodablePacket_fromJson_00___x40_Lean_Widget_Types_3328362917____hygCtx___hyg_14__spec__0(v_json_11_, v___x_15_);
 v_a_17_ = lean_ctor_get(v___x_16_, 0);
 lean_inc(v_a_17_);

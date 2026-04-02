@@ -2184,7 +2184,7 @@ v___jp_525_:
 {
 lean_object* v___x_544_; lean_object* v___x_545_; 
 lean_inc_ref(v___y_542_);
-lean_inc(v___y_532_);
+lean_inc_n(v___y_532_, 2);
 lean_inc(v_elan_x3f_522_);
 v___x_544_ = lean_alloc_ctor(0, 19, 2);
 lean_ctor_set(v___x_544_, 0, v_lake_520_);

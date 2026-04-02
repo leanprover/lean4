@@ -104,7 +104,7 @@ def addSubGoalAsVC (goal : MVarId) : VCGenM PUnit := do
   -- VC to the user as-is, without abstracting any variables in the local context.
   -- This only makes sense for synthetic opaque metavariables.
   goal.setKind .syntheticOpaque
-  if isMVCGenInvariantType (← getEnv) ty then
+  if isSpecInvariantType (← getEnv) ty then
     modify fun s => { s with invariants := s.invariants.push goal }
   else
     modify fun s => { s with vcs := s.vcs.push goal }

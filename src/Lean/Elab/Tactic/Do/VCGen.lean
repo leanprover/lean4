@@ -364,7 +364,7 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
     for h : n in 0...alts.size do
       let alt := alts[n]
       match alt with
-      | `(goalDotAlt| · $rhs) =>
+      | `(invariantDotAlt| · $rhs) =>
         if dotOrCase matches .false then
           logErrorAt alt m!"Alternation between labelled and bulleted invariants is not supported."
           break
@@ -374,7 +374,7 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
           continue
         withRef rhs do
         discard <| evalTacticAt (← `(tactic| exact $rhs)) mv
-      | `(goalCaseAlt| | $tag $args* => $rhs) =>
+      | `(invariantCaseAlt| | $tag $args* => $rhs) =>
         if dotOrCase matches .true then
           logErrorAt alt m!"Alternation between labelled and bulleted invariants is not supported."
           break
@@ -391,7 +391,7 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
           continue
         withRef rhs do
         discard <| evalTacticAt (← `(tactic| rename_i $args*; exact $rhs)) mv
-      | _ => logErrorAt alt m!"Expected `goalDotAlt`, got {alt}"
+      | _ => logErrorAt alt m!"Expected `invariantDotAlt`, got {alt}"
 
     if let `(invariantsKW| invariants) := invariantsKW then
       if alts.size < invariants.size then
@@ -405,7 +405,7 @@ def elabInvariants (stx : Syntax) (invariants : Array MVarId) (suggestInvariant 
         if ← mv.isAssigned then
           continue
         let invariant ← suggestInvariant mv
-        suggestions := suggestions.push (← `(goalDotAlt| · $invariant))
+        suggestions := suggestions.push (← `(invariantDotAlt| · $invariant))
       let alts' := alts ++ suggestions
       let stx' ← `(invariantAlts|invariants $alts'*)
       if suggestions.size > 0 then

@@ -1325,10 +1325,9 @@ if (lean_obj_tag(v___x_295_) == 0)
 {
 lean_object* v_a_296_; lean_object* v___x_297_; lean_object* v___x_298_; lean_object* v___x_299_; lean_object* v___f_300_; lean_object* v___x_301_; lean_object* v___x_302_; 
 v_a_296_ = lean_ctor_get(v___x_295_, 0);
-lean_inc(v_a_296_);
+lean_inc_n(v_a_296_, 2);
 lean_dec_ref(v___x_295_);
 v___x_297_ = lean_obj_once(&l_Lean_Meta_Grind_Arith_Cutsat_mkNatVar___closed__6, &l_Lean_Meta_Grind_Arith_Cutsat_mkNatVar___closed__6_once, _init_l_Lean_Meta_Grind_Arith_Cutsat_mkNatVar___closed__6);
-lean_inc(v_a_296_);
 v___x_298_ = l_Lean_Expr_app___override(v___x_297_, v_a_296_);
 v___x_299_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_299_, 0, v_a_296_);

@@ -635,8 +635,13 @@ v___jp_190_:
 {
 lean_object* v___x_205_; lean_object* v___x_206_; lean_object* v___x_207_; 
 v___x_205_ = lean_obj_once(&l_Lake_Package_mkConfigString___closed__22, &l_Lake_Package_mkConfigString___closed__22_once, _init_l_Lake_Package_mkConfigString___closed__22);
+lean_inc(v_cancelTk_x3f_201_);
 lean_inc(v_currMacroScope_200_);
+lean_inc(v_quotContext_199_);
 lean_inc(v_maxHeartbeats_198_);
+lean_inc(v_openDecls_196_);
+lean_inc(v_currNamespace_195_);
+lean_inc(v_ref_194_);
 lean_inc_ref(v_fileMap_192_);
 lean_inc_ref(v_fileName_191_);
 v___x_206_ = lean_alloc_ctor(0, 14, 2);

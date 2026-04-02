@@ -11,6 +11,7 @@ public import Lean.Elab.Binders
 public import Lean.Elab.RecAppSyntax
 public import Lean.IdentifierSuggestion
 import all Lean.Elab.ErrorUtils
+import Lean.Elab.DeprecatedArg
 import Init.Omega
 
 public section
@@ -87,6 +88,38 @@ def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM U
 /-- Return `some namedArg` if `namedArgs` contains an entry for `binderName`. -/
 private def findBinderName? (namedArgs : List NamedArg) (binderName : Name) : Option NamedArg :=
   namedArgs.find? fun namedArg => namedArg.name == binderName
+
+/--
+If the function being applied is a constant, search `namedArgs` for an argument whose name is
+a deprecated alias of `binderName`. When `linter.deprecated.arg` is enabled (the default),
+returns `some namedArg` after emitting a deprecation warning with a code action hint. When the
+option is disabled, returns `none` (the old name falls through to the normal "invalid argument"
+error). The returned `namedArg` retains its original (old) name.
+-/
+private def findDeprecatedBinderName? (namedArgs : List NamedArg) (f : Expr) (binderName : Name) :
+    TermElabM (Option NamedArg) := do
+  unless linter.deprecated.arg.get <| ← getOptions do return .none
+  unless f.getAppFn.isConst do return none
+  let declName := f.getAppFn.constName!
+  let env ← getEnv
+  for namedArg in namedArgs do
+    if let some entry := findDeprecatedArg? env declName namedArg.name then
+      if entry.newArg? == some binderName then
+        let msg := formatDeprecatedArgMsg entry
+        let span? := namedArg.ref[1]
+        let hint ←
+          if span?.getHeadInfo matches .original .. then
+            MessageData.hint "Rename this argument:" #[{
+              suggestion := .string entry.newArg?.get!.toString
+              span?
+              toCodeActionTitle? := some fun s =>
+                s!"Rename argument `{entry.oldArg}` to `{s}`"
+            }]
+          else
+            pure .nil
+        logWarningAt namedArg.ref <| .tagged ``deprecatedArgExt msg ++ hint
+        return some namedArg
+  return none
 
 /-- Erase entry for `binderName` from `namedArgs`. -/
 def eraseNamedArg (namedArgs : List NamedArg) (binderName : Name) : List NamedArg :=
@@ -238,6 +271,23 @@ private def synthesizePendingAndNormalizeFunType : M Unit := do
     else
       for namedArg in s.namedArgs do
         let f := s.f.getAppFn
+        if f.isConst then
+          let env ← getEnv
+          if linter.deprecated.arg.get (← getOptions) then
+            if let some entry := findDeprecatedArg? env f.constName! namedArg.name then
+              if entry.newArg?.isNone then
+                let msg := formatDeprecatedArgMsg entry
+                let hint ←
+                  if namedArg.ref.getHeadInfo matches .original .. then
+                    MessageData.hint "Delete this argument:" #[{
+                      suggestion := .string ""
+                      span? := namedArg.ref
+                      toCodeActionTitle? := some fun _ =>
+                        s!"Delete deprecated argument `{entry.oldArg}`"
+                    }]
+                  else
+                    pure .nil
+                throwErrorAt namedArg.ref (msg ++ hint)
         let validNames ← getFoundNamedArgs
         let fnName? := if f.isConst then some f.constName! else none
         throwInvalidNamedArg namedArg fnName? validNames
@@ -756,13 +806,16 @@ mutual
       let binderName := fType.bindingName!
       let binfo := fType.bindingInfo!
       let s ← get
-      match findBinderName? s.namedArgs binderName with
+      let namedArg? ← match findBinderName? s.namedArgs binderName with
+        | some namedArg => pure (some namedArg)
+        | none => findDeprecatedBinderName? s.namedArgs s.f binderName
+      match namedArg? with
       | some namedArg =>
         propagateExpectedType namedArg.val
-        eraseNamedArg binderName
+        eraseNamedArg namedArg.name
         elabAndAddNewArg binderName namedArg.val
         main
-      | none          =>
+      | none =>
         unless binderName.hasMacroScopes do
           pushFoundNamedArg binderName
         match binfo with
@@ -1779,13 +1832,15 @@ To infer a namespace from the expected type, we do the following operations:
 - if the type is of the form `c x₁ ... xₙ` with `c` a constant, then try using `c` as the namespace,
   and if that doesn't work, try unfolding the expression and continuing.
 -/
-private partial def resolveDottedIdentFn (idRef : Syntax) (id : Name) (expectedType? : Option Expr) : TermElabM (List (Expr × Syntax × List Syntax)) := do
+private partial def resolveDottedIdentFn (idRef : Syntax) (id : Name) (explicitUnivs : List Level) (expectedType? : Option Expr) : TermElabM (List (Expr × Syntax × List Syntax)) := do
   unless id.isAtomic do
     throwError "Invalid dotted identifier notation: The name `{id}` must be atomic"
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?
     | throwNoExpectedType
   addCompletionInfo <| CompletionInfo.dotId idRef id (← getLCtx) expectedType?
+  -- We will check deprecations in `elabAppFnResolutions`.
+  withoutCheckDeprecated do
   withForallBody expectedType fun resultType => do
     go resultType expectedType #[]
 where
@@ -1825,8 +1880,10 @@ where
           |>.filter (fun (_, fieldList) => fieldList.isEmpty)
           |>.map Prod.fst
         if !candidates.isEmpty then
-          candidates.mapM fun resolvedName => return (← mkConst resolvedName, ← getRef, [])
+          candidates.mapM fun resolvedName => return (← mkConst resolvedName explicitUnivs, ← getRef, [])
         else if let some (fvar, []) ← resolveLocalName fullName then
+          unless explicitUnivs.isEmpty do
+            throwInvalidExplicitUniversesForLocal fvar
           return [(fvar, ← getRef, [])]
         else
           throwUnknownIdentifierAt (← getRef) (declHint := fullName) <| m!"Unknown constant `{.ofConstName fullName}`"
@@ -1866,6 +1923,10 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
       let some idx := idxStx.isFieldIdx?
         | throwError "Internal error: Unexpected field index syntax `{idxStx}`"
       elabAppFn e (LVal.fieldIdx idxStx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
+    let elabDottedIdent (id : Syntax) (explicitUnivs : List Level) (explicit : Bool) : TermElabM (Array (TermElabResult Expr)) := do
+      let res ← withRef f <| resolveDottedIdentFn id id.getId.eraseMacroScopes explicitUnivs expectedType?
+      -- Use (forceTermInfo := true) because we want to record the result of .ident resolution even in patterns
+      elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc (forceTermInfo := true)
     match f with
     | `($(e).$idx:fieldIdx) => elabFieldIdx e idx explicit
     | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx explicit
@@ -1881,16 +1942,17 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `($id:ident.{$us,*}) => do
       let us ← elabExplicitUnivs us
       elabAppFnId id us lvals namedArgs args expectedType? explicit ellipsis overloaded acc
-    | `(@$id:ident) =>
-      elabAppFn id lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
-    | `(@$_:ident.{$_us,*}) =>
+    | `(.$id:ident) => elabDottedIdent id [] explicit
+    | `(.$id:ident.{$us,*}) =>
+      let us ← elabExplicitUnivs us
+      elabDottedIdent id us explicit
+    | `(@$_:ident)
+    | `(@$_:ident.{$_us,*})
+    | `(@.$_:ident)
+    | `(@.$_:ident.{$_us,*}) =>
       elabAppFn (f.getArg 1) lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
     | `(@$_)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "A placeholder `_` cannot be used where a function is expected"
-    | `(.$id:ident) =>
-        let res ← withRef f <| resolveDottedIdentFn id id.getId.eraseMacroScopes expectedType?
-        -- Use (forceTermInfo := true) because we want to record the result of .ident resolution even in patterns
-        elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc (forceTermInfo := true)
     | _ => do
       let catchPostpone := !overloaded
       /- If we are processing a choice node, then we should use `catchPostpone == false` when elaborating terms.
@@ -2033,13 +2095,15 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 
 @[builtin_term_elab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with
-  | `(@$_:ident)          => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
-  | `(@$_:ident.{$_us,*}) => elabAtom stx expectedType?
-  | `(@$(_).$_:fieldIdx)  => elabAtom stx expectedType?
-  | `(@$(_).$_:ident)     => elabAtom stx expectedType?
-  | `(@($t))             => elabTerm t expectedType? (implicitLambda := false)    -- `@` is being used just to disable implicit lambdas
-  | `(@$t)               => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
-  | _                    => throwUnsupportedSyntax
+  | `(@$_:ident)           => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
+  | `(@$_:ident.{$_us,*})  => elabAtom stx expectedType?
+  | `(@$(_).$_:fieldIdx)   => elabAtom stx expectedType?
+  | `(@$(_).$_:ident)      => elabAtom stx expectedType?
+  | `(@.$_:ident)          => elabAtom stx expectedType?
+  | `(@.$_:ident.{$_us,*}) => elabAtom stx expectedType?
+  | `(@($t))               => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
+  | `(@$t)                 => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
+  | _                      => throwUnsupportedSyntax
 
 @[builtin_term_elab choice] def elabChoice : TermElab := elabAtom
 @[builtin_term_elab proj] def elabProj : TermElab := elabAtom

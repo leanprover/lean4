@@ -13,11 +13,11 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instForwardPatternModel(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instForwardPatternModel___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instForwardPatternModel(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instForwardPatternModel___boxed(lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instForwardPatternModel(lean_object* v_pat_1_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel(lean_object* v_pat_1_){
 _start:
 {
 lean_object* v___x_2_; 
@@ -25,16 +25,16 @@ v___x_2_ = lean_box(0);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instForwardPatternModel___boxed(lean_object* v_pat_3_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel___boxed(lean_object* v_pat_3_){
 _start:
 {
 lean_object* v_res_4_; 
-v_res_4_ = l_String_Slice_Pattern_Model_ForwardSliceSearcher_instForwardPatternModel(v_pat_3_);
+v_res_4_ = l_String_Slice_Pattern_Model_ForwardSliceSearcher_instPatternModel(v_pat_3_);
 lean_dec_ref(v_pat_3_);
 return v_res_4_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instForwardPatternModel(lean_object* v_pat_5_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel(lean_object* v_pat_5_){
 _start:
 {
 lean_object* v___x_6_; 
@@ -42,11 +42,11 @@ v___x_6_ = lean_box(0);
 return v___x_6_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instForwardPatternModel___boxed(lean_object* v_pat_7_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel___boxed(lean_object* v_pat_7_){
 _start:
 {
 lean_object* v_res_8_; 
-v_res_8_ = l_String_Slice_Pattern_Model_ForwardStringSearcher_instForwardPatternModel(v_pat_7_);
+v_res_8_ = l_String_Slice_Pattern_Model_ForwardStringSearcher_instPatternModel(v_pat_7_);
 lean_dec_ref(v_pat_7_);
 return v_res_8_;
 }

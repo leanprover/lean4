@@ -18,6 +18,7 @@ import Init.Data.Order.Lemmas
 import Init.Data.String.OrderInstances
 import Init.Data.String.Lemmas.Order
 import Init.Data.String.Lemmas.Basic
+public import Init.Data.String.Lemmas.Order
 
 public section
 
@@ -182,6 +183,46 @@ theorem eq_append_of_dropPrefix?_bool_eq_some {p : Char → Bool} {s : String} {
     ∃ c, s = singleton c ++ res.copy ∧ p c = true := by
   rw [dropPrefix?_eq_dropPrefix?_toSlice] at h
   simpa using Slice.eq_append_of_dropPrefix?_bool_eq_some h
+
+@[simp]
+theorem Pos.skip?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos res : s.Pos} :
+    pos.skip? p = some res ↔ ∃ h, res = pos.next h ∧ p (pos.get h) := by
+  simp [skip?_eq_skip?_toSlice, ← ofToSlice_inj]
+  refine ⟨?_, fun h => ⟨res.toSlice, by simpa⟩⟩
+  rintro ⟨res, h, rfl⟩
+  exact h
+
+@[simp]
+theorem Pos.skip?_bool_eq_none_iff {p : Char → Bool} {s : String} {pos : s.Pos} :
+    pos.skip? p = none ↔ ∀ h, p (pos.get h) = false := by
+  simp [skip?_eq_skip?_toSlice]
+
+theorem Pos.apply_skipWhile_bool_eq_false {p : Char → Bool} {s : String} {pos : s.Pos} {h} :
+    p ((pos.skipWhile p).get h) = false := by
+  simp [skipWhile_eq_skipWhile_toSlice, Slice.Pos.apply_skipWhile_bool_eq_false]
+
+theorem Pos.skipWhile_bool_eq_self_iff_get {p : Char → Bool} {s : String} {pos : s.Pos} :
+    pos.skipWhile p = pos ↔ ∀ h, p (pos.get h) = false := by
+  simp [skipWhile_eq_skipWhile_toSlice, ← toSlice_inj, Slice.Pos.skipWhile_bool_eq_self_iff_get]
+
+theorem Pos.apply_eq_true_of_lt_skipWhile_bool {p : Char → Bool} {s : String} {pos pos' : s.Pos}
+    (h₁ : pos ≤ pos') (h₂ : pos' < pos.skipWhile p) : p (pos'.get (ne_endPos_of_lt h₂)) = true := by
+  rw [Pos.get_eq_get_toSlice]
+  exact Slice.Pos.apply_eq_true_of_lt_skipWhile_bool (toSlice_le_toSlice_iff.2 h₁)
+    (by simpa [skipWhile_eq_skipWhile_toSlice] using h₂)
+
+theorem apply_skipPrefixWhile_bool_eq_false {p : Char → Bool} {s : String} {h} :
+    p ((s.skipPrefixWhile p).get h) = false := by
+  simp [skipPrefixWhile_eq_skipPrefixWhile_toSlice, Slice.apply_skipPrefixWhile_bool_eq_false]
+
+theorem apply_eq_true_of_lt_skipPrefixWhile_bool {p : Char → Bool} {s : String} {pos : s.Pos} (h : pos < s.skipPrefixWhile p) :
+    p (pos.get (Pos.ne_endPos_of_lt h)) = true := by
+  rw [Pos.get_eq_get_toSlice]
+  exact  Slice.apply_eq_true_of_lt_skipPrefixWhile_bool (by simpa [skipPrefixWhile_eq_skipPrefixWhile_toSlice] using h)
+
+@[simp]
+theorem all_bool_eq {p : Char → Bool} {s : String} : s.all p = s.toList.all p := by
+  simp [← all_toSlice]
 
 theorem skipPrefix?_prop_eq_some_iff {P : Char → Prop} [DecidablePred P] {s : String} {pos : s.Pos} :
     s.skipPrefix? P = some pos ↔ ∃ h, pos = s.startPos.next h ∧ P (s.startPos.get h) := by

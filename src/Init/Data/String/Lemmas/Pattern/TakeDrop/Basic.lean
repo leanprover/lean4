@@ -878,17 +878,17 @@ theorem Slice.copy_dropPrefix?_copy {ρ : Type} {pat : ρ} [ForwardPattern pat] 
     (s.copy.dropPrefix? pat).map String.Slice.copy = (s.dropPrefix? pat).map String.Slice.copy := by
   rw [dropPrefix?_eq_dropPrefix?_toSlice, Slice.dropPrefix?_congr String.copy_toSlice]
 
-theorem skip?_eq_skip?_toSlice {ρ : Type} {pat : ρ} [ForwardPattern pat] {s : String} {pos : s.Pos} :
+theorem Pos.skip?_eq_skip?_toSlice {ρ : Type} {pat : ρ} [ForwardPattern pat] {s : String} {pos : s.Pos} :
     pos.skip? pat = (pos.toSlice.skip? pat).map Pos.ofToSlice := (rfl)
 
-theorem skip?_toSlice {ρ : Type} {pat : ρ} [ForwardPattern pat] {s : String} {pos : s.Pos} :
+theorem Pos.skip?_toSlice {ρ : Type} {pat : ρ} [ForwardPattern pat] {s : String} {pos : s.Pos} :
     pos.toSlice.skip? pat = (pos.skip? pat).map Pos.toSlice := by
   simp [skip?_eq_skip?_toSlice]
 
 theorem Slice.Pos.skip?_copy {ρ : Type} {pat : ρ} [ForwardPattern pat] [PatternModel pat]
     [LawfulForwardPatternModel pat] {s : Slice} {pos : s.Pos} :
     pos.copy.skip? pat = (pos.skip? pat).map Slice.Pos.copy := by
-  rw [skip?_eq_skip?_toSlice, Slice.Pos.skip?_congr (hst := String.copy_toSlice), cast_toSlice_copy, Option.map_map]
+  rw [Pos.skip?_eq_skip?_toSlice, Slice.Pos.skip?_congr (hst := String.copy_toSlice), cast_toSlice_copy, Option.map_map]
   congr 1
   ext
   simp

@@ -147,7 +147,7 @@ jobs:
       # https://github.com/nwtgck/actions-netlify/issues/545
       # We work around by using a comment to post the latest link
       - name: "Comment on PR with preview links"
-        uses: marocchino/sticky-pull-request-comment@v2
+        uses: marocchino/sticky-pull-request-comment@v3
         if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
         with:
           number: ${{ env.PR_NUMBER }}

@@ -28,8 +28,8 @@ It was checking that `Eq (some true)` and `Eq _` were defeq monads. The defeq ch
 error: Invalid dotted identifier notation: The expected type of `.some` could not be determined
 
 Hint: Using one of these would be unambiguous:
-  [apply] `some`
   [apply] `Option.Rel.some`
+  [apply] `some`
 -/
 #guard_msgs in
 example : some true = (some true).map id := by

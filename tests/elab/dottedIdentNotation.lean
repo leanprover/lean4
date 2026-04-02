@@ -24,17 +24,17 @@ error: Invalid dotted identifier notation: The expected type of `.zero` could no
 Hint: Using one of these would be unambiguous:
   [apply] `BitVec.zero`
   [apply] `Dyadic.zero`
-  [apply] `Nat.zero`
-  [apply] `Vector.zero`
-  [apply] `Zero.zero`
-  [apply] `Lean.Level.zero`
-  [apply] `System.Uri.UriEscape.zero`
+  [apply] `Lean.Elab.Tactic.Do.Uses.zero`
   [apply] `Lean.Grind.IntModule.OfNatModule.zero`
   [apply] `Lean.Grind.Linarith.Expr.zero`
-  [apply] `Std.Time.TimeZone.Offset.zero`
-  [apply] `Lean.Elab.Tactic.Do.Uses.zero`
+  [apply] `Lean.Level.zero`
   [apply] `Lean.Meta.Grind.Arith.Linear.NatStruct.zero`
   [apply] `Lean.Meta.Grind.Arith.Linear.Struct.zero`
+  [apply] `Nat.zero`
+  [apply] `Std.Time.TimeZone.Offset.zero`
+  [apply] `System.Uri.UriEscape.zero`
+  [apply] `Vector.zero`
+  [apply] `Zero.zero`
 -/
 #guard_msgs in #check .zero
 

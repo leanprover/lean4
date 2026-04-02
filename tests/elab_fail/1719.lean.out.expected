@@ -3,6 +3,6 @@
 Hint: Using one of these would be unambiguous:
   [apply] `Or.inl`
   [apply] `PSum.inl`
-  [apply] `Sum.inl`
   [apply] `Sum.Lex.inl`
   [apply] `Sum.LiftRel.inl`
+  [apply] `Sum.inl`

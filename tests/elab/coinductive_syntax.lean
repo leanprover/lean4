@@ -25,10 +25,10 @@ theorem casesOnTest (r : α → α → Prop) (a : α) : infSeq α r a → ∃ b,
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
 Hint: Using one of these would be valid:
-  [apply] `Nat.le.step`
-  [apply] `Nat.le.below.step`
   [apply] `Lean.Order.iterates.below.step`
   [apply] `Lean.Order.iterates.step`
+  [apply] `Nat.le.below.step`
+  [apply] `Nat.le.step`
   [apply] `infSeq._functor.step`
 ---
 error: Case tag `rhs` not found.

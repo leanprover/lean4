@@ -32,7 +32,7 @@ because its `Decidable` instance
   instDecidableEqBool (check_sorted #[0, 3, 3, 5, 8, 10, 10, 10]) true
 did not reduce to `isTrue` or `isFalse`.
 
-After unfolding the instances `instDecidableEqBool`, `Bool.decEq`, and `Nat.decLe`, reduction got stuck at the `Decidable` instance
+After unfolding the instances `Bool.decEq`, `Nat.decLe`, and `instDecidableEqBool`, reduction got stuck at the `Decidable` instance
   match check_sorted #[0, 3, 3, 5, 8, 10, 10, 10], true with
   | false, false => isTrue ⋯
   | false, true => isFalse ⋯

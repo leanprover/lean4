@@ -63,20 +63,41 @@ def isSuffixOf : Name → Name → Bool
   | num p₁ n₁, num p₂ n₂ => n₁ == n₂ && isSuffixOf p₁ p₂
   | _,         _         => false
 
-def cmp : Name → Name → Ordering
-  | anonymous, anonymous => Ordering.eq
-  | anonymous, _         => Ordering.lt
-  | _,         anonymous => Ordering.gt
-  | num p₁ i₁, num p₂ i₂ =>
-    match cmp p₁ p₂ with
-    | Ordering.eq => compare i₁ i₂
+/-- Lexicographic comparison of names by their components from left to right. -/
+def cmp (n₁ n₂ : Name) : Ordering :=
+  let d₁ := n₁.getNumParts
+  let d₂ := n₂.getNumParts
+  if d₁ < d₂ then
+    -- Compare n₁ against the first d₁ components of n₂
+    match cmpEqDepth n₁ (dropSuffix n₂ (d₂ - d₁)) with
+    | .eq => .lt  -- n₁ is a proper prefix of n₂
     | ord => ord
-  | num _ _,   str _ _   => Ordering.lt
-  | str _ _,   num _ _   => Ordering.gt
-  | str p₁ n₁, str p₂ n₂ =>
-    match cmp p₁ p₂ with
-    | Ordering.eq => compare n₁ n₂
+  else if d₂ < d₁ then
+    match cmpEqDepth (dropSuffix n₁ (d₁ - d₂)) n₂ with
+    | .eq => .gt  -- n₂ is a proper prefix of n₁
     | ord => ord
+  else
+    cmpEqDepth n₁ n₂
+where
+  dropSuffix : Name → Nat → Name
+    | n, 0 => n
+    | str p _, k+1 => dropSuffix p k
+    | num p _, k+1 => dropSuffix p k
+    | anonymous, _ => anonymous
+  /-- Compare two names of equal depth, prefix first (i.e. from root). -/
+  cmpEqDepth : Name → Name → Ordering
+    | anonymous, anonymous => .eq
+    | num p₁ i₁, num p₂ i₂ =>
+      match cmpEqDepth p₁ p₂ with
+      | .eq => compare i₁ i₂
+      | ord => ord
+    | num _ _, str _ _ => .lt
+    | str _ _, num _ _ => .gt
+    | str p₁ s₁, str p₂ s₂ =>
+      match cmpEqDepth p₁ p₂ with
+      | .eq => compare s₁ s₂
+      | ord => ord
+    | _, _ => .eq
 
 def lt (x y : Name) : Bool :=
   cmp x y == Ordering.lt

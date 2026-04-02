@@ -141,8 +141,8 @@ Fails, type hint can't hint enough since `.some _` is postponed.
 error: Invalid dotted identifier notation: The expected type of `.some` could not be determined
 
 Hint: Using one of these would be unambiguous:
-  [apply] `some`
   [apply] `Option.Rel.some`
+  [apply] `some`
 -/
 #guard_msgs in example : some true = (some true).map id := by
   change _ = .some _

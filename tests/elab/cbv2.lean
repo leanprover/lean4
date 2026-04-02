@@ -11,7 +11,7 @@ because its `Decidable` instance
   instDecidableEqNat (popcount 123498203491224398) 32
 did not reduce to `isTrue` or `isFalse`.
 
-After unfolding the instances `instDecidableEqNat` and `Nat.decEq`, reduction got stuck at the `Decidable` instance
+After unfolding the instances `Nat.decEq` and `instDecidableEqNat`, reduction got stuck at the `Decidable` instance
   match h : (popcount 123498203491224398).beq 32 with
   | true => isTrue ⋯
   | false => isFalse ⋯

@@ -47,10 +47,10 @@ info: (Acc.rec, Acc.recC)
 (Nat.fold, Nat.foldTR)
 (Nat.rec, Nat.recCompiled)
 (Nat.repeat, Nat.repeatTR)
+(String.Slice.Pos.next, String.Slice.Pos.nextFast)
 (String.utf8EncodeChar, String.utf8EncodeCharFast)
 (Thunk.fn, Thunk.fnImpl)
 (Vector.pmap, Vector.pmapImpl)
-(String.Slice.Pos.next, String.Slice.Pos.nextFast)
 -/
 #guard_msgs in
 run_elab do

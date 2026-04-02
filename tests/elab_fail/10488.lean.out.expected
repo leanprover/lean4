@@ -32,10 +32,10 @@ foo 31 : ?m → Unit
 10488.lean:34:14-34:19: error(lean.invalidDottedIdent): Invalid dotted identifier notation: The expected type of `.succ` could not be determined
 
 Hint: Using one of these would be unambiguous:
-  [apply] `succ`
   [apply] `Fin.succ`
   [apply] `Nat.succ`
   [apply] `Std.PRange.succ`
+  [apply] `succ`
 foo 31 sorry : Unit
 foo 31. succ : Unit
 11 : Nat

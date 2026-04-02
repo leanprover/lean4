@@ -16,6 +16,6 @@ theorem kernel_error
     (L : List Nat) (hL : L.length = 2 ∧ ∀ i : Fin L.length, L[i] = 0) (i : Nat) :
     L[i % 2] = 0 := sorry
 
-/-- info: 'kernel_error' depends on axioms: [propext, sorryAx, Quot.sound] -/
+/-- info: 'kernel_error' depends on axioms: [Quot.sound, propext, sorryAx] -/
 #guard_msgs in
 #print axioms kernel_error

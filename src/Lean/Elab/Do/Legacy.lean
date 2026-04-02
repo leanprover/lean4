@@ -36,6 +36,18 @@ private def getDoSeq (doStx : Syntax) : Syntax :=
 def elabLiftMethod : TermElab := fun stx _ =>
   throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
 
+/-- Backward-compatible index for `doLet`/`doLetArrow`/`doLetElse`: if `letConfig` is present at
+index 2, the decl is at index 3; otherwise (old-shape syntax from stage0 quotations), it's at
+index 2. -/
+private def doLetDeclIdx (stx : Syntax) : Nat :=
+  if stx[2].isOfKind ``Parser.Term.letConfig then 3 else 2
+
+/-- Backward-compatible index for `doHave`: if `letConfig` is present at
+index 1, the decl is at index 2; otherwise (old-shape syntax from stage0 quotations), it's at
+index 1. -/
+private def doHaveDeclIdx (stx : Syntax) : Nat :=
+  if stx[1].isOfKind ``Parser.Term.letConfig then 2 else 1
+
 /-- Return true if we should not lift `(<- ...)` actions nested in the syntax nodes with the given kind. -/
 private def liftMethodDelimiter (k : SyntaxNodeKind) : Bool :=
   k == ``Parser.Term.do ||
@@ -76,9 +88,9 @@ private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
   else if k == ``Parser.Term.let then
     letDeclHasBinders stx[1]
   else if k == ``Parser.Term.doLet then
-    letDeclHasBinders stx[3]
+    letDeclHasBinders stx[doLetDeclIdx stx]
   else if k == ``Parser.Term.doLetArrow then
-    letDeclArgHasBinders stx[3]
+    letDeclArgHasBinders stx[doLetDeclIdx stx]
   else
     false
 
@@ -702,11 +714,11 @@ def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Var) := do
 
 def getDoLetVars (doLet : Syntax) : TermElabM (Array Var) :=
   -- leading_parser "let " >> optional "mut " >> letConfig >> letDecl
-  getLetDeclVars doLet[3]
+  getLetDeclVars doLet[doLetDeclIdx doLet]
 
 def getDoHaveVars (doHave : Syntax) : TermElabM (Array Var) :=
   -- leading_parser "have" >> letConfig >> letDecl
-  getLetDeclVars doHave[2]
+  getLetDeclVars doHave[doHaveDeclIdx doHave]
 
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Var) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
@@ -729,7 +741,7 @@ def getDoPatDeclVars (doPatDecl : Syntax) : TermElabM (Array Var) := do
 
 -- leading_parser "let " >> optional "mut " >> letConfig >> (doIdDecl <|> doPatDecl)
 def getDoLetArrowVars (doLetArrow : Syntax) : TermElabM (Array Var) := do
-  let decl := doLetArrow[3]
+  let decl := doLetArrow[doLetDeclIdx doLetArrow]
   if decl.getKind == ``Parser.Term.doIdDecl then
     return #[getDoIdDeclVar decl]
   else if decl.getKind == ``Parser.Term.doPatDecl then
@@ -1060,14 +1072,14 @@ def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := withRef action <| wit
 def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFreshMacroScope do
   let kind := decl.getKind
   if kind == ``Parser.Term.doLet then
-    let letDecl := decl[3]
+    let letDecl := decl[doLetDeclIdx decl]
     `(let $letDecl:letDecl; $k)
   else if kind == ``Parser.Term.doLetRec then
     let letRecToken := decl[0]
     let letRecDecls := decl[1]
     return mkNode ``Parser.Term.letrec #[letRecToken, letRecDecls, mkNullNode, k]
   else if kind == ``Parser.Term.doLetArrow then
-    let arg := decl[3]
+    let arg := decl[doLetDeclIdx decl]
     if arg.getKind == ``Parser.Term.doIdDecl then
       let id     := arg[0]
       let type   := expandOptType id arg[1]
@@ -1424,7 +1436,7 @@ mutual
      ```
   -/
   partial def doLetArrowToCode (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    let decl    := doLetArrow[3]
+    let decl    := doLetArrow[doLetDeclIdx doLetArrow]
     if decl.getKind == ``Parser.Term.doIdDecl then
       let y := decl[0]
       checkNotShadowingMutable #[y]
@@ -1476,10 +1488,11 @@ mutual
 
   partial def doLetElseToCode (doLetElse : Syntax) (doElems : List Syntax) : M CodeBlock := do
     -- "let " >> optional "mut " >> letConfig >> termParser >> " := " >> termParser >> (checkColGt >> " | " >> doSeq) >> optional doSeq
-    let pattern := doLetElse[3]
-    let val     := doLetElse[5]
-    let elseSeq := doLetElse[7]
-    let bodySeq := doLetElse[8][0]
+    let offset := doLetDeclIdx doLetElse
+    let pattern := doLetElse[offset]
+    let val     := doLetElse[offset + 2]
+    let elseSeq := doLetElse[offset + 4]
+    let bodySeq := doLetElse[offset + 5][0]
     let contSeq ← if isMutableLet doLetElse then
       let vars ← (← getPatternVarsEx pattern).mapM fun var => `(doElem| let mut $var := $var)
       pure (vars ++ (getDoSeqElems bodySeq).toArray)

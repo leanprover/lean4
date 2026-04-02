@@ -137,6 +137,16 @@ theorem isRevMatch_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice} (h : s.c
     IsRevMatch pat (pos.cast h) ↔ IsRevMatch pat pos := by
   simp [isRevMatch_iff]
 
+@[simp]
+theorem isRevMatch_sliceFrom_iff {pat : ρ} [PatternModel pat] {s : Slice} {pos p : s.Pos} {h} :
+    IsRevMatch pat (Pos.sliceFrom p pos h) ↔ IsRevMatch pat pos := by
+  simp [isRevMatch_iff]
+
+@[simp]
+theorem isRevMatch_ofSliceFrom_iff {pat : ρ} [PatternModel pat] {s : Slice} {p : s.Pos} {pos : (s.sliceFrom p).Pos} :
+    IsRevMatch pat (Pos.ofSliceFrom pos) ↔ IsRevMatch pat pos := by
+  rw [← isRevMatch_sliceFrom_iff (p := p) (h := Pos.le_ofSliceFrom), Pos.sliceFrom_ofSliceFrom]
+
 /--
 Predicate stating that the region between the start of the slice {name}`s` and the position
 {name}`pos` matches the pattern {name}`pat`, and that there is no longer match starting at the
@@ -230,6 +240,11 @@ theorem IsLongestRevMatch.ne_endPos {pat : ρ} [PatternModel pat] [StrictPattern
     (h : IsLongestRevMatch pat pos) : pos ≠ s.endPos :=
   h.isRevMatch.ne_endPos
 
+@[simp]
+theorem not_isLongestRevMatch_endPos {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} :
+    ¬IsLongestRevMatch pat s.endPos :=
+  fun h => h.ne_endPos rfl
+
 theorem IsLongestRevMatch.eq {pat : ρ} [PatternModel pat] {s : Slice} {pos pos' : s.Pos}
     (h : IsLongestRevMatch pat pos) (h' : IsLongestRevMatch pat pos') : pos = pos' := by
   apply Std.le_antisymm
@@ -261,6 +276,22 @@ theorem isLongestRevMatch_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice}
   · have : p = (p.cast hst.symm).cast hst := by simp
     rw [this, isRevMatch_cast_iff hst]
     exact h _ (by rwa [this, Pos.cast_lt_cast_iff] at hp)
+
+theorem IsLongestRevMatch.of_eq {pat : ρ} [PatternModel pat] {s t : Slice} {pos : s.Pos} {pos' : t.Pos}
+    (h : IsLongestRevMatch pat pos) (h₁ : s.copy = t.copy) (h₂ : pos.cast h₁ = pos') :
+    IsLongestRevMatch pat pos' := by
+  subst h₂; simpa
+
+theorem IsLongestRevMatch.sliceFrom {pat : ρ} [PatternModel pat] {s : Slice} {pos : s.Pos}
+    (h : IsLongestRevMatch pat pos) (p : s.Pos) (hp : p ≤ pos) : IsLongestRevMatch pat (Pos.sliceFrom p pos hp) := by
+  simp [isLongestRevMatch_iff] at ⊢ h
+  refine ⟨h.1, fun p' hp' => ?_⟩
+  rw [← isRevMatch_ofSliceFrom_iff]
+  exact h.2 _ (by simpa [Pos.lt_sliceFrom_iff] using hp')
+
+theorem isLongestRevMatch_of_ofSliceFrom {pat : ρ} [PatternModel pat] {s : Slice} {p : s.Pos} {pos : (s.sliceFrom p).Pos}
+    (h : IsLongestRevMatch pat (Pos.ofSliceFrom pos)) : IsLongestRevMatch pat pos := by
+  simpa using h.sliceFrom p
 
 /--
 Predicate stating that a match for a given pattern is never a proper prefix of another match.
@@ -458,6 +489,15 @@ theorem IsLongestRevMatchAt.lt {pat : ρ} [PatternModel pat] [StrictPatternModel
   rw [← Pos.lt_endPos_iff, ← Slice.Pos.ofSliceTo_lt_ofSliceTo_iff] at this
   simpa
 
+theorem IsLongestRevMatchAt.ne {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+    (h : IsLongestRevMatchAt pat startPos endPos) : startPos ≠ endPos :=
+  Std.ne_of_lt h.lt
+
+@[simp]
+theorem not_isLongestRevMatchAt_self {pat : ρ} [PatternModel pat] [StrictPatternModel pat] {s : Slice} {endPos : s.Pos} :
+    ¬IsLongestRevMatchAt pat endPos endPos :=
+  fun h => h.ne rfl
+
 theorem IsLongestRevMatchAt.eq {pat : ρ} [PatternModel pat] {s : Slice} {startPos startPos' endPos : s.Pos}
     (h : IsLongestRevMatchAt pat startPos endPos) (h' : IsLongestRevMatchAt pat startPos' endPos) :
     startPos = startPos' := by
@@ -492,6 +532,11 @@ theorem isLongestRevMatchAt_endPos_iff {pat : ρ} [PatternModel pat] {s : Slice}
     ⟨fun h => isLongestRevMatch_of_eq (by simp) (by simp) h,
      fun h => isLongestRevMatch_of_eq (by simp) (by simp) h⟩
 
+theorem isLongestRevMatch_iff_isLongestRevMatchAt_ofSliceTo {pat : ρ} [PatternModel pat]
+    {s : Slice} {base : s.Pos} (startPos : (s.sliceTo base).Pos) :
+    IsLongestRevMatch pat startPos ↔ IsLongestRevMatchAt pat (Pos.ofSliceTo startPos) base := by
+  simp [← isLongestRevMatchAt_endPos_iff, isLongestRevMatchAt_iff_isLongestRevMatchAt_ofSliceTo]
+
 theorem IsLongestRevMatchAt.matches_slice {pat : ρ} [PatternModel pat] {s : Slice}
     {startPos endPos : s.Pos} (h : IsLongestRevMatchAt pat startPos endPos) :
     PatternModel.Matches pat (s.slice startPos endPos h.le).copy := by
@@ -502,6 +547,61 @@ theorem isLongestRevMatchAt_cast_iff {pat : ρ} [PatternModel pat] {s t : Slice}
     {startPos endPos : s.Pos} :
     IsLongestRevMatchAt pat (startPos.cast hst) (endPos.cast hst) ↔ IsLongestRevMatchAt pat startPos endPos := by
   simp [isLongestRevMatchAt_iff, Pos.sliceTo_cast]
+
+theorem IsLongestRevMatchAt.of_eq {pat : ρ} [PatternModel pat] {s t : Slice} {s₁ e₁ : s.Pos} {s₂ e₂ : t.Pos}
+    (h : IsLongestRevMatchAt pat s₁ e₁) (h₁ : s.copy = t.copy) (h₂ : s₁.cast h₁ = s₂) (h₃ : e₁.cast h₁ = e₂) :
+    IsLongestRevMatchAt pat s₂ e₂ := by
+  subst h₂ h₃; simpa
+
+theorem IsLongestRevMatchAt.sliceFrom {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+    (h : IsLongestRevMatchAt pat startPos endPos) (p : s.Pos) (hp : p ≤ startPos) :
+    IsLongestRevMatchAt pat (Pos.sliceFrom p startPos hp) (Pos.sliceFrom p endPos (by exact Std.le_trans hp h.le)) := by
+  simp only [isLongestRevMatchAt_iff, Pos.sliceFrom_le_sliceFrom_iff] at ⊢ h
+  obtain ⟨h, hp'⟩ := h
+  exact ⟨h, (hp'.sliceFrom (Pos.sliceTo endPos p (Std.le_trans hp h)) (by simpa)).of_eq (by simp) (by ext; simp)⟩
+
+theorem isLongestRevMatchAt_of_ofSliceFrom {pat : ρ} [PatternModel pat] {s : Slice} {p : s.Pos} {startPos endPos : (s.sliceFrom p).Pos}
+    (h : IsLongestRevMatchAt pat (Pos.ofSliceFrom startPos) (Pos.ofSliceFrom endPos)) :
+    IsLongestRevMatchAt pat startPos endPos := by
+  simpa using h.sliceFrom p Pos.le_ofSliceFrom
+
+/--
+Predicate stating that the range between two positions of {name}`s` can be covered by longest
+reverse matches of the pattern within {name}`s`.
+-/
+inductive IsLongestRevMatchAtChain (pat : ρ) [PatternModel pat] {s : Slice} : s.Pos → s.Pos → Prop where
+  | nil (p : s.Pos) : IsLongestRevMatchAtChain pat p p
+  | cons (startPos middlePos endPos : s.Pos) : IsLongestRevMatchAtChain pat startPos middlePos →
+      IsLongestRevMatchAt pat middlePos endPos → IsLongestRevMatchAtChain pat startPos endPos
+
+attribute [simp] IsLongestRevMatchAtChain.nil
+
+theorem IsLongestRevMatchAtChain.eq_of_isLongestRevMatchAt_self {pat : ρ} [PatternModel pat] {s : Slice}
+    {startPos endPos : s.Pos} (h : IsLongestRevMatchAtChain pat startPos endPos) (h' : IsLongestRevMatchAt pat endPos endPos) :
+    startPos = endPos := by
+  induction h with
+  | nil => rfl
+  | cons mid endP hchain hmatch ih =>
+    obtain rfl := hmatch.eq h'
+    exact ih hmatch
+
+theorem IsLongestRevMatchAtChain.le {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+    (h : IsLongestRevMatchAtChain pat startPos endPos) : startPos ≤ endPos := by
+  induction h with
+  | nil => exact Std.le_refl _
+  | cons mid endP hchain hmatch ih => exact Std.le_trans ih hmatch.le
+
+theorem IsLongestRevMatchAtChain.sliceFrom {pat : ρ} [PatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+    (h : IsLongestRevMatchAtChain pat startPos endPos) (p : s.Pos) (hp : p ≤ startPos) :
+    IsLongestRevMatchAtChain pat (Pos.sliceFrom p startPos hp) (Pos.sliceFrom p endPos (by exact Std.le_trans hp h.le)) := by
+  induction h with
+  | nil => simp
+  | cons mid endP hchain hmatch ih => exact .cons _ _ _ ih (hmatch.sliceFrom p (Std.le_trans hp hchain.le))
+
+theorem isLongestRevMatchAtChain_of_ofSliceFrom {pat : ρ} [PatternModel pat] {s : Slice} {p : s.Pos}
+    {startPos endPos : (s.sliceFrom p).Pos} (h : IsLongestRevMatchAtChain pat (Pos.ofSliceFrom startPos) (Pos.ofSliceFrom endPos)) :
+    IsLongestRevMatchAtChain pat startPos endPos := by
+  simpa using h.sliceFrom p Pos.le_ofSliceFrom
 
 /--
 Predicate stating that there is a (longest) match starting at the given position.

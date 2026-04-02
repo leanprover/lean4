@@ -579,58 +579,90 @@ theorem Pos.revSkipWhile_congr {ρ : Type} {pat : ρ} [PatternModel pat] [Backwa
     pos.revSkipWhile pat = ((pos.cast hst).revSkipWhile pat).cast hst.symm := by
   simp [Pos.revSkipWhile_cast]
 
-theorem Pattern.Model.Pos.not_revMatchesAt_revSkipWhile {ρ : Type} {pat : ρ} [PatternModel pat]
-    [StrictPatternModel pat]
-    [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} {pos : s.Pos} :
-    ¬RevMatchesAt pat (pos.revSkipWhile pat) := by
-  induction pos using WellFounded.induction Pos.wellFounded_lt with | h pos ih
-  match hpos : revMatchAt? pat pos with
-  | some nextCurr =>
-    rw [revSkipWhile_eq, hpos]
-    simpa using ih _ (revMatchAt?_eq_some_iff.1 hpos).lt
-  | none => rwa [revSkipWhile_eq, hpos, Option.elim_none, ← revMatchAt?_eq_none_iff]
-
-@[simp]
-theorem Pos.revSkipWhile_le {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
-    [LawfulBackwardPatternModel pat] {s : Slice} {pos : s.Pos} : pos.revSkipWhile pat ≤ pos := by
-  fun_induction Pos.revSkipWhile with
-  | case1 pos nextCurr h₁ h₂ ih => exact Std.le_trans ih (Std.le_of_lt h₂)
-  | case2 => simp
-  | case3 => simp
-
 theorem Pattern.Model.Pos.revSkipWhile_eq_self {ρ : Type} {pat : ρ} [PatternModel pat]
     [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} {pos : s.Pos}
     (h : ¬ RevMatchesAt pat pos) : pos.revSkipWhile pat = pos := by
   rw [← revMatchAt?_eq_none_iff, ← revSkip?_eq_revMatchAt?] at h
   rw [Pos.revSkipWhile, h]
 
-theorem Pattern.Model.Pos.revSkipWhile_eq_self_iff {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat]
-    [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} {pos : s.Pos} :
-    pos.revSkipWhile pat = pos ↔ ¬RevMatchesAt pat pos :=
-  ⟨fun h => by rw [← h]; exact not_revMatchesAt_revSkipWhile, revSkipWhile_eq_self⟩
-
-theorem Pattern.Model.Pos.exists_eq_of_revSkipWhile_eq {ρ : Type} {pat : ρ} [PatternModel pat]
-    [BackwardPattern pat]
-    [LawfulBackwardPatternModel pat] {s : Slice} {pos : s.Pos} :
-    ∃ (l : List String), (∀ t ∈ l, PatternModel.Matches pat t) ∧ (s.slice (pos.revSkipWhile pat) pos Pos.revSkipWhile_le).copy = String.join l := by
+theorem Pattern.Model.Pos.revSkipWhile_eq_iff {ρ : Type} (pat : ρ) [PatternModel pat]
+    [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} (startPos endPos : s.Pos) :
+    endPos.revSkipWhile pat = startPos ↔ IsLongestRevMatchAtChain pat startPos endPos ∧
+      (¬RevMatchesAt pat startPos ∨ IsLongestRevMatchAt pat startPos startPos) := by
   fun_induction Pos.revSkipWhile with
   | case1 pos nextCurr h₁ h₂ ih =>
-    obtain ⟨l, hl₁, hl₂⟩ := ih
-    have h₀ := h₁
     rw [revSkip?_eq_revMatchAt?, revMatchAt?_eq_some_iff] at h₁
-    refine ⟨l ++ [(s.slice nextCurr pos h₁.le).copy], ?_, ?_⟩
-    · rw [List.forall_mem_append, List.forall_mem_cons]
-      exact ⟨hl₁, h₁.matches_slice, by simp⟩
-    · conv => enter [1, 1, 2]; rw [Pos.revSkipWhile]; simp only [h₀, h₂, ↓reduceIte]
-      simpa [← hl₂] using (Slice.Pos.slice _ (nextCurr.revSkipWhile pat) _ Pos.revSkipWhile_le h₁.le).splits.eq_append
+    refine ih.trans ⟨fun ⟨hx, hy⟩ => ⟨.cons _ _ _ hx h₁, hy⟩, fun ⟨hx, hy⟩ => ⟨?_, hy⟩⟩
+    cases hx with
+    | nil =>
+      refine hy.elim (fun h => (h h₁.revMatchesAt).elim) (fun h => ?_)
+      obtain rfl := h₁.eq h
+      exact .nil _
+    | cons mid endP hx' hy' =>
+      obtain rfl := hy'.eq h₁
+      exact hx'
   | case2 pos nextCurr h₁ h₂ =>
-    suffices pos.revSkipWhile pat = pos from ⟨[], by simp_all⟩
-    rw [Pos.revSkipWhile]
-    simp_all
+    rw [revSkip?_eq_revMatchAt?, revMatchAt?_eq_some_iff] at h₁
+    obtain rfl := Std.le_antisymm h₁.le (Std.not_lt.1 h₂)
+    refine ⟨?_, fun ⟨hx, hy⟩ => ?_⟩
+    · rintro rfl
+      exact ⟨.nil _, Or.inr h₁⟩
+    · exact (hx.eq_of_isLongestRevMatchAt_self h₁).symm
   | case3 pos h =>
-    suffices pos.revSkipWhile pat = pos from ⟨[], by simp_all⟩
+    rw [revSkip?_eq_revMatchAt?, revMatchAt?_eq_none_iff] at h
+    refine ⟨?_, ?_⟩
+    · rintro rfl
+      exact ⟨.nil _, Or.inl h⟩
+    · rintro ⟨(_|⟨mid, endP, hx, hy⟩), -⟩
+      · rfl
+      · exact (h hy.revMatchesAt).elim
+
+theorem Pattern.Model.Pos.isLongestRevMatchAtChain_revSkipWhile {ρ : Type} (pat : ρ) [PatternModel pat]
+    [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} (pos : s.Pos) :
+    IsLongestRevMatchAtChain pat (pos.revSkipWhile pat) pos :=
+  ((revSkipWhile_eq_iff pat _ pos).1 rfl).1
+
+theorem Pattern.Model.Pos.not_revMatchesAt_or_isLongestRevMatchAt_revSkipWhile {ρ : Type} (pat : ρ)
+    [PatternModel pat] [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} (pos : s.Pos) :
+    ¬ RevMatchesAt pat (pos.revSkipWhile pat) ∨ IsLongestRevMatchAt pat (pos.revSkipWhile pat) (pos.revSkipWhile pat) :=
+  ((revSkipWhile_eq_iff pat _ pos).1 rfl).2
+
+theorem Pattern.Model.Pos.not_revMatchesAt_revSkipWhile {ρ : Type} (pat : ρ) [PatternModel pat]
+    [StrictPatternModel pat]
+    [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} (pos : s.Pos) :
+    ¬RevMatchesAt pat (pos.revSkipWhile pat) := by
+  simpa using not_revMatchesAt_or_isLongestRevMatchAt_revSkipWhile pat pos
+
+theorem Pattern.Model.Pos.revSkipWhile_eq_self_iff {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat]
+    [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} {pos : s.Pos} :
+    pos.revSkipWhile pat = pos ↔ ¬RevMatchesAt pat pos := by
+  simp [revSkipWhile_eq_iff]
+
+theorem Pattern.Model.Pos.revSkipWhile_eq_self_iff_or {ρ : Type} {pat : ρ} [PatternModel pat]
+    [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} {pos : s.Pos} :
+    pos.revSkipWhile pat = pos ↔ ¬RevMatchesAt pat pos ∨ IsLongestRevMatchAt pat pos pos := by
+  simp [revSkipWhile_eq_iff]
+
+@[simp]
+theorem Pos.revSkipWhile_le {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : Slice} {pos : s.Pos} : pos.revSkipWhile pat ≤ pos :=
+  (Pattern.Model.Pos.isLongestRevMatchAtChain_revSkipWhile pat pos).le
+
+theorem Pattern.Model.Pos.isLongestRevMatchChain_le_revSkipWhile {ρ : Type} (pat : ρ) [PatternModel pat]
+    [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} {startPos endPos : s.Pos}
+    (h : IsLongestRevMatchAtChain pat startPos endPos) : endPos.revSkipWhile pat ≤ startPos := by
+  induction h with
+  | nil => exact Pos.revSkipWhile_le
+  | cons mid endP hchain hmatch ih =>
     rw [Pos.revSkipWhile]
-    simp_all
+    have hmatch' := hmatch
+    rw [← revMatchAt?_eq_some_iff, ← revSkip?_eq_revMatchAt?] at hmatch
+    simp [hmatch]
+    split <;> rename_i hp
+    · exact ih
+    · obtain rfl : mid = endP := Std.le_antisymm hmatch'.le (Std.not_lt.1 hp)
+      obtain rfl := hchain.eq_of_isLongestRevMatchAt_self hmatch'
+      exact Std.le_refl _
 
 theorem skipSuffixWhile_eq_revSkipWhile_endPos {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : Slice} :
     s.skipSuffixWhile pat = s.endPos.revSkipWhile pat :=
@@ -642,11 +674,11 @@ theorem cast_skipSuffixWhile {ρ : Type} {pat : ρ} [PatternModel pat] [Backward
     (s.skipSuffixWhile pat).cast hst = t.skipSuffixWhile pat := by
   simp [skipSuffixWhile_eq_revSkipWhile_endPos, ← Pos.revSkipWhile_cast]
 
-theorem Pattern.Model.not_revMatchesAt_skipSuffixWhile {ρ : Type} {pat : ρ} [PatternModel pat]
+theorem Pattern.Model.not_revMatchesAt_skipSuffixWhile {ρ : Type} (pat : ρ) [PatternModel pat]
     [StrictPatternModel pat]
-    [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} :
+    [BackwardPattern pat] [LawfulBackwardPatternModel pat] (s : Slice) :
     ¬RevMatchesAt pat (s.skipSuffixWhile pat) := by
-  simpa [skipSuffixWhile_eq_revSkipWhile_endPos] using Pos.not_revMatchesAt_revSkipWhile
+  simpa [skipSuffixWhile_eq_revSkipWhile_endPos] using Pos.not_revMatchesAt_revSkipWhile pat s.endPos
 
 theorem skipSuffixWhile_eq_endPos {ρ : Type} {pat : ρ} [PatternModel pat]
     [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} :
@@ -661,10 +693,26 @@ theorem skipSuffixWhile_eq_endPos_iff {ρ : Type} {pat : ρ} [PatternModel pat]
   simpa [skipSuffixWhile_eq_revSkipWhile_endPos, Pattern.Model.endsWith_eq_false_iff] using
     Pos.revSkipWhile_eq_self_iff (pat := pat) (pos := s.endPos)
 
-theorem Pattern.Model.exists_sliceFrom_skipSuffixWhile_eq {ρ : Type} {pat : ρ} [PatternModel pat]
+theorem Pattern.Model.skipSuffixWhile_eq_iff {ρ : Type} (pat : ρ) [PatternModel pat]
+    [BackwardPattern pat] [LawfulBackwardPatternModel pat] (s : Slice) (res : s.Pos) :
+    s.skipSuffixWhile pat = res ↔ IsLongestRevMatchAtChain pat res s.endPos ∧
+      (¬RevMatchesAt pat res ∨ IsLongestRevMatchAt pat res res) := by
+  simp [skipSuffixWhile_eq_revSkipWhile_endPos, Pos.revSkipWhile_eq_iff]
+
+theorem Pattern.Model.isLongestRevMatchAtChain_skipSuffixWhile {ρ : Type} (pat : ρ) [PatternModel pat]
+    [BackwardPattern pat] [LawfulBackwardPatternModel pat] (s : Slice) :
+    IsLongestRevMatchAtChain pat (s.skipSuffixWhile pat) s.endPos := by
+  simpa [skipSuffixWhile_eq_revSkipWhile_endPos] using Pos.isLongestRevMatchAtChain_revSkipWhile pat s.endPos
+
+theorem Pattern.Model.not_revMatchesAt_or_isLongestRevMatchAt_skipSuffixWhile {ρ : Type} (pat : ρ)
+    [PatternModel pat] [BackwardPattern pat] [LawfulBackwardPatternModel pat] (s : Slice) :
+    ¬ RevMatchesAt pat (s.skipSuffixWhile pat) ∨ IsLongestRevMatchAt pat (s.skipSuffixWhile pat) (s.skipSuffixWhile pat) := by
+  simpa [skipSuffixWhile_eq_revSkipWhile_endPos] using Pos.not_revMatchesAt_or_isLongestRevMatchAt_revSkipWhile pat s.endPos
+
+theorem Pattern.Model.skipSuffixWhile_eq_endPos_iff_or {ρ : Type} {pat : ρ} [PatternModel pat]
     [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} :
-    ∃ (l : List String), (∀ t ∈ l, PatternModel.Matches pat t) ∧ (s.sliceFrom (s.skipSuffixWhile pat)).copy = String.join l := by
-  simpa [skipSuffixWhile_eq_revSkipWhile_endPos] using Pos.exists_eq_of_revSkipWhile_eq (pos := s.endPos)
+    s.skipSuffixWhile pat = s.endPos ↔ ¬RevMatchesAt pat s.endPos ∨ IsLongestRevMatchAt pat s.endPos s.endPos := by
+  simp [skipSuffixWhile_eq_revSkipWhile_endPos, Pos.revSkipWhile_eq_self_iff_or]
 
 theorem dropEndWhile_eq_sliceTo_skipSuffixWhile {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : Slice} :
     s.dropEndWhile pat = s.sliceTo (s.skipSuffixWhile pat) :=
@@ -680,7 +728,7 @@ theorem endsWith_dropEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [StrictP
     [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} :
     (s.dropEndWhile pat).endsWith pat = false := by
   simpa [dropEndWhile_eq_sliceTo_skipSuffixWhile, Pattern.Model.endsWith_eq_false_iff,
-    revMatchesAt_iff_revMatchesAt_ofSliceto] using not_revMatchesAt_skipSuffixWhile
+    revMatchesAt_iff_revMatchesAt_ofSliceto] using not_revMatchesAt_skipSuffixWhile pat s
 
 theorem dropEndWhile_eq_self {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
     [LawfulBackwardPatternModel pat] {s : Slice} (h : s.endsWith pat = false) :
@@ -693,11 +741,10 @@ theorem dropEndWhile_eq_self_iff {ρ : Type} {pat : ρ} [PatternModel pat] [Stri
     s.dropEndWhile pat = s ↔ s.endsWith pat = false := by
   simp [dropEndWhile_eq_sliceTo_skipSuffixWhile]
 
-theorem Pattern.Model.exists_eq_dropEndWhile_append {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+theorem Pattern.Model.dropEndWhile_eq_self_iff_or {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
     [LawfulBackwardPatternModel pat] {s : Slice} :
-    ∃ (l : List String), (∀ t ∈ l, PatternModel.Matches pat t) ∧ s.copy = (s.dropEndWhile pat).copy ++ String.join l := by
-  simpa [dropEndWhile_eq_sliceTo_skipSuffixWhile, -Slice.sliceTo_append_sliceFrom,
-    (s.skipSuffixWhile pat).splits.eq_append] using Pattern.Model.exists_sliceFrom_skipSuffixWhile_eq
+    s.dropEndWhile pat = s ↔ ¬RevMatchesAt pat s.endPos ∨ IsLongestRevMatchAt pat s.endPos s.endPos := by
+  simp [dropEndWhile_eq_sliceTo_skipSuffixWhile, skipSuffixWhile_eq_endPos_iff_or]
 
 theorem takeEndWhile_eq_sliceFrom_skipSuffixWhile {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : Slice} :
     s.takeEndWhile pat = s.sliceFrom (s.skipSuffixWhile pat) :=
@@ -724,6 +771,71 @@ theorem isEmpty_takeEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPa
     (s.takeEndWhile pat).isEmpty = !s.endsWith pat := by
   rw [Bool.eq_iff_iff]
   simp [takeEndWhile_eq_sliceFrom_skipSuffixWhile]
+
+theorem revAll_eq_skipSuffixWhile_beq {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : Slice} :
+    s.revAll pat = (s.skipSuffixWhile pat == s.startPos) :=
+  (rfl)
+
+theorem Pattern.Model.revAll_eq_true_iff {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : Slice} : s.revAll pat ↔ IsLongestRevMatchAtChain pat s.startPos s.endPos := by
+  simp only [revAll_eq_skipSuffixWhile_beq, beq_iff_eq, skipSuffixWhile_eq_iff, and_iff_left_iff_imp]
+  by_cases h : RevMatchesAt pat s.startPos
+  · obtain ⟨pos, h⟩ := h.exists_isLongestRevMatchAt
+    obtain rfl : pos = s.startPos := Std.le_antisymm h.le (Pos.startPos_le _)
+    simp [h]
+  · simp [h]
+
+theorem revAll_congr {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s t : Slice} (hst : s.copy = t.copy) :
+    s.revAll pat = t.revAll pat := by
+  rw [revAll_eq_skipSuffixWhile_beq, ← cast_skipSuffixWhile hst.symm,
+    revAll_eq_skipSuffixWhile_beq, Bool.eq_iff_iff, beq_iff_eq, beq_iff_eq, Pos.cast_eq_startPos]
+
+@[simp]
+theorem revAll_takeEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : Slice} : (s.takeEndWhile pat).revAll pat = true := by
+  rw [Pattern.Model.revAll_eq_true_iff, takeEndWhile_eq_sliceFrom_skipSuffixWhile]
+  apply isLongestRevMatchAtChain_of_ofSliceFrom
+  simpa using Pattern.Model.isLongestRevMatchAtChain_skipSuffixWhile pat s
+
+theorem isEmpty_takeEndWhile_iff_dropEndWhile_eq_self {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : Slice} :
+    (s.takeEndWhile pat).isEmpty ↔ s.dropEndWhile pat = s := by
+  simp [takeEndWhile_eq_sliceFrom_skipSuffixWhile, dropEndWhile_eq_sliceTo_skipSuffixWhile]
+
+theorem isEmpty_dropEndWhile_iff_takeEndWhile_eq_self {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : Slice} :
+    (s.dropEndWhile pat).isEmpty ↔ s.takeEndWhile pat = s := by
+  simp [takeEndWhile_eq_sliceFrom_skipSuffixWhile, dropEndWhile_eq_sliceTo_skipSuffixWhile]
+
+@[simp]
+theorem takeEndWhile_eq_self_iff {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : Slice} :
+    s.takeEndWhile pat = s ↔ s.revAll pat := by
+  simp [takeEndWhile_eq_sliceFrom_skipSuffixWhile, revAll_eq_skipSuffixWhile_beq]
+
+@[simp]
+theorem isEmpty_dropEndWhile {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : Slice} :
+    (s.dropEndWhile pat).isEmpty = s.revAll pat := by
+  rw [Bool.eq_iff_iff, isEmpty_dropEndWhile_iff_takeEndWhile_eq_self, takeEndWhile_eq_self_iff]
+
+@[simp]
+theorem dropEndWhile_dropEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : Slice} : (s.dropEndWhile pat).dropEndWhile pat = s.dropEndWhile pat := by
+  conv => enter [1, 1]; rw [dropEndWhile_eq_sliceTo_skipSuffixWhile]
+  conv => rhs; rw [dropEndWhile_eq_sliceTo_skipSuffixWhile]
+  simpa [Pattern.Model.dropEndWhile_eq_self_iff_or, revMatchesAt_iff_revMatchesAt_ofSliceto,
+    isLongestRevMatch_iff_isLongestRevMatchAt_ofSliceTo] using not_revMatchesAt_or_isLongestRevMatchAt_skipSuffixWhile ..
+
+theorem takeEndWhile_takeEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : Slice} : (s.takeEndWhile pat).takeEndWhile pat = s.takeEndWhile pat := by
+  simp
+
+@[simp]
+theorem isEmpty_takeEndWhile_dropEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : Slice} : ((s.dropEndWhile pat).takeEndWhile pat).isEmpty = true := by
+  simp [isEmpty_takeEndWhile_iff_dropEndWhile_eq_self]
+
+theorem isEmpty_dropEndWhile_takeEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : Slice} : ((s.takeEndWhile pat).dropEndWhile pat).isEmpty = true := by
+  simp
 
 end Slice
 
@@ -1098,13 +1210,51 @@ theorem isEmpty_takeEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPa
     (s.takeEndWhile pat).isEmpty = !s.endsWith pat := by
   simp [← takeEndWhile_toSlice]
 
-namespace Slice
+theorem revAll_eq_revAll_toSlice {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : String} :
+    s.revAll pat = s.toSlice.revAll pat :=
+  (rfl)
 
-theorem Pattern.Model.exists_takeEndWhile_eq {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
-    [LawfulBackwardPatternModel pat] {s : Slice} :
-    ∃ (l : List String), (∀ t ∈ l, PatternModel.Matches pat t) ∧ (s.takeEndWhile pat).copy = String.join l := by
-  simpa [takeEndWhile_eq_sliceFrom_skipSuffixWhile] using exists_sliceFrom_skipSuffixWhile_eq
+@[simp]
+theorem revAll_toSlice {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : String} :
+    s.toSlice.revAll pat = s.revAll pat := by
+  simp [revAll_eq_revAll_toSlice]
 
-end Slice
+@[simp]
+theorem Slice.revAll_copy {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : Slice} : s.copy.revAll pat = s.revAll pat := by
+  simpa [← revAll_toSlice] using Slice.revAll_congr (by simp)
+
+@[simp]
+theorem revAll_takeEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : String} : (s.takeEndWhile pat).revAll pat = true := by
+  simp [← takeEndWhile_toSlice]
+
+@[simp]
+theorem takeEndWhile_eq_toSlice_iff {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : String} :
+    s.takeEndWhile pat = s.toSlice ↔ s.revAll pat := by
+  simp [← takeEndWhile_toSlice]
+
+@[simp]
+theorem isEmpty_dropEndWhile {ρ : Type} {pat : ρ} [BackwardPattern pat] {s : String} :
+    (s.dropEndWhile pat).isEmpty = s.revAll pat := by
+  simp [← dropEndWhile_toSlice]
+
+@[simp]
+theorem dropEndWhile_dropEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : String} : (s.dropEndWhile pat).dropEndWhile pat = s.dropEndWhile pat := by
+  simp [← dropEndWhile_toSlice]
+
+theorem takeEndWhile_takeEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : Slice} : (s.takeEndWhile pat).takeEndWhile pat = s.takeEndWhile pat := by
+  simp
+
+@[simp]
+theorem isEmpty_takeEndWhile_dropEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : String} : ((s.dropEndWhile pat).takeEndWhile pat).isEmpty = true := by
+  simp [← dropEndWhile_toSlice]
+
+theorem isEmpty_dropEndWhile_takeEndWhile {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardPattern pat]
+    [LawfulBackwardPatternModel pat] {s : String} : ((s.takeEndWhile pat).dropEndWhile pat).isEmpty = true := by
+  simp
 
 end String

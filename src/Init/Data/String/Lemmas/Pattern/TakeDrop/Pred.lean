@@ -91,6 +91,44 @@ theorem all_bool_eq {p : Char → Bool} {s : Slice} : s.all p = s.copy.toList.al
   rw [Bool.eq_iff_iff, Pattern.Model.all_eq_true_iff,
     CharPred.isLongestMatchAtChain_startPos_endPos_iff_toList, List.all_eq_true]
 
+@[simp]
+theorem Pos.skip?_prop_eq_some_iff {P : Char → Prop} [DecidablePred P] {s : Slice} {pos res : s.Pos} :
+    pos.skip? P = some res ↔ ∃ h, res = pos.next h ∧ P (pos.get h) := by
+  simp [Pos.skip?_prop_eq_skip?_decide, skip?_bool_eq_some_iff]
+
+@[simp]
+theorem Pos.skip?_prop_eq_none_iff {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos} :
+    pos.skip? P = none ↔ ∀ h, ¬ P (pos.get h) := by
+  simp [Pos.skip?_prop_eq_skip?_decide, skip?_bool_eq_none_iff]
+
+theorem Pos.apply_skipWhile_prop {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos} {h} :
+    ¬ P ((pos.skipWhile P).get h) := by
+  have := Pattern.Model.Pos.not_matchesAt_skipWhile P pos
+  simp_all [CharPred.Decidable.matchesAt_iff]
+
+theorem Pos.skipWhile_prop_eq_self_iff_get {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos} :
+    pos.skipWhile P = pos ↔ ∀ h, ¬ P (pos.get h) := by
+  simp [Pos.skipWhile_prop_eq_skipWhile_decide, skipWhile_bool_eq_self_iff_get]
+
+theorem Pos.apply_of_lt_skipWhile_prop {P : Char → Prop} [DecidablePred P] {s : Slice} {pos pos' : s.Pos}
+    (h₁ : pos ≤ pos') (h₂ : pos' < pos.skipWhile P) : P (pos'.get (ne_endPos_of_lt h₂)) := by
+  simp [Pos.skipWhile_prop_eq_skipWhile_decide] at h₂
+  simpa using apply_eq_true_of_lt_skipWhile_bool h₁ h₂
+
+theorem apply_skipPrefixWhile_prop {P : Char → Prop} [DecidablePred P] {s : Slice} {h} :
+    ¬ P ((s.skipPrefixWhile P).get h) := by
+  simp [skipPrefixWhile_eq_skipWhile_startPos, Pos.apply_skipWhile_prop]
+
+theorem apply_of_lt_skipPrefixWhile_prop {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos}
+    (h : pos < s.skipPrefixWhile P) : P (pos.get (Pos.ne_endPos_of_lt h)) := by
+  simp [skipPrefixWhile_prop_eq_skipPrefixWhile_decide] at h
+  simpa using apply_eq_true_of_lt_skipPrefixWhile_bool h
+
+@[simp]
+theorem all_prop_eq {P : Char → Prop} [DecidablePred P] {s : Slice} :
+    s.all P = s.copy.toList.all (decide <| P ·) := by
+  simp [all_prop_eq_all_decide]
+
 theorem skipPrefix?_prop_eq_some_iff {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos} :
     s.skipPrefix? P = some pos ↔ ∃ h, pos = s.startPos.next h ∧ P (s.startPos.get h) := by
   simp [skipPrefix?_prop_eq_skipPrefix?_decide, skipPrefix?_bool_eq_some_iff]
@@ -160,6 +198,83 @@ theorem eq_append_of_dropSuffix?_prop_eq_some {P : Char → Prop} [DecidablePred
   rw [dropSuffix?_prop_eq_dropSuffix?_decide] at h
   simpa using eq_append_of_dropSuffix?_bool_eq_some h
 
+@[simp]
+theorem Pos.revSkip?_bool_eq_some_iff {p : Char → Bool} {s : Slice} {pos res : s.Pos} :
+    pos.revSkip? p = some res ↔ ∃ h, res = pos.prev h ∧ p ((pos.prev h).get (by simp)) := by
+  simp [Pattern.Model.Pos.revSkip?_eq_some_iff, CharPred.isLongestRevMatchAt_iff]
+
+@[simp]
+theorem Pos.revSkip?_bool_eq_none_iff {p : Char → Bool} {s : Slice} {pos : s.Pos} :
+    pos.revSkip? p = none ↔ ∀ h, p ((pos.prev h).get (by simp)) = false := by
+  simp [Pattern.Model.Pos.revSkip?_eq_none_iff, CharPred.revMatchesAt_iff]
+
+theorem Pos.apply_revSkipWhile_bool_eq_false {p : Char → Bool} {s : Slice} {pos : s.Pos} {h} :
+    p (((pos.revSkipWhile p).prev h).get (by simp)) = false := by
+  have := Pattern.Model.Pos.not_revMatchesAt_revSkipWhile p pos
+  simp_all [CharPred.revMatchesAt_iff]
+
+theorem Pos.revSkipWhile_bool_eq_self_iff_get {p : Char → Bool} {s : Slice} {pos : s.Pos} :
+    pos.revSkipWhile p = pos ↔ ∀ h, p ((pos.prev h).get (by simp)) = false := by
+  simp [Pattern.Model.Pos.revSkipWhile_eq_self_iff, CharPred.revMatchesAt_iff]
+
+theorem Pos.apply_eq_true_of_revSkipWhile_le_bool {p : Char → Bool} {s : Slice} {pos pos' : s.Pos}
+    (h₁ : pos' < pos) (h₂ : pos.revSkipWhile p ≤ pos') : p (pos'.get (Pos.ne_endPos_of_lt h₁)) = true :=
+  (CharPred.isLongestRevMatchAtChain_iff.1 (Pattern.Model.Pos.isLongestRevMatchAtChain_revSkipWhile p pos)).2 _ h₂ h₁
+
+theorem apply_skipSuffixWhile_bool_eq_false {p : Char → Bool} {s : Slice} {h} :
+    p (((s.skipSuffixWhile p).prev h).get (by simp)) = false := by
+  simp [skipSuffixWhile_eq_revSkipWhile_endPos, Pos.apply_revSkipWhile_bool_eq_false]
+
+theorem apply_eq_true_of_skipSuffixWhile_le_bool {p : Char → Bool} {s : Slice} {pos : s.Pos}
+    (h : s.skipSuffixWhile p ≤ pos) (h' : pos < s.endPos) :
+    p (pos.get (Pos.ne_endPos_of_lt h')) = true :=
+  Pos.apply_eq_true_of_revSkipWhile_le_bool h' (skipSuffixWhile_eq_revSkipWhile_endPos ▸ h)
+
+@[simp]
+theorem revAll_bool_eq {p : Char → Bool} {s : Slice} : s.revAll p = s.copy.toList.all p := by
+  rw [Bool.eq_iff_iff, Pattern.Model.revAll_eq_true_iff,
+    CharPred.isLongestRevMatchAtChain_startPos_endPos_iff_toList, List.all_eq_true]
+
+@[simp]
+theorem Pos.revSkip?_prop_eq_some_iff {P : Char → Prop} [DecidablePred P] {s : Slice} {pos res : s.Pos} :
+    pos.revSkip? P = some res ↔ ∃ h, res = pos.prev h ∧ P ((pos.prev h).get (by simp)) := by
+  simp [Pos.revSkip?_prop_eq_revSkip?_decide, revSkip?_bool_eq_some_iff]
+
+@[simp]
+theorem Pos.revSkip?_prop_eq_none_iff {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos} :
+    pos.revSkip? P = none ↔ ∀ h, ¬ P ((pos.prev h).get (by simp)) := by
+  simp [Pos.revSkip?_prop_eq_revSkip?_decide, revSkip?_bool_eq_none_iff]
+
+theorem Pos.apply_revSkipWhile_prop {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos} {h} :
+    ¬ P (((pos.revSkipWhile P).prev h).get (by simp)) := by
+  have := Pattern.Model.Pos.not_revMatchesAt_revSkipWhile P pos
+  simp_all [CharPred.Decidable.revMatchesAt_iff]
+
+theorem Pos.revSkipWhile_prop_eq_self_iff_get {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos} :
+    pos.revSkipWhile P = pos ↔ ∀ h, ¬ P ((pos.prev h).get (by simp)) := by
+  simp [Pos.revSkipWhile_prop_eq_revSkipWhile_decide, revSkipWhile_bool_eq_self_iff_get]
+
+theorem Pos.apply_of_revSkipWhile_le_prop {P : Char → Prop} [DecidablePred P] {s : Slice} {pos pos' : s.Pos}
+    (h₁ : pos' < pos) (h₂ : pos.revSkipWhile P ≤ pos') : P (pos'.get (Pos.ne_endPos_of_lt h₁)) := by
+  have h₂' : pos.revSkipWhile (decide <| P ·) ≤ pos' :=
+    Pos.revSkipWhile_prop_eq_revSkipWhile_decide (p := P) pos ▸ h₂
+  simpa using Pos.apply_eq_true_of_revSkipWhile_le_bool h₁ h₂'
+
+theorem apply_skipSuffixWhile_prop {P : Char → Prop} [DecidablePred P] {s : Slice} {h} :
+    ¬ P (((s.skipSuffixWhile P).prev h).get (by simp)) := by
+  have := Pattern.Model.Pos.not_revMatchesAt_revSkipWhile P s.endPos
+  simp_all [CharPred.Decidable.revMatchesAt_iff, skipSuffixWhile_eq_revSkipWhile_endPos]
+
+theorem apply_of_skipSuffixWhile_le_prop {P : Char → Prop} [DecidablePred P] {s : Slice} {pos : s.Pos}
+    (h : s.skipSuffixWhile P ≤ pos) (h' : pos < s.endPos) :
+    P (pos.get (Pos.ne_endPos_of_lt h')) :=
+  Pos.apply_of_revSkipWhile_le_prop h' (skipSuffixWhile_eq_revSkipWhile_endPos (pat := P) ▸ h)
+
+@[simp]
+theorem revAll_prop_eq {P : Char → Prop} [DecidablePred P] {s : Slice} :
+    s.revAll P = s.copy.toList.all (decide <| P ·) := by
+  simp [revAll_prop_eq_revAll_decide, revAll_bool_eq]
+
 end Slice
 
 theorem skipPrefix?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos : s.Pos} :
@@ -187,10 +302,7 @@ theorem eq_append_of_dropPrefix?_bool_eq_some {p : Char → Bool} {s : String} {
 @[simp]
 theorem Pos.skip?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos res : s.Pos} :
     pos.skip? p = some res ↔ ∃ h, res = pos.next h ∧ p (pos.get h) := by
-  simp [skip?_eq_skip?_toSlice, ← ofToSlice_inj]
-  refine ⟨?_, fun h => ⟨res.toSlice, by simpa⟩⟩
-  rintro ⟨res, h, rfl⟩
-  exact h
+  simp [skip?_eq_skip?_toSlice, ← toSlice_inj, toSlice_next]
 
 @[simp]
 theorem Pos.skip?_bool_eq_none_iff {p : Char → Bool} {s : String} {pos : s.Pos} :
@@ -289,5 +401,140 @@ theorem eq_append_of_dropSuffix?_prop_eq_some {P : Char → Prop} [DecidablePred
     (h : s.dropSuffix? P = some res) : ∃ c, s = res.copy ++ singleton c ∧ P c := by
   rw [dropSuffix?_eq_dropSuffix?_toSlice] at h
   simpa using Slice.eq_append_of_dropSuffix?_prop_eq_some h
+
+@[simp]
+theorem Pos.skip?_prop_eq_some_iff {P : Char → Prop} [DecidablePred P] {s : String} {pos res : s.Pos} :
+    pos.skip? P = some res ↔ ∃ h, res = pos.next h ∧ P (pos.get h) := by
+  simp [skip?_eq_skip?_toSlice, ← toSlice_inj, toSlice_next]
+
+@[simp]
+theorem Pos.skip?_prop_eq_none_iff {P : Char → Prop} [DecidablePred P] {s : String} {pos : s.Pos} :
+    pos.skip? P = none ↔ ∀ h, ¬ P (pos.get h) := by
+  simp [skip?_eq_skip?_toSlice]
+
+theorem Pos.apply_skipWhile_prop {P : Char → Prop} [DecidablePred P] {s : String} {pos : s.Pos} {h} :
+    ¬ P ((pos.skipWhile P).get h) := by
+  simp [skipWhile_eq_skipWhile_toSlice, Slice.Pos.apply_skipWhile_prop]
+
+theorem Pos.skipWhile_prop_eq_self_iff_get {P : Char → Prop} [DecidablePred P] {s : String} {pos : s.Pos} :
+    pos.skipWhile P = pos ↔ ∀ h, ¬ P (pos.get h) := by
+  simp [skipWhile_eq_skipWhile_toSlice, ← toSlice_inj, Slice.Pos.skipWhile_prop_eq_self_iff_get]
+
+theorem Pos.apply_of_lt_skipWhile_prop {P : Char → Prop} [DecidablePred P] {s : String} {pos pos' : s.Pos}
+    (h₁ : pos ≤ pos') (h₂ : pos' < pos.skipWhile P) : P (pos'.get (ne_endPos_of_lt h₂)) := by
+  rw [Pos.get_eq_get_toSlice]
+  exact Slice.Pos.apply_of_lt_skipWhile_prop (toSlice_le_toSlice_iff.2 h₁)
+    (by simpa [skipWhile_eq_skipWhile_toSlice] using h₂)
+
+theorem apply_skipPrefixWhile_prop {P : Char → Prop} [DecidablePred P] {s : String} {h} :
+    ¬ P ((s.skipPrefixWhile P).get h) := by
+  simp [skipPrefixWhile_eq_skipPrefixWhile_toSlice, Slice.apply_skipPrefixWhile_prop]
+
+theorem apply_of_lt_skipPrefixWhile_prop {P : Char → Prop} [DecidablePred P] {s : String} {pos : s.Pos}
+    (h : pos < s.skipPrefixWhile P) : P (pos.get (Pos.ne_endPos_of_lt h)) := by
+  rw [Pos.get_eq_get_toSlice]
+  exact Slice.apply_of_lt_skipPrefixWhile_prop (by simpa [skipPrefixWhile_eq_skipPrefixWhile_toSlice] using h)
+
+@[simp]
+theorem all_prop_eq {P : Char → Prop} [DecidablePred P] {s : String} :
+    s.all P = s.toList.all (decide <| P ·) := by
+  simp [← all_toSlice]
+
+@[simp]
+theorem Pos.revSkip?_bool_eq_some_iff {p : Char → Bool} {s : String} {pos res : s.Pos} :
+    pos.revSkip? p = some res ↔ ∃ h, res = pos.prev h ∧ p ((pos.prev h).get (by simp)) := by
+  simp [revSkip?_eq_revSkip?_toSlice, ← toSlice_inj, toSlice_prev, get_eq_get_toSlice]
+
+@[simp]
+theorem Pos.revSkip?_bool_eq_none_iff {p : Char → Bool} {s : String} {pos : s.Pos} :
+    pos.revSkip? p = none ↔ ∀ h, p ((pos.prev h).get (by simp)) = false := by
+  simp [revSkip?_eq_revSkip?_toSlice, Pos.prev_toSlice]
+
+theorem Pos.apply_revSkipWhile_bool_eq_false {p : Char → Bool} {s : String} {pos : s.Pos} {h} :
+    p (((pos.revSkipWhile p).prev h).get (by simp)) = false := by
+  have h' : pos.toSlice.revSkipWhile p ≠ s.toSlice.startPos := by
+    simpa [Pos.revSkipWhile_eq_revSkipWhile_toSlice, ← toSlice_inj] using h
+  have := Slice.Pos.apply_revSkipWhile_bool_eq_false (pos := pos.toSlice) (h := h')
+  simpa [Pos.revSkipWhile_eq_revSkipWhile_toSlice, Pos.prev_ofToSlice]
+
+theorem Pos.revSkipWhile_bool_eq_self_iff_get {p : Char → Bool} {s : String} {pos : s.Pos} :
+    pos.revSkipWhile p = pos ↔ ∀ h, p ((pos.prev h).get (by simp)) = false := by
+  simp [Pos.revSkipWhile_eq_revSkipWhile_toSlice, ← toSlice_inj, Slice.Pos.revSkipWhile_bool_eq_self_iff_get,
+    Pos.prev_toSlice]
+
+theorem Pos.apply_eq_true_of_revSkipWhile_le_bool {p : Char → Bool} {s : String} {pos pos' : s.Pos}
+    (h₁ : pos' < pos) (h₂ : pos.revSkipWhile p ≤ pos') : p (pos'.get (ne_endPos_of_lt h₁)) = true := by
+  rw [Pos.get_eq_get_toSlice]
+  exact Slice.Pos.apply_eq_true_of_revSkipWhile_le_bool
+    (Pos.toSlice_lt_toSlice_iff.2 h₁)
+    (by simpa [Pos.revSkipWhile_eq_revSkipWhile_toSlice, Pos.ofToSlice_le_iff] using h₂)
+
+theorem apply_skipSuffixWhile_bool_eq_false {p : Char → Bool} {s : String} {h} :
+    p (((s.skipSuffixWhile p).prev h).get (by simp)) = false := by
+  have h' : s.toSlice.skipSuffixWhile p ≠ s.toSlice.startPos := by
+    simpa [skipSuffixWhile_eq_skipSuffixWhile_toSlice, ← Pos.toSlice_inj] using h
+  have := Slice.apply_skipSuffixWhile_bool_eq_false (s := s.toSlice) (h := h')
+  simpa [skipSuffixWhile_eq_skipSuffixWhile_toSlice, Pos.prev_ofToSlice]
+
+theorem apply_eq_true_of_skipSuffixWhile_le_bool {p : Char → Bool} {s : String} {pos : s.Pos}
+    (h : s.skipSuffixWhile p ≤ pos) (h' : pos < s.endPos) :
+    p (pos.get (Pos.ne_endPos_of_lt h')) = true := by
+  rw [Pos.get_eq_get_toSlice]
+  exact Slice.apply_eq_true_of_skipSuffixWhile_le_bool
+    (by simpa [skipSuffixWhile_eq_skipSuffixWhile_toSlice, Pos.ofToSlice_le_iff] using h)
+    (by simpa [Pos.toSlice_lt_toSlice_iff] using h')
+
+@[simp]
+theorem revAll_bool_eq {p : Char → Bool} {s : String} : s.revAll p = s.toList.all p := by
+  simp [← revAll_toSlice]
+
+@[simp]
+theorem Pos.revSkip?_prop_eq_some_iff {P : Char → Prop} [DecidablePred P] {s : String} {pos res : s.Pos} :
+    pos.revSkip? P = some res ↔ ∃ h, res = pos.prev h ∧ P ((pos.prev h).get (by simp)) := by
+  simp [revSkip?_eq_revSkip?_toSlice, ← toSlice_inj, toSlice_prev, get_eq_get_toSlice]
+
+@[simp]
+theorem Pos.revSkip?_prop_eq_none_iff {P : Char → Prop} [DecidablePred P] {s : String} {pos : s.Pos} :
+    pos.revSkip? P = none ↔ ∀ h, ¬ P ((pos.prev h).get (by simp)) := by
+  simp [revSkip?_eq_revSkip?_toSlice, Pos.prev_toSlice]
+
+theorem Pos.apply_revSkipWhile_prop {P : Char → Prop} [DecidablePred P] {s : String} {pos : s.Pos} {h} :
+    ¬ P (((pos.revSkipWhile P).prev h).get (by simp)) := by
+  have h' : pos.toSlice.revSkipWhile P ≠ s.toSlice.startPos := by
+    simpa [Pos.revSkipWhile_eq_revSkipWhile_toSlice, ← toSlice_inj] using h
+  have := Slice.Pos.apply_revSkipWhile_prop (pos := pos.toSlice) (h := h')
+  simpa [Pos.revSkipWhile_eq_revSkipWhile_toSlice, Pos.prev_ofToSlice]
+
+theorem Pos.revSkipWhile_prop_eq_self_iff_get {P : Char → Prop} [DecidablePred P] {s : String} {pos : s.Pos} :
+    pos.revSkipWhile P = pos ↔ ∀ h, ¬ P ((pos.prev h).get (by simp)) := by
+  simp [Pos.revSkipWhile_eq_revSkipWhile_toSlice, ← toSlice_inj,
+    Slice.Pos.revSkipWhile_prop_eq_self_iff_get, Pos.prev_toSlice]
+
+theorem Pos.apply_of_revSkipWhile_le_prop {P : Char → Prop} [DecidablePred P] {s : String} {pos pos' : s.Pos}
+    (h₁ : pos' < pos) (h₂ : pos.revSkipWhile P ≤ pos') : P (pos'.get (ne_endPos_of_lt h₁)) := by
+  rw [Pos.get_eq_get_toSlice]
+  exact Slice.Pos.apply_of_revSkipWhile_le_prop
+    (Pos.toSlice_lt_toSlice_iff.2 h₁)
+    (by simpa [Pos.revSkipWhile_eq_revSkipWhile_toSlice, Pos.ofToSlice_le_iff] using h₂)
+
+theorem apply_skipSuffixWhile_prop {P : Char → Prop} [DecidablePred P] {s : String} {h} :
+    ¬ P (((s.skipSuffixWhile P).prev h).get (by simp)) := by
+  have h' : s.toSlice.skipSuffixWhile P ≠ s.toSlice.startPos := by
+    simpa [skipSuffixWhile_eq_skipSuffixWhile_toSlice, ← Pos.toSlice_inj] using h
+  have := Slice.apply_skipSuffixWhile_prop (s := s.toSlice) (h := h')
+  simpa [skipSuffixWhile_eq_skipSuffixWhile_toSlice, Pos.prev_ofToSlice]
+
+theorem apply_of_skipSuffixWhile_le_prop {P : Char → Prop} [DecidablePred P] {s : String} {pos : s.Pos}
+    (h : s.skipSuffixWhile P ≤ pos) (h' : pos < s.endPos) :
+    P (pos.get (Pos.ne_endPos_of_lt h')) := by
+  rw [Pos.get_eq_get_toSlice]
+  exact Slice.apply_of_skipSuffixWhile_le_prop
+    (by simpa [skipSuffixWhile_eq_skipSuffixWhile_toSlice, Pos.ofToSlice_le_iff] using h)
+    (by simpa [Pos.toSlice_lt_toSlice_iff] using h')
+
+@[simp]
+theorem revAll_prop_eq {P : Char → Prop} [DecidablePred P] {s : String} :
+    s.revAll P = s.toList.all (decide <| P ·) := by
+  simp [← revAll_toSlice]
 
 end String

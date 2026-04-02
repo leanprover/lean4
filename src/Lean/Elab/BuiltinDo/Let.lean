@@ -168,12 +168,25 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         elabDoElem (← `(doElem| $pattern:term := $x)) dec
   | _ => throwUnsupportedSyntax
 
+/-- Backward-compatible index for `doLet`/`doLetArrow`/`doLetElse`: if `letConfig` is present at
+index 2, the decl is at index 3; otherwise (old-shape syntax from stage0 macros), it's at index 2. -/
+private def doLetDeclIdx (stx : Syntax) : Nat :=
+  if stx[2].isOfKind ``Parser.Term.letConfig then 3 else 2
+
+/-- Backward-compatible index for `doHave`: if `letConfig` is present at
+index 1, the decl is at index 2; otherwise (old-shape syntax), it's at index 1. -/
+private def doHaveDeclIdx (stx : Syntax) : Nat :=
+  if stx[1].isOfKind ``Parser.Term.letConfig then 2 else 1
+
 @[builtin_doElem_elab Lean.Parser.Term.doLet] def elabDoLet : DoElab := fun stx dec => do
-  let `(doLet| let $[mut%$mutTk?]? $decl:letDecl) := stx | throwUnsupportedSyntax
+  -- "let " >> optional "mut " >> letConfig >> letDecl
+  let mutTk? := stx.raw[1].getOptional?
+  let decl : TSyntax ``letDecl := ⟨stx.raw[doLetDeclIdx stx.raw]⟩
   elabDoLetOrReassign (.let mutTk?) decl dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doHave] def elabDoHave : DoElab := fun stx dec => do
-  let `(doHave| have $decl:letDecl) := stx | throwUnsupportedSyntax
+  -- "have" >> letConfig >> letDecl
+  let decl : TSyntax ``letDecl := ⟨stx.raw[doHaveDeclIdx stx.raw]⟩
   elabDoLetOrReassign .have decl dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetRec] def elabDoLetRec : DoElab := fun stx dec => do
@@ -199,7 +212,14 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   | _ => throwUnsupportedSyntax
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetElse] def elabDoLetElse : DoElab := fun stx dec => do
-  let `(doLetElse| let $[mut%$mutTk?]? $pattern := $rhs | $otherwise $(body?)?) := stx | throwUnsupportedSyntax
+  -- "let " >> optional "mut " >> letConfig >> termParser >> " := " >> termParser >>
+  --   (checkColGe >> " | " >> doSeqIndent) >> optional (checkColGe >> doSeqIndent)
+  let mutTk? := stx.raw[1].getOptional?
+  let offset := doLetDeclIdx stx.raw -- 3 if letConfig present, 2 otherwise
+  let pattern : Term := ⟨stx.raw[offset]⟩
+  let rhs : Term := ⟨stx.raw[offset + 2]⟩
+  let otherwise : TSyntax ``doSeqIndent := ⟨stx.raw[offset + 4]⟩
+  let body? := stx.raw[offset + 5].getOptional?.map fun s => (⟨s⟩ : TSyntax ``doSeqIndent)
   let letOrReassign := LetOrReassign.let mutTk?
   let vars ← getPatternVarsEx pattern
   letOrReassign.checkMutVars vars
@@ -211,7 +231,9 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   elabDoElem (← `(doElem| match $rhs:term with | $pattern => $body:doSeqIndent | _ => $otherwise:doSeqIndent)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetArrow] def elabDoLetArrow : DoElab := fun stx dec => do
-  let `(doLetArrow| let $[mut%$mutTk?]? $decl) := stx | throwUnsupportedSyntax
+  -- "let " >> optional "mut " >> letConfig >> (doIdDecl <|> doPatDecl)
+  let mutTk? := stx.raw[1].getOptional?
+  let decl : TSyntax [``doIdDecl, ``doPatDecl] := ⟨stx.raw[doLetDeclIdx stx.raw]⟩
   elabDoArrow (.let mutTk?) decl dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doReassignArrow] def elabDoReassignArrow : DoElab := fun stx dec => do

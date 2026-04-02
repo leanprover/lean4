@@ -169,15 +169,29 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     let bodyInfo ← match body? with | none => pure {} | some body => ofSeq ⟨body⟩
     return otherwiseInfo.alternative bodyInfo
   | _ =>
-    let handlers := controlInfoElemAttribute.getEntries (← getEnv) stx.raw.getKind
+    -- Backward compat: quotation patterns above may fail for doLet/doHave/doLetElse/doLetArrow
+    -- when the parser shape includes letConfig (not present in stage0 quotations).
+    let kind := stx.raw.getKind
+    if kind == ``Parser.Term.doLet || kind == ``Parser.Term.doHave || kind == ``Parser.Term.doLetRec then
+      return .pure
+    if kind == ``Parser.Term.doLetElse then
+      let offset := if stx.raw[2].isOfKind ``Parser.Term.letConfig then 3 else 2
+      let otherwise? := stx.raw[offset + 4].getOptional?.map (⟨·⟩ : _ → TSyntax ``doSeqIndent)
+      let body? := stx.raw[offset + 5].getOptional?.map (⟨·⟩ : _ → TSyntax ``doSeqIndent)
+      return ← ofLetOrReassign #[] none otherwise? body?
+    if kind == ``Parser.Term.doLetArrow then
+      let declIdx := if stx.raw[2].isOfKind ``Parser.Term.letConfig then 3 else 2
+      let decl : TSyntax [``doIdDecl, ``doPatDecl] := ⟨stx.raw[declIdx]⟩
+      return ← ofLetOrReassignArrow false decl
+    let handlers := controlInfoElemAttribute.getEntries (← getEnv) kind
     for handler in handlers do
       let res ← catchInternalId unsupportedSyntaxExceptionId
         (some <$> handler.value stx)
         (fun _ => pure none)
       if let some info := res then return info
     throwError
-      "No `ControlInfo` inference handler found for `{stx.raw.getKind}` in syntax {indentD stx}\n\
-       Register a handler with `@[doElem_control_info {stx.raw.getKind}]`."
+      "No `ControlInfo` inference handler found for `{kind}` in syntax {indentD stx}\n\
+       Register a handler with `@[doElem_control_info {kind}]`."
 
 partial def ofLetOrReassignArrow (reassignment : Bool) (decl : TSyntax [``doIdDecl, ``doPatDecl]) : TermElabM ControlInfo := do
   match decl with

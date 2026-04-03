@@ -619,8 +619,9 @@ private partial def collectStructFields
             if s'.induct == parentName then
               let (fieldValues, fields) ← collectStructFields structName levels params fields fieldValues s'
               return (i + 1, fieldValues, fields)
-      /- Does this field have a default value? and if so, can we omit the field? -/
-      unless ← getPPOption getPPStructureInstancesDefaults do
+      /- Does this field have a default value? and if so, can we omit the field?
+      We cannot omit fields for patterns, since default values do not apply for them. -/
+      unless ← pure (← read).inPattern <||> getPPOption getPPStructureInstancesDefaults do
         if let some defFn := getEffectiveDefaultFnForField? (← getEnv) structName fieldName then
           -- Use `withNewMCtxDepth` to prevent delaborator from solving metavariables.
           if let some (_, defValue) ← withNewMCtxDepth <| instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldValues.get?) then

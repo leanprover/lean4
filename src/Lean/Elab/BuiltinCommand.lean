@@ -510,7 +510,8 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     pure ()
 
 @[builtin_command_elab «set_option»] def elabSetOption : CommandElab := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let (options, decl) ← Elab.elabSetOption stx[1] stx[3]
+  withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
 

@@ -371,7 +371,8 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     popScope
 
 @[builtin_term_elab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let (options, decl) ← Elab.elabSetOption stx[1] stx[3]
+  withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   withOptions (fun _ => options) do
     try
       elabTerm stx[5] expectedType?

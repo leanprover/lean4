@@ -242,7 +242,7 @@ theorem Pos.le_skipWhile {ρ : Type} {pat : ρ} [PatternModel pat] [ForwardPatte
     [LawfulForwardPatternModel pat] {s : Slice} {pos : s.Pos} : pos ≤ pos.skipWhile pat :=
   (Pattern.Model.Pos.isLongestMatchAtChain_skipWhile pat pos).le
 
-theorem Pattern.Model.Pos.le_skipWhile_of_isLongestMatchChain {ρ : Type} (pat : ρ) [PatternModel pat]
+theorem Pattern.Model.Pos.le_skipWhile_of_isLongestMatchAtChain {ρ : Type} (pat : ρ) [PatternModel pat]
     [ForwardPattern pat] [LawfulForwardPatternModel pat] {s : Slice} {startPos endPos : s.Pos}
     (h : IsLongestMatchAtChain pat startPos endPos) : endPos ≤ startPos.skipWhile pat := by
   induction h with
@@ -648,7 +648,7 @@ theorem Pos.revSkipWhile_le {ρ : Type} {pat : ρ} [PatternModel pat] [BackwardP
     [LawfulBackwardPatternModel pat] {s : Slice} {pos : s.Pos} : pos.revSkipWhile pat ≤ pos :=
   (Pattern.Model.Pos.isLongestRevMatchAtChain_revSkipWhile pat pos).le
 
-theorem Pattern.Model.Pos.isLongestRevMatchChain_le_revSkipWhile {ρ : Type} (pat : ρ) [PatternModel pat]
+theorem Pattern.Model.Pos.revSkipWhile_le_of_isLongestRevMatchAtChain {ρ : Type} (pat : ρ) [PatternModel pat]
     [BackwardPattern pat] [LawfulBackwardPatternModel pat] {s : Slice} {startPos endPos : s.Pos}
     (h : IsLongestRevMatchAtChain pat startPos endPos) : endPos.revSkipWhile pat ≤ startPos := by
   induction h with

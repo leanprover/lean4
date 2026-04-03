@@ -7,7 +7,7 @@ module
 
 prelude
 import Init.Grind
-public import Init.Data.String
+public import Init.Data.String.TakeDrop
 public import Std.Internal.Http.Internal.Char
 
 public section

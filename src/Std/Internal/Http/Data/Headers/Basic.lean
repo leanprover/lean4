@@ -9,6 +9,7 @@ prelude
 public import Std.Internal.Http.Data.Headers.Name
 public import Std.Internal.Http.Data.Headers.Value
 public import Std.Internal.Parsec.Basic
+import Init.Data.String.Search
 
 public section
 

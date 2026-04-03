@@ -8,6 +8,8 @@ module
 prelude
 public import Init.Data.ToString
 public import Std.Internal.Http.Internal
+import Init.Data.String.Search
+import Init.Data.String.Iter
 
 public section
 
@@ -107,10 +109,10 @@ but since HTTP header names are case-insensitive, this always uses simple capita
 -/
 @[inline]
 def toCanonical (name : Name) : String :=
-  let it := name.value.splitOn "-"
-    |>.map (·.capitalize)
+  let it := name.value.split '-'
+    |>.map (·.copy.capitalize)
 
-  String.intercalate "-" it
+  it.intercalateString "-"
 
 /--
 Performs a case-insensitive comparison between a `Name` and a `String`. Returns `true` if they match.

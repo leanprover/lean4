@@ -7,7 +7,7 @@ module
 
 prelude
 import Init.Data.ToString
-public import Init.Data.String
+public import Init.Data.String.Basic
 
 public section
 

@@ -10,6 +10,7 @@ import Init.Data.ToString
 public import Std.Net
 public import Std.Internal.Http.Internal
 public import Std.Internal.Http.Data.URI.Encoding
+public import Init.Data.String.Search
 
 public section
 
@@ -164,8 +165,8 @@ Proposition that asserts `s` is a valid dot-separated domain name.
 Each label must satisfy `IsValidDomainLabel`, and the full name must be at most 255 characters.
 -/
 abbrev IsValidDomainName (s : String) : Prop :=
-  let labels := s.splitOn "."
-  ¬labels.isEmpty ∧ labels.all isValidDomainLabel ∧ s.length ≤ 255
+  let labels := s.split '.'
+  ¬labels.isEmpty ∧ labels.all (fun s => isValidDomainLabel s.copy) ∧ s.length ≤ 255
 
 /--
 A domain name represented as a validated, lowercase-normalized string.

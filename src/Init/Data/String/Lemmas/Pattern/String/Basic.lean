@@ -73,7 +73,6 @@ theorem isLongestMatchAtChain_iff {pat s : Slice} {pos₁ pos₂ : s.Pos} :
     | zero => simp_all
     | succ n ih =>
       rw [List.replicate_succ, String.join_cons] at h'
-      let p := Pos.ofSlice (Pos.ofEqAppend h')
       refine .cons _ (Pos.ofSlice (Pos.ofEqAppend h')) _ ?_ (ih ?_ Pos.ofSlice_le ?_)
       · simpa [isLongestMatchAt_iff] using (Pos.splits_ofEqAppend h').copy_sliceTo_eq
       · simpa [sliceFrom_slice ▸ (Pos.splits_ofEqAppend h').copy_sliceFrom_eq] using ⟨n, rfl⟩

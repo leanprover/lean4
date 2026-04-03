@@ -275,7 +275,7 @@ theorem Pattern.Model.skipPrefixWhile_eq_iff {ρ : Type} (pat : ρ) [PatternMode
   simp [skipPrefixWhile_eq_skipWhile_startPos, Pos.skipWhile_eq_iff]
 
 theorem Pattern.Model.isLongestMatchAtChain_skipPrefixWhile {ρ : Type} (pat : ρ) [PatternModel pat]
-    [ForwardPattern pat] [LawfulForwardPatternModel pat] (s :Slice) :
+    [ForwardPattern pat] [LawfulForwardPatternModel pat] (s : Slice) :
     IsLongestMatchAtChain pat s.startPos (s.skipPrefixWhile pat) := by
   simpa [skipPrefixWhile_eq_skipWhile_startPos] using Pos.isLongestMatchAtChain_skipWhile pat s.startPos
 

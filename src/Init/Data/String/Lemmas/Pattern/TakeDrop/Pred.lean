@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.String.Slice
 public import Init.Data.String.TakeDrop
+public import Init.Data.String.Lemmas.Order
 import Init.Data.String.Lemmas.Pattern.TakeDrop.Basic
 import Init.Data.String.Lemmas.Pattern.Pred
 import Init.Data.Option.Lemmas
@@ -16,9 +17,7 @@ import Init.Data.String.Lemmas.Intercalate
 import Init.ByCases
 import Init.Data.Order.Lemmas
 import Init.Data.String.OrderInstances
-import Init.Data.String.Lemmas.Order
 import Init.Data.String.Lemmas.Basic
-public import Init.Data.String.Lemmas.Order
 
 public section
 
@@ -330,7 +329,7 @@ theorem apply_skipPrefixWhile_bool_eq_false {p : Char → Bool} {s : String} {h}
 theorem apply_eq_true_of_lt_skipPrefixWhile_bool {p : Char → Bool} {s : String} {pos : s.Pos} (h : pos < s.skipPrefixWhile p) :
     p (pos.get (Pos.ne_endPos_of_lt h)) = true := by
   rw [Pos.get_eq_get_toSlice]
-  exact  Slice.apply_eq_true_of_lt_skipPrefixWhile_bool (by simpa [skipPrefixWhile_eq_skipPrefixWhile_toSlice] using h)
+  exact Slice.apply_eq_true_of_lt_skipPrefixWhile_bool (by simpa [skipPrefixWhile_eq_skipPrefixWhile_toSlice] using h)
 
 @[simp]
 theorem all_bool_eq {p : Char → Bool} {s : String} : s.all p = s.toList.all p := by

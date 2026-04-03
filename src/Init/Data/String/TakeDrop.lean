@@ -253,7 +253,7 @@ For many types of patterns, this function can be expected to return the same res
 {name}`String.all`. If mismatches are expected to occur close to the end of the string, this function
 might be more efficient.
 
-For some types of patterns, this function will return a different result than {name}`Slice.all`.
+For some types of patterns, this function will return a different result than {name}`String.all`.
 Consider, for example, a pattern that matches the longest string at the given position that matches
 the regular expression {lean}`"a|aa|ab"`. Then, given the input string {lean}`"aab"`, performing
 {name}`String.all` will greedily match the prefix {lean}`"aa"` and then get stuck on the remainder

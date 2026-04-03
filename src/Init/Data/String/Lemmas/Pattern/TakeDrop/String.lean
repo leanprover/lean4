@@ -61,6 +61,10 @@ theorem eq_append_of_dropPrefix?_slice_eq_some {pat s res : Slice} (h : s.dropPr
   exact h
 
 @[simp]
+theorem all_slice_iff {pat s : Slice} : s.all pat ↔ ∃ n, s.copy = String.join (List.replicate n pat.copy) := by
+  simp [Pattern.Model.all_eq_true_iff, ForwardSliceSearcher.isLongestMatchAtChain_startPos_endPos_iff]
+
+@[simp]
 theorem skipPrefix?_string_eq_some_iff {pat : String} {s : Slice} {pos : s.Pos} :
     s.skipPrefix? pat = some pos ↔ ∃ t, pos.Splits pat t := by
   simp [skipPrefix?_string_eq_skipPrefix?_toSlice]
@@ -91,6 +95,7 @@ theorem eq_append_of_dropPrefix?_string_eq_some {pat : String} {s res : Slice} (
     s.copy = pat ++ res.copy := by
   rw [dropPrefix?_string_eq_dropPrefix?_toSlice] at h
   simpa using eq_append_of_dropPrefix?_slice_eq_some h
+
 
 theorem skipSuffix?_slice_of_isEmpty {pat s : Slice} (hpat : pat.isEmpty = true) :
     s.skipSuffix? pat = some s.endPos := by

@@ -662,6 +662,28 @@ theorem Pos.splits_append_rawEndPos {s t : String} :
   eq_append := rfl
   offset_eq_rawEndPos := rfl
 
+/--
+Given a slice `s` such that `s.copy = t₁ ++ t₂`, obtain the position sitting between `t₁` and `t₂`.
+-/
+def Slice.Pos.ofEqAppend {s : Slice} {t₁ t₂ : String} (h : s.copy = t₁ ++ t₂) : s.Pos :=
+  s.pos t₁.rawEndPos
+    (by simpa [← Pos.Raw.isValid_copy_iff, h] using ((Pos.Raw.isValid_rawEndPos).append_right t₂))
+
+theorem Slice.Pos.splits_ofEqAppend {s : Slice} {t₁ t₂ : String} (h : s.copy = t₁ ++ t₂) :
+    (ofEqAppend h).Splits t₁ t₂ where
+  eq_append := h
+  offset_eq_rawEndPos := by simp [ofEqAppend]
+
+/--
+Given a string `s` such that `s = t₁ ++ t₂`, obtain the position sitting between `t₁` and `t₂`.
+-/
+def Pos.ofEqAppend {s t₁ t₂ : String} (h : s = t₁ ++ t₂) : s.Pos :=
+  ((t₁ ++ t₂).pos t₁.rawEndPos ((Pos.Raw.isValid_rawEndPos).append_right t₂)).cast h.symm
+
+theorem Pos.splits_ofEqAppend {s t₁ t₂ : String} (h : s = t₁ ++ t₂) : (ofEqAppend h).Splits t₁ t₂ where
+  eq_append := h
+  offset_eq_rawEndPos := by simp [ofEqAppend]
+
 theorem Pos.Splits.copy_sliceTo_eq {s : String} {p : s.Pos} (h : p.Splits t₁ t₂) :
     (s.sliceTo p).copy = t₁ :=
   p.splits.eq_left h

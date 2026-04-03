@@ -56,6 +56,41 @@ theorem eq_append_of_dropPrefix?_char_eq_some {c : Char} {s res : Slice} (h : s.
     s.copy = singleton c ++ res.copy := by
   simpa [PatternModel.Matches] using Pattern.Model.eq_append_of_dropPrefix?_eq_some h
 
+theorem Pos.skip?_char_eq_some_iff {c : Char} {s : Slice} {pos res : s.Pos} :
+    pos.skip? c = some res ↔ ∃ h, res = pos.next h ∧ pos.get h = c := by
+  simp [Pattern.Model.Pos.skip?_eq_some_iff, Char.isLongestMatchAt_iff]
+
+@[simp]
+theorem Pos.skip?_char_eq_none_iff {c : Char} {s : Slice} {pos : s.Pos} :
+    pos.skip? c = none ↔ ∀ h, pos.get h ≠ c := by
+  simp [Pattern.Model.Pos.skip?_eq_none_iff, Char.matchesAt_iff]
+
+theorem Pos.get_skipWhile_char_ne {c : Char} {s : Slice} {pos : s.Pos} {h} :
+    (pos.skipWhile c).get h ≠ c := by
+  have := Pattern.Model.Pos.not_matchesAt_skipWhile c pos
+  simp_all [Char.matchesAt_iff]
+
+theorem Pos.skipWhile_char_eq_self_iff_get {c : Char} {s : Slice} {pos : s.Pos} :
+    pos.skipWhile c = pos ↔ ∀ h, pos.get h ≠ c := by
+  simp [Pattern.Model.Pos.skipWhile_eq_self_iff, Char.matchesAt_iff]
+
+theorem Pos.get_eq_of_lt_skipWhile_char {c : Char} {s : Slice} {pos pos' : s.Pos}
+    (h₁ : pos ≤ pos') (h₂ : pos' < pos.skipWhile c) : pos'.get (ne_endPos_of_lt h₂) = c :=
+  (Char.isLongestMatchAtChain_iff.1 (Pattern.Model.Pos.isLongestMatchAtChain_skipWhile c pos)).2 _ h₁ h₂
+
+theorem get_skipPrefixWhile_char_ne {c : Char} {s : Slice} {h} :
+    (s.skipPrefixWhile c).get h ≠ c := by
+  simp [skipPrefixWhile_eq_skipWhile_startPos, Pos.get_skipWhile_char_ne]
+
+theorem get_eq_of_lt_skipPrefixWhile_char {c : Char} {s : Slice} {pos : s.Pos} (h : pos < s.skipPrefixWhile c) :
+    pos.get (Pos.ne_endPos_of_lt h) = c :=
+  Pos.get_eq_of_lt_skipWhile_char (Pos.startPos_le _) (by rwa [skipPrefixWhile_eq_skipWhile_startPos] at h)
+
+@[simp]
+theorem all_char_iff {c : Char} {s : Slice} : s.all c ↔ s.copy.toList = List.replicate s.copy.length c := by
+  rw [Bool.eq_iff_iff]
+  simp [Pattern.Model.all_eq_true_iff, Char.isLongestMatchAtChain_startPos_endPos_iff_toList]
+
 theorem skipSuffix?_char_eq_some_iff {c : Char} {s : Slice} {pos : s.Pos} :
     s.skipSuffix? c = some pos ↔ ∃ h, pos = s.endPos.prev h ∧ (s.endPos.prev h).get (by simp) = c := by
   rw [Pattern.Model.skipSuffix?_eq_some_iff, Char.isLongestRevMatch_iff]

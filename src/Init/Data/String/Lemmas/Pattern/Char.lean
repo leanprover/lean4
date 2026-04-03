@@ -170,6 +170,31 @@ theorem isLongestMatchAt_iff_isLongestMatchAt_beq {c : Char} {s : Slice}
     IsLongestMatchAt c pos pos' ↔ IsLongestMatchAt (· == c) pos pos' := by
   simp [Model.isLongestMatchAt_iff, isLongestMatch_iff_isLongestMatch_beq]
 
+theorem isLongestMatchAtChain_iff_isLongestMatchAtChain_beq {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestMatchAtChain c pos pos' ↔ IsLongestMatchAtChain (· == c) pos pos' := by
+  refine ⟨fun h => ?_, fun h => ?_⟩
+  · induction h with
+    | nil => simp
+    | cons p₁ p₂ p₃ h₁ h₂ ih => exact .cons _ _ _ (isLongestMatchAt_iff_isLongestMatchAt_beq.1 h₁) ih
+  · induction h with
+    | nil => simp
+    | cons p₁ p₂ p₃ h₁ h₂ ih => exact .cons _ _ _ (isLongestMatchAt_iff_isLongestMatchAt_beq.2 h₁) ih
+
+theorem isLongestMatchAtChain_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestMatchAtChain c pos pos' ↔ pos ≤ pos' ∧ ∀ pos'', pos ≤ pos'' → (h : pos'' < pos') → pos''.get (Pos.ne_endPos_of_lt h) = c := by
+  simp [isLongestMatchAtChain_iff_isLongestMatchAtChain_beq, CharPred.isLongestMatchAtChain_iff]
+
+theorem isLongestMatchAtChain_iff_toList {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestMatchAtChain c pos pos' ↔
+      ∃ (h : pos ≤ pos'), (s.slice pos pos' h).copy.toList = List.replicate (s.slice pos pos' h).copy.length c := by
+  simp [isLongestMatchAtChain_iff_isLongestMatchAtChain_beq, CharPred.isLongestMatchAtChain_iff_toList,
+    List.eq_replicate_iff]
+
+theorem isLongestMatchAtChain_startPos_endPos_iff_toList {c : Char} {s : Slice} :
+    IsLongestMatchAtChain c s.startPos s.endPos ↔ s.copy.toList = List.replicate s.copy.length c := by
+  simp [isLongestMatchAtChain_iff_isLongestMatchAtChain_beq,
+    CharPred.isLongestMatchAtChain_startPos_endPos_iff_toList, List.eq_replicate_iff]
+
 theorem isLongestRevMatchAt_iff_isLongestRevMatchAt_beq {c : Char} {s : Slice}
     {pos pos' : s.Pos} :
     IsLongestRevMatchAt c pos pos' ↔ IsLongestRevMatchAt (· == c) pos pos' := by

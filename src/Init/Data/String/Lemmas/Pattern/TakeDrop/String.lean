@@ -65,6 +65,10 @@ theorem all_slice_iff {pat s : Slice} : s.all pat ↔ ∃ n, s.copy = String.joi
   simp [Pattern.Model.all_eq_true_iff, ForwardSliceSearcher.isLongestMatchAtChain_startPos_endPos_iff]
 
 @[simp]
+theorem revAll_slice_iff {pat s : Slice} : s.revAll pat ↔ ∃ n, s.copy = String.join (List.replicate n pat.copy) := by
+  simp [Pattern.Model.revAll_eq_true_iff, ForwardSliceSearcher.isLongestRevMatchAtChain_startPos_endPos_iff]
+
+@[simp]
 theorem skipPrefix?_string_eq_some_iff {pat : String} {s : Slice} {pos : s.Pos} :
     s.skipPrefix? pat = some pos ↔ ∃ t, pos.Splits pat t := by
   simp [skipPrefix?_string_eq_skipPrefix?_toSlice]

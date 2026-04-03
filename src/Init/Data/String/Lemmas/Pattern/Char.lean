@@ -200,6 +200,31 @@ theorem isLongestRevMatchAt_iff_isLongestRevMatchAt_beq {c : Char} {s : Slice}
     IsLongestRevMatchAt c pos pos' ↔ IsLongestRevMatchAt (· == c) pos pos' := by
   simp [Model.isLongestRevMatchAt_iff, isLongestRevMatch_iff_isLongestRevMatch_beq]
 
+theorem isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_beq {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestRevMatchAtChain c pos pos' ↔ IsLongestRevMatchAtChain (· == c) pos pos' := by
+  refine ⟨fun h => ?_, fun h => ?_⟩
+  · induction h with
+    | nil => simp
+    | cons p₂ p₃ _ hmatch ih => exact .cons _ _ _ ih (isLongestRevMatchAt_iff_isLongestRevMatchAt_beq.1 hmatch)
+  · induction h with
+    | nil => simp
+    | cons p₂ p₃ _ hmatch ih => exact .cons _ _ _ ih (isLongestRevMatchAt_iff_isLongestRevMatchAt_beq.2 hmatch)
+
+theorem isLongestRevMatchAtChain_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestRevMatchAtChain c pos pos' ↔ pos ≤ pos' ∧ ∀ pos'', pos ≤ pos'' → (h : pos'' < pos') → pos''.get (Pos.ne_endPos_of_lt h) = c := by
+  simp [isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_beq, CharPred.isLongestRevMatchAtChain_iff]
+
+theorem isLongestRevMatchAtChain_iff_toList {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestRevMatchAtChain c pos pos' ↔
+      ∃ (h : pos ≤ pos'), (s.slice pos pos' h).copy.toList = List.replicate (s.slice pos pos' h).copy.length c := by
+  simp [isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_beq, CharPred.isLongestRevMatchAtChain_iff_toList,
+    List.eq_replicate_iff]
+
+theorem isLongestRevMatchAtChain_startPos_endPos_iff_toList {c : Char} {s : Slice} :
+    IsLongestRevMatchAtChain c s.startPos s.endPos ↔ s.copy.toList = List.replicate s.copy.length c := by
+  simp [isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_beq,
+    CharPred.isLongestRevMatchAtChain_startPos_endPos_iff_toList, List.eq_replicate_iff]
+
 theorem matchesAt_iff_matchesAt_beq {c : Char} {s : Slice} {pos : s.Pos} :
     MatchesAt c pos ↔ MatchesAt (· == c) pos := by
   simp [matchesAt_iff_exists_isLongestMatchAt, isLongestMatchAt_iff_isLongestMatchAt_beq]

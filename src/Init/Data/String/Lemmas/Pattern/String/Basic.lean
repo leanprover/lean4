@@ -88,6 +88,36 @@ theorem isLongestRevMatchAt_iff {pat s : Slice} {pos₁ pos₂ : s.Pos} :
     IsLongestRevMatchAt pat pos₁ pos₂ ↔ ∃ h, (s.slice pos₁ pos₂ h).copy = pat.copy := by
   simp [Model.isLongestRevMatchAt_iff, isLongestRevMatch_iff]
 
+theorem isLongestRevMatchAtChain_iff {pat s : Slice} {pos₁ pos₂ : s.Pos} :
+    IsLongestRevMatchAtChain pat pos₁ pos₂ ↔
+      ∃ h n, (s.slice pos₁ pos₂ h).copy = String.join (List.replicate n pat.copy) := by
+  refine ⟨fun h => ⟨h.le, ?_⟩, fun ⟨h, n, h'⟩ => ?_⟩
+  · induction h with
+    | nil => simpa using ⟨0, by simp⟩
+    | cons p₂ p₃ h₁ h₂ ih =>
+      rw [isLongestRevMatchAt_iff] at h₂
+      obtain ⟨n, ih⟩ := ih
+      obtain ⟨h₀, h₂⟩ := h₂
+      have : (s.slice pos₁ p₃ (Std.le_trans h₁.le h₀)).copy = (s.slice pos₁ p₂ h₁.le).copy ++ (s.slice p₂ p₃ h₀).copy := by
+        simp [(Slice.Pos.slice p₂ _ _ (IsLongestRevMatchAtChain.le ‹_›) h₀).splits.eq_append]
+      refine ⟨n + 1, ?_⟩
+      rw [this, h₂, ih]
+      simp [← List.replicate_append_replicate]
+  · induction n generalizing pos₁ pos₂ with
+    | zero => simp_all
+    | succ n ih =>
+      have h'' : (s.slice pos₁ pos₂ h).copy = String.join (List.replicate n pat.copy) ++ pat.copy := by
+        rw [h', List.replicate_succ', String.join_append]; simp
+      refine .cons _ (Pos.ofSlice (Pos.ofEqAppend h'')) _ (ih ?_ Pos.le_ofSlice ?_) ?_
+      · simpa [sliceTo_slice ▸ (Pos.splits_ofEqAppend h'').copy_sliceTo_eq] using ⟨n, rfl⟩
+      · simpa using (Pos.splits_ofEqAppend h'').copy_sliceTo_eq
+      · simpa [isLongestRevMatchAt_iff] using (Pos.splits_ofEqAppend h'').copy_sliceFrom_eq
+
+theorem isLongestRevMatchAtChain_startPos_endPos_iff {pat s : Slice} :
+    IsLongestRevMatchAtChain pat s.startPos s.endPos ↔
+      ∃ n, s.copy = String.join (List.replicate n pat.copy) := by
+  simp [isLongestRevMatchAtChain_iff]
+
 theorem isLongestMatchAt_iff_splits {pat s : Slice} {pos₁ pos₂ : s.Pos} :
     IsLongestMatchAt pat pos₁ pos₂ ↔ ∃ t₁ t₂, pos₁.Splits t₁ (pat.copy ++ t₂) ∧
       pos₂.Splits (t₁ ++ pat.copy) t₂ := by
@@ -317,6 +347,30 @@ theorem isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice {pat : String} {s : 
     IsLongestRevMatchAt (ρ := String) pat pos₁ pos₂ ↔
       IsLongestRevMatchAt (ρ := Slice) pat.toSlice pos₁ pos₂ := by
   simp [Model.isLongestRevMatchAt_iff, isLongestRevMatch_iff_isLongestRevMatch_toSlice]
+
+theorem isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_toSlice {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos} :
+    IsLongestRevMatchAtChain pat pos₁ pos₂ ↔
+      IsLongestRevMatchAtChain pat.toSlice pos₁ pos₂ := by
+  refine ⟨fun h => ?_, fun h => ?_⟩
+  · induction h with
+    | nil => simp
+    | cons p₂ p₃ _ hmatch ih =>
+      exact .cons _ _ _ ih (isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice.1 hmatch)
+  · induction h with
+    | nil => simp
+    | cons p₂ p₃ _ hmatch ih =>
+      exact .cons _ _ _ ih (isLongestRevMatchAt_iff_isLongestRevMatchAt_toSlice.2 hmatch)
+
+theorem isLongestRevMatchAtChain_iff {pat : String} {s : Slice} {pos₁ pos₂ : s.Pos} :
+    IsLongestRevMatchAtChain pat pos₁ pos₂ ↔
+      ∃ h n, (s.slice pos₁ pos₂ h).copy = String.join (List.replicate n pat) := by
+  simp [isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_toSlice,
+    ForwardSliceSearcher.isLongestRevMatchAtChain_iff]
+
+theorem isLongestRevMatchAtChain_startPos_endPos_iff {pat : String} {s : Slice} :
+    IsLongestRevMatchAtChain pat s.startPos s.endPos ↔
+      ∃ n, s.copy = String.join (List.replicate n pat) := by
+  simp [isLongestRevMatchAtChain_iff]
 
 theorem matchesAt_iff_toSlice {pat : String} {s : Slice} {pos : s.Pos} :
     MatchesAt (ρ := String) pat pos ↔ MatchesAt (ρ := Slice) pat.toSlice pos := by

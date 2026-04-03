@@ -91,6 +91,42 @@ theorem all_char_iff {c : Char} {s : Slice} : s.all c ↔ s.copy.toList = List.r
   rw [Bool.eq_iff_iff]
   simp [Pattern.Model.all_eq_true_iff, Char.isLongestMatchAtChain_startPos_endPos_iff_toList]
 
+theorem Pos.revSkip?_char_eq_some_iff {c : Char} {s : Slice} {pos res : s.Pos} :
+    pos.revSkip? c = some res ↔ ∃ h, res = pos.prev h ∧ (pos.prev h).get (by simp) = c := by
+  simp [Pattern.Model.Pos.revSkip?_eq_some_iff, Char.isLongestRevMatchAt_iff]
+
+@[simp]
+theorem Pos.revSkip?_char_eq_none_iff {c : Char} {s : Slice} {pos : s.Pos} :
+    pos.revSkip? c = none ↔ ∀ h, (pos.prev h).get (by simp) ≠ c := by
+  simp [Pattern.Model.Pos.revSkip?_eq_none_iff, Char.revMatchesAt_iff]
+
+theorem Pos.get_revSkipWhile_char_ne {c : Char} {s : Slice} {pos : s.Pos} {h} :
+    ((pos.revSkipWhile c).prev h).get (by simp) ≠ c := by
+  have := Pattern.Model.Pos.not_revMatchesAt_revSkipWhile c pos
+  simp_all [Char.revMatchesAt_iff]
+
+theorem Pos.revSkipWhile_char_eq_self_iff_get {c : Char} {s : Slice} {pos : s.Pos} :
+    pos.revSkipWhile c = pos ↔ ∀ h, (pos.prev h).get (by simp) ≠ c := by
+  simp [Pattern.Model.Pos.revSkipWhile_eq_self_iff, Char.revMatchesAt_iff]
+
+theorem Pos.get_eq_of_revSkipWhile_le_char {c : Char} {s : Slice} {pos pos' : s.Pos}
+    (h₁ : pos' < pos) (h₂ : pos.revSkipWhile c ≤ pos') : pos'.get (Pos.ne_endPos_of_lt h₁) = c :=
+  (Char.isLongestRevMatchAtChain_iff.1 (Pattern.Model.Pos.isLongestRevMatchAtChain_revSkipWhile c pos)).2 _ h₂ h₁
+
+theorem get_skipSuffixWhile_char_ne {c : Char} {s : Slice} {h} :
+    ((s.skipSuffixWhile c).prev h).get (by simp) ≠ c := by
+  simp [skipSuffixWhile_eq_revSkipWhile_endPos, Pos.get_revSkipWhile_char_ne]
+
+theorem get_eq_of_skipSuffixWhile_le_char {c : Char} {s : Slice} {pos : s.Pos}
+    (h : s.skipSuffixWhile c ≤ pos) (h' : pos < s.endPos) :
+    pos.get (Pos.ne_endPos_of_lt h') = c :=
+  Pos.get_eq_of_revSkipWhile_le_char h' (by rwa [skipSuffixWhile_eq_revSkipWhile_endPos] at h)
+
+@[simp]
+theorem revAll_char_iff {c : Char} {s : Slice} : s.revAll c ↔ s.copy.toList = List.replicate s.copy.length c := by
+  rw [Bool.eq_iff_iff]
+  simp [Pattern.Model.revAll_eq_true_iff, Char.isLongestRevMatchAtChain_startPos_endPos_iff_toList]
+
 theorem skipSuffix?_char_eq_some_iff {c : Char} {s : Slice} {pos : s.Pos} :
     s.skipSuffix? c = some pos ↔ ∃ h, pos = s.endPos.prev h ∧ (s.endPos.prev h).get (by simp) = c := by
   rw [Pattern.Model.skipSuffix?_eq_some_iff, Char.isLongestRevMatch_iff]

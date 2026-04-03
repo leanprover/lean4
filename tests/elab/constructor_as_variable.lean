@@ -129,9 +129,13 @@ Hint: Using one of these would be valid:
   [apply] `List.Pairwise.cons`
   [apply] `Lean.Grind.AC.Seq.cons`
   [apply] `List.Lex.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestMatchAtChain.below.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestRevMatchAtChain.cons`
   [apply] `List.Sublist.below.cons`
   [apply] `List.Perm.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestRevMatchAtChain.below.cons`
   [apply] `List.Sublist.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestMatchAtChain.cons`
   [apply] `Lean.AssocList.cons`
   [apply] `List.Perm.below.cons`
   [apply] `List.Lex.below.cons`
@@ -161,9 +165,13 @@ Hint: Using one of these would be valid:
   [apply] `List.Pairwise.cons`
   [apply] `Lean.Grind.AC.Seq.cons`
   [apply] `List.Lex.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestMatchAtChain.below.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestRevMatchAtChain.cons`
   [apply] `List.Sublist.below.cons`
   [apply] `List.Perm.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestRevMatchAtChain.below.cons`
   [apply] `List.Sublist.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestMatchAtChain.cons`
   [apply] `Lean.AssocList.cons`
   [apply] `List.Perm.below.cons`
   [apply] `List.Lex.below.cons`

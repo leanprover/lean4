@@ -381,4 +381,16 @@ theorem takeEndWhile_char_eq_takeEndWhile_beq {c : Char} {s : Slice} :
     s.takeEndWhile c = s.takeEndWhile (· == c) := by
   simp only [takeEndWhile]; exact congrArg _ skipSuffixWhile_char_eq_skipSuffixWhile_beq
 
+theorem revFind?_char_eq_revFind?_beq {c : Char} {s : Slice} :
+    s.revFind? c = s.revFind? (· == c) :=
+  (rfl)
+
+theorem Pos.revFind?_char_eq_revFind?_beq {c : Char} {s : Slice} {p : s.Pos} :
+    p.revFind? c = p.revFind? (· == c) :=
+  (rfl)
+
+theorem revAll_char_eq_revAll_beq {c : Char} {s : Slice} :
+    s.revAll c = s.revAll (· == c) := by
+  simp [revAll, skipSuffixWhile_char_eq_skipSuffixWhile_beq]
+
 end String.Slice

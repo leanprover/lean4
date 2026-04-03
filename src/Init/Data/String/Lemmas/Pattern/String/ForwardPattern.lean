@@ -285,4 +285,8 @@ public theorem takeEndWhile_string_eq_takeEndWhile_toSlice {pat : String} {s : S
     s.takeEndWhile pat = s.takeEndWhile pat.toSlice := by
   simp only [takeEndWhile]; exact congrArg _ skipSuffixWhile_string_eq_skipSuffixWhile_toSlice
 
+public theorem revAll_string_eq_revAll_toSlice {pat : String} {s : Slice} :
+    s.revAll pat = s.revAll pat.toSlice := by
+  simp [revAll, skipSuffixWhile_string_eq_skipSuffixWhile_toSlice]
+
 end String.Slice

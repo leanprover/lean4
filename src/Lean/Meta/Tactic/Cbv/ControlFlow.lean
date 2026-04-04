@@ -44,7 +44,7 @@ def isCbvNoncomputable (p : Name) : CoreM Bool := do
   return evalLemmas.isNone && Lean.isNoncomputable (← getEnv) p
 
 /--
-Attemps to synthesize `Decidable p` instance and guards against picking up a `noncomputable` instance
+Attempts to synthesize `Decidable p` instance and guards against picking up a `noncomputable` instance
 -/
 def trySynthComputableInstance (p : Expr) : SymM <| Option Expr := do
   let .some inst' ← trySynthInstance (mkApp (mkConst ``Decidable) p) | return .none
@@ -112,7 +112,7 @@ builtin_cbv_simproc ↓ simpIteCbv (@ite _ _ _ _ _) := fun e => do
       else if (← isFalseExpr c') then
         return .step b (mkApp (e.replaceFn ``ite_cond_eq_false) h) (contextDependent := cd)
       else
-        -- If we got stuck with simplifying `p` then let's try evaluating the original isntance
+        -- If we got stuck with simplifying `p` then let's try evaluating the original instance
         simpAndMatchIteDecidable f α c inst a b do
           -- If we get stuck here, maybe the problem is that we need to look at `Decidable c'`
           let inst' := mkApp4 (mkConst ``decidable_of_decidable_of_eq) c c' inst h
@@ -317,7 +317,7 @@ public def reduceRecMatcher : Simproc := fun e => do
   else
     return .rfl
 
-builtin_cbv_simproc ↓ simpDecidableRec (@Decidable.rec _ _ _ _ _) := 
+builtin_cbv_simproc ↓ simpDecidableRec (@Decidable.rec _ _ _ _ _) :=
   (simpInterlaced · #[false,false,false,false,true]) >> reduceRecMatcher
 
 def tryMatchEquations (appFn : Name) : Simproc := fun e => do

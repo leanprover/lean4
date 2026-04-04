@@ -220,7 +220,7 @@ private structure ToolchainCandidate where
   fixed : Bool := false
 
 private structure ToolchainState where
-  /-- The name of depedency which provided the current candidate toolchain. -/
+  /-- The name of dependency which provided the current candidate toolchain. -/
   src : Name
   /-- The current candidate toolchain version (if any). -/
   tc? : Option ToolchainVer

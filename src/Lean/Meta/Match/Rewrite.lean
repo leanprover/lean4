@@ -17,7 +17,7 @@ namespace Lean.Meta
 
 /--
 Tries to rewrite the `ite`, `dite` or `cond` expression `e` with the hypothesis `hc`.
-If it fails, it returns a rewrite with `proof? := none` and unchaged expression.
+If it fails, it returns a rewrite with `proof? := none` and unchanged expression.
 -/
 def rwIfWith (hc : Expr) (e : Expr) : MetaM Simp.Result := do
   match_expr e with

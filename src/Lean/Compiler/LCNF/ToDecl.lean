@@ -171,7 +171,7 @@ def toDecl (declName : Name) : CompilerM (Decl .pure) := do
     if compiler.ignoreBorrowAnnotation.get (← getOptions) then
       decl := { decl with params := ← decl.params.mapM (·.updateBorrow false) }
     if isExport env decl.name && decl.params.any (·.borrow) then
-      throwError m!" Declaration {decl.name} is marked as `export` but some of its parameters have borrow annotations.\n Consider using `set_option compiler.ignoreBorrowAnnotation true in` to supress the borrow annotations in its type.\n If the declaration is part of an `export`/`extern` pair make sure to also supress the annotations at the `extern` declaration."
+      throwError m!" Declaration {decl.name} is marked as `export` but some of its parameters have borrow annotations.\n Consider using `set_option compiler.ignoreBorrowAnnotation true in` to suppress the borrow annotations in its type.\n If the declaration is part of an `export`/`extern` pair make sure to also suppress the annotations at the `extern` declaration."
     return decl
 
 end Lean.Compiler.LCNF

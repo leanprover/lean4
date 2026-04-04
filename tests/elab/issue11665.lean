@@ -10,4 +10,4 @@ def test1 : (n : Nat) → T n → Unit
    | _, _ => ()
 
 def eqns := @test1.match_1.eq_1 -- used to fail
-def congreqns := @test1.match_1.congr_eq_1 -- used to faile
+def congreqns := @test1.match_1.congr_eq_1 -- used to fail

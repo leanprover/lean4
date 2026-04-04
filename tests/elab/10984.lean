@@ -66,7 +66,7 @@ Example of `@` from Floris van Doorn at https://github.com/leanprover/lean4/issu
 example {α : Type} (f : ∀ {α}, List α → List α) : f (@.nil α) = .nil := sorry
 
 /-!
-Example of `@` plus universe levels adapated from https://github.com/leanprover/lean4/issues/10984
+Example of `@` plus universe levels adapted from https://github.com/leanprover/lean4/issues/10984
 -/
 example {α : Type u} (f : ∀ {α}, List α → List α) : f (@.nil.{u} α) = .nil := sorry
 

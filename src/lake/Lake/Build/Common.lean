@@ -271,7 +271,7 @@ Returns `true` if the saved trace exists and its hash matches `inputHash`.
 
 If up-to-date, replays the saved log from the trace and sets the current
 build action to `replay`. Otherwise, if the log is empty and trace is synthetic,
-or if the trace is not up-to-date, the build action will be set ot `fetch`.
+or if the trace is not up-to-date, the build action will be set to `fetch`.
 -/
 public def SavedTrace.replayOrFetchIfUpToDate (inputHash : Hash) (self : SavedTrace) : JobM Bool := do
   if let .ok data := self then

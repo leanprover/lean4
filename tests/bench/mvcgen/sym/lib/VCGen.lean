@@ -219,7 +219,7 @@ lemma for the backward rule.
 
 It is unnecessary to use the `bind` rule in full generality. It is much more efficient to specialize
 it for the particular monad, postshape and `WP` instance. In doing so we can also unfold many
-`Std.Do` abbrevations, such as `Assertion ps` and `PostCond α ps`.
+`Std.Do` abbreviations, such as `Assertion ps` and `PostCond α ps`.
 We do that by doing `unfoldReducible` on the forall telescope. The type for `StateM Nat` and one
 excess state arg `s` becomes
 ```

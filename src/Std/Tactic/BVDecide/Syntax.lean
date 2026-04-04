@@ -53,7 +53,7 @@ structure BVDecideConfig where
   /--
   Split hypotheses of the form `h : (x && y) = true` into `h1 : x = true` and `h2 : y = true`.
   This has synergy potential with embedded constraint substitution. Because embedded constraint
-  subsitution is the only use case for this feature it is automatically disabled whenever embedded
+  substitution is the only use case for this feature it is automatically disabled whenever embedded
   constraint substitution is disabled.
   -/
   andFlattening : Bool := true

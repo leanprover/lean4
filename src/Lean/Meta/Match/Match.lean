@@ -33,12 +33,12 @@ The high-level overview of moves are
   * If there is an alternative, solve its constraints
   * Else use `contradiction` to prove completeness of the match
 * Process “independent prefixes” of patterns. These are patterns that can be processed without
-  affecting the aother alternatives, and without side effects in the sense of updating the `mvarId`.
+  affecting the other alternatives, and without side effects in the sense of updating the `mvarId`.
   These are
   - variable patterns; substitute
   - inaccessible patterns; add equality constraints
   - as-patterns: substitute value and equality
-  After thes have been processed, we use `.inaccessible x` where `x` is the variable being matched
+  After these have been processed, we use `.inaccessible x` where `x` is the variable being matched
   to mark them as “done”.
 * If all patterns start with “done”, drop the first variable
 * The first alt has only “done” patterns, drop remaining alts (they're overlapped)

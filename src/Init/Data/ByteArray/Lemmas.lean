@@ -242,19 +242,19 @@ theorem extract_add_two {a : ByteArray} {i : Nat} (ha : i + 2 ≤ a.size) :
     a.extract i (i + 2) = [a[i], a[i + 1]].toByteArray := by
   rw [extract_eq_extract_append_extract (i + 1) (by simp) (by omega),
     extract_add_one (by omega), extract_add_one (by omega)]
-  simp [← List.toByteArray_append]; rfl
+  simp [← List.toByteArray_append]
 
 theorem extract_add_three {a : ByteArray} {i : Nat} (ha : i + 3 ≤ a.size) :
     a.extract i (i + 3) = [a[i], a[i + 1], a[i + 2]].toByteArray := by
   rw [extract_eq_extract_append_extract (i + 1) (by simp) (by omega),
     extract_add_one (by omega), extract_add_two (by omega)]
-  simp [← List.toByteArray_append]; rfl
+  simp [← List.toByteArray_append]
 
 theorem extract_add_four {a : ByteArray} {i : Nat} (ha : i + 4 ≤ a.size) :
     a.extract i (i + 4) = [a[i], a[i + 1], a[i + 2], a[i + 3]].toByteArray := by
   rw [extract_eq_extract_append_extract (i + 1) (by simp) (by omega),
     extract_add_one (by omega), extract_add_three (by omega)]
-  simp [← List.toByteArray_append]; rfl
+  simp [← List.toByteArray_append]
 
 theorem append_assoc {a b c : ByteArray} : a ++ b ++ c = a ++ (b ++ c) := by
   ext1

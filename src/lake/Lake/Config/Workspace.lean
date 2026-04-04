@@ -188,7 +188,7 @@ This is configured through {lit}`cache.service` entries in the system Lake confi
 @[inline] public def packageOverridesFile (self : Workspace) : FilePath :=
   self.lakeDir / "package-overrides.json"
 
-/-- Add a well-formed package to the workspace. -/
+/-- **For internal use only.** Add a well-formed package to the workspace. -/
 @[inline] public def addPackage' (pkg : Package) (self : Workspace) (h : pkg.wsIdx = self.packages.size) : Workspace :=
   {self with
     packages := self.packages.push pkg

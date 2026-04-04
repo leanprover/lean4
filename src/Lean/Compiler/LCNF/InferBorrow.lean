@@ -67,7 +67,7 @@ structure ParamMap where
   The set of fvars that were already annotated as borrowed before arriving at this pass. We try to
   preserve the annotations here if possible.
   -/
-  annoatedBorrows : Std.HashSet FVarId := {}
+  annotatedBorrows : Std.HashSet FVarId := {}
 
 namespace ParamMap
 
@@ -95,7 +95,7 @@ where
         modify fun m =>
           { m with
             map := m.map.insert (.decl decl.name) (initParamsIfNotExported exported decl.params),
-            annoatedBorrows := decl.params.foldl (init := m.annoatedBorrows) fun acc p =>
+            annotatedBorrows := decl.params.foldl (init := m.annotatedBorrows) fun acc p =>
               if p.borrow then acc.insert p.fvarId else acc
           }
         goCode decl.name code
@@ -116,7 +116,7 @@ where
       modify fun m =>
         { m with
           map := m.map.insert (.jp declName decl.fvarId) (initParams decl.params),
-          annoatedBorrows := decl.params.foldl (init := m.annoatedBorrows) fun acc p =>
+          annotatedBorrows := decl.params.foldl (init := m.annotatedBorrows) fun acc p =>
             if p.borrow then acc.insert p.fvarId else acc
         }
       goCode declName decl.value
@@ -286,7 +286,7 @@ where
 
   ownFVar (fvarId : FVarId) (reason : OwnReason) : InferM Unit := do
     unless (← get).owned.contains fvarId do
-      if !reason.isForced && (← get).paramMap.annoatedBorrows.contains fvarId then
+      if !reason.isForced && (← get).paramMap.annotatedBorrows.contains fvarId then
         trace[Compiler.inferBorrow] "user annotation blocked owning {← PP.run <| PP.ppFVar fvarId}: {← reason.toString}"
       else
         trace[Compiler.inferBorrow] "own {← PP.run <| PP.ppFVar fvarId}: {← reason.toString}"

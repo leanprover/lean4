@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Core
+public import Init.Repeat
+public meta import Init.Meta.Defs
 
 public section
 
@@ -35,7 +36,8 @@ instance [Monad m] : ForIn m Loop Unit where
 syntax "repeat " doSeq : doElem
 
 macro_rules
-  | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
+  | `(doElem| repeat $seq) =>
+    `(doElem| for _ in Loop.mk do $seq)
 
 syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
 

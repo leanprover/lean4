@@ -135,6 +135,13 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
       continues := false,
       breaks := false
     }
+  | `(doRepeat| repeat $bodySeq) =>
+    let info ← ofSeq bodySeq
+    return { info with  -- keep only reassigns and earlyReturn
+      numRegularExits := if info.breaks then 1 else 0,
+      continues := false,
+      breaks := false
+    }
   -- Try
   | `(doElem| try $trySeq:doSeq $[$catches]* $[finally $finSeq?]?) =>
     let mut info ← ofSeq trySeq

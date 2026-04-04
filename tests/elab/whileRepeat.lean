@@ -1,3 +1,5 @@
+set_option backward.do.legacy false
+
 def test2 : IO Unit := do
   let mut i := 0
   repeat

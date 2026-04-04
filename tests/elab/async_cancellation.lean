@@ -1,6 +1,8 @@
 import Std.Internal.Async
 import Std.Sync
 
+set_option backward.do.legacy false
+
 open Std.Internal.IO Async
 
 def cancellableSelector [Monad m] [MonadLift IO m] [MonadAsync AsyncTask m] (fn : Std.CancellationToken → m α) : m (Selector (Except IO.Error α)) := do

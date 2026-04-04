@@ -1,5 +1,7 @@
 import Std.Sync.RecursiveMutex
 
+set_option backward.do.legacy false
+
 def countIt (mutex : Std.RecursiveMutex Nat) : IO Unit := do
   for _ in *...(1000 : Nat) do
     mutex.atomically do

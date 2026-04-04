@@ -1694,7 +1694,7 @@ def startLoadingReferences (referenceData : Std.Mutex ReferenceData) : IO Unit :
 def runMessageLoggingTask (logData : LogData) : IO Unit := do
   let some ch := logData.chan?
     | return
-  let _ ← ServerTask.IO.asTask do
+  let _ ← ServerTask.IO.asTask (α := Unit) do
     let logFile ← IO.FS.Handle.mk logData.cfg.logFile FS.Mode.append
     let mut pending : Std.HashMap RequestID Logging.MessageMethod := ∅
     repeat

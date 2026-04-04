@@ -175,6 +175,8 @@ def checkResultWithRoot (root : Option String) (str : String) : IO Unit := do
     h.putStrLn r###"
 import Lean.DocString.Links
 
+set_option backward.do.legacy false
+
 open Lean
 
 def main : IO Unit := do

@@ -4,6 +4,8 @@ open Std.Internal.IO Async
 open Std.Http
 open Std.Http.Body
 
+set_option backward.do.legacy false
+
 /-! ## Stream tests -/
 
 -- Test send and recv on stream

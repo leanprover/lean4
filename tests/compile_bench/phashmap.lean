@@ -1,6 +1,8 @@
 import Lean.Data.PersistentHashMap
 import Std.Data.Iterators
 
+set_option backward.do.legacy false
+
 /-!
 Benchmark for the built-in `Lean.Data.PersistentHashMap`, inspired by:
 - https://github.com/google/hashtable-benchmarks

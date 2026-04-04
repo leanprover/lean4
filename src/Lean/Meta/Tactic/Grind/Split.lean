@@ -142,7 +142,6 @@ def checkSplitInfoArgStatus (a b : Expr) (eq : Expr) : GoalM SplitStatus := do
         return .ready 2 (tryPostpone := true)
     it_a := it_a.appFn!
     it_b := it_b.appFn!
-  return .ready 2
 
 private def checkForallStatus (imp : Expr) (h : imp.isForall) : GoalM SplitStatus := do
   if (← isEqTrue imp) then

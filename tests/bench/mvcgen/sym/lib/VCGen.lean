@@ -18,6 +18,8 @@ public meta import Lean.Meta.Tactic.Grind.Main
 public meta import Lean.Meta.Tactic.Grind.Solve
 meta import Lean.Elab.Tactic.Grind
 
+set_option backward.do.legacy false
+
 open Lean Parser Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
 open Std.Do
@@ -681,7 +683,7 @@ meta def simpTargetTelescope (mvarId : MVarId) : VCGenM MVarId := do
   let methods := { methods with pre := Sym.Simp.simpTelescope }
   let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} simpState
   modify fun s => { s with simpState := simpState' }
-  let mvarId ← match result with
+  match result with
     | .rfl .. => pure mvarId
     | .step newTarget proof .. => mvarId.replaceTargetEq newTarget proof
 

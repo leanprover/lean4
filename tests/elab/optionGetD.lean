@@ -1,5 +1,7 @@
 import Std.Data.HashMap
 
+set_option backward.do.legacy false
+
 def test (m : Std.HashMap Nat Nat) : IO (Nat × Nat) := do
   let start := 1
   let mut i := start

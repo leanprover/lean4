@@ -107,7 +107,6 @@ private def collectMatchCondLhss (e : Expr) : Array (Expr × Option Expr) := Id.
       unless lhs.hasLooseBVars do
         r := r.push (lhs, α?)
     e := b
-  return r
 
 /--
 Replaces the left-hand side of an equality (or heterogeneous equality) `e` with `lhsNew`.

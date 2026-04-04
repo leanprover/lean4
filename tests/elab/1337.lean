@@ -1,3 +1,5 @@
+set_option backward.do.legacy false
+
 theorem n_minus_one_le_n {n : Nat} : n > 0 → n - 1 < n := by
   cases n with
   | zero => simp []

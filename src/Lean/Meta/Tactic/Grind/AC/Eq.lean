@@ -121,7 +121,6 @@ local macro "gen_cnstr_fns " cnstr:ident : command =>
       else
         trace[grind.debug.ac.simplify] "{← c.denoteExpr}"
         return c
-    return c
 
   /--
   Simplifies `c` (lhs and rhs) using `c'`, returns `some c` if simplified.
@@ -173,7 +172,6 @@ local macro "gen_cnstr_fns " cnstr:ident : command =>
       else
         trace[grind.debug.ac.simp] "done: {← c.denoteExpr}"
         return c
-    return c
 
   /--
   Simplifies `c` (lhs and rhs) using `c'`, returns `some c` if simplified.

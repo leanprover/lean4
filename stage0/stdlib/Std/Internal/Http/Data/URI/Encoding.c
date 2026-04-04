@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Http.Data.URI.Encoding
-// Imports: import Init.Grind import Init.While import Init.Data.SInt.Lemmas import Init.Data.UInt.Lemmas import Init.Data.UInt.Bitwise import Init.Data.Array.Lemmas public import Init.Data.String public import Std.Internal.Http.Internal.Char
+// Imports: import Init.Grind import Init.While import Init.Data.SInt.Lemmas import Init.Data.UInt.Lemmas import Init.Data.UInt.Bitwise import Init.Data.Array.Lemmas public import Init.Data.String.Basic public import Std.Internal.Http.Internal.Char
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4485,7 +4485,7 @@ lean_object* runtime_initialize_Init_Data_SInt_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_UInt_Bitwise(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Lemmas(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_String(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Internal_Http_Internal_Char(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Http_Data_URI_Encoding(uint8_t builtin) {
@@ -4510,7 +4510,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Array_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String(builtin);
+res = runtime_initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Http_Internal_Char(builtin);
@@ -4531,7 +4531,7 @@ lean_object* initialize_Init_Data_SInt_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_UInt_Bitwise(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_String(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* initialize_Std_Internal_Http_Internal_Char(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Http_Data_URI_Encoding(uint8_t builtin) {
@@ -4556,7 +4556,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Array_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String(builtin);
+res = initialize_Init_Data_String_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Internal_Http_Internal_Char(builtin);

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Http.Internal.LowerCase
-// Imports: import Init.Grind import Init.Data.Int.OfNat import Init.Data.UInt.Lemmas public import Init.Data.String
+// Imports: import Init.Grind import Init.Data.Int.OfNat import Init.Data.UInt.Lemmas public import Init.Data.String.Modify import Init.Data.String.Lemmas.Modify
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -53,7 +53,8 @@ return v_r_10_;
 lean_object* runtime_initialize_Init_Grind(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_OfNat(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_String(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Modify(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_Modify(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Http_Internal_LowerCase(uint8_t builtin) {
 lean_object * res;
@@ -68,7 +69,10 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_UInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String(builtin);
+res = runtime_initialize_Init_Data_String_Modify(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_Modify(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -83,7 +87,8 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Init_Grind(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_OfNat(uint8_t builtin);
 lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_String(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Modify(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_Modify(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Http_Internal_LowerCase(uint8_t builtin) {
 lean_object * res;
@@ -98,7 +103,10 @@ lean_dec_ref(res);
 res = initialize_Init_Data_UInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_String(builtin);
+res = initialize_Init_Data_String_Modify(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas_Modify(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Http_Internal_LowerCase(builtin);

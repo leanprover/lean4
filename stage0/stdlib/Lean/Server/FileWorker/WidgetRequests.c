@@ -135,7 +135,6 @@ lean_object* l_Lean_MessageData_formatAux(lean_object*, lean_object*, lean_objec
 extern lean_object* l_Std_Format_defWidth;
 lean_object* l_Std_Format_pretty(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Widget_msgToInteractive(lean_object*, uint8_t, lean_object*);
-lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_RequestM_pureTask___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_instFromJsonGoToKind_fromJson(lean_object*);
 extern lean_object* l_Lean_Widget_instImpl_00___x40_Lean_Widget_Basic_2038268869____hygCtx___hyg_3_;
@@ -161,6 +160,7 @@ lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_o
 lean_object* l_Lean_Server_instToJsonGoToKind_toJson(uint8_t);
 extern lean_object* l_Lean_instInhabitedMessageData_default;
 lean_object* l_Lean_Server_instInhabitedWithRpcRef_default___redArg(lean_object*);
+lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_once_cell_t l_Lean_Widget_instInhabitedMsgToInteractive_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Widget_instInhabitedMsgToInteractive_default___closed__0;
 static lean_once_cell_t l_Lean_Widget_instInhabitedMsgToInteractive_default___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -602,20 +602,20 @@ LEAN_EXPORT uint8_t l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Wi
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_contains___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_matchEndPos(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_matchEndPos___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___redArg(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static const lean_array_object l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
-static const lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__0 = (const lean_object*)&l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__0_value;
-static const lean_ctor_object l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__0_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
-static const lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__1 = (const lean_object*)&l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__1_value;
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___redArg___boxed(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+static const lean_array_object l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
+static const lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___closed__0 = (const lean_object*)&l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___closed__0_value;
+static const lean_ctor_object l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___closed__0_value),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___closed__1 = (const lean_object*)&l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___closed__1_value;
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_findTaggedTextMatches___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_findTaggedTextMatches___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_findTaggedTextMatches___redArg(lean_object*, lean_object*, lean_object*);
@@ -630,18 +630,18 @@ LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_S
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_updateMatches_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_updateState(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_updateState___boxed(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightTaggedText_go___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightTaggedText_go_spec__0___redArg(lean_object*, lean_object*, size_t, size_t, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightTaggedText_go_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -11641,7 +11641,7 @@ lean_dec_ref(v_query_3405_);
 return v_res_3407_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___redArg(lean_object* v_text_3408_, lean_object* v_p_3409_, lean_object* v_matchPosition_3410_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___redArg(lean_object* v_text_3408_, lean_object* v_p_3409_, lean_object* v_matchPosition_3410_){
 _start:
 {
 uint8_t v___x_3411_; 
@@ -11664,37 +11664,37 @@ return v___x_3415_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___redArg___boxed(lean_object* v_text_3416_, lean_object* v_p_3417_, lean_object* v_matchPosition_3418_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___redArg___boxed(lean_object* v_text_3416_, lean_object* v_p_3417_, lean_object* v_matchPosition_3418_){
 _start:
 {
 lean_object* v_res_3419_; 
-v_res_3419_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3416_, v_p_3417_, v_matchPosition_3418_);
+v_res_3419_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3416_, v_p_3417_, v_matchPosition_3418_);
 lean_dec(v_matchPosition_3418_);
 lean_dec(v_p_3417_);
 lean_dec_ref(v_text_3416_);
 return v_res_3419_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f(lean_object* v_00_u03b1_3420_, lean_object* v_text_3421_, lean_object* v_p_3422_, lean_object* v_matchPosition_3423_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f(lean_object* v_00_u03b1_3420_, lean_object* v_text_3421_, lean_object* v_p_3422_, lean_object* v_matchPosition_3423_){
 _start:
 {
 lean_object* v___x_3424_; 
-v___x_3424_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3421_, v_p_3422_, v_matchPosition_3423_);
+v___x_3424_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3421_, v_p_3422_, v_matchPosition_3423_);
 return v___x_3424_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___boxed(lean_object* v_00_u03b1_3425_, lean_object* v_text_3426_, lean_object* v_p_3427_, lean_object* v_matchPosition_3428_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___boxed(lean_object* v_00_u03b1_3425_, lean_object* v_text_3426_, lean_object* v_p_3427_, lean_object* v_matchPosition_3428_){
 _start:
 {
 lean_object* v_res_3429_; 
-v_res_3429_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f(v_00_u03b1_3425_, v_text_3426_, v_p_3427_, v_matchPosition_3428_);
+v_res_3429_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f(v_00_u03b1_3425_, v_text_3426_, v_p_3427_, v_matchPosition_3428_);
 lean_dec(v_matchPosition_3428_);
 lean_dec(v_p_3427_);
 lean_dec_ref(v_text_3426_);
 return v_res_3429_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__0(lean_object* v_query_3430_, lean_object* v___x_3431_, lean_object* v_offset_3432_, lean_object* v_text_3433_, lean_object* v___x_3434_, lean_object* v_highlight_3435_, uint8_t v_anyMatch_3436_, lean_object* v_____r_3437_, lean_object* v_r_3438_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__0(lean_object* v_query_3430_, lean_object* v___x_3431_, lean_object* v_offset_3432_, lean_object* v_text_3433_, lean_object* v___x_3434_, lean_object* v_highlight_3435_, uint8_t v_anyMatch_3436_, lean_object* v_____r_3437_, lean_object* v_r_3438_){
 _start:
 {
 lean_object* v___x_3439_; lean_object* v___x_3440_; lean_object* v___x_3441_; lean_object* v___x_3442_; lean_object* v___x_3443_; lean_object* v___x_3444_; lean_object* v___x_3445_; lean_object* v___x_3446_; lean_object* v___x_3447_; lean_object* v___x_3448_; 
@@ -11720,12 +11720,12 @@ lean_ctor_set(v___x_3448_, 0, v___x_3447_);
 return v___x_3448_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__0___boxed(lean_object* v_query_3449_, lean_object* v___x_3450_, lean_object* v_offset_3451_, lean_object* v_text_3452_, lean_object* v___x_3453_, lean_object* v_highlight_3454_, lean_object* v_anyMatch_3455_, lean_object* v_____r_3456_, lean_object* v_r_3457_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__0___boxed(lean_object* v_query_3449_, lean_object* v___x_3450_, lean_object* v_offset_3451_, lean_object* v_text_3452_, lean_object* v___x_3453_, lean_object* v_highlight_3454_, lean_object* v_anyMatch_3455_, lean_object* v_____r_3456_, lean_object* v_r_3457_){
 _start:
 {
 uint8_t v_anyMatch_boxed_3458_; lean_object* v_res_3459_; 
 v_anyMatch_boxed_3458_ = lean_unbox(v_anyMatch_3455_);
-v_res_3459_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__0(v_query_3449_, v___x_3450_, v_offset_3451_, v_text_3452_, v___x_3453_, v_highlight_3454_, v_anyMatch_boxed_3458_, v_____r_3456_, v_r_3457_);
+v_res_3459_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__0(v_query_3449_, v___x_3450_, v_offset_3451_, v_text_3452_, v___x_3453_, v_highlight_3454_, v_anyMatch_boxed_3458_, v_____r_3456_, v_r_3457_);
 lean_dec(v___x_3453_);
 lean_dec_ref(v_text_3452_);
 lean_dec(v_offset_3451_);
@@ -11734,7 +11734,7 @@ lean_dec_ref(v_query_3449_);
 return v_res_3459_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__1(lean_object* v___x_3460_, lean_object* v_text_3461_, lean_object* v_mapIdx_3462_, lean_object* v_matchPositions_3463_, lean_object* v_offset_3464_, lean_object* v_query_3465_, lean_object* v_highlight_3466_, uint8_t v_anyMatch_3467_, lean_object* v_next_3468_, lean_object* v_acc_3469_, lean_object* v_h_3470_, lean_object* v_G_3471_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__1(lean_object* v___x_3460_, lean_object* v_text_3461_, lean_object* v_mapIdx_3462_, lean_object* v_matchPositions_3463_, lean_object* v_offset_3464_, lean_object* v_query_3465_, lean_object* v_highlight_3466_, uint8_t v_anyMatch_3467_, lean_object* v_next_3468_, lean_object* v_acc_3469_, lean_object* v_h_3470_, lean_object* v_G_3471_){
 _start:
 {
 lean_object* v___y_3473_; uint8_t v___x_3478_; 
@@ -11810,7 +11810,7 @@ lean_object* v___x_3496_;
 lean_del_object(v___x_3487_);
 lean_del_object(v___x_3482_);
 lean_dec(v_fst_3480_);
-v___x_3496_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3461_, v_snd_3485_, v___x_3494_);
+v___x_3496_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3461_, v_snd_3485_, v___x_3494_);
 lean_dec(v_snd_3485_);
 if (lean_obj_tag(v___x_3496_) == 1)
 {
@@ -11820,7 +11820,7 @@ lean_inc(v_val_3497_);
 lean_dec_ref(v___x_3496_);
 v___x_3498_ = lean_array_push(v_fst_3484_, v_val_3497_);
 v___x_3499_ = lean_box(0);
-v___x_3500_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__0(v_query_3465_, v___x_3493_, v_offset_3464_, v_text_3461_, v___x_3494_, v_highlight_3466_, v_anyMatch_3467_, v___x_3499_, v___x_3498_);
+v___x_3500_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__0(v_query_3465_, v___x_3493_, v_offset_3464_, v_text_3461_, v___x_3494_, v_highlight_3466_, v_anyMatch_3467_, v___x_3499_, v___x_3498_);
 lean_dec(v___x_3494_);
 v___y_3473_ = v___x_3500_;
 goto v___jp_3472_;
@@ -11830,7 +11830,7 @@ else
 lean_object* v___x_3501_; lean_object* v___x_3502_; 
 lean_dec(v___x_3496_);
 v___x_3501_ = lean_box(0);
-v___x_3502_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__0(v_query_3465_, v___x_3493_, v_offset_3464_, v_text_3461_, v___x_3494_, v_highlight_3466_, v_anyMatch_3467_, v___x_3501_, v_fst_3484_);
+v___x_3502_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__0(v_query_3465_, v___x_3493_, v_offset_3464_, v_text_3461_, v___x_3494_, v_highlight_3466_, v_anyMatch_3467_, v___x_3501_, v_fst_3484_);
 lean_dec(v___x_3494_);
 v___y_3473_ = v___x_3502_;
 goto v___jp_3472_;
@@ -11944,12 +11944,12 @@ return v___x_3477_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__1___boxed(lean_object* v___x_3517_, lean_object* v_text_3518_, lean_object* v_mapIdx_3519_, lean_object* v_matchPositions_3520_, lean_object* v_offset_3521_, lean_object* v_query_3522_, lean_object* v_highlight_3523_, lean_object* v_anyMatch_3524_, lean_object* v_next_3525_, lean_object* v_acc_3526_, lean_object* v_h_3527_, lean_object* v_G_3528_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__1___boxed(lean_object* v___x_3517_, lean_object* v_text_3518_, lean_object* v_mapIdx_3519_, lean_object* v_matchPositions_3520_, lean_object* v_offset_3521_, lean_object* v_query_3522_, lean_object* v_highlight_3523_, lean_object* v_anyMatch_3524_, lean_object* v_next_3525_, lean_object* v_acc_3526_, lean_object* v_h_3527_, lean_object* v_G_3528_){
 _start:
 {
 uint8_t v_anyMatch_boxed_3529_; lean_object* v_res_3530_; 
 v_anyMatch_boxed_3529_ = lean_unbox(v_anyMatch_3524_);
-v_res_3530_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__1(v___x_3517_, v_text_3518_, v_mapIdx_3519_, v_matchPositions_3520_, v_offset_3521_, v_query_3522_, v_highlight_3523_, v_anyMatch_boxed_3529_, v_next_3525_, v_acc_3526_, v_h_3527_, v_G_3528_);
+v_res_3530_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__1(v___x_3517_, v_text_3518_, v_mapIdx_3519_, v_matchPositions_3520_, v_offset_3521_, v_query_3522_, v_highlight_3523_, v_anyMatch_boxed_3529_, v_next_3525_, v_acc_3526_, v_h_3527_, v_G_3528_);
 lean_dec_ref(v_query_3522_);
 lean_dec(v_offset_3521_);
 lean_dec_ref(v_matchPositions_3520_);
@@ -11958,7 +11958,7 @@ lean_dec(v___x_3517_);
 return v_res_3530_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg(lean_object* v_query_3536_, lean_object* v_text_3537_, lean_object* v_matchPositions_3538_, lean_object* v_highlight_3539_, lean_object* v_offset_3540_, lean_object* v_mapIdx_3541_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg(lean_object* v_query_3536_, lean_object* v_text_3537_, lean_object* v_matchPositions_3538_, lean_object* v_highlight_3539_, lean_object* v_offset_3540_, lean_object* v_mapIdx_3541_){
 _start:
 {
 lean_object* v___y_3543_; lean_object* v___y_3544_; lean_object* v_r_3545_; uint8_t v___y_3556_; lean_object* v___x_3577_; lean_object* v___x_3578_; uint8_t v___x_3579_; 
@@ -12030,7 +12030,7 @@ v___x_3559_ = lean_nat_dec_eq(v___x_3557_, v_p_3558_);
 if (v___x_3559_ == 0)
 {
 lean_object* v___x_3560_; lean_object* v___x_3561_; lean_object* v___x_3562_; uint8_t v_anyMatch_3563_; lean_object* v___x_3564_; lean_object* v___f_3565_; lean_object* v___x_3566_; lean_object* v_snd_3567_; lean_object* v_fst_3568_; lean_object* v_fst_3569_; lean_object* v_snd_3570_; lean_object* v___x_3571_; lean_object* v___x_3572_; 
-v___x_3560_ = ((lean_object*)(l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__1));
+v___x_3560_ = ((lean_object*)(l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___closed__1));
 v___x_3561_ = lean_box(v___x_3559_);
 v___x_3562_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_3562_, 0, v___x_3561_);
@@ -12038,7 +12038,7 @@ lean_ctor_set(v___x_3562_, 1, v___x_3560_);
 v_anyMatch_3563_ = 1;
 v___x_3564_ = lean_box(v_anyMatch_3563_);
 lean_inc_ref(v_text_3537_);
-v___f_3565_ = lean_alloc_closure((void*)(l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___lam__1___boxed), 12, 8);
+v___f_3565_ = lean_alloc_closure((void*)(l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___lam__1___boxed), 12, 8);
 lean_closure_set(v___f_3565_, 0, v___x_3557_);
 lean_closure_set(v___f_3565_, 1, v_text_3537_);
 lean_closure_set(v___f_3565_, 2, v_mapIdx_3541_);
@@ -12059,7 +12059,7 @@ v_snd_3570_ = lean_ctor_get(v_snd_3567_, 1);
 lean_inc(v_snd_3570_);
 lean_dec(v_snd_3567_);
 v___x_3571_ = lean_string_utf8_byte_size(v_text_3537_);
-v___x_3572_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3537_, v_snd_3570_, v___x_3571_);
+v___x_3572_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3537_, v_snd_3570_, v___x_3571_);
 lean_dec(v_snd_3570_);
 lean_dec_ref(v_text_3537_);
 if (lean_obj_tag(v___x_3572_) == 1)
@@ -12111,11 +12111,11 @@ return v___x_3576_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f(lean_object* v_00_u03b1_3582_, lean_object* v_query_3583_, lean_object* v_text_3584_, lean_object* v_matchPositions_3585_, lean_object* v_highlight_3586_, lean_object* v_offset_3587_, lean_object* v_mapIdx_3588_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f(lean_object* v_00_u03b1_3582_, lean_object* v_query_3583_, lean_object* v_text_3584_, lean_object* v_matchPositions_3585_, lean_object* v_highlight_3586_, lean_object* v_offset_3587_, lean_object* v_mapIdx_3588_){
 _start:
 {
 lean_object* v___x_3589_; 
-v___x_3589_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg(v_query_3583_, v_text_3584_, v_matchPositions_3585_, v_highlight_3586_, v_offset_3587_, v_mapIdx_3588_);
+v___x_3589_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg(v_query_3583_, v_text_3584_, v_matchPositions_3585_, v_highlight_3586_, v_offset_3587_, v_mapIdx_3588_);
 return v___x_3589_;
 }
 }
@@ -12383,7 +12383,7 @@ lean_dec_ref(v_text_3700_);
 return v_res_3704_;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0(lean_object* v_query_3705_, lean_object* v___x_3706_, lean_object* v_offset_3707_, lean_object* v_text_3708_, lean_object* v___x_3709_, lean_object* v_highlight_3710_, uint8_t v_anyMatch_3711_, lean_object* v_____r_3712_, lean_object* v_r_3713_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0(lean_object* v_query_3705_, lean_object* v___x_3706_, lean_object* v_offset_3707_, lean_object* v_text_3708_, lean_object* v___x_3709_, lean_object* v_highlight_3710_, uint8_t v_anyMatch_3711_, lean_object* v_____r_3712_, lean_object* v_r_3713_){
 _start:
 {
 lean_object* v___x_3714_; lean_object* v___x_3715_; lean_object* v___x_3716_; lean_object* v___x_3717_; lean_object* v___x_3718_; lean_object* v___x_3719_; lean_object* v___x_3720_; lean_object* v___x_3721_; lean_object* v___x_3722_; lean_object* v___x_3723_; 
@@ -12409,12 +12409,12 @@ lean_ctor_set(v___x_3723_, 0, v___x_3722_);
 return v___x_3723_;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0___boxed(lean_object* v_query_3724_, lean_object* v___x_3725_, lean_object* v_offset_3726_, lean_object* v_text_3727_, lean_object* v___x_3728_, lean_object* v_highlight_3729_, lean_object* v_anyMatch_3730_, lean_object* v_____r_3731_, lean_object* v_r_3732_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0___boxed(lean_object* v_query_3724_, lean_object* v___x_3725_, lean_object* v_offset_3726_, lean_object* v_text_3727_, lean_object* v___x_3728_, lean_object* v_highlight_3729_, lean_object* v_anyMatch_3730_, lean_object* v_____r_3731_, lean_object* v_r_3732_){
 _start:
 {
 uint8_t v_anyMatch_boxed_3733_; lean_object* v_res_3734_; 
 v_anyMatch_boxed_3733_ = lean_unbox(v_anyMatch_3730_);
-v_res_3734_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0(v_query_3724_, v___x_3725_, v_offset_3726_, v_text_3727_, v___x_3728_, v_highlight_3729_, v_anyMatch_boxed_3733_, v_____r_3731_, v_r_3732_);
+v_res_3734_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0(v_query_3724_, v___x_3725_, v_offset_3726_, v_text_3727_, v___x_3728_, v_highlight_3729_, v_anyMatch_boxed_3733_, v_____r_3731_, v_r_3732_);
 lean_dec(v___x_3728_);
 lean_dec_ref(v_text_3727_);
 lean_dec(v_offset_3726_);
@@ -12423,7 +12423,7 @@ lean_dec_ref(v_query_3724_);
 return v_res_3734_;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg(lean_object* v_upperBound_3735_, lean_object* v_text_3736_, lean_object* v___x_3737_, lean_object* v_matchPositions_3738_, lean_object* v_offset_3739_, lean_object* v_query_3740_, lean_object* v_highlight_3741_, lean_object* v_a_3742_, lean_object* v_b_3743_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg(lean_object* v_upperBound_3735_, lean_object* v_text_3736_, lean_object* v___x_3737_, lean_object* v_matchPositions_3738_, lean_object* v_offset_3739_, lean_object* v_query_3740_, lean_object* v_highlight_3741_, lean_object* v_a_3742_, lean_object* v_b_3743_){
 _start:
 {
 lean_object* v___y_3745_; uint8_t v_anyMatch_3751_; 
@@ -12500,7 +12500,7 @@ lean_object* v___x_3772_;
 lean_del_object(v___x_3760_);
 lean_del_object(v___x_3755_);
 lean_dec(v_fst_3753_);
-v___x_3772_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3736_, v_snd_3758_, v___x_3770_);
+v___x_3772_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3736_, v_snd_3758_, v___x_3770_);
 lean_dec(v_snd_3758_);
 if (lean_obj_tag(v___x_3772_) == 1)
 {
@@ -12511,7 +12511,7 @@ lean_dec_ref(v___x_3772_);
 v___x_3774_ = lean_array_push(v_fst_3757_, v_val_3773_);
 v___x_3775_ = lean_box(0);
 lean_inc(v_highlight_3741_);
-v___x_3776_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0(v_query_3740_, v___x_3769_, v_offset_3739_, v_text_3736_, v___x_3770_, v_highlight_3741_, v_anyMatch_3751_, v___x_3775_, v___x_3774_);
+v___x_3776_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0(v_query_3740_, v___x_3769_, v_offset_3739_, v_text_3736_, v___x_3770_, v_highlight_3741_, v_anyMatch_3751_, v___x_3775_, v___x_3774_);
 lean_dec(v___x_3770_);
 v___y_3745_ = v___x_3776_;
 goto v___jp_3744_;
@@ -12522,7 +12522,7 @@ lean_object* v___x_3777_; lean_object* v___x_3778_;
 lean_dec(v___x_3772_);
 v___x_3777_ = lean_box(0);
 lean_inc(v_highlight_3741_);
-v___x_3778_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0(v_query_3740_, v___x_3769_, v_offset_3739_, v_text_3736_, v___x_3770_, v_highlight_3741_, v_anyMatch_3751_, v___x_3777_, v_fst_3757_);
+v___x_3778_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___lam__0(v_query_3740_, v___x_3769_, v_offset_3739_, v_text_3736_, v___x_3770_, v_highlight_3741_, v_anyMatch_3751_, v___x_3777_, v_fst_3757_);
 lean_dec(v___x_3770_);
 v___y_3745_ = v___x_3778_;
 goto v___jp_3744_;
@@ -12647,11 +12647,11 @@ goto _start;
 }
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___boxed(lean_object* v_upperBound_3793_, lean_object* v_text_3794_, lean_object* v___x_3795_, lean_object* v_matchPositions_3796_, lean_object* v_offset_3797_, lean_object* v_query_3798_, lean_object* v_highlight_3799_, lean_object* v_a_3800_, lean_object* v_b_3801_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg___boxed(lean_object* v_upperBound_3793_, lean_object* v_text_3794_, lean_object* v___x_3795_, lean_object* v_matchPositions_3796_, lean_object* v_offset_3797_, lean_object* v_query_3798_, lean_object* v_highlight_3799_, lean_object* v_a_3800_, lean_object* v_b_3801_){
 _start:
 {
 lean_object* v_res_3802_; 
-v_res_3802_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg(v_upperBound_3793_, v_text_3794_, v___x_3795_, v_matchPositions_3796_, v_offset_3797_, v_query_3798_, v_highlight_3799_, v_a_3800_, v_b_3801_);
+v_res_3802_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg(v_upperBound_3793_, v_text_3794_, v___x_3795_, v_matchPositions_3796_, v_offset_3797_, v_query_3798_, v_highlight_3799_, v_a_3800_, v_b_3801_);
 lean_dec_ref(v_query_3798_);
 lean_dec(v_offset_3797_);
 lean_dec_ref(v_matchPositions_3796_);
@@ -12661,7 +12661,7 @@ lean_dec(v_upperBound_3793_);
 return v_res_3802_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(lean_object* v___x_3803_, lean_object* v_query_3804_, lean_object* v_text_3805_, lean_object* v_matchPositions_3806_, lean_object* v_highlight_3807_, lean_object* v_offset_3808_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(lean_object* v___x_3803_, lean_object* v_query_3804_, lean_object* v_text_3805_, lean_object* v_matchPositions_3806_, lean_object* v_highlight_3807_, lean_object* v_offset_3808_){
 _start:
 {
 lean_object* v___y_3810_; lean_object* v___y_3811_; lean_object* v_r_3812_; uint8_t v___y_3823_; lean_object* v___x_3841_; lean_object* v___x_3842_; uint8_t v___x_3843_; 
@@ -12733,12 +12733,12 @@ v___x_3826_ = lean_nat_dec_eq(v___x_3824_, v_p_3825_);
 if (v___x_3826_ == 0)
 {
 lean_object* v___x_3827_; lean_object* v___x_3828_; lean_object* v___x_3829_; lean_object* v___x_3830_; lean_object* v_snd_3831_; lean_object* v_fst_3832_; lean_object* v_fst_3833_; lean_object* v_snd_3834_; lean_object* v___x_3835_; lean_object* v___x_3836_; 
-v___x_3827_ = ((lean_object*)(l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___redArg___closed__1));
+v___x_3827_ = ((lean_object*)(l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___redArg___closed__1));
 v___x_3828_ = lean_box(v___x_3826_);
 v___x_3829_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_3829_, 0, v___x_3828_);
 lean_ctor_set(v___x_3829_, 1, v___x_3827_);
-v___x_3830_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg(v___x_3824_, v_text_3805_, v___x_3803_, v_matchPositions_3806_, v_offset_3808_, v_query_3804_, v_highlight_3807_, v_p_3825_, v___x_3829_);
+v___x_3830_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg(v___x_3824_, v_text_3805_, v___x_3803_, v_matchPositions_3806_, v_offset_3808_, v_query_3804_, v_highlight_3807_, v_p_3825_, v___x_3829_);
 v_snd_3831_ = lean_ctor_get(v___x_3830_, 1);
 lean_inc(v_snd_3831_);
 v_fst_3832_ = lean_ctor_get(v___x_3830_, 0);
@@ -12750,7 +12750,7 @@ v_snd_3834_ = lean_ctor_get(v_snd_3831_, 1);
 lean_inc(v_snd_3834_);
 lean_dec(v_snd_3831_);
 v___x_3835_ = lean_string_utf8_byte_size(v_text_3805_);
-v___x_3836_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3805_, v_snd_3834_, v___x_3835_);
+v___x_3836_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f_nonMatch_x3f___redArg(v_text_3805_, v_snd_3834_, v___x_3835_);
 lean_dec(v_snd_3834_);
 if (lean_obj_tag(v___x_3836_) == 1)
 {
@@ -12791,11 +12791,11 @@ return v___x_3840_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg___boxed(lean_object* v___x_3846_, lean_object* v_query_3847_, lean_object* v_text_3848_, lean_object* v_matchPositions_3849_, lean_object* v_highlight_3850_, lean_object* v_offset_3851_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg___boxed(lean_object* v___x_3846_, lean_object* v_query_3847_, lean_object* v_text_3848_, lean_object* v_matchPositions_3849_, lean_object* v_highlight_3850_, lean_object* v_offset_3851_){
 _start:
 {
 lean_object* v_res_3852_; 
-v_res_3852_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(v___x_3846_, v_query_3847_, v_text_3848_, v_matchPositions_3849_, v_highlight_3850_, v_offset_3851_);
+v_res_3852_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(v___x_3846_, v_query_3847_, v_text_3848_, v_matchPositions_3849_, v_highlight_3850_, v_offset_3851_);
 lean_dec(v_offset_3851_);
 lean_dec_ref(v_matchPositions_3849_);
 lean_dec_ref(v_text_3848_);
@@ -12811,7 +12811,7 @@ lean_object* v_query_3856_; lean_object* v_ms_3857_; lean_object* v_p_3858_; lea
 v_query_3856_ = lean_ctor_get(v_a_3855_, 0);
 v_ms_3857_ = lean_ctor_get(v_a_3855_, 1);
 v_p_3858_ = lean_ctor_get(v_a_3855_, 2);
-v___x_3859_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(v_ms_3857_, v_query_3856_, v_text_3853_, v_ms_3857_, v_highlighted_3854_, v_p_3858_);
+v___x_3859_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(v_ms_3857_, v_query_3856_, v_text_3853_, v_ms_3857_, v_highlighted_3854_, v_p_3858_);
 if (lean_obj_tag(v___x_3859_) == 0)
 {
 uint8_t v___x_3883_; 
@@ -12939,19 +12939,19 @@ v___x_3889_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_a
 return v___x_3889_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0(lean_object* v___x_3890_, lean_object* v_00_u03b1_3891_, lean_object* v_query_3892_, lean_object* v_text_3893_, lean_object* v_matchPositions_3894_, lean_object* v_highlight_3895_, lean_object* v_offset_3896_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0(lean_object* v___x_3890_, lean_object* v_00_u03b1_3891_, lean_object* v_query_3892_, lean_object* v_text_3893_, lean_object* v_matchPositions_3894_, lean_object* v_highlight_3895_, lean_object* v_offset_3896_){
 _start:
 {
 lean_object* v___x_3897_; 
-v___x_3897_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(v___x_3890_, v_query_3892_, v_text_3893_, v_matchPositions_3894_, v_highlight_3895_, v_offset_3896_);
+v___x_3897_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___redArg(v___x_3890_, v_query_3892_, v_text_3893_, v_matchPositions_3894_, v_highlight_3895_, v_offset_3896_);
 return v___x_3897_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___boxed(lean_object* v___x_3898_, lean_object* v_00_u03b1_3899_, lean_object* v_query_3900_, lean_object* v_text_3901_, lean_object* v_matchPositions_3902_, lean_object* v_highlight_3903_, lean_object* v_offset_3904_){
+LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0___boxed(lean_object* v___x_3898_, lean_object* v_00_u03b1_3899_, lean_object* v_query_3900_, lean_object* v_text_3901_, lean_object* v_matchPositions_3902_, lean_object* v_highlight_3903_, lean_object* v_offset_3904_){
 _start:
 {
 lean_object* v_res_3905_; 
-v_res_3905_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0(v___x_3898_, v_00_u03b1_3899_, v_query_3900_, v_text_3901_, v_matchPositions_3902_, v_highlight_3903_, v_offset_3904_);
+v_res_3905_ = l___private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0(v___x_3898_, v_00_u03b1_3899_, v_query_3900_, v_text_3901_, v_matchPositions_3902_, v_highlight_3903_, v_offset_3904_);
 lean_dec(v_offset_3904_);
 lean_dec_ref(v_matchPositions_3902_);
 lean_dec_ref(v_text_3901_);
@@ -12960,19 +12960,19 @@ lean_dec_ref(v___x_3898_);
 return v_res_3905_;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0(lean_object* v_00_u03b1_3906_, lean_object* v_upperBound_3907_, lean_object* v_text_3908_, lean_object* v___x_3909_, lean_object* v_matchPositions_3910_, lean_object* v_offset_3911_, lean_object* v_query_3912_, lean_object* v_highlight_3913_, lean_object* v_inst_3914_, lean_object* v_R_3915_, lean_object* v_a_3916_, lean_object* v_b_3917_, lean_object* v_c_3918_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0(lean_object* v_00_u03b1_3906_, lean_object* v_upperBound_3907_, lean_object* v_text_3908_, lean_object* v___x_3909_, lean_object* v_matchPositions_3910_, lean_object* v_offset_3911_, lean_object* v_query_3912_, lean_object* v_highlight_3913_, lean_object* v_inst_3914_, lean_object* v_R_3915_, lean_object* v_a_3916_, lean_object* v_b_3917_, lean_object* v_c_3918_){
 _start:
 {
 lean_object* v___x_3919_; 
-v___x_3919_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg(v_upperBound_3907_, v_text_3908_, v___x_3909_, v_matchPositions_3910_, v_offset_3911_, v_query_3912_, v_highlight_3913_, v_a_3916_, v_b_3917_);
+v___x_3919_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___redArg(v_upperBound_3907_, v_text_3908_, v___x_3909_, v_matchPositions_3910_, v_offset_3911_, v_query_3912_, v_highlight_3913_, v_a_3916_, v_b_3917_);
 return v___x_3919_;
 }
 }
-LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___boxed(lean_object* v_00_u03b1_3920_, lean_object* v_upperBound_3921_, lean_object* v_text_3922_, lean_object* v___x_3923_, lean_object* v_matchPositions_3924_, lean_object* v_offset_3925_, lean_object* v_query_3926_, lean_object* v_highlight_3927_, lean_object* v_inst_3928_, lean_object* v_R_3929_, lean_object* v_a_3930_, lean_object* v_b_3931_, lean_object* v_c_3932_){
+LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0___boxed(lean_object* v_00_u03b1_3920_, lean_object* v_upperBound_3921_, lean_object* v_text_3922_, lean_object* v___x_3923_, lean_object* v_matchPositions_3924_, lean_object* v_offset_3925_, lean_object* v_query_3926_, lean_object* v_highlight_3927_, lean_object* v_inst_3928_, lean_object* v_R_3929_, lean_object* v_a_3930_, lean_object* v_b_3931_, lean_object* v_c_3932_){
 _start:
 {
 lean_object* v_res_3933_; 
-v_res_3933_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_hightlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0(v_00_u03b1_3920_, v_upperBound_3921_, v_text_3922_, v___x_3923_, v_matchPositions_3924_, v_offset_3925_, v_query_3926_, v_highlight_3927_, v_inst_3928_, v_R_3929_, v_a_3930_, v_b_3931_, v_c_3932_);
+v_res_3933_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_highlightStringMatches_x3f___at___00__private_Lean_Server_FileWorker_WidgetRequests_0__Lean_Widget_advanceTaggedTextHighlightState_spec__0_spec__0(v_00_u03b1_3920_, v_upperBound_3921_, v_text_3922_, v___x_3923_, v_matchPositions_3924_, v_offset_3925_, v_query_3926_, v_highlight_3927_, v_inst_3928_, v_R_3929_, v_a_3930_, v_b_3931_, v_c_3932_);
 lean_dec_ref(v_query_3926_);
 lean_dec(v_offset_3925_);
 lean_dec_ref(v_matchPositions_3924_);

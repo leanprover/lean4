@@ -1883,8 +1883,8 @@ def Runtime.forget (a : α) : BaseIO Unit := return
 
 set_option linter.unusedVariables false in
 /--
-Ensures `a` remains alive until the callsite by a holding a reference to `a`. This can be useful
-for unsafe code (such as ab FFI) that relies on a Lean object not being freed until after some point
+Ensures `a` remains alive until the callsite by holding a reference to `a`. This can be useful
+for unsafe code (such as an FFI) that relies on a Lean object not being freed until after some point
 in the program. At runtime, this will be a no-op as C will optimize away this call.
 -/
 @[extern "lean_runtime_hold"]

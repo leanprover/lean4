@@ -1,6 +1,8 @@
 import Std.Data.TreeMap
 import Std.Data.Iterators
 
+set_option backward.do.legacy false
+
 /-!
 Benchmark for the built-in `Std.Data.TreeMap` in the same fashion as the one for `Std.Data.HashMap`.
 All times reported are average times for the operation described in the name of the benchmark

@@ -87,7 +87,6 @@ private def refineWithDiseq (c : LeCnstr) : GoalM LeCnstr := do
   repeat
     let some c' ← refineWithDiseqStep? x c | return c
     c := c'
-  return c
 where
   refineWithDiseqStep? (x : Var) (c : LeCnstr) : GoalM (Option LeCnstr) := do
     let s ← get'

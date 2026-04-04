@@ -1517,13 +1517,12 @@ Executes `f` to each term in the equivalence class containing `e`, and stops as 
 @[inline] def foldEqc (e : Expr) (init : α) (f : ENode → α → GoalM α) : GoalM α := do
   let mut curr := e
   let mut r := init
+  have : Nonempty (GoalM α) := ⟨pure init⟩
   repeat
     let n ← getENode curr
     r ← f n r
     if isSameExpr n.next e then return r
     curr := n.next
-  unreachable!
-  return r
 
 def forEachENode (f : ENode → GoalM Unit) : GoalM Unit := do
   for e in (← getExprs) do

@@ -48,7 +48,6 @@ partial def transferHypNames (P P' : Expr) : MetaM Expr := (·.snd) <$> label (c
           Ps' := Ps''
           if ← isDefEq P.p P' then
             return (Ps, { P with p := P' }.toExpr)
-        unreachable!
 
 def mFrameCore [Monad m] [MonadControlT MetaM m] [MonadLiftT MetaM m]
   (goal : MGoal) (kFail : m Expr) (kSuccess : Expr /-φ:Prop-/ → Expr /-h:φ-/ → MGoal → m Expr) : m Expr := do

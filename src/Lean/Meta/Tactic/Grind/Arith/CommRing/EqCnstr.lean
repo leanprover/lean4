@@ -128,7 +128,6 @@ def PolyDerivation.simplify (d : PolyDerivation) : RingM PolyDerivation := do
       trace_goal[grind.debug.ring.simp] "simplified{indentD (← d.denoteExpr)}"
       return d
     d ← d.simplifyWith c
-  return d
 
 /-- Simplifies `c₁` using `c₂`. -/
 def EqCnstr.simplifyWithCore (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := do
@@ -166,7 +165,6 @@ def EqCnstr.simplify (c : EqCnstr) : RingM EqCnstr := do
       trace_goal[grind.debug.ring.simp] "simplified{indentD (← c.denoteExpr)}"
       return c
     c ← c.simplifyWith c'
-  return c
 
 /-- Returns `true` if `c.p` is the constant polynomial. -/
 def EqCnstr.checkConstant (c : EqCnstr) : RingM Bool := do

@@ -1,5 +1,7 @@
 import Lean.Data.EditDistance
 
+set_option backward.do.legacy false
+
 open Lean.EditDistance
 
 /-!

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas.Pattern.String.Basic
-// Imports: public import Init.Data.String.Pattern.String public import Init.Data.String.Lemmas.Pattern.Basic import Init.Data.String.Lemmas.IsEmpty import Init.Data.String.Lemmas.Basic import Init.Data.ByteArray.Lemmas import Init.Omega
+// Imports: public import Init.Data.String.Pattern.String public import Init.Data.String.Lemmas.Pattern.Basic import Init.Data.String.Lemmas.IsEmpty import Init.Data.String.Lemmas.Basic import Init.Data.String.Lemmas.Intercalate import Init.Data.String.OrderInstances import Init.Data.String.Lemmas.Splits import Init.Data.ByteArray.Lemmas import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -55,6 +55,9 @@ lean_object* runtime_initialize_Init_Data_String_Pattern_String(uint8_t builtin)
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_IsEmpty(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_Intercalate(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_OrderInstances(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 static bool _G_runtime_initialized = false;
@@ -72,6 +75,15 @@ res = runtime_initialize_Init_Data_String_Lemmas_IsEmpty(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Lemmas_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_Intercalate(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_OrderInstances(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_Splits(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_ByteArray_Lemmas(builtin);
@@ -93,6 +105,9 @@ lean_object* initialize_Init_Data_String_Pattern_String(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Pattern_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_IsEmpty(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_Intercalate(uint8_t builtin);
+lean_object* initialize_Init_Data_String_OrderInstances(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin);
 lean_object* initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 static bool _G_initialized = false;
@@ -110,6 +125,15 @@ res = initialize_Init_Data_String_Lemmas_IsEmpty(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Lemmas_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas_Intercalate(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_OrderInstances(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas_Splits(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_ByteArray_Lemmas(builtin);

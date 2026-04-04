@@ -2,6 +2,8 @@
 Regression test for #6332
 -/
 
+set_option backward.do.legacy false
+
 open Function (uncurry)
 open Std.Legacy (Range)
 

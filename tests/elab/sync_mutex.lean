@@ -1,5 +1,7 @@
 import Std.Sync.Mutex
 
+set_option backward.do.legacy false
+
 def countIt (mutex : Std.Mutex Nat) : IO Unit := do
   for _ in *...(1000 : Nat) do
     mutex.atomically do

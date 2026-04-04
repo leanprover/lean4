@@ -465,7 +465,6 @@ private def findCase (decVars : FVarIdSet) : SearchM Case := do
       return case
     -- Conflict does not depend on this case.
     trace[grind.debug.lia.search.backtrack] "skipping {case.fvarId.name}"
-  unreachable!
 
 def resolveConflict (h : UnsatProof) : SearchM Unit := do
   trace[grind.debug.lia.search.backtrack] "resolve conflict, decision stack: {(← get).cases.toList.map fun c => c.fvarId.name}"

@@ -60,7 +60,6 @@ def checkMatchCondParent (e : Expr) (parent : Expr) : GoalM Bool := do
     | HEq α lhs _ _ => if (← checkChild e α <||> checkChild e lhs) then return true -- found it
     | _ => pure ()
     curr := b
-  return false
 
 def checkParents (e : Expr) : GoalM Unit := do
   -- **Note**: We skip `funCC` parents because the parent-child relationship uses

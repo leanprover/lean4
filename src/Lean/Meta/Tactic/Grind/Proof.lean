@@ -86,7 +86,6 @@ private def findCommon (lhs rhs : Expr) : GoalM Expr := do
       return common
     let some target := n.target? | unreachable! --
     it := target
-  unreachable!
 
 /--
 Returns `true` if we can construct a congruence proof for `lhs = rhs` using `congrArg`, `congrFun`, and `congr`.

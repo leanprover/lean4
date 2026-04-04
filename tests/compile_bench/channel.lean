@@ -1,5 +1,6 @@
 import Std.Sync.Channel
 
+set_option backward.do.legacy false
 
 /-
 Inspired by:

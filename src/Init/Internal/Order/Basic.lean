@@ -991,17 +991,8 @@ theorem monotone_stateTRun [PartialOrder γ]
 noncomputable def EST.bot [Nonempty ε] : EST ε σ α :=
   fun s => .error Classical.ofNonempty (Classical.choice ⟨s⟩)
 
--- Essentially
---   instance [Nonempty ε] : CCPO (EST ε σ α) :=
---     inferInstanceAs (CCPO ((s : _) → FlatOrder (EST.bot s)))
--- but hat would incur a noncomputable on the instance
-
-instance [Nonempty ε] : CCPO (EST ε σ α) where
-  rel := PartialOrder.rel (α := ∀ s, FlatOrder (EST.bot s))
-  rel_refl := PartialOrder.rel_refl
-  rel_antisymm := PartialOrder.rel_antisymm
-  rel_trans := PartialOrder.rel_trans
-  has_csup hchain := CCPO.has_csup (α := ∀ s, FlatOrder (EST.bot s)) hchain
+instance [Nonempty ε] : CCPO (EST ε σ α) :=
+  inferInstanceAs (CCPO ((s : _) → FlatOrder (EST.bot s)))
 
 instance [Nonempty ε] : MonoBind (EST ε σ) where
   bind_mono_left {_ _ a₁ a₂ f} h₁₂ := by

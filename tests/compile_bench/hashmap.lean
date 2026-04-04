@@ -3,6 +3,8 @@ import Std.Data.Iterators
 import Std.Data.HashSet
 import Std.Data.HashSet.Iterator
 
+set_option backward.do.legacy false
+
 /-!
 Benchmark for the built-in `Std.Data.HashMap`, inspired by:
 - https://github.com/google/hashtable-benchmarks

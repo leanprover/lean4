@@ -1,6 +1,8 @@
 import Std.Internal.Async
 import Std.Sync
 
+set_option backward.do.legacy false
+
 open Std.Internal.IO Async
 
 /-- Test ContextAsync cancellation check -/

@@ -2,6 +2,8 @@ import Std.Internal.Async
 import Std.Internal.UV
 import Std.Net.Addr
 
+set_option backward.do.legacy false
+
 open Std.Internal.IO.Async.UDP
 open Std.Internal.IO.Async
 open Std.Net

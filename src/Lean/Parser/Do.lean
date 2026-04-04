@@ -169,7 +169,7 @@ def doIfCond    :=
 def doForDecl := leading_parser
   optional (atomic (ident >> " : ")) >> termParser >> " in " >> withForbidden "do" termParser
 /--
-`for x in e do s`  iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
+`for x in e do s` iterates over `e` assuming `e`'s type has an instance of the `ForIn` typeclass.
 `break` and `continue` are supported inside `for` loops.
 `for x in e, x2 in e2, ... do s` iterates of the given collections in parallel,
 until at least one of them is exhausted.
@@ -177,6 +177,11 @@ The types of `e2` etc. must implement the `Std.ToStream` typeclass.
 -/
 @[builtin_doElem_parser] def doFor    := leading_parser
   "for " >> sepBy1 doForDecl ", " >> "do " >> doSeq
+/--
+`repeat s` repeats `s` indefinitely. `break` and `continue` are supported inside `repeat` loops.
+-/
+@[builtin_doElem_parser] def doRepeat    := leading_parser
+  "repeat " >> doSeq
 
 def dependentParam := leading_parser
   atomic ("(" >> nonReservedSymbol "dependent") >> " := " >>
@@ -292,8 +297,8 @@ The second `notFollowedBy` prevents this problem.
   ppAllowUngrouped >> "do " >> doSeq
 
 /-
-macros for using `unless`, `for`, `try`, `return` as terms.
-They expand into `do unless ...`, `do for ...`, `do try ...`, and `do return ...`
+macros for using `unless`, `for`, `repeat`, `try`, `return` as terms.
+They expand into `do unless ...`, `do for ...`, `do repeat ...`, `do try ...`, and `do return ...`
 -/
 
 /-- `unless e do s` is a nicer way to write `if !e do s`. -/

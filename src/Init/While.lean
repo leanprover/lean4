@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Core
+public import Init.Repeat
+public meta import Init.Meta.Defs
 
 public section
 
@@ -31,11 +32,6 @@ partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop
 
 instance [Monad m] : ForIn m Loop Unit where
   forIn := Loop.forIn
-
-syntax "repeat " doSeq : doElem
-
-macro_rules
-  | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
 
 syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
 

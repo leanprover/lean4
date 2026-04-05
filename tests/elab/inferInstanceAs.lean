@@ -51,3 +51,27 @@ instCI2
 -/
 #guard_msgs in
 #print instCD2._aux_1
+
+/-! Flattened inheritance test. -/
+
+class Base (α : Type) where
+  b : α
+
+class Foo (α : Type) extends Base α where
+  a : α
+
+class Bar (α : Type) extends Base α where
+  c : α
+
+class FooBar (α : Type) extends Foo α, Bar α
+
+instance : FooBar Nat where
+  a := 0
+  b := 1
+  c := 2
+
+def MyNat := Nat
+deriving Foo, Bar, FooBar
+
+theorem zou : instFooBarMyNat.toBar = instBarMyNat := by
+  with_reducible_and_instances rfl

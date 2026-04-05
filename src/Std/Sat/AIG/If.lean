@@ -61,6 +61,7 @@ def mkIfCached (aig : AIG α) (input : TernaryInput aig) : Entrypoint α :=
     apply AIG.LawfulOperator.le_size (f := mkNotCached)
   aig.mkOrCached ⟨lhsRef, rhsRef⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : LawfulOperator α TernaryInput mkIfCached where
   le_size := by
     intros
@@ -92,6 +93,7 @@ theorem if_as_bool (d l r : Bool) : (if d then l else r) = ((d && l) || (!d && r
   revert d l r
   decide
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 theorem denote_mkIfCached {aig : AIG α} {input : TernaryInput aig} :
     ⟦aig.mkIfCached input, assign⟧
@@ -173,6 +175,7 @@ termination_by w - curr
 
 end ite
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : LawfulVecOperator α IfInput ite where
   le_size := by
     intros
@@ -200,7 +203,7 @@ theorem go_get_aux {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (d
     intros
     rw [go_get_aux (hidx := Nat.lt_succ_of_lt hidx) (hfoo := go_le_size ..)]
     rw [AIG.RefVec.get_push_ref_lt (hidx := hidx)]
-    simp only [Ref.cast, Ref.mk.injEq]
+    simp only [Ref.cast]
     rw [AIG.RefVec.get_cast]
     simp
   · rw [← hgo]
@@ -235,6 +238,7 @@ theorem go_denote_mem_prefix {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr
   · intros
     apply go_le_size
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem denote_go {w : Nat} (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (discr : Ref aig)
     (lhs rhs : RefVec aig w) (s : RefVec aig curr) :
     ∀ (idx : Nat) (hidx1 : idx < w),

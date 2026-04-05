@@ -28,6 +28,7 @@ def mkEq (aig : AIG α) (pair : AIG.BinaryRefVec aig w) : AIG.Entrypoint α :=
   let bits := res.vec
   AIG.RefVec.fold aig bits AIG.mkAndCached
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance {w : Nat} : AIG.LawfulOperator α (AIG.BinaryRefVec · w) mkEq where
   le_size := by
     intros

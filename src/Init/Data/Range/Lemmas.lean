@@ -59,6 +59,7 @@ private theorem size_eq (r : Range) (h : i < r.stop) :
       rw [Nat.div_eq_iff] <;> omega
     omega
 
+set_option backward.isDefEq.respectTransparency.types false in
 private theorem forIn'_loop_eq_forIn'_range' [Monad m] (r : Range)
     (init : β) (f : (a : Nat) → a ∈ r → β → m (ForInStep β)) (i) (w₁) (w₂) :
     forIn'.loop r f init i w₁ w₂ =

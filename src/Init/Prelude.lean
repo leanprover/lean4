@@ -145,7 +145,7 @@ Examples:
 The constant function that ignores its argument.
 
 If `a : α`, then `Function.const β a : β → α` is the “constant function with value `a`”. For all
-arguments `b : β`, `Function.const β a b = a`. It is normally written as `fun _ => a`.
+arguments `b : β`, `Function.const β a b = a`. It is often written directly as `fun _ => a`.
 
 Examples:
  * `Function.const Bool 10 true = 10`

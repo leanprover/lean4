@@ -64,8 +64,8 @@ theorem ne_false_iff : {b : Bool} → b ≠ false ↔ b = true := by decide
 
 theorem eq_iff_iff {a b : Bool} : a = b ↔ (a ↔ b) := by cases b <;> simp
 
-@[simp] theorem decide_eq_true  {b : Bool} [Decidable (b = true)]  : decide (b = true)  =  b := by cases b <;> simp
-@[simp] theorem decide_eq_false {b : Bool} [Decidable (b = false)] : decide (b = false) = !b := by cases b <;> simp
+@[simp] theorem decide_eq_true  {b : Bool} {_ : Decidable (b = true)}  : decide (b = true)  =  b := by cases b <;> simp
+@[simp] theorem decide_eq_false {b : Bool} {_ : Decidable (b = false)} : decide (b = false) = !b := by cases b <;> simp
 theorem decide_true_eq  {b : Bool} [Decidable (true = b)]  : decide (true  = b) =  b := by cases b <;> simp
 theorem decide_false_eq {b : Bool} [Decidable (false = b)] : decide (false = b) = !b := by cases b <;> simp
 

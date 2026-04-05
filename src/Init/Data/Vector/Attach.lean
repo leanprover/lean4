@@ -139,6 +139,7 @@ theorem attachWith_congr {xs ys : Vector α n} (w : xs = ys) {P : α → Prop} {
   subst w
   simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp] theorem attach_push {a : α} {xs : Vector α n} :
     (xs.push a).attach =
       (xs.attach.map (fun ⟨x, h⟩ => ⟨x, mem_push_of_mem a h⟩)).push ⟨a, by simp⟩ := by
@@ -354,6 +355,7 @@ theorem pmap_append' {p : α → Prop} {f : ∀ a : α, p a → β} {xs : Vector
       xs.pmap f h₁ ++ ys.pmap f h₂ :=
   pmap_append _
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp] theorem attach_append {xs : Vector α n} {ys : Vector α m} :
     (xs ++ ys).attach = xs.attach.map (fun ⟨x, h⟩ => (⟨x, mem_append_left ys h⟩ : { x // x ∈ xs ++ ys })) ++
       ys.attach.map (fun ⟨y, h⟩ => (⟨y, mem_append_right xs h⟩ : { y // y ∈ xs ++ ys })) := by

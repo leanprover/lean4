@@ -32,7 +32,7 @@ local instance : Std.Commutative (· + · : α → α → α) where
 @[local simp] def r : (α × α) → (α × α) → Prop
   | (a, b), (c, d) => ∃ k, a + d + k = b + c + k
 
-def Q := Quot (r α)
+@[expose, implicit_reducible] def Q := Quot (r α)
 
 variable {α}
 

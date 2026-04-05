@@ -534,6 +534,7 @@ def balanceₘ (k : α) (v : β k) (l r : Impl α β) : Impl α β :=
 
 attribute [Std.Internal.tree_tac] and_true true_and and_self heq_eq_eq inner.injEq
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem balance!_eq_balanceₘ {k v} {l r : Impl α β} (hlb : l.Balanced) (hrb : r.Balanced)
     (hlr : BalanceLErasePrecond l.size r.size ∨ BalanceLErasePrecond r.size l.size) :
     balance! k v l r = balanceₘ k v l r := by

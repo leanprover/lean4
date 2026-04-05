@@ -2831,6 +2831,7 @@ theorem getElem_extract_aux {xs : Array α} {start stop : Nat} (h : i < (xs.extr
   rw [size_extract] at h; apply Nat.add_lt_of_lt_sub'; apply Nat.lt_of_lt_of_le h
   apply Nat.sub_le_sub_right; apply Nat.min_le_right
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp, grind =] theorem getElem_extract {xs : Array α} {start stop : Nat}
     (h : i < (xs.extract start stop).size) :
     (xs.extract start stop)[i] = xs[start + i]'(getElem_extract_aux h) :=

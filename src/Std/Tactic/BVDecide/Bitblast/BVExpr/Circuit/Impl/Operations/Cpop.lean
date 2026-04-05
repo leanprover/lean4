@@ -48,6 +48,7 @@ def blastExtractAndExtendBit (aig : AIG α) (target : ExtractAndExtendBitTarget 
   let extend := res.vec
   ⟨aig, extend⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulVecOperator α ExtractAndExtendBitTarget blastExtractAndExtendBit where
   le_size := by
     intros

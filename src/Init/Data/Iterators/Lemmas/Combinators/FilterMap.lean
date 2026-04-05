@@ -207,6 +207,7 @@ theorem Iter.step_mapM {f : β → n γ}
   | .skip it' h => rfl
   | .done h => rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Iter.step_filterMap {f : β → Option γ} :
     (it.filterMap f).step = match it.step with
       | .yield it' out h =>
@@ -247,6 +248,7 @@ theorem Iter.val_step_filterMap {f : β → Option γ} :
   · simp
   · simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Iter.step_map {f : β → γ} :
     (it.map f).step = match it.step with
       | .yield it' out h =>
@@ -259,6 +261,7 @@ theorem Iter.step_map {f : β → γ} :
   generalize it.toIterM.step.run = step
   cases step.inflate using PlausibleIterStep.casesOn <;> simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 def Iter.step_filter {f : β → Bool} :
     (it.filter f).step = match it.step with
       | .yield it' out h =>
@@ -278,6 +281,7 @@ def Iter.step_filter {f : β → Bool} :
   · simp
   · simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 def Iter.val_step_filter {f : β → Bool} :
     (it.filter f).step.val = match it.step.val with
       | .yield it' out =>

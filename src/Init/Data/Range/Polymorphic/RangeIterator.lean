@@ -80,6 +80,7 @@ def Iterator.step [UpwardEnumerable α] [LE α] [DecidableLE α]
     else
       .done
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Iterator.step_eq_monadicStep [UpwardEnumerable α] [LE α] [DecidableLE α]
     {it : Iter (α := Rxc.Iterator α) α} :
     Iterator.step it = (Iterator.Monadic.step it.toIterM).mapIterator IterM.toIter := by
@@ -660,6 +661,7 @@ def Iterator.step [UpwardEnumerable α] [LT α] [DecidableLT α]
     else
       .done
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Iterator.step_eq_monadicStep [UpwardEnumerable α] [LT α] [DecidableLT α]
     {it : Iter (α := Rxo.Iterator α) α} :
     Iterator.step it = (Iterator.Monadic.step it.toIterM).mapIterator IterM.toIter := by

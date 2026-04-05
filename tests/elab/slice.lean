@@ -47,6 +47,9 @@ example : #[1, 2, 3, 4, 5][1...*][*...2].toList = [2, 3] := by simp
 example : #[1, 2, 3, 4, 5][1...*][*...=2].toList = [2, 3, 4] := by simp
 example : #[1, 2, 3, 4, 5][1...*][*...*].toList = [2, 3, 4, 5] := by simp
 example : #[1, 2, 3][0...2][*...*].toList = [1, 2] := by simp
+
+set_option backward.isDefEq.respectTransparency.types false -- FIXME
+
 example : #[1, 2, 3][0...2][1...2].toArray = #[2] := by simp
 example : #[1, 2, 3][0...2][1...5].toArray = #[2] := by simp
 example : #[1, 2, 3][1...2][0...2].toArray = #[2] := by simp

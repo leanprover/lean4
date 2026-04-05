@@ -3754,7 +3754,7 @@ class Functor (f : Type u → Type v) : Type (max (u+1) v) where
   /--
   Mapping a constant function.
 
-  Given `a : α` and `v : f β`, `mapConst a v` is equivalent to `Function.const _ a <$> v`. For some
+  Given `a : α` and `v : f β`, `mapConst a v` is equivalent to `(fun _ => a) <$> v`. For some
   functors, this can be implemented more efficiently; for all other functors, the default
   implementation may be used.
   -/

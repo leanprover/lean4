@@ -1,0 +1,43 @@
+name: GPU Decide CI
+
+on:
+  push:
+    paths:
+      - 'src/Lean/Elab/Tactic/GpuDecide.lean'
+      - 'src/runtime/**'
+      - 'lean4-gpu-runtime/**'
+      - 'tests/gpu_decide/**'
+  pull_request:
+    paths:
+      - 'src/Lean/Elab/Tactic/GpuDecide.lean'
+      - 'src/runtime/**'
+      - 'lean4-gpu-runtime/**'
+      - 'tests/gpu_decide/**'
+
+jobs:
+  build-cpu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build (CPU only)
+        run: |
+          cmake --preset release
+          cmake --build build/release -j$(nproc)
+      - name: Run tests
+        run: |
+          ./build/release/stage1/bin/lean --make tests/gpu_decide/GpuDecideTest.lean
+
+  build-gpu:
+    runs-on: [self-hosted, linux, x64, gpu]
+    if: github.event_name == 'push'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build (with GPU)
+        run: |
+          cmake --preset release -DLEAN_USE_GPU_RUNTIME=ON
+          cmake --build build/release -j$(nproc)
+      - name: Run GPU tests
+        run: |
+          ./build/release/stage1/bin/lean --make tests/gpu_decide/Benchmark.lean
+      - name: GPU info
+        run: nvidia-smi

@@ -17,7 +17,6 @@ public import Lean.Elab.Tactic.Location
 public import Lean.Elab.Tactic.SimpTrace
 public import Lean.Elab.Tactic.Simp
 public import Lean.Elab.Tactic.Simproc
-public import Lean.Elab.Tactic.CbvSimproc
 public import Lean.Elab.Tactic.BuiltinTactic
 public import Lean.Elab.Tactic.Split
 public import Lean.Elab.Tactic.Conv
@@ -56,4 +55,5 @@ public import Lean.Elab.Tactic.Show
 public import Lean.Elab.Tactic.Lets
 public import Lean.Elab.Tactic.Do
 public import Lean.Elab.Tactic.Decide
+public import Lean.Elab.Tactic.GpuDecide
 public import Lean.Elab.Tactic.Cbv

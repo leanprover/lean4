@@ -1,0 +1,36 @@
+name: GPU Decide CI
+
+on:
+  push:
+    paths:
+      - 'src/Lean/Elab/Tactic/GpuDecide.lean'
+      - 'src/runtime/CMakeLists.txt'
+      - 'lean4-gpu-runtime/**'
+      - 'tests/gpu_decide/**'
+  pull_request:
+    paths:
+      - 'src/Lean/Elab/Tactic/GpuDecide.lean'
+      - 'src/runtime/CMakeLists.txt'
+      - 'lean4-gpu-runtime/**'
+      - 'tests/gpu_decide/**'
+
+jobs:
+  build-cpu:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y ccache git cmake g++
+
+      - name: Build (CPU only)
+        run: |
+          cmake -S . -B build/release -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+          cmake --build build/release -j2 --target stage0
+
+      - name: Compile GPU decide tests
+        run: |
+          ./build/release/stage1/bin/lean --make tests/gpu_decide/GpuDecideTest.lean
+          ./build/release/stage1/bin/lean --make tests/gpu_decide/Benchmark.lean

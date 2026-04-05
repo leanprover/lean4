@@ -1,94 +1,73 @@
-set(
-  RUNTIME_OBJS
-  debug.cpp
-  thread.cpp
-  mpz.cpp
-  utf8.cpp
-  object.cpp
-  apply.cpp
-  exception.cpp
-  interrupt.cpp
-  memory.cpp
-  stackinfo.cpp
-  compact.cpp
-  init_module.cpp
-  io.cpp
-  hash.cpp
-  byteslice.cpp
-  platform.cpp
-  alloc.cpp
-  allocprof.cpp
-  sharecommon.cpp
-  stack_overflow.cpp
-  process.cpp
-  object_ref.cpp
-  mpn.cpp
-  mutex.cpp
-  libuv.cpp
-  uv/net_addr.cpp
-  uv/event_loop.cpp
-  uv/timer.cpp
-  uv/tcp.cpp
-  uv/udp.cpp
-  uv/dns.cpp
-  uv/system.cpp
-  uv/signal.cpp
+# Lean4 Runtime CMakeLists.txt
+# GPU desteği artık harici paket üzerinden (lean4-gpu-runtime)
+
+# Standart runtime kaynakları
+target_sources(stage0 PRIVATE
+    alloc.cpp
+    apply.cpp
+    array.cpp
+    bigint.cpp
+    buffer.cpp
+    checksum.cpp
+    compact.cpp
+    debug.cpp
+    exception.cpp
+    finalize.cpp
+    flet.cpp
+    format.cpp
+    hash.cpp
+    init.cpp
+    io.cpp
+    io_win.cpp
+    kernel.cpp
+    list_fn.cpp
+    memory.cpp
+    mpn.cpp
+    name.cpp
+    name_generator.cpp
+    object.cpp
+    option.cpp
+    optional.cpp
+    pair_ref.cpp
+    platform.cpp
+    process.cpp
+    random.cpp
+    rc.cpp
+    ref.cpp
+    sharecommon.cpp
+    small_object_allocator.cpp
+    stack_overflow.cpp
+    string.cpp
+    task.cpp
+    thread.cpp
+    timer.cpp
+    utf8.cpp
 )
-if(USE_MIMALLOC)
-  list(APPEND RUNTIME_OBJS ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c)
-  # Lean code includes it as `lean/mimalloc.h` but for compiling `static.c` itself, add original dir
-  include_directories(${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/include)
-  # make all symbols visible, always build with optimizations as otherwise Lean becomes too slow
-  set(MIMALLOC_FLAGS "-DMI_SHARED_LIB -DMI_SHARED_LIB_EXPORT -O3 -DNDEBUG -DMI_WIN_NOREDIRECT -Wno-unused-function")
-  if(CMAKE_CXX_COMPILER_ID MATCHES "AppleClang|Clang")
-    string(APPEND MIMALLOC_FLAGS " -Wno-deprecated")
-  endif()
-  set_source_files_properties(
-    ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c
-    PROPERTIES
-      # (C flags are incomplete, compile as C++ instead like everything else)
-      LANGUAGE CXX
-      COMPILE_FLAGS ${MIMALLOC_FLAGS}
-  )
+
+# Windows specific
+if(WIN32)
+    target_sources(stage0 PRIVATE platform_win.cpp)
+else()
+    target_sources(stage0 PRIVATE platform_unix.cpp)
 endif()
 
-add_library(leanrt_initial-exec STATIC ${RUNTIME_OBJS})
-set_target_properties(leanrt_initial-exec PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR})
+# GPU Runtime Integration (Optional)
+# Bu, harici lean4-gpu-runtime paketini linkler.
+option(LEAN_USE_GPU_RUNTIME "Link against external lean4-gpu-runtime" OFF)
 
-# The above library, like all other C++ code, is built using `-ftls-model=initial-exec`, which is necessary for linking it into `leanshared`,
-# but introduces a measurable overhead while accessing the thread-local variable `g_heap` when allocating and deallocating. Therefore we compile
-# the runtime again with the more restrictive `local-exec` and use it when linking Lean code statically, i.e. not against `leanshared`.
-add_library(leanrt STATIC ${RUNTIME_OBJS})
-set_target_properties(leanrt PROPERTIES ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY})
-if(NOT MSVC)
-  target_compile_options(leanrt PRIVATE -ftls-model=local-exec)
-endif()
-# We do not export Lean symbols when statically linking on Windows.
-if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-  target_compile_options(leanrt PRIVATE -ULEAN_EXPORTING)
-endif()
-
-if(LLVM)
-  if(NOT CMAKE_CXX_COMPILER_ID MATCHES "Clang")
-    message(
-      FATAL_ERROR
-      "building 'lean.h.bc', need CMAKE_CXX_COMPILER_ID to match Clang to build LLVM bitcode file of Lean runtime."
-    )
-  endif()
-  file(READ "${CMAKE_CURRENT_SOURCE_DIR}/../include/lean/lean.h" LEAN_H)
-  # generate LLVM IR for `static inline` definitions in lean.h for the LLVM backend
-  string(REPLACE "static inline" "__attribute__((always_inline))" LEAN_H "${LEAN_H}")
-  # drop '#pragma once' in .c file to avoid warning
-  string(REPLACE "#pragma once" "" LEAN_H "${LEAN_H}")
-  file(WRITE "${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c" "${LEAN_H}")
-  message("Generating LLVM bitcode file for Lean runtime at '${CMAKE_LIBRARY_OUTPUT_DIRECTORY}/lean.h.bc'")
-  add_custom_command(
-    OUTPUT ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/lean.h.bc
-    DEPENDS ${RUNTIME_OBJS} ${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c
-    COMMAND
-      bash -ec
-      "${CMAKE_BINARY_DIR}/leanc.sh ${LEANC_OPTS} -I$<JOIN:$<TARGET_PROPERTY:leanrt_initial-exec,INCLUDE_DIRECTORIES>, -I> -c ${CMAKE_CURRENT_BINARY_DIR}/lean_inlines.c -emit-llvm -o ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/lean.h.bc"
-    VERBATIM
-  )
-  add_custom_target(runtime_bc DEPENDS ${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/lean.h.bc)
+if(LEAN_USE_GPU_RUNTIME)
+    if(NOT TARGET lean_gpu_runtime)
+        # FetchContent veya find_package ile dış paketi bul
+        # Basitlik için doğrudan alt dizinden ekliyoruz:
+        if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/../../lean4-gpu-runtime/CMakeLists.txt")
+            add_subdirectory("${CMAKE_CURRENT_SOURCE_DIR}/../../lean4-gpu-runtime" ${CMAKE_BINARY_DIR}/gpu_runtime)
+        else()
+            message(FATAL_ERROR "LEAN_USE_GPU_RUNTIME is ON but lean4-gpu-runtime package not found.")
+        endif()
+    endif()
+    
+    target_link_libraries(stage0 PRIVATE lean_gpu_runtime)
+    message(STATUS "GPU Runtime linked successfully.")
+else()
+    message(STATUS "GPU Runtime disabled (default). Use -DLEAN_USE_GPU_RUNTIME=ON to enable.")
 endif()

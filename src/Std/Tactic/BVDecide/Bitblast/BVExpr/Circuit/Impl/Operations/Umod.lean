@@ -45,6 +45,7 @@ def blastUmod (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry 
 
   AIG.RefVec.ite aig ⟨discr, lhs, modRes⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastUmod where
   le_size := by
     intros

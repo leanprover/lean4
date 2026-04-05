@@ -2115,7 +2115,7 @@ theorem ushiftRight_eq_zero {x : BitVec w} {n : Nat} (hn : w ≤ n) :
   have : 2^w ≤ 2^n := Nat.pow_le_pow_of_le Nat.one_lt_two hn
   rw [Nat.shiftRight_eq_div_pow, Nat.div_eq_of_lt (by omega)]
 
-
+set_option backward.isDefEq.respectTransparency.types false in
 /--
 Unsigned shift right by at least one bit makes the interpretations of the bitvector as an `Int` or `Nat` agree,
 because it makes the value of the bitvector less than or equal to `2^(w-1)`.
@@ -4704,6 +4704,7 @@ theorem toFin_srem {x y : BitVec w} : (x.srem y).toFin =
 
 /-! ### smod -/
 
+set_option backward.isDefEq.respectTransparency.types false in
 /-- Equation theorem for `smod` in terms of `umod`. -/
 theorem smod_eq (x y : BitVec w) : x.smod y =
   match x.msb, y.msb with
@@ -6144,6 +6145,7 @@ theorem clzAuxRec_le {x : BitVec w} (n : Nat) :
       · simp only [hxn, Bool.false_eq_true, reduceIte]
         exact ihn
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem clzAuxRec_eq_iff_of_getLsbD_false {x : BitVec w} (h : ∀ i, n < i → x.getLsbD i = false) :
     x.clzAuxRec n = BitVec.ofNat w w ↔ ∀ j, j ≤ n → x.getLsbD j = false := by
   rcases w with _|w

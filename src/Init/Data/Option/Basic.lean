@@ -118,7 +118,7 @@ Examples:
  * `(some 2).bind (Option.guard (· > 2)) = none`
  * `(some 4).bind (Option.guard (· > 2)) = some 4`
 -/
-@[inline] protected def bind : Option α → (α → Option β) → Option β
+@[inline, expose, implicit_reducible] protected def bind : Option α → (α → Option β) → Option β
   | none,   _ => none
   | some a, f => f a
 
@@ -194,7 +194,7 @@ Examples:
  * `none.filter (fun x : Nat => x % 2 == 0) = none`
  * `none.filter (fun x : Nat => true) = none`
 -/
-@[always_inline, inline] protected def filter (p : α → Bool) : Option α → Option α
+@[always_inline, inline, expose, implicit_reducible] protected def filter (p : α → Bool) : Option α → Option α
   | some a => if p a then some a else none
   | none   => none
 
@@ -206,7 +206,7 @@ Examples:
  * `(some 22).all (· % 2 == 0) = true
  * `none.all (fun x : Nat => x % 2 == 0) = true
 -/
-@[always_inline, inline] protected def all (p : α → Bool) : Option α → Bool
+@[always_inline, inline, expose, implicit_reducible] protected def all (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => true
 
@@ -221,7 +221,7 @@ Examples:
  * `(some 22).any (· % 2 == 0) = true
  * `none.any (fun x : Nat => true) = false
 -/
-@[always_inline, inline] protected def any (p : α → Bool) : Option α → Bool
+@[always_inline, inline, expose, implicit_reducible] protected def any (p : α → Bool) : Option α → Bool
   | some a => p a
   | none   => false
 
@@ -393,7 +393,7 @@ Examples:
  * `Option.guard (· > 2) 1 = none`
  * `Option.guard (· > 2) 5 = some 5`
 -/
-@[inline] def guard (p : α → Bool) (a : α) : Option α :=
+@[inline, expose, implicit_reducible] def guard (p : α → Bool) (a : α) : Option α :=
   if p a then some a else none
 
 /--
@@ -436,7 +436,7 @@ Examples:
  * `(some none).join = none`
  * `(some (some v)).join = some v`
 -/
-@[inline] def join (x : Option (Option α)) : Option α := x.bind id
+@[inline, expose, implicit_reducible] def join (x : Option (Option α)) : Option α := x.bind id
 
 @[simp, grind =] theorem join_none : (none : Option (Option α)).join = none := rfl
 @[simp, grind =] theorem join_some : (some o).join = o := rfl

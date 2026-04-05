@@ -66,6 +66,7 @@ theorem entails_of_irrelevant_assignment {n : Nat} {p : (PosFin n) → Bool} {c 
     · simp [Clause.toList, delete_iff, negl_ne_v, v_in_c_del_l]
     · grind
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ AssignmentsInvariant f) (units : CNF.Clause (PosFin n)) :
     AssignmentsInvariant (insertRatUnits f units).1 := by
@@ -473,6 +474,7 @@ theorem performRatCheck_success_of_performRatCheck_fold_success {n : Nat} (f : D
   have h := (Array.foldl_induction motive h_base h_inductive).2 performRatCheck_fold_success i
   simpa [getElem!_def, i.2, dite_true] using h
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem safe_insert_of_performRatCheck_fold_success {n : Nat} (f : DefaultFormula n)
     (f_readyForRatAdd : ReadyForRatAdd f) (c : DefaultClause n) (pivot : Literal (PosFin n))
     (rupHints : Array Nat) (ratHints : Array (Nat × Array Nat))

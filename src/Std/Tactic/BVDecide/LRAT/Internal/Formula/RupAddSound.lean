@@ -232,6 +232,7 @@ theorem safe_insert_of_insertRup {n : Nat} (f : DefaultFormula n) (f_readyForRup
   · simp only [formulaEntails_def, List.all_eq_true, decide_eq_true_eq] at pf
     exact pf c' c'_in_f
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem assignmentsInvariant_insertRupUnits_of_assignmentsInvariant {n : Nat} (f : DefaultFormula n) (f_readyForRupAdd : ReadyForRupAdd f)
     (units : CNF.Clause (PosFin n)) :
     AssignmentsInvariant (insertRupUnits f units).1 := by

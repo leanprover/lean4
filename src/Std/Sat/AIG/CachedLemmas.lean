@@ -25,6 +25,7 @@ namespace AIG
 
 variable {α : Type} [Hashable α] [DecidableEq α]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /--
 If we find a cached atom declaration in the AIG, denoting it is equivalent to denoting `AIG.mkAtom`.
 -/
@@ -97,6 +98,7 @@ theorem mkAtomCached_eval_eq_mkAtom_eval {aig : AIG α} :
     rw [denote_mkAtom_cached heq1]
   · simp [mkAtom, denote]
 
+set_option backward.isDefEq.respectTransparency.types false in
 /--
 The central equality theorem between `mkConstCached` and `mkConst`.
 -/
@@ -110,6 +112,7 @@ theorem denote_mkConstCached {aig : AIG α} :
   next heq => simp [aig.hconst] at heq
   next heq => simp [aig.hconst] at heq
 
+set_option backward.isDefEq.respectTransparency.types false in
 /--
 If we find a cached gate declaration in the AIG, denoting it is equivalent to denoting `AIG.mkGate`.
 -/

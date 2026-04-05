@@ -2006,6 +2006,7 @@ theorem toInt_smod {x y : BitVec w} :
         simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb, hymsb,
           Int.fmod_eq_emod_of_nonneg _]
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem getElem_smod {x y : BitVec w} (h : i < w) :
     (x.smod y)[i] =
       match x.msb, y.msb with
@@ -2031,6 +2032,7 @@ theorem getLsbD_smod {x y : BitVec w} :
   · by_cases hxy : x % -y = 0#w <;> simp [hx, hy, hxy]
   · simp [hx, hy]
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem getMsbD_smod {x y : BitVec w} :
     (x.smod y).getMsbD i  =
       match x.msb, y.msb with

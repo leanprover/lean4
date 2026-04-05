@@ -408,7 +408,7 @@ instance : LawfulGetElem (Array α) Nat α fun xs i => i < xs.size where
     split <;> rfl
 
 @[simp] theorem getInternal_eq_getElem (a : Array α) (i : Nat) (h) :
-    a.getInternal i h = a[i] := rfl
+    a.getInternal i h = a[i] := id rfl
 
 @[simp] theorem get!Internal_eq_getElem! [Inhabited α] (a : Array α) (i : Nat) :
     a.get!Internal i = a[i]! := by

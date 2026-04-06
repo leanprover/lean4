@@ -201,6 +201,7 @@ jobs:
         if: matrix.name == 'Linux Lake' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           curl --version
+          cat build/stage1/lib/lean/Leanc.trace
           cd src
           time ../build/stage0/bin/lake build -o ../build/lake-mappings.jsonl
           time ../build/stage0/bin/lake cache put ../build/lake-mappings.jsonl --repo=${{ github.repository }}

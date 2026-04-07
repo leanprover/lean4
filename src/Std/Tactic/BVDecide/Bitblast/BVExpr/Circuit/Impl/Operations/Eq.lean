@@ -28,18 +28,15 @@ def mkEq (aig : AIG α) (pair : AIG.BinaryRefVec aig w) : AIG.Entrypoint α :=
   let bits := res.vec
   AIG.RefVec.fold aig bits AIG.mkAndCached
 
-set_option backward.isDefEq.respectTransparency.types false in
 instance {w : Nat} : AIG.LawfulOperator α (AIG.BinaryRefVec · w) mkEq where
   le_size := by
     intros
-    unfold mkEq
-    dsimp only
+    simp only [mkEq]
     apply AIG.RefVec.fold_le_size_of_le_aig_size
     apply AIG.RefVec.zip_le_size
   decl_eq := by
     intros
-    unfold mkEq
-    dsimp only
+    simp only [mkEq]
     rw [AIG.RefVec.fold_decl_eq]
     rw [AIG.RefVec.zip_decl_eq]
     apply AIG.RefVec.zip_lt_size_of_lt_aig_size

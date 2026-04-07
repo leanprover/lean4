@@ -64,6 +64,7 @@ A noncomputable variant of `IterM.step` using the `HetT` monad.
 It is used in the definition of the equivalence relations on iterators,
 namely `IterM.Equiv` and `Iter.Equiv`.
 -/
+@[implicit_reducible]
 noncomputable def IterM.stepAsHetT [Iterator α m β] [Monad m] (it : IterM (α := α) m β) :
     HetT m (IterStep (IterM (α := α) m β) β) :=
     ⟨it.IsPlausibleStep, inferInstance, (fun step => .deflate step.inflate) <$> it.step⟩
@@ -96,7 +97,6 @@ coinductive_fixpoint monotonicity by
 
 end Definition
 
-set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 theorem Equivalence.prun_liftInner_step [Iterator α m β] [Monad m] [Monad n]
     [MonadLiftT m n] [LawfulMonad m] [LawfulMonad n] [LawfulMonadLiftT m n]
@@ -110,7 +110,6 @@ theorem Equivalence.property_step [Iterator α m β] [Monad m] [LawfulMonad m]
     {it : IterM (α := α) m β} : (IterM.stepAsHetT it).Property = it.IsPlausibleStep :=
   rfl
 
-set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 theorem Equivalence.prun_step [Iterator α m β] [Monad m] [LawfulMonad m]
     {it : IterM (α := α) m β} {f : (step : _) → _ → m γ} :
@@ -242,7 +241,6 @@ theorem Iter.Equiv.trans {α₁ α₂ α₃ β : Type w}
     (hbc : Iter.Equiv itb itc) : Iter.Equiv ita itc :=
   BundledIterM.Equiv.trans hab hbc
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem IterM.Equiv.of_morphism {α₁ α₂} {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {β : Type w} [Iterator α₁ m β] [Iterator α₂ m β]
     (ita : IterM (α := α₁) m β)

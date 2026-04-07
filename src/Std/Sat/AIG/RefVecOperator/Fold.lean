@@ -82,7 +82,6 @@ theorem fold.go_decl_eq {aig : AIG α} (acc : Ref aig) (i : Nat) (s : RefVec aig
     simp
 termination_by len - i
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem fold_decl_eq {aig : AIG α} (vec : RefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α) [LawfulOperator α BinaryInput func] :
     ∀ idx (h1 : idx < aig.decls.size) (h2),
@@ -90,8 +89,7 @@ theorem fold_decl_eq {aig : AIG α} (vec : RefVec aig len)
         =
       aig.decls[idx]'h1 := by
   intros
-  unfold fold
-  dsimp only
+  simp only [fold]
   rw [fold.go_decl_eq]
 
 theorem fold_lt_size_of_lt_aig_size (aig : AIG α) (vec : RefVec aig len)

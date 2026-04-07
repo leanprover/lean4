@@ -116,23 +116,22 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           ⟨units.size, units_size_lt_updatedUnits_size⟩
         have i_gt_zero : i.1 > 0 := by rw [i_eq_l]; exact l.1.2.1
         refine ⟨mostRecentUnitIdx, l.2, i_gt_zero, ?_⟩
-        simp +zetaDelta only [insertUnit, h3, ite_false, Array.getElem_push_eq, i_eq_l, reduceCtorEq]
+        simp +zetaDelta only [insertUnit, h3, ite_false, Array.getElem_push_eq, i_eq_l,
+          reduceCtorEq, true_and]
         constructor
-        · rfl
+        · grind
         · constructor
           · grind
-          · constructor
-            · grind
-            · intro k hk
-              have k_in_bounds : k.1 < units.size := by
-                apply Nat.lt_of_le_of_ne
-                · have k_property := k.2
-                  grind
-                · intro h
-                  simp only [← h, not_true] at hk
-              rw [Array.getElem_push_lt k_in_bounds]
-              rw [i_eq_l] at h2
-              exact h2 ⟨k.1, k_in_bounds⟩
+          · intro k hk
+            have k_in_bounds : k.1 < units.size := by
+              apply Nat.lt_of_le_of_ne
+              · have k_property := k.2
+                grind
+              · intro h
+                simp only [← h, not_true] at hk
+            rw [Array.getElem_push_lt k_in_bounds]
+            rw [i_eq_l] at h2
+            exact h2 ⟨k.1, k_in_bounds⟩
       next i_ne_l =>
         apply Or.inl
         simp only [insertUnit, h3, ite_false, reduceCtorEq]
@@ -188,7 +187,6 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           · rw [Array.getElem_push_lt j.2, h1]
           · constructor
             · simp +zetaDelta [i_eq_l, ← hl]
-              rfl
             · constructor
               · simp only [i_eq_l]
                 rw [Array.getElem_modify_self]
@@ -223,7 +221,6 @@ theorem insertUnitInvariant_insertUnit {n : Nat} (assignments0 : Array Assignmen
           simp only [insertUnit, h5, Bool.false_eq_true, ↓reduceIte, mostRecentUnitIdx]
           constructor
           · simp +zetaDelta [i_eq_l, ← hl]
-            rfl
           · constructor
             · rw [Array.getElem_push_lt j.2, h1]
             · constructor
@@ -525,13 +522,11 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
               next h2 =>
                 have k_ne_j1 : k ≠ j1 := by grind
                 have h3 := units_nodup k j1 k_ne_j1
-                simp only [Fin.getElem_fin, ih1, ← h1, ← h2, ne_eq] at h3
-                exact h3 rfl
+                simp [ih1, ← h1, ← h2, ne_eq] at h3
               next h2 =>
                 have h3 := units_nodup k j2 k_ne_j2
                 simp only [Bool.not_eq_true] at h2
-                simp only [Fin.getElem_fin, ih2, ← h1, ← h2, ne_eq] at h3
-                exact h3 rfl
+                simp [ih2, ← h1, ← h2, ne_eq] at h3
     next idx_ne_j1 =>
       by_cases idx = j2
       next idx_eq_j2 =>
@@ -557,14 +552,12 @@ theorem clear_insert_inductive_case {n : Nat} (f : DefaultFormula n) (f_assignme
                 by_cases units[k.1].2
                 next h2 =>
                   have h3 := units_nodup k j1 k_ne_j1
-                  simp only [Fin.getElem_fin, ih1, ← h1, ← h2, ne_eq] at h3
-                  exact h3 rfl
+                  simp [Fin.getElem_fin, ih1, ← h1, ← h2, ne_eq] at h3
                 next h2 =>
                   have k_ne_j2 : k ≠ j2 := by grind
                   have h3 := units_nodup k j2 k_ne_j2
                   simp only [Bool.not_eq_true] at h2
-                  simp only [Fin.getElem_fin, ih2, ← h1, ← h2, ne_eq] at h3
-                  exact h3 rfl
+                  simp [ih2, ← h1, ← h2, ne_eq] at h3
       next idx_ne_j2 =>
         refine Or.inr <| Or.inr <| ⟨j1, j2,i_gt_zero, ?_⟩
         constructor

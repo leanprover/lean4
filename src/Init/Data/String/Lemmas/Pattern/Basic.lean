@@ -913,7 +913,6 @@ class LawfulToForwardSearcherModel {ρ : Type} (pat : ρ) [PatternModel pat] {σ
     [∀ s, Std.Iterators.Finite (σ s) Id] : Prop where
   isValidSearchFrom_toList (s) : IsValidSearchFrom pat s.startPos (ToForwardSearcher.toSearcher pat s).toList
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPattern pat] [StrictForwardPattern pat]
     [PatternModel pat] [LawfulForwardPatternModel pat] :
     letI : ToForwardSearcher pat (ToForwardSearcher.DefaultForwardSearcher pat) := .defaultImplementation
@@ -926,7 +925,7 @@ theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPa
   intro pos
   induction pos using WellFounded.induction Slice.Pos.wellFounded_gt with | h pos ih
   rw [Std.Iter.toList_eq_match_step, Std.Iter.step_eq]
-  simp only [Std.Iter.toIterM, ne_eq]
+  simp only [Std.Iter.toIterM_mk, Std.IterM.internalState_mk, ne_eq]
   by_cases h : pos = s.endPos
   · simpa [h] using IsValidSearchFrom.endPos
   · simp only [h, ↓reduceDIte]
@@ -1025,7 +1024,6 @@ class LawfulToBackwardSearcherModel {ρ : Type} (pat : ρ) [PatternModel pat] {�
     [∀ s, Std.Iterators.Finite (σ s) Id] : Prop where
   isValidRevSearchFrom_toList (s) : IsValidRevSearchFrom pat s.endPos (ToBackwardSearcher.toSearcher pat s).toList
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem LawfulToBackwardSearcherModel.defaultImplementation {pat : ρ} [BackwardPattern pat] [StrictBackwardPattern pat]
     [PatternModel pat] [LawfulBackwardPatternModel pat] :
     letI : ToBackwardSearcher pat (ToBackwardSearcher.DefaultBackwardSearcher pat) := .defaultImplementation
@@ -1038,7 +1036,7 @@ theorem LawfulToBackwardSearcherModel.defaultImplementation {pat : ρ} [Backward
   intro pos
   induction pos using WellFounded.induction Slice.Pos.wellFounded_lt with | h pos ih
   rw [Std.Iter.toList_eq_match_step, Std.Iter.step_eq]
-  simp only [Std.Iter.toIterM, ne_eq]
+  simp only [Std.Iter.toIterM_mk, Std.IterM.internalState_mk, ne_eq]
   by_cases h : pos = s.startPos
   · simpa [h] using IsValidRevSearchFrom.startPos
   · simp only [h, ↓reduceDIte]

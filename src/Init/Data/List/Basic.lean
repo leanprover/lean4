@@ -769,6 +769,7 @@ Examples:
 * `["grape"].isEmpty = false`
 * `["apple", "banana"].isEmpty = false`
 -/
+@[implicit_reducible]
 def isEmpty : List α → Bool
   | []     => true
   | _ :: _ => false
@@ -1054,11 +1055,11 @@ def dropLast {α} : List α → List α
   | [_]   => []
   | a::as => a :: dropLast as
 
-@[simp, grind =] theorem dropLast_nil : ([] : List α).dropLast = [] := rfl
-@[simp, grind =] theorem dropLast_singleton : [x].dropLast = [] := rfl
+@[simp, grind =] theorem dropLast_nil : ([] : List α).dropLast = [] := (rfl)
+@[simp, grind =] theorem dropLast_singleton : [x].dropLast = [] := (rfl)
 
 @[simp, grind =] theorem dropLast_cons_cons :
-    (x::y::zs).dropLast = x :: (y::zs).dropLast := rfl
+    (x::y::zs).dropLast = x :: (y::zs).dropLast := (rfl)
 
 @[deprecated dropLast_cons_cons (since := "2026-02-26")]
 theorem dropLast_cons₂ : (x::y::zs).dropLast = x :: (y::zs).dropLast := dropLast_cons_cons
@@ -2122,10 +2123,10 @@ def range' : (start len : Nat) → (step : Nat := 1) → List Nat
   | _, 0, _ => []
   | s, n+1, step => s :: range' (s+step) n step
 
-@[simp, grind =] theorem range'_zero : range' s 0 step = [] := rfl
-@[simp, grind =] theorem range'_one {s step : Nat} : range' s 1 step = [s] := rfl
+@[simp, grind =] theorem range'_zero : range' s 0 step = [] := (rfl)
+@[simp, grind =] theorem range'_one {s step : Nat} : range' s 1 step = [s] := (rfl)
 -- The following theorem is intentionally not a simp lemma.
-theorem range'_succ : range' s (n + 1) step = s :: range' (s + step) n step := rfl
+theorem range'_succ : range' s (n + 1) step = s :: range' (s + step) n step := (rfl)
 
 /-! ### zipIdx -/
 

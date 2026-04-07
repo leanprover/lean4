@@ -322,6 +322,7 @@ theorem getElem_cons_drop_succ_eq_drop {as : List α} {i : Nat} (h : i < as.leng
 
 /-- Internal implementation of `as[i]?`. Do not use directly. -/
 -- We still keep it public for reduction purposes
+@[implicit_reducible]
 def get?Internal : (as : List α) → (i : Nat) → Option α
   | a::_,  0   => some a
   | _::as, n+1 => get?Internal as n

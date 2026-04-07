@@ -457,13 +457,11 @@ theorem getEntry?ₘ_eq_getEntry? [BEq α] [PartialEquivBEq α] [Hashable α] [L
     m.getEntry?ₘ a = List.getEntry? a (toListModel m.1.buckets) :=
   apply_bucket hm AssocList.getEntry?_eq getEntry?_of_perm getEntry?_append_of_containsKey_eq_false
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem get_eq_getValueCast [BEq α] [Hashable α] [LawfulBEq α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
     {a : α} {h : m.contains a} :
     m.get a h = getValueCast a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by
   rw [get_eq_getₘ, getₘ_eq_getValue hm]
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem getEntry_eq_getEntry [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α] {m : Raw₀ α β} (hm : Raw.WFImp m.1)
     {a : α} {h : m.contains a} :
     m.getEntry a h = List.getEntry a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by
@@ -574,7 +572,6 @@ theorem Const.getₘ_eq_getValue [BEq α] [Hashable α] [PartialEquivBEq α] [La
   apply_bucket_with_proof hm a AssocList.get List.getValue AssocList.get_eq List.getValue_of_perm
     List.getValue_append_of_containsKey_eq_false
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem Const.get_eq_getValue [BEq α] [Hashable α] [PartialEquivBEq α] [LawfulHashable α]
     {m : Raw₀ α (fun _ => β)} (hm : Raw.WFImp m.1) {a : α} {h} :
     Const.get m a h = getValue a (toListModel m.1.buckets) (contains_eq_containsKey hm ▸ h) := by

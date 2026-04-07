@@ -39,7 +39,6 @@ theorem denote_mkFullAdderOut (assign : α → Bool) (aig : AIG α) (input : Ful
     ]
   rw [LawfulOperator.denote_mem_prefix (f := mkXorCached)]
 
-set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 theorem denote_mkFullAdderCarry (assign : α → Bool) (aig : AIG α) (input : FullAdderInput aig) :
     ⟦mkFullAdderCarry aig input, assign⟧
@@ -139,7 +138,6 @@ theorem atLeastTwo_eq_halfAdder (lhsBit rhsBit carry : Bool) :
   revert lhsBit rhsBit carry
   decide
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem go_denote_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : Ref aig)
     (s : AIG.RefVec aig curr) (lhs rhs : AIG.RefVec aig w) (assign : α → Bool)
     (lhsExpr rhsExpr : BitVec w)

@@ -41,17 +41,14 @@ def blastShiftConcat (aig : AIG α) (input : ShiftConcatInput aig w) : AIG.RefVe
   let new := bit.append lhs
   blastZeroExtend aig ⟨1 + w, new⟩
 
-set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulVecOperator α ShiftConcatInput blastShiftConcat where
   le_size := by
     intros
-    unfold blastShiftConcat
-    dsimp only
+    simp only [blastShiftConcat]
     apply AIG.LawfulVecOperator.le_size (f := blastZeroExtend)
   decl_eq := by
     intros
-    unfold blastShiftConcat
-    dsimp only
+    simp only [blastShiftConcat]
     rw [AIG.LawfulVecOperator.decl_eq (f := blastZeroExtend)]
 
 structure BlastDivSubtractShiftOutput (old : AIG α) (w : Nat) where
@@ -277,17 +274,16 @@ def blastUdiv (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry 
 
   AIG.RefVec.ite aig ⟨discr, zero, divRes⟩
 
-set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastUdiv where
   le_size := by
     intros
-    unfold blastUdiv
+    simp only [blastUdiv]
     apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
     refine Nat.le_trans ?_ (by apply blastUdiv.go_le_size)
     apply AIG.LawfulOperator.le_size (f := BVPred.mkEq)
   decl_eq := by
     intros
-    unfold blastUdiv
+    simp only [blastUdiv]
     rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
     rw [blastUdiv.go_decl_eq]
     rw [AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)]

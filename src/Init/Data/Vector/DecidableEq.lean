@@ -22,12 +22,11 @@ theorem isEqv_iff_rel {xs ys : Vector α n} {r} :
   rcases ys with ⟨ys, h⟩
   simp [Array.isEqv_iff_rel, h]
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem isEqv_eq_decide (xs ys : Vector α n) (r) :
     Vector.isEqv xs ys r = decide (∀ (i : Nat) (h' : i < n), r xs[i] ys[i]) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, h⟩
-  simp [Array.isEqv_eq_decide, h]
+  simp -implicitDefEqProofs [Array.isEqv_eq_decide, h]
 
 @[simp] theorem isEqv_toArray [BEq α] (xs ys : Vector α n) : (xs.toArray.isEqv ys.toArray r) = (xs.isEqv ys r) := by
   simp [isEqv_eq_decide, Array.isEqv_eq_decide]

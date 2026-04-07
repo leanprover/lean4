@@ -79,7 +79,6 @@ theorem blastDivSubtractShift_denote_mem_prefix (aig : AIG α)
   · intros
     apply blastDivSubtractShift_le_size
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem denote_blastDivSubtractShift_q (aig : AIG α) (assign : α → Bool) (lhs rhs : BitVec w)
     (n d : AIG.RefVec aig w) (wn wr : Nat)
     (q r : AIG.RefVec aig w) (qbv rbv : BitVec w)
@@ -174,7 +173,6 @@ theorem denote_blastDivSubtractShift_q (aig : AIG α) (assign : α → Bool) (lh
       · rw [denote_mkConstCached]
   . simp [Ref.hgate]
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem denote_blastDivSubtractShift_r (aig : AIG α) (assign : α → Bool) (lhs rhs : BitVec w)
     (n d : AIG.RefVec aig w) (wn wr : Nat)
     (q r : AIG.RefVec aig w) (qbv rbv : BitVec w)

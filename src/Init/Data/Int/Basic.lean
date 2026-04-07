@@ -99,6 +99,7 @@ Examples:
  * `Int.negOfNat 6 = -6`
  * `Int.negOfNat 0 = 0`
 -/
+@[implicit_reducible]
 def negOfNat : Nat → Int
   | 0      => 0
   | succ m => negSucc m
@@ -115,7 +116,7 @@ Examples:
  * `-(-6 : Int) = 6`
  * `(12 : Int).neg = -12`
 -/
-@[extern "lean_int_neg"]
+@[extern "lean_int_neg", implicit_reducible]
 protected def neg (n : @& Int) : Int :=
   match n with
   | ofNat n   => negOfNat n
@@ -141,6 +142,7 @@ Examples:
  * `Int.subNatNat 2 5 = -3`
  * `Int.subNatNat 0 13 = -13`
 -/
+@[implicit_reducible]
 def subNatNat (m n : Nat) : Int :=
   match (n - m : Nat) with
   | 0        => ofNat (m - n)  -- m ≥ n
@@ -203,7 +205,7 @@ Examples:
 * `(7 : Int) - (0 : Int) = 7`
 * `(0 : Int) - (7 : Int) = -7`
 -/
-@[extern "lean_int_sub"]
+@[extern "lean_int_sub", implicit_reducible]
 protected def sub (m n : @& Int) : Int := m + (- n)
 
 instance : Sub Int where
@@ -397,6 +399,7 @@ Examples:
 * `(0 : Int) ^ 10 = 0`
 * `(-7 : Int) ^ 3 = -343`
 -/
+@[implicit_reducible]
 protected def pow : Int → Nat → Int
   | (m : Nat), n => Int.ofNat (m ^ n)
   | m@-[_+1], n => if n % 2 = 0 then Int.ofNat (m.natAbs ^ n) else - Int.ofNat (m.natAbs ^ n)

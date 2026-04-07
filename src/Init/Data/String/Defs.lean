@@ -471,7 +471,7 @@ theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
     (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
 
 /-- The end position of a slice, as a `Pos.Raw`. -/
-@[expose, inline]
+@[expose, inline, implicit_reducible]
 def Slice.rawEndPos (s : Slice) : Pos.Raw where
   byteIdx := s.utf8ByteSize
 

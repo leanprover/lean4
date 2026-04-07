@@ -331,10 +331,9 @@ theorem relabelNat'_fst_eq_relabelNat {aig : AIG α} : aig.relabelNat'.fst = aig
 theorem relabelNat_size_eq_size {aig : AIG α} : aig.relabelNat.decls.size = aig.decls.size := by
   simp [relabelNat, relabelNat']
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem relabelNat_unsat_iff_of_NonEmpty [Nonempty α] {aig : AIG α} {hidx1} {hidx2} :
     (aig.relabelNat).UnsatAt idx invert hidx1 ↔ aig.UnsatAt idx invert hidx2 := by
-  dsimp only [relabelNat, relabelNat']
+  simp only [relabelNat, relabelNat']
   rw [relabel_unsat_iff]
   intro x y hx hy heq
   split at heq

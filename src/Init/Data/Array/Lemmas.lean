@@ -1872,7 +1872,7 @@ theorem getElem_of_append {xs ys zs : Array α} (eq : xs = ys.push a ++ zs) (h :
   rw [← getElem?_eq_getElem, eq, getElem?_append_left (by simp; omega), ← h]
   simp
 
-@[simp] theorem append_singleton {a : α} {as : Array α} : as ++ #[a] = as.push a := rfl
+@[simp] theorem append_singleton {a : α} {as : Array α} : as ++ #[a] = as.push a := (rfl)
 
 @[simp] theorem append_singleton_assoc {a : α} {xs ys : Array α} : xs ++ (#[a] ++ ys) = xs.push a ++ ys := by
   rw [← append_assoc, append_singleton]
@@ -2831,12 +2831,10 @@ theorem getElem_extract_aux {xs : Array α} {start stop : Nat} (h : i < (xs.extr
   rw [size_extract] at h; apply Nat.add_lt_of_lt_sub'; apply Nat.lt_of_lt_of_le h
   apply Nat.sub_le_sub_right; apply Nat.min_le_right
 
-set_option backward.isDefEq.respectTransparency.types false in
 @[simp, grind =] theorem getElem_extract {xs : Array α} {start stop : Nat}
     (h : i < (xs.extract start stop).size) :
-    (xs.extract start stop)[i] = xs[start + i]'(getElem_extract_aux h) :=
-  show (extract.loop xs (min stop xs.size - start) start #[])[i]
-    = xs[start + i]'(getElem_extract_aux h) by rw [getElem_extract_loop_ge]; rfl; exact Nat.zero_le _
+    (xs.extract start stop)[i] = xs[start + i]'(getElem_extract_aux h) := by
+  simp [extract, getElem_extract_loop_ge]
 
 theorem getElem?_extract {xs : Array α} {start stop : Nat} :
     (xs.extract start stop)[i]? = if i < min stop xs.size - start then xs[start + i]? else none := by

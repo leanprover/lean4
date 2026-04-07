@@ -426,15 +426,15 @@ private def decodeTargetDecls
   (pkg : Name) (prettyName : String) (t : Table)
 : DecodeM (Array (PConfigDecl pkg) × DNameMap (NConfigDecl pkg)) := do
   let r : DecodeTargetState pkg := {}
-  let r ← go r LeanLib.keyword LeanLib.configKind LeanLibConfig.decodeToml
-  let r ← go r LeanExe.keyword LeanExe.configKind LeanExeConfig.decodeToml
-  let r ← go r InputFile.keyword InputFile.configKind InputFileConfig.decodeToml
-  let r ← go r InputDir.keyword InputDir.configKind InputDirConfig.decodeToml
+  let r ← go r LeanLib.keyword LeanLib.configKind LeanLibConfig.decodeToml (by simp)
+  let r ← go r LeanExe.keyword LeanExe.configKind LeanExeConfig.decodeToml (by simp)
+  let r ← go r InputFile.keyword InputFile.configKind InputFileConfig.decodeToml (by simp)
+  let r ← go r InputDir.keyword InputDir.configKind InputDirConfig.decodeToml (by simp)
   return (r.decls, r.map)
 where
   go (r : DecodeTargetState pkg) kw kind
       (decode : {n : Name} → Table → DecodeM (ConfigType kind pkg n))
-      (h : DataType kind = OpaqueConfigTarget kind := by simp) := do
+      (h : DataType kind = OpaqueConfigTarget kind) := do
     let some tableArrayVal := t.find? kw | return r
     let some vals ← tryDecode? tableArrayVal.decodeValueArray | return r
     vals.foldlM (init := r) fun r val => do

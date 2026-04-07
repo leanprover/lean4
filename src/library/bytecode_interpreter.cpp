@@ -31,10 +31,6 @@ Interpreter for Lean bytecode.
 #include "util/option_declarations.h"
 #include "util/name_hash_map.h"
 
-#ifndef LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE
-#define LEAN_DEFAULT_INTERPRETER_PREFER_NATIVE true
-#endif
-
 namespace lean {
 namespace interpreter {
 
@@ -43,58 +39,62 @@ typedef lean_interpreter_value value;
 static_assert(sizeof(size_t) <= sizeof(uint64), "uint64 should be the largest unboxed type"); // NOLINT
 static_assert(sizeof(value) == sizeof(uint64), "value should be 64 bits in length"); // NOLINT
 
-struct symbol_cache_entry {
-    // amount of parameters the function expects for m_arity != 0, m_arity == 0 for a constant
+struct decl_cache_entry {
+    // Amount of parameters the function expects for m_arity != 0, m_arity == 0 for a constant
     unsigned m_arity;
-    // reference to native symbol address; `nullptr` if no native symbol is available
+    // Native symbol address; `nullptr` if no native symbol is available
     void * m_native;
-    // reference to object value (for constants) or bytecode object (for functions)
-    // `nullptr` for native functions without bytecode
+    // Reference to bytecode object (if applicable)
     object * m_object;
 };
 
-struct symbol_cache {
-    // 0 = not loaded, 1 = loaded, 2 = locked
-    atomic<uint8> m_loaded;
+struct decl_cache {
+    lean_once_cell_t m_once_cell;
     size_t m_count;
-    symbol_cache_entry m_entries[];
+    object * m_value;
+    decl_cache_entry m_entries[];
 };
 
-external_object_class * g_symbol_cache_external_class;
+external_object_class * g_decl_cache_external_class;
 
-void symbol_cache_finalize(void * val) {
-    symbol_cache * cache = reinterpret_cast<symbol_cache *>(val);
+void decl_cache_finalize(void * cache_val) {
+    decl_cache * cache = reinterpret_cast<decl_cache *>(cache_val);
     for (size_t i = 0; i < cache->m_count; i++) {
-        object * val = cache->m_entries[i].m_object;
-        if (val != nullptr) {
-            dec(val);
-        }
+        dec(cache->m_entries[i].m_object);
     }
+    dec(cache->m_value);
     free(cache);
 }
 
-void symbol_cache_foreach(void * val, object * fn) {
-    symbol_cache * cache = reinterpret_cast<symbol_cache *>(val);
+void decl_cache_foreach(void * cache_val, object * fn) {
+    decl_cache * cache = reinterpret_cast<decl_cache *>(cache_val);
     for (size_t i = 0; i < cache->m_count; i++) {
         object * val = cache->m_entries[i].m_object;
-        if (val != nullptr) {
+        if (!lean_is_scalar(val)) {
             inc(fn);
-            inc(val);
+            inc_ref(val);
             apply_1(fn, val);
         }
+    }
+    if (!lean_is_scalar(cache->m_value)) {
+        inc(fn);
+        inc_ref(cache->m_value);
+        apply_1(fn, cache->m_value);
     }
 }
 
 extern "C" object * lean_bytecode_mk_initial_cache(b_obj_arg symbols) {
     size_t count = array_size(symbols);
-    size_t sz = sizeof(symbol_cache) + sizeof(symbol_cache_entry)*count;
-    symbol_cache * cache = static_cast<symbol_cache *>(malloc(sz));
+    size_t sz = sizeof(decl_cache) + sizeof(decl_cache_entry)*count;
+    decl_cache * cache = static_cast<decl_cache *>(malloc(sz));
     // We populate the cache on demand
     // The cache is bound to the symbol array with dependent typing so there's no risk of
     // using it with the wrong count, so no need to store it here
-    cache->m_loaded.store(false);
+    cache->m_once_cell.lock = 0;
+    cache->m_once_cell.state = 0;
+    cache->m_value = box(0);
     cache->m_count = 0;
-    return alloc_external(g_symbol_cache_external_class, cache);
+    return alloc_external(g_decl_cache_external_class, cache);
 }
 
 // reuse the compiler's name mangling to compute native symbol names
@@ -143,10 +143,10 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 #endif
 }
 
-symbol_cache_entry fill_cache_entry(elab_environment const & env, name const & decl_name) {
-    symbol_cache_entry result = { .m_arity = 0, .m_native = nullptr, .m_object = nullptr };
+decl_cache_entry fill_cache_entry(elab_environment const & env, name const & decl_name) {
+    decl_cache_entry result = { .m_arity = 0, .m_native = nullptr, .m_object = box(0) };
     size_t arity = ir_decl_arity(env, decl_name);
-    lean_assert(arity <= UINT32_MAX);
+    lean_assert(arity < UINT32_MAX);
     optional<object_ref> decl = find_bytecode_decl(env, decl_name);
     if (decl) {
         result.m_object = decl->steal();
@@ -169,38 +169,47 @@ symbol_cache_entry fill_cache_entry(elab_environment const & env, name const & d
     return result;
 }
 
-void fill_cache(elab_environment const & env, array_ref<name> const & symbols, symbol_cache * cache) {
-    if (LEAN_LIKELY(cache->m_loaded.load() == 1)) {
-        return;
-    }
-    for (;;) {
-        uint8 value = cache->m_loaded.exchange(2);
-        if (value == 0) {
-            // No one waiting
+void lock_simple_atomic(std::atomic<int>& lock) {
+    while (true) {
+        lock.wait(1);
+        int should = 0;
+        if (lock.compare_exchange_strong(should, 1)) {
             break;
-        } else if (value == 1) {
-            // Another thread has loaded the cache, make sure to keep the status
-            cache->m_loaded.exchange(1);
-            return;
         }
-        // Another thread has the lock, spin
+    }
+}
+
+void unlock_simple_atomic(std::atomic<int>& lock) {
+    lock.store(0);
+    lock.notify_one();
+}
+
+// Fills the cache if not already done before. If this function returns true, the cache has
+// been filled already. Otherwise, the cache is locked and needs to be unlocked by the caller.
+bool fill_cache(elab_environment const & env, b_obj_arg symbols, decl_cache * cache) {
+    if (LEAN_LIKELY(cache->m_once_cell.state != 0)) {
+        return true;
+    }
+    lock_simple_atomic(cache->m_once_cell.lock);
+    if (cache->m_once_cell.state != 0) {
+        unlock_simple_atomic(cache->m_once_cell.lock);
+        return true;
     }
     // Lock acquired
-    size_t count = symbols.size();
+    size_t count = lean_array_size(symbols);
     for (size_t i = 0; i < count; i++) {
-        cache->m_entries[i] = fill_cache_entry(env, symbols[i]);
+        cache->m_entries[i] = fill_cache_entry(env, name(lean_array_get_core(symbols, i), true));
     }
     cache->m_count = count;
-
-    // Finished loading
-    cache->m_loaded.store(1);
+    // Keep lock upon return
+    return false;
 }
 
 struct frame {
     value * m_stack_base;
     uint32 * m_code;
-    object * m_decl;
-    symbol_cache_entry * m_cache;
+    object * m_decl; // borrowed
+    decl_cache_entry * m_cache;
 };
 
 struct interpreter {
@@ -261,39 +270,55 @@ enum instruction_type {
     APP,
     PAP,
     RESET,
-    REUSE
+    REUSE,
+    RET_AND_STORE
 };
 
-frame call_init(interpreter * interp, object_ref decl) {
-    object_ref const & bytecode_obj = cnstr_get_ref(decl, 1);
-    nat const & stack_reserved_obj = cnstr_get_ref_t<nat>(decl, 2);
-    nat const & stack_space_obj = cnstr_get_ref_t<nat>(decl, 3);
-    array_ref<name> const & symbols_array = cnstr_get_ref_t<array_ref<name>>(decl, 4);
+bool call_init(interpreter * interp, b_obj_arg decl, bool is_constant, frame * f) {
+    object * bytecode_obj = lean_ctor_get(decl, 1); // ByteArray
+    object * stack_reserved_obj = lean_ctor_get(decl, 2); // Nat
+    object * stack_space_obj = lean_ctor_get(decl, 3); // Nat
+    object * symbols_array = lean_ctor_get(decl, 4); // Array Name
     object_ref const & cache_obj = cnstr_get_ref(decl, 5);
 
-    uint32 * bytecode = reinterpret_cast<uint32 *>(sarray_cptr(bytecode_obj.raw()));
-    size_t stack_reserved = stack_reserved_obj.get_small_value();
+    uint32 * bytecode = reinterpret_cast<uint32 *>(sarray_cptr(bytecode_obj));
+    size_t stack_reserved = lean_unbox(stack_reserved_obj);
     if (interp->m_stack_top + stack_reserved >= interp->m_stack_end || interp->m_frame_top >= interp->m_frame_end) {
-        throw stack_space_exception("stack overflow");
+        lean_internal_panic("stack overflow");
     }
 
-    symbol_cache * cache = reinterpret_cast<symbol_cache *>(lean_get_external_data(cache_obj.raw()));
-    fill_cache(interp->m_env, symbols_array, cache);
+    decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj.raw()));
+    bool already_done = fill_cache(interp->m_env, symbols_array, cache);
+    if (already_done && is_constant) {
+        interp->m_stack_top->m_obj = cache->m_value;
+        return false;
+    } else if (!is_constant) {
+        cache->m_once_cell.state = 1;
+        unlock_simple_atomic(cache->m_once_cell.lock);
+    }
 
-    frame f;
-    f.m_code = bytecode;
-    f.m_decl = decl.steal();
-    f.m_stack_base = interp->m_stack_top;
-    f.m_cache = cache->m_entries;
-    interp->m_stack_top += stack_space_obj.get_small_value();
-    return f;
+    f->m_code = bytecode;
+    f->m_decl = decl;
+    f->m_stack_base = interp->m_stack_top;
+    f->m_cache = cache->m_entries;
+    interp->m_stack_top += lean_unbox(stack_space_obj);
+    return true;
+}
+
+void store_value_and_unlock(object * decl, object * value) {
+    object * cache_obj = lean_ctor_get(decl, 5);
+    decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj));
+    cache->m_value = value;
+    cache->m_once_cell.state = 1;
+    unlock_simple_atomic(cache->m_once_cell.lock);
 }
 
 void report_unknown_declaration(object_ref const & decl, unsigned symbol_idx) {
     array_ref<object_ref> const & symbols_array = cnstr_get_ref_t<array_ref<object_ref>>(decl, 4);
     object_ref const & symbol = symbols_array[symbol_idx];
     name const & nm = cnstr_get_ref_t<name>(symbol, 1);
-    throw exception(sstream() << "(interpreter) unknown declaration '" << nm << "'");
+    std::string error = "(interpreter) unknown declaration '" + nm.to_string() + "'";
+    lean_internal_panic(error.c_str());
 }
 
 typedef void (*stack_function)(value * values);
@@ -305,13 +330,10 @@ static object * stub_m_aux(object ** args) {
     object * env = args[0];
     object * decl = args[1];
     flet<elab_environment> env_flet(g_interpreter->m_env, elab_environment(env));
-    // In case of failure, reset stack and frame stack
-    flet<frame *> frame_flet(g_interpreter->m_frame_top, g_interpreter->m_frame_top);
-    flet<value *> stack_flet(g_interpreter->m_stack_top, g_interpreter->m_stack_top);
-    object_ref decl_ref = object_ref(decl);
-    nat const & arity_obj = cnstr_get_ref_t<nat>(decl_ref, 6);
-    size_t arity = arity_obj.get_small_value();
-    frame f = call_init(g_interpreter, decl_ref);
+    object * arity_obj = lean_ctor_get(decl, 6); // Nat
+    size_t arity = lean_unbox(arity_obj);
+    frame f;
+    call_init(g_interpreter, decl, false, &f);
     for (size_t i = 0; i < arity; i++) {
         f.m_stack_base[i].m_obj = args[i + 2];
     }
@@ -363,21 +385,29 @@ void * get_stub(unsigned params) {
 value eval_loop(interpreter * interp, frame start_frame) {
     value * base = start_frame.m_stack_base;
     uint32 * pc = start_frame.m_code;
-    symbol_cache_entry * cache = start_frame.m_cache;
+    decl_cache_entry * cache = start_frame.m_cache;
     object * decl = start_frame.m_decl;
     unsigned scalar_pos = 0;
     frame * orig_frame = interp->m_frame_top;
     while (1) {
         uint32 instr = *pc;
-        /*char buf[8192];
-        object_ref const & bytecode_obj = cnstr_get_ref(decl, 1);
+
+        //char buf[8192];
+        /*object_ref const & bytecode_obj = cnstr_get_ref(decl, 1);
         uint32 * bytecode = reinterpret_cast<uint32 *>(sarray_cptr(bytecode_obj.raw()));
-        sprintf(buf, "Running instruction %x with base: %lu and top: %lu. Cache: %p, declaration: %p, relative: %lx, frame: %lu, original frame: %lu",
+        fprintf(stderr, "Running instruction %x with base: %lu and top: %lu. Cache: %p, declaration: %p, relative: %lx, frame: %lu, original frame: %lu\n",
             instr, (base - interp->m_stack_start),
             (interp->m_stack_top - interp->m_stack_start), cache, decl, (pc - bytecode),
             (interp->m_frame_top - interp->m_frame_start),
             (orig_frame - interp->m_frame_start));
-        io_eprintln(mk_string(buf));*/
+        for (size_t i = 0; i < 8; i++) {
+            fprintf(stderr, "%zx: %p\n", i, base[i].m_obj);
+        }
+        for (size_t i = 128; i < 136; i++) {
+            fprintf(stderr, "%zx: %p\n", i, base[i].m_obj);
+        }*/
+        //io_eprintln(mk_string(buf));
+
         pc++;
         switch (instr >> 26) {
             case instruction_type::UCONST: {
@@ -395,12 +425,28 @@ value eval_loop(interpreter * interp, frame start_frame) {
             case instruction_type::RET: {
                 uint32 source = instr & 0xFF;
                 value val = base[source];
+                *base = val;
                 interp->m_stack_top = base;
-                dec(decl);
                 if (interp->m_frame_top <= orig_frame) {
                     return val;
                 }
+                interp->m_frame_top--;
+                frame * new_frame = interp->m_frame_top;
+                base = new_frame->m_stack_base;
+                pc = new_frame->m_code;
+                cache = new_frame->m_cache;
+                decl = new_frame->m_decl;
+                break;
+            }
+            case instruction_type::RET_AND_STORE: {
+                uint32 source = instr & 0xFF;
+                value val = base[source];
                 *base = val;
+                store_value_and_unlock(decl, val.m_obj);
+                interp->m_stack_top = base;
+                if (interp->m_frame_top <= orig_frame) {
+                    return val;
+                }
                 interp->m_frame_top--;
                 frame * new_frame = interp->m_frame_top;
                 base = new_frame->m_stack_base;
@@ -411,7 +457,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
             }
             case instruction_type::CALL: {
                 uint32 fn_id = instr & 0xFFFF;
-                symbol_cache_entry fn = cache[fn_id];
+                decl_cache_entry fn = cache[fn_id];
                 if (fn.m_native != nullptr) {
                     if (fn.m_arity == UINT32_MAX) {
                         ((stack_function) fn.m_native)(interp->m_stack_top);
@@ -419,28 +465,27 @@ value eval_loop(interpreter * interp, frame start_frame) {
                         object * res = curry(fn.m_native, fn.m_arity, reinterpret_cast<object **>(interp->m_stack_top));
                         interp->m_stack_top[0].m_obj = res;
                     }
-                } else if (fn.m_object != nullptr) {
+                } else if (!lean_is_scalar(fn.m_object)) {
                     interp->m_frame_top->m_stack_base = base;
                     interp->m_frame_top->m_cache = cache;
                     interp->m_frame_top->m_code = pc;
                     interp->m_frame_top->m_decl = decl;
                     interp->m_frame_top++;
 
-                    frame new_frame = call_init(interp, object_ref(fn.m_object, true));
+                    frame new_frame;
+                    call_init(interp, fn.m_object, false, &new_frame);
                     base = new_frame.m_stack_base;
                     pc = new_frame.m_code;
                     cache = new_frame.m_cache;
                     decl = new_frame.m_decl;
                 } else {
-                    // Note: This leaks memory
-                    interp->m_frame_top = orig_frame;
                     report_unknown_declaration(object_ref(decl), fn_id);
                 }
                 break;
             }
             case instruction_type::RETCALL: {
                 uint32 fn_id = instr & 0xFFFF;
-                symbol_cache_entry fn = cache[fn_id];
+                decl_cache_entry fn = cache[fn_id];
                 interp->m_stack_top = base;
                 if (fn.m_native != nullptr) {
                     if (fn.m_arity == UINT32_MAX) {
@@ -455,15 +500,42 @@ value eval_loop(interpreter * interp, frame start_frame) {
                     pc = new_frame->m_code;
                     cache = new_frame->m_cache;
                     decl = new_frame->m_decl;
-                } else if (fn.m_object != nullptr) {
-                    dec(decl);
-                    frame new_frame = call_init(interp, object_ref(fn.m_object, true));
+                } else if (!lean_is_scalar(fn.m_object)) {
+                    frame new_frame;
+                    call_init(interp, fn.m_object, false, &new_frame);
                     base = new_frame.m_stack_base;
                     pc = new_frame.m_code;
                     cache = new_frame.m_cache;
                     decl = new_frame.m_decl;
                 } else {
-                    // Note: This leaks memory
+                    report_unknown_declaration(object_ref(decl), fn_id);
+                }
+                break;
+            }
+            case instruction_type::LOAD_CONST: {
+                uint32 fn_id = instr & 0xFFFF;
+                decl_cache_entry fn = cache[fn_id];
+                if (fn.m_native != nullptr) {
+                    if (fn.m_arity == UINT32_MAX) {
+                        ((stack_function) fn.m_native)(base);
+                    } else {
+                        object ** res = static_cast<object **>(fn.m_native);
+                        base[0].m_obj = *res;
+                    }
+                } else if (!lean_is_scalar(fn.m_object)) {
+                    frame new_frame;
+                    if (LEAN_UNLIKELY(call_init(interp, fn.m_object, true, &new_frame))) {
+                        interp->m_frame_top->m_stack_base = base;
+                        interp->m_frame_top->m_cache = cache;
+                        interp->m_frame_top->m_code = pc;
+                        interp->m_frame_top->m_decl = decl;
+                        interp->m_frame_top++;
+                        base = new_frame.m_stack_base;
+                        pc = new_frame.m_code;
+                        cache = new_frame.m_cache;
+                        decl = new_frame.m_decl;
+                    }
+                } else {
                     report_unknown_declaration(object_ref(decl), fn_id);
                 }
                 break;
@@ -706,7 +778,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
             case instruction_type::PAP: {
                 uint32 n = (instr >> 16) & 0xFF;
                 uint32 fn_id = instr & 0xFFFF;
-                symbol_cache_entry fn = cache[fn_id];
+                decl_cache_entry fn = cache[fn_id];
                 if (fn.m_native) {
                     object * closure = lean_alloc_closure(fn.m_native, fn.m_arity, n);
                     for (size_t i = 0; i < n; i++) {
@@ -725,7 +797,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
 
                 } else {
                     // Note: This leaks memory
-                    report_unknown_declaration(object_ref(decl), fn_id);
+                    report_unknown_declaration(object_ref(decl, true), fn_id);
                 }
                 break;
             }
@@ -733,31 +805,26 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 uint32 n = (instr >> 16) & 0xFF;
                 uint32 target = (instr >> 8) & 0xFF;
                 uint32 source = instr & 0xFF;
-                if (lean_is_exclusive(source)) {
-                    object * val = base[source];
+                if (lean_is_exclusive(base[source].m_obj)) {
+                    object * val = base[source].m_obj;
                     for (uint32_t i = 0; i < n; i++) {
                         lean_ctor_release(val, i);
                     }
-                    base[target] = val;
+                    base[target].m_obj = val;
                 } else {
-                    dec(base[source]);
-                    base[target] = box(0);
+                    dec(base[source].m_obj);
+                    base[target].m_obj = box(0);
                 }
                 break;
             }
             case instruction_type::REUSE: {
-                uint32 num_objs = (instr >> 16) & 0xFF;
-                uint32 target = (instr >> 8) & 0xFF;
-                uint32 source = instr & 0xFF;
-                if (lean_is_exclusive(source)) {
-                    object * val = base[source];
-                    for (uint32_t i = 0; i < n; i++) {
-                        lean_ctor_release(val, i);
-                    }
-                    base[target] = val;
+                uint32 target = (instr >> 18) & 0xFF;
+                uint32 tag = (instr >> 8) & 0x3FF;
+                uint32 num_objs = instr & 0xFF;
+                if (lean_is_scalar(base[target].m_obj)) {
+                    base[target].m_obj = lean_alloc_ctor(tag, num_objs, scalar_pos);
                 } else {
-                    dec(base[source]);
-                    base[target] = box(0);
+                    lean_ctor_set_tag(base[target].m_obj, tag);
                 }
                 break;
             }
@@ -768,7 +835,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
 #define INTERPRETER_STACK_SIZE (1 << 18)
 #define INTERPRETER_FRAME_COUNT (1 << 12)
 
-extern "C" obj_res lean_eval_bytecode_decl(obj_arg env, obj_arg decl) {
+extern "C" obj_res lean_eval_bytecode_decl(obj_arg env, b_obj_arg decl) {
     if (g_interpreter == nullptr) {
         interpreter * interp = new interpreter;
         value * value_stack = reinterpret_cast<value *>(malloc(sizeof(value) * INTERPRETER_STACK_SIZE));
@@ -782,24 +849,22 @@ extern "C" obj_res lean_eval_bytecode_decl(obj_arg env, obj_arg decl) {
         g_interpreter = interp;
     }
     flet<elab_environment> env_flet(g_interpreter->m_env, elab_environment(env));
-    // In case of failure, reset stack and frame stack
-    flet<frame *> frame_flet(g_interpreter->m_frame_top, g_interpreter->m_frame_top);
-    flet<value *> stack_flet(g_interpreter->m_stack_top, g_interpreter->m_stack_top);
-    frame f = call_init(g_interpreter, object_ref(decl));
-    try {
+    frame f;
+    if (call_init(g_interpreter, decl, true, &f)) {
         value res = eval_loop(g_interpreter, f);
-        return mk_except_ok(res.m_obj);
-    } catch (exception e) {
-        return mk_except_error(string_ref(e.what()));
-    } catch (stack_space_exception e) {
-        return mk_except_error(string_ref(e.what()));
+        inc(res.m_obj);
+        return res.m_obj;
+    } else {
+        object * val = g_interpreter->m_stack_top->m_obj;
+        inc(val);
+        return val;
     }
 }
 
 }
 
 void initialize_bytecode_interpreter() {
-    interpreter::g_symbol_cache_external_class = register_external_object_class(interpreter::symbol_cache_finalize, interpreter::symbol_cache_foreach);
+    interpreter::g_decl_cache_external_class = register_external_object_class(interpreter::decl_cache_finalize, interpreter::decl_cache_foreach);
 }
 
 void finalize_bytecode_interpreter() {

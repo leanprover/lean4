@@ -25,6 +25,9 @@ def Instruction.move (target source : UInt32) : Instruction where
 def Instruction.ret (target : UInt32) : Instruction where
   value := (2 : UInt32) <<< 26 ||| target
 
+def Instruction.retAndStore (target : UInt32) : Instruction where
+  value := (44 : UInt32) <<< 26 ||| target
+
 def Instruction.call (fn : UInt32) : Instruction where
   value := (3 : UInt32) <<< 26 ||| fn
 

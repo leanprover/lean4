@@ -207,7 +207,6 @@ theorem Iter.step_mapM {f : β → n γ}
   | .skip it' h => rfl
   | .done h => rfl
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem Iter.step_filterMap {f : β → Option γ} :
     (it.filterMap f).step = match it.step with
       | .yield it' out h =>
@@ -216,13 +215,15 @@ theorem Iter.step_filterMap {f : β → Option γ} :
         | some out' => .yield (it'.filterMap f) out' (.yieldSome (out := out) h h')
       | .skip it' h => .skip (it'.filterMap f) (.skip h)
       | .done h => .done (.done h) := by
+  apply Subtype.ext
   simp only [filterMap_eq_toIter_filterMap_toIterM, toIterM_toIter, IterM.step_filterMap, step]
   simp only [monadLift, Id.run_bind]
   generalize it.toIterM.step.run = step
   cases step.inflate using PlausibleIterStep.casesOn
   · simp only [IterM.Step.toPure_yield, toIter_toIterM, toIterM_toIter]
     split <;> split <;> (try exfalso; simp_all; done)
-    · simp
+    · simp [PlausibleIterStep.skip, Id.run_pure, Shrink.inflate_deflate,
+        IterM.Step.val_toPure, IterStep.mapIterator_skip]
     · rename_i h₁ _ h₂
       rw [h₁] at h₂
       cases h₂
@@ -248,7 +249,6 @@ theorem Iter.val_step_filterMap {f : β → Option γ} :
   · simp
   · simp
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem Iter.step_map {f : β → γ} :
     (it.map f).step = match it.step with
       | .yield it' out h =>
@@ -257,11 +257,11 @@ theorem Iter.step_map {f : β → γ} :
         .skip (it'.map f) (.skip h)
       | .done h =>
         .done (.done h) := by
+  apply Subtype.ext
   simp only [map_eq_toIter_map_toIterM, step, toIterM_toIter, IterM.step_map, Id.run_bind]
   generalize it.toIterM.step.run = step
   cases step.inflate using PlausibleIterStep.casesOn <;> simp
 
-set_option backward.isDefEq.respectTransparency.types false in
 def Iter.step_filter {f : β → Bool} :
     (it.filter f).step = match it.step with
       | .yield it' out h =>
@@ -273,6 +273,7 @@ def Iter.step_filter {f : β → Bool} :
         .skip (it'.filter f) (.skip h)
       | .done h =>
         .done (.done h) := by
+  apply Subtype.ext
   simp only [filter_eq_toIter_filter_toIterM, step, toIterM_toIter, IterM.step_filter, Id.run_bind]
   generalize it.toIterM.step.run = step
   cases step.inflate using PlausibleIterStep.casesOn
@@ -281,7 +282,6 @@ def Iter.step_filter {f : β → Bool} :
   · simp
   · simp
 
-set_option backward.isDefEq.respectTransparency.types false in
 def Iter.val_step_filter {f : β → Bool} :
     (it.filter f).step.val = match it.step.val with
       | .yield it' out =>

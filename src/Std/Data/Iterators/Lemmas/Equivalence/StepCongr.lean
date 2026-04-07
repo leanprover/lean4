@@ -115,7 +115,6 @@ theorem IterStep.restrict_bundle [Iterator α₁ m β] [Iterator α₂ m β] [Mo
     IterM.QuotStep.restrict ⟨step.bundledQuotient, h⟩ = Quot.mk _ h.choose := by
   rfl
 
-set_option backward.isDefEq.respectTransparency.types false in
 /-
 Equivalence and usage of `transportAlongEquiv` tells us:
 
@@ -199,7 +198,6 @@ theorem IterM.Equiv.lift_step_bind_congr {α₁ α₂ : Type w} [Monad m] [Lawfu
   have hex := exists_step_of_step h.symm step.inflate
   simp [hfg (.deflate hex.choose) step (by simpa using hex.choose_spec.symm)]
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem IterM.Equiv.liftInner_stepAsHetT_pbind_congr [Monad m] [LawfulMonad m]
     [Monad n] [LawfulMonad n]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [Iterator α₁ m β] [Iterator α₂ m β]

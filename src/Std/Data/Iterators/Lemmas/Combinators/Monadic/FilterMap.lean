@@ -14,7 +14,6 @@ public import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
 namespace Std
 open Std.Internal Std.Iterators
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem IterM.stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n]
     [LawfulMonad n] [Iterator α m β] [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n (Option γ)} {it : IterM (α := α) m β} :

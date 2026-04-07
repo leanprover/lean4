@@ -8491,7 +8491,6 @@ theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l
   obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
   exact containsKey_of_mem hm
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem min?_keys [Ord α] [TransOrd α]
     [LawfulEqOrd α] [LE α] [LawfulOrderOrd α] [Min α]
     [LawfulOrderLeftLeaningMin α] (l : List ((a : α) × β a)) :

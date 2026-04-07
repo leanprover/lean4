@@ -198,7 +198,6 @@ theorem mapFinIdx_append {xs ys : Array α} {f : (i : Nat) → α → (h : i < (
   cases ys
   simp [List.mapFinIdx_append, Array.size]
 
-set_option backward.isDefEq.respectTransparency.types false in
 @[simp, grind =]
 theorem mapFinIdx_push {xs : Array α} {a : α} {f : (i : Nat) → α → (h : i < (xs.push a).size) → β} :
     mapFinIdx (xs.push a) f =

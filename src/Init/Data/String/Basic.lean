@@ -483,7 +483,6 @@ theorem Pos.Raw.IsValid.isValidUTF8_extract_utf8ByteSize {s : String} {p : Pos.R
     simpa [utf8ByteSize, Pos.Raw.le_iff] using h.le_rawEndPos
   · simp [utf8ByteSize]
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem Pos.Raw.isValid_iff_exists_append {s : String} {p : Pos.Raw} :
     p.IsValid s ↔ ∃ s₁ s₂ : String, s = s₁ ++ s₂ ∧ p = s₁.rawEndPos := by
   refine ⟨fun h => ⟨⟨_, h.isValidUTF8_extract_zero⟩, ⟨_, h.isValidUTF8_extract_utf8ByteSize⟩, ?_, ?_⟩, ?_⟩
@@ -618,7 +617,6 @@ where
       rw [List.reverse_cons]
       exact append_singleton _ _ ih
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem Pos.Raw.isValid_iff_isUTF8FirstByte {s : String} {p : Pos.Raw} :
     p.IsValid s ↔ p = s.rawEndPos ∨ ∃ (h : p < s.rawEndPos), (s.getUTF8Byte p h).IsUTF8FirstByte := by
   induction s using push_induction with
@@ -1705,7 +1703,7 @@ def pos! (s : String) (off : Pos.Raw) : s.Pos :=
   Pos.ofToSlice (s.toSlice.pos! off)
 
 @[simp]
-theorem offset_pos {s : String} {off : Pos.Raw} {h} : (s.pos off h).offset = off := rfl
+theorem offset_pos {s : String} {off : Pos.Raw} {h} : (s.pos off h).offset = off := (rfl)
 
 /-- Constructs a valid position on `t` from a valid position on `s` and a proof that
 `s.copy = t.copy`. -/
@@ -1971,7 +1969,7 @@ theorem Pos.get_toSlice {s : String} {p : s.Pos} {h} :
   rfl
 
 theorem Pos.get_eq_get_toSlice {s : String} {p : s.Pos} {h}  :
-    p.get h = p.toSlice.get (ne_of_apply_ne Pos.ofToSlice (by simp [h])) := rfl
+    p.get h = p.toSlice.get (ne_of_apply_ne Pos.ofToSlice (by simp [h])) := (rfl)
 
 @[simp]
 theorem Pos.offset_next {s : String} (p : s.Pos) (h : p ≠ s.endPos) :
@@ -2492,7 +2490,6 @@ theorem Pos.Raw.isValidForSlice_slice {s : Slice} {p₀ p₁ : s.Pos} {h} (pos :
     omega
   · simpa [offsetBy_assoc] using h₂.isValid_offsetBy
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem Pos.Raw.isValidForSlice_stringSlice {s : String} {p₀ p₁ : s.Pos} {h} (pos : Pos.Raw) :
     pos.IsValidForSlice (s.slice p₀ p₁ h) ↔
       pos.offsetBy p₀.offset ≤ p₁.offset ∧ (pos.offsetBy p₀.offset).IsValid s := by

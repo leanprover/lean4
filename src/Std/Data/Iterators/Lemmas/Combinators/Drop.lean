@@ -26,7 +26,6 @@ theorem Iter.drop_eq {α β} [Iterator α Id β] {n : Nat}
     it.drop n = (it.toIterM.drop n).toIter :=
   rfl
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem Iter.step_drop {α β} [Iterator α Id β] {n : Nat}
     {it : Iter (α := α) β} :
     (it.drop n).step = (match it.step with
@@ -38,8 +37,19 @@ theorem Iter.step_drop {α β} [Iterator α Id β] {n : Nat}
     | .done h => .done (.done h)) := by
   simp only [drop_eq, step, toIterM_toIter, IterM.step_drop, Id.run_bind]
   generalize it.toIterM.step.run = step
-  cases step.inflate using PlausibleIterStep.casesOn <;> cases n <;>
-    simp [PlausibleIterStep.yield, PlausibleIterStep.skip, PlausibleIterStep.done]
+  cases step.inflate using PlausibleIterStep.casesOn <;> cases n --<;>
+  · simp only [PlausibleIterStep.yield, Id.run_pure, Shrink.inflate_deflate,
+    IterM.Step.toPure_yield, toIter_toIterM, toIterM_toIter]
+  · simp only [PlausibleIterStep.skip, Id.run_pure, Shrink.inflate_deflate, IterM.Step.toPure_skip,
+    IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
+  · simp only [PlausibleIterStep.skip, Id.run_pure, Shrink.inflate_deflate, IterM.Step.toPure_skip,
+    toIter_toIterM, toIterM_toIter]
+  · simp only [PlausibleIterStep.skip, Id.run_pure, Shrink.inflate_deflate, IterM.Step.toPure_skip,
+    toIter_toIterM, toIterM_toIter]
+  · simp only [PlausibleIterStep.done, Id.run_pure, Shrink.inflate_deflate, IterM.Step.toPure_done,
+    toIter_toIterM]
+  · simp only [PlausibleIterStep.done, Id.run_pure, Shrink.inflate_deflate, IterM.Step.toPure_done,
+    toIter_toIterM]
 
 theorem Iter.atIdxSlow?_drop {α β}
     [Iterator α Id β] [Productive α Id] {k l : Nat}

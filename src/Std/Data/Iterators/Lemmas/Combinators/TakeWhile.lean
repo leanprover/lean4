@@ -24,7 +24,6 @@ theorem Iter.takeWhile_eq {α β} [Iterator α Id β] {P}
     it.takeWhile P = (it.toIterM.takeWhile P).toIter :=
   rfl
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem Iter.step_takeWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
     (it.takeWhile P).step = (match it.step with
@@ -41,7 +40,6 @@ theorem Iter.step_takeWhile {α β} [Iterator α Id β] {P}
   · simp
   · simp
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem Iter.val_step_takeWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
     (it.takeWhile P).step.val = (match it.step.val with
@@ -50,10 +48,11 @@ theorem Iter.val_step_takeWhile {α β} [Iterator α Id β] {P}
         | false => .done
       | .skip it' => .skip (it'.takeWhile P)
       | .done => .done) := by
-  simp [Iter.takeWhile_eq, Iter.step, toIterM_toIter, IterM.step_takeWhile]
+  simp only [takeWhile_eq, step, toIterM_toIter, IterM.step_takeWhile, PlausibleIterStep.yield,
+    PlausibleIterStep.done, PlausibleIterStep.skip, Id.run_bind, IterM.Step.val_toPure]
   generalize it.toIterM.step.run = step
   cases step.inflate using PlausibleIterStep.casesOn
-  · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter]
+  · simp only [IterStep.mapIterator_yield, toIterM_toIter]
     split <;> split <;> (try exfalso; simp_all; done) <;> simp_all
   · simp
   · simp
@@ -109,7 +108,6 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
       step_takeWhile]
     split <;> rfl
 
-set_option backward.isDefEq.respectTransparency.types false in
 private theorem List.getElem?_takeWhile {l : List α} {P : α → Bool} {k} :
     (l.takeWhile P)[k]? = if ∀ k' : Nat, k' ≤ k → l[k']?.any P then l[k]? else none := by
   induction l generalizing k

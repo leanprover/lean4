@@ -1002,7 +1002,6 @@ def getEntryGT?ₘ' [Ord α] (k : α) (t : Impl α β) : Option ((a : α) × β 
   | base, .eq _ _ r => r.head?.or base
   | base, .gt _ _ _ _ => base
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem getEntryGT?_eq_getEntryGT?ₘ' [Ord α] (k : α) (t : Impl α β) :
     getEntryGT? k t = getEntryGT?ₘ' k t := by
   rw [getEntryGT?ₘ', getEntryGT?]

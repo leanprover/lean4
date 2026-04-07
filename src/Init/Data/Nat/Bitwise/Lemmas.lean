@@ -410,8 +410,8 @@ theorem testBit_bitwise (of_false_false : f false false = false) (x y i : Nat) :
     else if y_zero : y = 0 then
       simp [x_zero, y_zero]
       cases p : f true false <;>
-        cases xi : testBit x i <;>
-          simp [p, xi, of_false_false]
+        cases testBit x i <;>
+          simp [p, of_false_false]
     else
       simp only [x_zero, y_zero, ←Nat.two_mul]
       cases i with

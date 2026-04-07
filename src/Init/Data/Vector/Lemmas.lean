@@ -706,13 +706,11 @@ theorem toList_zip {as : Vector α n} {bs : Vector β n} :
   cases xs
   simp
 
-set_option backward.isDefEq.respectTransparency.types false in
 @[simp] theorem finIdxOf?_toList [BEq α] {a : α} {xs : Vector α n} :
     xs.toList.finIdxOf? a = (xs.finIdxOf? a).map (Fin.cast (by exact xs.size_toArray.symm)) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
-set_option backward.isDefEq.respectTransparency.types false in
 @[simp] theorem findFinIdx?_toList {p : α → Bool} {xs : Vector α n} :
     xs.toList.findFinIdx? p = (xs.findFinIdx? p).map (Fin.cast (by exact xs.size_toArray.symm)) := by
   rcases xs with ⟨xs, rfl⟩

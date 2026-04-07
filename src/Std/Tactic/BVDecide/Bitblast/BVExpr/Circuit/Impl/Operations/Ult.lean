@@ -38,19 +38,16 @@ def mkUlt (aig : AIG α) (pair : AIG.BinaryRefVec aig w) : AIG.Entrypoint α :=
   let overflowRef := res.ref
   aig.mkNotCached overflowRef
 
-set_option backward.isDefEq.respectTransparency.types false in
 instance {w : Nat} : AIG.LawfulOperator α (AIG.BinaryRefVec · w) mkUlt where
   le_size := by
     intros
-    unfold mkUlt
-    dsimp only
+    simp only [mkUlt]
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkNotCached)
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := BVExpr.bitblast.mkOverflowBit)
     apply AIG.LawfulVecOperator.le_size (f := BVExpr.bitblast.blastNot)
   decl_eq := by
     intros
-    unfold mkUlt
-    dsimp only
+    simp only [mkUlt]
     rw [AIG.LawfulOperator.decl_eq (f := AIG.mkNotCached)]
     rw [AIG.LawfulOperator.decl_eq (f := BVExpr.bitblast.mkOverflowBit)]
     rw [AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast.blastNot)]

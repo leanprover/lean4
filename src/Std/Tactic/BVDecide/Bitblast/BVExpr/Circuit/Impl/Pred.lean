@@ -62,12 +62,11 @@ def bitblast (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) : Return ai
     let res := blastGetLsbD aig ⟨refs, idx⟩
     ⟨⟨⟨aig, res⟩, hrefs⟩, cache⟩
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem bitblast_decl_eq (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig) :
     ∀ (idx : Nat) (h1) (h2), (bitblast aig input).result.val.aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
   intro idx h1 h2
   rcases input with ⟨pred, cache⟩
-  unfold BVPred.bitblast
+  simp only [BVPred.bitblast]
   cases pred with
   | bin lhs op rhs =>
     cases op with

@@ -130,7 +130,7 @@ theorem getElem_eq_testBit_toNat (x : BitVec w) (i : Nat) (h : i < w) :
 
 @[simp, grind =]
 theorem getLsbD_eq_getElem {x : BitVec w} {i : Nat} (h : i < w) :
-    x.getLsbD i = x[i] := rfl
+    x.getLsbD i = x[i] := (rfl)
 
 end getElem
 
@@ -139,6 +139,7 @@ section Int
 /--
 Interprets the bitvector as an integer stored in two's complement form.
 -/
+@[implicit_reducible]
 protected def toInt (x : BitVec n) : Int :=
   if 2 * x.toNat < 2^n then
     x.toNat
@@ -226,6 +227,7 @@ Usually accessed via the `-` prefix operator.
 
 SMT-LIB name: `bvneg`.
 -/
+@[implicit_reducible]
 protected def neg (x : BitVec n) : BitVec n := .ofNat n (2^n - x.toNat)
 instance : Neg (BitVec n) := ⟨.neg⟩
 
@@ -721,20 +723,20 @@ instance : Hashable (BitVec n) where
 
 section normalization_eqs
 /-! We add simp-lemmas that rewrite bitvector operations into the equivalent notation -/
-@[simp, grind =] theorem append_eq (x : BitVec w) (y : BitVec v) : BitVec.append x y = x ++ y        := rfl
-@[simp, grind =] theorem shiftLeft_eq (x : BitVec w) (n : Nat)     : BitVec.shiftLeft x n = x <<< n    := rfl
-@[simp, grind =] theorem ushiftRight_eq (x : BitVec w) (n : Nat)   : BitVec.ushiftRight x n = x >>> n  := rfl
-@[simp, grind =] theorem not_eq (x : BitVec w)                     : BitVec.not x = ~~~x               := rfl
-@[simp, grind =] theorem and_eq (x y : BitVec w)                   : BitVec.and x y = x &&& y          := rfl
-@[simp, grind =] theorem or_eq (x y : BitVec w)                    : BitVec.or x y = x ||| y           := rfl
-@[simp, grind =] theorem xor_eq (x y : BitVec w)                   : BitVec.xor x y = x ^^^ y          := rfl
-@[simp, grind =] theorem neg_eq (x : BitVec w)                     : BitVec.neg x = -x                 := rfl
-@[simp, grind =] theorem add_eq (x y : BitVec w)                   : BitVec.add x y = x + y            := rfl
-@[simp, grind =] theorem sub_eq (x y : BitVec w)                   : BitVec.sub x y = x - y            := rfl
-@[simp, grind =] theorem mul_eq (x y : BitVec w)                   : BitVec.mul x y = x * y            := rfl
-@[simp, grind =] theorem udiv_eq (x y : BitVec w)                  : BitVec.udiv x y = x / y           := rfl
-@[simp, grind =] theorem umod_eq (x y : BitVec w)                  : BitVec.umod x y = x % y           := rfl
-@[simp, grind =] theorem zero_eq                                   : BitVec.zero n = 0#n               := rfl
+@[simp, grind =] theorem append_eq (x : BitVec w) (y : BitVec v) : BitVec.append x y = x ++ y        := (rfl)
+@[simp, grind =] theorem shiftLeft_eq (x : BitVec w) (n : Nat)     : BitVec.shiftLeft x n = x <<< n    := (rfl)
+@[simp, grind =] theorem ushiftRight_eq (x : BitVec w) (n : Nat)   : BitVec.ushiftRight x n = x >>> n  := (rfl)
+@[simp, grind =] theorem not_eq (x : BitVec w)                     : BitVec.not x = ~~~x               := (rfl)
+@[simp, grind =] theorem and_eq (x y : BitVec w)                   : BitVec.and x y = x &&& y          := (rfl)
+@[simp, grind =] theorem or_eq (x y : BitVec w)                    : BitVec.or x y = x ||| y           := (rfl)
+@[simp, grind =] theorem xor_eq (x y : BitVec w)                   : BitVec.xor x y = x ^^^ y          := (rfl)
+@[simp, grind =] theorem neg_eq (x : BitVec w)                     : BitVec.neg x = -x                 := (rfl)
+@[simp, grind =] theorem add_eq (x y : BitVec w)                   : BitVec.add x y = x + y            := (rfl)
+@[simp, grind =] theorem sub_eq (x y : BitVec w)                   : BitVec.sub x y = x - y            := (rfl)
+@[simp, grind =] theorem mul_eq (x y : BitVec w)                   : BitVec.mul x y = x * y            := (rfl)
+@[simp, grind =] theorem udiv_eq (x y : BitVec w)                  : BitVec.udiv x y = x / y           := (rfl)
+@[simp, grind =] theorem umod_eq (x y : BitVec w)                  : BitVec.umod x y = x % y           := (rfl)
+@[simp, grind =] theorem zero_eq                                   : BitVec.zero n = 0#n               := (rfl)
 end normalization_eqs
 
 /-- Converts a list of `Bool`s into a big-endian `BitVec`. -/

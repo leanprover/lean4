@@ -71,18 +71,15 @@ def mkFullAdderOut (aig : AIG α) (input : FullAdderInput aig) : AIG.Entrypoint 
   let cin := cin.cast <| AIG.LawfulOperator.le_size (f := AIG.mkXorCached) ..
   aig.mkXorCached ⟨subExprRef, cin⟩
 
-set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulOperator α FullAdderInput mkFullAdderOut where
   le_size := by
     intros
-    unfold mkFullAdderOut
-    dsimp only
+    simp only [mkFullAdderOut]
     apply AIG.LawfulOperator.le_size_of_le_aig_size
     apply AIG.LawfulOperator.le_size
   decl_eq := by
     intros
-    unfold mkFullAdderOut
-    dsimp only
+    simp only [mkFullAdderOut]
     rw [AIG.LawfulOperator.decl_eq]
     rw [AIG.LawfulOperator.decl_eq]
     apply AIG.LawfulOperator.lt_size_of_lt_aig_size
@@ -114,12 +111,10 @@ def mkFullAdderCarry (aig : AIG α) (input : FullAdderInput aig) : AIG.Entrypoin
   let lorRef := lorRef.cast hror
   aig.mkOrCached ⟨lorRef, rorRef⟩
 
-set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulOperator α FullAdderInput mkFullAdderCarry where
   le_size := by
     intros
-    unfold mkFullAdderCarry
-    dsimp only
+    simp only [mkFullAdderCarry]
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkOrCached)
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkAndCached)
     apply AIG.LawfulOperator.le_size_of_le_aig_size (f := AIG.mkAndCached)
@@ -127,8 +122,7 @@ instance : AIG.LawfulOperator α FullAdderInput mkFullAdderCarry where
 
   decl_eq := by
     intros
-    unfold mkFullAdderCarry
-    dsimp only
+    simp only [mkFullAdderCarry]
     rw [AIG.LawfulOperator.decl_eq]
     rw [AIG.LawfulOperator.decl_eq]
     rw [AIG.LawfulOperator.decl_eq]
@@ -214,7 +208,6 @@ theorem go_le_size (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
   · simp
 termination_by w - curr
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.Ref aig)
     (s : AIG.RefVec aig curr) (lhs rhs : AIG.RefVec aig w) :
     ∀ (idx : Nat) (h1) (h2),
@@ -233,23 +226,20 @@ theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
       apply AIG.LawfulOperator.lt_size_of_lt_aig_size
       exact h3
     rw [go_decl_eq (w := w) (curr := curr + 1) (h1 := h4)]
-    unfold mkFullAdder
+    simp only [mkFullAdder]
     rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderCarry) (h1 := h3)]
     rw [AIG.LawfulOperator.decl_eq (f := mkFullAdderOut)]
   · simp [← hgo]
 termination_by w - curr
 
-set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
   le_size := by
     intros
-    unfold blast
-    dsimp only
+    simp only [blast]
     apply go_le_size
   decl_eq := by
     intros
-    unfold blast
-    dsimp only
+    simp only [blast]
     rw [go_decl_eq]
 
 end blastAdd

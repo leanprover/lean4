@@ -767,6 +767,23 @@ This is intended to be used in the construction of `partial_fixpoint`, and not m
 -/
 @[expose] def FlatOrder {α : Sort u} (b : α) := α
 
+def FlatOrder.mk {α : Sort u} (b : α) (x : α) : FlatOrder b := x
+
+def FlatOrder.inner {α : Sort u} {b : α} (x : FlatOrder b) : α := x
+
+theorem FlatOrder.mk_inner {α : Sort u} {b : α} {x : FlatOrder b} :
+    FlatOrder.mk b x.inner = x :=
+  (rfl)
+
+theorem FlatOrder.inner_mk {α : Sort u} {b : α} {x : α} :
+    (FlatOrder.mk b x).inner = x :=
+  (rfl)
+
+@[simp]
+theorem FlatOrder.mk_inj {α : Sort u} {b : α} {x y : α} :
+    FlatOrder.mk b x = FlatOrder.mk b y ↔ x = y :=
+  Iff.rfl
+
 variable {b : α}
 
 /--
@@ -793,9 +810,8 @@ private theorem Classical.some_spec₂ {α : Sort _} {p : α → Prop} {h : ∃ 
 noncomputable def flat_csup (c : FlatOrder b → Prop) : FlatOrder b := by
   by_cases h : ∃ (x : FlatOrder b), c x ∧ x ≠ b
   · exact Classical.choose h
-  · exact b
+  · exact .mk b b
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem flat_csup_is_sup (c : FlatOrder b → Prop) (hc : chain c) :
     is_sup c (flat_csup c) := by
   intro x
@@ -839,7 +855,7 @@ theorem flat_csup_eq (c : FlatOrder b → Prop) (hchain : chain c) :
   · apply flat_csup_is_sup _ hchain
   · apply CCPO.csup_spec
 
-theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P b) : admissible P := by
+theorem admissible_flatOrder (P : FlatOrder b → Prop) (hnot : P (.mk b b)) : admissible P := by
   intro c hchain h
   by_cases h' : ∃ (x : FlatOrder b), c x ∧ x ≠ b
   · simp [← flat_csup_eq, flat_csup, h']
@@ -890,6 +906,7 @@ instance : MonoBind Option where
 
 theorem Option.admissible_eq_some (P : Prop) (y : α) :
     admissible (fun (x : Option α) => x = some y → P) := by
+  change admissible fun x : FlatOrder none => x = .mk _ (some y) → P
   apply admissible_flatOrder; simp
 
 instance [inst : ∀ α, PartialOrder (m α)] : PartialOrder (ExceptT ε m α) := inst _

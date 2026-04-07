@@ -2004,7 +2004,6 @@ theorem toInt_smod {x y : BitVec w} :
         simp [BitVec.toInt_eq_neg_toNat_neg_of_msb_true, hxmsb, hymsb,
           Int.fmod_eq_emod_of_nonneg _]
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem getElem_smod {x y : BitVec w} (h : i < w) :
     (x.smod y)[i] =
       match x.msb, y.msb with
@@ -2013,8 +2012,7 @@ theorem getElem_smod {x y : BitVec w} (h : i < w) :
       | true, false => (if -x % y = 0#w then (-x % y) else (y - -x % y))[i]
       | true, true => (-(-x % -y))[i] := by
   simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  <;> simp [hx, hy]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
 
 theorem getLsbD_smod {x y : BitVec w} :
     (x.smod y).getLsbD i =
@@ -2030,7 +2028,6 @@ theorem getLsbD_smod {x y : BitVec w} :
   · by_cases hxy : x % -y = 0#w <;> simp [hx, hy, hxy]
   · simp [hx, hy]
 
-set_option backward.isDefEq.respectTransparency.types false in
 theorem getMsbD_smod {x y : BitVec w} :
     (x.smod y).getMsbD i  =
       match x.msb, y.msb with
@@ -2039,8 +2036,7 @@ theorem getMsbD_smod {x y : BitVec w} :
       | true, false => (if -x % y = 0#w then (-x % y) else (y - -x % y)).getMsbD i
       | true, true => (-(-x % -y)).getMsbD i := by
   simp only [smod, umod_eq, neg_eq, zero_eq, add_eq, sub_eq]
-  by_cases hx : x.msb <;> by_cases hy : y.msb
-  <;> simp [hx, hy]
+  by_cases hx : x.msb <;> by_cases hy : y.msb <;> simp [hx, hy]
 
 theorem msb_smod {x y : BitVec w} :
     (x.smod y).msb = (x.msb && y = 0) || (y.msb && (x.smod y) ≠ 0) := by

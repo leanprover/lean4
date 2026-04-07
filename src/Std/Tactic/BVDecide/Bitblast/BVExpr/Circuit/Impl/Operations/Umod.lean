@@ -45,17 +45,16 @@ def blastUmod (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry 
 
   AIG.RefVec.ite aig ⟨discr, lhs, modRes⟩
 
-set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastUmod where
   le_size := by
     intros
-    unfold blastUmod
+    simp only [blastUmod]
     apply AIG.LawfulVecOperator.le_size_of_le_aig_size (f := AIG.RefVec.ite)
     refine Nat.le_trans ?_ (by apply blastUdiv.go_le_size)
     apply AIG.LawfulOperator.le_size (f := BVPred.mkEq)
   decl_eq := by
     intros
-    unfold blastUmod
+    simp only [blastUmod]
     rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
     rw [blastUdiv.go_decl_eq]
     rw [AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)]

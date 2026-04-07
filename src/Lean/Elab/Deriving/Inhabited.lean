@@ -119,7 +119,7 @@ where
       let indVal ← getConstInfoInduct inductiveTypeName
       let (auxType, auxVal, usedInstIdxs) ←
         try
-          mkDefaultValue indVal
+          withDeclName auxFunName do mkDefaultValue indVal
         catch e =>
           trace[Elab.Deriving.inhabited] "error: {e.toMessageData}"
           return none

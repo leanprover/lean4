@@ -123,12 +123,17 @@ where
         catch e =>
           trace[Elab.Deriving.inhabited] "error: {e.toMessageData}"
           return none
-      addAndCompile <| .defnDecl <| ← mkDefinitionValInferringUnsafe
+      addDecl <| .defnDecl <| ← mkDefinitionValInferringUnsafe
         (name        := auxFunName)
         (levelParams := indVal.levelParams)
         (type        := auxType)
         (value       := auxVal)
         (hints       := ReducibilityHints.regular (getMaxHeight (← getEnv) auxVal + 1))
+      if isMarkedMeta (← getEnv) inductiveTypeName then
+        modifyEnv (markMeta · auxFunName)
+      unless (← read).isNoncomputableSection do
+        compileDecls #[auxFunName]
+      enableRealizationsForConst auxFunName
       trace[Elab.Deriving.inhabited] "defined {.ofConstName auxFunName}"
       let cmd ← mkInstanceCmdWith ctx usedInstIdxs auxFunName
       trace[Elab.Deriving.inhabited] "\n{cmd}"

@@ -1,3 +1,4 @@
+module
 /-!
 # `deriving Inhabited` uses structure field defaults
 
@@ -98,3 +99,16 @@ deriving Inhabited
 #guard_msgs in #eval (default : B).x
 /-- info: 0 -/
 #guard_msgs in #eval (default : B).y
+
+/-!
+Regression test: take `meta` into account.
+-/
+public meta section
+
+inductive AliasInfo where
+  | plain (n : Nat)
+deriving Inhabited, Repr
+
+/-- info: AliasInfo.plain 0 -/
+#guard_msgs in #eval repr (default : AliasInfo)
+end

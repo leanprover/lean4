@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Quotation.Util
+import Lean.Elab.DeprecatedSyntax
 
 public section
 
@@ -56,6 +57,14 @@ unsafe builtin_initialize precheckAttribute : KeyedDeclsAttribute Precheck ←
   }
 
 partial def precheck : Precheck := fun stx => do
+  -- Check for deprecated syntax kinds in quotations
+  if let some entry := (deprecatedSyntaxExt.getState (← getEnv)).find? stx.getKind then
+    let extraMsg := match entry.text? with
+      | some text => m!": {text}"
+      | none => m!""
+    withRef stx do
+      Linter.logLintIf Linter.linter.deprecated.syntax stx
+        m!"quotation uses deprecated syntax '{stx.getKind}'{extraMsg}"
   if let p::_ := precheckAttribute.getValues (← getEnv) stx.getKind then
     if ← catchInternalId unsupportedSyntaxExceptionId (do withRef stx <| p stx; pure true) (fun _ => pure false) then
       return

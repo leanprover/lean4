@@ -48,20 +48,23 @@ public def mkCongr (e : Expr) (f a : Expr) (fr : Result) (ar : Result) (_ : e = 
     let β ← inferType e
     let v ← getLevel β
     return mkApp2 (mkConst declName [u, v]) α β
+  -- Propagate `contextDependent` from both sub-results. If either `simp f` or `simp a`
+  -- was context-dependent, the result for `f a` is too: in another local context, either
+  -- sub-expression might simplify differently, changing the overall result.
   match fr, ar with
-  | .rfl _,  .rfl _ => return .rfl
-  | .step f' hf _, .rfl _ =>
+  | .rfl _ cd₁,  .rfl _ cd₂ => return mkRflResultCD (cd₁ || cd₂)
+  | .step f' hf _ cd₁, .rfl _ cd₂ =>
     let e' ← mkAppS f' a
     let h := mkApp4 (← mkCongrPrefix ``congrFun') f f' hf a
-    return .step e' h
-  | .rfl _, .step a' ha _ =>
+    return .step e' h (contextDependent := cd₁ || cd₂)
+  | .rfl _ cd₁, .step a' ha _ cd₂ =>
     let e' ← mkAppS f a'
     let h := mkApp4 (← mkCongrPrefix ``congrArg) a a' f ha
-    return .step e' h
-  | .step f' hf _, .step a' ha _ =>
+    return .step e' h (contextDependent := cd₁ || cd₂)
+  | .step f' hf _ cd₁, .step a' ha _ cd₂ =>
     let e' ← mkAppS f' a'
     let h := mkApp6 (← mkCongrPrefix ``congr) f f' a a' hf ha
-    return .step e' h
+    return .step e' h (contextDependent := cd₁ || cd₂)
 
 /--
 Returns a proof using `congrFun`
@@ -69,7 +72,8 @@ Returns a proof using `congrFun`
 congrFun.{u, v} {α : Sort u} {β : α → Sort v} {f g : (x : α) → β x} (h : f = g) (a : α) : f a = g a
 ```
 -/
-def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a) (done := false) : SymM Result := do
+def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a)
+    (done := false) (contextDependent := false) : SymM Result := do
   let .forallE x _ βx _ ← whnfD (← inferType f)
     | throwError "failed to build congruence proof, function expected{indentExpr f}"
   let α ← inferType a
@@ -78,7 +82,7 @@ def mkCongrFun (e : Expr) (f a : Expr) (f' : Expr) (hf : Expr) (_ : e = .app f a
   let β := Lean.mkLambda x .default α βx
   let e' ← mkAppS f' a
   let h := mkApp6 (mkConst ``congrFun [u, v]) α β f f' hf a
-  return .step e' h done
+  return .step e' h done contextDependent
 
 /--
 Handles simplification of over-applied function terms.
@@ -122,9 +126,12 @@ public def simpOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → SimpM R
             mkCongr e f a fr .rfl h
           else
             mkCongr e f a fr (← simp a) h
+        -- Dependent argument: can't simplify `a` independently.
+        -- Propagate `cd` from the function result: if `fr` was context-dependent,
+        -- the whole expression is, since `fr` might differ in another context.
         else match fr with
-          | .rfl _ => return .rfl
-          | .step f' hf _ => mkCongrFun e f a f' hf h
+          | .rfl _ cd => return mkRflResultCD cd
+          | .step f' hf _ cd => mkCongrFun e f a f' hf h (contextDependent := cd)
       | _ => unreachable!
   visit e numArgs
 
@@ -160,8 +167,8 @@ public def propagateOverApplied (e : Expr) (numArgs : Nat) (simpFn : Expr → Si
       | .app f a =>
         let r ← visit f i
         match r with
-        | .rfl _ => return r
-        | .step f' hf done => mkCongrFun e f a f' hf h done
+        | .rfl _ _ => return r
+        | .step f' hf done cd => mkCongrFun e f a f' hf h done cd
       | _ => unreachable!
   visit e numArgs
 
@@ -242,30 +249,32 @@ where
     else
       let .app f a := e | unreachable!
       let (hf, fType) ← go (i-1) f
+      -- Propagate `cd` from both sub-results. Even when both return `.rfl`,
+      -- either might succeed in a different context, changing the result.
       match hf, (← simp a) with
-      | .rfl _,  .rfl _ => return (.rfl, default)
-      | .step f' hf _, .rfl _ =>
+      | .rfl _ cd₁,  .rfl _ cd₂ => return (mkRflResultCD (cd₁ || cd₂), default)
+      | .step f' hf _ cd₁, .rfl _ cd₂ =>
         let .forallE _ α β _ ← whnfToForall fType | unreachable!
         let e' ← mkAppS f' a
         let u ← getLevel α
         let v ← getLevel β
         let h := mkApp6 (mkConst ``congrFun' [u, v]) α β f f' hf a
-        return (.step e' h, β)
-      | .rfl _, .step a' ha _ =>
+        return (.step e' h (contextDependent := cd₁ || cd₂), β)
+      | .rfl _ cd₁, .step a' ha _ cd₂ =>
         let fType ← getFnType f (i-1)
         let .forallE _ α β _ ← whnfToForall fType | unreachable!
         let e' ← mkAppS f a'
         let u ← getLevel α
         let v ← getLevel β
         let h := mkApp6 (mkConst ``congrArg [u, v]) α β a a' f ha
-        return (.step e' h, β)
-      | .step f' hf _, .step a' ha _ =>
+        return (.step e' h (contextDependent := cd₁ || cd₂), β)
+      | .step f' hf _ cd₁, .step a' ha _ cd₂ =>
         let .forallE _ α β _ ← whnfToForall fType | unreachable!
         let e' ← mkAppS f' a'
         let u ← getLevel α
         let v ← getLevel β
         let h := mkApp8 (mkConst ``congr [u, v]) α β f f' a a' hf ha
-        return (.step e' h, β)
+        return (.step e' h (contextDependent := cd₁ || cd₂), β)
 
 /--
 Simplifies arguments of a function application with interlaced rewritable/fixed arguments.
@@ -292,9 +301,10 @@ where
         let fr ← go (i - 1) f (by omega)
         if rewritable[i - 1] then
           mkCongr e f a fr (← simp a) h
+        -- Fixed (non-rewritable) argument: propagate `cd` from the function result.
         else match fr with
-          | .rfl _ => return .rfl
-          | .step f' hf _ => mkCongrFun e f a f' hf h
+          | .rfl _ cd => return mkRflResultCD cd
+          | .step f' hf _ cd => mkCongrFun e f a f' hf h (contextDependent := cd)
       | _ => unreachable!
 
 /--
@@ -379,11 +389,11 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
       | .eq =>
         subst := subst.push arg
         match argResults[j]! with
-        | .rfl _ =>
+        | .rfl _ _ =>
           let h ← mkEqRefl arg
           proof := mkApp2 proof arg h
           subst := subst.push arg |>.push h
-        | .step arg' h _ =>
+        | .step arg' h _ _ =>
           proof := mkApp2 proof arg' h
           subst := subst.push arg' |>.push h
         type := type.bindingBody!.bindingBody!
@@ -394,29 +404,38 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
     let hasCast := argKinds.any (· matches .cast)
     let rhs ← if hasCast then Simp.removeUnnecessaryCasts rhs else pure rhs
     let rhs ← share rhs
-    return .step rhs proof
+    -- The result is context-dependent if any simplified argument was.
+    let cd := argResults.any (·.isContextDependent)
+    return .step rhs proof (contextDependent := cd)
   /-
   Recursively simplifies arguments of kind `.eq`. The array `argResults` is initialized lazily
   as soon as the simplifier returns a non-`rfl` result for some arguments.
   `numEqs` is the number of `.eq` arguments found so far.
   -/
-  let rec simpEqArgs (e : Expr) (i : Nat) (numEqs : Nat) (argResults : Array Result) : SimpM Result := do
+  -- `anyCD` tracks cd from `.rfl` results that `pushResult` may not store
+  -- (due to lazy initialization of `argResults`). Without this, cd from `.rfl`
+  -- sub-results would be silently dropped.
+  let rec simpEqArgs (e : Expr) (i : Nat) (numEqs : Nat) (argResults : Array Result)
+      (anyCD : Bool) : SimpM Result := do
     match e with
     | .app f a =>
       match argKinds[i]! with
       | .subsingletonInst
-      | .fixed => simpEqArgs f (i-1) numEqs argResults
-      | .cast => simpEqArgs f (i-1) numEqs argResults
-      | .eq => simpEqArgs f (i-1) (numEqs+1) (pushResult argResults numEqs (← simp a))
+      | .fixed => simpEqArgs f (i-1) numEqs argResults anyCD
+      | .cast => simpEqArgs f (i-1) numEqs argResults anyCD
+      | .eq =>
+        let r ← simp a
+        simpEqArgs f (i-1) (numEqs+1) (pushResult argResults numEqs r) (anyCD || r.isContextDependent)
       | _ => unreachable!
     | _ =>
       if argResults.isEmpty then
-        return .rfl
+        return mkRflResultCD anyCD
       else
-        mkNonRflResult argResults.reverse
+        let r ← mkNonRflResult argResults.reverse
+        return if anyCD && !r.isContextDependent then r.withContextDependent else r
   let numArgs := e.getAppNumArgs
   if numArgs > argKinds.size then
-    simpOverApplied e (numArgs - argKinds.size) (simpEqArgs · (argKinds.size - 1) 0 #[])
+    simpOverApplied e (numArgs - argKinds.size) (simpEqArgs · (argKinds.size - 1) 0 #[] false)
   else if numArgs < argKinds.size then
     /-
     **Note**: under-applied case. This can be optimized, but this case is so
@@ -424,7 +443,7 @@ def simpUsingCongrThm (e : Expr) (thm : CongrTheorem) : SimpM Result := do
     -/
     simpOverApplied e e.getAppNumArgs (fun _ => return .rfl)
   else
-    simpEqArgs e (argKinds.size - 1) 0 #[]
+    simpEqArgs e (argKinds.size - 1) 0 #[] false
 
 /--
 Main entry point for simplifying function application arguments.
@@ -461,10 +480,11 @@ public def simpAppArgRange (e : Expr) (start stop : Nat) : SimpM Result := do
     match h : e with
     | .app f a =>
       let fr ← visit f i
+      -- Argument outside the [start, stop) range: propagate `cd` from function result.
       let skip : SimpM Result := do
         match fr with
-        | .rfl _ => return .rfl
-        | .step f' hf _ => mkCongrFun e f a f' hf h
+        | .rfl _ cd => return mkRflResultCD cd
+        | .step f' hf _ cd => mkCongrFun e f a f' hf h (contextDependent := cd)
       if i < stop then
         let .forallE _ α β _ ← whnfD (← inferType f) | unreachable!
         if !β.hasLooseBVars then

@@ -1,0 +1,12 @@
+{
+	"files.insertFinalNewline": true,
+	"files.trimTrailingWhitespace": true,
+	// These require the CMake Tools extension (ms-vscode.cmake-tools).
+	"cmake.buildDirectory": "${workspaceFolder}/build/release",
+	"cmake.generator": "Unix Makefiles",
+	"[lean4]": {
+		"editor.rulers": [
+			100
+		]
+	}
+}

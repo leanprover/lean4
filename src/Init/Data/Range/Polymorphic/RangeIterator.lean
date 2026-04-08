@@ -184,7 +184,7 @@ theorem Iterator.Monadic.isPlausibleSuccessorOf_iff
   · rintro ⟨a, h, hP, h'⟩
     refine ⟨.yield it' a, rfl, ?_⟩
     simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step, h, hP, ↓reduceIte,
-      IterStep.yield.injEq, and_true]
+      IterStep.yield.injEq, and_true, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLE] -- TODO
     simp [h'.1, ← h'.2]
 
 theorem Iterator.isPlausibleSuccessorOf_iff
@@ -244,10 +244,10 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LE α] [Decid
       intro bound
       constructor
       intro it' ⟨step, hs₁, hs₂⟩
-      simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step] at hs₂
+      simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLE] at hs₂ -- TODO
       simp [hs₂, IterStep.successor] at hs₁
     simp only [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
-      Monadic.step, exists_eq_right] at hnone ⊢
+      Monadic.step, exists_eq_right, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLE] at hnone ⊢ -- TODO
     match it with
     | ⟨⟨none, _⟩⟩ => apply hnone
     | ⟨⟨some init, bound⟩⟩ =>
@@ -293,7 +293,7 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LE α] [D
   subrelation {it it'} h := by
     exfalso
     simp only [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep,
-      Iterator.IsPlausibleStep, Monadic.step] at h
+      Iterator.IsPlausibleStep, Monadic.step, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLE] at h
     split at h
     · cases h
     · split at h
@@ -580,7 +580,12 @@ private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LE α
           · simp
         · simp
     · rw [IterM.DefaultConsumers.forIn'_eq_match_step Pl wf]
-      simp [IterM.step_eq, Monadic.step, instLawfulMonadLiftFunction.liftBind_pure, *]
+      simp only [IterM.step_eq, instLawfulMonadLiftFunction.liftBind_pure, Shrink.inflate_deflate, *]
+      -- Unfolding `Monadic.step` earlier would make some defeq checks fail on reducible transparency:
+      -- `Iterator.IsPlausibleStep` is reducible and it reduces to `Monadic.step`, but `Monadic.step`
+      -- is semireducible, and `simp` isn't able to unfold `Monadic.step` inside `Iterator.IsPlausibleStep`,
+      -- since that one only appears in the type of a constant -- I think?
+      simp [Monadic.step]
   · simp
 termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf := wf)
 decreasing_by
@@ -592,11 +597,12 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [Decidabl
     LawfulIteratorLoop (Rxc.Iterator α) Id n where
   lawful := by
     intro lift instLawfulMonadLiftFunction γ it init Pl wf f
-    simp +instances only [IteratorLoop.defaultImplementation, IteratorLoop.forIn,
-      IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
+    simp only [IteratorLoop.forIn, IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
     rw [IterM.DefaultConsumers.forIn'.wf]
     split; rotate_left
-    · simp [IterM.step_eq, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure (liftBind := lift)]
+    · simp only [IterM.step_eq,
+      Internal.LawfulMonadLiftBindFunction.liftBind_pure (liftBind := lift), Shrink.inflate_deflate]
+      simp [Monadic.step]
     rename_i next _
     rw [instIteratorLoop.loop_eq_wf Pl wf, instIteratorLoop.loopWf_eq (lift := lift)]
     simp only [IterM.step_mk, Monadic.step_eq_step, Monadic.step,
@@ -630,7 +636,7 @@ The pure function mapping a range iterator of type {name}`IterM` to the next ste
 This function is prefixed with {lit}`Monadic` in order to disambiguate it from the version for iterators
 of type {name}`Iter`.
 -/
-@[inline]
+@[inline, implicit_reducible]
 def Iterator.Monadic.step [UpwardEnumerable α] [LT α] [DecidableLT α]
     (it : IterM (α := Rxo.Iterator α) Id α) :
     IterStep (IterM (α := Rxo.Iterator α) Id α) α :=
@@ -760,7 +766,7 @@ theorem Iterator.Monadic.isPlausibleSuccessorOf_iff
   · rintro ⟨a, h, hP, h'⟩
     refine ⟨.yield it' a, rfl, ?_⟩
     simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step, h, hP, ↓reduceIte,
-      IterStep.yield.injEq, and_true]
+      IterStep.yield.injEq, and_true, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLT] -- TODO
     simp [h'.1, ← h'.2]
 
 theorem Iterator.isPlausibleSuccessorOf_iff
@@ -820,10 +826,10 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LT α] [Decid
       intro bound
       constructor
       intro it' ⟨step, hs₁, hs₂⟩
-      simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step] at hs₂
+      simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLT] at hs₂ -- TODO
       simp [hs₂, IterStep.successor] at hs₁
     simp only [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
-      Monadic.step, exists_eq_right] at hnone ⊢
+      Monadic.step, exists_eq_right, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLT] at hnone ⊢ -- TODO
     match it with
     | ⟨⟨none, _⟩⟩ => apply hnone
     | ⟨⟨some init, bound⟩⟩ =>
@@ -869,7 +875,7 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LT α] [D
   subrelation {it it'} h := by
     exfalso
     simp only [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep,
-      Iterator.IsPlausibleStep, Monadic.step] at h
+      Iterator.IsPlausibleStep, Monadic.step, instIteratorIteratorIdOfUpwardEnumerableOfDecidableLT] at h -- TODO
     split at h
     · cases h
     · split at h
@@ -1164,8 +1170,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LT α] [Decidabl
     LawfulIteratorLoop (Rxo.Iterator α) Id n where
   lawful := by
     intro lift instLawfulMonadLiftFunction γ it init Pl wf f
-    simp +instances only [IteratorLoop.defaultImplementation, IteratorLoop.forIn,
-      IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
+    simp only [IteratorLoop.forIn, IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
     rw [IterM.DefaultConsumers.forIn'.wf]
     split; rotate_left
     · simp [IterM.step_eq, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure (liftBind := lift)]
@@ -1306,7 +1311,7 @@ theorem Iterator.Monadic.isPlausibleSuccessorOf_iff
   · rintro ⟨a, h, h'⟩
     refine ⟨.yield it' a, rfl, ?_⟩
     simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, step, h,
-      IterStep.yield.injEq, and_true]
+      IterStep.yield.injEq, and_true, instIteratorIteratorIdOfUpwardEnumerable] -- TODO
     simp [h']
 
 theorem Iterator.isPlausibleSuccessorOf_iff
@@ -1341,10 +1346,10 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α]
         ⟨⟨none⟩⟩ := by
       constructor
       intro it' ⟨step, hs₁, hs₂⟩
-      simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step] at hs₂
+      simp only [IterM.IsPlausibleStep, Iterator.IsPlausibleStep, Monadic.step, instIteratorIteratorIdOfUpwardEnumerable] at hs₂ -- TODO
       simp [hs₂, IterStep.successor] at hs₁
     simp only [IterM.IsPlausibleSuccessorOf, IterM.IsPlausibleStep, Iterator.IsPlausibleStep,
-      Monadic.step, exists_eq_right] at hnone ⊢
+      Monadic.step, exists_eq_right, instIteratorIteratorIdOfUpwardEnumerable] at hnone ⊢ -- TODO
     match it with
     | ⟨⟨none⟩⟩ => apply hnone
     | ⟨⟨some init⟩⟩ =>
@@ -1383,7 +1388,7 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α]
   subrelation {it it'} h := by
     exfalso
     simp only [IterM.IsPlausibleSkipSuccessorOf, IterM.IsPlausibleStep,
-      Iterator.IsPlausibleStep, Monadic.step] at h
+      Iterator.IsPlausibleStep, Monadic.step, instIteratorIteratorIdOfUpwardEnumerable] at h -- TODO
     split at h <;> cases h
 
 @[no_expose]
@@ -1630,8 +1635,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α]
     LawfulIteratorLoop (Rxi.Iterator α) Id n where
   lawful := by
     intro lift instLawfulMonadLiftFunction γ it init Pl wf f
-    simp +instances only [IteratorLoop.defaultImplementation, IteratorLoop.forIn,
-      IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
+    simp only [IteratorLoop.forIn, IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
     rw [IterM.DefaultConsumers.forIn'.wf]
     split; rotate_left
     · simp [Monadic.step_eq_step, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure]

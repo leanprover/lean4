@@ -117,11 +117,13 @@ grind_pattern Std.Internal.Array.not_of_countP_eq_zero_of_mem => xs.countP p, x 
 theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a then n else 0 := by
   simp [← List.toArray_replicate, List.countP_replicate]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem boole_getElem_le_countP {xs : Array α} {i : Nat} (h : i < xs.size) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
   rcases xs with ⟨xs⟩
   simp [List.boole_getElem_le_countP]
 
+set_option backward.isDefEq.respectTransparency false in
 @[grind =]
 theorem countP_set {xs : Array α} {i : Nat} {a : α} (h : i < xs.size) :
     (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by

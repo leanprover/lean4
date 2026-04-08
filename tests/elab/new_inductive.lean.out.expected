@@ -1,0 +1,91 @@
+inductive bla.{u, v} : (α : Type u) → (α → Type v) → Nat → Type (max u v)
+number of parameters: 2
+constructors:
+bla.mk₁ : {α : Type u} → {m : α → Type v} → (n : Nat) → α → boo α m n → bla α m (n + 1)
+bla.mk₂ : {α : Type u} → {m : α → Type v} → (a : α) → m a → String → bla α m 0
+inductive Term : Type → Type → Type
+number of parameters: 2
+constructors:
+Term.var : {α β : Type} → α → bla (Term α β) (fun x => Term α β) 10 → Term α β
+Term.foo : {α β : Type} → (Nat → myPair (Term α β) (myList (Term α β))) → β → myList (myList (Term α β)) → Term α β
+@[reducible] protected def Term.below.{u} : {α β : Type} →
+  {motive_1 : Term α β → Sort u} →
+    {motive_2 : (a : Nat) → bla (Term α β) (fun x => Term α β) a → Sort u} →
+      {motive_3 : (a : Nat) → boo (Term α β) (fun x => Term α β) a → Sort u} →
+        {motive_4 : myPair (Term α β) (myList (Term α β)) → Sort u} →
+          {motive_5 : myList (myList (Term α β)) → Sort u} →
+            {motive_6 : myList (Term α β) → Sort u} → Term α β → Sort (max 1 u) :=
+fun {α β} {motive_1} {motive_2} {motive_3} {motive_4} {motive_5} {motive_6} t =>
+  Term.rec (fun a a_1 a_ih => motive_2 10 a_1 ×' a_ih)
+    (fun p n a p_ih a_ih => ((a : Nat) → motive_4 (p a) ×' p_ih a) ×' motive_5 a ×' a_ih)
+    (fun n a a_1 a_ih a_ih_1 => (motive_1 a ×' a_ih) ×' motive_3 n a_1 ×' a_ih_1)
+    (fun a a_1 a_2 a_ih a_ih_1 => (motive_1 a ×' a_ih) ×' motive_1 a_1 ×' a_ih_1)
+    (fun n a a_1 a_ih a_ih_1 => (motive_2 n a ×' a_ih) ×' motive_2 (n + 1) a_1 ×' a_ih_1)
+    (fun a a_1 a_ih a_ih_1 => (motive_1 a ×' a_ih) ×' motive_6 a_1 ×' a_ih_1) PUnit
+    (fun a a_1 a_ih a_ih_1 => (motive_6 a ×' a_ih) ×' motive_5 a_1 ×' a_ih_1) PUnit
+    (fun a a_1 a_ih a_ih_1 => (motive_1 a ×' a_ih) ×' motive_6 a_1 ×' a_ih_1) t
+@Term.casesOn : {α β : Type} →
+  {motive_1 : Term α β → Sort u_1} →
+    (t : Term α β) →
+      ((a : α) → (a_1 : bla (Term α β) (fun x => Term α β) 10) → motive_1 (Term.var a a_1)) →
+        ((p : Nat → myPair (Term α β) (myList (Term α β))) →
+            (n : β) → (a : myList (myList (Term α β))) → motive_1 (Term.foo p n a)) →
+          motive_1 t
+@[reducible] protected def Term.noConfusionType.{u} : Sort u →
+  {α β : Type} → Term α β → {α' β' : Type} → Term α' β' → Sort u :=
+fun P {α β} t {α' β'} t' =>
+  t.casesOn (fun a a_1 => t'.casesOn (fun a_2 a_3 => (a ≍ a_2 → a_1 ≍ a_3 → P) → P) fun p n a => P) fun p n a =>
+    t'.casesOn (fun a a_1 => P) fun p_1 n_1 a_1 => (p ≍ p_1 → n ≍ n_1 → a ≍ a_1 → P) → P
+@[reducible] protected def Term.noConfusion.{u} : {P : Sort u} →
+  {α β : Type} →
+    {t : Term α β} → {α' β' : Type} → {t' : Term α' β'} → α = α' → β = β' → t ≍ t' → Term.noConfusionType P t t' :=
+fun {P} {α β} {t} {α' β'} {t'} eq_1 eq_2 eq_3 =>
+  Eq.ndrec (motive := fun {α'} => {t' : Term α' β'} → t ≍ t' → Term.noConfusionType P t t')
+    (fun {t'} eq_3 =>
+      Eq.ndrec (motive := fun {β'} => {t' : Term α β'} → t ≍ t' → Term.noConfusionType P t t')
+        (fun {t'} eq_3 => ⋯ ▸ t.casesOn (fun a a_1 k => k ⋯ ⋯) fun p n a k => k ⋯ ⋯ ⋯) eq_2 eq_3)
+    eq_1 eq_3
+@tst1.casesOn : {motive_1 : tst1 → Sort u_1} →
+  (t : tst1) → ((a : arrow (myPair tst2 Bool) tst2) → motive_1 (tst1.mk a)) → motive_1 t
+@tst2.casesOn : {motive_2 : tst2 → Sort u_1} → (t : tst2) → ((a : tst1) → motive_2 (tst2.mk a)) → motive_2 t
+@tst1.recOn : {motive_1 : tst1 → Sort u_1} →
+  {motive_2 : tst2 → Sort u_1} →
+    {motive_3 : arrow (myPair tst2 Bool) tst2 → Sort u_1} →
+      {motive_4 : myPair (myPair tst2 Bool) tst2 → Sort u_1} →
+        {motive_5 : myPair tst2 Bool → Sort u_1} →
+          (t : tst1) →
+            ((a : arrow (myPair tst2 Bool) tst2) → motive_3 a → motive_1 (tst1.mk a)) →
+              ((a : tst1) → motive_1 a → motive_2 (tst2.mk a)) →
+                ((s : Nat → myPair (myPair tst2 Bool) tst2) → ((a : Nat) → motive_4 (s a)) → motive_3 (arrow.mk s)) →
+                  ((a : myPair tst2 Bool) → (a_1 : tst2) → motive_5 a → motive_2 a_1 → motive_4 (myPair.mk a a_1)) →
+                    ((a : tst2) → (a_1 : Bool) → motive_2 a → motive_5 (myPair.mk a a_1)) → motive_1 t
+13
+@Rbnode.brecOn : {α : Type u_2} →
+  {motive : Rbnode α → Sort u_1} → (t : Rbnode α) → ((t : Rbnode α) → Rbnode.below t → motive t) → motive t
+recursor test.Trie.rec.{u} : {motive_1 : Trie → Sort u} →
+  {motive_2 : Rbnode (myPair Char Trie) → Sort u} →
+    {motive_3 : myPair Char Trie → Sort u} →
+      motive_1 Trie.Empty →
+        ((a : Char) → (a_1 : Rbnode (myPair Char Trie)) → motive_2 a_1 → motive_1 (Trie.mk a a_1)) →
+          motive_2 Rbnode.leaf →
+            ((lchild : Rbnode (myPair Char Trie)) →
+                (val : myPair Char Trie) →
+                  (rchild : Rbnode (myPair Char Trie)) →
+                    motive_2 lchild → motive_3 val → motive_2 rchild → motive_2 (lchild.redNode val rchild)) →
+              ((lchild : Rbnode (myPair Char Trie)) →
+                  (val : myPair Char Trie) →
+                    (rchild : Rbnode (myPair Char Trie)) →
+                      motive_2 lchild → motive_3 val → motive_2 rchild → motive_2 (lchild.blackNode val rchild)) →
+                ((a : Char) → (a_1 : Trie) → motive_1 a_1 → motive_3 (myPair.mk a a_1)) → (t : Trie) → motive_1 t
+number of parameters: 0
+number of indices: 0
+number of motives: 3
+number of minors: 6
+rules:
+for test.Trie.Empty (0 fields): fun motive_1 motive_2 motive_3 Empty mk leaf redNode blackNode mk_1 => Empty
+for test.Trie.mk (2 fields): fun motive_1 motive_2 motive_3 Empty mk leaf redNode blackNode mk_1 a a_1 =>
+  mk a a_1 (Trie.rec_1 Empty mk leaf redNode blackNode mk_1 a_1)
+@[reducible] protected def test.Trie.noConfusion.{u} : {P : Sort u} →
+  {t t' : Trie} → t = t' → Trie.noConfusionType P t t' :=
+fun {P} {t t'} eq => eq ▸ t.casesOn (fun k => k) fun a a_1 k => k ⋯ ⋯
+Foo : Type

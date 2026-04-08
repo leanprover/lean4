@@ -18,25 +18,27 @@ namespace IO
 namespace Async
 
 /--
-Unix style signals for Unix and Windows. SIGKILL and SIGSTOP are missing because they cannot be caught.
+Unix style signals for Unix and Windows.
+SIGKILL and SIGSTOP are missing because they cannot be caught.
+SIGBUS, SIGFPE, SIGILL, and SIGSEGV are missing because they cannot be caught safely by libuv.
 SIGPIPE is not present because the runtime ignores the signal.
 -/
 inductive Signal
 
   /--
-  Hangup detected on controlling terminal or death of controlling process. SIGHUP is not
-  generated when terminal raw mode is enabled.
+  Hangup detected on controlling terminal or death of controlling process.
 
   On Windows:
-  * SIGHUP is generated when the user closes the console window. The program is given ~10 seconds to
-    cleanup before Windows unconditionally terminates it.
+  - SIGHUP is generated when the user closes the console window. The program is given ~10 seconds to
+    perform cleanup before Windows unconditionally terminates it.
   -/
   | sighup
 
   /--
   Interrupt program.
 
-  * Normally delivered when the user presses CTRL+C. Not generated when terminal raw mode is enabled (like Unix).
+  Notes:
+  - Normally delivered when the user presses CTRL+C. Not generated when terminal raw mode is enabled.
   -/
   | sigint
 
@@ -60,14 +62,14 @@ inductive Signal
   | sigabrt
 
   /--
-  Emulate instruction executed
+  User-defined signal 1.
   -/
-  | sigemt
+  | sigusr1
 
   /--
-  Bad system call.
+  User-defined signal 2.
   -/
-  | sigsys
+  | sigusr2
 
   /--
   Real-time timer expired.
@@ -83,14 +85,9 @@ inductive Signal
   | sigterm
 
   /--
-  Urgent condition on socket.
+  Child status has changed.
   -/
-  | sigurg
-
-  /--
-  Stop typed at tty.
-  -/
-  | sigtstp
+  | sigchld
 
   /--
   Continue after stop.
@@ -98,9 +95,9 @@ inductive Signal
   | sigcont
 
   /--
-  Child status has changed.
+  Stop typed at terminal.
   -/
-  | sigchld
+  | sigtstp
 
   /--
   Background read attempted from control terminal.
@@ -108,14 +105,14 @@ inductive Signal
   | sigttin
 
   /--
-  Background write attempted to control terminal
+  Background write attempted to control terminal.
   -/
   | sigttou
 
   /--
-  I/O now possible.
+  Urgent condition on socket.
   -/
-  | sigio
+  | sigurg
 
   /--
   CPU time limit exceeded.
@@ -148,52 +145,48 @@ inductive Signal
   | sigwinch
 
   /--
-  Status request from keyboard.
+  I/O now possible.
   -/
-  | siginfo
+  | sigio
 
   /--
-  User-defined signal 1.
+  Bad system call.
   -/
-  | sigusr1
-
-  /--
-  User-defined signal 2.
-  -/
-  | sigusr2
+  | sigsys
 
 deriving Repr, DecidableEq, BEq
 
 namespace Signal
 
 /--
-Converts a `Signal` to its corresponding `Int32` value as defined in the libc `signal.h`.
+Converts a `Signal` to its corresponding `Int32` value as defined in `man 7 signal`.
+
+These values are then mapped to the underlying architecture's values in runtime/uv/signal.cpp,
+so make sure to update that whenever you update this code.
 -/
-def toInt32 : Signal → Int32
+private def toInt32 : Signal → Int32
   | .sighup => 1
   | .sigint => 2
   | .sigquit => 3
   | .sigtrap => 5
   | .sigabrt => 6
-  | .sigemt => 7
-  | .sigsys => 12
+  | .sigusr1 => 10
+  | .sigusr2 => 12
   | .sigalrm => 14
   | .sigterm => 15
-  | .sigurg => 16
-  | .sigtstp => 18
-  | .sigcont => 19
-  | .sigchld => 20
+  | .sigchld => 17
+  | .sigcont => 18
+  | .sigtstp => 20
   | .sigttin => 21
   | .sigttou => 22
-  | .sigio => 23
+  | .sigurg => 23
   | .sigxcpu => 24
   | .sigxfsz => 25
   | .sigvtalrm => 26
   | .sigprof => 27
   | .sigwinch => 28
-  | .siginfo => 29
-  | .sigusr1 => 30
-  | .sigusr2 => 31
+  | .sigio => 29
+  | .sigsys => 31
 
 /--
 `Signal.Waiter` can be used to handle a specific signal once.

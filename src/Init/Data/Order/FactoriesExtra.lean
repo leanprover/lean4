@@ -19,14 +19,14 @@ Creates an `LE α` instance from an `Ord α` instance.
 `OrientedOrd α` must be satisfied so that the resulting `LE α` instance faithfully represents
 the `Ord α` instance.
 -/
-@[inline, expose, instance_reducible]
+@[inline, expose, implicit_reducible]
 public def _root_.LE.ofOrd (α : Type u) [Ord α] : LE α where
   le a b := (compare a b).isLE
 
 /--
 Creates an `DecidableLE α` instance using a well-behaved `Ord α` instance.
 -/
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 public def _root_.DecidableLE.ofOrd (α : Type u) [LE α] [Ord α] [LawfulOrderOrd α] :
     DecidableLE α :=
   fun a b => match h : (compare a b).isLE with
@@ -39,7 +39,7 @@ Creates an `LT α` instance from an `Ord α` instance.
 `OrientedOrd α` must be satisfied so that the resulting `LT α` instance faithfully represents
 the `Ord α` instance.
 -/
-@[inline, expose, instance_reducible]
+@[inline, expose, implicit_reducible]
 public def _root_.LT.ofOrd (α : Type u) [Ord α] :
     LT α where
   lt a b := compare a b = .lt
@@ -93,7 +93,7 @@ grind_pattern compare_ne_eq => compare a b, Ordering.eq where
 /--
 Creates a `DecidableLT α` instance using a well-behaved `Ord α` instance.
 -/
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 public def _root_.DecidableLT.ofOrd (α : Type u) [LE α] [LT α] [Ord α] [LawfulOrderOrd α]
     [LawfulOrderLT α] :
     DecidableLT α :=
@@ -104,7 +104,7 @@ public def _root_.DecidableLT.ofOrd (α : Type u) [LE α] [LT α] [Ord α] [Lawf
 
 /--
 Creates a `BEq α` instance from an `Ord α` instance. -/
-@[inline, expose, instance_reducible]
+@[inline, expose, implicit_reducible]
 public def _root_.BEq.ofOrd (α : Type u) [Ord α] :
     BEq α where
   beq a b := compare a b = .eq

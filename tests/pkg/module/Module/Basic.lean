@@ -423,13 +423,17 @@ meta structure Foo where
 deriving TypeName
 
 /--
-info: @[instance_reducible] private meta def instTypeNameFoo : TypeName Foo :=
+info: @[implicit_reducible] private meta def instTypeNameFoo : TypeName Foo :=
 inst✝
 -/
 #guard_msgs in
 #print instTypeNameFoo
 
 public meta def pubMeta := 1
+
+/-- error: Invalid `meta` definition `veryMeta`, `f` not marked `meta` -/
+#guard_msgs in
+meta def veryMeta := f
 
 /-! `#eval` should accept `meta` and non-`meta`. -/
 
@@ -554,3 +558,6 @@ public def func (ctx : Nat) (operand : OpOperand2) : Nat :=
   match operand.nextUse with
   | none => ctx
   | some _nextPtr => ctx
+
+/-- Setup for #12833. -/
+public def Namespaced.def := 0

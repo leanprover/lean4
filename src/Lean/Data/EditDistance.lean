@@ -43,7 +43,7 @@ public def levenshtein (str1 str2 : String) (cutoff : Nat) : Option Nat := Id.ru
     let mut iter2 := str2.startPos
     let mut j : Fin (len2 + 1) := 0
     while h2 : ¬iter2.IsAtEnd do
-      let j' : Fin _ := j + 1
+      let j' : Fin (len2 + 1) := j + 1
       let deletionCost := v0[j'] + 1
       let insertionCost := v1[j] + 1
       let substCost :=

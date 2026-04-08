@@ -11,6 +11,7 @@ public import Lake.Config.Workspace
 import Lake.Load.Resolve
 import Lake.Load.Package
 import Lake.Load.Lean.Eval
+import Lake.Load.Toml
 import Lake.Build.InitFacets
 
 /-! # Workspace Loader
@@ -29,18 +30,22 @@ Does not resolve dependencies.
 -/
 public def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
-  let (root, env?) ← loadPackageCore "[root]" {config with pkgIdx := 0}
-  let root := {root with outputsRef? := ← CacheRef.mk}
+  let lakeConfig ← loadLakeConfig config.lakeEnv
+  let config := {config with pkgIdx := 0}
+  let ⟨config, h⟩ ← resolveConfigFile "[root]" config
+  let fileCfg ← loadConfigFile config h
+  let root := mkPackage config fileCfg 0
+  let facetConfigs := fileCfg.facetDecls.foldl (·.insert ·.config) initFacetConfigs
   let ws : Workspace := {
     root
     lakeEnv := config.lakeEnv
+    lakeConfig
     lakeArgs? := config.lakeArgs?
-    facetConfigs := initFacetConfigs
+    facetConfigs
+    packages_wsIdx h := by simp at h
   }
-  if let some env := env? then
-    IO.ofExcept <| ws.addFacetsFromEnv env config.leanOpts
-  else
-    return ws
+  let ws := ws.addPackage' root wsIdx_mkPackage
+  return ws
 
 /--
 Load a `Workspace` for a Lake package by

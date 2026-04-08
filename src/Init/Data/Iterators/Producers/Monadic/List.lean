@@ -46,7 +46,7 @@ The non-monadic version of this iterator is `List.iter`.
 * `Finite` instance: always
 * `Productive` instance: always
 -/
-@[always_inline, inline]
+@[cbv_opaque, always_inline, inline]
 def _root_.List.iterM {α : Type w} (l : List α) (m : Type w → Type w') [Pure m] :
     IterM (α := ListIterator α) m α :=
   ⟨{ list := l }⟩
@@ -70,7 +70,7 @@ private def ListIterator.instFinitenessRelation [Pure m] :
   subrelation {it it'} h := by
     simp_wf
     obtain ⟨step, h, h'⟩ := h
-    cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep]
+    cases step <;> simp_all [IterStep.successor, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIterator]
 
 instance ListIterator.instFinite [Pure m] : Finite (ListIterator α) m :=
   by exact Finite.of_finitenessRelation ListIterator.instFinitenessRelation

@@ -10,8 +10,8 @@ public import Lean.Compiler.NoncomputableAttr
 public import Lean.Util.NumApps
 public import Lean.Meta.Eqns
 public import Lean.Elab.RecAppSyntax
+public import Lean.Meta.WrapInstance
 public import Lean.Elab.DefView
-
 public section
 
 namespace Lean.Elab
@@ -217,10 +217,8 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     match preDef.modifiers.computeKind with
     -- Tags may have been added by `elabMutualDef` already, but that is not the only caller
     | .meta          => if !isMarkedMeta (← getEnv) preDef.declName then modifyEnv (markMeta · preDef.declName)
-    | .noncomputable => if !isNoncomputable (← getEnv) preDef.declName then modifyEnv (addNoncomputable · preDef.declName)
-    | _              =>
-      if !preDef.kind.isTheorem then
-        modifyEnv (markNotMeta · preDef.declName)
+    | .noncomputable => if !isNoncomputable (asyncMode := .local) (← getEnv) preDef.declName then modifyEnv (addNoncomputable · preDef.declName)
+    | _              => pure ()
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
     if applyAttrAfterCompilation then

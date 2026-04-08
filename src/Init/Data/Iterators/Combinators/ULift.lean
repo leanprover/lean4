@@ -44,7 +44,7 @@ it.uLift n    ---.up a----.up b---.up c--.up d---⊥
 * `Finite`: only if the original iterator is finite
 * `Productive`: only if the original iterator is productive
 -/
-@[always_inline, inline, expose]
+@[cbv_opaque, always_inline, inline, expose]
 def Iter.uLift (it : Iter (α := α) β) :
     Iter (α := Types.ULiftIterator.{v} α Id Id β (fun _ => monadLift)) (ULift β) :=
   (it.toIterM.uLift Id).toIter

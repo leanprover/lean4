@@ -41,6 +41,7 @@ def inconsistent : GoalM Bool := do
   if (← isInconsistent) then return true
   return (← get').conflict?.isSome
 
+set_option compiler.ignoreBorrowAnnotation true in
 /-- Creates a new variable in the cutsat module. -/
 @[extern "lean_grind_cutsat_mk_var"] -- forward definition
 opaque mkVar (e : Expr) : GoalM Var
@@ -62,6 +63,7 @@ def isIntTerm (e : Expr) : GoalM Bool :=
 def eliminated (x : Var) : GoalM Bool :=
   return (← get').elimEqs[x]!.isSome
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_grind_cutsat_assert_eq"] -- forward definition
 opaque EqCnstr.assert (c : EqCnstr) : GoalM Unit
 
@@ -114,6 +116,7 @@ def DiseqCnstr.throwUnexpected (c : DiseqCnstr) : GoalM α := do
 def DiseqCnstr.denoteExpr (c : DiseqCnstr) : GoalM Expr := do
   return mkNot (mkIntEq (← c.p.denoteExpr') (mkIntLit 0))
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_grind_cutsat_assert_le"] -- forward definition
 opaque LeCnstr.assert (c : LeCnstr) : GoalM Unit
 

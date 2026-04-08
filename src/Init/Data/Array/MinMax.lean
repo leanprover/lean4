@@ -89,7 +89,7 @@ public theorem _root_.List.min_toArray [Min α] {l : List α} {h} :
     · rename_i x xs
       simp only [List.getElem_toArray, List.getElem_cons_zero, List.size_toArray, List.length_cons]
       rw [List.toArray_cons, foldl_eq_foldl_extract]
-      rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_drop_take]
+      rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_take_drop]
       simp [List.min]
 
 public theorem _root_.List.min_eq_min_toArray [Min α] {l : List α} {h} :
@@ -113,7 +113,7 @@ public theorem _root_.List.min?_toArray [Min α] {l : List α} :
   · simp [List.min_toArray, List.min_eq_get_min?, - List.get_min?]
   · simp_all
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval ←]
 public theorem min?_toList [Min α] {xs : Array α} :
     xs.toList.min? = xs.min? := by
   cases xs; simp
@@ -129,7 +129,7 @@ public theorem _root_.List.max_toArray [Max α] {l : List α} {h} :
     · rename_i x xs
       simp only [List.getElem_toArray, List.getElem_cons_zero, List.size_toArray, List.length_cons]
       rw [List.toArray_cons, foldl_eq_foldl_extract]
-      rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_drop_take]
+      rw [← Array.foldl_toList, Array.toList_extract, List.extract_eq_take_drop]
       simp [List.max]
 
 public theorem _root_.List.max_eq_max_toArray [Max α] {l : List α} {h} :
@@ -153,7 +153,7 @@ public theorem _root_.List.max?_toArray [Max α] {l : List α} :
   · simp [List.max_toArray, List.max_eq_get_max?, - List.get_max?]
   · simp_all
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval ←]
 public theorem max?_toList [Max α] {xs : Array α} :
     xs.toList.max? = xs.max? := by
   cases xs; simp

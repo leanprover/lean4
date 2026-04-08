@@ -93,7 +93,7 @@ where
       e.withApp fun f args => return mkAppN (← loop F f) (← args.mapM (loop F))
 
   containsRecFn (e : Expr) : RecM recFnName Bool := do
-    modifyGet (·.contains e)
+    modifyGet (HasConstCache.contains e |>.run)
 
   loop (F : Expr) (e : Expr) : RecM recFnName Expr := do
     if !(← containsRecFn e) then

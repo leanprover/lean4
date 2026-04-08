@@ -1,0 +1,5 @@
+name = "test"
+
+[[require]]
+name = "dep"
+git = "dep"

@@ -219,9 +219,9 @@ def filterMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 Applies a monadic function that returns a list to each element of a list, from left to right, and
 concatenates the resulting lists.
 -/
-@[inline, expose]
-def flatMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (List β)) (as : List α) : m (List β) :=
-  let rec @[specialize] loop
+@[expose]
+noncomputable def flatMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (List β)) (as : List α) : m (List β) :=
+  let rec loop
     | [],     bs => pure bs.reverse.flatten
     | a :: as, bs => do
       let bs' ← f a

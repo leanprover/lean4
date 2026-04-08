@@ -4,8 +4,8 @@ import CbvAttr.PubliclyVisibleTheorem
 import CbvAttr.PublicFunctionLocalTheorem
 import CbvAttr.PublicFunction
 import CbvAttr.PublicFunctionPrivateTheorem
-
-set_option cbv.warning false
+import CbvAttr.InvertedTheorem
+import CbvAttr.InvertedLocalTheorem
 
 /- Function does not have an exposed body, but has a public theorem for unrolling it-/
 example : f1 1 = 2 := by conv => lhs; cbv
@@ -39,3 +39,15 @@ error: unsolved goals
 -/
 #guard_msgs in
 example : f5 1 = 2 := by conv => lhs; cbv
+
+/- Inverted public theorem: `x + 1 = f6 x` with ← becomes `f6 x = x + 1` -/
+example : f6 1 = 2 := by conv => lhs; cbv
+
+/- Inverted local theorem should not be visible across modules -/
+
+/--
+error: unsolved goals
+⊢ f7 1 = 2
+-/
+#guard_msgs in
+example : f7 1 = 2 := by conv => lhs; cbv

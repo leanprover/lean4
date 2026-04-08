@@ -784,8 +784,8 @@ def mkOptionalNode (arg : Option Syntax) : Syntax :=
 /--
 Creates a hole (`_`). The hole's position is copied from `ref`.
 -/
-def mkHole (ref : Syntax) (canonical := false) : Syntax :=
-  mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_" canonical]
+def mkHole (ref : Syntax) (canonical := false) : Term :=
+  ⟨mkNode `Lean.Parser.Term.hole #[mkAtomFrom ref "_" canonical]⟩
 
 namespace Syntax
 

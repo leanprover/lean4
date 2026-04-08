@@ -1,0 +1,2 @@
+binrelmacros.lean:1:8-1:11: warning: declaration uses `sorry`
+binrelmacros.lean:4:8-4:11: warning: declaration uses `sorry`

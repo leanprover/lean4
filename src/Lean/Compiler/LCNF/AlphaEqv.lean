@@ -75,6 +75,7 @@ def eqvLetValue (e₁ e₂ : LetValue pu) : EqvM Bool := do
     pure (i₁ == i₂ && u₁ == u₂) <&&> eqvFVar v₁ v₂ <&&> eqvArgs as₁ as₂
   | .box ty₁ v₁ _, .box ty₂ v₂ _ => eqvType ty₁ ty₂ <&&> eqvFVar v₁ v₂
   | .unbox v₁ _, .unbox v₂ _ => eqvFVar v₁ v₂
+  | .isShared v₁ _, .isShared v₂ _ => eqvFVar v₁ v₂
   | _, _ => return false
 
 @[inline] def withFVar (fvarId₁ fvarId₂ : FVarId) (x : EqvM α) : EqvM α :=
@@ -143,17 +144,41 @@ partial def eqv (code₁ code₂ : Code pu) : EqvM Bool := do
     eqvFVar c₁.discr c₂.discr <&&>
     eqvType c₁.resultType c₂.resultType <&&>
     eqvAlts c₁.alts c₂.alts
-  | .sset var₁ i₁ offset₁ y₁ ty₁ k₁ _, .sset var₂ i₂ offset₂ y₂ ty₂ k₂ _ =>
+  | .oset fvarId₁ i₁ y₁ k₁ _, .oset fvarId₂ i₂ y₂ k₂ _ =>
+    pure (i₁ == i₂) <&&>
+    eqvFVar fvarId₁ fvarId₂ <&&>
+    eqvArg y₁ y₂ <&&>
+    eqv k₁ k₂
+  | .sset fvarId₁ i₁ offset₁ y₁ ty₁ k₁ _, .sset fvarId₂ i₂ offset₂ y₂ ty₂ k₂ _ =>
     pure (i₁ == i₂) <&&>
     pure (offset₁ == offset₂) <&&>
-    eqvFVar var₁ var₂ <&&>
+    eqvFVar fvarId₁ fvarId₂ <&&>
     eqvFVar y₁ y₂ <&&>
     eqvType ty₁ ty₂ <&&>
     eqv k₁ k₂
-  | .uset var₁ i₁ y₁ k₁ _, .uset var₂ i₂ y₂ k₂ _ =>
+  | .uset fvarId₁ i₁ y₁ k₁ _, .uset fvarId₂ i₂ y₂ k₂ _ =>
     pure (i₁ == i₂) <&&>
-    eqvFVar var₁ var₂ <&&>
+    eqvFVar fvarId₁ fvarId₂ <&&>
     eqvFVar y₁ y₂ <&&>
+    eqv k₁ k₂
+  | .setTag fvarId₁ c₁ k₁ _, .setTag fvarId₂ c₂ k₂ _ =>
+    pure (c₁ == c₂) <&&>
+    eqvFVar fvarId₁ fvarId₂ <&&>
+    eqv k₁ k₂
+  | .inc fvarId₁ n₁ c₁ p₁ k₁ _, .inc fvarId₂ n₂ c₂ p₂ k₂ _ =>
+    pure (n₁ == n₂) <&&>
+    pure (c₁ == c₂) <&&>
+    pure (p₁ == p₂) <&&>
+    eqvFVar fvarId₁ fvarId₂ <&&>
+    eqv k₁ k₂
+  | .dec fvarId₁ n₁ c₁ p₁ k₁ _, .dec fvarId₂ n₂ c₂ p₂ k₂ _ =>
+    pure (n₁ == n₂) <&&>
+    pure (c₁ == c₂) <&&>
+    pure (p₁ == p₂) <&&>
+    eqvFVar fvarId₁ fvarId₂ <&&>
+    eqv k₁ k₂
+  | .del fvarId₁ k₁ _, .del fvarId₂ k₂ _ =>
+    eqvFVar fvarId₁ fvarId₂ <&&>
     eqv k₁ k₂
   | _, _ => return false
 

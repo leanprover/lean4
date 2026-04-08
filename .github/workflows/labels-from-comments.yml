@@ -1,5 +1,5 @@
 # This workflow allows any user to add one of the `awaiting-review`, `awaiting-author`, `WIP`,
-# `release-ci`, or a `changelog-XXX` label by commenting on the PR or issue.
+# `release-ci`, `lake-ci`, or a `changelog-XXX` label by commenting on the PR or issue.
 # If any labels from the set {`awaiting-review`, `awaiting-author`, `WIP`} are added, other labels
 # from that set are removed automatically at the same time.
 # Similarly, if any `changelog-XXX` label is added, other `changelog-YYY` labels are removed.
@@ -12,7 +12,7 @@ on:
 
 jobs:
   update-label:
-    if: github.event.issue.pull_request != null && (contains(github.event.comment.body, 'awaiting-review') || contains(github.event.comment.body, 'awaiting-author') || contains(github.event.comment.body, 'WIP') || contains(github.event.comment.body, 'release-ci') || contains(github.event.comment.body, 'changelog-'))
+    if: github.event.issue.pull_request != null && (contains(github.event.comment.body, 'awaiting-review') || contains(github.event.comment.body, 'awaiting-author') || contains(github.event.comment.body, 'WIP') || contains(github.event.comment.body, 'release-ci') || contains(github.event.comment.body, 'lake-ci') || contains(github.event.comment.body, 'changelog-'))
     runs-on: ubuntu-latest
 
     steps:
@@ -28,6 +28,7 @@ jobs:
           const awaitingAuthor = commentLines.includes('awaiting-author');
           const wip = commentLines.includes('WIP');
           const releaseCI = commentLines.includes('release-ci');
+          const lakeCI = commentLines.includes('lake-ci');
           const changelogMatch = commentLines.find(line => line.startsWith('changelog-'));
 
           if (awaitingReview || awaitingAuthor || wip) {
@@ -48,6 +49,9 @@ jobs:
 
           if (releaseCI) {
             await github.rest.issues.addLabels({ owner, repo, issue_number, labels: ['release-ci'] });
+          }
+          if (lakeCI) {
+            await github.rest.issues.addLabels({ owner, repo, issue_number, labels: ['lake-ci'] });
           }
 
           if (changelogMatch) {

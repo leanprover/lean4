@@ -1,0 +1,3 @@
+@Fn.imp ((p : P) → Bar.fn p) ({p : P} → Bar.fn p) fn : {p : P} → Bar.fn p
+fn.imp : Bar.fn p
+fn'.imp Bp : Bar.fn p

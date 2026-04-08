@@ -11,6 +11,18 @@ TEST_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)"
 CACHE_DIR="$(norm_path "$TEST_DIR")/.lake/cache"
 export LAKE_CACHE_DIR="$CACHE_DIR"
 
+# Verify that `lake cache clean` works without a cache directory
+test_exp ! -d "$CACHE_DIR"
+test_run cache clean
+
+# Test `lake cache services`
+LAKE_CONFIG=services.toml test_out_diff <(cat << EOF
+cdn
+bogus
+reservoir
+EOF
+) cache services
+
 # Verify packages without `enableArtifactCache` do not use the cache by default
 test_run build -f unset.toml Test:static
 test_exp ! -d "$CACHE_DIR"
@@ -35,7 +47,6 @@ test_run build Test:static --no-build --wfail
 test_out 'Replayed Test:c.o' build +Test:o -v
 
 # Verify that a rebuild with the cache disabled is a no-op
-touch .lake/build/ir/Test.c # avoid mod time fallback if trace is missing
 test_run -f disabled.toml build +Test:o --no-build --wfail
 test_run -f disabled.toml build Test:static --no-build --wfail
 
@@ -90,7 +101,6 @@ test_run exe test
 # The `Test` module's artifacts are more carefully managed throught this test
 touch Ignored.lean
 test_run -v build +Ignored
-test_cmd rm -f .lake/build/lib/lean/Ignored.trace
 
 # Verify that fetching from the cache can be disabled
 test_cmd rm -f .lake/build/lib/lean/Ignored.trace
@@ -159,6 +169,10 @@ test_out "Fetched Test:c.o" build +Test:o -v --no-build
 test_cmd rm -rf "$CACHE_DIR/outputs" .lake/build/ir/Test.c
 test_run -v build +Test:c --no-build
 
+# Verify that Lake does not attempt overwrite an existing artifact
+test_cmd rm -rf "$CACHE_DIR/outputs" .lake/build/lib/lean/Ignored.trace
+test_run -v build +Ignored
+
 # Verify that the olean does not need to be present in the build directory
 test_cmd rm -f .lake/build/lib/lean/Test.olean .lake/build/lib/lean/Test/Imported.olean
 test_run -v build +Test.Imported --no-build --wfail
@@ -181,6 +195,38 @@ test_exp -f .lake/outputs.jsonl
 test_lines 3 .lake/outputs.jsonl
 test_run build Test:static -o .lake/outputs.jsonl
 test_lines 6 .lake/outputs.jsonl
+
+# Test that platform-dependent outputs are not included
+# in the mappings file for platform-independent packages
+test_run -f platformIndependent.toml build Test:static -o .lake/outputs.jsonl
+test_lines 3 .lake/outputs.jsonl
+
+# Test `lake cache stage` and `lake cache unstage`
+test_run build Test:static -o .lake/outputs.jsonl
+test_lines 6 .lake/outputs.jsonl
+
+# Verify `cache stage` copies artifacts to the staging directory
+test_run cache stage .lake/outputs.jsonl .lake/staging
+test_exp -d .lake/staging
+test_exp -f .lake/staging/outputs.jsonl
+test_cmd cmp -s .lake/outputs.jsonl .lake/staging/outputs.jsonl
+
+# Verify `cache unstage` restores artifacts to the cache
+test_cmd rm -rf "$CACHE_DIR/artifacts"
+test_exp ! -d "$CACHE_DIR/artifacts"
+test_run cache unstage .lake/staging
+test_exp -d "$CACHE_DIR/artifacts"
+test_run build Test:static --no-build
+
+# Verify that `cache stage` fails if cached artifacts are missing
+test_cmd rm -rf "$CACHE_DIR/artifacts"
+test_err 'artifact not found in cache' cache stage .lake/outputs.jsonl .lake/staging-fail
+test_run cache unstage .lake/staging
+
+# Verify that `cache unstage` fails if staging artifacts are missing
+test_cmd mkdir -p .lake/staging-empty
+test_cmd cp .lake/outputs.jsonl .lake/staging-empty/outputs.jsonl
+test_err 'artifact not found in staging directory' cache unstage .lake/staging-empty
 
 # Verify that `lake cache clean` deletes the cache directory
 test_exp -d "$CACHE_DIR"
@@ -236,4 +282,4 @@ if command -v jq > /dev/null; then # skip if no jq found
 fi
 
 # Cleanup
-rm -f produced.out Ignored.lean
+rm -f produced.* Ignored.lean

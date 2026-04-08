@@ -27,7 +27,7 @@ theorem internalIter_eq {α : Type u} {s : ListSlice α} :
     Internal.iter s = match s.internalRepresentation.stop with
         | some stop => s.internalRepresentation.list.iter.take stop
         | none => s.internalRepresentation.list.iter.toTake := by
-  simp only [Internal.iter, ToIterator.iter_eq]; rfl
+  simp only [Internal.iter]; rfl
 
 theorem toList_internalIter {α : Type u} {s : ListSlice α} :
     (Internal.iter s).toList = match s.internalRepresentation.stop with
@@ -77,9 +77,9 @@ public theorem toList_mkSlice_rco {xs : List α} {lo hi : Nat} :
   simp only [Std.Rco.Sliceable.mkSlice, toSlice, ListSlice.toList_eq]
   by_cases h : lo < hi
   · have : lo ≤ hi := by omega
-    simp +instances [h, List.take_drop, Nat.add_sub_cancel' ‹_›, ← List.take_eq_take_min]
+    simp [h, List.take_drop, Nat.add_sub_cancel' ‹_›, ← List.take_eq_take_min]
   · have : min hi xs.length ≤ lo := by omega
-    simp +instances [h, Nat.min_eq_right this]
+    simp [h, Nat.min_eq_right this]
 
 @[simp, grind =]
 public theorem toArray_mkSlice_rco {xs : List α} {lo hi : Nat} :
@@ -114,7 +114,7 @@ public theorem size_mkSlice_rcc {xs : List α} {lo hi : Nat} :
 public theorem toList_mkSlice_rci {xs : List α} {lo : Nat} :
     xs[lo...*].toList = xs.drop lo := by
   rw [List.drop_eq_drop_min]
-  simp +instances [ListSlice.toList_eq, Std.Rci.Sliceable.mkSlice, List.toUnboundedSlice]
+  simp [ListSlice.toList_eq, Std.Rci.Sliceable.mkSlice, List.toUnboundedSlice]
 
 @[simp, grind =]
 public theorem toArray_mkSlice_rci {xs : List α} {lo : Nat} :
@@ -291,7 +291,8 @@ namespace ListSlice
 @[simp, grind =]
 public theorem toList_mkSlice_rco {xs : ListSlice α} {lo hi : Nat} :
     xs[lo...hi].toList = (xs.toList.take hi).drop lo := by
-  simp +instances only [instSliceableListSliceNat_1, List.toList_mkSlice_rco, ListSlice.toList_eq (xs := xs)]
+  rw [instSliceableListSliceNat_1]
+  simp only [List.toList_mkSlice_rco, ListSlice.toList_eq (xs := xs)]
   obtain ⟨⟨xs, stop⟩⟩ := xs
   cases stop
   · simp
@@ -329,9 +330,10 @@ public theorem size_mkSlice_rcc {xs : ListSlice α} {lo hi : Nat} :
 @[simp, grind =]
 public theorem toList_mkSlice_rci {xs : ListSlice α} {lo : Nat} :
     xs[lo...*].toList = xs.toList.drop lo := by
-  simp +instances only [instSliceableListSliceNat_2, ListSlice.toList_eq (xs := xs)]
+  rw [instSliceableListSliceNat_2]
+  simp only [ListSlice.toList_eq (xs := xs)]
   obtain ⟨⟨xs, stop⟩⟩ := xs
-  simp +instances only
+  simp only
   split <;> simp
 
 @[simp, grind =]

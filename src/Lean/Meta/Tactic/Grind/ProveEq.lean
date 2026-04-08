@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
+import Init.Grind.Util
 import Lean.Meta.Tactic.Grind.Simp
 public section
 namespace Lean.Meta.Grind
@@ -112,6 +113,9 @@ private partial def abstractGroundMismatches? (lhs rhs : Expr) : GoalM (Option (
   if s.lhss.isEmpty then
     return none
   let f := mkLambdaWithBodyAndVarType s.varTypes f
+  let fType ← inferType f
+  let u ← getLevel fType
+  let f := mkApp2 (.const ``Grind.abstractFn [u]) fType f
   return some (mkAppN f s.lhss, mkAppN f s.rhss)
 where
   goCore (lhs rhs : Expr) : AbstractM Expr := do

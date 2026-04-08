@@ -208,7 +208,7 @@ theorem String.ofList_nil : String.ofList [] = "" :=
 theorem List.asString_nil : String.ofList  [] = "" :=
   String.ofList_nil
 
-@[simp]
+@[simp, grind =]
 theorem String.ofList_append {l₁ l₂ : List Char} :
     String.ofList (l₁ ++ l₂) = String.ofList l₁ ++ String.ofList l₂ := by
   simp [← String.toByteArray_inj]
@@ -368,6 +368,12 @@ theorem String.ofList_toList {s : String} : String.ofList s.toList = s := by
 @[deprecated String.ofList_toList (since := "2025-10-30")]
 theorem String.asString_data {b : String} : String.ofList b.toList = b :=
   String.ofList_toList
+
+@[simp]
+theorem String.ofList_comp_toList : String.ofList ∘ String.toList = id := by ext; simp
+
+@[simp]
+theorem String.toList_comp_ofList : String.toList ∘ String.ofList = id := by ext; simp
 
 theorem String.ofList_injective {l₁ l₂ : List Char} (h : String.ofList l₁ = String.ofList l₂) : l₁ = l₂ := by
   simpa using congrArg String.toList h
@@ -748,6 +754,7 @@ theorem _root_.ByteArray.IsValidUTF8.isUTF8FirstByte_getElem_zero {b : ByteArray
 theorem isUTF8FirstByte_getUTF8Byte_zero {b : String} {h} : (b.getUTF8Byte 0 h).IsUTF8FirstByte :=
   b.isValidUTF8.isUTF8FirstByte_getElem_zero _
 
+set_option backward.isDefEq.respectTransparency false in
 theorem Pos.Raw.isValidUTF8_extract_iff {s : String} (p₁ p₂ : Pos.Raw) (hle : p₁ ≤ p₂) (hle' : p₂ ≤ s.rawEndPos) :
     (s.toByteArray.extract p₁.byteIdx p₂.byteIdx).IsValidUTF8 ↔ p₁ = p₂ ∨ (p₁.IsValid s ∧ p₂.IsValid s) := by
   have hle'' : p₂.byteIdx ≤ s.toByteArray.size := by simpa [le_iff] using hle'
@@ -844,6 +851,10 @@ theorem Slice.rawEndPos_copy {s : Slice} : s.copy.rawEndPos = s.rawEndPos := by
 @[simp]
 theorem copy_toSlice {s : String} : s.toSlice.copy = s := by
   simp [← toByteArray_inj, Slice.toByteArray_copy, ← size_toByteArray]
+
+@[simp]
+theorem copy_comp_toSlice : String.Slice.copy ∘ String.toSlice = id := by
+  ext; simp
 
 theorem Slice.getUTF8Byte_eq_getUTF8Byte_copy {s : Slice} {p : Pos.Raw} {h : p < s.rawEndPos} :
     s.getUTF8Byte p h = s.copy.getUTF8Byte p (by simpa) := by
@@ -1259,9 +1270,11 @@ theorem Pos.toSlice_comp_ofToSlice {s : String} :
 theorem Pos.ofToSlice_comp_toSlice {s : String} :
     Pos.ofToSlice ∘ (toSlice (s := s)) = id := by ext; simp
 
+@[simp]
 theorem Pos.toSlice_inj {s : String} {p q : s.Pos} : p.toSlice = q.toSlice ↔ p = q :=
   ⟨fun h => by simpa using congrArg Pos.ofToSlice h, (· ▸ rfl)⟩
 
+@[simp]
 theorem Pos.ofToSlice_inj {s : String} {p q : s.toSlice.Pos} : ofToSlice p = ofToSlice q ↔ p = q :=
   ⟨fun h => by simpa using congrArg Pos.toSlice h, (· ▸ rfl)⟩
 
@@ -1372,6 +1385,11 @@ theorem Slice.copy_eq_copy_sliceTo {s : Slice} {pos : s.Pos} :
     endExclusive_sliceFrom, ByteArray.extract_append_extract, Nat.le_add_right, Nat.min_eq_left]
   rw [Nat.max_eq_right]
   exact pos.offset_str_le_offset_endExclusive
+
+@[simp]
+theorem Slice.sliceTo_append_sliceFrom {s : Slice} {pos : s.Pos} :
+    (s.sliceTo pos).copy ++ (s.sliceFrom pos).copy = s.copy :=
+  copy_eq_copy_sliceTo.symm
 
 /-- Given a slice `s` and a position on `s.copy`, obtain the corresponding position on `s`. -/
 @[inline]
@@ -1525,6 +1543,11 @@ theorem Slice.Pos.offset_sliceTo {s : Slice} {p₀ : s.Pos} {pos : s.Pos} {h : p
     (sliceTo p₀ pos h).offset = pos.offset := (rfl)
 
 @[simp]
+theorem Slice.Pos.sliceTo_inj {s : Slice} {p₀ : s.Pos} {pos pos' : s.Pos} {h h'} :
+    p₀.sliceTo pos h = p₀.sliceTo pos' h' ↔ pos = pos' := by
+  simp [Pos.ext_iff]
+
+@[simp]
 theorem Slice.Pos.ofSliceTo_startPos {s : Slice} {pos : s.Pos} :
     ofSliceTo (s.sliceTo pos).startPos = s.startPos := by
   simp [Pos.ext_iff]
@@ -1675,7 +1698,7 @@ def Pos.next {s : @& String} (pos : @& s.Pos) (h : pos ≠ s.endPos) : s.Pos :=
 
 @[simp]
 theorem Pos.ofToSlice_next_toSlice {s : String} {pos : s.Pos} {h} :
-    ofToSlice (Slice.Pos.next pos.toSlice h) = pos.next (ne_of_apply_ne Pos.toSlice (by simpa)) :=
+    ofToSlice (Slice.Pos.next pos.toSlice h) = pos.next (ne_of_apply_ne Pos.toSlice (by simpa using h)) :=
   rfl
 
 @[simp]
@@ -1712,14 +1735,15 @@ def pos! (s : String) (off : Pos.Raw) : s.Pos :=
 @[simp]
 theorem offset_pos {s : String} {off : Pos.Raw} {h} : (s.pos off h).offset = off := rfl
 
-/-- Constructs a valid position on `t` from a valid position on `s` and a proof that `s = t`. -/
+/-- Constructs a valid position on `t` from a valid position on `s` and a proof that
+`s.copy = t.copy`. -/
 @[inline]
-def Slice.Pos.cast {s t : Slice} (pos : s.Pos) (h : s = t) : t.Pos where
+def Slice.Pos.cast {s t : Slice} (pos : s.Pos) (h : s.copy = t.copy) : t.Pos where
   offset := pos.offset
-  isValidForSlice := h ▸ pos.isValidForSlice
+  isValidForSlice := Pos.Raw.isValid_copy_iff.mp (h ▸ Pos.Raw.isValid_copy_iff.mpr pos.isValidForSlice)
 
 @[simp]
-theorem Slice.Pos.offset_cast {s t : Slice} {pos : s.Pos} {h : s = t} :
+theorem Slice.Pos.offset_cast {s t : Slice} {pos : s.Pos} {h : s.copy = t.copy} :
     (pos.cast h).offset = pos.offset := (rfl)
 
 @[simp]
@@ -1727,14 +1751,55 @@ theorem Slice.Pos.cast_rfl {s : Slice} {pos : s.Pos} : pos.cast rfl = pos :=
   Slice.Pos.ext (by simp)
 
 @[simp]
-theorem Slice.Pos.cast_le_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s = t} :
-    pos.cast h ≤ pos'.cast h ↔ pos ≤ pos' := by
-  cases h; simp
+theorem Slice.Pos.cast_cast {s t u : Slice} {hst : s.copy = t.copy} {htu : t.copy = u.copy}
+    {pos : s.Pos} : (pos.cast hst).cast htu = pos.cast (hst.trans htu) :=
+  Slice.Pos.ext (by simp)
 
 @[simp]
-theorem Slice.Pos.cast_lt_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s = t} :
+theorem Slice.Pos.cast_inj {s t : Slice} {hst : s.copy = t.copy} {p q : s.Pos} : p.cast hst = q.cast hst ↔ p = q := by
+  simp [Slice.Pos.ext_iff]
+
+@[simp]
+theorem Slice.Pos.cast_startPos {s t : Slice} {hst : s.copy = t.copy} : s.startPos.cast hst = t.startPos :=
+  Slice.Pos.ext (by simp)
+
+@[simp]
+theorem Slice.Pos.cast_eq_startPos {s t : Slice} {p : s.Pos} {hst : s.copy = t.copy} : p.cast hst = t.startPos ↔ p = s.startPos := by
+  rw [← cast_startPos (hst := hst), Pos.cast_inj]
+
+@[simp]
+theorem Slice.Pos.cast_endPos {s t : Slice} {hst : s.copy = t.copy} : s.endPos.cast hst = t.endPos :=
+  Slice.Pos.ext (by simp [← rawEndPos_copy, hst])
+
+@[simp]
+theorem Slice.Pos.cast_eq_endPos {s t : Slice} {p : s.Pos} {hst : s.copy = t.copy} : p.cast hst = t.endPos ↔ p = s.endPos := by
+  rw [← cast_endPos (hst := hst), Pos.cast_inj]
+
+@[simp]
+theorem Slice.Pos.cast_le_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s.copy = t.copy} :
+    pos.cast h ≤ pos'.cast h ↔ pos ≤ pos' := by
+  simp [Slice.Pos.le_iff]
+
+@[simp]
+theorem Slice.Pos.cast_lt_cast_iff {s t : Slice} {pos pos' : s.Pos} {h : s.copy = t.copy} :
     pos.cast h < pos'.cast h ↔ pos < pos' := by
-  cases h; simp
+  simp [Slice.Pos.lt_iff]
+
+theorem Slice.Pos.cast_le_iff {s t : Slice} {pos : s.Pos} {pos' : t.Pos} {h : s.copy = t.copy} :
+    pos.cast h ≤ pos' ↔ pos ≤ pos'.cast h.symm := by
+  simp [Slice.Pos.le_iff]
+
+theorem Slice.Pos.le_cast_iff {s t : Slice} {pos : t.Pos} {pos' : s.Pos} {h : s.copy = t.copy} :
+    pos ≤ pos'.cast h ↔ pos.cast h.symm ≤ pos' := by
+  simp [Slice.Pos.le_iff]
+
+theorem Slice.Pos.cast_lt_iff {s t : Slice} {pos : s.Pos} {pos' : t.Pos} {h : s.copy = t.copy} :
+    pos.cast h < pos' ↔ pos < pos'.cast h.symm := by
+  simp [Slice.Pos.lt_iff]
+
+theorem Slice.Pos.lt_cast_iff {s t : Slice} {pos : t.Pos} {pos' : s.Pos} {h : s.copy = t.copy} :
+    pos < pos'.cast h ↔ pos.cast h.symm < pos' := by
+  simp [Slice.Pos.lt_iff]
 
 /-- Constructs a valid position on `t` from a valid position on `s` and a proof that `s = t`. -/
 @[inline]
@@ -1751,6 +1816,31 @@ theorem Pos.cast_rfl {s : String} {pos : s.Pos} : pos.cast rfl = pos :=
   Pos.ext (by simp)
 
 @[simp]
+theorem Pos.cast_cast {s t u : String} {hst : s = t} {htu : t = u}
+    {pos : s.Pos} : (pos.cast hst).cast htu = pos.cast (hst.trans htu) :=
+  Pos.ext (by simp)
+
+@[simp]
+theorem Pos.cast_inj {s t : String} {hst : s = t} {p q : s.Pos} : p.cast hst = q.cast hst ↔ p = q := by
+  simp [Pos.ext_iff]
+
+@[simp]
+theorem Pos.cast_startPos {s t : String} {hst : s = t} : s.startPos.cast hst = t.startPos := by
+  subst hst; simp
+
+@[simp]
+theorem Pos.cast_eq_startPos {s t : String} {hst : s = t} {p : s.Pos} : p.cast hst = t.startPos ↔ p = s.startPos := by
+  rw [← Pos.cast_startPos (hst := hst), Pos.cast_inj]
+
+@[simp]
+theorem Pos.cast_endPos {s t : String} {hst : s = t} : s.endPos.cast hst = t.endPos := by
+  subst hst; simp
+
+@[simp]
+theorem Pos.cast_eq_endPos {s t : String} {hst : s = t} {p : s.Pos} : p.cast hst = t.endPos ↔ p = s.endPos := by
+  rw [← Pos.cast_endPos (hst := hst), Pos.cast_inj]
+
+@[simp]
 theorem Pos.cast_le_cast_iff {s t : String} {pos pos' : s.Pos} {h : s = t} :
     pos.cast h ≤ pos'.cast h ↔ pos ≤ pos' := by
   cases h; simp
@@ -1759,6 +1849,22 @@ theorem Pos.cast_le_cast_iff {s t : String} {pos pos' : s.Pos} {h : s = t} :
 theorem Pos.cast_lt_cast_iff {s t : String} {pos pos' : s.Pos} {h : s = t} :
     pos.cast h < pos'.cast h ↔ pos < pos' := by
   cases h; simp
+
+theorem Pos.cast_le_iff {s t : String} {pos : s.Pos} {pos' : t.Pos} {h : s = t} :
+    pos.cast h ≤ pos' ↔ pos ≤ pos'.cast h.symm := by
+  simp [Pos.le_iff]
+
+theorem Pos.le_cast_iff {s t : String} {pos : t.Pos} {pos' : s.Pos} {h : s = t} :
+    pos ≤ pos'.cast h ↔ pos.cast h.symm ≤ pos' := by
+  simp [Pos.le_iff]
+
+theorem Pos.cast_lt_iff {s t : String} {pos : s.Pos} {pos' : t.Pos} {h : s = t} :
+    pos.cast h < pos' ↔ pos < pos'.cast h.symm := by
+  simp [Pos.lt_iff]
+
+theorem Pos.lt_cast_iff {s t : String} {pos : t.Pos} {pos' : s.Pos} {h : s = t} :
+    pos < pos'.cast h ↔ pos.cast h.symm < pos' := by
+  simp [Pos.lt_iff]
 
 theorem Pos.copy_toSlice_eq_cast {s : String} (p : s.Pos) :
     p.toSlice.copy = p.cast copy_toSlice.symm :=
@@ -1909,7 +2015,7 @@ theorem Pos.toSlice_next {s : String} {p : s.Pos} {h} :
   simp [next, -ofToSlice_next_toSlice]
 
 theorem Pos.next_toSlice {s : String} {p : s.Pos} {h} :
-    p.toSlice.next h = (p.next (ne_of_apply_ne Pos.toSlice (by simpa))).toSlice := by
+    p.toSlice.next h = (p.next (ne_of_apply_ne Pos.toSlice (by simpa using h))).toSlice := by
   simp [Pos.toSlice_next]
 
 theorem Pos.byteIdx_lt_utf8ByteSize {s : String} (p : s.Pos) (h : p ≠ s.endPos) :
@@ -1965,6 +2071,7 @@ theorem Pos.ne_of_lt {s : String} {p q : s.Pos} : p < q → p ≠ q := by
 theorem Pos.lt_of_lt_of_le {s : String} {p q r : s.Pos} : p < q → q ≤ r → p < r := by
   simpa [Pos.lt_iff, Pos.le_iff] using Pos.Raw.lt_of_lt_of_le
 
+@[simp]
 theorem Pos.le_endPos {s : String} (p : s.Pos) : p ≤ s.endPos := by
   simpa [Pos.le_iff] using p.isValid.le_rawEndPos
 
@@ -2033,6 +2140,10 @@ theorem Pos.le_ofToSlice_iff {s : String} {p : s.Pos} {q : s.toSlice.Pos} :
 @[simp]
 theorem Pos.toSlice_lt_toSlice_iff {s : String} {p q : s.Pos} :
     p.toSlice < q.toSlice ↔ p < q := Iff.rfl
+
+@[simp]
+theorem Pos.toSlice_le_toSlice_iff {s : String} {p q : s.Pos} :
+    p.toSlice ≤ q.toSlice ↔ p ≤ q := Iff.rfl
 
 theorem Pos.next_le_of_lt {s : String} {p q : s.Pos} {h} : p < q → p.next h ≤ q := by
   rw [next, Pos.ofToSlice_le_iff, ← Pos.toSlice_lt_toSlice_iff]
@@ -2263,13 +2374,25 @@ theorem Slice.Pos.le_ofSliceFrom {s : Slice} {p₀ : s.Pos} {pos : (s.sliceFrom 
     p₀ ≤ ofSliceFrom pos := by
   simp [Pos.le_iff, Pos.Raw.le_iff]
 
+@[simp]
 theorem Slice.Pos.ofSliceFrom_lt_ofSliceFrom_iff {s : Slice} {p : s.Pos}
     {q r : (s.sliceFrom p).Pos} : Slice.Pos.ofSliceFrom q < Slice.Pos.ofSliceFrom r ↔ q < r := by
   simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff]
 
+@[simp]
 theorem Slice.Pos.ofSliceFrom_le_ofSliceFrom_iff {s : Slice} {p : s.Pos}
     {q r : (s.sliceFrom p).Pos} : Slice.Pos.ofSliceFrom q ≤ Slice.Pos.ofSliceFrom r ↔ q ≤ r := by
   simp [Slice.Pos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem Pos.ofSliceFrom_lt_ofSliceFrom_iff {s : String} {p : s.Pos}
+    {q r : (s.sliceFrom p).Pos} : Pos.ofSliceFrom q < Pos.ofSliceFrom r ↔ q < r := by
+  simp [Pos.lt_iff, Slice.Pos.lt_iff, Pos.Raw.lt_iff]
+
+@[simp]
+theorem Pos.ofSliceFrom_le_ofSliceFrom_iff {s : String} {p : s.Pos}
+    {q r : (s.sliceFrom p).Pos} : Pos.ofSliceFrom q ≤ Pos.ofSliceFrom r ↔ q ≤ r := by
+  simp [Pos.le_iff, Slice.Pos.le_iff, Pos.Raw.le_iff]
 
 theorem Pos.get_eq_get_ofSliceFrom {s : String} {p₀ : s.Pos}
     {pos : (s.sliceFrom p₀).Pos} {h} :
@@ -2334,6 +2457,16 @@ theorem Slice.Pos.ofSliceTo_le {s : Slice} {p₀ : s.Pos} {pos : (s.sliceTo p₀
     ofSliceTo pos ≤ p₀ := by
   simpa [Pos.le_iff, Pos.Raw.le_iff] using pos.isValidForSlice.le_utf8ByteSize
 
+@[simp]
+theorem Pos.ofSliceTo_lt_ofSliceTo_iff {s : String} {p : s.Pos}
+    {q r : (s.sliceTo p).Pos} : Pos.ofSliceTo q < Pos.ofSliceTo r ↔ q < r := by
+  simp [Pos.lt_iff, Slice.Pos.lt_iff, Pos.Raw.lt_iff]
+
+@[simp]
+theorem Pos.ofSliceTo_le_ofSliceTo_iff {s : String} {p : s.Pos}
+    {q r : (s.sliceTo p).Pos} : Pos.ofSliceTo q ≤ Pos.ofSliceTo r ↔ q ≤ r := by
+  simp [Pos.le_iff, Slice.Pos.le_iff, Pos.Raw.le_iff]
+
 /-- Given a position in `s` that is at most `p₀`, obtain the corresponding position in `s.sliceTo p₀`. -/
 @[inline]
 def Pos.sliceTo {s : String} (p₀ : s.Pos) (pos : s.Pos) (h : pos ≤ p₀) :
@@ -2349,6 +2482,11 @@ def Pos.toReplaceEnd {s : String} (p₀ : s.Pos) (pos : s.Pos) (h : pos ≤ p₀
 @[simp]
 theorem Pos.offset_sliceTo {s : String} {p₀ : s.Pos} {pos : s.Pos} {h : pos ≤ p₀} :
     (sliceTo p₀ pos h).offset = pos.offset := (rfl)
+
+@[simp]
+theorem Pos.sliceTo_inj {s : String} {p₀ : s.Pos} {pos pos' : s.Pos} {h h'} :
+    p₀.sliceTo pos h = p₀.sliceTo pos' h' ↔ pos = pos' := by
+  simp [Pos.ext_iff, Slice.Pos.ext_iff]
 
 @[simp]
 theorem Slice.Pos.ofSliceTo_sliceTo {s : Slice} {p₀ p : s.Pos} {h : p ≤ p₀} :
@@ -2418,6 +2556,27 @@ theorem Slice.Pos.ofSlice_inj {s : Slice} {p₀ p₁ : s.Pos} {h} (pos₁ pos₂
     ofSlice pos₁ = ofSlice pos₂ ↔ pos₁ = pos₂ := by
   simp [Pos.ext_iff, Pos.Raw.ext_iff]
 
+@[simp]
+theorem Slice.Pos.le_ofSlice {s : Slice} {p₀ p₁ : s.Pos} {h}
+    {pos : (s.slice p₀ p₁ h).Pos} : p₀ ≤ ofSlice pos := by
+  simp [Pos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem Slice.Pos.ofSlice_le {s : Slice} {p₀ p₁ : s.Pos} {h}
+    {pos : (s.slice p₀ p₁ h).Pos} : ofSlice pos ≤ p₁ := by
+  have := (Pos.Raw.isValidForSlice_slice _).1 pos.isValidForSlice |>.1
+  simpa [Pos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem Slice.Pos.ofSlice_lt_ofSlice_iff {s : Slice} {p₀ p₁ : s.Pos} {h}
+    {q r : (s.slice p₀ p₁ h).Pos} : Slice.Pos.ofSlice q < Slice.Pos.ofSlice r ↔ q < r := by
+  simp [Slice.Pos.lt_iff, Pos.Raw.lt_iff]
+
+@[simp]
+theorem Slice.Pos.ofSlice_le_ofSlice_iff {s : Slice} {p₀ p₁ : s.Pos} {h}
+    {q r : (s.slice p₀ p₁ h).Pos} : Slice.Pos.ofSlice q ≤ Slice.Pos.ofSlice r ↔ q ≤ r := by
+  simp [Slice.Pos.le_iff, Pos.Raw.le_iff]
+
 /-- Given a position in `s.slice p₀ p₁ h`, obtain the corresponding position in `s`. -/
 @[inline]
 def Pos.ofSlice {s : String} {p₀ p₁ : s.Pos} {h} (pos : (s.slice p₀ p₁ h).Pos) : s.Pos :=
@@ -2448,6 +2607,27 @@ theorem Pos.ofSlice_inj {s : String} {p₀ p₁ : s.Pos} {h} (pos₁ pos₂ : (s
     ofSlice pos₁ = ofSlice pos₂ ↔ pos₁ = pos₂ := by
   simp [Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.ext_iff]
 
+@[simp]
+theorem Pos.le_ofSlice {s : String} {p₀ p₁ : s.Pos} {h}
+    {pos : (s.slice p₀ p₁ h).Pos} : p₀ ≤ ofSlice pos := by
+  simp [Pos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem Pos.ofSlice_le {s : String} {p₀ p₁ : s.Pos} {h}
+    {pos : (s.slice p₀ p₁ h).Pos} : ofSlice pos ≤ p₁ := by
+  have := (Pos.Raw.isValidForSlice_slice _).1 pos.isValidForSlice |>.1
+  simpa [Pos.le_iff, Pos.Raw.le_iff]
+
+@[simp]
+theorem Pos.ofSlice_lt_ofSlice_iff {s : String} {p₀ p₁ : s.Pos} {h}
+    {q r : (s.slice p₀ p₁ h).Pos} : Pos.ofSlice q < Pos.ofSlice r ↔ q < r := by
+  simp [Pos.lt_iff, Slice.Pos.lt_iff, Pos.Raw.lt_iff]
+
+@[simp]
+theorem Pos.ofSlice_le_ofSlice_iff {s : String} {p₀ p₁ : s.Pos} {h}
+    {q r : (s.slice p₀ p₁ h).Pos} : Pos.ofSlice q ≤ Pos.ofSlice r ↔ q ≤ r := by
+  simp [Pos.le_iff, Slice.Pos.le_iff, Pos.Raw.le_iff]
+
 theorem Slice.Pos.le_trans {s : Slice} {p q r : s.Pos} : p ≤ q → q ≤ r → p ≤ r := by
   simpa [Pos.le_iff, Pos.Raw.le_iff] using Nat.le_trans
 
@@ -2470,6 +2650,48 @@ def Pos.slice {s : String} (pos : s.Pos) (p₀ p₁ : s.Pos) (h₁ : p₀ ≤ po
 @[simp]
 theorem Pos.offset_slice {s : String} {p₀ p₁ pos : s.Pos} {h₁ : p₀ ≤ pos} {h₂ : pos ≤ p₁} :
     (pos.slice p₀ p₁ h₁ h₂).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+
+@[simp]
+theorem Slice.Pos.offset_slice {s : Slice} {p₀ p₁ pos : s.Pos} {h₁ : p₀ ≤ pos} {h₂ : pos ≤ p₁} :
+    (pos.slice p₀ p₁ h₁ h₂).offset = pos.offset.unoffsetBy p₀.offset := (rfl)
+
+@[simp]
+theorem Slice.Pos.ofSlice_slice {s : Slice} {p₀ p₁ pos : s.Pos}
+    {h₁ : p₀ ≤ pos} {h₂ : pos ≤ p₁} :
+    Slice.Pos.ofSlice (pos.slice p₀ p₁ h₁ h₂) = pos := by
+  simpa [Pos.ext_iff] using Pos.Raw.offsetBy_unoffsetBy_of_le h₁
+
+@[simp]
+theorem Slice.Pos.slice_ofSlice {s : Slice} {p₀ p₁ : s.Pos} {h}
+    {pos : (s.slice p₀ p₁ h).Pos} :
+    (Slice.Pos.ofSlice pos).slice p₀ p₁ Slice.Pos.le_ofSlice Slice.Pos.ofSlice_le = pos := by
+  simp [← Slice.Pos.ofSlice_inj]
+
+@[simp]
+theorem Pos.ofSlice_slice {s : String} {p₀ p₁ pos : s.Pos}
+    {h₁ : p₀ ≤ pos} {h₂ : pos ≤ p₁} :
+    Pos.ofSlice (pos.slice p₀ p₁ h₁ h₂) = pos := by
+  simpa [Pos.ext_iff] using Pos.Raw.offsetBy_unoffsetBy_of_le h₁
+
+@[simp]
+theorem Pos.slice_ofSlice {s : String} {p₀ p₁ : s.Pos} {h}
+    {pos : (s.slice p₀ p₁ h).Pos} :
+    (Pos.ofSlice pos).slice p₀ p₁ Pos.le_ofSlice Pos.ofSlice_le = pos := by
+  simp [← Pos.ofSlice_inj]
+
+@[simp]
+theorem Slice.Pos.slice_inj {s : Slice} {p₀ p₁ : s.Pos} {pos pos' : s.Pos}
+    {h₁ h₁' h₂ h₂'} :
+    pos.slice p₀ p₁ h₁ h₂ = pos'.slice p₀ p₁ h₁' h₂' ↔ pos = pos' := by
+  simp [Pos.ext_iff, Pos.Raw.ext_iff, Pos.le_iff, Pos.Raw.le_iff] at ⊢ h₁ h₁'
+  omega
+
+@[simp]
+theorem Pos.slice_inj {s : String} {p₀ p₁ : s.Pos} {pos pos' : s.Pos}
+    {h₁ h₁' h₂ h₂'} :
+    pos.slice p₀ p₁ h₁ h₂ = pos'.slice p₀ p₁ h₁' h₂' ↔ pos = pos' := by
+  simp [Pos.ext_iff, Pos.Raw.ext_iff, Slice.Pos.ext_iff, Pos.le_iff, Pos.Raw.le_iff] at ⊢ h₁ h₁'
+  omega
 
 /--
 Given a position in `s`, obtain the corresponding position in `s.slice p₀ p₁ h`, or panic if `pos`
@@ -2503,7 +2725,7 @@ taking `s.slice! p₀ p₁` already panicked. -/
 @[inline]
 def Slice.Pos.ofSlice! {s : Slice} {p₀ p₁ : s.Pos} (pos : (s.slice! p₀ p₁).Pos) : s.Pos :=
   if h : p₀ ≤ p₁ then
-    ofSlice (h := h) (pos.cast slice_eq_slice!.symm)
+    ofSlice (h := h) (pos.cast (congrArg Slice.copy slice_eq_slice!.symm))
   else
     panic! "Starting position must be less than or equal to end position."
 
@@ -2521,7 +2743,7 @@ taking `s.slice! p₀ p₁` already panicked or if the position is not between `
 def Slice.Pos.slice! {s : Slice} (pos : s.Pos) (p₀ p₁ : s.Pos) :
     (s.slice! p₀ p₁).Pos :=
   if h : p₀ ≤ pos ∧ pos ≤ p₁ then
-    (pos.slice _ _ h.1 h.2).cast slice_eq_slice!
+    (pos.slice _ _ h.1 h.2).cast (congrArg Slice.copy slice_eq_slice!)
   else
     panic! "Starting position must be less than or equal to end position and position must be between starting position and end position."
 

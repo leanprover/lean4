@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.Json
 import Init.Data.Nat.Fold
+meta import Init.Data.Nat.Fold
 import Lake.Util.String
 public import Init.Data.String.Search
 public import Init.Data.String.Extra
@@ -150,7 +151,7 @@ public def ofDecimal? (s : String) : Option Hash :=
 @[inline] public def ofString? (s : String) : Option Hash :=
   ofHex? s
 
-/-- Laod a hash from a `.hash` file. -/
+/-- Load a hash from a `.hash` file. -/
 public def load? (hashFile : FilePath) : BaseIO (Option Hash) :=
   ofString? <$> IO.FS.readFile hashFile |>.catchExceptions fun _ => pure none
 

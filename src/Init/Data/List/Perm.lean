@@ -252,13 +252,13 @@ theorem exists_perm_sublist {l₁ l₂ l₂' : List α} (s : l₁ <+ l₂) (p : 
   | cons x _ IH =>
     match s with
     | .cons _ s => let ⟨l₁', p', s'⟩ := IH s; exact ⟨l₁', p', s'.cons _⟩
-    | .cons₂ _ s => let ⟨l₁', p', s'⟩ := IH s; exact ⟨x :: l₁', p'.cons x, s'.cons₂ _⟩
+    | .cons_cons _ s => let ⟨l₁', p', s'⟩ := IH s; exact ⟨x :: l₁', p'.cons x, s'.cons_cons _⟩
   | swap x y l' =>
     match s with
     | .cons _ (.cons _ s) => exact ⟨_, .rfl, (s.cons _).cons _⟩
-    | .cons _ (.cons₂ _ s) => exact ⟨x :: _, .rfl, (s.cons _).cons₂ _⟩
-    | .cons₂ _ (.cons _ s) => exact ⟨y :: _, .rfl, (s.cons₂ _).cons _⟩
-    | .cons₂ _ (.cons₂ _ s) => exact ⟨x :: y :: _, .swap .., (s.cons₂ _).cons₂ _⟩
+    | .cons _ (.cons_cons _ s) => exact ⟨x :: _, .rfl, (s.cons _).cons_cons _⟩
+    | .cons_cons _ (.cons _ s) => exact ⟨y :: _, .rfl, (s.cons_cons _).cons _⟩
+    | .cons_cons _ (.cons_cons _ s) => exact ⟨x :: y :: _, .swap .., (s.cons_cons _).cons_cons _⟩
   | trans _ _ IH₁ IH₂ =>
     let ⟨_, pm, sm⟩ := IH₁ s
     let ⟨r₁, pr, sr⟩ := IH₂ sm
@@ -277,7 +277,7 @@ theorem Sublist.exists_perm_append {l₁ l₂ : List α} : l₁ <+ l₂ → ∃ 
   | Sublist.cons a s =>
     let ⟨l, p⟩ := Sublist.exists_perm_append s
     ⟨a :: l, (p.cons a).trans perm_middle.symm⟩
-  | Sublist.cons₂ a s =>
+  | Sublist.cons_cons a s =>
     let ⟨l, p⟩ := Sublist.exists_perm_append s
     ⟨l, p.cons a⟩
 
@@ -606,6 +606,13 @@ theorem sum_nat {l₁ l₂ : List Nat} (h : l₁ ~ l₂) : l₁.sum = l₂.sum :
   | swap => simpa [List.sum_cons] using Nat.add_left_comm ..
   | trans _ _ ih₁ ih₂ => simp [ih₁, ih₂]
 
+theorem prod_nat {l₁ l₂ : List Nat} (h : l₁ ~ l₂) : l₁.prod = l₂.prod := by
+  induction h with
+  | nil => simp
+  | cons _ _ ih => simp [ih]
+  | swap => simpa [List.prod_cons] using Nat.mul_left_comm ..
+  | trans _ _ ih₁ ih₂ => simp [ih₁, ih₂]
+
 theorem all_eq {l₁ l₂ : List α} {f : α → Bool} (hp : l₁.Perm l₂) : l₁.all f = l₂.all f := by
   rw [Bool.eq_iff_iff]; simp [hp.mem_iff]
 
@@ -614,6 +621,9 @@ theorem any_eq {l₁ l₂ : List α} {f : α → Bool} (hp : l₁.Perm l₂) : l
 
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₁.sum
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₂.sum
+
+grind_pattern Perm.prod_nat => l₁ ~ l₂, l₁.prod
+grind_pattern Perm.prod_nat => l₁ ~ l₂, l₂.prod
 
 end Perm
 

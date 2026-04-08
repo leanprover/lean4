@@ -17,34 +17,68 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rxo_HasSize_ofClosed___redArg___lam__0(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rxo_HasSize_ofClosed___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Rxo_HasSize_ofClosed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Rxo_HasSize_ofClosed___redArg___lam__0(lean_object* x_1, lean_object* x_2, lean_object* x_3) {
+LEAN_EXPORT lean_object* l_Std_Rxo_HasSize_ofClosed___redArg___lam__0(lean_object* v_inst_1_, lean_object* v_lo_2_, lean_object* v_hi_3_){
 _start:
 {
-lean_object* x_4; lean_object* x_5; lean_object* x_6; 
-x_4 = lean_apply_2(x_1, x_2, x_3);
-x_5 = lean_unsigned_to_nat(1u);
-x_6 = lean_nat_sub(x_4, x_5);
-lean_dec(x_4);
-return x_6;
+lean_object* v___x_4_; lean_object* v___x_5_; lean_object* v___x_6_; 
+v___x_4_ = lean_apply_2(v_inst_1_, v_lo_2_, v_hi_3_);
+v___x_5_ = lean_unsigned_to_nat(1u);
+v___x_6_ = lean_nat_sub(v___x_4_, v___x_5_);
+lean_dec(v___x_4_);
+return v___x_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rxo_HasSize_ofClosed___redArg(lean_object* x_1) {
+LEAN_EXPORT lean_object* l_Std_Rxo_HasSize_ofClosed___redArg(lean_object* v_inst_7_){
 _start:
 {
-lean_object* x_2; 
-x_2 = lean_alloc_closure((void*)(l_Std_Rxo_HasSize_ofClosed___redArg___lam__0), 3, 1);
-lean_closure_set(x_2, 0, x_1);
-return x_2;
+lean_object* v___f_8_; 
+v___f_8_ = lean_alloc_closure((void*)(l_Std_Rxo_HasSize_ofClosed___redArg___lam__0), 3, 1);
+lean_closure_set(v___f_8_, 0, v_inst_7_);
+return v___f_8_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Rxo_HasSize_ofClosed(lean_object* x_1, lean_object* x_2) {
+LEAN_EXPORT lean_object* l_Std_Rxo_HasSize_ofClosed(lean_object* v_00_u03b1_9_, lean_object* v_inst_10_){
 _start:
 {
-lean_object* x_3; 
-x_3 = lean_alloc_closure((void*)(l_Std_Rxo_HasSize_ofClosed___redArg___lam__0), 3, 1);
-lean_closure_set(x_3, 0, x_2);
-return x_3;
+lean_object* v___f_11_; 
+v___f_11_ = lean_alloc_closure((void*)(l_Std_Rxo_HasSize_ofClosed___redArg___lam__0), 3, 1);
+lean_closure_set(v___f_11_, 0, v_inst_10_);
+return v___f_11_;
 }
+}
+lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_ByCases(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Init_Data_Range_Polymorphic_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Nat_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_ByCases(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_Option_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Omega(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Init_Data_Range_Polymorphic_Instances(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Range_Polymorphic_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Lemmas(uint8_t builtin);
@@ -71,7 +105,13 @@ lean_dec_ref(res);
 res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Init_Data_Range_Polymorphic_Instances(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Init_Data_Range_Polymorphic_Instances(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Init_Data_Range_Polymorphic_Instances(builtin);
 }
 #ifdef __cplusplus
 }

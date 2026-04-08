@@ -1,0 +1,15 @@
+@HAdd.hAdd.{0, 0, 0} Nat Nat Nat (@instHAdd.{0} Nat instAddNat) n k : Nat
+@HAdd.hAdd.{0, 0, 0} Int Int Int (@instHAdd.{0} Int Int.instAdd) (@Nat.cast.{0} Int instNatCastInt n)
+  (@Nat.cast.{0} Int instNatCastInt k) : Int
+@HAdd.hAdd.{0, 0, 0} Int Int Int (@instHAdd.{0} Int Int.instAdd) (@Nat.cast.{0} Int instNatCastInt n)
+  (@OfNat.ofNat.{0} Int (nat_lit 1) (@instOfNat (nat_lit 1))) : Int
+@HAdd.hAdd.{0, 0, 0} Int Int Int (@instHAdd.{0} Int Int.instAdd)
+  (@OfNat.ofNat.{0} Int (nat_lit 2) (@instOfNat (nat_lit 2))) (@Nat.cast.{0} Int instNatCastInt n) : Int
+@HAdd.hAdd.{0, 0, 0} Int Int Int (@instHAdd.{0} Int Int.instAdd)
+  (@OfNat.ofNat.{0} Int (nat_lit 1) (@instOfNat (nat_lit 1)))
+  (@OfNat.ofNat.{0} Int (nat_lit 2) (@instOfNat (nat_lit 2))) : Int
+@HAdd.hAdd.{0, 0, 0} UInt32 UInt32 UInt32 (@instHAdd.{0} UInt32 instAddUInt32)
+  (@OfNat.ofNat.{0} UInt32 (nat_lit 1) (@UInt32.instOfNat (nat_lit 1)))
+  (@HMul.hMul.{0, 0, 0} UInt32 UInt32 UInt32 (@instHMul.{0} UInt32 instMulUInt32)
+    (@OfNat.ofNat.{0} UInt32 (nat_lit 2) (@UInt32.instOfNat (nat_lit 2)))
+    (@OfNat.ofNat.{0} UInt32 (nat_lit 3) (@UInt32.instOfNat (nat_lit 3)))) : UInt32

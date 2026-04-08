@@ -6,6 +6,7 @@ Authors: Luke Nelson, Jared Roesch, Leonardo de Moura, Sebastian Ullrich, Mac Ma
 module
 
 prelude
+public import Init.Control.Do
 public import Init.System.IOError
 public import Init.System.FilePath
 import Init.Data.String.TakeDrop
@@ -16,6 +17,7 @@ import Init.Data.List.MapIdx
 import Init.Data.Ord.UInt
 import Init.Data.ToString.Macro
 import Init.Data.List.Impl
+import Init.Data.Int.Repr
 
 public section
 
@@ -1878,3 +1880,12 @@ lead to undefined behavior.
 -/
 @[extern "lean_runtime_forget"]
 def Runtime.forget (a : α) : BaseIO Unit := return
+
+set_option linter.unusedVariables false in
+/--
+Ensures `a` remains at least alive until the call site by holding a reference to `a`. This can be useful
+for unsafe code (such as an FFI) that relies on a Lean object not being freed until after some point
+in the program. At runtime, this will be a no-op as the C compiler will optimize away this call.
+-/
+@[extern "lean_runtime_hold"]
+def Runtime.hold (a : @& α) : BaseIO Unit := return

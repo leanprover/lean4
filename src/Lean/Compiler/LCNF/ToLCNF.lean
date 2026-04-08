@@ -74,7 +74,7 @@ partial def bindCases (jpDecl : FunDecl .pure) (cases : Cases .pure) : CompilerM
   return .jp jpDecl result
 where
   visitAlts (alts : Array (Alt .pure)) : BindCasesM (Array (Alt .pure)) :=
-    alts.mapM fun alt => return alt.updateCode (← go alt.getCode)
+    alts.mapMonoM (·.mapCodeM go)
 
   findFun? (f : FVarId) : CompilerM (Option (FunDecl .pure)) := do
     if let some funDecl ← findFunDecl? (pu := .pure) f then
@@ -206,12 +206,18 @@ structure Context where
   eventually.
   -/
   ignoreNoncomputable : Bool := false
+  /--
+  The expected type of the expression that is currently being handled if available. This type is
+  only used to propagate potential borrow annotations as they are not propagated everywhere by the
+  elaborator.
+  -/
+  expectedType : Option Expr
 
 structure State where
   /-- Local context containing the original Lean types (not LCNF ones). -/
   lctx : LocalContext := {}
   /-- Cache from Lean regular expression to LCNF argument. -/
-  cache : PHashMap Expr (Arg .pure) := {}
+  cache : PHashMap (Expr × Option Expr) (Arg .pure) := {}
   /--
   Determines whether caching has been disabled due to finding a use of
   a constant marked with `never_extract`.
@@ -265,8 +271,18 @@ def toCode (result : Arg .pure) : M (Code .pure) := do
     let fvarId ← mkAuxLetDecl .erased
     seqToCode (← get).seq (.return fvarId)
 
-def run (x : M α) : CompilerM α :=
-  x.run {} |>.run' {}
+def run (expectedType : Expr) (x : M α) : CompilerM α :=
+  x.run { expectedType } |>.run' {}
+
+@[inline]
+def withExpectedType (e : Option Expr) (x : M α) : M α :=
+  withReader (fun ctx => { ctx with expectedType := e }) do
+    x
+
+@[inline]
+def withoutExpectedType (x : M α) : M α :=
+  withExpectedType none do
+    x
 
 /--
 Return true iff `type` is `Sort _` or `As → Sort _`.
@@ -340,37 +356,43 @@ def cleanupBinderName (binderName : Name) : CompilerM Name :=
     return binderName
 
 /-- Create a new local declaration using a Lean regular type. -/
-def mkParam (binderName : Name) (type : Expr) : M (Param .pure) := do
+def mkParam (binderName : Name) (type : Expr) (borrow : Bool := isMarkedBorrowed type) :
+    M (Param .pure) := do
   let binderName ← cleanupBinderName binderName
-  let borrow := isMarkedBorrowed type
   let type' ← toLCNFType type
   let param ← LCNF.mkParam binderName type' borrow
   modify fun s => { s with lctx  := s.lctx.mkLocalDecl param.fvarId binderName type .default }
   return param
 
-def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (type' : Expr) (arg : Arg .pure)
-    (nondep : Bool) : M (LetDecl .pure) := do
+def mkLetDecl (binderName : Name) (type : Expr) (value : Expr) (type' : Expr) (arg : Arg .pure) :
+    M (LetDecl .pure) := do
   let binderName ← cleanupBinderName binderName
   let value' ← match arg with
     | .fvar fvarId => pure <| .fvar fvarId #[]
     | .erased | .type .. => pure .erased
   let letDecl ← LCNF.mkLetDecl binderName type' value'
   modify fun s => { s with
-    lctx := s.lctx.mkLetDecl letDecl.fvarId binderName type value nondep
+    lctx := s.lctx.mkLetDecl letDecl.fvarId binderName type value false
     seq := s.seq.push <| .let letDecl
   }
   return letDecl
 
-def visitLambda (e : Expr) : M (Array (Param .pure) × Expr) :=
-  go e #[] #[]
+def visitLambda (e : Expr) : M (Array (Param .pure) × Expr × Option Expr) := do
+  go e #[] #[] (← read).expectedType
 where
-  go (e : Expr) (xs : Array Expr) (ps : Array (Param .pure)) := do
+  go (e : Expr) (xs : Array Expr) (ps : Array (Param .pure)) (eType? : Option Expr) := do
     if let .lam binderName type body _ := e then
       let type := type.instantiateRev xs
-      let p ← mkParam binderName type
-      go body (xs.push p.toExpr) (ps.push p)
+      if let some (.forallE _ type' eType _) := eType? then
+        let borrow := isMarkedBorrowed type || isMarkedBorrowed type'
+        let p ← mkParam binderName type borrow
+        -- no need to instantiate eType, we only ever check it for `isMarkedBorrowed`
+        go body (xs.push p.toExpr) (ps.push p) (some eType)
+      else
+        let p ← mkParam binderName type
+        go body (xs.push p.toExpr) (ps.push p) none
     else
-      return (ps, e.instantiateRev xs)
+      return (ps, e.instantiateRev xs, eType?.map (·.instantiateRev xs))
 
 def visitBoundedLambda (e : Expr) (n : Nat) : M (Array (Param .pure) × Expr) :=
   go e n #[] #[]
@@ -384,38 +406,6 @@ where
       go body (n-1) (xs.push p.toExpr) (ps.push p)
     else
       return (ps, e.instantiateRev xs)
-
-/--
-Given `e` and `args` where `mkAppN e (args.map (·.toExpr))` is not necessarily well-typed
-(because of dependent typing), returns `e.beta args'` where `args'` are new local declarations each
-assigned to a value in `args` with adjusted type (such that the resulting expression is well-typed).
--/
-def mkTypeCorrectApp (e : Expr) (args : Array (Arg .pure)) : M Expr := do
-  if args.isEmpty then
-    return e
-  let type ← liftMetaM <| do
-    let type ← Meta.inferType e
-    if type.getNumHeadForalls < args.size then
-      -- expose foralls
-      Meta.forallBoundedTelescope type args.size Meta.mkForallFVars
-    else
-      return type
-  go type 0 #[]
-where
-  go (type : Expr) (i : Nat) (xs : Array Expr) : M Expr := do
-    if h : i < args.size then
-      match type with
-      | .forallE nm t b bi =>
-        let t := t.instantiateRev xs
-        let arg := args[i]
-        if ← liftMetaM <| Meta.isProp t then
-          go b (i + 1) (xs.push (mkLcProof t))
-        else
-          let decl ← mkLetDecl nm t arg.toExpr (← arg.inferType) arg (nondep := true)
-          go b (i + 1) (xs.push (.fvar decl.fvarId))
-      | _ => liftMetaM <| Meta.throwFunctionExpected (mkAppN e xs)
-    else
-      return e.beta xs
 
 def mustEtaExpand (env : Environment) (e : Expr) : Bool :=
   if let .const declName _ := e.getAppFn then
@@ -478,13 +468,14 @@ Put the given expression in `LCNF`.
 - Eta-expand applications of declarations that satisfy `shouldEtaExpand`.
 - Put computationally relevant expressions in A-normal form.
 -/
-partial def toLCNF (e : Expr) : CompilerM (Code .pure) := do
-  run do toCode (← visit e)
+partial def toLCNF (e : Expr) (eType : Expr) : CompilerM (Code .pure) := do
+  run eType do toCode (← visit e)
 where
   visitCore (e : Expr) : M (Arg .pure) := withIncRecDepth do
-    if let some arg := (← get).cache.find? e then
+    let eType? := (← read).expectedType
+    if let some arg := (← get).cache.find? (e, eType?) then
       return arg
-    let r : Arg ← match e with
+    let r : Arg .pure ← match e with
       | .app ..      => visitApp e
       | .const ..    => visitApp e
       | .proj s i e  => visitProj s i e
@@ -494,7 +485,7 @@ where
       | .lit lit     => visitLit lit
       | .fvar fvarId => if (← get).toAny.contains fvarId then pure .erased else pure (.fvar fvarId)
       | .forallE .. | .mvar .. | .bvar .. | .sort ..  => unreachable!
-    modify fun s => if s.shouldCache then { s with cache := s.cache.insert e r } else s
+    modify fun s => if s.shouldCache then { s with cache := s.cache.insert (e, eType?) r } else s
     return r
 
   visit (e : Expr) : M (Arg .pure) := withIncRecDepth do
@@ -537,7 +528,7 @@ where
   visitAppDefaultConst (f : Expr) (args : Array Expr) : M (Arg .pure) := do
     let env ← getEnv
     let .const declName us ← CSimp.replaceConstant env f | unreachable!
-    let args ← args.mapM visitAppArg
+    let args ← args.mapM (withoutExpectedType do visitAppArg ·)
     if hasNeverExtractAttribute env declName then
       modify fun s => {s with shouldCache := false }
     letValueToArg <| .const declName us args
@@ -558,7 +549,7 @@ where
   k args[arity...*]
   ```
   -/
-  mkOverApplication (app : Arg .pure) (args : Array Expr) (arity : Nat) : M (Arg .pure) := do
+  mkOverApplication (app : (Arg .pure)) (args : Array Expr) (arity : Nat) : M (Arg .pure) := do
     if args.size == arity then
       return app
     else
@@ -573,24 +564,22 @@ where
   /--
   Visit a `matcher`/`casesOn` alternative.
   -/
-  visitAlt (casesAltInfo : CasesAltInfo) (e : Expr) (overArgs : Array (Arg .pure)) :
-      M (Expr × (Alt .pure)) := do
+  visitAlt (casesAltInfo : CasesAltInfo) (e : Expr) : M (Expr × (Alt .pure)) := do
     withNewScope do
     match casesAltInfo with
     | .default numHyps =>
-      let e := mkAppN e (Array.replicate numHyps erasedExpr)
-      let e ← mkTypeCorrectApp e overArgs
-      let c ← toCode (← visit e)
+      let c ← toCode (← visit (mkAppN e (Array.replicate numHyps erasedExpr)))
       let altType ← c.inferType
       return (altType, .default c)
     | .ctor ctorName numParams =>
-      let mut (ps, e) ← visitBoundedLambda e numParams
+      let mut (ps, e) ← withoutExpectedType do
+        visitBoundedLambda e numParams
       if ps.size < numParams then
         e ← etaExpandN e (numParams - ps.size)
-        let (ps', e') ← ToLCNF.visitLambda e
+        let (ps', e', _) ← withoutExpectedType do
+          ToLCNF.visitLambda e
         ps := ps ++ ps'
         e := e'
-      e ← mkTypeCorrectApp e overArgs
       /-
       Insert the free variable ids of fields that are type formers into `toAny`.
       Recall that we do not want to have "data" occurring in types.
@@ -615,8 +604,7 @@ where
   visitCases (casesInfo : CasesInfo) (e : Expr) : M (Arg .pure) :=
     etaIfUnderApplied e casesInfo.arity do
       let args := e.getAppArgs
-      let overArgs ← (args.drop casesInfo.arity).mapM visitAppArg
-      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args))
+      let mut resultType ← toLCNFType (← liftMetaM do Meta.inferType (mkAppN e.getAppFn args[*...casesInfo.arity]))
       let typeName := casesInfo.indName
       let .inductInfo indVal ← getConstInfo typeName | unreachable!
       if casesInfo.numAlts == 0 then
@@ -646,23 +634,33 @@ where
               fieldArgs := fieldArgs.push fieldArg
             return fieldArgs
         let f := args[casesInfo.altsRange.lower]!
-        visit (mkAppN (mkAppN f fieldArgs) (overArgs.map (·.toExpr)))
+        let arity := casesInfo.arity
+        if args.size == arity then
+          visit (mkAppN f fieldArgs)
+        else
+          withoutExpectedType do
+            let result ← visit (mkAppN f fieldArgs)
+            mkOverApplication result args casesInfo.arity
       else
         let mut alts := #[]
-        let discr ← visitAppArg args[casesInfo.discrPos]!
+        let discr ← withoutExpectedType do
+          visitAppArg args[casesInfo.discrPos]!
         let discrFVarId ← match discr with
           | .fvar discrFVarId => pure discrFVarId
           | .erased | .type .. => mkAuxLetDecl .erased
         for i in casesInfo.altsRange, numParams in casesInfo.altNumParams do
-          let (altType, alt) ← visitAlt numParams args[i]! overArgs
+          let (altType, alt) ← visitAlt numParams args[i]!
           resultType := joinTypes altType resultType
           alts := alts.push alt
         let cases := ⟨typeName, resultType, discrFVarId, alts⟩
         let auxDecl ← mkAuxParam resultType
         pushElement (.cases auxDecl cases)
-        return .fvar auxDecl.fvarId
+        let result := .fvar auxDecl.fvarId
+        withoutExpectedType do
+          mkOverApplication result args casesInfo.arity
 
   visitCtor (arity : Nat) (e : Expr) : M (Arg .pure) :=
+    withoutExpectedType do
     etaIfUnderApplied e arity do
       let f := e.getAppFn
       let args := e.getAppArgs
@@ -673,7 +671,7 @@ where
         -- We can rely on `toMono` erasing ctor params eventually; we do not do so here so that type
         -- inference on the value is preserved.
         withReader (fun ctx =>
-            { ignoreNoncomputable := ctx.ignoreNoncomputable || ctorInfo?.any (idx < ·.numParams) }) do
+            { ctx with ignoreNoncomputable := ctx.ignoreNoncomputable || ctorInfo?.any (idx < ·.numParams) }) do
           visitAppArg arg
       if hasNeverExtractAttribute env declName then
         modify fun s => {s with shouldCache := false }
@@ -681,6 +679,7 @@ where
 
   visitQuotLift (e : Expr) : M (Arg .pure) := do
     let arity := 6
+    withoutExpectedType do
     etaIfUnderApplied e arity do
       let mut args := e.getAppArgs
       let α ← visitAppArg args[0]!
@@ -696,6 +695,7 @@ where
 
   visitEqRec (e : Expr) : M (Arg .pure) :=
     let arity := 6
+    withoutExpectedType do
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
       let minor := if e.isAppOf ``Eq.rec || e.isAppOf ``Eq.ndrec then args[3]! else args[5]!
@@ -704,6 +704,7 @@ where
 
   visitHEqRec (e : Expr) : M (Arg .pure) :=
     let arity := 7
+    withoutExpectedType do
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
       let minor := if e.isAppOf ``HEq.rec || e.isAppOf ``HEq.ndrec then args[3]! else args[6]!
@@ -712,18 +713,21 @@ where
 
   visitFalseRec (e : Expr) : M (Arg .pure) :=
     let arity := 2
+    withoutExpectedType do
     etaIfUnderApplied e arity do
       let type ← toLCNFType (← liftMetaM do Meta.inferType e)
       mkUnreachable type
 
   visitLcUnreachable (e : Expr) : M (Arg .pure) :=
     let arity := 1
+    withoutExpectedType do
     etaIfUnderApplied e arity do
       let type ← toLCNFType (← liftMetaM do Meta.inferType e)
       mkUnreachable type
 
   visitAndIffRecCore (e : Expr) (minorPos : Nat) : M (Arg .pure) :=
     let arity := 5
+    withoutExpectedType do
     etaIfUnderApplied e arity do
       let args := e.getAppArgs
       let ha := mkLcProof args[0]! -- We should not use `lcErased` here since we use it to create a pre-LCNF Expr.
@@ -736,6 +740,7 @@ where
     let .const declName _ := e.getAppFn | unreachable!
     let info := getNoConfusionInfo (← getEnv) declName
     let typeName := declName.getPrefix
+    withoutExpectedType do
     etaIfUnderApplied e info.arity do
       let args := e.getAppArgs
       let visitMajor (numNonPropFields : Nat) := do
@@ -821,10 +826,10 @@ where
         e.withApp visitAppDefaultConst
     else
       e.withApp fun f args => do
-        match (← visit f) with
+        match (← withoutExpectedType do visit f) with
         | .erased | .type .. => return .erased
         | .fvar fvarId =>
-          let args ← args.mapM visitAppArg
+          let args ← args.mapM (withoutExpectedType do visitAppArg ·)
           letValueToArg <| .fvar fvarId args
 
   visitLambda (e : Expr) : M (Arg .pure) := do
@@ -856,8 +861,9 @@ where
       visit b
     else
       let funDecl ← withNewScope do
-        let (ps, e) ← ToLCNF.visitLambda e
-        let e ← visit e
+        let (ps, e, eType?) ← ToLCNF.visitLambda e
+        let e ← withExpectedType eType? do
+          visit e
         let c ← toCode e
         mkAuxFunDecl ps c
       pushElement (.fun funDecl)
@@ -872,20 +878,22 @@ where
       let projExpr ← liftMetaM <| Meta.mkProjection e structInfo.fieldNames[i]!
       visitApp projExpr
     else
-      match (← visit e) with
+      match (← withoutExpectedType do visit e) with
       | .erased | .type .. => return .erased
       | .fvar fvarId => letValueToArg <| .proj s i fvarId
 
   visitLet (e : Expr) (xs : Array Expr) : M (Arg .pure) := do
     match e with
-    | .letE binderName type value body nondep =>
+    | .letE binderName type value body _ =>
       let type := type.instantiateRev xs
       let value := value.instantiateRev xs
       if (← (liftMetaM <| Meta.isProp type) <||> isTypeFormerType type) then
         visitLet body (xs.push value)
       else
         let type' ← toLCNFType type
-        let letDecl ← mkLetDecl binderName type value type' (← visit value) nondep
+        let value' ← withExpectedType type' do
+          visit value
+        let letDecl ← mkLetDecl binderName type value type' value'
         visitLet body (xs.push (.fvar letDecl.fvarId))
     | _ =>
       let e := e.instantiateRev xs

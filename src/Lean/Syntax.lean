@@ -10,6 +10,7 @@ public import Init.Data.Slice
 public import Init.Data.Hashable
 public import Lean.Data.Format
 public import Init.Data.Option.Coe
+public import Init.Data.String.Hashable
 import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.ToString.Macro
 import Init.Omega

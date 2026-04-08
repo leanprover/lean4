@@ -138,16 +138,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
     int result = uv_getnameinfo(global_ev.loop, req, [](uv_getnameinfo_t* req, int status, const char* hostname, const char* service) {
         lean_object* promise = (lean_object*) req->data;
 
-        lean_object * r = lean_alloc_ctor(0, 2, 0);
-        lean_ctor_set(r, 0, lean_mk_string(hostname));
-        lean_ctor_set(r, 1, lean_mk_string(service));
-
         if (status != 0) {
             lean_promise_resolve_with_code(status, promise);
             lean_dec(promise);
             free(req);
             return;
         }
+
+        lean_object * r = lean_alloc_ctor(0, 2, 0);
+        lean_ctor_set(r, 0, lean_mk_string(hostname));
+        lean_ctor_set(r, 1, lean_mk_string(service));
 
         lean_promise_resolve(mk_except_ok(r), promise);
         lean_dec(promise);
@@ -173,7 +173,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
 #else
 
 // Std.Internal.IO.Async.DNS.getAddrInfo (host service : @& String) (family : UInt8) : IO (IO.Promise (Except IO.Error (Array IPAddr)))
-extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family, int8_t protocol) {
+extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_arg service, uint8_t family) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );

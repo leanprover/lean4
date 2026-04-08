@@ -97,6 +97,8 @@ def mkCnstrNorm0 (s : Struct) (ringInst : Expr) (kind : CnstrKind) (lhs rhs : Ex
   | .le => mkLeNorm0 s ringInst lhs rhs
   | .lt => mkLtNorm0 s ringInst lhs rhs
 
+open Sym.Arith (MonadCanon)
+
 /--
 Returns `rel lhs (rhs + 0)`
 -/

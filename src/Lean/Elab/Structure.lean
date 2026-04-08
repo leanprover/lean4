@@ -167,6 +167,8 @@ structure StructFieldInfo where
   binfo    : BinderInfo
   /-- Overrides for the parameters' binder infos when making the projections. The first component is a ref for the binder. -/
   paramInfoOverrides : ExprMap (Syntax × BinderInfo) := {}
+  /-- Number of binders for the field's type, used for elaborating the default value for the field (if present). -/
+  numBinders : Nat := 0
   /--
   Structure names that are responsible for this field being here.
   - Empty if the field is a `newField`.
@@ -416,55 +418,59 @@ def structureSyntaxToView (modifiers : Modifiers) (stx : Syntax) : TermElabM Str
   let modifiers := if isClass then modifiers.addFirstAttr { name := `class } else modifiers
   let declId    := stx[1]
   let ⟨name, declName, levelNames, docString?⟩ ← Term.expandDeclId (← getCurrNamespace) (← Term.getLevelNames) declId modifiers
-  if modifiers.isMeta then
-    modifyEnv (markMeta · declName)
-  addDeclarationRangesForBuiltin declName modifiers.stx stx
-  let (binders, type?) := expandOptDeclSig stx[2]
-  let exts := stx[3]
-  let type? ←
-    -- Compatibility mode for `structure S extends P : Type` syntax
-    if type?.isNone && !exts.isNone && !exts[0][2].isNone then
-      logWarningAt exts[0][2][0] <| "\
-        The syntax is now `structure S : Type extends P` rather than `structure S extends P : Type`"
-        ++ .note "The purpose of this change is to accommodate `structure S extends toP : P` syntax for naming parent projections."
-      pure (some exts[0][2][0][1])
-    else
-      if !exts.isNone && !exts[0][2].isNone then
-        logErrorAt exts[0][2][0] <| "\
-            Unexpected additional resulting type. \
-            The syntax is now `structure S : Type extends P` rather than `structure S extends P : Type`."
-            ++ .note "The purpose of this change is to accommodate `structure S extends toP : P` syntax for naming parent projections."
-      pure type?
-  let parents ← expandParents exts
-  let derivingClasses ← getOptDerivingClasses stx[5]
-  let fields ← expandFields stx modifiers declName
-  -- Private fields imply a private constructor (in the module system only, for back-compat)
-  let ctor ← expandCtor
-    (forcePrivate := (← getEnv).header.isModule && fields.any (·.modifiers.isPrivate))
-    stx modifiers declName
-  fields.forM fun field => do
-    if field.declName == ctor.declName then
-      throwErrorAt field.ref "Invalid field name `{field.name}`: This is the name of the structure constructor"
-    addDeclarationRangesFromSyntax field.declName field.ref
-  return {
-    ref := stx
-    declId
-    modifiers
-    isClass
-    shortDeclName := name
-    declName
-    levelNames
-    binders
-    type?
-    allowIndices := false
-    allowSortPolymorphism := false
-    ctors := #[ctor]
-    parents
-    fields
-    computedFields := #[]
-    derivingClasses
-    docString?
-  }
+  -- In the case of mutual inductives, this is the earliests point where we can establish the
+  -- correct scope for each individual inductive declaration (used e.g. to infer ctor visibility
+  -- below), so let's do that now.
+  withExporting (isExporting := !isPrivateName declName) do
+    if modifiers.isMeta then
+      modifyEnv (markMeta · declName)
+    addDeclarationRangesForBuiltin declName modifiers.stx stx
+    let (binders, type?) := expandOptDeclSig stx[2]
+    let exts := stx[3]
+    let type? ←
+      -- Compatibility mode for `structure S extends P : Type` syntax
+      if type?.isNone && !exts.isNone && !exts[0][2].isNone then
+        logWarningAt exts[0][2][0] <| "\
+          The syntax is now `structure S : Type extends P` rather than `structure S extends P : Type`"
+          ++ .note "The purpose of this change is to accommodate `structure S extends toP : P` syntax for naming parent projections."
+        pure (some exts[0][2][0][1])
+      else
+        if !exts.isNone && !exts[0][2].isNone then
+          logErrorAt exts[0][2][0] <| "\
+              Unexpected additional resulting type. \
+              The syntax is now `structure S : Type extends P` rather than `structure S extends P : Type`."
+              ++ .note "The purpose of this change is to accommodate `structure S extends toP : P` syntax for naming parent projections."
+        pure type?
+    let parents ← expandParents exts
+    let derivingClasses ← getOptDerivingClasses stx[5]
+    let fields ← expandFields stx modifiers declName
+    -- Private fields imply a private constructor (in the module system only, for back-compat)
+    let ctor ← expandCtor
+      (forcePrivate := (← getEnv).header.isModule && fields.any (·.modifiers.isPrivate))
+      stx modifiers declName
+    fields.forM fun field => do
+      if field.declName == ctor.declName then
+        throwErrorAt field.ref "Invalid field name `{field.name}`: This is the name of the structure constructor"
+      addDeclarationRangesFromSyntax field.declName field.ref
+    return {
+      ref := stx
+      declId
+      modifiers
+      isClass
+      shortDeclName := name
+      declName
+      levelNames
+      binders
+      type?
+      allowIndices := false
+      allowSortPolymorphism := false
+      ctors := #[ctor]
+      parents
+      fields
+      computedFields := #[]
+      derivingClasses
+      docString?
+    }
 
 
 /-!
@@ -906,6 +912,7 @@ where
 
 private def registerFailedToInferFieldType (fieldName : Name) (e : Expr) (ref : Syntax) : TermElabM Unit := do
   Term.registerCustomErrorIfMVar (← instantiateMVars e) ref m!"Failed to infer type of field `{.ofConstName fieldName}`"
+  Term.registerLevelMVarErrorExprInfo e ref m!"Failed to infer universe levels in type of field `{.ofConstName fieldName}`"
 
 private def registerFailedToInferDefaultValue (fieldName : Name) (e : Expr) (ref : Syntax) : TermElabM Unit := do
   Term.registerCustomErrorIfMVar (← instantiateMVars e) ref m!"Failed to infer default value for field `{.ofConstName fieldName}`"
@@ -942,100 +949,63 @@ However, now `α` does not know its relationship to `toMagma`.
 
 This was not robust, since in diamond inheritance `α` only remembered *one* of its parents in this indirect way.
 -/
-private def solveParentMVars (e : Expr) : StructElabM Expr := do
-  let env ← getEnv
-  Term.synthesizeSyntheticMVars (postpone := .yes)
+private def solveParentMVars (e : Expr) : StructElabM Unit := do
   let mvars ← getMVarsNoDelayed e
-  for mvar in mvars do
-    unless ← mvar.isAssigned do
-      let decl ← mvar.getDecl
-      if decl.kind.isNatural then
-        if let .const name .. := (← whnf decl.type).getAppFn then
-          if isStructure env name then
-            if let some parentInfo ← findParentFieldInfo? name then
-              if ← isDefEq (← mvar.getType) (← inferType parentInfo.fvar) then
-                discard <| MVarId.checkedAssign mvar parentInfo.fvar
-  return e
+  unless mvars.isEmpty do
+    Term.synthesizeSyntheticMVars (postpone := .yes)
+    for mvar in mvars do
+      unless ← mvar.isAssigned do
+        let decl ← mvar.getDecl
+        if decl.kind.isNatural then
+          withLCtx decl.lctx decl.localInstances do
+            if let .const name .. := (← whnf decl.type).getAppFn then
+              if let some parentInfo ← findParentFieldInfo? name then
+                if ← isDefEq (← mvar.getType) (← inferType parentInfo.fvar) then
+                  discard <| MVarId.checkedAssign mvar parentInfo.fvar
 
-open Parser.Term in
-private def typelessBinder? : Syntax → Option ((Array Ident) × BinderInfo)
-  | `(bracketedBinderF|($ids:ident*)) => some (ids, .default)
-  | `(bracketedBinderF|{$ids:ident*}) => some (ids, .implicit)
-  | `(bracketedBinderF|⦃$ids:ident*⦄)  => some (ids, .strictImplicit)
-  | `(bracketedBinderF|[$id:ident])   => some (#[id], .instImplicit)
-  | _                                 => none
+private def elabParamInfoUpdatesForField (structParams : Array Expr) (binders : Array Syntax) : StructElabM (Array Syntax × ExprMap (Syntax × BinderInfo)) := do
+  elabParamInfoUpdates structParams binders
+    -- Filter out all fields. We assume the remaining fvars are the possible parameters.
+    (fun fvarId => return (← findFieldInfoByFVarId? fvarId).isNone)
 
 /--
-Takes a binder list and interprets the prefix to see if any could be construed to be binder info updates.
-Returns the binder list without these updates along with the new binder infos for these parameters.
+Elaborates the field's type, returning
+1. the type
+2. the parameter binder info overrides
+3. the number of binders for the type
 -/
-private def elabParamInfoUpdates (structParams : Array Expr) (binders : Array Syntax) : StructElabM (Array Syntax × ExprMap (Syntax × BinderInfo)) := do
-  let mut overrides : ExprMap (Syntax × BinderInfo) := {}
-  for i in *...binders.size do
-    match typelessBinder? binders[i]! with
-    | none => return (binders.extract i, overrides)
-    | some (ids, bi) =>
-      let lctx ← getLCtx
-      let decls := ids.filterMap fun id => lctx.findFromUserName? id.getId
-      -- Filter out all fields. We assume the remaining fvars are the possible parameters.
-      let decls ← decls.filterM fun decl => return (← findFieldInfoByFVarId? decl.fvarId).isNone
-      if decls.size != ids.size then
-        -- Then either these are for a new variables or the binder isn't only for parameters
-        return (binders.extract i, overrides)
-      for decl in decls, id in ids do
-        Term.addTermInfo' id decl.toExpr
-        unless structParams.contains decl.toExpr do
-          throwErrorAt id m!"Only parameters appearing in the declaration header may have their binders kinds be overridden"
-            ++ .hint' "If this is not intended to be an override, use a binder with a type: for example, `(x : _)`"
-        overrides := overrides.insert decl.toExpr (id, bi)
-  return (#[], overrides)
-
-private def elabFieldTypeValue (structParams : Array Expr) (view : StructFieldView) :
-    StructElabM (Option Expr × ExprMap (Syntax × BinderInfo) × Option StructFieldDefault) := do
+private def elabFieldType (structParams : Array Expr) (view : StructFieldView) :
+    StructElabM (Expr × ExprMap (Syntax × BinderInfo) × Nat) := do
   withoutExporting (when := view.modifiers.isPrivate) do
   let state ← get
   let binders := view.binders.getArgs
-  let (binders, paramInfoOverrides) ← elabParamInfoUpdates structParams binders
-  Term.withAutoBoundImplicit <| Term.withAutoBoundImplicitForbiddenPred (fun n => view.name == n) <| Term.elabBinders binders fun params => do
-    match view.type? with
-    | none =>
-      match view.default? with
-      | none => return (none, paramInfoOverrides, none)
-      | some (.optParam valStx) =>
-        Term.synthesizeSyntheticMVarsNoPostponing
-        let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
-        let value ← Term.withoutAutoBoundImplicit <| Term.elabTerm valStx none
-        let value ← runStructElabM (init := state) <| solveParentMVars value
-        registerFailedToInferFieldType view.name (← inferType value) view.nameId
-        registerFailedToInferDefaultValue view.name value valStx
-        let value ← mkLambdaFVars params value
-        return (none, paramInfoOverrides, StructFieldDefault.optParam value)
-      | some (.autoParam tacticStx) =>
-        throwErrorAt tacticStx "Invalid field declaration: Type must be provided when auto-param tactic is used"
-    | some typeStx =>
-      let type ← Term.elabType typeStx
-      let type ← runStructElabM (init := state) <| solveParentMVars type
-      registerFailedToInferFieldType view.name type typeStx
-      Term.synthesizeSyntheticMVarsNoPostponing
-      let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
-      match view.default? with
+  let (binders, paramInfoOverrides) ← elabParamInfoUpdatesForField structParams binders
+  Term.withAutoBoundImplicit <| Term.withAutoBoundImplicitForbiddenPred (fun n => view.name == n) <|
+  Term.elabBinders binders fun params => do
+    let type ←
+      match view.type? with
+      | some typeStx =>
+        let type ← Term.elabType typeStx
+        runStructElabM (init := state) <| solveParentMVars type
+        registerFailedToInferFieldType view.name type typeStx
+        pure type
       | none =>
-        let type ← mkForallFVars params type
-        return (type, paramInfoOverrides, none)
-      | some (.optParam valStx) =>
-        let value ← Term.withoutAutoBoundImplicit <| Term.elabTermEnsuringType valStx type
-        let value ← runStructElabM (init := state) <| solveParentMVars value
-        registerFailedToInferDefaultValue view.name value valStx
-        Term.synthesizeSyntheticMVarsNoPostponing
-        let type  ← mkForallFVars params type
-        let value ← mkLambdaFVars params value
-        return (type, paramInfoOverrides, StructFieldDefault.optParam value)
-      | some (.autoParam tacticStx) =>
-        let name := mkAutoParamFnOfProjFn view.declName
-        discard <| Term.declareTacticSyntax tacticStx name
-        let type ← mkForallFVars params type
-        return (type, paramInfoOverrides, StructFieldDefault.autoParam <| .const name [])
+        let type ← mkFreshTypeMVar
+        registerFailedToInferFieldType view.name type view.nameId
+        pure type
+    Term.synthesizeSyntheticMVarsNoPostponing
+    let params ← Term.addAutoBoundImplicits params (view.nameId.getTailPos? (canonicalOnly := true))
+    let type ← mkForallFVars params type
+    return (type, paramInfoOverrides, params.size)
 
+private def throwExistingDefaultValue (name : Name) : StructElabM α :=
+  throwError "A default value for field `{name}` has already been set for this structure"
+
+/--
+Elaborates the types of the fields.
+
+Default values are elaborated later, once the full local context has been created.
+-/
 private partial def withFields (structParams : Array Expr) (views : Array StructFieldView) (k : StructElabM α) : StructElabM α := do
   go 0
 where
@@ -1051,68 +1021,23 @@ where
         throwError "Field `{view.name}` has already been declared as a projection for parent `{.ofConstName parent.structName}`"
       match ← findFieldInfo? view.name with
       | none      =>
-        let (type?, paramInfoOverrides, default?) ← elabFieldTypeValue structParams view
-        match type?, default? with
-        | none,      none => throwError "Invalid field: Type expected"
-        | some type, _    =>
-          withLocalDecl view.rawName view.binderInfo type fun fieldFVar => do
-            addFieldInfo { ref := view.nameId, sourceStructNames := [],
-                           name := view.name, declName := view.declName, fvar := fieldFVar, default? := default?,
-                           binfo := view.binderInfo, paramInfoOverrides,
-                           kind := StructFieldKind.newField }
-            withExporting (isExporting := wasExporting) do
-              go (i+1)
-        | none, some (.optParam value) =>
-          let type ← inferType value
-          withLocalDecl view.rawName view.binderInfo type fun fieldFVar => do
-            addFieldInfo { ref := view.nameId, sourceStructNames := [],
-                           name := view.name, declName := view.declName, fvar := fieldFVar, default? := default?,
-                           binfo := view.binderInfo, paramInfoOverrides,
-                           kind := StructFieldKind.newField }
-            withExporting (isExporting := wasExporting) do
-              go (i+1)
-        | none, some (.autoParam _) =>
-          throwError "Field `{view.name}` has an auto-param but no type"
+        let (type, paramInfoOverrides, numBinders) ← elabFieldType structParams view
+        /-
+        Currently, having autoParams with binders is accepted for new fields.
+        This code is a possibility in case it should be an error.
+        (However, we could also arrange for the tactic to enter `numBinders` automatically!)
+        -- if numBinders > 0 && view.default? matches some (.autoParam ..) then
+        --   throwErrorAt view.binders "Invalid field: Unexpected binders for field `{view.name}` when setting auto-param tactic"
+        -/
+        withLocalDecl view.rawName view.binderInfo type fun fieldFVar => do
+          addFieldInfo { ref := view.nameId, sourceStructNames := [],
+                         name := view.name, declName := view.declName,
+                         numBinders, fvar := fieldFVar, default? := none,
+                         binfo := view.binderInfo, paramInfoOverrides,
+                         kind := StructFieldKind.newField }
+          withExporting (isExporting := wasExporting) do
+            go (i+1)
       | some info =>
-        let updateDefaultValue : StructElabM α := do
-          match view.default? with
-          | none       => throwError "Field `{view.name}` has already been declared in a parent structure"
-          | some (.optParam valStx) =>
-            if let some type := view.type? then
-              throwErrorAt type "Omit the type of field `{view.name}` to set its default value"
-            else
-              if info.default?.isSome then
-                throwError "A new default value for field `{view.name}` has already been set in this structure"
-              let mut valStx := valStx
-              let (binders, paramInfoOverrides) ← elabParamInfoUpdates structParams view.binders.getArgs
-              unless paramInfoOverrides.isEmpty do
-                let params := MessageData.joinSep (paramInfoOverrides.toList.map (m!"{·.1}")) ", "
-                throwError "Cannot override structure parameter binder kinds when overriding the default value: {params}"
-              if binders.size > 0 then
-                valStx ← `(fun $binders* => $valStx:term)
-              let fvarType ← inferType info.fvar
-              let value ← Term.elabTermEnsuringType valStx fvarType
-              registerFailedToInferDefaultValue view.name value valStx
-              pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
-              if let some projFn := info.projFn? then Term.addTermInfo' view.ref (← mkConstWithLevelParams projFn)
-              replaceFieldInfo { info with ref := view.nameId, default? := StructFieldDefault.optParam value }
-              withExporting (isExporting := wasExporting) do
-                go (i+1)
-          | some (.autoParam tacticStx) =>
-            if let some type := view.type? then
-              throwErrorAt type "Omit the type of field `{view.name}` to set its auto-param tactic"
-            else
-              if info.default?.isSome then
-                throwError "A new default value for field `{view.name}` has already been set in this structure"
-              if view.binders.getArgs.size > 0 then
-                throwErrorAt view.binders "Invalid field: Unexpected binders when setting auto-param tactic for inherited field"
-              let name := mkAutoParamFnOfProjFn view.declName
-              discard <| Term.declareTacticSyntax tacticStx name
-              replaceFieldInfo { info with ref := view.nameId, default? := StructFieldDefault.autoParam (.const name []) }
-              pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
-              if let some projFn := info.projFn? then Term.addTermInfo' view.ref (← mkConstWithLevelParams projFn)
-              withExporting (isExporting := wasExporting) do
-                go (i+1)
         match info.kind with
         | StructFieldKind.newField      => throwError "Field `{view.name}` has already been declared"
         | StructFieldKind.subobject n
@@ -1126,9 +1051,76 @@ where
           throwError m!"Field `{view.name}` has already been declared as a projection for an indirect parent structure `{.ofConstName n}`"
             ++ .note m!"This projection was inherited from {inheritanceMsg}"
         | StructFieldKind.copiedField
-        | StructFieldKind.fromSubobject => updateDefaultValue
+        | StructFieldKind.fromSubobject =>
+          match view.default? with
+          | none => throwError "Field `{view.name}` has already been declared in a parent structure"
+          | some default =>
+            -- Prepare the default value for later elaboration by `elabStructFieldDefaults`.
+            if let some projFn := info.projFn? then Term.addTermInfo' view.ref (← mkConstWithLevelParams projFn)
+            pushInfoLeaf <| .ofFieldRedeclInfo { stx := view.ref }
+            match default with
+            | .optParam _ =>
+              let (_, paramInfoOverrides) ← elabParamInfoUpdatesForField structParams view.binders.getArgs
+              unless paramInfoOverrides.isEmpty do
+                let params := MessageData.joinSep (paramInfoOverrides.toList.map (m!"{·.1}")) ", "
+                throwError "Cannot override structure parameter binder kinds when overriding the default value: {params}"
+              withExporting (isExporting := wasExporting) do
+                go (i+1)
+            | .autoParam _ =>
+              if let some type := view.type? then
+                throwErrorAt type "Invalid field: Uexpected type for field `{view.name}` when setting auto-param tactic for inherited field"
+              unless view.binders.getArgs.isEmpty do
+                throwErrorAt view.binders "Invalid field: Unexpected binders for field `{view.name}` when setting auto-param tactic for inherited field"
+              withExporting (isExporting := wasExporting) do
+                go (i+1)
     else
       k
+
+/--
+Elaborates the field defaults, with all the fields in scope.
+
+The behavior is slightly different between new fields and inherited fields:
+- New fields: We re-enter the binders elaborated in `elabFieldType`, then elaborate the value.
+- Inherited fields: We wrap the value in `fun` syntax to make use of the binders, then elaborate that.
+
+For inherited fields, we have already done checks that the binders and types are suitable.
+-/
+private def elabStructFieldDefaults (views : Array StructFieldView) : StructElabM Unit := do
+  for view in views do
+    if let some defaultView := view.default? then
+      withoutExporting (when := isPrivateName view.declName) do
+      withRef view.ref do
+        let some info ← findFieldInfo? view.name | unreachable!
+        if info.default?.isSome then
+          throwExistingDefaultValue info.name
+        match defaultView with
+        | .optParam valStx =>
+          let type ← inferType info.fvar
+          -- Prevent default values from being able to refer to the field itself,
+          -- since such recursive default values cannot be applied.
+          let fieldDeps ← collectForwardDeps #[info.fvar] (preserveOrder := false)
+          let value ← withErasedFVars (fieldDeps.map (·.fvarId!)) do
+            if info.kind.isFromSubobject then
+              -- Inherited field. Use `fun` to elaborate binders.
+              let mut valStx := valStx
+              if let some fieldType := view.type? then
+                valStx ← `(($valStx:term : $fieldType:term))
+              let binders := view.binders.getArgs
+              if binders.size > 0 then
+                valStx ← `(fun $binders* => $valStx:term)
+              Term.elabTermEnsuringType valStx type
+            else
+              -- New field. Use the pre-elaborated binders.
+              forallBoundedTelescope type info.numBinders fun xs type => do
+                let value ← Term.elabTermEnsuringType valStx type
+                mkLambdaFVars xs value
+          solveParentMVars value
+          registerFailedToInferDefaultValue view.name value valStx
+          replaceFieldInfo { info with default? := StructFieldDefault.optParam value }
+        | .autoParam tacticStx =>
+          let name := mkAutoParamFnOfProjFn view.declName
+          discard <| Term.declareTacticSyntax tacticStx name
+          replaceFieldInfo { info with default? := StructFieldDefault.autoParam (.const name []) }
 
 private def collectUsedFVars (lctx : LocalContext) (localInsts : LocalInstances) (fieldInfos : Array StructFieldInfo) :
     StateRefT CollectFVars.State MetaM Unit := do
@@ -1181,7 +1173,7 @@ Builds a constructor for the type, for adding the inductive type to the environm
 private def mkCtor (view : StructView) (r : ElabHeaderResult) (params : Array Expr) : StructElabM Constructor :=
   withoutExporting (when := isPrivateName view.ctor.declName) do
   withRef view.ref do
-  let (binders, paramInfoOverrides) ← elabParamInfoUpdates params view.ctor.binders.getArgs
+  let (binders, paramInfoOverrides) ← elabParamInfoUpdates params view.ctor.binders.getArgs (fun _ => pure true)
   unless binders.isEmpty do
     throwErrorAt (mkNullNode binders) "Expecting binders that update binder kinds of type parameters."
   trace[Elab.structure] "constructor param overrides {view.ctor.binders}"
@@ -1246,6 +1238,29 @@ private partial def mkFlatCtor (levelParams : List Name) (params : Array Expr) (
     let valType ← replaceIndFVars (← instantiateMVars (← inferType val))
     let valType := valType.inferImplicit params.size true
     addDecl <| Declaration.defnDecl (← mkDefinitionValInferringUnsafe flatCtorName levelParams valType val .abbrev)
+
+/--
+Collects the level metavariables in parent projections.
+These are considered to be part of the header of the structure,
+and are eligible for promotion to level parameters.
+
+A motivation is this example:
+```
+structure Magma where
+  α   : Type u
+  mul : α → α → α
+
+structure Semigroup extends Magma where
+  mul_assoc (a b c : α) : a * b * c = a * (b * c)
+```
+Without considing the level parameter of `Magma`, we would get `Semigroup : Type 1`
+rather than `Semigroup : Type (u + 1)`.
+-/
+private def collectExtraHeaderLMVars (fieldInfos : Array StructFieldInfo) : StateRefT CollectLevelMVars.State MetaM Unit := do
+  for fieldInfo in fieldInfos do
+    if fieldInfo.kind.isParent then
+      let parentType ← instantiateMVars (← inferType fieldInfo.fvar)
+      modify fun s => collectLevelMVars s parentType
 
 private partial def checkResultingUniversesForFields (fieldInfos : Array StructFieldInfo) (u : Level) : TermElabM Unit := do
   for info in fieldInfos do
@@ -1421,6 +1436,7 @@ private partial def mkCoercionToCopiedParent (levelParams : List Name) (params :
   if !binfo.isInstImplicit && !(← Meta.isProp parentType) then
     setReducibleAttribute declName
   addDeclarationRangesFromSyntax declName view.ref parent.ref
+  modifyEnv fun env => addAuxParentProjectionInfo env declName params.size (view.isClass && isClass env parent.structName)
   return { structName := parent.structName, subobject := false, projFn := declName }
 
 /--
@@ -1510,6 +1526,7 @@ def elabStructureCommand : InductiveElabDescr where
         withParents view rs r.indFVar do
         withFields params view.fields do
         withRef view.ref do
+          elabStructFieldDefaults view.fields
           Term.synthesizeSyntheticMVarsNoPostponing
           resolveFieldDefaults view.declName
           let state ← get
@@ -1521,6 +1538,7 @@ def elabStructureCommand : InductiveElabDescr where
           return {
             ctors := [ctor]
             collectUsedFVars := collectUsedFVars lctx localInsts fieldInfos
+            collectExtraHeaderLMVars := withLCtx lctx localInsts do collectExtraHeaderLMVars fieldInfos
             checkUniverses := fun _ u => withLCtx lctx localInsts do checkResultingUniversesForFields fieldInfos u
             finalizeTermElab := withLCtx lctx localInsts do checkDefaults fieldInfos
             prefinalize := fun levelParams params replaceIndFVars => do
@@ -1529,9 +1547,10 @@ def elabStructureCommand : InductiveElabDescr where
                   addProjections params r fieldInfos
                 registerStructure view.declName fieldInfos
                 runStructElabM (init := state) do
-                  withOptions (warn.sorry.set · false) do
-                    mkFlatCtor levelParams params view.declName replaceIndFVars
-                  addDefaults levelParams params replaceIndFVars
+                  withExporting (isExporting := !isPrivateName view.ctor.declName) do
+                    withOptions (warn.sorry.set · false) do
+                      mkFlatCtor levelParams params view.declName replaceIndFVars
+                    addDefaults levelParams params replaceIndFVars
               let parentInfos ← withLCtx lctx localInsts <| runStructElabM (init := state) do
                 withOptions (warn.sorry.set · false) do
                   mkRemainingProjections levelParams params view
@@ -1546,6 +1565,16 @@ def elabStructureCommand : InductiveElabDescr where
                     if fieldInfo.kind.isInCtor then
                       enableRealizationsForConst fieldInfo.declName
                   if view.isClass then
+                    -- Set implicitReducible on subobject projections to class parents.
+                    -- mkProjections defers reducibility to addParentInstances, but
+                    -- addParentInstances only handles direct parents. Subobject fields
+                    -- for non-direct parents (grandparents promoted to constructor
+                    -- subobjects during diamond flattening) also need implicitReducible
+                    -- to be unfoldable at .instances transparency.
+                    for fieldInfo in fieldInfos do
+                      if let .subobject parentName := fieldInfo.kind then
+                        if isClass (← getEnv) parentName then
+                          setReducibilityStatus fieldInfo.declName .implicitReducible
                     addParentInstances parentInfos
                   -- Add field docstrings here (after @[class] attribute is applied)
                   -- so that Verso docstrings can use the class.

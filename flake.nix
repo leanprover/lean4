@@ -67,5 +67,5 @@
         oldGlibc = devShellWithDist pkgsDist-old;
         oldGlibcAArch = devShellWithDist pkgsDist-old-aarch;
       };
-    }) ["x86_64-linux" "aarch64-linux"]);
+    }) ["x86_64-linux" "aarch64-linux" "aarch64-darwin"]);
 }

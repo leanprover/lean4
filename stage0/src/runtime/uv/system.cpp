@@ -31,7 +31,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_get_process_title() {
     return lean_io_result_mk_ok(lean_title);
 }
 
-// Std.Internal.UV.System.setProcessTitle : String → IO Unit
+// Std.Internal.UV.System.setProcessTitle : @& String → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_set_process_title(b_obj_arg title) {
     const char* title_str = lean_string_cstr(title);
     if (strlen(title_str) != lean_string_size(title) - 1) {
@@ -124,7 +124,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_cwd() {
     return lean_io_result_mk_ok(lean_cwd);
 }
 
-// Std.Internal.UV.System.chdir : String → IO Unit
+// Std.Internal.UV.System.chdir : @& String → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_chdir(b_obj_arg path) {
     const char* path_str = lean_string_cstr(path);
     if (strlen(path_str) != lean_string_size(path) - 1) {
@@ -271,7 +271,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ() {
     return lean_io_result_mk_ok(env_array);
 }
 
-// Std.Internal.UV.System.osGetenv : String → IO (Option String)
+// Std.Internal.UV.System.osGetenv : @& String → IO (Option String)
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
     const char* name_str = lean_string_cstr(name);
     if (strlen(name_str) != lean_string_size(name) - 1) {
@@ -313,7 +313,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
 }
 
 
-// Std.Internal.UV.System.osSetenv : String → String → IO Unit
+// Std.Internal.UV.System.osSetenv : @& String → @& String → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setenv(b_obj_arg name, b_obj_arg value) {
     const char* name_str = lean_string_cstr(name);
     const char* value_str = lean_string_cstr(value);
@@ -333,7 +333,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setenv(b_obj_arg name, b_obj_arg 
     return lean_io_result_mk_ok(lean_box(0));
 }
 
-// Std.Internal.UV.System.osUnsetenv : String → IO Unit
+// Std.Internal.UV.System.osUnsetenv : @& String → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_unsetenv(b_obj_arg name) {
     const char* name_str = lean_string_cstr(name);
     if (strlen(name_str) != lean_string_size(name) - 1) {
@@ -641,21 +641,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_environ() {
     );
 }
 
-// Std.Internal.UV.System.osGetenv : String → IO (Option String)
+// Std.Internal.UV.System.osGetenv : @& String → IO (Option String)
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
-// Std.Internal.UV.System.osSetenv : String → String → IO Unit
+// Std.Internal.UV.System.osSetenv : @& String → @& String → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_setenv(b_obj_arg name, b_obj_arg value) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")
     );
 }
 
-// Std.Internal.UV.System.osUnsetenv : String → IO Unit
+// Std.Internal.UV.System.osUnsetenv : @& String → IO Unit
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_unsetenv(b_obj_arg name) {
     lean_always_assert(
         false && ("Please build a version of Lean4 with libuv to invoke this.")

@@ -1,0 +1,2 @@
+Try this:
+  [apply] [grind .] for pattern: [@NatCast.natCast `[Quotient PreInt.instSetoid] `[instNatCast] #1]

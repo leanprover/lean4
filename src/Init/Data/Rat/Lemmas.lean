@@ -1296,12 +1296,12 @@ theorem ceil_lt {x : Rat} :
 -/
 
 @[simp, grind =]
-theorem abs_zero :
+protected theorem abs_zero :
     (0 : Rat).abs = 0 := by
   simp [Rat.abs]
 
 @[simp]
-theorem abs_nonneg {x : Rat} :
+protected theorem abs_nonneg {x : Rat} :
     0 ≤ x.abs := by
   simp only [Rat.abs]
   split <;> rename_i hle
@@ -1310,11 +1310,11 @@ theorem abs_nonneg {x : Rat} :
     simp only [Rat.not_le] at hle
     rwa [Rat.lt_neg_iff, Rat.neg_zero]
 
-theorem abs_of_nonneg {x : Rat} (h : 0 ≤ x) :
+protected theorem abs_of_nonneg {x : Rat} (h : 0 ≤ x) :
     x.abs = x := by
   rw [Rat.abs, if_pos h]
 
-theorem abs_of_nonpos {x : Rat} (h : x ≤ 0) :
+protected theorem abs_of_nonpos {x : Rat} (h : x ≤ 0) :
     x.abs = -x := by
   rw [Rat.abs]
   split
@@ -1322,7 +1322,7 @@ theorem abs_of_nonpos {x : Rat} (h : x ≤ 0) :
   · rfl
 
 @[simp, grind =]
-theorem abs_neg {x : Rat} :
+protected theorem abs_neg {x : Rat} :
     (-x).abs = x.abs := by
   simp only [Rat.abs]
   split <;> split
@@ -1337,12 +1337,12 @@ theorem abs_neg {x : Rat} :
     apply Rat.le_of_lt
     assumption
 
-theorem abs_sub_comm {x y : Rat} :
+protected theorem abs_sub_comm {x y : Rat} :
     (x - y).abs = (y - x).abs := by
   rw [← Rat.neg_sub, Rat.abs_neg]
 
 @[simp]
-theorem abs_eq_zero_iff {x : Rat} :
+protected theorem abs_eq_zero_iff {x : Rat} :
     x.abs = 0 ↔ x = 0 := by
   simp only [Rat.abs]
   split
@@ -1352,7 +1352,7 @@ theorem abs_eq_zero_iff {x : Rat} :
       rw [← Rat.neg_neg (a := x), h, Rat.neg_zero]
     · simp +contextual
 
-theorem abs_pos_iff {x : Rat} :
+protected theorem abs_pos_iff {x : Rat} :
     0 < x.abs ↔ x ≠ 0 := by
   apply Iff.intro
   · intro hpos

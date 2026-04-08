@@ -1,0 +1,32 @@
+deprecated_syntax.lean:9:7-9:26: warning: macro 'Lean.Parser.Term.paren' produces deprecated syntax 'Lean.Parser.Term.let_fun': use `have` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+have x := 1;
+x : Nat
+deprecated_syntax.lean:19:8-19:18: warning: macro 'termMy_wrapper' (expanded from 'Lean.Parser.Term.paren') produces deprecated syntax 'Lean.Parser.Term.let_fun': use `have` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+have x := 1;
+x : Nat
+deprecated_syntax.lean:29:19-29:29: warning: macro 'termInnerMacro' (expanded from 'termOuterMacro') produces deprecated syntax 'Lean.Parser.Term.let_fun': use `have` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+have x := 1;
+x : Nat
+42 : Nat
+deprecated_syntax.lean:44:21-44:29: warning: syntax 'tacticMyDepTac' has been deprecated: use `trivial` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+deprecated_syntax.lean:54:31-54:39: warning: quotation uses deprecated syntax 'termOldThing': use `42` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+deprecated_syntax.lean:71:0-71:8: warning: syntax 'commandMyDepCmd' has been deprecated: use `#check` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+42 : Nat
+deprecated_syntax.lean:77:0-77:12: warning: macro 'commandMyWrapperCmd' produces deprecated syntax 'commandMyDepCmd': use `#check` instead
+
+Note: This linter can be disabled with `set_option linter.deprecated.syntax false`
+42 : Nat
+42 : Nat
+deprecated_syntax.lean:84:0-84:39: warning: `deprecated_syntax` should specify the date or library version at which the deprecation was introduced, using `(since := "...")`

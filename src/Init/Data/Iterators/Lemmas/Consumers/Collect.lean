@@ -88,7 +88,7 @@ theorem Iter.toList_toArray_ensureTermination {α β} [Iterator α Id β] [Finit
     it.ensureTermination.toArray.toList = it.toList := by
   simp
 
-@[simp]
+@[cbv_eval ←, simp]
 theorem Iter.toArray_toList {α β} [Iterator α Id β] [Finite α Id]
     {it : Iter (α := α) β} :
     it.toList.toArray = it.toArray := by
@@ -110,6 +110,7 @@ theorem Iter.reverse_toListRev_ensureTermination [Iterator α Id β] [Finite α 
     it.ensureTermination.toListRev.reverse = it.toList := by
   simp
 
+@[cbv_eval]
 theorem Iter.toListRev_eq {α β} [Iterator α Id β] [Finite α Id]
     {it : Iter (α := α) β} :
     it.toListRev = it.toList.reverse := by

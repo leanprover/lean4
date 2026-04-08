@@ -51,7 +51,7 @@ public class OptDataKind (α : Type u) where
 
 namespace OptDataKind
 
-@[instance_reducible, instance low]
+@[implicit_reducible, instance low]
 public def anonymous : OptDataKind α where
   name := .anonymous
   wf h := by simp [Name.isAnonymous_iff_eq_anonymous] at h

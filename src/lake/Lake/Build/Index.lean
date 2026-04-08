@@ -26,9 +26,9 @@ open System (FilePath)
 namespace Lake
 
 /-- Recursive build function for anything in the Lake build index. -/
-private def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) := do
+private def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
   match info with
-  | .target pkg target =>
+  | .target pkg target => do
     if let some decl := pkg.findTargetDecl? target then
       if h : decl.kind.isAnonymous then
         let key := BuildKey.packageTarget pkg.keyName target
@@ -39,7 +39,7 @@ private def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.k
         return cast (by simp [decl.data_eq_target h]) job
     else
       error s!"invalid target '{info}': target not found in package"
-  | .facet target kind data facet =>
+  | .facet target kind data facet => do
     if let some config := (← getWorkspace).findFacetConfig? facet then
       if h : config.kind = kind then
         let recFetch := config.fetchFn <| cast (by simp [h]) data

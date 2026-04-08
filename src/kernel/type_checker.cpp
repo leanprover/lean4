@@ -483,12 +483,12 @@ expr type_checker::whnf_core(expr const & e, bool cheap_rec, bool cheap_proj) {
 }
 
 /** \brief Return some definition \c d iff \c e is a target for delta-reduction, and the given definition is the one
-    to be expanded. */
+    to be expanded. If \c is_delta succeeds, then \c unfold_definition will also succeed. */
 optional<constant_info> type_checker::is_delta(expr const & e) const {
     expr const & f = get_app_fn(e);
     if (is_constant(f)) {
         if (optional<constant_info> info = env().find(const_name(f)))
-            if (info->has_value())
+            if (info->has_value() && length(const_levels(f)) == info->get_num_lparams())
                 return info;
     }
     return none_constant_info();
@@ -499,20 +499,18 @@ optional<expr> type_checker::unfold_definition_core(expr const & e) {
         if (auto d = is_delta(e)) {
             levels const & us = const_levels(e);
             unsigned len = length(us);
-            if (len == d->get_num_lparams()) {
-                if (m_diag) {
-                    m_diag->record_unfold(d->get_name());
-                }
-                if (len > 0) {
-                    auto it = m_st->m_unfold.find(e);
-                    if (it != m_st->m_unfold.end())
-                        return some_expr(it->second);
-                    expr result = instantiate_value_lparams(*d, us);
-                    m_st->m_unfold.insert(mk_pair(e, result));
-                    return some_expr(result);
-                } else {
-                    return some_expr(instantiate_value_lparams(*d, us));
-                }
+            if (m_diag) {
+                m_diag->record_unfold(d->get_name());
+            }
+            if (len > 0) {
+                auto it = m_st->m_unfold.find(e);
+                if (it != m_st->m_unfold.end())
+                    return some_expr(it->second);
+                expr result = instantiate_value_lparams(*d, us);
+                m_st->m_unfold.insert(mk_pair(e, result));
+                return some_expr(result);
+            } else {
+                return some_expr(instantiate_value_lparams(*d, us));
             }
         }
     }
@@ -799,7 +797,7 @@ bool type_checker::try_eta_struct_core(expr const & t, expr const & s) {
     if (!f_info.is_constructor()) return false;
     constructor_val f_val = f_info.to_constructor_val();
     if (get_app_num_args(s) != f_val.get_nparams() + f_val.get_nfields()) return false;
-    if (!is_structure_like(env(), f_val.get_induct())) return false;
+    if (!is_non_rec_structure(env(), f_val.get_induct())) return false;
     if (!is_def_eq(infer_type(t), infer_type(s))) return false;
     buffer<expr> s_args;
     get_app_args(s, s_args);
@@ -1046,7 +1044,7 @@ lbool type_checker::try_string_lit_expansion(expr const & t, expr const & s) {
 bool type_checker::is_def_eq_unit_like(expr const & t, expr const & s) {
     expr t_type = whnf(infer_type(t));
     expr I = get_app_fn(t_type);
-    if (!is_constant(I) || !is_structure_like(env(), const_name(I)))
+    if (!is_constant(I) || !is_non_rec_structure(env(), const_name(I)))
         return false;
     name ctor_name = head(env().get(const_name(I)).to_inductive_val().get_cnstrs());
     constructor_val ctor_val = env().get(ctor_name).to_constructor_val();

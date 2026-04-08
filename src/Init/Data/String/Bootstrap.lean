@@ -55,9 +55,11 @@ end String
 
 namespace String.Internal
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_posof"]
 opaque posOf (s : String) (c : Char) : Pos.Raw
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_offsetofpos"]
 opaque offsetOfPos (s : String) (pos : Pos.Raw) : Nat
 
@@ -67,6 +69,7 @@ opaque extract : (@& String) → (@& Pos.Raw) → (@& Pos.Raw) → String
 @[extern "lean_string_length"]
 opaque length : (@& String) → Nat
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_pushn"]
 opaque pushn (s : String) (c : Char) (n : Nat) : String
 
@@ -76,45 +79,57 @@ opaque append : String → (@& String) → String
 @[extern "lean_string_utf8_next"]
 opaque next (s : @& String) (p : @& Pos.Raw) : Pos.Raw
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_isempty"]
 opaque isEmpty (s : String) : Bool
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_foldl"]
 opaque foldl (f : String → Char → String) (init : String) (s : String) : String
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_isprefixof"]
 opaque isPrefixOf (p : String) (s : String) : Bool
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_any"]
 opaque any (s : String) (p : Char → Bool) : Bool
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_contains"]
 opaque contains (s : String) (c : Char) : Bool
 
 @[extern "lean_string_utf8_get"]
 opaque get (s : @& String) (p : @& Pos.Raw) : Char
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_capitalize"]
 opaque capitalize (s : String) : String
 
 @[extern "lean_string_utf8_at_end"]
 opaque atEnd : (@& String) → (@& Pos.Raw) → Bool
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_nextwhile"]
 opaque nextWhile (s : String) (p : Char → Bool) (i : String.Pos.Raw) : String.Pos.Raw
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_trim"]
 opaque trim (s : String) : String
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_intercalate"]
 opaque intercalate (s : String) : List String → String
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_front"]
 opaque front (s : String) : Char
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_drop"]
 opaque drop (s : String) (n : Nat) : String
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_dropright"]
 opaque dropRight (s : String) (n : Nat) : String
 
@@ -141,33 +156,43 @@ def List.asString (s : List Char) : String :=
 
 namespace Substring.Raw.Internal
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_substring_tostring"]
 opaque toString : Substring.Raw → String
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_substring_drop"]
 opaque drop : Substring.Raw → Nat → Substring.Raw
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_substring_front"]
 opaque front (s : Substring.Raw) : Char
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_substring_takewhile"]
 opaque takeWhile : Substring.Raw → (Char → Bool) → Substring.Raw
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_substring_extract"]
 opaque extract : Substring.Raw → String.Pos.Raw → String.Pos.Raw → Substring.Raw
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_substring_all"]
 opaque all (s : Substring.Raw) (p : Char → Bool) : Bool
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_substring_beq"]
 opaque beq (ss1 ss2 : Substring.Raw) : Bool
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_substring_isempty"]
 opaque isEmpty (ss : Substring.Raw) : Bool
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_substring_get"]
 opaque get : Substring.Raw → String.Pos.Raw → Char
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_substring_prev"]
 opaque prev : Substring.Raw → String.Pos.Raw → String.Pos.Raw
 
@@ -175,9 +200,11 @@ end Substring.Raw.Internal
 
 namespace String.Pos.Raw.Internal
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_pos_sub"]
 opaque sub : String.Pos.Raw → String.Pos.Raw → String.Pos.Raw
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_string_pos_min"]
 opaque min (p₁ p₂ : Pos.Raw) : Pos.Raw
 

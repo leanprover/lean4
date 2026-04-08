@@ -1,0 +1,2 @@
+6263.lean:6:8-6:11: warning: declaration uses `sorry`
+6263.lean:11:8-11:11: warning: declaration uses `sorry`

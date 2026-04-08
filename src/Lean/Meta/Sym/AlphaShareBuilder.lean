@@ -189,4 +189,48 @@ def mkAppS₄ (f a₁ a₂ a₃ a₄ : Expr) : m Expr := do
 def mkAppS₅ (f a₁ a₂ a₃ a₄ a₅ : Expr) : m Expr := do
   mkAppS (← mkAppS₄ f a₁ a₂ a₃ a₄) a₅
 
+def mkAppS₆ (f a₁ a₂ a₃ a₄ a₅ a₆ : Expr) : m Expr := do
+  mkAppS (← mkAppS₅ f a₁ a₂ a₃ a₄ a₅) a₆
+
+def mkAppS₇ (f a₁ a₂ a₃ a₄ a₅ a₆ a₇ : Expr) : m Expr := do
+  mkAppS (← mkAppS₆ f a₁ a₂ a₃ a₄ a₅ a₆) a₇
+
+def mkAppS₈ (f a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ : Expr) : m Expr := do
+  mkAppS (← mkAppS₇ f a₁ a₂ a₃ a₄ a₅ a₆ a₇) a₈
+
+def mkAppS₉ (f a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ a₉ : Expr) : m Expr := do
+  mkAppS (← mkAppS₈ f a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈) a₉
+
+def mkAppS₁₀ (f a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ a₉ a₁₀ : Expr) : m Expr := do
+  mkAppS (← mkAppS₉ f a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ a₉) a₁₀
+
+def mkAppS₁₁ (f a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ a₉ a₁₀ a₁₁ : Expr) : m Expr := do
+  mkAppS (← mkAppS₁₀ f a₁ a₂ a₃ a₄ a₅ a₆ a₇ a₈ a₉ a₁₀) a₁₁
+
+/-- `mkAppRangeS f i j #[a₀, ..., aᵢ, ..., aⱼ, ...]` ==> `f aᵢ ... aⱼ₋₁` with max sharing. -/
+partial def mkAppRangeS (f : Expr) (beginIdx endIdx : Nat) (args : Array Expr) : m Expr :=
+  go endIdx f beginIdx
+where
+  go (endIdx : Nat) (b : Expr) (i : Nat) : m Expr := do
+    if endIdx ≤ i then return b
+    else go endIdx (← mkAppS b args[i]!) (i + 1)
+
+/-- `mkAppNS f #[a₀, ..., aₙ]` constructs `f a₀ ... aₙ` with max sharing. -/
+def mkAppNS (f : Expr) (args : Array Expr) : m Expr :=
+  mkAppRangeS f 0 args.size args
+
+/-- `mkAppRevRangeS f b e revArgs` ==> `mkAppRev f (revArgs.extract b e)` with max sharing. -/
+partial def mkAppRevRangeS (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : m Expr :=
+  go revArgs beginIdx f endIdx
+where
+  go (revArgs : Array Expr) (start : Nat) (b : Expr) (i : Nat) : m Expr := do
+    if i ≤ start then return b
+    else
+      let i := i - 1
+      go revArgs start (← mkAppS b revArgs[i]!) i
+
+/-- Same as `mkAppS f args` but reversing `args`, with max sharing. -/
+def mkAppRevS (f : Expr) (revArgs : Array Expr) : m Expr :=
+  mkAppRevRangeS f 0 revArgs.size revArgs
+
 end Lean.Meta.Sym.Internal

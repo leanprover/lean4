@@ -1,0 +1,8 @@
+case succ
+x : Nat
+ih : isEven (2 * x) = true
+⊢ isOdd (Nat.mul 2 x + 1) = true
+case succ
+x : Nat
+ih : isEven (2 * x) = true
+⊢ isEven (Nat.mul 2 x) = true

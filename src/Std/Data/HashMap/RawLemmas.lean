@@ -1332,6 +1332,9 @@ theorem Equiv.beq [EquivBEq α] [LawfulHashable α] [BEq β] [ReflBEq β] (h₁ 
 theorem equiv_of_beq [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) (h : m₁ == m₂) : m₁ ~m m₂ :=
   ⟨DHashMap.Raw.Const.equiv_of_beq h₁.1 h₂.1 h⟩
 
+theorem beq_iff_equiv [LawfulBEq α] [BEq β] [LawfulBEq β] (h₁ : m₁.WF) (h₂ : m₂.WF) : (m₁ == m₂) ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq h₁ h₂, Equiv.beq h₁ h₂⟩
+
 theorem Equiv.beq_congr [EquivBEq α] [LawfulHashable α] [BEq β] {m₃ m₄ : Raw α β} (h₁ : m₁.WF) (h₂ : m₂.WF) (h₃ : m₃.WF) (h₄ : m₄.WF) (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
   DHashMap.Raw.Const.Equiv.beq_congr h₁.1 h₂.1 h₃.1 h₄.1 w₁.1 w₂.1
 
@@ -2598,6 +2601,10 @@ theorem unitOfList_cons {hd : α} {tl : List α} :
     unitOfList (hd :: tl) = insertManyIfNewUnit ((∅ : Raw α Unit).insertIfNew hd ()) tl :=
   ext DHashMap.Raw.Const.unitOfList_cons
 
+theorem unitOfList_eq_insertManyIfNewUnit_empty {l : List α} :
+    unitOfList l = insertManyIfNewUnit ∅ l :=
+  ext DHashMap.Raw.Const.unitOfList_eq_insertManyIfNewUnit_empty
+
 @[simp]
 theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
@@ -3230,6 +3237,29 @@ theorem equiv_iff_toList_perm {m₁ m₂ : Raw α β} [EquivBEq α] [LawfulHasha
 theorem equiv_iff_keys_unit_perm [EquivBEq α] [LawfulHashable α] {m₁ m₂ : Raw α Unit} :
     m₁ ~m m₂ ↔ m₁.keys.Perm m₂.keys :=
   ⟨Equiv.keys_perm, Equiv.of_keys_unit_perm⟩
+
+theorem insertMany_list_equiv_foldl {m : HashMap.Raw α β} {l : List (α × β)} (h : m.WF) :
+    m.insertMany l ~m l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc p => acc.insert p.1 p.2)]
+  · exact DHashMap.Raw.Const.insertMany_list_equiv_foldl h.1
+  · exact fun _ _ => rfl
+
+theorem ofList_equiv_foldl {l : List (α × β)} :
+    ofList l ~m l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 :=
+  insertMany_list_equiv_foldl .empty
+
+theorem insertManyIfNewUnit_list_equiv_foldl {m : HashMap.Raw α Unit}
+    {l : List α} (h : m.WF) :
+    insertManyIfNewUnit m l ~m l.foldl (init := m) fun acc a => acc.insertIfNew a () := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact DHashMap.Raw.Const.insertManyIfNewUnit_list_equiv_foldl h.1
+  · exact fun _ _ => rfl
+
+theorem unitOfList_equiv_foldl {l : List α} :
+    unitOfList l ~m l.foldl (init := ∅) fun acc a => acc.insertIfNew a () :=
+  insertManyIfNewUnit_list_equiv_foldl .empty
 
 section filterMap
 

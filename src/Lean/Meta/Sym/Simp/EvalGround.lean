@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.Sym.Simp.SimpM
 import Init.Sym.Lemmas
 import Lean.Meta.Sym.LitValues
+import Lean.Meta.StringLitProof
 namespace Lean.Meta.Sym.Simp
 
 /-!
@@ -64,7 +65,7 @@ Operations dispatch on the type expression directly. It assumes non-standard ins
 
 def skipIfUnchanged (e : Expr) (result : Result) : Result :=
   match result with
-  | .step e' _ _ => if isSameExpr e e' then .rfl else result
+  | .step e' _ _ cd => if isSameExpr e e' then mkRflResultCD cd else result
   | _ => result
 
 abbrev evalUnary [ToExpr α] (toValue? : Expr → Option α) (op : α → α) (a : Expr) : SimpM Result := do
@@ -376,6 +377,25 @@ def evalFinPred (n : Expr) (trueThm falseThm : Expr) (op : {n : Nat} → Fin n �
 
 open Lean.Sym
 
+/--
+Evaluates `@Eq String a b` for string literal arguments, producing kernel-efficient proofs.
+When equal, uses `eq_self` (no kernel evaluation needed). When different, uses
+`mkStringLitNeProof` which finds the first differing character position and proves
+inequality via `congrArg (List.get?Internal · i)`.
+-/
+private def evalStringEq (a b : Expr) : SimpM Result := do
+  let some va := getStringValue? a | return .rfl
+  let some vb := getStringValue? b | return .rfl
+  if va = vb then
+    let e ← getTrueExpr
+    return .step e (mkApp2 (mkConst ``eq_self [.succ .zero]) (mkConst ``String) a) (done := true)
+  else
+    let neProof ← mkStringLitNeProof va vb
+    let proof := mkApp2 (mkConst ``eq_false)
+      (mkApp3 (mkConst ``Eq [.succ .zero]) (mkConst ``String) a b) neProof
+    let e ← getFalseExpr
+    return .step e proof (done := true)
+
 def evalLT (α : Expr) (a b : Expr) : SimpM Result :=
   match_expr α with
   | Nat => evalBinPred getNatValue? (mkConst ``Nat.lt_eq_true) (mkConst ``Nat.lt_eq_false) (. < .) a b
@@ -434,7 +454,7 @@ def evalEq (α : Expr) (a b : Expr) : SimpM Result :=
   | Fin n => evalFinPred n (mkConst ``Fin.eq_eq_true) (mkConst ``Fin.eq_eq_false) (. = .) a b
   | BitVec n => evalBitVecPred n (mkConst ``BitVec.eq_eq_true) (mkConst ``BitVec.eq_eq_false) (. = .) a b
   | Char => evalBinPred getCharValue? (mkConst ``Char.eq_eq_true) (mkConst ``Char.eq_eq_false) (. = .) a b
-  | String => evalBinPred getStringValue? (mkConst ``String.eq_eq_true) (mkConst ``String.eq_eq_false) (. = .) a b
+  | String => evalStringEq a b
   | _ => return .rfl
 
 def evalDvd (α : Expr) (a b : Expr) : SimpM Result :=

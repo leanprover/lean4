@@ -207,7 +207,7 @@ theorem take_eq_dropLast {l : List α} {i : Nat} (h : i + 1 = l.length) :
     · cases as with
       | nil => simp_all
       | cons b bs =>
-        simp only [take_succ_cons, dropLast_cons₂]
+        simp only [take_succ_cons, dropLast_cons_cons]
         rw [ih]
         simpa using h
 
@@ -311,7 +311,7 @@ theorem drop_length_cons {l : List α} (h : l ≠ []) (a : α) :
   | nil =>
     cases h rfl
   | cons y l ih =>
-    simp only [drop, length]
+    simp only [drop]
     by_cases h₁ : l = []
     · simp [h₁]
     rw [getLast_cons h₁]
@@ -386,6 +386,22 @@ theorem drop_take : ∀ {i j : Nat} {l : List α}, drop i (take j l) = take (j -
 @[simp, grind =] theorem drop_take_self : drop i (take i l) = [] := by
   rw [drop_take]
   simp
+
+set_option doc.verso true in
+/--
+This lemma will be renamed to {lit}`List.extract_eq_drop_take` as soon as the current deprecated
+lemma {name}`List.extract_eq_drop_take` has been removed.
+-/
+theorem extract_eq_drop_take' {l : List α} {start stop : Nat} :
+    l.extract start stop = (l.take stop).drop start := by
+  simp only [take_drop]
+  by_cases start ≤ stop
+  · rw [add_sub_of_le ‹_›]
+  · have h₁ : stop - start = 0 := by omega
+    have h₂ : min stop l.length ≤ stop := by omega
+    simp only [Nat.add_zero, List.drop_take_self, List.nil_eq, List.drop_eq_nil_iff,
+      List.length_take, ge_iff_le, h₁]
+    omega
 
 @[simp]
 theorem drop_eq_drop_iff :

@@ -357,6 +357,7 @@ def reflectBV (g : MVarId) : M ReflectionResult := g.withContext do
   let mut sats := #[]
   let mut unusedHypotheses := {}
   for hyp in hyps do
+    checkSystem "bv_decide"
     if let (some reflected, lemmas) ← (SatAtBVLogical.of (mkFVar hyp)).run then
       sats := (sats ++ lemmas).push reflected
     else

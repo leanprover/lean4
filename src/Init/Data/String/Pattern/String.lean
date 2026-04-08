@@ -241,7 +241,7 @@ private def finitenessRelation :
     all_goals try
       cases h
       revert h'
-      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep]
+      simp only [Std.IterM.IsPlausibleStep, Std.Iterator.IsPlausibleStep, instIteratorIdSearchStep] -- TODO
       match it.internalState with
       | .emptyBefore pos =>
         rintro (⟨h, h'⟩|h') <;> simp [h', ForwardSliceSearcher.toOption, Option.lt, Prod.lex_def]
@@ -280,7 +280,7 @@ def startsWith (pat : Slice) (s : Slice) : Bool :=
     false
 
 @[inline]
-def dropPrefix? (pat : Slice) (s : Slice) : Option s.Pos :=
+def skipPrefix? (pat : Slice) (s : Slice) : Option s.Pos :=
   if startsWith pat s then
     some <| s.pos! <| pat.rawEndPos.offsetBy s.startPos.offset
   else
@@ -288,14 +288,14 @@ def dropPrefix? (pat : Slice) (s : Slice) : Option s.Pos :=
 
 instance {pat : Slice} : ForwardPattern pat where
   startsWith := startsWith pat
-  dropPrefix? := dropPrefix? pat
+  skipPrefix? := skipPrefix? pat
 
 instance {pat : String} : ToForwardSearcher pat ForwardSliceSearcher where
   toSearcher := iter pat.toSlice
 
 instance {pat : String} : ForwardPattern pat where
   startsWith := startsWith pat.toSlice
-  dropPrefix? := dropPrefix? pat.toSlice
+  skipPrefix? := skipPrefix? pat.toSlice
 
 end ForwardSliceSearcher
 
@@ -316,7 +316,7 @@ def endsWith (pat : Slice) (s : Slice) : Bool :=
     false
 
 @[inline]
-def dropSuffix? (pat : Slice) (s : Slice) : Option s.Pos :=
+def skipSuffix? (pat : Slice) (s : Slice) : Option s.Pos :=
   if endsWith pat s then
     some <| s.pos! <| s.endPos.offset.unoffsetBy pat.rawEndPos
   else
@@ -324,11 +324,11 @@ def dropSuffix? (pat : Slice) (s : Slice) : Option s.Pos :=
 
 instance {pat : Slice} : BackwardPattern pat where
   endsWith := endsWith pat
-  dropSuffix? := dropSuffix? pat
+  skipSuffix? := skipSuffix? pat
 
 instance {pat : String} : BackwardPattern pat where
   endsWith := endsWith pat.toSlice
-  dropSuffix? := dropSuffix? pat.toSlice
+  skipSuffix? := skipSuffix? pat.toSlice
 
 end BackwardSliceSearcher
 

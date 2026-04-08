@@ -12,12 +12,17 @@ import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.LitValues
 
+/-!
+# Cbv Utility Functions
+
+Predicates for recognizing ground literal values (`isVal`, `isBuiltinValue`) and
+proof terms (`isProofTerm`) in the `SymM` monad. Both are used by `cbvPre` to
+short-circuit before structural dispatch.
+-/
+
 namespace Lean.Meta.Tactic.Cbv
 
 open Lean.Meta.Sym.Simp
-
-public def mkAppNS (f : Expr) (args : Array Expr) : Sym.SymM Expr := do
-  args.foldlM Sym.Internal.mkAppS f
 
 abbrev isNatValue (e : Expr) : Bool := (Sym.getNatValue? e).isSome
 abbrev isStringValue (e : Expr) : Bool := (Sym.getStringValue? e).isSome
@@ -53,6 +58,9 @@ public def isVal (e : Expr) : Bool :=
     isInt64Value
   ].any (· e)
 
+/-- Returns `.rfl (done := true)` for ground literal values of any recognized builtin type,
+preventing the simplifier from recursing into them. For example, this stops the evaluator
+from trying to unfold `OfNat.ofNat 2` further. -/
 public def isBuiltinValue : Simproc := fun e => return .rfl (isVal e)
 
 public def guardSimproc (p : Expr → Bool) (s : Simproc) : Simproc := fun e => do
@@ -86,7 +94,19 @@ def isProof (e : Expr) : Sym.SymM Bool := do
   | .false => return false
   | .undef => isProp (← Sym.inferType e)
 
+/-- Marks proof terms as done so the simplifier does not recurse into them. -/
 public def isProofTerm : Simproc := fun e => do
   return .rfl (← isProof e)
+
+/-- Extract elements from a `List.cons`/`List.nil` chain. -/
+public partial def getListLitElems (e : Expr) (acc : Array Expr := #[]) : Option <| Array Expr :=
+  match_expr e with
+  | List.nil _ => some acc
+  | List.cons _ a as => getListLitElems as <| acc.push a
+  | _ => none
+
+public def markAsDoneIfFailed : Result → Result
+  | .rfl _ cd => .rfl true cd
+  | .step e h d cd => .step e h d cd
 
 end Lean.Meta.Tactic.Cbv

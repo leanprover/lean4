@@ -60,7 +60,7 @@ instance : EmptyCollection (Trie α) :=
 instance : Inhabited (Trie α) where
   default := empty
 
-/-- Insert or update the value at a the given key `s`.  -/
+/-- Insert or update the value at the given key `s`.  -/
 partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :=
   let rec insertEmpty (i : Nat) : Trie α :=
     if h : i < s.utf8ByteSize then
@@ -100,7 +100,7 @@ partial def upsert (t : Trie α) (s : String) (f : Option α → α) : Trie α :
         node (f v) cs ts
   loop 0 t
 
-/-- Inserts a value at a the given key `s`, overriding an existing value if present. -/
+/-- Inserts a value at the given key `s`, overriding an existing value if present. -/
 partial def insert (t : Trie α) (s : String) (val : α) : Trie α :=
   upsert t s (fun _ => val)
 

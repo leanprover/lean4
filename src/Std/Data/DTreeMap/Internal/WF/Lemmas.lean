@@ -1906,7 +1906,7 @@ theorem WF.union! {_ : Ord α} [TransOrd α]
 
 theorem all_eq_all_toListModel {p : (a : α) → β a → Bool} {m : Impl α β} :
     m.all p = m.toListModel.all (fun x => p x.1 x.2) := by
-  simp [all, ForIn.forIn, bind_pure_comp, map_pure, Id.run_bind]
+  simp [all, ForIn.forIn, Id.run_bind]
   rw [forIn_eq_forIn_toListModel, ← toList_eq_toListModel, forIn_eq_forIn']
   induction m.toList with
   | nil => simp
@@ -2296,7 +2296,7 @@ theorem minKey_eq_minKey [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l : 
 theorem minKey!_eq_minKey! [Ord α] [TransOrd α] [Inhabited α] [BEq α] [LawfulBEqOrd α]
     {l : Impl α β} (hlo : l.Ordered) :
     l.minKey! = List.minKey! l.toListModel := by
-  simp [Impl.minKey!_eq_get!_minKey?, List.minKey!_eq_get!_minKey?, minKey?_eq_minKey? hlo]
+  simp [Impl.minKey!_eq_getElem!_minKey?, List.minKey!_eq_get!_minKey?, minKey?_eq_minKey? hlo]
 
 theorem minKeyD_eq_minKeyD [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l : Impl α β}
     (hlo : l.Ordered) {fallback} :
@@ -2455,7 +2455,7 @@ theorem getEntryLE?_eq_findRev? [Ord α] [TransOrd α] {t : Impl α β} (hto : t
     getEntryLE? k t = t.toListModel.findRev? (fun e => (compare e.1 k).isLE) := by
   rw [getEntryLE?_eq_getEntryGE?_reverse, @getEntryGE?_eq_find?, List.findRev?_eq_find?_reverse,
     toListModel_reverse]
-  · simp +instances only [Ord.opposite, Bool.coe_iff_coe.mp OrientedCmp.isGE_iff_isLE]
+  · simp only [Bool.coe_iff_coe.mp OrientedCmp.isGE_iff_isLE]; rfl
   · exact hto.reverse
 
 theorem getEntryLT?_eq_findRev? [Ord α] [TransOrd α] {t : Impl α β} (hto : t.Ordered) {k : α} :

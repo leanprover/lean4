@@ -1,0 +1,2 @@
+Try this:
+  [apply] [grind .] for pattern: [@Membership.mem #1 (List _) _ (@List.nil _) #0]

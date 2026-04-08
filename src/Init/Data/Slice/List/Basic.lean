@@ -21,7 +21,7 @@ open Std Std.Slice Std.PRange
 /--
 Internal representation of `ListSlice`, which is an abbreviation for `Slice ListSliceData`.
 -/
-public class Std.Slice.Internal.ListSliceData (α : Type u) where
+public structure Std.Slice.Internal.ListSliceData (α : Type u) where
   /-- The relevant suffix of the underlying list. -/
   list : List α
   /-- The maximum length of the slice, starting at the beginning of `list`. -/

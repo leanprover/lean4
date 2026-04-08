@@ -21,7 +21,7 @@ def isTailCallTo (g : Name) (b : FnBody) : Bool :=
   | _  => false
 
 def usesModuleFrom (env : Environment) (modulePrefix : Name) : Bool :=
-  env.allImportedModuleNames.toList.any fun modName => modulePrefix.isPrefixOf modName
+  env.header.modules.any fun mod => mod.irPhases != .comptime && modulePrefix.isPrefixOf mod.module
 
 namespace CollectUsedDecls
 

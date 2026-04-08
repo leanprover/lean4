@@ -31,11 +31,8 @@ builtin_initialize specCacheExt : SimplePersistentEnvExtension CacheEntry Cache 
   registerSimplePersistentEnvExtension {
     addEntryFn    := addEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addEntry {} es).switch
-    exportEntriesFnEx? := some fun _ _ entries level =>
-      if level == .private then
-        entries.toArray
-      else
-        #[]
+    exportEntriesFnEx? := some fun _ _ entries =>
+      { exported := #[], server := #[], «private» := entries.toArray }
     asyncMode     := .sync
     replay?       := some <| SimplePersistentEnvExtension.replayOfFilter
       (!·.contains ·.key) addEntry
@@ -209,7 +206,7 @@ def collect (paramsInfo : Array SpecParamInfo) (args : Array (Arg .pure)) :
       match paramInfo with
       | .other =>
         argMask := argMask.push none
-      | .fixedNeutral | .user | .fixedInst | .fixedHO =>
+      | .fixedNeutral | .user | .fixedInst .. | .fixedHO =>
         argMask := argMask.push (some arg)
         Closure.collectArg arg
     return argMask
@@ -257,7 +254,8 @@ def shouldSpecialize (specEntry : SpecEntry) (args : Array (Arg .pure)) : Specia
     match paramInfo with
     | .other => pure ()
     | .fixedNeutral => pure () -- If we want to monomorphize types such as `Array`, we need to change here
-    | .fixedInst | .user => if ← isGround arg then return true
+    | .fixedInst true => pure ()  -- weak: don't trigger specialization on its own
+    | .fixedInst false | .user => if ← isGround arg then return true
     | .fixedHO => if ← hoCheck arg then return true
 
   return false
@@ -400,7 +398,7 @@ mutual
   partial def specializeApp? (e : LetValue .pure) : SpecializeM (Option (LetValue .pure)) := do
     let .const declName us args := e | return none
     if args.isEmpty then return none
-    if (← isInstanceReducible declName) then return none
+    if (← isImplicitReducible declName) then return none
     let some specEntry ← getSpecEntry? declName | return none
     unless (← shouldSpecialize specEntry args) do return none
     let some ⟨.pure, decl⟩ ← getDecl? declName | return none
@@ -509,7 +507,7 @@ def updateLocalSpecParamInfo : SpecializeM Unit := do
   for entry in infos do
     if let some mask := (← get).parentMasks[entry.declName]? then
       let maskInfo info :=
-        mask.zipWith info (f := fun b i => if !b && i.causesSpecialization then .other else i)
+        mask.zipWith info (f := fun b i => if !b && (i.causesSpecialization || i matches .fixedInst ..) then .other else i)
       let entry := { entry with paramsInfo := maskInfo entry.paramsInfo }
       modify fun s => {
         s with

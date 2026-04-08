@@ -1,0 +1,14 @@
+elseifDoErrorPos.lean:5:10-5:11: error: Application type mismatch: The argument
+  x
+has type
+  Nat
+but is expected to have type
+  Prop
+in the application
+  @ite ?m x
+elseifDoErrorPos.lean:8:11-8:14: error: Type mismatch
+  "a"
+has type
+  String
+but is expected to have type
+  Nat

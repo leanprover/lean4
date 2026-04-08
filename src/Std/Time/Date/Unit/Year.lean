@@ -39,10 +39,12 @@ instance : ToString Era where
 @[expose] def Offset : Type := Int
 deriving Repr, DecidableEq, Inhabited, Add, Sub, Neg, LE, LT, ToString
 
+set_option backward.inferInstanceAs.wrap.instances false in
 instance {x y : Offset} : Decidable (x ≤ y) :=
   let x : Int := x
   inferInstanceAs (Decidable (x ≤ y))
 
+set_option backward.inferInstanceAs.wrap.instances false in
 instance {x y : Offset} : Decidable (x < y) :=
   let x : Int := x
   inferInstanceAs (Decidable (x < y))

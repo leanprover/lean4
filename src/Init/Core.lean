@@ -172,6 +172,8 @@ instance thunkCoe : CoeTail α (Thunk α) where
   -- Since coercions are expanded eagerly, `a` is evaluated lazily.
   coe a := ⟨fun _ => a⟩
 
+instance [Inhabited α] : Inhabited (Thunk α) := ⟨.pure default⟩
+
 /-- A variation on `Eq.ndrec` with the equality argument first. -/
 abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=
   Eq.ndrec m h
@@ -1339,10 +1341,10 @@ transitive and contains `r`. `TransGen r a z` if and only if there exists a sequ
 -/
 inductive Relation.TransGen {α : Sort u} (r : α → α → Prop) : α → α → Prop
   /-- If `r a b`, then `TransGen r a b`. This is the base case of the transitive closure. -/
-  | single {a b} : r a b → TransGen r a b
+  | single {a b : α} : r a b → TransGen r a b
   /-- If `TransGen r a b` and `r b c`, then `TransGen r a c`.
   This is the inductive case of the transitive closure. -/
-  | tail {a b c} : TransGen r a b → r b c → TransGen r a c
+  | tail {a b c : α} : TransGen r a b → r b c → TransGen r a c
 
 /-- The transitive closure is transitive. -/
 theorem Relation.TransGen.trans {α : Sort u} {r : α → α → Prop} {a b c} :
@@ -2313,6 +2315,13 @@ instance Pi.instSubsingleton {α : Sort u} {β : α → Sort v} [∀ a, Subsingl
 
 /-! # Squash -/
 
+theorem equivalence_true (α : Sort u) : Equivalence fun _ _ : α => True :=
+  ⟨fun _ => trivial, fun _ => trivial, fun _ _ => trivial⟩
+
+/-- Always-true relation as a `Setoid`. -/
+protected def Setoid.trivial (α : Sort u) : Setoid α :=
+  ⟨_, equivalence_true α⟩
+
 /--
 The quotient of `α` by the universal relation. The elements of `Squash α` are those of `α`, but all
 of them are equal and cannot be distinguished.
@@ -2326,8 +2335,11 @@ and its representation in compiled code is identical to that of `α`.
 
 Consequently, `Squash.lift` may extract an `α` value into any subsingleton type `β`, while
 `Nonempty.rec` can only do the same when `β` is a proposition.
+
+`Squash` is defined in terms of `Quotient`, so `Squash` can be used when a `Quotient` argument is
+expected.
 -/
-def Squash (α : Sort u) := Quot (fun (_ _ : α) => True)
+def Squash (α : Sort u) := Quotient (Setoid.trivial α)
 
 /--
 Places a value into its squash type, in which it cannot be distinguished from any other.
@@ -2583,3 +2595,11 @@ class Trichotomous (r : α → α → Prop) : Prop where
   trichotomous (a b : α) : ¬ r a b → ¬ r b a → a = b
 
 end Std
+
+@[simp] theorem flip_flip {α : Sort u} {β : Sort v} {φ : Sort w} {f : α → β → φ} :
+    flip (flip f) = f := by
+  apply funext
+  intro a
+  apply funext
+  intro b
+  rw [flip, flip]

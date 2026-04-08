@@ -76,7 +76,7 @@ def etaPolyApp? (letDecl : LetDecl .pure) : OptionT SimpM (FunDecl .pure) := do
   let .const declName us args := letDecl.value | failure
   let some info := (← getEnv).find? declName | failure
   guard <| (← hasLocalInst info.type)
-  guard <| !(← isInstanceReducible declName)
+  guard <| !(← isImplicitReducible declName)
   let some ⟨.pure, decl⟩ ← getDecl? declName | failure
   guard <| decl.getArity > args.size
   let params ← mkNewParams letDecl.type
@@ -217,6 +217,8 @@ Simplify `code`
 -/
 partial def simp (code : Code .pure) : SimpM (Code .pure) := withIncRecDepth do
   incVisited
+  if (← get).visited % 128 == 0 then
+    checkSystem "LCNF simp"
   match code with
   | .let decl k =>
     let baseDecl := decl

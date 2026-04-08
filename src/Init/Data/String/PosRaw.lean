@@ -57,9 +57,6 @@ instance (p₁ p₂ : String.Pos.Raw) : Decidable (p₁ ≤ p₂) :=
 instance (p₁ p₂ : String.Pos.Raw) : Decidable (p₁ < p₂) :=
   inferInstanceAs (Decidable (p₁.byteIdx < p₂.byteIdx))
 
-instance : Min String.Pos.Raw := minOfLe
-instance : Max String.Pos.Raw := maxOfLe
-
 @[simp]
 theorem Pos.Raw.byteIdx_sub_char {p : Pos.Raw} {c : Char} : (p - c).byteIdx = p.byteIdx - c.utf8Size := rfl
 

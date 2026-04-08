@@ -103,11 +103,11 @@ namespace StateRefT'
 instance {ω σ : Type} {m : Type → Type} [Monad m] : LawfulMonadLift m (StateRefT' ω σ m) where
   monadLift_pure _ := by
     simp only [MonadLift.monadLift, pure]
-    unfold StateRefT'.lift ReaderT.pure
+    unfold StateRefT'.lift instMonad._aux_5 ReaderT.pure
     simp only
   monadLift_bind _ _ := by
     simp only [MonadLift.monadLift, bind]
-    unfold StateRefT'.lift ReaderT.bind
+    unfold StateRefT'.lift instMonad._aux_13 ReaderT.bind
     simp only
 
 end StateRefT'

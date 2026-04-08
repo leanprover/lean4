@@ -1,0 +1,19 @@
+{ eqnNames := #[Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkNum `_private.elab.matchEqs 0) "f") "match_1") "eq_1",
+                Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkNum `_private.elab.matchEqs 0) "f") "match_1") "eq_2",
+                Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkNum `_private.elab.matchEqs 0) "f") "match_1") "eq_3"],
+  splitterName := Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkStr (Lean.Name.mkNum `_private.elab.matchEqs 0) "f") "match_1") "splitter",
+  splitterMatchInfo := { numParams := 0,
+                         numDiscrs := 1,
+                         altInfos := #[{ numFields := 0, numOverlaps := 0, hasUnitThunk := true },
+                                       { numFields := 1, numOverlaps := 0, hasUnitThunk := false },
+                                       { numFields := 1, numOverlaps := 2, hasUnitThunk := false }],
+                         uElimPos? := some 0,
+                         discrInfos := #[{ hName? := none }],
+                         overlaps := { map := Std.HashMap.ofList [(2, Std.TreeSet.ofList [0, 1])] } } }
+f.match_1 : (motive : List Nat → Sort u_1) →
+  (x : List Nat) → (Unit → motive []) → ((a : Nat) → motive [a]) → ((x : List Nat) → motive x) → motive x
+f.match_1.splitter : (motive : List Nat → Sort u_1) →
+  (x : List Nat) →
+    (Unit → motive []) →
+      ((a : Nat) → motive [a]) →
+        ((x : List Nat) → (x = [] → False) → (∀ (a : Nat), x = [a] → False) → motive x) → motive x

@@ -142,16 +142,6 @@ structure ModuleData where
   entries         : Array (Name × Array EnvExtensionEntry)
   deriving Inhabited
 
-/-- Phases for which some IR is available for execution. -/
-inductive IRPhases where
-  /-- Available for execution in the final native code. -/
-  | runtime
-  /-- Available for execution during elaboration. -/
-  | comptime
-  /-- Available during run time and compile time. -/
-  | all
-deriving Inhabited, BEq, Repr
-
 /-- Import including information resulting from processing of the entire import DAG. -/
 structure EffectiveImport extends Import where
   /-- Phases for which the import's IR is available. -/
@@ -441,6 +431,12 @@ also `AsyncContext.declPrefix`.
 private def AsyncContext.mayContain (ctx : AsyncContext) (n : Name) : Bool :=
   ctx.declPrefix.isPrefixOf <| privateToUserName n.eraseMacroScopes
 
+private def AsyncContext.descr (ctx : AsyncContext) : String :=
+  if let (n :: _) := ctx.realizingStack then
+    s!"realization context '{n}'"
+  else
+    s!"async context '{ctx.declPrefix}'"
+
 /--
 Constant info and environment extension states eventually resulting from async elaboration.
 -/
@@ -529,11 +525,12 @@ where go parent? aconsts := do
   go (some c) c.aconsts.get
 
 /-- Accessibility levels of declarations in `Lean.Environment`. -/
-private inductive Visibility where
+inductive Environment.Visibility where
   /-- Information private to the module. -/
   | «private»
   /-- Information to be exported to other modules. -/
   | «public»
+deriving Inhabited, BEq
 
 /-- Maps `Visibility` to `α`. -/
 private structure VisibilityMap (α : Type) where
@@ -762,6 +759,7 @@ private def lakeAdd (env : Environment) (cinfo : ConstantInfo) : Environment :=
   }
 
 -- forward reference due to too many cyclic dependencies
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_is_reserved_name"]
 private opaque isReservedName (env : Environment) (name : Name) : Bool
 
@@ -1195,8 +1193,8 @@ namespace ConstantInfo
 def instantiateTypeLevelParams (c : ConstantInfo) (ls : List Level) : Expr :=
   c.toConstantVal.instantiateTypeLevelParams ls
 
-def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) : Expr :=
-  c.value!.instantiateLevelParams c.levelParams ls
+def instantiateValueLevelParams! (c : ConstantInfo) (ls : List Level) (allowOpaque := false) : Expr :=
+  (c.value! (allowOpaque := allowOpaque)).instantiateLevelParams c.levelParams ls
 
 end ConstantInfo
 
@@ -1386,8 +1384,7 @@ def modifyState {σ : Type} (ext : EnvExtension σ) (env : Environment) (f : σ 
   match asyncMode with
   | .mainOnly =>
     if let some asyncCtx := env.asyncCtx? then
-      return panic! s!"environment extension is marked as `mainOnly` but used in \
-        {if env.isRealizing then "realization" else "async"} context '{asyncCtx.declPrefix}'"
+      return panic! s!"environment extension is marked as `mainOnly` but used in {asyncCtx.descr}"
     return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
   | .local =>
     return { env with base.private.extensions := unsafe ext.modifyStateImpl env.base.private.extensions f }
@@ -1543,6 +1540,23 @@ deriving DecidableEq, Ord, Repr
 instance : LE OLeanLevel := leOfOrd
 instance : LT OLeanLevel := ltOfOrd
 
+/-- Data computed once per extension for all three olean levels. Avoids calling the export function
+    three separate times so that expensive computations can be shared. -/
+structure OLeanEntries (α : Type) where
+  exported : α
+  server   : α
+  «private» : α
+  deriving Inhabited
+
+/-- Create `OLeanEntries` with the same value for all levels. -/
+def OLeanEntries.uniform (a : α) : OLeanEntries α := ⟨a, a, a⟩
+
+/-- Look up the entry for a given level. -/
+def OLeanEntries.get (e : OLeanEntries α) : OLeanLevel → α
+  | .exported => e.exported
+  | .server   => e.server
+  | .private  => e.private
+
 /--
 An environment extension with support for storing/retrieving entries from a .olean file.
  - α is the type of the entries that are stored in .olean files.
@@ -1594,16 +1608,17 @@ structure PersistentEnvExtension (α : Type) (β : Type) (σ : Type) where
   addImportedFn   : Array (Array α) → ImportM σ
   addEntryFn      : σ → β → σ
   /--
-  Function to transform state into data that should be imported into other modules. When using the
+  Function to transform state into data that should be imported into other modules. Returns entries
+  for all three olean levels at once so that expensive computations can be shared. When using the
   module system without `import all`, `OLeanLevel.exported` is imported, else `OLeanLevel.private`.
   Additionally, when using the module system in the language server, the `OLeanLevel.server` data is
   accessible via `getModuleEntries (level := .server)`. By convention, each level should include all
   data of previous levels.
 
-  This function is run after elaborating the file and joining all asynchronous threads. It is run
-  once for each level when the module system is enabled, otherwise once for `private`.
+  This function is run once after elaborating the file and joining all asynchronous threads.
+  For non-module files, only the `private` field is used.
   -/
-  exportEntriesFn : Environment → σ → OLeanLevel → Array α
+  exportEntriesFn : Environment → σ → OLeanEntries (Array α)
   statsFn         : σ → Format
 
 instance {α σ} [Inhabited σ] : Inhabited (PersistentEnvExtensionState α σ) :=
@@ -1615,7 +1630,7 @@ instance {α β σ} [Inhabited σ] : Inhabited (PersistentEnvExtension α β σ)
      name := default,
      addImportedFn := fun _ => default,
      addEntryFn := fun s _ => s,
-     exportEntriesFn := fun _ _ _ => #[],
+     exportEntriesFn := fun _ _ => .uniform #[],
      statsFn := fun _ => Format.nil
   }
 
@@ -1671,7 +1686,7 @@ structure PersistentEnvExtensionDescrCore (α β σ : Type) where
   mkInitial         : IO σ
   addImportedFn     : Array (Array α) → ImportM σ
   addEntryFn        : σ → β → σ
-  exportEntriesFnEx : Environment → σ → OLeanLevel → Array α
+  exportEntriesFnEx : Environment → σ → OLeanEntries (Array α)
   statsFn           : σ → Format := fun _ => Format.nil
   asyncMode         : EnvExtension.AsyncMode := .mainOnly
   replay?           : Option (ReplayFn σ) := none
@@ -1690,11 +1705,11 @@ def useDefaultIfOtherFieldGiven (default : α) (_otherField : β) : α :=
 structure PersistentEnvExtensionDescr (α β σ : Type) extends PersistentEnvExtensionDescrCore α β σ where
   -- The cyclic default values force the user to specify at least one of the two following fields.
   /--
-  Obsolete simpler version of `exportEntriesFnEx`. Its value is ignored if the latter is also
-  specified.
+  Obsolete simpler version of `exportEntriesFnEx` that returns the same entries for all levels.
+  Its value is ignored if the latter is also specified.
   -/
   exportEntriesFn : σ → Array α := useDefaultIfOtherFieldGiven (fun _ => #[]) exportEntriesFnEx
-  exportEntriesFnEx := fun _ s _ => exportEntriesFn s
+  exportEntriesFnEx := fun _ s => .uniform (exportEntriesFn s)
 
 unsafe def registerPersistentEnvExtensionUnsafe {α β σ : Type} [Inhabited σ] (descr : PersistentEnvExtensionDescr α β σ) : IO (PersistentEnvExtension α β σ) := do
   let pExts ← persistentEnvExtensionsRef.get
@@ -1778,19 +1793,44 @@ private def looksLikeOldCodegenName : Name → Bool
   | .str _ s => s.startsWith "_cstage" || s.startsWith "_spec_" || s.startsWith "_elambda"
   | _        => false
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_get_ir_extra_const_names"]
 private opaque getIRExtraConstNames (env : Environment) (level : OLeanLevel) (includeDecls := false) : Array Name
 
-def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO ModuleData := do
-  let env := env.setExporting (level != .private)
+/--
+Compute extension entries for all levels at once by calling `exportEntriesFn` once per extension.
+Returns an `OLeanEntries` of arrays mapping extension names to their exported data.
+-/
+private def computeExtEntries (env : Environment) :
+    IO (OLeanEntries (Array (Name × Array EnvExtensionEntry))) := do
   let pExts ← persistentEnvExtensionsRef.get
-  let entries := pExts.map fun pExt => Id.run do
-    -- get state from `checked` at the end if `async`; it would otherwise panic
-    let mut asyncMode := pExt.toEnvExtension.asyncMode
-    if asyncMode matches .async _ then
-      asyncMode := .sync
+  let allEntries := pExts.map fun pExt =>
+    let asyncMode := match pExt.toEnvExtension.asyncMode with
+      | .async _ => .sync
+      | m => m
     let state := pExt.getState (asyncMode := asyncMode) env
-    (pExt.name, pExt.exportEntriesFn env state level)
+    let oe := pExt.exportEntriesFn env state
+    (pExt.name, oe)
+  let filterNonEmpty (level : OLeanLevel) :=
+    allEntries.filterMap fun (name, oe) => do
+      let ents := oe.get level
+      guard !ents.isEmpty
+      pure (name, ents)
+  return {
+    exported := filterNonEmpty .exported
+    server   := filterNonEmpty .server
+    «private» := filterNonEmpty .private
+  }
+
+def mkModuleData (env : Environment) (level : OLeanLevel := .private)
+    (extEntries? : Option (OLeanEntries (Array (Name × Array EnvExtensionEntry))) := none) :
+    IO ModuleData := do
+  let env := env.setExporting (level != .private)
+  let entries ← match extEntries? with
+    | some ee => pure (ee.get level)
+    | none => do
+      let ee ← computeExtEntries env
+      pure (ee.get level)
   let kenv := env.toKernelEnv
   let constNames := kenv.constants.foldStage2 (fun names name _ => names.push name) #[]
   -- not all kernel constants may be exported at `level < .private`
@@ -1811,6 +1851,7 @@ def mkModuleData (env : Environment) (level : OLeanLevel := .private) : IO Modul
     constNames, constants, entries
   }
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_ir_export_entries"]
 private opaque exportIREntries (env : Environment) : Array (Name × Array EnvExtensionEntry)
 
@@ -1824,16 +1865,18 @@ private def mkIRData (env : Environment) : ModuleData :=
     extraConstNames := getIRExtraConstNames env .private (includeDecls := true)
   }
 
-def writeModule (env : Environment) (fname : System.FilePath) : IO Unit := do
+def writeModule (env : Environment) (fname : System.FilePath) (writeIR := true) : IO Unit := do
   if env.header.isModule then
+    let extEntries ← computeExtEntries env
     let mkPart (level : OLeanLevel) :=
-      return (level.adjustFileName fname, (← mkModuleData env level))
+      return (level.adjustFileName fname, (← mkModuleData env level extEntries))
     saveModuleDataParts env.mainModule #[
       (← mkPart .exported),
       (← mkPart .server),
       (← mkPart .private)]
-    -- Make sure to change the module name so we derive a different base address
-    saveModuleData (fname.withExtension "ir") (env.mainModule ++ `ir) (mkIRData env)
+    if writeIR then
+      -- Make sure to change the module name so we derive a different base address
+      saveModuleData (fname.withExtension "ir") (env.mainModule ++ `ir) (mkIRData env)
   else
     saveModuleData fname env.mainModule (← mkModuleData env)
 
@@ -1869,6 +1912,7 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
           { s with importedEntries := s.importedEntries.set! modIdx entries }
   return states
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
   "Forward declaration" needed for updating the attribute table with user-defined attributes.
   User-defined attributes are declared using the `initialize` command. The `initialize` command is just syntax sugar for the `init` attribute.
@@ -1879,9 +1923,12 @@ private def setImportedEntries (states : Array EnvExtensionState) (mods : Array 
   Later, we set this method with code that adds the user-defined attributes that were imported after we initialized `attributeExtension`.
 -/
 @[extern "lean_update_env_attributes"] opaque updateEnvAttributes : Environment → IO Environment
+
+set_option compiler.ignoreBorrowAnnotation true in
 /-- "Forward declaration" for retrieving the number of builtin attributes. -/
 @[extern "lean_get_num_attributes"] opaque getNumBuiltinAttributes : IO Nat
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_run_init_attrs"]
 private opaque runInitAttrs (env : Environment) (opts : Options) : IO Unit
 
@@ -2208,13 +2255,13 @@ def finalizeImport (s : ImportState) (imports : Array Import) (opts : Options) (
     return data
   let numPrivateConsts := moduleData.foldl (init := 0) fun numPrivateConsts data =>
     numPrivateConsts + data.constants.size
-  let numPrivateConsts := irData.foldl (init := numPrivateConsts) fun numPrivateConsts data =>
-    numPrivateConsts + data.extraConstNames.size
+  let numExtraConsts := irData.foldl (init := 0) fun numExtraConsts data =>
+    numExtraConsts + data.extraConstNames.size
   let numPublicConsts := modules.foldl (init := 0) fun numPublicConsts mod => Id.run do
     if !mod.isExported then numPublicConsts else
       let some data := mod.publicModule? | numPublicConsts
       numPublicConsts + data.constants.size
-  let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts + numPublicConsts)
+  let mut const2ModIdx : Std.HashMap Name ModuleIdx := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts + numExtraConsts)
   let mut privateConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPrivateConsts)
   let mut publicConstantMap : Std.HashMap Name ConstantInfo := Std.HashMap.emptyWithCapacity (capacity := numPublicConsts)
   for h : modIdx in *...moduleData.size do
@@ -2406,6 +2453,7 @@ def displayStats (env : Environment) : IO Unit := do
 @[extern "lean_eval_const"]
 private unsafe opaque evalConstCore (α) (env : @& Environment) (opts : @& Options) (constName : @& Name) : Except String α
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_eval_check_meta"]
 private opaque evalCheckMeta (env : Environment) (constName : Name) : Except String Unit
 
@@ -2747,13 +2795,28 @@ def mkThmOrUnsafeDef [Monad m] [MonadEnv m] (thm : TheoremVal) : m Declaration :
   else
     return .thmDecl thm
 
+/-- Environment extension for overriding the height that `getMaxHeight` assigns to a definition.
+This is consulted for all definitions regardless of their reducibility hints. Currently used by
+structural recursion to ensure that parent definitions get the correct height even though the
+`_f` helper definitions are marked as `.abbrev` (which `getMaxHeight` would otherwise ignore). -/
+builtin_initialize defHeightOverrideExt : EnvExtension (NameMap UInt32) ←
+  registerEnvExtension (pure {}) (asyncMode := .local)
+
+/-- Register a height override for a definition so that `getMaxHeight` uses it. -/
+def setDefHeightOverride (env : Environment) (declName : Name) (height : UInt32) : Environment :=
+  defHeightOverrideExt.modifyState env fun m => m.insert declName height
+
 def getMaxHeight (env : Environment) (e : Expr) : UInt32 :=
+  let overrides := defHeightOverrideExt.getState env
   e.foldConsts 0 fun constName max =>
-    match env.findAsync? constName with
-    | some { kind := .defn, constInfo := info, .. } =>
-      match info.get.hints with
-      | ReducibilityHints.regular h => if h > max then h else max
-      | _                           => max
-    | _ => max
+    match overrides.find? constName with
+    | some h => if h > max then h else max
+    | none =>
+      match env.findAsync? constName with
+      | some { kind := .defn, constInfo := info, .. } =>
+        match info.get.hints with
+        | ReducibilityHints.regular h => if h > max then h else max
+        | _                           => max
+      | _ => max
 
 end Lean

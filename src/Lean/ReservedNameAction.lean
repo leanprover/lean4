@@ -6,6 +6,7 @@ Authors: Leonardo de Moura
 module
 
 prelude
+public import Init.Control.Do
 public import Lean.CoreM
 
 public section
@@ -36,7 +37,7 @@ Note that the handler can throw an exception.
 -/
 def executeReservedNameAction (name : Name) : CoreM Unit := do
   discard <|
-    withTraceNode `ReservedNameAction (pure m!"{exceptBoolEmoji ·} executeReservedNameAction for {name}") do
+    withTraceNode `ReservedNameAction (fun _ => pure m!"executeReservedNameAction for {name}") do
       (← reservedNameActionsRef.get).anyM (· name)
 
 /--

@@ -29,16 +29,6 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   /-- **For internal use.** Whether this package is Lean itself. -/
   bootstrap : Bool := false
 
-  /--
-  **This field is deprecated.**
-
-  The path of a package's manifest file, which stores the exact versions
-  of its resolved dependencies.
-
-  Defaults to `defaultManifestFile` (i.e., `lake-manifest.json`).
-  -/
-  manifestFile : Option FilePath := none
-
   /-- An `Array` of target names to build whenever the package is used. -/
   extraDepTargets : Array Name := #[]
 
@@ -303,9 +293,10 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   artifacts into the build directory. This ensures the build results are available
   to external consumers who expect them in the build directory.
 
-  Defaults to `false`.
+  If `none` (the default), this will follow the workspace's `restoreAllArtifacts` configuration
+  (if set and this package is a dependency). If that is also unset, this will default to `false`.
   -/
-  restoreAllArtifacts : Bool := false
+  restoreAllArtifacts?, restoreAllArtifacts : Option Bool := none
 
   /--
   Whether native libraries (of this package) should be prefixed with `lib` on Windows.
@@ -330,14 +321,31 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   -/
   allowImportAll : Bool := false
 
+  /--
+  Whether this package is expected to function only on a single toolchain
+  (the package's toolchain).
+
+  This informs Lake's toolchain update procedure (in `lake update`) to prioritize
+  this package's toolchain. It also avoids the need to separate input-to-output mappings
+  for this package by toolchain version in the Lake cache.
+
+  Defaults to `false`.
+  -/
+  fixedToolchain : Bool := false
+
 deriving Inhabited
 
 /-- The package's name as specified by the author. -/
+@[deprecated "Deprecated without replacement" (since := "2025-12-10")]
 public abbrev PackageConfig.origName (_ : PackageConfig p n) := n
 
 /-- A package declaration from a configuration written in Lean. -/
 public structure PackageDecl where
-  name : Name
+  baseName : Name
+  keyName : Name
   origName : Name
-  config : PackageConfig name origName
+  config : PackageConfig keyName origName
   deriving TypeName
+
+@[deprecated PackageDecl.keyName (since := "2025-12-10")]
+public abbrev PackageDecl.name := @keyName

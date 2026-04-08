@@ -8,6 +8,10 @@ module
 prelude
 public import Init.Data.String.Lemmas.Pattern.String.Basic
 public import Init.Data.String.Pattern.String
+public import Init.Data.String.Slice
+public import Init.Data.String.Search
+import all Init.Data.String.Slice
+import all Init.Data.String.Search
 import all Init.Data.String.Pattern.String
 import Init.Data.String.Lemmas.IsEmpty
 import Init.Data.Vector.Lemmas
@@ -294,6 +298,7 @@ theorem IsTable.push {b : ByteArray} {v : Array Nat} (h : IsTable b v) {d : Nat}
       obtain rfl : i = v.size := by omega
       exact hd
 
+set_option backward.isDefEq.respectTransparency false in
 theorem computeDistance_eq_prefixFunctionRecurrence {s : Slice} (i : Nat)
     (hi : i < s.copy.toByteArray.size) {patByte : UInt8}
     (hpat : patByte = s.copy.toByteArray[i])
@@ -403,6 +408,7 @@ theorem Invariants.isLongestMatchAt {pat s : Slice} {stackPos needlePos : String
   cases h'
   exact h.partialMatch.isLongestMatchAt h.isEmpty_eq_false h.isValidForSlice
 
+set_option backward.isDefEq.respectTransparency false in
 theorem Invariants.not_matchesAt_of_prefixFunction_eq {pat s : Slice}
     {stackPos needlePos : String.Pos.Raw} (h : Invariants pat s needlePos stackPos)
     {k : Nat} {hki} (hk : prefixFunction pat.copy.toByteArray (needlePos.byteIdx - 1) hki = k)
@@ -560,6 +566,68 @@ public theorem lawfulToForwardSearcherModel {pat : Slice} (hpat : pat.isEmpty = 
     rw (occs := [1]) [← Invariants.base_start hpat]
     apply Invariants.isValidSearchFrom_toList _ _ rfl rfl
 
+@[simp]
+public theorem toList_atEnd_eq {s : Slice} :
+    (Std.Iter.mk (.atEnd : ForwardSliceSearcher s)).toList = [] := by
+  rw [Std.Iter.toList_eq_match_step]
+  simp [Std.Iter.step_eq]
+
+@[simp]
+public theorem toList_emptyAt_eq (s : Slice) (pos : s.Pos) (h : pos ≠ s.endPos) :
+    (Std.Iter.mk (.emptyAt pos h : ForwardSliceSearcher s)).toList =
+      .rejected pos (pos.next h) ::
+        (Std.Iter.mk (.emptyBefore (pos.next h) : ForwardSliceSearcher s)).toList := by
+  rw [Std.Iter.toList_eq_match_step]
+  simp [Std.Iter.step_eq]
+
+public theorem toList_emptyBefore_eq (s : Slice) (pos : s.Pos) :
+    (Std.Iter.mk (.emptyBefore pos : ForwardSliceSearcher s)).toList =
+      if h : pos = s.endPos then
+        [.matched pos pos]
+      else
+        .matched pos pos ::
+          (Std.Iter.mk (.emptyAt pos h : ForwardSliceSearcher s)).toList := by
+  rw [Std.Iter.toList_eq_match_step, Std.Iter.step_eq]
+  by_cases h : pos = s.endPos
+  · simp [h]
+  · rw [dif_neg h, Std.Iter.toList_eq_match_step]
+    simp [Std.Iter.step_eq, h]
+
+public theorem toSearcher_of_isEmpty {pat : Slice} (hpat : pat.isEmpty = true) (s : Slice) :
+    ToForwardSearcher.toSearcher pat s =
+      Std.Iter.mk (.emptyBefore s.startPos : ForwardSliceSearcher s) := by
+  simp only [ToForwardSearcher.toSearcher, iter,
+    dif_pos (show pat.utf8ByteSize = 0 from by simpa [isEmpty_eq] using hpat)]
+
 end ForwardSliceSearcher
 
-end String.Slice.Pattern.Model
+namespace ForwardStringSearcher
+
+public theorem lawfulToForwardSearcherModel {pat : String} (hpat : pat ≠ "") :
+    LawfulToForwardSearcherModel pat where
+  isValidSearchFrom_toList s := by
+    simpa [toSearcher_eq, isValidSearchFrom_iff_isValidSearchFrom_toSlice] using
+      (ForwardSliceSearcher.lawfulToForwardSearcherModel (by simpa)).isValidSearchFrom_toList (pat := pat.toSlice) (s := s)
+
+public theorem toSearcher_empty (s : Slice) : ToForwardSearcher.toSearcher "" s =
+      Std.Iter.mk (.emptyBefore s.startPos : ForwardSliceSearcher s) := by
+  simp only [ToForwardSearcher.toSearcher, ForwardSliceSearcher.iter,
+    dif_pos (show "".toSlice.utf8ByteSize = 0 from by decide)]
+
+end ForwardStringSearcher
+
+end Pattern.Model
+
+public theorem contains_string_eq_contains_toSlice {pat : String} {s : Slice} :
+    s.contains pat = s.contains pat.toSlice :=
+  (rfl)
+
+public theorem find?_string_eq_find?_toSlice {pat : String} {s : Slice} :
+    s.find? pat = s.find? pat.toSlice :=
+  (rfl)
+
+public theorem Pos.find?_string_eq_find?_toSlice {pat : String} {s : Slice} {p : s.Pos} :
+    p.find? pat = p.find? pat.toSlice :=
+  (rfl)
+
+end String.Slice

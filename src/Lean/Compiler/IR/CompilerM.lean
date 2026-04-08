@@ -10,8 +10,9 @@ public import Lean.Compiler.IR.Format
 public import Lean.Compiler.ExportAttr
 public import Lean.Compiler.LCNF.PublicDeclsExt
 import Lean.Compiler.InitAttr
+import all Lean.Compiler.ModPkgExt
 import Init.Data.Format.Macro
-import Lean.Compiler.LCNF.Types
+import Lean.Compiler.LCNF.Basic
 
 public section
 
@@ -85,15 +86,20 @@ builtin_initialize declMapExt : SimplePersistentEnvExtension Decl DeclMap ←
     addEntryFn    := fun s d => s.insert d.name d
     -- Store `meta` closure only in `.olean`, turn all other decls into opaque externs.
     -- Leave storing the remainder for `meta import` and server `#eval` to `exportIREntries` below.
-    exportEntriesFnEx? := some fun env s entries _ =>
+    exportEntriesFnEx? := some fun env s entries =>
       let decls := entries.foldl (init := #[]) fun decls decl => decls.push decl
       let entries := sortDecls decls
       -- Do not save all IR even in .olean.private as it will be in .ir anyway
-      if env.header.isModule then
+      .uniform <| if env.header.isModule then
         entries.filterMap fun d => do
           if isDeclMeta env d.name then
             return d
           guard <| Compiler.LCNF.isDeclPublic env d.name
+          -- TODO: boxed `[extern]`s are created eagerly by lean but we need to see their IR in
+          -- leanir. It would be nicer to make them part of standard `compileDecls` so they can be
+          -- postponed like anyone else.
+          if Compiler.LCNF.isBoxedName d.name && isExtern env d.name.getPrefix then
+            return d
           -- Bodies of imported IR decls are not relevant for codegen, only interpretation
           match d with
           | .fdecl f xs ty b info =>
@@ -120,26 +126,32 @@ private def exportIREntries (env : Environment) : Array (Name × Array EnvExtens
   -- save all initializers independent of meta/private. Non-meta initializers will only be used when
   -- .ir is actually loaded, and private ones iff visible.
   let initDecls : Array (Name × Name) :=
-    regularInitAttr.ext.exportEntriesFn env (regularInitAttr.ext.getState env) .private
+    (regularInitAttr.ext.exportEntriesFn env (regularInitAttr.ext.getState env)).private
   -- safety: cast to erased type
   let initDecls : Array EnvExtensionEntry := unsafe unsafeCast initDecls
 
-  #[(declMapExt.name, irEntries),
-    (Lean.regularInitAttr.ext.name, initDecls)]
+  -- needed during initialization via interpreter
+  let modPkg : Array (Option PkgId) := (modPkgExt.exportEntriesFn env (modPkgExt.getState env)).private
+  -- safety: cast to erased type
+  let modPkg : Array EnvExtensionEntry := unsafe unsafeCast modPkg
 
-def findEnvDecl (env : Environment) (declName : Name) (includeServer := false): Option Decl :=
+  #[(declMapExt.name, irEntries),
+    (Lean.regularInitAttr.ext.name, initDecls),
+    (modPkgExt.name, modPkg)]
+
+def findEnvDecl (env : Environment) (declName : Name) : Option Decl :=
+  Compiler.LCNF.findExtEntry? env declMapExt declName findAtSorted? (·.2.find?)
+
+@[export lean_ir_find_env_decl]
+private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
+  -- This function is never used in `leanir`, so no need for `findExtEntry?`
   match env.getModuleIdxFor? declName with
   | some modIdx =>
-    -- `meta import/import all` and, optionally, additional server-mode IR
-    guard (includeServer || env.header.modules[modIdx]?.any (·.irPhases != .runtime)) *>
+    -- `meta import/import all` and additional server-mode IR
     findAtSorted? (declMapExt.getModuleIREntries env modIdx) declName <|>
     -- (closure of) `meta def`; will report `.extern`s for other `def`s so needs to come second
     findAtSorted? (declMapExt.getModuleEntries env modIdx) declName
   | none => declMapExt.getState env |>.find? declName
-
-@[export lean_ir_find_env_decl]
-private def findInterpDecl (env : Environment) (declName : Name) : Option Decl :=
-  findEnvDecl (includeServer := true) env declName
 
 /-- Like ``findInterpDecl env (declName ++ `_boxed)`` but with optimized negative lookup. -/
 @[export lean_ir_find_env_decl_boxed]

@@ -1,0 +1,46 @@
+[Compiler.saveMono] size: 6
+    def IO.print._at_.IO.println._at_.g.spec_0.spec_0 s a.1 : EST.Out IO.Error lcAny PUnit :=
+      let _x.2 := IO.getStdout a.1;
+      cases _x.2 : EST.Out IO.Error lcAny PUnit
+      | ST.Out.mk val.3 state.4 =>
+        cases val.3 : EST.Out IO.Error lcAny PUnit
+        | IO.FS.Stream.mk flush read write getLine putStr isTty =>
+          let _x.5 := putStr s state.4;
+          return _x.5
+[Compiler.saveMono] size: 4
+    def IO.println._at_.g.spec_0 s a.1 : EST.Out IO.Error lcAny PUnit :=
+      let _x.2 := Nat.reprFast s;
+      let _x.3 := 10;
+      let _x.4 := String.push _x.2 _x.3;
+      let _x.5 := IO.print._at_.IO.println._at_.g.spec_0.spec_0 _x.4 a.1;
+      return _x.5
+[Compiler.saveMono] size: 12
+    def List.forM._at_.g.spec_1 as _y.1 _y.2 : EST.Out IO.Error lcAny (Prod PUnit Nat) :=
+      cases as : EST.Out IO.Error lcAny (Prod PUnit Nat)
+      | List.nil =>
+        let _x.3 := PUnit.unit;
+        let _x.4 := Prod.mk ◾ ◾ _x.3 _y.1;
+        let _x.5 := @EST.Out.ok ◾ ◾ ◾ _x.4 _y.2;
+        return _x.5
+      | List.cons head.6 tail.7 =>
+        let _x.8 := IO.println._at_.g.spec_0 head.6 _y.2;
+        cases _x.8 : EST.Out IO.Error lcAny (Prod PUnit Nat)
+        | EST.Out.ok a.9 a.10 =>
+          let _x.11 := List.forM._at_.g.spec_1 tail.7 _y.1 a.10;
+          return _x.11
+        | EST.Out.error a.12 a.13 =>
+          let _x.14 := @EST.Out.error ◾ ◾ ◾ a.12 a.13;
+          return _x.14
+[Compiler.saveMono] size: 9
+    def g ys a.1 : EST.Out IO.Error lcAny Nat :=
+      let x := 0;
+      let _x.2 := List.forM._at_.g.spec_1 ys x a.1;
+      cases _x.2 : EST.Out IO.Error lcAny Nat
+      | EST.Out.ok a.3 a.4 =>
+        cases a.3 : EST.Out IO.Error lcAny Nat
+        | Prod.mk fst.5 snd.6 =>
+          let _x.7 := @EST.Out.ok ◾ ◾ ◾ snd.6 a.4;
+          return _x.7
+      | EST.Out.error a.8 a.9 =>
+        let _x.10 := @EST.Out.error ◾ ◾ ◾ a.8 a.9;
+        return _x.10

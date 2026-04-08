@@ -284,11 +284,11 @@ def benchFilterPartition (size : Nat) (p : Nat) : IO Float := do
       if l.size + r.size != set.size
       then throw <| .userError "Fail"
 
-def evalPartition := do
+def evalPartition : IO Unit := do
   let mut nativeBetter := 0
   let mut filterBetter := 0
 
-  for size in [100, 1000, 10000, 100000, 1000000] do
+  for size in ([100, 1000, 10000, 100000, 1000000] : List Nat) do
     for p in testPrimes do
       let time1 ← benchNativePartition size p
       let time2 ← benchFilterPartition size p
@@ -304,7 +304,7 @@ def evalPartition := do
   IO.println s!"Native function better: {nativeBetter}"
   IO.println s!"Filter function better: {filterBetter}"
 
-#eval evalPartition
+--#eval evalPartition
 
 end partitionTests
 

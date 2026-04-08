@@ -106,13 +106,8 @@ def normalizePublishDiagnosticsParams (p : PublishDiagnosticsParams) :
 Merges a new `textDocument/publishDiagnostics` notification into a previously accumulated one.
 
 - If there is no previous notification, the new one is used as-is.
-- If `isIncremental?` is `true` and versions match, the new diagnostics are appended.
+- If `isIncremental?` is `true`, the new diagnostics are appended.
 - Otherwise the new notification replaces the previous one.
-
-Unlike the vscode-lean4 client, this function does not drop notifications with a lower version than
-the accumulated one. In the test runner, `collectDiagnostics` can receive stale notifications from a
-previous document after a RESET (didClose/didOpen) cycle, where the old document's version is higher
-than the new one's. Dropping the new document's notifications based on version would be incorrect.
 
 The returned params always have `isIncremental? := some false` since they represent the full
 accumulated set.
@@ -122,11 +117,7 @@ def mergePublishDiagnosticsParams (prev? : Option PublishDiagnosticsParams)
   let replace := { next with isIncremental? := some false }
   let some prev := prev?
     | return replace
-  let some prevVersion := prev.version?
-    | return replace
-  let some nextVersion := next.version?
-    | return replace
-  if nextVersion == prevVersion && next.isIncremental?.getD false then
+  if next.isIncremental?.getD false then
     return { next with
       diagnostics := prev.diagnostics ++ next.diagnostics
       isIncremental? := some false }

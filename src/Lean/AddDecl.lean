@@ -9,7 +9,7 @@ prelude
 public import Lean.Meta.Sorry
 public import Lean.Util.CollectAxioms
 public import Lean.OriginalConstKind
-public import Lean.Compiler.MetaAttr
+import Lean.Compiler.MetaAttr
 import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
 
 public section

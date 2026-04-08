@@ -9,9 +9,8 @@ prelude
 public import Lean.Meta.Closure
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.CtorRecognizer
-public import Lean.Elab.Term.TermElabM
+public import Lean.Meta.AppBuilder
 import Lean.Structure
-import all Lean.Elab.App
 
 /-!
 # Instance Wrapping
@@ -63,7 +62,7 @@ Given an instance `i : I` and expected type `I'` (where `I'` must be mvar-free),
 - `backward.inferInstanceAs.wrap.data`: wrap data fields in auxiliary definitions
 -/
 
-namespace Lean.Elab.Term
+namespace Lean.Meta
 
 public register_builtin_option backward.inferInstanceAs.wrap : Bool := {
   defValue := true
@@ -113,12 +112,30 @@ partial def getFieldOrigin (structName field : Name) : MetaM (Name × StructureF
     | throwError "no such field {field} in {structName}"
   return (structName, fi)
 
+/-- Projects application of a structure type to corresponding application of a parent structure. -/
+def getParentStructType? (structName parentStructName : Name) (structType : Expr) : MetaM (Option Expr) := OptionT.run do
+  let env ← getEnv
+  let some path := getPathToBaseStructure? env parentStructName structName | failure
+  withLocalDeclD `self structType fun self => do
+    let proj ← path.foldlM (init := self) fun e projFn => do
+      let ty ← whnf (← inferType e)
+      let .const _ us := ty.getAppFn
+        | trace[Meta.wrapInstance] "could not reduce type `{ty}`"
+          failure
+      let params := ty.getAppArgs
+      pure <| mkApp (mkAppN (.const projFn us) params) e
+    let projTy ← whnf <| ← inferType proj
+    if projTy.containsFVar self.fvarId! then
+      trace[Meta.wrapInstance] "parent type depends on instance fields{indentExpr projTy}"
+      failure
+    return projTy
+
 /--
 Wrap an instance value so its type matches the expected type exactly.
 See the module docstring for the full algorithm specification.
 -/
 public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := true)
-    (logCompileErrors : Bool := true) (isMeta : Bool := false) : Term.TermElabM Expr := withTransparency .instances do
+    (logCompileErrors : Bool := true) (isMeta : Bool := false) : MetaM Expr := withTransparency .instances do
   withTraceNode `Meta.wrapInstance
       (fun _ => return m!"type: {expectedType}") do
   let some className ← isClass? expectedType
@@ -199,19 +216,15 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
           let (baseClassName, fieldInfo) ← getFieldOrigin className mvarDecl.userName
           if baseClassName != className then
             trace[Meta.wrapInstance] "found inherited field `{mvarDecl.userName}` from parent `{baseClassName}`"
-            -- find appropriate arguments to `baseClassName` by unification with projection chain
-            let baseClassType ← do
-              let instMVar ← mkFreshExprMVar (some expectedType)
-              let baseClassInst ← mkBaseProjections baseClassName className instMVar
-              inferType baseClassInst
-            try
-              if let .some existingBaseClassInst ← trySynthInstance baseClassType then
-                trace[Meta.wrapInstance] "using projection of existing instance `{existingBaseClassInst}`"
-                mvarId.assign (← mkProjection existingBaseClassInst fieldInfo.fieldName)
-                continue
-              trace[Meta.wrapInstance] "did not find existing instance for `{baseClassName}`"
-            catch e =>
-              trace[Meta.wrapInstance] "error when attempting to reuse existing instance for `{baseClassName}`: {e.toMessageData}"
+            if let some baseClassType ← getParentStructType? className baseClassName expectedType then
+              try
+                if let .some existingBaseClassInst ← trySynthInstance baseClassType then
+                  trace[Meta.wrapInstance] "using projection of existing instance `{existingBaseClassInst}`"
+                  mvarId.assign (← mkProjection existingBaseClassInst fieldInfo.fieldName)
+                  continue
+                trace[Meta.wrapInstance] "did not find existing instance for `{baseClassName}`"
+              catch e =>
+                trace[Meta.wrapInstance] "error when attempting to reuse existing instance for `{baseClassName}`: {e.toMessageData}"
 
         -- For data fields, assign directly or wrap in aux def to fix types.
         if backward.inferInstanceAs.wrap.data.get (← getOptions) then

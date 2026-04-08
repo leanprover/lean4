@@ -166,6 +166,9 @@ open Lean.Meta
         mkPureApp newDoBlockResultType done
       }
     enterLoopBody breakCont continueCont returnCont do
+    Term.addTermInfo' (isBinder := true) x xh[0]!
+    if let some h := h? then
+      Term.addTermInfo' (isBinder := true) h xh[1]!
     -- Elaborate the loop body, which must have result type `PUnit`, just like the whole `for` loop.
     elabDoSeq body { dec with k := continueCont, kind := .duplicable }
 

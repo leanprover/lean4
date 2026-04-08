@@ -79,5 +79,5 @@ IO.println ("y: " ++ toString y) -- warn unreachable
 return 0
 
 example (xs : List (Nat × Nat)) : List (Nat × Nat) := Id.run <| do
-for _ in xs do -- error, `for` result type is PUnit but expected type is List (Nat × Nat)
-  pure ()
+  for _ in xs do -- error, `for` result type is PUnit but expected type is List (Nat × Nat)
+    pure ()

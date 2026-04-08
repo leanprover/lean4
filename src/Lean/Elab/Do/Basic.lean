@@ -417,12 +417,35 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
     mkBindApp eResultTy kResultTy e k
 
 /--
+Given a continuation `dec`, returns a continuation derived from `dec` with result type `PUnit`.
+If `dec` already has result type `PUnit`, simply returns `dec`. Otherwise, an error is logged at
+`errorRef` and a new continuation is returned that calls `dec` with `sorry` as a result.
+-/
+def DoElemCont.ensureUnit (dec : DoElemCont) (errorRef : Syntax) : DoElabM DoElemCont := do
+  let unit ← mkPUnit
+  if ← isDefEq dec.resultType unit then
+    return dec
+  let errMessage := m!"This do element can only be used in a terminal position when the expected \
+    result type is {unit} but the result type is{indentExpr dec.resultType}"
+  unless (← readThe Term.Context).errToSorry do
+    throwErrorAt errorRef errMessage
+  logErrorAt errorRef errMessage
+  return {
+    resultName := ← mkFreshUserName `__r
+    resultType := unit
+    k := do
+      mapLetDecl dec.resultName dec.resultType (← mkSorry dec.resultType true)
+          (nondep := true) (kind := .implDetail) fun _ => dec.k
+    kind := dec.kind
+  }
+
+/--
 Return `let $k.resultName : PUnit := PUnit.unit; $(← k.k)`, ensuring that the result type of `k.k`
 is `PUnit` and then immediately zeta-reduce the `let`.
 -/
 def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
+  let dec ← dec.ensureUnit (← getRef)
   let unit ← mkPUnitUnit
-  discard <| Term.ensureHasType dec.resultType unit
   mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := .ofBinderName dec.resultName) fun _ =>
     dec.k
 

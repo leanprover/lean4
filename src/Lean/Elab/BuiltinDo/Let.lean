@@ -205,17 +205,20 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   Term.mkLetConfig letConfigStx initConfig
 
 @[builtin_doElem_elab Lean.Parser.Term.doLet] def elabDoLet : DoElab := fun stx dec => do
-  let `(doLet| let $[mut%$mutTk?]? $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax
+  let `(doLet| let%$tk $[mut%$mutTk?]? $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax
+  let dec ← dec.ensureUnit tk
   let config ← getLetConfigAndCheckMut config mutTk?
   elabDoLetOrReassign config (.let mutTk?) decl dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doHave] def elabDoHave : DoElab := fun stx dec => do
-  let `(doHave| have $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax
+  let `(doHave| have%$tk $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax
+  let dec ← dec.ensureUnit tk
   let config ← Term.mkLetConfig config { nondep := true }
   elabDoLetOrReassign config .have decl dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetRec] def elabDoLetRec : DoElab := fun stx dec => do
-  let `(doLetRec| let rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
+  let `(doLetRec| let%$tk rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
+  let dec ← dec.ensureUnit tk
   let vars ← getLetRecDeclsVars decls
   let mγ ← mkMonadicType (← read).doBlockResultType
   doElabToSyntax m!"let rec body of group {vars}" dec.continueWithUnit fun body => do
@@ -226,6 +229,7 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
 
 @[builtin_doElem_elab Lean.Parser.Term.doReassign] def elabDoReassign : DoElab := fun stx dec => do
   -- def doReassign := letIdDeclNoBinders <|> letPatDecl
+  let dec ← dec.ensureUnit (← getRef)
   match stx with
   | `(doReassign| $x:ident $[: $xType?]? := $rhs) =>
     let decl : TSyntax ``letIdDecl ← `(letIdDecl| $x:ident $[: $xType?]? := $rhs)
@@ -255,7 +259,8 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
     elabDoElem (← `(doElem| match $rhs:term with | $pattern => $body:doSeqIndent | _ => $otherwise:doSeqIndent)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetArrow] def elabDoLetArrow : DoElab := fun stx dec => do
-  let `(doLetArrow| let $[mut%$mutTk?]? $cfg:letConfig $decl) := stx | throwUnsupportedSyntax
+  let `(doLetArrow| let%$tk $[mut%$mutTk?]? $cfg:letConfig $decl) := stx | throwUnsupportedSyntax
+  let dec ← dec.ensureUnit tk
   let config ← getLetConfigAndCheckMut cfg mutTk?
   checkLetConfigInDo config
   if config.nondep || config.usedOnly || config.zeta || config.eq?.isSome then
@@ -263,6 +268,7 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   elabDoArrow (.let mutTk?) decl dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doReassignArrow] def elabDoReassignArrow : DoElab := fun stx dec => do
+  let dec ← dec.ensureUnit (← getRef)
   match stx with
   | `(doReassignArrow| $decl:doIdDecl) =>
     elabDoArrow .reassign decl dec

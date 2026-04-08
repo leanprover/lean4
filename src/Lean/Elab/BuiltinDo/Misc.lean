@@ -27,23 +27,27 @@ open Lean.Meta
   elabDoSeq ⟨doSeq.raw⟩ dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doUnless] def elabDoUnless : DoElab := fun stx dec => do
-  let `(doUnless| unless $cond do $body) := stx | throwUnsupportedSyntax
+  let `(doUnless| unless%$tk $cond do $body) := stx | throwUnsupportedSyntax
+  let dec ← dec.ensureUnit tk
   elabDoElem (← `(doElem| if $cond then pure PUnit.unit else $body)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doDbgTrace] def elabDoDbgTrace : DoElab := fun stx dec => do
-  let `(doDbgTrace| dbg_trace $msg:term) := stx | throwUnsupportedSyntax
+  let `(doDbgTrace| dbg_trace%$tk $msg:term) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
+  let dec ← dec.ensureUnit tk
   doElabToSyntax "dbg_trace body" dec.continueWithUnit fun body => do
   Term.elabTerm (← `(dbg_trace $msg; $body)) mγ
 
 @[builtin_doElem_elab Lean.Parser.Term.doAssert] def elabDoAssert : DoElab := fun stx dec => do
-  let `(doAssert| assert! $cond) := stx | throwUnsupportedSyntax
+  let `(doAssert| assert!%$tk $cond) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
+  let dec ← dec.ensureUnit tk
   doElabToSyntax "assert! body" dec.continueWithUnit fun body => do
   Term.elabTerm (← `(assert! $cond; $body)) mγ
 
 @[builtin_doElem_elab Lean.Parser.Term.doDebugAssert] def elabDoDebugAssert : DoElab := fun stx dec => do
-  let `(doDebugAssert| debug_assert! $cond) := stx | throwUnsupportedSyntax
+  let `(doDebugAssert| debug_assert!%$tk $cond) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
+  let dec ← dec.ensureUnit tk
   doElabToSyntax "debug_assert! body" dec.continueWithUnit fun body => do
   Term.elabTerm (← `(debug_assert! $cond; $body)) mγ

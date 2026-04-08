@@ -195,3 +195,15 @@ wait_for_cancel_once_command 1
                            --^ change: "1" "2"
                            --^ collectDiagnostics
                            -- (should print "cancelled!" exactly once)
+
+-- RESET
+import Lean.Server.Test.Cancel
+open Lean.Server.Test.Cancel
+
+/-! Changes in a command should cancel async `logSnapshotTask` tasks (e.g. linters). -/
+
+wait_for_async_cancel_once_command 1
+                                 --^ waitFor: blocked
+                                 --^ change: "1" "2"
+                                 --^ collectDiagnostics
+                                 -- (should print "cancelled!" exactly once)

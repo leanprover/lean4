@@ -36,9 +36,11 @@ task. Asynchronous elaboration tasks may not yet be finished.
 structure CommandResultSnapshot extends Language.Snapshot where
   /-- Resulting elaboration state. -/
   cmdState : Command.State
+  /-- Untyped snapshots from `logSnapshotTask`, saved at this level for cancellation. -/
+  moreSnaps : Array (SnapshotTask SnapshotTree)
 deriving Nonempty
 instance : ToSnapshotTree CommandResultSnapshot where
-  toSnapshotTree s := ⟨s.toSnapshot, #[]⟩
+  toSnapshotTree s := ⟨s.toSnapshot, s.moreSnaps⟩
 
 /--
 State before a command is elaborated. This is separate from `CommandParsedSnapshot` so that all

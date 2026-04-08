@@ -211,3 +211,42 @@ elab_rules : command
   let t ← BaseIO.asTask (act ())
   (Core.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk })
   logInfo "blocked"
+
+meta initialize cmdAsyncOnceRef : IO.Ref (Option (Task Unit)) ← IO.mkRef none
+
+/--
+Like `wait_for_cancel_once_command` but the async task waits for its *own* cancel token (from
+`logSnapshotTask`) rather than the main thread's. This tests that `logSnapshotTask` tasks are
+properly cancelled when the command's result snapshot is cancelled.
+-/
+scoped syntax "wait_for_async_cancel_once_command" num : command
+elab_rules : command
+| `(command| wait_for_async_cancel_once_command $_n) => Elab.Command.liftCoreM do
+  let prom ← IO.Promise.new
+  if let some t := (← cmdAsyncOnceRef.modifyGet (fun old => (old, old.getD prom.result!))) then
+    -- On second invocation, wait for first invocation's async task to be cancelled.
+    -- This blocks the main thread, but the cancel token should be set by `cancelRec`.
+    -- Use the command's own cancel token to avoid blocking forever if cancellation doesn't work.
+    let some mainCancelTk := (← read).cancelTk? | unreachable!
+    while true do
+      if (← IO.hasFinished t) then
+        break
+      if (← mainCancelTk.isSet) then
+        break
+      IO.sleep 30
+    return
+  let cancelTk ← IO.CancelToken.new
+  let act ← Core.wrapAsyncAsSnapshot (cancelTk? := cancelTk) fun _ => do
+    let ctx ← readThe Core.Context
+    let some cancelTk := ctx.cancelTk? | unreachable!
+    while true do
+      if (← cancelTk.isSet) then
+        break
+      IO.sleep 30
+    IO.eprintln "cancelled!"
+    logInfo "cancelled (should never be visible)"
+    prom.resolve ()
+    Core.checkInterrupted
+  let t ← BaseIO.asTask (act ())
+  Core.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk }
+  logInfo "blocked"

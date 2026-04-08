@@ -17,6 +17,26 @@ rerun!
   {"source": "Lean 4",
    "severity": 3,
    "range":
+   {"start": {"line": 11, "character": 0}, "end": {"line": 12, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 11, "character": 0},
+    "end": {"line": 12, "character": 15}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 18, "character": 0}, "end": {"line": 19, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 18, "character": 0},
+    "end": {"line": 21, "character": 9}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
    {"start": {"line": 18, "character": 0}, "end": {"line": 19, "character": 0}},
    "message": "Goals accomplished!",
    "leanTags": [2],
@@ -52,6 +72,16 @@ unblocking!
    "isSilent": true,
    "fullRange":
    {"start": {"line": 10, "character": 0},
+    "end": {"line": 11, "character": 18}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 10, "character": 0}, "end": {"line": 11, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 10, "character": 0},
     "end": {"line": 11, "character": 18}}}]}
 unblocking!
 {"version": 2,
@@ -64,6 +94,16 @@ unblocking!
    "message": "blocked",
    "fullRange":
    {"start": {"line": 7, "character": 2}, "end": {"line": 7, "character": 24}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 10, "character": 0}, "end": {"line": 11, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 10, "character": 0},
+    "end": {"line": 11, "character": 18}}},
   {"source": "Lean 4",
    "severity": 3,
    "range":
@@ -113,6 +153,15 @@ unblocking!
    "leanTags": [2],
    "isSilent": true,
    "fullRange":
+   {"start": {"line": 9, "character": 0}, "end": {"line": 9, "character": 37}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 9, "character": 0}, "end": {"line": 9, "character": 37}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
    {"start": {"line": 9, "character": 0},
     "end": {"line": 9, "character": 37}}}]}
 blocked!
@@ -128,6 +177,15 @@ cancelled!
    "leanTags": [2],
    "isSilent": true,
    "fullRange":
+   {"start": {"line": 6, "character": 0}, "end": {"line": 13, "character": 9}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 6, "character": 0}, "end": {"line": 7, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
    {"start": {"line": 6, "character": 0},
     "end": {"line": 13, "character": 9}}}]}
 blocked!
@@ -136,6 +194,15 @@ cancelled!
  "uri": "file:///cancellation.lean",
  "diagnostics":
  [{"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 6, "character": 0}, "end": {"line": 7, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 6, "character": 0}, "end": {"line": 13, "character": 9}}},
+  {"source": "Lean 4",
    "severity": 3,
    "range":
    {"start": {"line": 6, "character": 0}, "end": {"line": 7, "character": 0}},
@@ -170,6 +237,39 @@ cancelled!
    "leanTags": [2],
    "isSilent": true,
    "fullRange":
+   {"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 9}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 6, "character": 0}, "end": {"line": 7, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 6, "character": 0},
+    "end": {"line": 11, "character": 9}}}]}
+blocked!
+cancelled!
+{"version": 2,
+ "uri": "file:///cancellation.lean",
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 6, "character": 0}, "end": {"line": 7, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 6, "character": 0}, "end": {"line": 11, "character": 9}}},
+  {"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 6, "character": 0}, "end": {"line": 7, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
    {"start": {"line": 6, "character": 0},
     "end": {"line": 11, "character": 9}}}]}
 blocked!
@@ -186,13 +286,8 @@ cancelled!
    "isSilent": true,
    "fullRange":
    {"start": {"line": 6, "character": 0},
-    "end": {"line": 11, "character": 9}}}]}
-blocked!
-cancelled!
-{"version": 2,
- "uri": "file:///cancellation.lean",
- "diagnostics":
- [{"source": "Lean 4",
+    "end": {"line": 13, "character": 10}}},
+  {"source": "Lean 4",
    "severity": 3,
    "range":
    {"start": {"line": 6, "character": 0}, "end": {"line": 7, "character": 0}},
@@ -208,6 +303,16 @@ cancelled!
  "uri": "file:///cancellation.lean",
  "diagnostics":
  [{"source": "Lean 4",
+   "severity": 3,
+   "range":
+   {"start": {"line": 6, "character": 0}, "end": {"line": 7, "character": 0}},
+   "message": "Goals accomplished!",
+   "leanTags": [2],
+   "isSilent": true,
+   "fullRange":
+   {"start": {"line": 6, "character": 0},
+    "end": {"line": 13, "character": 10}}},
+  {"source": "Lean 4",
    "severity": 3,
    "range":
    {"start": {"line": 6, "character": 0}, "end": {"line": 7, "character": 0}},

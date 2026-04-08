@@ -733,10 +733,16 @@ def twoPow (w : Nat) (i : Nat) : BitVec w := 1#w <<< i
 
 end bitwise
 
-/-- The bitvector of width `w` that has the smallest value when interpreted as an integer. -/
+/--
+The bitvector of width `w` that has the smallest value when interpreted as a signed integer in two's
+complement representation.
+-/
 @[expose] def intMin (w : Nat) := twoPow w (w - 1)
 
-/-- The bitvector of width `w` that has the largest value when interpreted as an integer. -/
+/--
+The bitvector of width `w` that has the largest value when interpreted as a signed integer in two's
+complement representation.
+-/
 @[expose] def intMax (w : Nat) := (twoPow w (w - 1)) - 1
 
 /--

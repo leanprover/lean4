@@ -28,7 +28,9 @@ def HeaderSyntax.isModule (header : HeaderSyntax) : Bool :=
 def HeaderSyntax.imports (stx : HeaderSyntax) (includeInit : Bool := true) : Array Import :=
   match stx with
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
-    let imports := if preludeTk.isNone && includeInit then #[{ module := `Init : Import }] else #[]
+    let imports := if preludeTk.isNone && includeInit then
+        #[{ module := `Init : Import }, { module := `Init, isMeta := true : Import }]
+      else #[]
     imports ++ importsStx.map fun
       | `(Parser.Module.import| $[public%$publicTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
         { module := n.getId, importAll := allTk.isSome

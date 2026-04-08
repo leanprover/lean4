@@ -57,7 +57,7 @@ where
 
   /-- Create an `instance` command using the constructor `ctorName` with a hypothesis `Inhabited α` when `α` is one of the inductive type parameters
      at position `i` and `i ∈ usedInstIdxs`. -/
-  mkInstanceCmdWith (ctx : Deriving.Context) (usedInstIdxs : IndexSet) (auxFunName : Name) : TermElabM Syntax := do
+  mkInstanceCmdWith (instId : Ident) (usedInstIdxs : IndexSet) (auxFunId : Ident) : TermElabM Syntax := do
     let indVal ← getConstInfoInduct inductiveTypeName
     let mut indArgs := #[]
     let mut binders := #[]
@@ -68,7 +68,7 @@ where
       if usedInstIdxs.contains i then
         binders := binders.push <| ← `(bracketedBinderF| [Inhabited $arg:ident ])
     let type ← `(@$(mkCIdent inductiveTypeName):ident $indArgs:ident*)
-    `(instance $(mkIdent ctx.instName):ident $binders:bracketedBinder* : Inhabited $type := ⟨$(mkIdent auxFunName)⟩)
+    `(instance $instId:ident $binders:bracketedBinder* : Inhabited $type := ⟨$auxFunId⟩)
 
   solveMVarsWithDefault (e : Expr) : TermElabM Unit := do
     let mvarIds ← getMVarsNoDelayed e
@@ -115,7 +115,7 @@ where
   mkInstanceCmd? : TermElabM (Option Syntax) :=
     withExporting (isExporting := !isPrivateName ctorName) do
       let ctx ← mkContext ``Inhabited "default" inductiveTypeName
-      let auxFunName := ctx.auxFunNames[0]!
+      let auxFunName := (← getCurrNamespace) ++ ctx.auxFunNames[0]!
       let indVal ← getConstInfoInduct inductiveTypeName
       let (auxType, auxVal, usedInstIdxs) ←
         try
@@ -135,7 +135,7 @@ where
         compileDecls #[auxFunName]
       enableRealizationsForConst auxFunName
       trace[Elab.Deriving.inhabited] "defined {.ofConstName auxFunName}"
-      let cmd ← mkInstanceCmdWith ctx usedInstIdxs auxFunName
+      let cmd ← mkInstanceCmdWith (mkIdent ctx.instName) usedInstIdxs (mkCIdent auxFunName)
       trace[Elab.Deriving.inhabited] "\n{cmd}"
       return some cmd
 

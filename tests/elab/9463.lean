@@ -112,3 +112,14 @@ deriving Inhabited, Repr
 /-- info: AliasInfo.plain 0 -/
 #guard_msgs in #eval repr (default : AliasInfo)
 end
+
+/-!
+Regression test: take namespace into account.
+-/
+structure MyNS.MyStruct where
+  x : Nat
+  deriving Inhabited
+/-- info: MyNS.instInhabitedMyStruct.default : MyNS.MyStruct -/
+#guard_msgs in #check MyNS.instInhabitedMyStruct.default
+/-- info: MyNS.instInhabitedMyStruct : Inhabited MyNS.MyStruct -/
+#guard_msgs in #check MyNS.instInhabitedMyStruct

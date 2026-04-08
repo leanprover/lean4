@@ -463,6 +463,7 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
   if prelude?.isNone then
     let j : Nat := s.env.getModuleIdx? `Init |>.get!
     deps := deps.union .pub {j}
+    deps := deps.union .metaPub {j}
 
   -- Accumulate `transDeps` which is the non-reflexive transitive closure of the still-live imports
   let mut transDeps := Needs.empty

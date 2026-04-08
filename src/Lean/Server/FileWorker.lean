@@ -619,14 +619,14 @@ section NotificationHandling
     let ctx ← read
     let s ← get
     let text := s.doc.meta.text
-    let importOutOfDataMessage :=
+    let importOutOfDateMessage :=
       .text s!"Imports are out of date and should be rebuilt; \
         use the \"Restart File\" command in your editor."
     let diagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
       fullRange? := some ⟨⟨0, 0⟩, text.utf8PosToLspPos text.source.rawEndPos⟩
       severity?  := DiagnosticSeverity.information
-      message := importOutOfDataMessage
+      message := importOutOfDateMessage
     }
     s.doc.appendStickyDiagnostic diagnostic
     publishDiagnostics ctx s.doc.toEditableDocumentCore

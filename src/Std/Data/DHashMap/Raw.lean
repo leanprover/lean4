@@ -724,6 +724,12 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
       {f : Option β → Option β} : WF m → WF (Raw₀.Const.alter ⟨m, h⟩ a f).1
   /-- Internal implementation detail of the hash map -/
   | inter₀ {α β : _} [BEq α] [Hashable α] {m₁ m₂ : Raw α β} {h₁ h₂} : WF m₁ → WF m₂ → WF (Raw₀.inter ⟨m₁, h₁⟩ ⟨m₂, h₂⟩).1
+  /-- Internal implementation detail of the hash map -/
+  | fst_partition₀ {α β : _} [BEq α] [Hashable α] {m : Raw α β} {f : (a : α) → β a → Bool} {h} :
+    WF (Raw₀.partition f ⟨m, h⟩).1.1
+  /-- Internal implementation detail of the hash map -/
+  | snd_partition₀ {α β : _} [BEq α] [Hashable α] {m : Raw α β} {f : (a : α) → β a → Bool} {h}:
+    WF (Raw₀.partition f ⟨m, h⟩).2.1
 
 -- TODO: this needs to be deprecated, but there is a bootstrapping issue.
 -- @[deprecated WF.emptyWithCapacity₀ (since := "2025-03-12")]

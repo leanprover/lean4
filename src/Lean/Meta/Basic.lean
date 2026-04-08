@@ -2120,7 +2120,7 @@ def whnfAtMostI (e : Expr) : MetaM Expr := do
 
   Recall that this attribute can only be set in the same module where `declName` has been declared.
 -/
-def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): MetaM Unit := do
+def setInlineAttribute (declName : Name) (kind := Compiler.InlineAttributeKind.inline): CoreM Unit := do
   let env ← getEnv
   match Compiler.setInlineAttribute env declName kind with
   | .ok env    => setEnv env

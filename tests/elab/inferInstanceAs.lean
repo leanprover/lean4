@@ -51,3 +51,19 @@ instCI2
 -/
 #guard_msgs in
 #print instCD2._aux_1
+
+/-! Non-constructor instances should be used as is. -/
+
+@[macro_inline, implicit_reducible]
+def dite' {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
+  h.casesOn e t
+
+instance Nat.decLe' (n m : @& Nat) : Decidable (LE.le n m) :=
+  dite' (Eq (Nat.ble n m) true) (fun h => isTrue (Nat.le_of_ble_eq_true h)) (fun h => isFalse (Nat.not_le_of_not_ble_eq_true h))
+
+#guard_msgs in
+instance (x y : BitVec w) : Decidable (LE.le x y) :=
+  (inferInstance : Decidable (LE.le x.toNat y.toNat))
+
+instance (x y : BitVec w) : Decidable (LE.le x y) :=
+  inferInstanceAs (Decidable (LE.le x.toNat y.toNat))

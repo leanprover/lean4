@@ -64,3 +64,9 @@ has type
   PUnit
 but is expected to have type
   List (Nat × Nat)
+doNotation1.lean:90:6-90:7: warning: unused variable `h`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+doNotation1.lean:90:10-90:11: warning: unused variable `i`
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`

@@ -85,6 +85,7 @@ example (xs : List (Nat × Nat)) : List (Nat × Nat) := Id.run <| do
   for _ in xs do -- error, `for` result type is PUnit but expected type is List (Nat × Nat)
     pure ()
 
+set_option linter.unusedVariables true
 def f15 (n : Nat) : IO Unit := do
   for h : i in *...n do -- unused variable warning: we have term info
     pure ()

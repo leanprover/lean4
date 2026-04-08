@@ -158,7 +158,7 @@ private def getModState
     let scopes := [{header := "", isPublic := true}]
     let openDecls ← getOpenDecls
     let lctx ← getLCtx
-    let localInstances ← Meta.getLocalInstances
+    let localInstances ← getLocalInstances
     let options ← getOptions
     let scopedExts := #[]
     let st : ModuleDocstringState :=
@@ -220,7 +220,7 @@ where
     let mut type := type
 
     -- We start with a local context that's reset to only include section variables
-    let mut localInstances ← Meta.getLocalInstances
+    let mut localInstances ← getLocalInstances
     let mut lctx ← getLCtx
     let sectionFVars := (← read).sectionFVars.valuesArray.filterMap fun
       | .fvar fv => some fv

@@ -107,7 +107,7 @@ private def mkConfigFields
     let `(declField| $id := $val) := x
       | throwErrorAt x "ill-formed field declaration syntax"
     let fieldName := id.getId
-    addCompletionInfo <| .fieldId x fieldName {} tyName
+    addCompletionInfo <| .fieldId x fieldName {} #[] tyName
     if let some info := infos.find? fieldName then
       let c := info.realName
       if !info.canonical && m.contains c then

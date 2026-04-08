@@ -32,7 +32,7 @@ where
       stx₁.eqWithInfo stx₂ && id₁ == id₂
     | .dotId stx₁ id₁ .., .id stx₂ id₂ .. =>
       stx₁.eqWithInfo stx₂ && id₁ == id₂
-    | .fieldId stx₁ id₁? _ structName₁, .fieldId stx₂ id₂? _ structName₂ =>
+    | .fieldId stx₁ id₁? _ _ structName₁, .fieldId stx₂ id₂? _ _ structName₂ =>
       stx₁.eqWithInfo stx₂ && id₁? == id₂? && structName₁ == structName₂
     | .namespaceId stx₁, .namespaceId stx₂ =>
       stx₁.eqWithInfo stx₂

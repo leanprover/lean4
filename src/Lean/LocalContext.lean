@@ -656,14 +656,39 @@ def findFromUserNames (lctx : LocalContext) (userNames : Std.HashMap Name α) (s
 
 end LocalContext
 
+/--
+`LocalInstance` represents a local typeclass instance registered by and for
+the elaborator. It stores the name of the typeclass in `className`, and the
+concrete typeclass instance in `fvar`. Note that the kernel does not care about
+this information, since typeclasses are entirely eliminated during elaboration.
+-/
+structure LocalInstance where
+  className : Name
+  fvar      : Expr
+  deriving Inhabited
+
+abbrev LocalInstances := Array LocalInstance
+
+instance : BEq LocalInstance where
+  beq i₁ i₂ := i₁.fvar == i₂.fvar
+
+instance : Hashable LocalInstance where
+  hash i := hash i.fvar
+
+/-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
+def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=
+  localInsts.eraseP (fun inst => inst.fvar.fvarId! == fvarId)
+
 /-- Class used to denote that `m` has a local context. -/
 class MonadLCtx (m : Type → Type) where
   getLCtx : m LocalContext
+  getLocalInstances : m LocalInstances
 
-export MonadLCtx (getLCtx)
+export MonadLCtx (getLCtx getLocalInstances)
 
 instance [MonadLift m n] [MonadLCtx m] : MonadLCtx n where
   getLCtx := liftM (getLCtx : m _)
+  getLocalInstances := liftM (getLocalInstances : m _)
 
 /-- Return local hypotheses which are not "implementation detail", as `Expr`s. -/
 def getLocalHyps [Monad m] [MonadLCtx m] : m (Array Expr) := do

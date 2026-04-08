@@ -68,7 +68,7 @@ instance : AddMessageContext CompilerM where
     let env ← getEnv
     let lctx := (← get).lctx.toLocalContext (← getPurity)
     let opts ← getOptions
-    return MessageData.withContext { env, lctx, opts, mctx := {} } msgData
+    return MessageData.withContext { env, lctx, localInsts := #[], opts, mctx := {} } msgData
 
 def getType (fvarId : FVarId) : CompilerM Expr := do
   let lctx := (← get).lctx

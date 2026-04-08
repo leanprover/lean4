@@ -187,7 +187,7 @@ def name (full : Option Ident := none) (scope : DocScope := .local)
         pushInfoLeaf <| .ofTermInfo {
           elaborator := .anonymous
           stx := n
-          lctx := ← getLCtx
+          lctx := ← getLCtx, localInsts := ← getLocalInstances
           expr := e
           expectedType? := some t
         }
@@ -643,7 +643,7 @@ def givenInstance («show» : flag true) (xs : TSyntaxArray `inline) :
   let stxs := stxs.getArgs.mapIdx Prod.mk |>.filterMap fun (n, s) =>
     if n % 2 = 0 then some s else none
   let mut lctx ← getLCtx
-  let mut localInstances ← Meta.getLocalInstances
+  let mut localInstances ← getLocalInstances
   let mut instCounter := 0
   for stx in stxs do
     let nameColonOpt := stx[0][0]
@@ -833,7 +833,7 @@ where
 
   typeFromInfo (infos : List (ContextInfo × Info)) : m (Option Format) := do
     for (ci, i) in infos do
-      if let some ty ← ci.runMetaM i.lctx do
+      if let some ty ← ci.runMetaM i.lctx i.localInsts do
         (← i.type?).mapM (PrettyPrinter.ppExpr)
       then return some ty
     return none
@@ -850,15 +850,15 @@ where
       | .ofTermInfo ti =>
         if let some (.var ..) := best then
           if let .const n _ := ti.expr then
-            let sig ← ci.runMetaM ti.lctx <| PrettyPrinter.ppSignature n
+            let sig ← ci.runMetaM ti.lctx ti.localInsts <| PrettyPrinter.ppSignature n
             best := some <| .const n sig.fmt
         else if best.isNone then
           match ti.expr with
           | .const n .. =>
-            let sig ← ci.runMetaM ti.lctx <| PrettyPrinter.ppSignature n
+            let sig ← ci.runMetaM ti.lctx ti.localInsts <| PrettyPrinter.ppSignature n
             best := some <| .const n sig.fmt
           | .fvar fvid =>
-            let docInfo? ← ci.runMetaM ti.lctx do
+            let docInfo? ← ci.runMetaM ti.lctx ti.localInsts do
               if let some ldecl := (← getLCtx).find? fvid then
                 let type ← PrettyPrinter.ppExpr ldecl.type
                 pure <| some <| .var ldecl.userName fvid type
@@ -867,7 +867,7 @@ where
               best := some docInfo
           | _ => continue
       | .ofFieldInfo fi =>
-        let docInfo ← ci.runMetaM fi.lctx do
+        let docInfo ← ci.runMetaM fi.lctx fi.localInsts do
           let sig ← PrettyPrinter.ppSignature fi.projName
           pure <| .field fi.projName sig.fmt
         best := some docInfo

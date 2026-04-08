@@ -130,7 +130,7 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
       let filter ctx info _ results := do
         let .ofTermInfo ti := info
           | return results
-        ctx.runMetaM info.lctx do
+        ctx.runMetaM info.lctx info.localInsts do
           results.filterM fun (_, r) => do
             let .ofTermInfo childTi := r.info
               | return true
@@ -193,13 +193,13 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
       let ciAfter := { ci with mctx := ti.mctxAfter }
       let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
       -- compute the interactive goals
-      let goals ← ci.runMetaM {} (do
+      let goals ← ci.runMetaM {} #[] (do
         let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
         let goals ← goals.mapM Widget.goalToInteractive
         return ⟨goals⟩
       )
       -- compute the goal diff
-      ciAfter.runMetaM {} (do
+      ciAfter.runMetaM {} #[] (do
           try
             Widget.diffInteractiveGoals useAfter ti goals
           catch _ =>
@@ -231,11 +231,11 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   mapTaskCostly (findInfoTreeAtPos doc hoverPos (includeStop := true)) <| Option.bindM fun infoTree => do
     let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := infoTree.termGoalAt? hoverPos
       | return none
-    let ty ← ci.runMetaM i.lctx do
+    let ty ← ci.runMetaM i.lctx i.localInsts do
       instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
     -- for binders, hide the last hypothesis (the binder itself)
     let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
-    let goal ← ci.runMetaM lctx' do
+    let goal ← ci.runMetaM lctx' i.localInsts do -- TODO(kmill) use correct local instances
       Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
     let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
     return some { goal with range, term := ← WithRpcRef.mk ti }

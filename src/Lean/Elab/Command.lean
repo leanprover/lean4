@@ -416,7 +416,7 @@ private def elabCommandUsing (s : State) (stx : Syntax) : List (KeyedDeclsAttrib
 
 /-- Elaborate `x` with `stx` on the macro stack -/
 def withMacroExpansion (beforeStx afterStx : Syntax) (x : CommandElabM α) : CommandElabM α :=
-  withInfoContext (mkInfo := pure <| .ofMacroExpansionInfo { stx := beforeStx, output := afterStx, lctx := .empty }) do
+  withInfoContext (mkInfo := pure <| .ofMacroExpansionInfo { stx := beforeStx, output := afterStx, lctx := .empty, localInsts := #[] }) do
     withReader (fun ctx => { ctx with macroStack := { before := beforeStx, after := afterStx } :: ctx.macroStack }) x
 
 instance : MonadMacroAdapter CommandElabM where

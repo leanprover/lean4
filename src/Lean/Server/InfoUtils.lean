@@ -195,6 +195,14 @@ def Info.lctx : Info → LocalContext
   | .ofCompletionInfo i     => i.lctx
   | _                       => LocalContext.empty
 
+def Info.localInsts : Info → LocalInstances
+  | .ofTermInfo i           => i.localInsts
+  | .ofFieldInfo i          => i.localInsts
+  | .ofDelabTermInfo i      => i.localInsts
+  | .ofMacroExpansionInfo i => i.localInsts
+  | .ofCompletionInfo i     => i.localInsts
+  | _                       => #[]
+
 def Info.pos? (i : Info) : Option String.Pos.Raw :=
   i.stx.getPos? (canonicalOnly := true)
 
@@ -354,7 +362,7 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
 
 /-- Construct a hover popup, if any, from an info node in a context.-/
 def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) := do
-  ci.runMetaM i.lctx do
+  ci.runMetaM i.lctx i.localInsts do
     let mut fmts := #[]
     let mut infos := ∅
     let modFmt ← try

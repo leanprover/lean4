@@ -56,6 +56,7 @@ structure MessageDataContext where
   env  : Environment
   mctx : MetavarContext
   lctx : LocalContext
+  localInsts : LocalInstances
   opts : Options
 
 /-- A naming context is the information needed to shorten names in pretty printing.
@@ -216,7 +217,7 @@ def nil : MessageData :=
   ofFormat Format.nil
 
 def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {
-  env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, opts := ctx.opts,
+  env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, localInsts := ctx.localInsts, opts := ctx.opts,
   currNamespace := nCtx.currNamespace, openDecls := nCtx.openDecls
 }
 
@@ -668,10 +669,10 @@ actually rendered. Consider using this function in lazy message data to avoid un
 computation for messages that are not displayed.
 -/
 private def MessageData.formatExpensively (ctx : PPContext) (msg : MessageData) : BaseIO String := do
-  let { env, mctx, lctx, opts, currNamespace, openDecls } := ctx
+  let { env, mctx, lctx, localInsts, opts, currNamespace, openDecls } := ctx
   -- Simulate the naming context that will be added to the actual message
   let msg := MessageData.withNamingContext { currNamespace, openDecls } msg
-  let fmt ← msg.format (some { env, mctx, lctx, opts })
+  let fmt ← msg.format (some { env, mctx, lctx, localInsts, opts })
   return fmt.pretty
 
 
@@ -733,14 +734,15 @@ instance (m n) [MonadLift m n] [AddMessageContext m] : AddMessageContext n where
 def addMessageContextPartial {m} [Monad m] [MonadEnv m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
   let env ← getEnv
   let opts ← getOptions
-  return MessageData.withContext { env := env, mctx := {}, lctx := {}, opts := opts } msgData
+  return MessageData.withContext { env := env, mctx := {}, lctx := {}, localInsts := #[], opts := opts } msgData
 
 def addMessageContextFull {m} [Monad m] [MonadEnv m] [MonadMCtx m] [MonadLCtx m] [MonadOptions m] (msgData : MessageData) : m MessageData := do
   let env ← getEnv
   let mctx ← getMCtx
   let lctx ← getLCtx
+  let localInsts ← getLocalInstances
   let opts ← getOptions
-  return MessageData.withContext { env := env, mctx := mctx, lctx := lctx, opts := opts } msgData
+  return MessageData.withContext { env, mctx, lctx, localInsts, opts } msgData
 
 class ToMessageData (α : Type) where
   toMessageData : α → MessageData
@@ -782,7 +784,7 @@ def toMessageList (msgs : Array MessageData) : MessageData :=
 namespace Kernel.Exception
 
 private def mkCtx (env : Environment) (lctx : LocalContext) (opts : Options) (msg : MessageData) : MessageData :=
-  MessageData.withContext { env := .ofKernelEnv env, mctx := {}, lctx := lctx, opts := opts } msg
+  MessageData.withContext { env := .ofKernelEnv env, mctx := {}, lctx := lctx, localInsts := #[], opts := opts } msg
 
 def toMessageData (e : Kernel.Exception) (opts : Options) : MessageData :=
   match e with

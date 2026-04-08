@@ -50,7 +50,7 @@ private def elabOptLevel (stx : Syntax) : TermElabM Level :=
   if stx[0].isIdent then
     -- Add both an `id` and a `dot` `CompletionInfo` and have the language server figure out which
     -- one to use.
-    addCompletionInfo <| CompletionInfo.id stx stx[0].getId (danglingDot := true) (← getLCtx) expectedType?
+    addCompletionInfo <| CompletionInfo.id stx stx[0].getId (danglingDot := true) (← getLCtx) (← getLocalInstances) expectedType?
     let s ← saveState
     try
       let e ← elabTerm stx[0] none
@@ -174,7 +174,7 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
 @[builtin_term_elab Lean.Parser.Term.cdot] def elabBadCDot : TermElab := fun stx expectedType? => do
   if stx[0].getAtomVal == "." then
     -- Users may input bad cdots because they are trying to auto-complete them using the expected type
-    addCompletionInfo <| CompletionInfo.dotId stx .anonymous (← getLCtx) expectedType?
+    addCompletionInfo <| CompletionInfo.dotId stx .anonymous (← getLCtx) (← getLocalInstances) expectedType?
   throwError "invalid occurrence of `·` notation, it must be surrounded by parentheses (e.g. `(· + 1)`)"
 
 @[builtin_term_elab str] def elabStrLit : TermElab := fun stx _ => do

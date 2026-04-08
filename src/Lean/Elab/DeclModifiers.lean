@@ -25,7 +25,7 @@ def checkNotAlreadyDeclared {m} [Monad m] [MonadEnv m] [MonadError m] [MonadFina
   withEnv env do  -- also set as context for any exceptions
   let addInfo declName := do
     pushInfoLeaf <| .ofTermInfo {
-      elaborator := .anonymous, lctx := {}, expectedType? := none
+      elaborator := .anonymous, lctx := {}, localInsts := #[], expectedType? := none
       stx := (← getRef)
       expr := (← mkConstWithLevelParams declName)
     }

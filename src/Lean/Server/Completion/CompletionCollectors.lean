@@ -88,10 +88,11 @@ section Infrastructure
       (completionInfoPos : Nat)
       (ctx               : ContextInfo)
       (lctx              : LocalContext)
+      (localInsts        : LocalInstances)
       (x                 : M Unit)
       : CancellableM (Array ResolvableCompletionItem) := do
     let tk ← read
-    let r ← ctx.runMetaM lctx do
+    let r ← ctx.runMetaM lctx localInsts do
       x.run ⟨uri, pos, completionInfoPos⟩ |>.run {} |>.run tk
     match r with
     | .error _ => throw .requestCancelled
@@ -406,12 +407,13 @@ def idCompletion
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
     (lctx              : LocalContext)
+    (localInsts        : LocalInstances)
     (stx               : Syntax)
     (id                : Name)
     (hoverInfo         : HoverInfo)
     (danglingDot       : Bool)
     : CancellableM (Array ResolvableCompletionItem) :=
-  runM uri pos completionInfoPos ctx lctx do
+  runM uri pos completionInfoPos ctx lctx localInsts do
     idCompletionCore ctx stx id hoverInfo danglingDot
 
 def dotCompletion
@@ -421,7 +423,7 @@ def dotCompletion
     (ctx               : ContextInfo)
     (info              : TermInfo)
     : CancellableM (Array ResolvableCompletionItem) :=
-  runM uri pos completionInfoPos ctx info.lctx do
+  runM uri pos completionInfoPos ctx info.lctx info.localInsts do
     let nameSet ← try
       getDotCompletionTypeNameSet (← instantiateMVars (← inferType info.expr))
     catch _ =>
@@ -448,10 +450,11 @@ def dotIdCompletion
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
     (lctx              : LocalContext)
+    (localInsts        : LocalInstances)
     (id                : Name)
     (expectedType?     : Option Expr)
     : CancellableM (Array ResolvableCompletionItem) :=
-  runM uri pos completionInfoPos ctx lctx do
+  runM uri pos completionInfoPos ctx lctx localInsts do
     let some expectedType := expectedType?
       | return ()
 
@@ -489,10 +492,11 @@ def fieldIdCompletion
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
     (lctx              : LocalContext)
+    (localInsts        : LocalInstances)
     (id                : Option Name)
     (structName        : Name)
     : CancellableM (Array ResolvableCompletionItem) :=
-  runM uri pos completionInfoPos ctx lctx do
+  runM uri pos completionInfoPos ctx lctx localInsts do
     let idStr := id.map (·.toString) |>.getD ""
     let fieldNames := getStructureFieldsFlattened (← getEnv) structName (includeSubobjectFields := false)
     for fieldName in fieldNames do
@@ -543,7 +547,7 @@ def optionCompletion
     (stx               : Syntax)
     (caps              : ClientCapabilities)
     : IO (Array ResolvableCompletionItem) :=
-  ctx.runMetaM {} do
+  ctx.runMetaM {} #[] do
     -- HACK(WN): unfold the type so ForIn works
     let (decls : Std.TreeMap _ _ _) ← getOptionDecls
     let opts ← getOptions
@@ -570,7 +574,7 @@ def errorNameCompletion
     (partialId         : Syntax)
     (caps              : ClientCapabilities)
     : IO (Array ResolvableCompletionItem) :=
-  ctx.runMetaM {} do
+  ctx.runMetaM {} #[] do
     let explanations ← getErrorExplanations
     return trailingDotCompletion explanations partialId caps ctx fun name explan textEdit? => {
       label := name.toString,
@@ -596,7 +600,7 @@ def tacticCompletion
     (pos               : Lsp.Position)
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
-    : IO (Array ResolvableCompletionItem) := ctx.runMetaM .empty do
+    : IO (Array ResolvableCompletionItem) := ctx.runMetaM .empty #[] do
   -- Don't include tactics that are identified only by their internal parser name
   let allTacticDocs ← Tactic.Doc.allTacticDocs (includeUnnamed := false)
   let items : Array ResolvableCompletionItem := allTacticDocs.map fun tacticDoc => {

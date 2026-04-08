@@ -178,7 +178,7 @@ def handleInlayHints (p : InlayHintParams) (s : InlayHintState) :
           | return
         let some ih := Elab.InlayHint.ofCustomInfo? i
           | return
-        let ih ← ci.runMetaM ih.lctx ih.resolveDeferred
+        let ih ← ci.runMetaM ih.lctx ih.localInsts ih.resolveDeferred
         modify (·.push ih.toInlayHintInfo))
   let allInlayHints := newInlayHints ++ oldInlayHints
   let inlayHintsInRange := allInlayHints.filter (range.contains (includeStop := true) ·.position)

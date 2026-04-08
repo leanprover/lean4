@@ -102,7 +102,7 @@ private def findSyntheticIdentifierCompletion?
       HoverInfo.inside (hoverPos.byteDistance tailPos)
     else
       HoverInfo.after
-  some { hoverInfo, ctx, info := .id stx id danglingDot info.lctx none }
+  some { hoverInfo, ctx, info := .id stx id danglingDot info.lctx info.localInsts none }
 
 private partial def isCursorOnWhitespace (fileMap : FileMap) (hoverPos : String.Pos.Raw) : Bool :=
   hoverPos.atEnd fileMap.source || (hoverPos.get fileMap.source).isWhitespace
@@ -349,7 +349,7 @@ private def findSyntheticFieldCompletion?
     | none
   if ! isStructure ctx.env typeName then
     none
-  return { hoverInfo := HoverInfo.after, ctx, info := .fieldId .missing none .empty typeName }
+  return { hoverInfo := HoverInfo.after, ctx, info := .fieldId .missing none .empty #[] typeName }
 
 def findSyntheticCompletions
     (fileMap  : FileMap)

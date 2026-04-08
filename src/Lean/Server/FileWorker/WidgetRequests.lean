@@ -52,7 +52,7 @@ was stored for a particular `SubexprInfo` tag in a `TaggedText` generated with `
 def makePopup : WithRpcRef InfoWithCtx → RequestM (RequestTask InfoPopup)
   | i => RequestM.pureTask do
     let i := i.val
-    i.ctx.runMetaM i.info.lctx do
+    i.ctx.runMetaM i.info.lctx i.info.localInsts do
       let type? ← match (← i.info.type?) with
         | some type => some <$> ppExprTagged type
         | none => pure none

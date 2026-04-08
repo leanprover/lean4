@@ -77,7 +77,7 @@ where
 end InteractiveDiagnostic
 
 private def mkPPContext (nCtx : NamingContext) (ctx : MessageDataContext) : PPContext := {
-  env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, opts := ctx.opts,
+  env := ctx.env, mctx := ctx.mctx, lctx := ctx.lctx, localInsts := ctx.localInsts, opts := ctx.opts,
   currNamespace := nCtx.currNamespace, openDecls := nCtx.openDecls
 }
 
@@ -204,7 +204,7 @@ partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent
         | .code ctx infos => do
           return .tag (.expr (← tagCodeInfos ctx infos tt)) default
         | .goal ctx lctx g =>
-          ctx.runMetaM lctx do
+          ctx.runMetaM lctx #[] do
             return .tag (.goal (← goalToInteractive g)) default
         | .widget wi alt =>
           return .tag (.widget wi (← fmtToTT alt col)) default

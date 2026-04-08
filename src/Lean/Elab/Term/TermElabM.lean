@@ -1485,18 +1485,27 @@ def isTacticOrPostponedHole? (e : Expr) : TermElabM (Option MVarId) := do
   | _ => pure none
 
 def mkTermInfo (elaborator : Name) (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
-    (lctx? : Option LocalContext := none) (isBinder := false) (isDisplayableTerm := false) :
+    (lctx? : Option LocalContext := none) (localInsts? : Option LocalInstances := none)
+    (isBinder := false) (isDisplayableTerm := false) :
     TermElabM (Sum Info MVarId) := do
   match (← isTacticOrPostponedHole? e) with
   | some mvarId => return Sum.inr mvarId
   | none =>
     let e := removeSaveInfoAnnotation e
-    return Sum.inl <| Info.ofTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), expr := e, stx, expectedType?, isBinder, isDisplayableTerm }
+    return Sum.inl <| Info.ofTermInfo {
+      elaborator,
+      lctx := lctx?.getD (← getLCtx), localInsts := localInsts?.getD (← getLocalInstances),
+      expr := e, stx, expectedType?, isBinder, isDisplayableTerm
+    }
 
 def mkPartialTermInfo (elaborator : Name) (stx : Syntax) (expectedType? : Option Expr := none)
-    (lctx? : Option LocalContext := none) :
+    (lctx? : Option LocalContext := none) (localInsts? : Option LocalInstances := none) :
     TermElabM Info := do
-  return Info.ofPartialTermInfo { elaborator, lctx := lctx?.getD (← getLCtx), stx, expectedType? }
+  return Info.ofPartialTermInfo {
+    elaborator,
+    lctx := lctx?.getD (← getLCtx), localInsts := localInsts?.getD (← getLocalInstances),
+    stx, expectedType?
+  }
 
 /--
 Pushes a new leaf node to the info tree associating the expression `e` to the syntax `stx`.
@@ -1514,21 +1523,23 @@ is a constant they will see the constant's doc string.
   info immediately. (See https://github.com/leanprover/lean4/pull/1664.)
 -/
 def addTermInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
-    (lctx? : Option LocalContext := none) (elaborator := Name.anonymous)
+    (lctx? : Option LocalContext := none) (localInsts? : Option LocalInstances := none)
+    (elaborator := Name.anonymous)
     (isBinder := false) (force := false) (isDisplayableTerm := false): TermElabM Expr := do
   if (← read).inPattern && !force then
     return mkPatternWithRef e stx
   else
     discard <| withInfoContext'
       (pure ())
-      (fun _ => mkTermInfo elaborator stx e expectedType? lctx? isBinder isDisplayableTerm)
+      (fun _ => mkTermInfo elaborator stx e expectedType? lctx? localInsts? isBinder isDisplayableTerm)
       (mkPartialTermInfo elaborator stx expectedType? lctx?)
     return e
 
 def addTermInfo' (stx : Syntax) (e : Expr) (expectedType? : Option Expr := none)
-    (lctx? : Option LocalContext := none) (elaborator := Name.anonymous) (isBinder := false)
+    (lctx? : Option LocalContext := none) (localInsts? : Option LocalInstances := none)
+    (elaborator := Name.anonymous) (isBinder := false)
     (isDisplayableTerm := false) : TermElabM Unit :=
-  discard <| addTermInfo stx e expectedType? lctx? elaborator isBinder
+  discard <| addTermInfo stx e expectedType? lctx? localInsts? elaborator isBinder
     (isDisplayableTerm := isDisplayableTerm)
 
 def withInfoContext' (stx : Syntax) (x : TermElabM Expr)
@@ -1826,7 +1837,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
 
 /-- Store in the `InfoTree` that `e` is a "dot"-completion target. `stx` should cover the entire term. -/
 def addDotCompletionInfo (stx : Syntax) (e : Expr) (expectedType? : Option Expr) : TermElabM Unit := do
-  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), elaborator := .anonymous, expectedType? } (expectedType? := expectedType?)
+  addCompletionInfo <| CompletionInfo.dot { expr := e, stx, lctx := (← getLCtx), localInsts := (← getLocalInstances), elaborator := .anonymous, expectedType? } (expectedType? := expectedType?)
 
 /--
   Main function for elaborating terms.
@@ -2020,7 +2031,7 @@ def addAutoBoundImplicitsInlayHint (autos : Array Expr) (inlayHintPos : String.P
         newText := formattedHint
       }]
       kind? := some .parameter
-      lctx := ← getLCtx
+      lctx := ← getLCtx, localInsts := ← getLocalInstances
       deferredResolution
       : InlayHint
     }.toCustomInfo
@@ -2128,7 +2139,7 @@ def throwInvalidExplicitUniversesForLocal {α} (e : Expr) : TermElabM α :=
   throwError "invalid use of explicit universe parameters, `{e}` is a local variable"
 
 def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
-  addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
+  addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) (← getLocalInstances) expectedType?
   if let some (e, projs) ← resolveLocalName n then
     unless explicitLevels.isEmpty do
       throwInvalidExplicitUniversesForLocal e

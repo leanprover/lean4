@@ -33,6 +33,7 @@ structure PPContext where
   env           : Environment
   mctx          : MetavarContext := {}
   lctx          : LocalContext := {}
+  localInsts    : LocalInstances --:= #[]
   opts          : Options := {}
   currNamespace : Name := Name.anonymous
   openDecls     : List OpenDecl := []

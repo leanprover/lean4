@@ -572,6 +572,7 @@ instance : Inhabited (MetaM α) where
 
 instance : MonadLCtx MetaM where
   getLCtx := return (← read).lctx
+  getLocalInstances := return (← read).localInstances
 
 instance : MonadMCtx MetaM where
   getMCtx    := return (← get).mctx
@@ -716,10 +717,6 @@ def recordSynthPendingFailure (type : Expr) : MetaM Unit := do
       let msg ← addMessageContextFull m!"{type}"
       modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
         { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures := synthPendingFailures.insert type msg }
-
-@[inline]
-def getLocalInstances : MetaM LocalInstances :=
-  return (← read).localInstances
 
 @[inline]
 def getConfig : MetaM Config :=
@@ -2226,7 +2223,11 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
 /-- Pretty-print the given expression. -/
 def ppExprWithInfos (e : Expr) : MetaM FormatWithInfos := do
   let ctxCore  ← readThe Core.Context
-  Lean.ppExprWithInfos { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls } e
+  Lean.ppExprWithInfos {
+    env := (← getEnv), mctx := (← getMCtx),
+    lctx := (← getLCtx), localInsts := (← getLocalInstances),
+    opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls
+  } e
 
 /-- Pretty-print the given expression. -/
 def ppExpr (e : Expr) : MetaM Format := (·.fmt) <$> ppExprWithInfos e
@@ -2771,7 +2772,7 @@ def runCoreM {α : Type} (ppCtx : PPContext) (x : CoreM α) : IO α :=
                       { env := ppCtx.env, ngen := { namePrefix := `_pp_uniq } }
 
 def runMetaM {α : Type} (ppCtx : PPContext) (x : MetaM α) : IO α :=
-  ppCtx.runCoreM <| x.run' { lctx := ppCtx.lctx } { mctx := ppCtx.mctx }
+  ppCtx.runCoreM <| x.run' { lctx := ppCtx.lctx, localInstances := ppCtx.localInsts } { mctx := ppCtx.mctx }
 
 end PPContext
 

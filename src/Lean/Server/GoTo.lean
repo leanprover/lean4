@@ -88,7 +88,7 @@ abbrev GoToM α := ReaderT GoToContext MetaM α
 
 def GoToM.run (ctx : GoToContext) (ci : ContextInfo) (lctx : LocalContext) (act : GoToM α) :
     IO α :=
-  ci.runMetaM lctx <| ReaderT.run act ctx
+  ci.runMetaM lctx #[] <| ReaderT.run act ctx
 
 def locationLinksFromDecl (declName : Name) : GoToM (Array LeanLocationLink) := do
   let ctx ← read

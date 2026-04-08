@@ -143,7 +143,7 @@ def computeDotQuery?
     | return none
   let some tailPos := ti.stx.getTailPos? (canonicalOnly := true)
     | return none
-  let typeNames? : Option (Array Name) ← ctx.runMetaM ti.lctx do
+  let typeNames? : Option (Array Name) ← ctx.runMetaM ti.lctx ti.localInsts do
     try
       return some <| ← getDotCompletionTypeNames (← Lean.instantiateMVars (← Lean.Meta.inferType ti.expr))
     catch _ =>
@@ -172,6 +172,7 @@ def computeDotIdQuery?
     (stx : Syntax)
     (id : Name)
     (lctx : LocalContext)
+    (localInsts : LocalInstances)
     (expectedType? : Option Expr)
     : IO (Option Query) := do
   let some pos := stx.getPos? (canonicalOnly := true)
@@ -180,7 +181,7 @@ def computeDotIdQuery?
     | return none
   let some expectedType := expectedType?
     | return none
-  let typeNames : Array Name ← ctx.runMetaM lctx <| getDotIdCompletionTypeNames expectedType
+  let typeNames : Array Name ← ctx.runMetaM lctx localInsts <| getDotIdCompletionTypeNames expectedType
   if typeNames.isEmpty then
     return none
   return some {
@@ -214,8 +215,8 @@ def computeQueries
           pure <| computeIdQuery? doc i.ctx stx id
         | .dot (termInfo := ti) .. =>
           computeDotQuery? doc i.ctx ti
-        | .dotId stx id lctx expectedType? =>
-          computeDotIdQuery? doc i.ctx stx id lctx expectedType?
+        | .dotId stx id lctx localInsts expectedType? =>
+          computeDotIdQuery? doc i.ctx stx id lctx localInsts expectedType?
         | _ =>
           pure none
       if let some query := query? then

@@ -435,7 +435,7 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
     if let `($id:ident) := term then
       try
         for c in (← realizeGlobalConstWithInfos term) do
-          addCompletionInfo <| .id term id.getId (danglingDot := false) {} none
+          addCompletionInfo <| .id term id.getId (danglingDot := false) {} #[] none
           logInfoAt tk <| .signature c
           return
       catch _ => pure ()  -- identifier might not be a constant but constant + projection

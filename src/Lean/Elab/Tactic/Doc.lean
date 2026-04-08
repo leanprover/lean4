@@ -94,7 +94,7 @@ private def showParserName [Monad m] [MonadEnv m] (firsts : NameMap String) (n :
     fmt := "`" ++ .tag 0 tok ++ "`",
     infos :=
       .ofList [(0, .ofTermInfo {
-        lctx := .empty,
+        lctx := .empty, localInsts := #[],
         expr := .const n params,
         stx := .ident .none (toString n).toRawSubstring n [.decl n []],
         elaborator := `Delab,

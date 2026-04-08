@@ -202,7 +202,7 @@ where
   mkTermInfo stx e isBinder := return {
     elaborator := `Delab,
     stx := stx,
-    lctx := (← getLCtx),
+    lctx := (← getLCtx), localInsts := (← getLocalInstances),
     expectedType? := none,
     expr := e,
     isBinder := isBinder
@@ -215,7 +215,7 @@ where
   mkFieldInfo projName fieldName stx val := return {
     projName := projName,
     fieldName := fieldName,
-    lctx := (← getLCtx),
+    lctx := (← getLCtx), localInsts := (← getLocalInstances),
     val := val,
     stx := stx
   }

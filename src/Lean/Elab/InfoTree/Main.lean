@@ -81,6 +81,13 @@ def CompletionInfo.lctx : CompletionInfo → LocalContext
   | fieldId _ _ lctx .. => lctx
   | _                   => .empty
 
+def CompletionInfo.localInsts : CompletionInfo → LocalInstances
+  | dot i ..                    => i.localInsts
+  | id _ _ _ _ localInsts ..    => localInsts
+  | dotId _ _ _ localInsts ..   => localInsts
+  | fieldId _ _ _ localInsts .. => localInsts
+  | _                           => #[]
+
 def CustomInfo.format : CustomInfo → Format
   | i => f!"[CustomInfo({i.value.typeName})]"
 
@@ -128,15 +135,15 @@ def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
         fileName := "<InfoTree>", fileMap := default }
       { env, ngen := info.ngen }
 
-def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (x : MetaM α) : IO α := do
-  (·.1) <$> info.runCoreM (x.run { lctx := lctx } { mctx := info.mctx })
+def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (localInsts : LocalInstances) (x : MetaM α) : IO α := do
+  (·.1) <$> info.runCoreM (x.run { lctx := lctx, localInstances := localInsts } { mctx := info.mctx })
 
-def ContextInfo.toPPContext (info : ContextInfo) (lctx : LocalContext) : PPContext :=
-  { env  := info.env, mctx := info.mctx, lctx := lctx,
+def ContextInfo.toPPContext (info : ContextInfo) (lctx : LocalContext) (localInsts : LocalInstances) : PPContext :=
+  { env  := info.env, mctx := info.mctx, lctx := lctx, localInsts := localInsts,
     opts := info.options, currNamespace := info.currNamespace, openDecls := info.openDecls }
 
-def ContextInfo.ppSyntax (info : ContextInfo) (lctx : LocalContext) (stx : Syntax) : IO Format := do
-  ppTerm (info.toPPContext lctx) ⟨stx⟩  -- HACK: might not be a term
+def ContextInfo.ppSyntax (info : ContextInfo) (lctx : LocalContext) (localInsts : LocalInstances) (stx : Syntax) : IO Format := do
+  ppTerm (info.toPPContext lctx localInsts) ⟨stx⟩  -- HACK: might not be a term
 
 private def formatStxRange (ctx : ContextInfo) (stx : Syntax) : Format :=
   let pos    := stx.getPos?.getD 0
@@ -156,7 +163,7 @@ private def formatElabInfo (ctx : ContextInfo) (info : ElabInfo) : Format :=
     f!"{formatStxRange ctx info.stx} @ {info.elaborator}"
 
 def TermInfo.runMetaM (info : TermInfo) (ctx : ContextInfo) (x : MetaM α) : IO α :=
-  ctx.runMetaM info.lctx x
+  ctx.runMetaM info.lctx info.localInsts x
 
 def TermInfo.format (ctx : ContextInfo) (info : TermInfo) : IO Format := do
   info.runMetaM ctx do
@@ -173,7 +180,7 @@ def PartialTermInfo.format (ctx : ContextInfo) (info : PartialTermInfo) : Format
 def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Format :=
   match info with
   | .dot i (expectedType? := expectedType?) .. => return f!"[Completion-Dot] {← i.format ctx} : {expectedType?}"
-  | .id stx _ _ lctx expectedType? => ctx.runMetaM lctx do return f!"[Completion-Id] {← ctx.ppSyntax lctx stx} : {expectedType?} @ {formatStxRange ctx info.stx}"
+  | .id stx _ _ lctx localInsts expectedType? => ctx.runMetaM lctx localInsts do return f!"[Completion-Id] {← ctx.ppSyntax lctx localInsts stx} : {expectedType?} @ {formatStxRange ctx info.stx}"
   | _ => return f!"[Completion] {info.stx} @ {formatStxRange ctx info.stx}"
 
 def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := do
@@ -186,14 +193,14 @@ def ErrorNameInfo.format (ctx : ContextInfo) (info : ErrorNameInfo) : IO Format 
   return f!"[ErrorName] {info.errorName} @ {formatStxRange ctx info.stx}"
 
 def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
-  ctx.runMetaM info.lctx do
+  ctx.runMetaM info.lctx info.localInsts do
     return f!"[Field] {info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
 
 def ContextInfo.ppGoals (ctx : ContextInfo) (goals : List MVarId) : IO Format :=
   if goals.isEmpty then
     return "no goals"
   else
-    ctx.runMetaM {} (return Std.Format.prefixJoin "\n" (← goals.mapM (Meta.ppGoal ·)))
+    ctx.runMetaM {} #[] (return Std.Format.prefixJoin "\n" (← goals.mapM (Meta.ppGoal ·)))
 
 def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : IO Format := do
   let ctxB := { ctx with mctx := info.mctxBefore }
@@ -203,8 +210,8 @@ def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : IO Format := do
   return f!"[Tactic] @ {formatElabInfo ctx info.toElabInfo}\n{info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
 
 def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : IO Format := do
-  let stx    ← ctx.ppSyntax info.lctx info.stx
-  let output ← ctx.ppSyntax info.lctx info.output
+  let stx    ← ctx.ppSyntax info.lctx info.localInsts info.stx
+  let output ← ctx.ppSyntax info.lctx info.localInsts info.output
   return f!"[MacroExpansion]\n{stx}\n===>\n{output}"
 
 def UserWidgetInfo.format (info : UserWidgetInfo) : Format :=
@@ -336,6 +343,7 @@ def addConstInfo [MonadEnv m] [MonadError m]
   pushInfoLeaf <| .ofTermInfo {
     elaborator := .anonymous
     lctx := .empty
+    localInsts := #[]
     expr := (← mkConstWithLevelParams n)
     stx
     expectedType?
@@ -485,7 +493,7 @@ end
 def withMacroExpansionInfo [MonadFinally m] [Monad m] [MonadInfoTree m] [MonadLCtx m] (stx output : Syntax) (x : m α) : m α :=
   let mkInfo : m Info := do
     return Info.ofMacroExpansionInfo {
-      lctx   := (← getLCtx)
+      lctx := (← getLCtx), localInsts := (← getLocalInstances)
       stx, output
     }
   withInfoContext x mkInfo

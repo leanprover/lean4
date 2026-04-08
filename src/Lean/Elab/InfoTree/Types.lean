@@ -80,6 +80,7 @@ structure ElabInfo where
 
 structure TermInfo extends ElabInfo where
   lctx : LocalContext -- The local context when the term was elaborated.
+  localInsts : LocalInstances
   expectedType? : Option Expr
   expr : Expr
   isBinder : Bool := false
@@ -96,6 +97,7 @@ are retained so that they can still be used in the language server.
 -/
 structure PartialTermInfo extends ElabInfo where
   lctx : LocalContext -- The local context when the term was elaborated.
+  localInsts : LocalInstances
   expectedType? : Option Expr
   deriving Inhabited
 
@@ -106,9 +108,9 @@ structure CommandInfo extends ElabInfo where
 box that appears as you type. -/
 inductive CompletionInfo where
   | dot (termInfo : TermInfo) (expectedType? : Option Expr)
-  | id (stx : Syntax) (id : Name) (danglingDot : Bool) (lctx : LocalContext) (expectedType? : Option Expr)
-  | dotId (stx : Syntax) (id : Name) (lctx : LocalContext) (expectedType? : Option Expr)
-  | fieldId (stx : Syntax) (id : Option Name) (lctx : LocalContext) (structName : Name)
+  | id (stx : Syntax) (id : Name) (danglingDot : Bool) (lctx : LocalContext) (localInsts : LocalInstances) (expectedType? : Option Expr)
+  | dotId (stx : Syntax) (id : Name) (lctx : LocalContext) (localInsts : LocalInstances) (expectedType? : Option Expr)
+  | fieldId (stx : Syntax) (id : Option Name) (lctx : LocalContext) (localInsts : LocalInstances) (structName : Name)
   | namespaceId (stx : Syntax)
   | option (stx : Syntax)
   | errorName (stx partialId : Syntax)
@@ -138,6 +140,7 @@ structure FieldInfo where
   /-- Name of the field as written. -/
   fieldName : Name
   lctx      : LocalContext
+  localInsts : LocalInstances
   val       : Expr
   stx       : Syntax
   deriving Inhabited
@@ -156,6 +159,7 @@ structure TacticInfo extends ElabInfo where
 
 structure MacroExpansionInfo where
   lctx   : LocalContext -- The local context when the macro was expanded.
+  localInsts : LocalInstances
   stx    : Syntax
   output : Syntax
   deriving Inhabited

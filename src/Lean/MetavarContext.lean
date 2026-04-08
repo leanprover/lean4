@@ -259,29 +259,6 @@ structure LevelMetavarDecl where
   index : Nat
   deriving Inhabited
 
-/--
-`LocalInstance` represents a local typeclass instance registered by and for
-the elaborator. It stores the name of the typeclass in `className`, and the
-concrete typeclass instance in `fvar`. Note that the kernel does not care about
-this information, since typeclasses are entirely eliminated during elaboration.
--/
-structure LocalInstance where
-  className : Name
-  fvar      : Expr
-  deriving Inhabited
-
-abbrev LocalInstances := Array LocalInstance
-
-instance : BEq LocalInstance where
-  beq i₁ i₂ := i₁.fvar == i₂.fvar
-
-instance : Hashable LocalInstance where
-  hash i := hash i.fvar
-
-/-- Remove local instance with the given `fvarId`. Do nothing if `localInsts` does not contain any free variable with id `fvarId`. -/
-def LocalInstances.erase (localInsts : LocalInstances) (fvarId : FVarId) : LocalInstances :=
-  localInsts.eraseP (fun inst => inst.fvar.fvarId! == fvarId)
-
 /-- A kind for the metavariable that determines its unification behaviour.
 For more information see the large comment at the beginning of this file. -/
 inductive MetavarKind where

@@ -57,7 +57,7 @@ def mCasesExists (H : Expr) (name : TSyntax ``binderIdent)
   let some (α, σs, ψ) := H.consumeMData.app3? ``SPred.exists | throwError "Not an existential quantifier {H}"
   let (name, ref) ← getFreshHypName name
   withLocalDeclD name α fun x => do
-    addLocalVarInfo ref (← getLCtx) x α
+    addLocalVarInfo ref (← getLCtx) (← getLocalInstances) x α
     let (r, goal, prf /- : goal.toExpr -/) ← k x
     let (Q, _) ← getQH goal
     let u ← getLevel α

@@ -214,7 +214,7 @@ def binders (t : InfoTree) (p : Expr → Bool := fun _ => true) : IO (List (Synt
       -- Something is wrong here: sometimes `inferType` fails with an unknown fvar error,
       -- despite passing the local context here.
       -- We fail quietly by returning a `Unit` type.
-      let ty ← ctx.runMetaM ti.lctx do instantiateMVars (← (Meta.inferType ti.expr) <|> pure (.const `Unit []))
+      let ty ← ctx.runMetaM ti.lctx ti.localInsts do instantiateMVars (← (Meta.inferType ti.expr) <|> pure (.const `Unit []))
       if p ty.cleanupAnnotations then
         if let .fvar i := ti.expr then
           match ti.lctx.find? i with

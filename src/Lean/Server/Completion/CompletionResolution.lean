@@ -99,6 +99,6 @@ def resolveCompletionItem?
   let (completionInfos, _) := findCompletionInfosAt fileMap hoverPos cmdStx infoTree
   let some i := completionInfos[completionInfoPos]?
     | return item
-  i.ctx.runMetaM i.info.lctx (item.resolve id)
+  i.ctx.runMetaM i.info.lctx i.info.localInsts (item.resolve id)
 
 end Lean.Server.Completion

@@ -461,7 +461,7 @@ private partial def normalizeField (structName : Name) (fieldView : FieldView) :
       let newEntries := name.components.map (FieldLHS.fieldName ref ·)
       normalizeField structName { fieldView with lhs := newEntries ++ rest }
     else
-      addCompletionInfo <| CompletionInfo.fieldId ref name (← getLCtx) structName
+      addCompletionInfo <| CompletionInfo.fieldId ref name (← getLCtx) (← getLocalInstances) structName
       if let some parentName := findParentProjStruct? env structName name then
         if rest.isEmpty then
           return { fieldView with lhs := [.parentFieldName ref parentName name] }
@@ -716,7 +716,7 @@ private def addStructField (fieldView : ExpandedField) (e : Expr) : StructInstM 
   if let some structName := findField? env (← read).structName fieldName then
     if let some fieldInfo := getFieldInfo? env structName fieldName then
       pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
-        projName := fieldInfo.projFn, fieldName, lctx := (← getLCtx), val := e, stx := fieldView.ref
+        projName := fieldInfo.projFn, fieldName, lctx := (← getLCtx), localInsts := (← getLocalInstances), val := e, stx := fieldView.ref
       }
 
 private def elabStructField (_fieldName : Name) (stx : Term) (fieldType : Expr) : StructInstM Expr := do
@@ -1036,7 +1036,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
       -- Add terminfo so that the `toParent` field has some hover information.
       if let some projName := projName? then
         pushInfoTree <| InfoTree.node (children := {}) <| Info.ofFieldInfo {
-          projName, fieldName := parentFieldName, lctx := (← getLCtx), val := parentVal, stx := field.ref
+          projName, fieldName := parentFieldName, lctx := (← getLCtx), localInsts := (← getLocalInstances), val := parentVal, stx := field.ref
         }
       let parentVal ← instantiateMVars parentVal
       if parentVal.isFVar then

@@ -29,7 +29,7 @@ def determineSignatureHelp (tree : Elab.InfoTree) (appStx : Syntax)
       | _ => false
     | return none
   let app := appInfo.expr
-  let some fmt ← appCtx.runMetaM appInfo.lctx do
+  let some fmt ← appCtx.runMetaM appInfo.lctx appInfo.localInsts do
       let appType ← instantiateMVars <| ← Meta.inferType app
       if ! appType.isForall then
         return none

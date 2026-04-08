@@ -285,7 +285,7 @@ def getWidgets (pos : Lean.Lsp.Position) : RequestM (RequestTask GetWidgetsRespo
   let filemap := doc.meta.text
   mapTaskCostly (findInfoTreeAtPos doc (filemap.lspPosToUtf8Pos pos) (includeStop := true)) fun
     | some infoTree@(.context (.commandCtx cc) _) =>
-      ContextInfo.runMetaM { cc with } {} do
+      ContextInfo.runMetaM { cc with } {} #[] do
       let env ← getEnv
       /- Panels from the environment. -/
       let ws' ← evalPanelWidgets

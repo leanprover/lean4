@@ -188,7 +188,7 @@ private def splitDiagInfoToMessageData (ss : Array SplitDiagInfo) : MetaM Messag
   let cls := `split
   let data ← ss.mapM fun { c, lctx, numCases, gen, splitSource } => do
     let header := m!"{c}"
-    return MessageData.withContext { env, mctx, lctx, opts } <| .trace { cls } header #[
+    return MessageData.withContext { env, mctx, lctx, localInsts := #[], opts } <| .trace { cls } header #[
       .trace { cls } m!"source: {splitSource.toMessageData}" #[],
       .trace { cls } m!"generation: {gen}" #[],
       .trace { cls } m!"# cases: {numCases}" #[]

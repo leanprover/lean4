@@ -1686,11 +1686,12 @@ private def addProjTermInfo
     (e                 : Expr)
     (expectedType?     : Option Expr := none)
     (lctx?             : Option LocalContext := none)
+    (localInsts?       : Option LocalInstances := none)
     (elaborator        : Name := Name.anonymous)
     (isBinder force    : Bool := false)
     (isDisplayableTerm : Bool := false)
     : TermElabM Expr :=
-  addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? elaborator isBinder force isDisplayableTerm
+  addTermInfo (Syntax.node .none Parser.Term.identProjKind #[stx]) e expectedType? lctx? localInsts? elaborator isBinder force isDisplayableTerm
 
 private def elabAppLValsAux (namedArgs : Array NamedArg) (args : Array Arg) (expectedType? : Option Expr) (explicit ellipsis : Bool)
     (f : Expr) (lvals : List LVal) : TermElabM Expr :=
@@ -1838,7 +1839,7 @@ private partial def resolveDottedIdentFn (idRef : Syntax) (id : Name) (explicitU
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?
     | throwNoExpectedType
-  addCompletionInfo <| CompletionInfo.dotId idRef id (← getLCtx) expectedType?
+  addCompletionInfo <| CompletionInfo.dotId idRef id (← getLCtx) (← getLocalInstances) expectedType?
   -- We will check deprecations in `elabAppFnResolutions`.
   withoutCheckDeprecated do
   withForallBody expectedType fun resultType => do

@@ -88,7 +88,7 @@ def elabConfig (recover : Bool) (structName : Name) (items : Array ConfigItemVie
           else
             source? := valSrc
         else
-          addCompletionInfo <| CompletionInfo.fieldId item.option option {} structName
+          addCompletionInfo <| CompletionInfo.fieldId item.option option {} #[] structName
           let (path, projFn) ← withRef item.option <| expandField structName option
           if item.bool then
             -- Verify that the type is `Bool`

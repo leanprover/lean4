@@ -112,7 +112,7 @@ def mkUnknownIdentifierMessageCore [Monad m] [MonadEnv m] [MonadError m] (msg : 
   let env ← getEnv
   if !declHint.isAnonymous && env.isExporting && (env.setExporting false).contains declHint then
     let c := .withContext {
-      env := env.setExporting false, opts := {}, mctx := {}, lctx := {} } <| .ofConstName declHint
+      env := env.setExporting false, opts := {}, mctx := {}, lctx := {}, localInsts := #[] } <| .ofConstName declHint
     msg := match env.getModuleIdxFor? declHint with
       | none     =>
         msg ++ .note m!"A private declaration `{c}` (from the current module) exists but would need to be public to access here."

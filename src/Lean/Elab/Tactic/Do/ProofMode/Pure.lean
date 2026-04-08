@@ -32,7 +32,7 @@ def mPureCore
   let inst ← synthInstance (mkApp3 (mkConst ``IsPure [u]) σs hyp φ)
   let (name, ref) ← liftMetaM <| getFreshHypName name
   withLocalDeclD name φ fun h => do
-    addLocalVarInfo ref (← liftMetaM <| getLCtx) h φ
+    addLocalVarInfo ref (← liftMetaM <| getLCtx) (← liftMetaM <| getLocalInstances) h φ
     let (a, goal, prf /- : goal.toExpr -/) ← k φ h
     let prf ← mkLambdaFVars #[h] prf
     let prf := mkApp7 (mkConst ``Pure.thm [u]) σs goal.hyps hyp goal.target φ inst prf

@@ -44,14 +44,14 @@ partial def find?
       CancellableM.checkCancelled
       let completions : Array ResolvableCompletionItem ←
         match i.info with
-        | .id stx id danglingDot lctx .. =>
-          idCompletion uri pos completionInfoPos i.ctx lctx stx id i.hoverInfo danglingDot
+        | .id stx id danglingDot lctx localInsts .. =>
+          idCompletion uri pos completionInfoPos i.ctx lctx localInsts stx id i.hoverInfo danglingDot
         | .dot info .. =>
           dotCompletion uri pos completionInfoPos i.ctx info
-        | .dotId _ id lctx expectedType? =>
-          dotIdCompletion uri pos completionInfoPos i.ctx lctx id expectedType?
-        | .fieldId _ id lctx structName =>
-          fieldIdCompletion uri pos completionInfoPos i.ctx lctx id structName
+        | .dotId _ id lctx localInsts expectedType? =>
+          dotIdCompletion uri pos completionInfoPos i.ctx lctx localInsts id expectedType?
+        | .fieldId _ id lctx localInsts structName =>
+          fieldIdCompletion uri pos completionInfoPos i.ctx lctx localInsts id structName
         | .option stx =>
           optionCompletion uri pos completionInfoPos i.ctx stx caps
         | .errorName _ partialId =>

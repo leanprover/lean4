@@ -215,7 +215,7 @@ private def printIdCore (sigOnly : Bool) (id : Name) : CommandElabM Unit := do
   | none => throwUnknownId id
 
 private def printId (id : Syntax) : CommandElabM Unit := do
-  addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
+  addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} #[] none
   let cs ← liftCoreM <| realizeGlobalConstWithInfos id
   cs.forM (printIdCore (sigOnly := false) ·)
 
@@ -225,7 +225,7 @@ private def printId (id : Syntax) : CommandElabM Unit := do
   | _                       => throwError "invalid #print command"
 
 private def printIdSig (id : Syntax) : CommandElabM Unit := do
-  addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} none
+  addCompletionInfo <| CompletionInfo.id id id.getId (danglingDot := false) {} #[] none
   let cs ← liftCoreM <| realizeGlobalConstWithInfos id
   cs.forM (printIdCore (sigOnly := true) ·)
 

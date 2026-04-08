@@ -218,15 +218,15 @@ partial def MGoal.renameInaccessibleHyps (goal : MGoal) (idents : Array (TSyntax
         return SPred.mkAnd! u σs lhs rhs
       return H
 
-def addLocalVarInfo (stx : Syntax) (lctx : LocalContext)
+def addLocalVarInfo (stx : Syntax) (lctx : LocalContext) (localInsts : LocalInstances)
     (expr : Expr) (expectedType? : Option Expr) (isBinder := false) : MetaM Unit := do
   Elab.withInfoContext' (pure ())
     (fun _ =>
       return .inl <| .ofTermInfo
-        { elaborator := .anonymous, lctx, expr, stx, expectedType?, isBinder })
-    (return .ofPartialTermInfo { elaborator := .anonymous, lctx, stx, expectedType? })
+        { elaborator := .anonymous, lctx, localInsts, expr, stx, expectedType?, isBinder })
+    (return .ofPartialTermInfo { elaborator := .anonymous, lctx, localInsts, stx, expectedType? })
 
 def addHypInfo (stx : Syntax) (σs : Expr) (hyp : Hyp) (isBinder := false) : MetaM Unit := do
   let lctx ← getLCtx
   let ty := mkApp2 (← mkConstWithFreshMVarLevels ``MGoalHypMarker) σs hyp.p
-  addLocalVarInfo stx (lctx.mkLocalDecl ⟨hyp.uniq⟩ hyp.name ty) (.fvar ⟨hyp.uniq⟩) ty isBinder
+  addLocalVarInfo stx (lctx.mkLocalDecl ⟨hyp.uniq⟩ hyp.name ty) (← getLocalInstances) (.fvar ⟨hyp.uniq⟩) ty isBinder

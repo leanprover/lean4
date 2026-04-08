@@ -9,6 +9,7 @@ prelude
 public import Init.Core
 import Init.Data.Bool
 import Init.ByCases
+import Init.Classical
 
 public section
 

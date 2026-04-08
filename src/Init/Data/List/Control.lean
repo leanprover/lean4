@@ -50,7 +50,7 @@ Users that want to use `mapM` with `Applicative` should use `mapA` instead.
 Applies the monadic action `f` to every element in the list, left-to-right, and returns the list of
 results.
 
-This implementation is tail recursive. `List.mapM'` is a a non-tail-recursive variant that may be
+This implementation is tail recursive. `List.mapM'` is a non-tail-recursive variant that may be
 more convenient to reason about. `List.forM` is the variant that discards the results and
 `List.mapA` is the variant that works with `Applicative`.
 -/
@@ -107,7 +107,7 @@ Applies the monadic action `f` to the corresponding elements of two lists, left-
 at the end of the shorter list. `zipWithM f as bs` is equivalent to `mapM id (zipWith f as bs)`
 for lawful `Monad` instances.
 
-This implementation is tail recursive. `List.zipWithM'` is a a non-tail-recursive variant that may
+This implementation is tail recursive. `List.zipWithM'` is a non-tail-recursive variant that may
 be more convenient to reason about.
 -/
 @[inline, expose]
@@ -219,9 +219,9 @@ def filterMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f 
 Applies a monadic function that returns a list to each element of a list, from left to right, and
 concatenates the resulting lists.
 -/
-@[inline, expose]
-def flatMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (List β)) (as : List α) : m (List β) :=
-  let rec @[specialize] loop
+@[expose]
+noncomputable def flatMapM {m : Type u → Type v} [Monad m] {α : Type w} {β : Type u} (f : α → m (List β)) (as : List α) : m (List β) :=
+  let rec loop
     | [],     bs => pure bs.reverse.flatten
     | a :: as, bs => do
       let bs' ← f a

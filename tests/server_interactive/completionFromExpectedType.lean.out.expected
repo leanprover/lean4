@@ -1,0 +1,12 @@
+{"textDocument": {"uri": "file:///completionFromExpectedType.lean"},
+ "position": {"line": 3, "character": 18}}
+{"items":
+ [{"label": "mk",
+   "kind": 4,
+   "data": ["file:///completionFromExpectedType.lean", 3, 18, 0, "cFoo.mk"]}],
+ "isIncomplete": false}
+Resolution of mk:
+{"label": "mk",
+ "kind": 4,
+ "detail": "Nat → Foo",
+ "data": ["file:///completionFromExpectedType.lean", 3, 18, 0, "cFoo.mk"]}

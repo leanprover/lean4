@@ -6,10 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Grind.Ordered.Order
 public import Init.GrindInstances.ToInt
 import all Init.Data.BitVec.Basic
 import all Init.Grind.ToInt
+public import Init.Data.BitVec.Lemmas
+public import Init.Grind.Ring.Basic
+import Init.Data.BitVec.Bootstrap
+import Init.Grind.Ring.ToInt
 
 public section
 

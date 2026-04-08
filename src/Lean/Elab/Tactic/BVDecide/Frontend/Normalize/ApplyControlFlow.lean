@@ -7,6 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Simp
+import Init.ByCases
+import Init.Omega
 
 public section
 

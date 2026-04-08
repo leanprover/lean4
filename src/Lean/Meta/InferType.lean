@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Data.LBool
 public import Lean.Meta.Basic
+import Init.Data.Range.Polymorphic.Iterators
 
 public section
 
@@ -178,13 +179,15 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
   | none   => fvarId.throwUnknown
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
-  if e.hasMVar then
+  if !(← read).cacheInferType || e.hasMVar then
+    Core.checkInterrupted
     inferType
   else
     let key ← mkExprConfigCacheKey e
     match (← get).cache.inferType.find? key with
     | some type => return type
     | none =>
+      Core.checkInterrupted
       let type ← inferType
       unless type.hasMVar do
         modifyInferTypeCache fun c => c.insert key type
@@ -200,11 +203,12 @@ because it overrides unrelated configurations.
 @[inline] def withInferTypeConfig (x : MetaM α) : MetaM α :=
   withAtLeastTransparency .default do
     let cfg ← getConfig
-    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
+    if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta && cfg.etaStruct == .all then
       x
     else
-      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta }) x
+      withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta, etaStruct := .all }) x
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_infer_type]
 def inferTypeImp (e : Expr) : MetaM Expr :=
   let rec infer (e : Expr) :  MetaM Expr := do

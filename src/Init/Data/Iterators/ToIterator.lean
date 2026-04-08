@@ -6,7 +6,7 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Iterators.Consumers.Loop
+public import Init.Data.Iterators.Basic
 
 public section
 
@@ -15,9 +15,7 @@ This module provides the typeclass `ToIterator`, which is implemented by types t
 converted into iterators.
 -/
 
-open Std.Iterators
-
-namespace Std.Iterators
+namespace Std
 
 /-- This typeclass provides an iterator for elements of type `γ`. -/
 class ToIterator (γ : Type u) (m : Type w → Type w') (α β : outParam (Type w)) where
@@ -34,14 +32,14 @@ def ToIterator.iter [ToIterator γ Id α β] (x : γ) : Iter (α := α) β :=
   ToIterator.iterM x |>.toIter
 
 /-- Creates a monadic `ToIterator` instance. -/
-@[always_inline, inline, expose]
+@[always_inline, inline, expose, implicit_reducible]
 def ToIterator.ofM (α : Type w)
     (iterM : γ → IterM (α := α) m β) :
     ToIterator γ m α β where
   iterMInternal x := iterM x
 
 /-- Creates a pure `ToIterator` instance. -/
-@[always_inline, inline, expose]
+@[always_inline, inline, expose, implicit_reducible]
 def ToIterator.of (α : Type w)
     (iter : γ → Iter (α := α) β) :
     ToIterator γ Id α β where
@@ -60,4 +58,4 @@ theorem ToIterator.iter_eq {γ : Type u} {x : γ} {α β : Type v} {it} :
     ToIterator.iter x = (it x).toIter :=
   rfl
 
-end Std.Iterators
+end Std

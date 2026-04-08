@@ -13,6 +13,7 @@ public import Lake.CLI.Help
 public import Lake.CLI.Init
 public import Lake.CLI.Main
 public import Lake.CLI.Serve
+public import Lake.CLI.Shake
 public import Lake.CLI.Translate
 public import Lake.CLI.Translate.Lean
 public import Lake.CLI.Translate.Toml

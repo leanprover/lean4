@@ -6,7 +6,7 @@ Authors: Joe Hendrix, Wojciech Nawrocki, Leonardo de Moura, Mario Carneiro, Alex
 module
 
 prelude
-public import Init.Data.Fin.Basic
+public import Init.Grind.Tactics
 
 public section
 

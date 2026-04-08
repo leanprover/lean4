@@ -12,6 +12,7 @@ import all Init.Control.Except  -- for `MonoBind` instance
 import all Init.Control.StateRef  -- for `MonoBind` instance
 import all Init.Control.Option  -- for `MonoBind` instance
 import all Init.System.ST  -- for `MonoBind` instance
+import Init.ByCases
 
 public section
 
@@ -62,9 +63,9 @@ A chain is a totally ordered set (representing a set as a predicate).
 
 This is intended to be used in the construction of `partial_fixpoint`, and not meant to be used otherwise.
 -/
-def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y ⊑ x
+@[expose] def chain (c : α → Prop) : Prop := ∀ x y , c x → c y → x ⊑ y ∨ y ⊑ x
 
-def is_sup {α : Sort u} [PartialOrder α] (c : α → Prop) (s : α) : Prop :=
+@[expose] def is_sup {α : Sort u} [PartialOrder α] (c : α → Prop) (s : α) : Prop :=
   ∀ x, s ⊑ x ↔ (∀ y, c y → y ⊑ x)
 
 theorem is_sup_unique {α} [PartialOrder α] {c : α → Prop} {s₁ s₂ : α}
@@ -953,7 +954,7 @@ theorem monotone_readerTRun [PartialOrder γ]
 instance [inst : PartialOrder (m α)] : PartialOrder (StateRefT' ω σ m α) := instOrderPi
 instance [inst : CCPO (m α)] : CCPO (StateRefT' ω σ m α) := instCCPOPi
 instance [Monad m] [∀ α, PartialOrder (m α)] [MonoBind m] : MonoBind (StateRefT' ω σ m) :=
-  inferInstanceAs (MonoBind (ReaderT _ _))
+  inferInstanceAs (MonoBind (ReaderT (ST.Ref ω σ) m))
 
 @[partial_fixpoint_monotone]
 theorem monotone_stateRefT'Run [PartialOrder γ]

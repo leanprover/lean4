@@ -8,7 +8,10 @@ module
 prelude
 import all Init.Data.Array.Basic
 import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Lemmas
+public import Init.Data.Function
+public import Init.Data.Vector.Basic
+import Init.Data.Array.Zip
+import Init.Data.Vector.Lemmas
 
 public section
 

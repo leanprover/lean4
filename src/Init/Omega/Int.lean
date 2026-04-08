@@ -6,7 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Int.DivMod.Bootstrap
+public import Init.Data.Fin.Basic
+public import Init.Data.Int.DivMod.Basic
+public import Init.WF
+import Init.ByCases
+import Init.Data.Int.Lemmas
+import Init.Data.Int.Order
+import Init.PropLemmas
 
 public section
 

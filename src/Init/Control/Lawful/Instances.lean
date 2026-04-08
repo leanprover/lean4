@@ -12,6 +12,8 @@ public import Init.Control.Option
 import all Init.Control.Option
 import all Init.Control.State
 public import Init.Control.StateRef
+public import Init.Control.State
+public import Init.Ext
 
 public section
 
@@ -27,6 +29,8 @@ namespace ExceptT
 @[ext, grind ext] theorem ext {x y : ExceptT ε m α} (h : x.run = y.run) : x = y := by
   simp [run] at h
   assumption
+
+@[simp] theorem stM_eq [Monad m] : stM m (ExceptT ε m) α = Except ε α := rfl
 
 @[simp, grind =] theorem run_mk (x : m (Except ε α)) : run (mk x : ExceptT ε m α) = x := rfl
 
@@ -102,7 +106,7 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
 
 @[simp] theorem map_throw [Monad m] [LawfulMonad m] {α β : Type _} (f : α → β) (e : ε) :
     f <$> (throw e : ExceptT ε m α) = (throw e : ExceptT ε m β) := by
-  simp only [ExceptT.instMonad, ExceptT.map, ExceptT.mk, throw, throwThe, MonadExceptOf.throw,
+  simp only [Functor.map, ExceptT.map, ExceptT.mk, throw, throwThe, MonadExceptOf.throw,
     pure_bind]
 
 /-! Note that the `MonadControl` instance for `ExceptT` is not monad-generic. -/
@@ -116,10 +120,15 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ExceptT ε m) where
 
 @[simp] theorem run_controlAt [Monad m] [LawfulMonad m] (f : ({β : Type u} → ExceptT ε m β → m (stM m (ExceptT ε m) β)) → m (stM m (ExceptT ε m) α)) :
     ExceptT.run (controlAt m f) = f fun x => x.run := by
-  simp [controlAt, run_bind, bind_map_left]
+  simp [controlAt, run_bind]
 
 @[simp] theorem run_control [Monad m] [LawfulMonad m] (f : ({β : Type u} → ExceptT ε m β → m (stM m (ExceptT ε m) β)) → m (stM m (ExceptT ε m) α)) :
     ExceptT.run (control f) = f fun x => x.run := run_controlAt f
+
+@[simp, grind =]
+theorem run_adapt [Monad m] (f : ε → ε') (x : ExceptT ε m α)
+    : run (ExceptT.adapt f x : ExceptT ε' m α) = Except.mapError f <$> run x :=
+  rfl
 
 end ExceptT
 
@@ -430,7 +439,6 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (StateT σ m) where
 @[simp] theorem run_restoreM [Monad m] [LawfulMonad m] (x : stM m (StateT σ m) α) (s : σ) :
     StateT.run (restoreM x) s = pure x := by
   simp [restoreM, MonadControl.restoreM]
-  rfl
 
 @[simp] theorem run_liftWith [Monad m] [LawfulMonad m] (f : ({β : Type u} → StateT σ m β → m (stM m (StateT σ m) β)) → m α) (s : σ) :
     StateT.run (liftWith f) s = ((·, s) <$> f fun x => x.run s) := by
@@ -467,15 +475,33 @@ namespace EStateM
 @[simp, grind =] theorem run_throw (e : ε) (s : σ):
     EStateM.run (throw e : EStateM ε σ PUnit) s = .error e s := rfl
 
+@[simp, grind =] theorem run_bind (x : EStateM ε σ α) (f : α → EStateM ε σ β)
+    : EStateM.run (x >>= f : EStateM ε σ β) s
+      =
+      match EStateM.run x s with
+      | .ok x s => EStateM.run (f x) s
+      | .error e s => .error e s :=
+  rfl
+
+@[simp, grind =]
+theorem run_adaptExcept (f : ε → ε') (x : EStateM ε σ α) (s : σ)
+    : EStateM.run (EStateM.adaptExcept f x : EStateM ε' σ α) s
+     =
+     match EStateM.run x s with
+     | .ok x s => .ok x s
+     | .error e s => .error (f e) s := by
+  simp only [EStateM.run, EStateM.adaptExcept]
+  cases (x s) <;> rfl
+
 instance : LawfulMonad (EStateM ε σ) := .mk'
   (id_map := fun x => funext <| fun s => by
-    dsimp only [EStateM.instMonad, EStateM.map]
+    simp only [Functor.map, EStateM.map]
     match x s with
     | .ok _ _ => rfl
     | .error _ _ => rfl)
   (pure_bind := fun _ _ => by rfl)
   (bind_assoc := fun x _ _ => funext <| fun s => by
-    dsimp only [EStateM.instMonad, EStateM.bind]
+    simp only [bind, EStateM.bind]
     match x s with
     | .ok _ _ => rfl
     | .error _ _ => rfl)

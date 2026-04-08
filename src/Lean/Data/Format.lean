@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Data.Options
+public import Init.Data.Format.Instances
 
 public section
 universe u v

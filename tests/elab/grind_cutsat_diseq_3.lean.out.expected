@@ -1,0 +1,2 @@
+private theorem ex₁ : ∀ (a b c : Int), c ≥ 0 → b ≥ 0 → 1 ≤ a + c → a + b ≤ 1 → a ≠ 1 → c ≤ a → False :=
+fun a b c => ex₁._proof_1_1 a b c

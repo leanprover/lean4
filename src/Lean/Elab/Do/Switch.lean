@@ -6,12 +6,9 @@ Authors: Sebastian Graf
 module
 
 prelude
-public import Init.System.IO
-public import Lean.Data.Options
 public import Lean.Elab.Term.TermElabM
 import Lean.Elab.Do.Basic
 import Lean.Elab.Do.Legacy
-meta import Lean.Parser.Do
 
 public section
 
@@ -49,4 +46,4 @@ def elabDo : TermElab := fun stx expectedType? => do
   if backward.do.legacy.get (← getOptions) then
     Term.elabLiftMethod stx ty
   else
-    throwError "Not implemented yet"
+    Elab.Do.elabNestedAction stx ty

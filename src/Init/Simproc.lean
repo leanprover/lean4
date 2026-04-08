@@ -6,8 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.NotationExtra
-public meta import Init.Data.ToString.Name
+public meta import Init.Data.ToString.Name  -- shake: keep (transitive public meta dep, fix)
+public import Init.Tactics
+import Init.Meta.Defs
 
 public section
 

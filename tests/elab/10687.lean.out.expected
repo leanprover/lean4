@@ -1,0 +1,8 @@
+ def  foo_ (x : IO Nat) : IO Nat  := x
+
+ def foo (x : IO Nat) : IO Nat  :=  trace  "foo"  (    foo_  x  ) 
+tracing: foo
+5
+private partial  def  bar_ (x : IO Nat) : IO Nat  := baz (pure 5)
+
+private partial  def bar (x : IO Nat) : IO Nat  :=  trace  "bar"  (    bar_  x  ) 

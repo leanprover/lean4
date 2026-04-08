@@ -9,7 +9,6 @@ prelude
 public import Lean.Meta.Eval
 public import Lean.Elab.SyntheticMVars
 import Lean.Linter.MissingDocs
-meta import Lean.Parser.Tactic
 
 public section
 

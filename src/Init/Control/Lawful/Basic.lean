@@ -6,7 +6,9 @@ Authors: Sebastian Ullrich, Leonardo de Moura, Mario Carneiro
 module
 
 prelude
-public import Init.Ext
+public import Init.Control.Id
+public import Init.Grind.Tactics
+import Init.Ext
 
 public section
 
@@ -248,12 +250,12 @@ namespace Id
 instance : LawfulMonad Id := by
   refine LawfulMonad.mk' _ ?_ ?_ ?_ <;> intros <;> rfl
 
-@[simp] theorem run_map (x : Id α) (f : α → β) : (f <$> x).run = f x.run := rfl
-@[simp] theorem run_bind (x : Id α) (f : α → Id β) : (x >>= f).run = (f x.run).run := rfl
-@[simp] theorem run_pure (a : α) : (pure a : Id α).run = a := rfl
-@[simp] theorem pure_run (a : Id α) : pure a.run = a := rfl
-@[simp] theorem run_seqRight (x y : Id α) : (x *> y).run = y.run := rfl
-@[simp] theorem run_seqLeft (x y : Id α) : (x <* y).run = x.run := rfl
+@[simp, grind =] theorem run_map (x : Id α) (f : α → β) : (f <$> x).run = f x.run := rfl
+@[simp, grind =] theorem run_bind (x : Id α) (f : α → Id β) : (x >>= f).run = (f x.run).run := rfl
+@[simp, grind =] theorem run_pure (a : α) : (pure a : Id α).run = a := rfl
+@[simp, grind =] theorem pure_run (a : Id α) : pure a.run = a := rfl
+@[simp] theorem run_seqRight (x : Id α) (y : Id β) : (x *> y).run = y.run := rfl
+@[simp] theorem run_seqLeft (x : Id α) (y : Id β) : (x <* y).run = x.run := rfl
 @[simp] theorem run_seq (f : Id (α → β)) (x : Id α) : (f <*> x).run = f.run x.run := rfl
 
 end Id

@@ -369,6 +369,12 @@ In this setting all definitions that are not opaque are unfolded.
 -/
 syntax (name := withUnfoldingAll) "with_unfolding_all " tacticSeq : tactic
 
+/--
+`with_unfolding_none tacs` executes `tacs` using the `.none` transparency setting.
+In this setting no definitions are unfolded.
+-/
+syntax (name := withUnfoldingNone) "with_unfolding_none " tacticSeq : tactic
+
 /-- `first | tac | ...` runs each `tac` until one succeeds, or else fails. -/
 syntax (name := first) "first " withPosition((ppDedent(ppLine) colGe "| " tacticSeq)+) : tactic
 
@@ -512,15 +518,11 @@ syntax location := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)
   assuming these are definitionally equal.
 * `change t' at h` will change hypothesis `h : t` to have type `t'`, assuming
   assuming `t` and `t'` are definitionally equal.
--/
-syntax (name := change) "change " term (location)? : tactic
-
-/--
 * `change a with b` will change occurrences of `a` to `b` in the goal,
   assuming `a` and `b` are definitionally equal.
 * `change a with b at h` similarly changes `a` to `b` in the type of hypothesis `h`.
 -/
-syntax (name := changeWith) "change " term " with " term (location)? : tactic
+syntax (name := change) "change " term (location)? : tactic
 
 /--
 `show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
@@ -540,7 +542,7 @@ introducing new local definitions.
 For example, given a local hypotheses if the form `h : let x := v; b x`, then `extract_lets z at h`
 introduces a new local definition `z := v` and changes `h` to be `h : b z`.
 -/
-syntax (name := extractLets) "extract_lets " optConfig (ppSpace colGt (ident <|> hole))* (location)? : tactic
+syntax (name := extractLets) "extract_lets" ppSpace optConfig (ppSpace colGt (ident <|> hole))* (location)? : tactic
 
 /--
 Lifts `let` and `have` expressions within a term as far out as possible.
@@ -572,7 +574,7 @@ If `thm` is a theorem `a = b`, then as a rewrite rule,
 * `thm` means to replace `a` with `b`, and
 * `← thm` means to replace `b` with `a`.
 -/
-syntax rwRule    := patternIgnore("← " <|> "<- ")? term
+syntax rwRule    := unicode("← ", "<- ")? term
 /-- A `rwRuleSeq` is a list of `rwRule` in brackets. -/
 syntax rwRuleSeq := " [" withoutPosition(rwRule,*,?) "]"
 
@@ -648,7 +650,7 @@ A simp lemma specification is:
 * optional `←` to use the lemma backward
 * `thm` for the theorem to rewrite with
 -/
-syntax simpLemma := ppGroup((simpPre <|> simpPost)? patternIgnore("← " <|> "<- ")? term)
+syntax simpLemma := ppGroup((simpPre <|> simpPost)? unicode("← ", "<- ")? term)
 /-- An erasure specification `-thm` says to remove `thm` from the simp set -/
 syntax simpErase := "-" term:max
 /-- The simp lemma specification `*` means to rewrite with all hypotheses -/
@@ -899,8 +901,13 @@ The tactic supports all the same syntax variants and options as the `let` term.
 -/
 macro "let" c:letConfig d:letDecl : tactic => `(tactic| refine_lift let $c:letConfig $d:letDecl; ?_)
 
-/-- `let rec f : t := e` adds a recursive definition `f` to the current goal.
-The syntax is the same as term-mode `let rec`. -/
+/--
+`let rec f : t := e` adds a recursive definition `f` to the current goal.
+The syntax is the same as term-mode `let rec`.
+
+The tactic supports all the same syntax variants and options as the `let` term.
+-/
+@[tactic_name "let rec"]
 syntax (name := letrec) withPosition(atomic("let " &"rec ") letRecDecls) : tactic
 macro_rules
   | `(tactic| let rec $d) => `(tactic| refine_lift let rec $d; ?_)
@@ -1083,8 +1090,6 @@ See also:
 * `first | tac1 | tac2` implements the backtracking used by `repeat`
 -/
 syntax "repeat " tacticSeq : tactic
-macro_rules
-  | `(tactic| repeat $seq) => `(tactic| first | ($seq); repeat $seq | skip)
 
 /--
 `repeat' tac` recursively applies `tac` on all of the goals so long as it succeeds.
@@ -1206,22 +1211,6 @@ while `congr 2` produces the intended `⊢ x + y = y + x`.
 syntax (name := congr) "congr" (ppSpace num)? : tactic
 
 
-/--
-In tactic mode, `if h : t then tac1 else tac2` can be used as alternative syntax for:
-```
-by_cases h : t
-· tac1
-· tac2
-```
-It performs case distinction on `h : t` or `h : ¬t` and `tac1` and `tac2` are the subproofs.
-
-You can use `?_` or `_` for either subproof to delay the goal to after the tactic, but
-if a tactic sequence is provided for `tac1` or `tac2` then it will require the goal to be closed
-by the end of the block.
--/
-syntax (name := tacDepIfThenElse)
-  ppRealGroup(ppRealFill(ppIndent("if " binderIdent " : " term " then") ppSpace matchRhsTacticSeq)
-    ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
 
 /--
 In tactic mode, `if t then tac1 else tac2` is alternative syntax for:
@@ -1230,14 +1219,32 @@ by_cases t
 · tac1
 · tac2
 ```
-It performs case distinction on `h† : t` or `h† : ¬t`, where `h†` is an anonymous
-hypothesis, and `tac1` and `tac2` are the subproofs. (It doesn't actually use
-nondependent `if`, since this wouldn't add anything to the context and hence would be
-useless for proving theorems. To actually insert an `ite` application use
-`refine if t then ?_ else ?_`.)
+It performs case distinction on `h† : t` or `h† : ¬t`, where `h†` is an anonymous hypothesis, and
+`tac1` and `tac2` are the subproofs. (It doesn't actually use nondependent `if`, since this wouldn't
+add anything to the context and hence would be useless for proving theorems. To actually insert an
+`ite` application use `refine if t then ?_ else ?_`.)
+
+The assumptions in each subgoal can be named. `if h : t then tac1 else tac2` can be used as
+alternative syntax for:
+```
+by_cases h : t
+· tac1
+· tac2
+```
+It performs case distinction on `h : t` or `h : ¬t`.
+
+You can use `?_` or `_` for either subproof to delay the goal to after the tactic, but
+if a tactic sequence is provided for `tac1` or `tac2` then it will require the goal to be closed
+by the end of the block.
 -/
 syntax (name := tacIfThenElse)
   ppRealGroup(ppRealFill(ppIndent("if " term " then") ppSpace matchRhsTacticSeq)
+    ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
+
+
+@[tactic_alt tacIfThenElse]
+syntax (name := tacDepIfThenElse)
+  ppRealGroup(ppRealFill(ppIndent("if " binderIdent " : " term " then") ppSpace matchRhsTacticSeq)
     ppDedent(ppSpace) ppRealFill("else " matchRhsTacticSeq)) : tactic
 
 /--
@@ -1311,7 +1318,7 @@ structure DecideConfig where
   however kernel reduction ignores transparency settings. -/
   kernel : Bool := false
   /-- If true (default: false), then uses the native code compiler to evaluate the `Decidable` instance,
-  admitting the result via the axiom `Lean.ofReduceBool`.  This can be significantly more efficient,
+  admitting the result via an axiom. This can be significantly more efficient,
   but it is at the cost of increasing the trusted code base, namely the Lean compiler
   and all definitions with an `@[implemented_by]` attribute.
   The instance is only evaluated once. The `native_decide` tactic is a synonym for `decide +native`. -/
@@ -1341,7 +1348,7 @@ Options:
   It has two key properties: (1) since it uses the kernel, it ignores transparency and can unfold everything,
   and (2) it reduces the `Decidable` instance only once instead of twice.
 - `decide +native` uses the native code compiler (`#eval`) to evaluate the `Decidable` instance,
-  admitting the result via the `Lean.ofReduceBool` axiom.
+  admitting the result via an axiom. This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
   This can be significantly more efficient than using reduction, but it is at the cost of increasing the size
   of the trusted code base.
   Namely, it depends on the correctness of the Lean compiler and all definitions with an `@[implemented_by]` attribute.
@@ -1402,7 +1409,7 @@ of `Decidable p` and then evaluating it to `isTrue ..`. Unlike `decide`, this
 uses `#eval` to evaluate the decidability instance.
 
 This should be used with care because it adds the entire lean compiler to the trusted
-part, and the axiom `Lean.ofReduceBool` will show up in `#print axioms` for theorems using
+part, and a new axiom will show up in `#print axioms` for theorems using
 this method or anything that transitively depends on them. Nevertheless, because it is
 compiled, this can be significantly more efficient than using `decide`, and for very
 large computations this is one way to run external programs and trust the result.
@@ -1817,8 +1824,7 @@ In order to avoid calling a SAT solver every time, the proof can be cached with 
 If solving your problem relies inherently on using associativity or commutativity, consider enabling
 the `bv.ac_nf` option.
 
-
-Note: `bv_decide` uses `ofReduceBool` and thus trusts the correctness of the code generator.
+Note: `bv_decide` trusts the correctness of the code generator and adds a axioms asserting its result.
 
 Note: include `import Std.Tactic.BVDecide`
 -/
@@ -2287,6 +2293,47 @@ theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
+/--
+`cbv` performs simplification that closely mimics call-by-value evaluation.
+It reduces terms by unfolding definitions using their defining equations and
+applying matcher equations. The unfolding is propositional, so `cbv` also works
+with functions defined via well-founded recursion or partial fixpoints.
+
+`cbv` reduces the goal type (and optionally hypothesis types) using call-by-value
+evaluation. For equation goals (`lhs = rhs`), `cbv` automatically attempts `refl`
+after reduction to close the goal.
+
+`cbv` supports the standard `at` location syntax:
+- `cbv` — reduce the goal target
+- `cbv at h` — reduce hypothesis `h`
+- `cbv at h |-` — reduce hypothesis `h` and the goal target
+- `cbv at *` — reduce all non-dependent propositional hypotheses and the goal target
+
+`cbv` is not a finishing tactic in general: it may leave a new (simpler) goal.
+
+The proofs produced by `cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
+-/
+syntax (name := cbv) "cbv" (location)? : tactic
+
+/--
+`decide_cbv` is a finishing tactic that closes goals of the form `p`, where `p`
+is a `Decidable` proposition. It proceeds in two steps:
+1. Apply `of_decide_eq_true` to transform the goal into `decide p = true`.
+2. Reduce `decide p` via call-by-value normalization. If the result is
+   definitionally equal to `true`, the goal is closed.
+
+`decide_cbv` fails with an error if `decide p` does not reduce to `true`.
+Unlike `cbv`, `decide_cbv` is a terminal tactic: it either closes the goal or
+fails.
+
+The proofs produced by `decide_cbv` only use the three standard axioms.
+In particular, they do not require trust in the correctness of the code
+generator.
+-/
+syntax (name := decide_cbv) "decide_cbv" : tactic
+
 end Tactic
 
 namespace Attr
@@ -2339,7 +2386,7 @@ If there are several with the same priority, it is uses the "most recent one". E
   cases d <;> rfl
 ```
 -/
-syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := simp) "simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `wf_preprocess` attribute are used during the processing of functions defined
@@ -2353,7 +2400,7 @@ that diverges as compiled to be accepted without an explicit `partial` keyword, 
 remove irrelevant subterms or change the evaluation order by hiding terms under binders. Therefore
 avoid tagging theorems with `[wf_preprocess]` unless they preserve also operational behavior.
 -/
-syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := wf_preprocess) "wf_preprocess" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
 
 /--
 Theorems tagged with the `method_specs_simp` attribute are used by `@[method_specs]` to further
@@ -2365,7 +2412,17 @@ The `method_specs` theorems are created on demand (using the realizable constant
 this simp set should behave the same in all modules. Do not add theorems to it except in the module
 defining the thing you are rewriting.
 -/
-syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? patternIgnore("← " <|> "<- ")? (ppSpace prio)? : attr
+syntax (name := method_specs_simp) "method_specs_simp" (Tactic.simpPre <|> Tactic.simpPost)? unicode("← ", "<- ")? (ppSpace prio)? : attr
+
+/--
+Register a theorem as a rewrite rule for `cbv` evaluation of a given definition.
+
+You can instruct `cbv` to rewrite the lemma from right-to-left:
+```lean
+@[cbv_eval ←] theorem my_thm : rhs = lhs := ...
+```
+-/
+syntax (name := cbv_eval) "cbv_eval" unicode("← ", "<- ")? (ppSpace ident)? : attr
 
 /-- The possible `norm_cast` kinds: `elim`, `move`, or `squash`. -/
 syntax normCastLabel := &"elim" <|> &"move" <|> &"squash"

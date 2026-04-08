@@ -11,6 +11,7 @@ public import Lake.Config.Dynlib
 public import Lake.Config.Defaults
 public import Lake.Util.NativeLib
 import Init.Data.String.Modify
+import Init.System.Platform
 
 open System Lean.Compiler.FFI
 
@@ -56,9 +57,17 @@ where
 public def leanExe (sysroot : FilePath) :=
   sysroot / "bin" / "lean" |>.addExtension FilePath.exeExtension
 
+/-- Standard path of `leanir` in a Lean installation. -/
+public def leanirExe (sysroot : FilePath) :=
+  sysroot / "bin" / "leanir" |>.addExtension FilePath.exeExtension
+
 /-- Standard path of `leanc` in a Lean installation. -/
 public def leancExe (sysroot : FilePath) :=
   sysroot / "bin" / "leanc" |>.addExtension FilePath.exeExtension
+
+/-- Standard path of `leantar` in a Lean installation. -/
+public def leantarExe (sysroot : FilePath) :=
+  sysroot / "bin" / "leantar" |>.addExtension FilePath.exeExtension
 
 /-- Standard path of `llvm-ar` in a Lean installation. -/
 public def leanArExe (sysroot : FilePath) :=
@@ -93,7 +102,9 @@ public structure LeanInstall where
   systemLibDir := sysroot / "lib"
   binDir := sysroot / "bin"
   lean := leanExe sysroot
+  leanir := leanirExe sysroot
   leanc := leancExe sysroot
+  leantar := leantarExe sysroot
   sharedLib := leanSharedLibDir sysroot / leanSharedLib
   initSharedLib := leanSharedLibDir sysroot / initSharedLib
   ar : FilePath := "ar"

@@ -9,8 +9,8 @@ module
 
 prelude
 public import Init.Conv
-public import Init.Meta
-public import Init.While
+public import Init.GetElem
+import Init.Meta.Defs
 
 public section
 
@@ -25,9 +25,9 @@ syntax explicitBinders            := (ppSpace bracketedExplicitBinders)+ <|> unb
 open TSyntax.Compat in
 meta def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) (type? : Option Syntax) (body : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (h : i ≤ idents.size) (acc : Syntax) := do
-    match i with
-    | 0   => pure acc
-    | i + 1 =>
+    match i, h with
+    | 0, _   => pure acc
+    | i + 1, h =>
       let ident := idents[i][0]
       let acc ← match ident.isIdent, type? with
         | true,  none      => `($combinator fun $ident => $acc)
@@ -39,9 +39,9 @@ meta def expandExplicitBindersAux (combinator : Syntax) (idents : Array Syntax) 
 
 meta def expandBracketedBindersAux (combinator : Syntax) (binders : Array Syntax) (body : Syntax) : MacroM Syntax :=
   let rec loop (i : Nat) (h : i ≤ binders.size) (acc : Syntax) := do
-    match i with
-    | 0   => pure acc
-    | i+1 =>
+    match i, h with
+    | 0, _   => pure acc
+    | i+1, h =>
       let idents := binders[i][1].getArgs
       let type   := binders[i][3]
       loop i (Nat.le_of_succ_le h) (← expandExplicitBindersAux combinator idents (some type) acc)
@@ -63,11 +63,11 @@ meta def expandBracketedBinders (combinatorDeclName : Name) (bracketedExplicitBi
   let combinator := mkCIdentFrom (← getRef) combinatorDeclName
   expandBracketedBindersAux combinator #[bracketedExplicitBinders] body
 
-syntax unifConstraint := term patternIgnore(" =?= " <|> " ≟ ") term
+syntax unifConstraint := term unicode(" ≟ ", " =?= ") term
 syntax unifConstraintElem := colGe unifConstraint ", "?
 
 syntax (docComment)? attrKind "unif_hint" (ppSpace ident)? (ppSpace bracketedBinder)*
-  " where " withPosition(unifConstraintElem*) patternIgnore(atomic("|" noWs "-") <|> "⊢") unifConstraint : command
+  " where " withPosition(unifConstraintElem*) patternIgnore(atomic("|" noWs "-") <|> "⊢") ppSpace unifConstraint : command
 
 macro_rules
   | `($[$doc?:docComment]? $kind:attrKind unif_hint $(n)? $bs* where $[$cs₁ ≟ $cs₂]* |- $t₁ ≟ $t₂) => do
@@ -120,7 +120,7 @@ calc
   _ = z := pyz
 ```
 It is also possible to write the *first* relation as `<lhs>\n  _ = <rhs> :=
-<proof>`. This is useful for aligning relation symbols, especially on longer:
+<proof>`. This is useful for aligning relation symbols, especially on longer
 identifiers:
 ```
 calc abc
@@ -317,7 +317,7 @@ macro_rules
       attribute [instance] $ctor)
 
 namespace Lean
-syntax cdotTk := patternIgnore("· " <|> ". ")
+syntax cdotTk := unicode("· ", ". ")
 /-- `· tac` focuses on the main goal and tries to solve it using `tac`, or else fails. -/
 syntax (name := cdot) cdotTk tacticSeqIndentGt : tactic
 

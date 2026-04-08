@@ -7,10 +7,8 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Do.Attr
-public import Lean.Elab.Tactic.Do.ProofMode.MGoal
 
 -- All these should become private imports in the future:
-import Std.Tactic.Do.Syntax
 public import Lean.Elab.Tactic.Do.ProofMode.Intro
 public import Lean.Elab.Tactic.Do.ProofMode.Pure
 public import Lean.Elab.Tactic.Do.ProofMode.Frame
@@ -28,7 +26,7 @@ public def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem :=
   let prog := prog.headBeta
   let candidates ← database.specs.getMatch prog
   let candidates := candidates.filter fun spec => !database.erased.contains spec.proof
-  let candidates := candidates.insertionSort fun s₁ s₂ => s₁.priority < s₂.priority
+  let candidates := candidates.insertionSort fun s₁ s₂ => s₁.priority > s₂.priority
   trace[Elab.Tactic.Do.spec] "Candidates for {prog}: {candidates.map (·.proof)}"
   let specs ← candidates.filterM fun spec => do
     let (_, _, _, type) ← spec.proof.instantiate
@@ -41,8 +39,8 @@ public def findSpec (database : SpecTheorems) (wp : Expr) : MetaM SpecTheorem :=
       -- information why the defeq check failed, so we do it again.
       withOptions (fun o =>
         if o.getBool `trace.Elab.Tactic.Do.spec then
-          o |>.setBool `pp.universes true
-            |>.setBool `trace.Meta.isDefEq true
+          o |>.set `pp.universes true
+            |>.set `trace.Meta.isDefEq true
         else
           o) do
       withTraceNode `Elab.Tactic.Do.spec (fun _ => return m!"Defeq check for {type} failed.") do
@@ -77,7 +75,7 @@ def elabSpec (stx? : Option (TSyntax `term)) (wp : Expr) : TacticM SpecTheorem :
   | none => findSpec (← getSpecTheorems) wp
   | some stx => elabTermIntoSpecTheorem stx expectedTy
 
-variable {n} [Monad n] [MonadControlT MetaM n] [MonadLiftT MetaM n]
+variable {n} [Monad n] [MonadControlT MetaM n] [MonadLiftT MetaM n] [MonadEnv n]
 
 private def mkProj' (n : Name) (i : Nat) (Q : Expr) : MetaM Expr := do
   return (← projectCore? Q i).getD (mkProj n i Q)
@@ -183,11 +181,12 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
   -- Instantiation creates `.natural` MVars, which possibly get instantiated by the def eq checks
   -- below when they occur in `P` or `Q`.
   -- That's good for many such as MVars ("schematic variables"), but problematic for MVars
-  -- corresponding to `Invariant`s, which should end up as user goals.
-  -- To prevent accidental instantiation, we mark all `Invariant` MVars as synthetic opaque.
+  -- corresponding to invariant types, which should end up as user goals.
+  -- To prevent accidental instantiation, we mark all invariant MVars as synthetic opaque.
+  let env ← getEnv
   for mvar in mvars do
     let ty ← mvar.mvarId!.getType
-    if ty.isAppOf ``Invariant then mvar.mvarId!.setKind .syntheticOpaque
+    if isSpecInvariantType env ty then mvar.mvarId!.setKind .syntheticOpaque
 
   -- Apply the spec to the excess arguments of the `wp⟦e⟧ Q` application
   let T := goal.target.consumeMData
@@ -199,7 +198,7 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
   let_expr f@Triple m ps instWP α prog P Q := specTy
     | liftMetaM <| throwError "target not a Triple application {specTy}"
   let wp' := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
-  unless (← withAssignableSyntheticOpaque <| isDefEqGuarded wp wp') do
+  unless (← isDefEqGuarded wp wp') do
     Term.throwTypeMismatchError none wp wp' spec
 
   -- Try synthesizing synthetic MVars. We don't have the convenience of `TermElabM`, hence
@@ -225,7 +224,7 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
   -- Often P or Q are schematic (i.e. an MVar app). Try to solve by rfl.
   -- We do `fullApproxDefEq` here so that `constApprox` is active; this is useful in
   -- `need_const_approx` of `doLogicTests.lean`.
-  let (HPRfl, QQ'Rfl) ← withDefault <| fullApproxDefEq <| do
+  let (HPRfl, QQ'Rfl) ← fullApproxDefEq <| do
     return (← isDefEqGuarded P goal.hyps, ← isDefEqGuarded Q Q')
 
   -- Discharge the validity proof for the spec if not rfl

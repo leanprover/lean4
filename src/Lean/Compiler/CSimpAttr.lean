@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.ScopedEnvExtension
 public import Lean.Util.Recognizers
+import Lean.ExtraModUses
 
 public section
 
@@ -21,7 +22,8 @@ structure Entry where
   deriving Inhabited
 
 structure State where
-  map : SMap Name Name := {}
+  /-- Map from `e.fromDeclName` to `e` -/
+  map : SMap Name Entry := {}
   thmNames : SSet Name := {}
   deriving Inhabited
 
@@ -31,7 +33,7 @@ def State.switch : State → State
 builtin_initialize ext : SimpleScopedEnvExtension Entry State ←
   registerSimpleScopedEnvExtension {
     initial        := {}
-    addEntry       := fun { map, thmNames } { fromDeclName, toDeclName, thmName } => { map := map.insert fromDeclName toDeclName, thmNames := thmNames.insert thmName }
+    addEntry       := fun { map, thmNames } e => { map := map.insert e.fromDeclName e, thmNames := thmNames.insert e.thmName }
     finalizeImport := fun s => s.switch
   }
 
@@ -77,15 +79,21 @@ private def initFn :=
       discard <| add declName attrKind
   }
 
-def replaceConstants (env : Environment) (e : Expr) : Expr :=
+/-- If `e` (as a whole) matches a `[csimp]` theorem, returns the replacement expression. -/
+def replaceConstant? (env : Environment) (e : Expr) : CoreM (Option Expr) := do
   let s := ext.getState env
-  e.replace fun e =>
-    if e.isConst then
-      match s.map.find? e.constName! with
-      | some declNameNew => some (mkConst declNameNew e.constLevels!)
-      | none => none
-    else
-      none
+  let .const declName _ := e | return none
+  if let some ent := s.map.find? declName then
+    withoutExporting <| recordExtraModUseFromDecl (isMeta := false) ent.thmName
+    return some (mkConst ent.toDeclName e.constLevels!)
+  else
+    return none
+
+/--
+If `e` (as a whole) matches a `[csimp]` theorem, returns the replacement expression, or else `e`.
+-/
+def replaceConstant (env : Environment) (e : Expr) : CoreM Expr :=
+  return (← replaceConstant? env e).getD e
 
 end CSimp
 

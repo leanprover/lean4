@@ -9,6 +9,10 @@ prelude
 import all Init.Data.Zero
 public import Init.GrindInstances.ToInt
 import all Init.GrindInstances.ToInt
+public import Init.Data.Fin.Lemmas
+public import Init.Grind.Ring.Basic
+import Init.Data.Nat.Lemmas
+import Init.Data.Nat.MinMax
 
 public section
 
@@ -138,6 +142,7 @@ instance (n : Nat) [NeZero n] : IsCharP (Fin n) n := IsCharP.mk' _ _
 example [NeZero n] : ToInt.Neg (Fin n) (.co 0 n) := inferInstance
 example [NeZero n] : ToInt.Sub (Fin n) (.co 0 n) := inferInstance
 
+set_option backward.isDefEq.respectTransparency false in
 instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
   toInt_pow x k := by
     induction k with

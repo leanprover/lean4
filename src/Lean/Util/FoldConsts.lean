@@ -64,11 +64,10 @@ namespace ConstantInfo
 
 /-- Return all names appearing in the type or value of a `ConstantInfo`. -/
 def getUsedConstantsAsSet (c : ConstantInfo) : NameSet :=
-  c.type.getUsedConstantsAsSet ++ match c.value? with
+  c.type.getUsedConstantsAsSet ++ match c.value? (allowOpaque := true) with
   | some v => v.getUsedConstantsAsSet
   | none => match c with
     | .inductInfo val => .ofList val.ctors
-    | .opaqueInfo val => val.value.getUsedConstantsAsSet
     | .ctorInfo val => ({} : NameSet).insert val.name
     | .recInfo val => .ofList val.all
     | _ => {}

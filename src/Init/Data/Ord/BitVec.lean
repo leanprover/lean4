@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Order.Ord
-public import Init.Data.BitVec.Lemmas
+import Init.Data.BitVec.Lemmas
 
 public section
 

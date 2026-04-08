@@ -1,0 +1,1 @@
+map2 : (Bool → Bool → Bool) → {n : Nat} → BV n → BV n → BV n

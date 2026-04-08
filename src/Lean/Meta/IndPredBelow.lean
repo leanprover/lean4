@@ -9,7 +9,8 @@ prelude
 public import Lean.Meta.Match.MatcherApp.Basic
 import Lean.Meta.Constructions.CasesOn
 import Lean.Meta.Match.Match
-import Lean.Meta.Tactic.SolveByElim
+import Init.Data.Nat.Linear
+import Init.Omega
 
 /-!
 # The `below` and `brecOn` constructions for inductive predicates
@@ -185,7 +186,7 @@ def mkBRecOn (ctx : Context) : MetaM Unit := do
   withBRecOnArgs (ctx := ctx) fun newMinors proofArgs => do
     let nmotives := ctx.motives.size
     let lparams := ctx.levelParams.map Level.param
-    let lparams := if ctx.largeElim then levelZero :: lparams else lparams
+    let lparams := if ctx.largeElim then Level.zero :: lparams else lparams
     for i in *...nmotives do
       let motive := ctx.motives[i]!
       let motiveType ← inferType motive
@@ -318,7 +319,7 @@ the first `nrealParams` are parameters and the remaining are motives.
 public partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array Expr) (nrealParams : Nat)
     (ctx : RecursionContext) (transformAlt : RecursionContext → Expr → MetaM Expr) :
     MetaM (Option (Expr × MetaM Unit)) :=
-  withTraceNode `Meta.IndPredBelow.match (return m!"{exceptEmoji ·} {matcherApp.toExpr} and {belowParams}") do
+  withTraceNode `Meta.IndPredBelow.match (fun _ => return m!"{matcherApp.toExpr} and {belowParams}") do
   let mut input ← getMkMatcherInputInContext matcherApp (unfoldNamed := false)
   let mut discrs := matcherApp.discrs
   let mut matchTypeAdd := #[] -- #[(discrIdx, ), ...]
@@ -447,7 +448,7 @@ where
       StateRefT (Array NewDecl) MetaM (Pattern × Pattern) := do
     match originalPattern with
     | .ctor ctorName us params fields =>
-      withTraceNode `Meta.IndPredBelow.match (return m!"{exceptEmoji ·} pattern {← originalPattern.toExpr} to {belowIndName}") do
+      withTraceNode `Meta.IndPredBelow.match (fun _ => return m!"pattern {← originalPattern.toExpr} to {belowIndName}") do
       let ctorInfo ← getConstInfoCtor ctorName
       let shortCtorName := ctorName.replacePrefix ctorInfo.induct .anonymous
       let belowCtor ← getConstInfoCtor (belowIndName ++ shortCtorName)

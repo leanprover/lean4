@@ -8,6 +8,8 @@ module
 prelude
 public import Lean.Meta.Sorry
 public import Lean.Util.CollectAxioms
+public import Lean.OriginalConstKind
+import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
 
 public section
 
@@ -45,30 +47,8 @@ where go env
   | .str p _ => if isNamespaceName p then go (env.registerNamespace p) p else env
   | _        => env
 
-private builtin_initialize privateConstKindsExt : MapDeclarationExtension ConstantKind ←
-  -- Use `sync` so we can add entries from anywhere without restrictions
-  mkMapDeclarationExtension (asyncMode := .sync)
-
-/--
-Returns the kind of the declaration as originally declared instead of as exported. This information
-is stored by `Lean.addDecl` and may be inaccurate if that function was circumvented. Returns `none`
-if the declaration was not found.
--/
-def getOriginalConstKind? (env : Environment) (declName : Name) : Option ConstantKind := do
-  -- Use `local` as for asynchronous decls from the current module, `findAsync?` below will yield
-  -- the same result but potentially earlier (after `addConstAsync` instead of `addDecl`)
-  privateConstKindsExt.find? (asyncMode := .local) env declName <|>
-    (env.setExporting false |>.findAsync? declName).map (·.kind)
-
-/--
-Checks whether the declaration was originally declared as a theorem; see also
-`Lean.getOriginalConstKind?`. Returns `false` if the declaration was not found.
--/
-def wasOriginallyTheorem (env : Environment) (declName : Name) : Bool :=
-  getOriginalConstKind? env declName |>.map (· matches .thm) |>.getD false
-
 /-- If `warn.sorry` is set to true, then, so long as the message log does not already have any errors,
-declarations with `sorryAx` generate the "declaration uses 'sorry'" warning. -/
+declarations with `sorryAx` generate the "declaration uses `sorry`" warning. -/
 register_builtin_option warn.sorry : Bool := {
   defValue := true
   descr    := "warn about uses of `sorry` in declarations added to the environment"
@@ -81,7 +61,7 @@ logs a warning if the declaration uses `sorry`.
 def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
   if warn.sorry.get (← getOptions) then
     if !(← MonadLog.hasErrors) && decl.hasSorry then
-      -- Find an actual sorry expression to use for 'sorry'.
+      -- Find an actual sorry expression to use for `sorry`.
       -- That way the user can hover over it to see its type and use "go to definition" if it is a labeled sorry.
       let findSorry : StateRefT (Array (Bool × MessageData)) MetaM Unit := decl.forEachSorryM fun s => do
         let s' ← addMessageContext s
@@ -91,10 +71,10 @@ def warnIfUsesSorry (decl : Declaration) : CoreM Unit := do
       -- These can appear without logged errors if `decl` is referring to declarations with elaboration errors;
       -- that's where a user should direct their focus.
       if let some (_, s) := sorries.find? (·.1) <|> sorries[0]? then
-        logWarning <| .tagged `hasSorry m!"declaration uses '{s}'"
+        logWarning <| .tagged `hasSorry m!"declaration uses `{s}`"
       else
         -- This case should not happen, but it ensures a warning will get logged no matter what.
-        logWarning <| .tagged `hasSorry m!"declaration uses 'sorry'"
+        logWarning <| .tagged `hasSorry m!"declaration uses `sorry`"
 
 builtin_initialize
   registerTraceClass `addDecl
@@ -189,7 +169,7 @@ def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit :=
 where
   doAdd := do
     profileitM Exception "type checking" (← getOptions) do
-      withTraceNode `Kernel (return m!"{exceptEmoji ·} typechecking declarations {decl.getTopLevelNames}") do
+      withTraceNode `Kernel (fun _ => return m!"typechecking declarations {decl.getTopLevelNames}") do
         warnIfUsesSorry decl
         try
           let env ← (← getEnv).addDeclAux (← getOptions) decl (← read).cancelTk?

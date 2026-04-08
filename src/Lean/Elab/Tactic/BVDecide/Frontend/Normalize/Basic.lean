@@ -159,6 +159,7 @@ Repeatedly run a list of `Pass` until they either close the goal or an iteration
 the goal anymore.
 -/
 partial def fixpointPipeline (passes : List Pass) (goal : MVarId) : PreProcessM (Option MVarId) := do
+  checkSystem "bv_decide"
   let mut newGoal := goal
   for pass in passes do
     if let some nextGoal ← pass.run newGoal then

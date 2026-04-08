@@ -7,7 +7,6 @@ module
 prelude
 public import Init.Core
 public import Init.Grind.Interactive
-public import Init.Grind.Config
 public section
 namespace Lean.Parser.Tactic
 open Parser.Tactic.Grind
@@ -20,6 +19,8 @@ and lets each reasoning engine read from and contribute to the shared workspace.
 These engines work together to handle equality reasoning, apply known theorems,
 propagate new facts, perform case analysis, and run specialized solvers
 for domains like linear arithmetic and commutative rings.
+
+See [the reference manual's chapter on `grind`](lean-manual://section/grind-tactic) for more information.
 
 `grind` is *not* designed for goals whose search space explodes combinatorially,
 think large pigeonhole instances, graph‑coloring reductions, high‑order N‑queens boards,
@@ -295,6 +296,24 @@ syntax (name := grindTrace)
   : tactic
 
 /--
+`sym` enters an interactive symbolic simulation mode built on `grind`.
+Unlike `grind =>`, it does not eagerly introduce hypotheses or apply by-contradiction,
+giving the user explicit control over `intro`, `apply`, and `internalize` steps.
+
+Example:
+```
+example (x : Nat) : myP x → myQ x := by
+  sym [myP_myQ] =>
+    intro h
+    finish
+```
+-/
+syntax (name := sym)
+  "sym" optConfig (&" only")?
+  (" [" withoutPosition(grindParam,*) "]")?
+  " => " grindSeq : tactic
+
+/--
 `cutsat` solves linear integer arithmetic goals.
 
 It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `lia` solver.
@@ -311,6 +330,22 @@ It is a implemented as a thin wrapper around the `grind` tactic, enabling only t
 Please use `grind` instead if you need additional capabilities.
 -/
 syntax (name := lia) "lia" optConfig : tactic
+
+/--
+`grind_order` solves simple goals about partial orders and linear orders.
+
+It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `order` solver.
+Please use `grind` instead if you need additional capabilities.
+-/
+syntax (name := grind_order) "grind_order" optConfig : tactic
+
+/--
+`grind_linarith` solves simple goals about linear arithmetic.
+
+It is a implemented as a thin wrapper around the `grind` tactic, enabling only the `linarith` solver.
+Please use `grind` instead if you need additional capabilities.
+-/
+syntax (name := grind_linarith) "grind_linarith" optConfig : tactic
 
 /--
 `grobner` solves goals that can be phrased as polynomial equations (with further polynomial equations as hypotheses)

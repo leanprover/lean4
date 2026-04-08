@@ -6,7 +6,10 @@ Authors: Gabriel Ebner
 module
 
 prelude
-public import Init.NotationExtra
+public meta import Init.Grind.Tactics
+public import Init.Notation
+import Init.Meta.Defs
+import Init.NotationExtra
 
 public section
 

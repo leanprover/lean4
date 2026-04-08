@@ -1,0 +1,45 @@
+decreasing_by.lean:34:0-39:17: error: Could not find a decreasing measure.
+The basic measures relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            n m
+1) 34:29-43 = ?
+2) 34:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.
+decreasing_by.lean:61:0-67:19: error: Could not find a decreasing measure.
+The basic measures relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            n m
+1) 61:29-43 = ?
+2) 61:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.
+decreasing_by.lean:75:13-77:3: error: unexpected token 'end'; expected '{' or tactic
+decreasing_by.lean:75:0-75:13: error: unsolved goals
+n m : Nat
+⊢ Prod.Lex (fun a₁ a₂ => a₁ < a₂) (fun a₁ a₂ => a₁ < a₂) (n, dec2 m) (n, m)
+
+n m : Nat
+⊢ Prod.Lex (fun a₁ a₂ => a₁ < a₂) (fun a₁ a₂ => a₁ < a₂) (dec1 n, 100) (n, m)
+decreasing_by.lean:85:0-85:22: error: unsolved goals
+case a
+n m : Nat
+⊢ Prod.Lex (fun a₁ a₂ => a₁ < a₂) (fun a₁ a₂ => a₁ < a₂) (n, dec2 m) (n, m)
+
+n m : Nat
+⊢ Prod.Lex (fun a₁ a₂ => a₁ < a₂) (fun a₁ a₂ => a₁ < a₂) (dec1 n, 100) (n, m)
+decreasing_by.lean:93:0-94:22: error: Could not find a decreasing measure.
+The basic measures relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+            n m
+1) 93:29-43 = ?
+2) 93:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.
+decreasing_by.lean:104:0-106:17: error: unsolved goals
+n m : Nat
+⊢ Prod.Lex (fun a₁ a₂ => a₁ < a₂) (fun a₁ a₂ => a₁ < a₂) (dec1 n, 100) (n, m)
+decreasing_by.lean:114:0-117:17: error: Could not find a decreasing measure.
+The basic measures relate at each recursive call as follows:
+(<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
+             n m
+1) 114:29-43 = ?
+2) 114:46-62 ? _
+Please use `termination_by` to specify a decreasing measure.

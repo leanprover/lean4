@@ -7,7 +7,10 @@ module
 
 prelude
 public import Lean.Setup
-import Init.Data.String.Termination
+import Init.Data.String.TakeDrop
+import Init.Data.UInt.Lemmas
+import Init.Omega
+import Init.Data.String.Lemmas.FindPos
 
 namespace String
 
@@ -134,6 +137,18 @@ public def Name.mangle (n : Name) (pre : String := "l_") : String :=
   pre ++ Name.mangleAux n
 
 /--
+Given `s = nm.mangle pre` for some `nm : Name` and `pre : String` with `nm != Name.anonymous`,
+returns `(mkBoxedName nm).mangle pre`. This is used in the interpreter to find names of boxed
+IR declarations.
+-/
+@[export lean_mk_mangled_boxed_name]
+public def mkMangledBoxedName (s : String) : String :=
+  if s.endsWith "__" then
+    s ++ "_00__boxed"
+  else
+    s ++ "___boxed"
+
+/--
 The mangled name of the name used to create the module initialization function.
 
 This also used for the library name of a module plugin.
@@ -142,8 +157,14 @@ public def mkModuleInitializationStem (moduleName : Name) (pkg? : Option PkgId :
   let pre := pkg?.elim "" (s!"{·.mangle}_")
   moduleName.mangle pre
 
-public def mkModuleInitializationFunctionName (moduleName : Name) (pkg? : Option PkgId := none) : String :=
-  "initialize_" ++ mkModuleInitializationStem moduleName pkg?
+public def mkModuleInitializationPrefix (phases : IRPhases) : String :=
+  match phases with
+  | .comptime => "meta_"
+  | .runtime  => "runtime_"
+  | .all      => ""
+
+public def mkModuleInitializationFunctionName (moduleName : Name) (pkg? : Option PkgId := none) (phases : IRPhases := .all) : String :=
+  mkModuleInitializationPrefix phases ++ "initialize_" ++ mkModuleInitializationStem moduleName pkg?
 
 public def mkPackageSymbolPrefix (pkg? : Option PkgId) : String :=
   pkg?.elim "l_" (s!"lp_{·.mangle}_")

@@ -574,8 +574,14 @@ private def addSourceFields (structName : Name) (sources : Array ExplicitSourceV
 
 private structure StructInstContext where
   view : StructInstView
-  /-- True if the structure instance has a trailing `..`. -/
-  ellipsis : Bool
+  /-- If true, then try using parent instances for missing fields. -/
+  useParentInstanceFields : Bool
+  /-- If true, then try using default values or autoParams for missing fields.
+  (Considered after `useParentInstanceFields`.) -/
+  useDefaults : Bool
+  /-- If true, then missing fields after default value synthesis remain as metavariables rather than yielding an error.
+  Only applies if `useDefaults` is true. -/
+  unsynthesizedAsMVars : Bool
   structName : Name
   structType : Expr
   /-- Structure universe levels. -/
@@ -748,6 +754,8 @@ private structure PendingField where
   deps : NameSet
   val? : Option Expr
 
+private def registerFieldMVarError (e : Expr) (ref : Syntax) (fieldName : Name) : StructInstM Unit :=
+  registerCustomErrorIfMVar e ref m!"Cannot synthesize placeholder for field `{fieldName}`"
 
 /--
 Synthesize pending optParams.
@@ -778,7 +786,7 @@ private def synthOptParamFields : StructInstM Unit := do
   -- Process default values for pending optParam fields.
   let mut pendingFields : Array PendingField ← optParamFields.filterMapM fun (fieldName, fieldType, required) => do
     if required || (← isFieldNotSolved? fieldName).isSome then
-      let (deps, val?) ← getFieldDefaultValue? fieldName
+      let (deps, val?) ← if (← read).useDefaults then getFieldDefaultValue? fieldName else pure ({}, none)
       if let some val := val? then
         trace[Elab.struct] "default value for {fieldName}:{indentExpr val}"
       else
@@ -831,44 +839,46 @@ private def synthOptParamFields : StructInstM Unit := do
               pending
         toRemove := toRemove.push selected.fieldName
     if toRemove.isEmpty then
-      if (← read).ellipsis then
-        for pendingField in pendingFields do
-          if let some mvarId ← isFieldNotSolved? pendingField.fieldName then
-            registerCustomErrorIfMVar (.mvar mvarId) (← read).view.ref m!"\
-              Cannot synthesize placeholder for field `{pendingField.fieldName}`"
-        return
-      let assignErrorsMsg := MessageData.joinSep (assignErrors.map (m!"\n\n" ++ ·)).toList ""
-      let mut requiredErrors : Array MessageData := #[]
-      let mut unsolvedFields : Std.HashSet Name := {}
-      for pendingField in pendingFields do
-        if (← isFieldNotSolved? pendingField.fieldName).isNone then
-          unsolvedFields := unsolvedFields.insert pendingField.fieldName
-          let e := (← get).fieldMap.get! pendingField.fieldName
-          requiredErrors := requiredErrors.push m!"\
-            Field `{pendingField.fieldName}` must be explicitly provided; its synthesized value is{indentExpr e}"
-      let requiredErrorsMsg := MessageData.joinSep (requiredErrors.map (m!"\n\n" ++ ·)).toList ""
-      let missingFields := pendingFields |>.filter (fun pending => pending.val?.isNone)
-      -- TODO(kmill): when fields are all stuck, report better.
-      -- For now, just report all pending fields in case there are no obviously missing ones.
-      let missingFields := if missingFields.isEmpty then pendingFields else missingFields
-      let missing := missingFields |>.map (s!"`{·.fieldName}`") |>.toList
-      let missingFieldsValues ← missingFields.mapM fun field => do
-        if unsolvedFields.contains field.fieldName then
-          pure <| (field.fieldName, some <| (← get).fieldMap.get! field.fieldName)
-        else pure (field.fieldName, none)
-      let missingFieldsHint ← mkMissingFieldsHint missingFieldsValues (← read).view.ref
-      let msg := m!"Fields missing: {", ".intercalate missing}{assignErrorsMsg}{requiredErrorsMsg}{missingFieldsHint}"
-      if (← readThe Term.Context).errToSorry then
-        -- Assign all pending problems using synthetic sorries and log an error.
-        for pendingField in pendingFields do
-          if let some mvarId ← isFieldNotSolved? pendingField.fieldName then
-            mvarId.assign <| ← mkLabeledSorry (← mvarId.getType) (synthetic := true) (unique := true)
-        logError msg
-        return
-      else
-        throwError msg
+      return ← handleStuck pendingFields assignErrors
     pendingSet := pendingSet.filter (!toRemove.contains ·)
     pendingFields := pendingFields.filter fun pendingField => pendingField.val?.isNone || !toRemove.contains pendingField.fieldName
+where
+  handleStuck (pendingFields : Array PendingField) (assignErrors : Array MessageData) : StructInstM Unit := do
+    if (← read).unsynthesizedAsMVars then
+      for pendingField in pendingFields do
+        if let some mvarId ← isFieldNotSolved? pendingField.fieldName then
+          registerFieldMVarError (.mvar mvarId) (← read).view.ref pendingField.fieldName
+      return
+    let assignErrorsMsg := MessageData.joinSep (assignErrors.map (m!"\n\n" ++ ·)).toList ""
+    let mut requiredErrors : Array MessageData := #[]
+    let mut unsolvedFields : Std.HashSet Name := {}
+    for pendingField in pendingFields do
+      if (← isFieldNotSolved? pendingField.fieldName).isNone then
+        unsolvedFields := unsolvedFields.insert pendingField.fieldName
+        let e := (← get).fieldMap.get! pendingField.fieldName
+        requiredErrors := requiredErrors.push m!"\
+          Field `{pendingField.fieldName}` must be explicitly provided; its synthesized value is{indentExpr e}"
+    let requiredErrorsMsg := MessageData.joinSep (requiredErrors.map (m!"\n\n" ++ ·)).toList ""
+    let missingFields := pendingFields |>.filter (fun pending => pending.val?.isNone)
+    -- TODO(kmill): when fields are all stuck, report better.
+    -- For now, just report all pending fields in case there are no obviously missing ones.
+    let missingFields := if missingFields.isEmpty then pendingFields else missingFields
+    let missing := missingFields |>.map (s!"`{·.fieldName}`") |>.toList
+    let missingFieldsValues ← missingFields.mapM fun field => do
+      if unsolvedFields.contains field.fieldName then
+        pure <| (field.fieldName, some <| (← get).fieldMap.get! field.fieldName)
+      else pure (field.fieldName, none)
+    let missingFieldsHint ← mkMissingFieldsHint missingFieldsValues (← read).view.ref
+    let msg := m!"Fields missing: {", ".intercalate missing}{assignErrorsMsg}{requiredErrorsMsg}{missingFieldsHint}"
+    if (← readThe Term.Context).errToSorry then
+      -- Assign all pending problems using synthetic sorries and log an error.
+      for pendingField in pendingFields do
+        if let some mvarId ← isFieldNotSolved? pendingField.fieldName then
+          mvarId.assign <| ← mkLabeledSorry (← mvarId.getType) (synthetic := true) (unique := true)
+      logError msg
+      return
+    else
+      throwError msg
 
 private def finalize : StructInstM Expr := withViewRef do
   let val := (← read).val.beta (← get).fields
@@ -1049,19 +1059,13 @@ These fields can still be solved for by parent instance synthesis later.
 -/
 private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : BinderInfo) (fieldType : Expr) : StructInstM α := do
   trace[Elab.struct] "processNoField `{fieldName}` of type {fieldType}"
-  if (← read).ellipsis && (← readThe Term.Context).inPattern then
-    -- See the note in `ElabAppArgs.processExplicitArg`
-    -- In ellipsis & pattern mode, do not use optParams or autoParams.
-    let e ← addStructFieldMVar fieldName fieldType
-    registerCustomErrorIfMVar e (← read).view.ref m!"don't know how to synthesize placeholder for field `{fieldName}`"
-    loop
-  else
+  if (← read).useDefaults then
     let autoParam? := fieldType.getAutoParamTactic?
     let fieldType := fieldType.consumeTypeAnnotations
     if binfo.isInstImplicit then
       let e ← addStructFieldMVar fieldName fieldType .synthetic
       modify fun s => { s with instMVars := s.instMVars.push e.mvarId! }
-      loop
+      return ← loop
     else if let some (.const tacticDecl ..) := autoParam? then
       match evalSyntaxConstant (← getEnv) (← getOptions) tacticDecl with
       | .error err       => throwError err
@@ -1078,12 +1082,11 @@ private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : B
         -- (See `processExplicitArg` for a comment about this.)
         addTermInfo' stx mvar
         addStructFieldAux fieldName mvar
-        loop
-    else
-      -- Default case: natural metavariable, register it for optParams
-      discard <| addStructFieldMVar fieldName fieldType
-      modify fun s => { s with optParamFields := s.optParamFields.push (fieldName, fieldType, binfo.isExplicit) }
-      loop
+        return ← loop
+  -- Default case: natural metavariable, register it for optParams
+  discard <| addStructFieldMVar fieldName fieldType
+  modify fun s => { s with optParamFields := s.optParamFields.push (fieldName, fieldType, binfo.isExplicit) }
+  loop
 
 private partial def loop : StructInstM Expr := withViewRef do
   let type := (← get).type
@@ -1178,8 +1181,7 @@ private partial def addParentInstanceFields : StructInstM Unit := do
 
 private def main : StructInstM Expr := do
   initializeState
-  unless (← read).ellipsis && (← readThe Term.Context).inPattern do
-    -- Inside a pattern with ellipsis mode, users expect to match just the fields provided.
+  if (← read).useParentInstanceFields then
     addParentInstanceFields
   loop
 
@@ -1198,7 +1200,17 @@ private def elabStructInstView (s : StructInstView) (structName : Name) (structT
   trace[Elab.struct] "expanded fields:\n{MessageData.joinSep (fields.toList.map (fun (_, field) => m!"- {MessageData.nestD (toMessageData field)}")) "\n"}"
   let ellipsis := s.sources.implicit.isSome
   let (val, _) ← main
-    |>.run { view := s, structName, structType, levels, params, fieldViews := fields, val := ctorFn, ellipsis }
+    |>.run { view := s, structName, structType, levels, params, fieldViews := fields, val := ctorFn
+             -- See the note in `ElabAppArgs.processExplicitArg`
+             -- For structure instances though, there's a sense in which app-style ellipsis mode is always enabled,
+             -- so we do not specifically check for it to disable defaults.
+             -- An effect of this is that if a user forgets `..` they'll be reminded with a "Fields missing" error.
+             useDefaults := !(← readThe Term.Context).inPattern
+             -- Similarly, for patterns we disable using parent instances to fill in fields
+             useParentInstanceFields := !(← readThe Term.Context).inPattern
+             -- In ellipsis mode, unsynthesized missing fields become metavariables, rather than being an error
+             unsynthesizedAsMVars := ellipsis
+     }
     |>.run { type := ctorFnType }
   return val
 

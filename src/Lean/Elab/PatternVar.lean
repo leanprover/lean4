@@ -6,9 +6,11 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Hint
 public import Lean.Elab.Arg
 public import Lean.Elab.MatchAltView
+public import Init.Syntax
+import Init.Data.Nat.Linear
+import Init.Omega
 
 public section
 
@@ -67,6 +69,8 @@ private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
 
   if candidates.size = 0 then
     throwError message
+  -- Sort for deterministic output (iteration order of `env.constants` is not stable)
+  candidates := candidates.qsort Name.lt
   let oneOfThese := if h : candidates.size = 1 then m!"`{candidates[0]}`" else m!"one of these"
   let hint ← m!"Using {oneOfThese} would be valid:".hint (ref? := idStx) (candidates.map fun candidate => {
     suggestion := mkIdent candidate
@@ -318,7 +322,7 @@ where
     if f.getKind == ``Parser.Term.dotIdent then
       let namedArgsNew ← namedArgs.mapM fun
         -- We must ensure that `ref[1]` remains original to allow named-argument hints
-        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
+        | { ref, name, val := Arg.stx arg, .. } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
         | _ => unreachable!
       let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
       if ellipsis then
@@ -413,7 +417,7 @@ where
       else
         throwCtorExpected (some fId)
 
-def main (alt : MatchAltView) : M MatchAltView := do
+def main (alt : MatchAltView k) : M (MatchAltView k) := do
   let patterns ← alt.patterns.mapM fun p => do
     trace[Elab.match] "collecting variables at pattern: {p}"
     collect p
@@ -425,7 +429,7 @@ end CollectPatternVars
 Collect pattern variables occurring in the `match`-alternative object views.
 It also returns the updated views.
 -/
-def collectPatternVars (alt : MatchAltView) : TermElabM (Array PatternVar × MatchAltView) := do
+def collectPatternVars (alt : MatchAltView k) : TermElabM (Array PatternVar × MatchAltView k) := do
   let (alt, s) ← (CollectPatternVars.main alt).run {}
   return (s.vars, alt)
 

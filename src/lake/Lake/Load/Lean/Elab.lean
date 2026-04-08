@@ -6,16 +6,13 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lake.Util.Log
 public import Lake.Load.Config
-public import Lean.Environment
-import Lean.Compiler.IR
+import Lean.Compiler.IR.CompilerM
 import Lean.Elab.Frontend
 import Lake.DSL.Extensions
-import Lake.DSL.Attributes
-import Lake.Load.Config
-import Lake.Build.Trace
 import Lake.Util.JsonObject
+import Init.System.Platform
+import Lake.DSL.AttributesCore
 
 /-! # Lean Configuration Elaborator
 
@@ -37,6 +34,8 @@ public def importModulesUsingCache
 : IO Environment := do
   if let some env := (← importEnvCache.get)[imports]? then
     return env
+
+  unsafe enableInitializersExecution  -- needed for `loadExts`
   let env ← importModules (loadExts := true) imports opts trustLevel
   importEnvCache.modify (·.insert imports env)
   return env
@@ -68,7 +67,7 @@ def elabConfigFile
   let input ← IO.FS.readFile configFile
   let inputCtx := Parser.mkInputContext input configFile.toString
   let (header, parserState, messages) ← Parser.parseHeader inputCtx
-  let (env, messages) ← processHeader header leanOpts inputCtx messages
+  let (env, messages) ← StateT.run (processHeader header leanOpts inputCtx) messages
   let env := env.setMainModule configModuleName
 
   -- Configure extensions
@@ -89,6 +88,7 @@ def elabConfigFile
   else
     return s.commandState.env
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 `Lean.Kernel.Environment.add` is now private, this is an exported helper wrapping it for
 `Lean.Environment`.
@@ -198,7 +198,7 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
   imported and the (shared) lock is then released.
 
   If the trace is out-of-date, Lake upgrades the trace to read-write handle
-  with an exclusive lock. Lake does this by first acquiring a exclusive lock to
+  with an exclusive lock. Lake does this by first acquiring an exclusive lock to
   configuration's lock file (i.e. `olean.lock`). While holding this lock, Lake
   releases the shared lock on the trace, re-opens the trace with a read-write
   handle, and acquires an exclusive lock on the trace. It then releases its
@@ -212,7 +212,7 @@ public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
 
     This is because we are already holding a shared lock on the trace.
     If multiple process race for this lock, one will get it and then
-    wait for an exclusive lock one the trace file, but be blocked by the
+    wait for an exclusive lock on the trace file, but be blocked by the
     other process with a shared lock waiting on this file.
 
     While there is likely a way to sequence this to avoid erroring,

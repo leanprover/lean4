@@ -6,14 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Lean.Meta.Basic
 public import Lean.Meta.Tactic.FVarSubst
 public import Lean.Meta.CollectFVars
 import Lean.Meta.Match.Value
 import Lean.Meta.AppBuilder
-import Lean.Meta.Tactic.Util
-import Lean.Meta.Tactic.Assert
-import Lean.Meta.Tactic.Subst
 import Lean.Meta.Match.NamedPatterns
 
 public section
@@ -167,8 +163,9 @@ namespace Alt
 
 partial def toMessageData (alt : Alt) : MetaM MessageData := do
   withExistingLocalDecls alt.fvarDecls do
-    let msg := alt.fvarDecls.map fun d => m!"{d.toExpr}:({d.type})"
-    let mut msg := m!"{msg} |- {alt.patterns.map Pattern.toMessageData} => {alt.rhs}"
+    let mut msg := if alt.fvarDecls.isEmpty then m!"" else
+       alt.fvarDecls.map (fun d => m!"{d.toExpr}:({d.type})") ++ m!"\n"
+    msg := msg ++ m!"|- {alt.patterns.map Pattern.toMessageData} => {alt.rhs}"
     for (lhs, rhs) in alt.cnstrs do
       msg := m!"{msg}\n  | {lhs} ≋ {rhs}"
     addMessageContext msg
@@ -259,12 +256,12 @@ abbrev CounterExample := List Example
 def counterExampleToMessageData (cex : CounterExample) : MessageData :=
   examplesToMessageData cex
 
-def counterExamplesToMessageData (cexs : List CounterExample) : MessageData :=
-  MessageData.joinSep (cexs.map counterExampleToMessageData) Format.line
+def counterExamplesToMessageData (cexs : Array CounterExample) : MessageData :=
+  MessageData.joinSep (cexs.toList.map counterExampleToMessageData) Format.line
 
 structure MatcherResult where
   matcher         : Expr -- The matcher. It is not just `Expr.const matcherName` because the type of the major premises may contain free variables.
-  counterExamples : List CounterExample
+  counterExamples : Array CounterExample
   unusedAltIdxs   : List Nat
   addMatcher      : MetaM Unit
 

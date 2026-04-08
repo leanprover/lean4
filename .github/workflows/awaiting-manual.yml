@@ -2,8 +2,11 @@ name: Check awaiting-manual label
 
 on:
   merge_group:
-  pull_request:
+  pull_request_target:
     types: [opened, synchronize, reopened, labeled, unlabeled]
+
+permissions:
+  pull-requests: read
 
 jobs:
   check-awaiting-manual:
@@ -11,7 +14,7 @@ jobs:
     steps:
       - name: Check awaiting-manual label
         id: check-awaiting-manual-label
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request_target'
         uses: actions/github-script@v8
         with:
           script: |
@@ -28,7 +31,7 @@ jobs:
             }
       
       - name: Wait for manual compatibility
-        if: github.event_name == 'pull_request' && steps.check-awaiting-manual-label.outputs.awaiting == 'true'
+        if: github.event_name == 'pull_request_target' && steps.check-awaiting-manual-label.outputs.awaiting == 'true'
         run: |
           echo "::notice title=Awaiting manual::PR is marked 'awaiting-manual' but neither 'breaks-manual' nor 'builds-manual' labels are present."
           echo "This check will remain in progress until the PR is updated with appropriate manual compatibility labels."

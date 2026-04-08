@@ -11,10 +11,10 @@ public import Std.Data.Iterators.Lemmas.Equivalence.StepCongr
 
 @[expose] public section
 
-namespace Std.Iterators
-open Std.Internal
+namespace Std
+open Std.Internal Std.Iterators
 
-theorem stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n]
+theorem IterM.stepAsHetT_filterMapWithPostcondition [Monad m] [LawfulMonad m] [Monad n]
     [LawfulMonad n] [Iterator α m β] [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → PostconditionT n (Option γ)} {it : IterM (α := α) m β} :
     (IterM.stepAsHetT (it.filterMapWithPostcondition f)) =
@@ -96,11 +96,11 @@ theorem IterM.Equiv.filterMapWithPostcondition {α₁ α₂ β γ : Type w}
   case implies =>
     rintro _ _ ⟨ita, itb, rfl, rfl, h'⟩
     replace h := h'
-    simp only [BundledIterM.step, BundledIterM.iterator_ofIterM, HetT.map_eq_pure_bind,
+    simp only [BundledIterM.step, HetT.map_eq_pure_bind,
       HetT.bind_assoc, Function.comp_apply, HetT.pure_bind, IterStep.mapIterator_mapIterator]
     rw [stepAsHetT_filterMapWithPostcondition, stepAsHetT_filterMapWithPostcondition]
     simp only [HetT.bind_assoc]
-    simp only [Equiv, BundledIterM.Equiv, BundledIterM.step, BundledIterM.iterator_ofIterM,
+    simp only [Equiv, BundledIterM.Equiv, BundledIterM.step,
       HetT.map_eq_pure_bind, HetT.bind_assoc, Function.comp_apply, HetT.pure_bind,
       IterStep.mapIterator_mapIterator] at h'
     apply liftInner_stepAsHetT_bind_congr h
@@ -151,7 +151,7 @@ theorem IterM.Equiv.mapWithPostcondition {α₁ α₂ β γ : Type w}
 
 theorem IterM.Equiv.filterMapM {α₁ α₂ β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] [LawfulMonad m]
-    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n (Option γ)} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
     (h : IterM.Equiv ita itb) :
@@ -160,7 +160,7 @@ theorem IterM.Equiv.filterMapM {α₁ α₂ β γ : Type w}
 
 theorem IterM.Equiv.filterM {α₁ α₂ β : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] [LawfulMonad m]
-    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n (ULift Bool)} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
     (h : IterM.Equiv ita itb) :
@@ -169,7 +169,7 @@ theorem IterM.Equiv.filterM {α₁ α₂ β : Type w}
 
 theorem IterM.Equiv.mapM {α₁ α₂ β γ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} [Monad m] [LawfulMonad m]
-    [Monad n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [Iterator α₁ m β] [Iterator α₂ m β]
     [MonadLiftT m n] [LawfulMonadLiftT m n]
     {f : β → n γ} {ita : IterM (α := α₁) m β} {itb : IterM (α := α₂) m β}
     (h : IterM.Equiv ita itb) :
@@ -200,4 +200,4 @@ theorem IterM.Equiv.map {α₁ α₂ β γ : Type w}
     IterM.Equiv (ita.map f) (itb.map f) :=
   IterM.Equiv.filterMapWithPostcondition h
 
-end Std.Iterators
+end Std

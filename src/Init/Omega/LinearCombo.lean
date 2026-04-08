@@ -7,7 +7,9 @@ module
 
 prelude
 public import Init.Omega.Coeffs
-public import Init.Data.ToString.Macro
+import Init.Data.Int.Lemmas
+import Init.Data.ToString.Macro
+import Init.RCases
 
 public section
 
@@ -23,6 +25,17 @@ We use this data structure while processing hypotheses.
 
 namespace Lean.Omega
 
+private local instance : Append String where
+  append := String.Internal.append
+
+private local instance : ToString Int where
+  toString
+    | Int.ofNat m   => toString m
+    | Int.negSucc m => "-" ++ toString (m + 1)
+
+private local instance : Repr Int where
+  reprPrec i prec := if i < 0 then Repr.addAppParen (toString i) prec else toString i
+
 /-- Internal representation of a linear combination of atoms, and a constant term. -/
 structure LinearCombo where
   /-- Constant term. -/
@@ -35,9 +48,6 @@ namespace LinearCombo
 
 private def join (l : List String) : String :=
   l.foldl (init := "") (fun sofar next => String.Internal.append sofar next)
-
-private local instance : Append String where
-  append := String.Internal.append
 
 instance : ToString LinearCombo where
   toString lc := private

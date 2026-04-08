@@ -6,19 +6,20 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.Range
+public import Init.BinderPredicates
+public import Init.NotationExtra
+import Init.Data.List.Find
+import Init.Data.List.Nat.Range
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Data.Option.Lemmas
+import Init.Data.Prod
+import Init.Omega
 
 public section
 
 set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 set_option linter.indexVariables true -- Enforce naming conventions for index variables.
-
-protected theorem Nat.sum_pos_iff_exists_pos {l : List Nat} : 0 < l.sum ↔ ∃ x ∈ l, 0 < x := by
-  induction l with
-  | nil => simp
-  | cons x xs ih =>
-    simp [← ih]
-    omega
 
 namespace List
 

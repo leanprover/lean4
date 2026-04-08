@@ -9,8 +9,8 @@ prelude
 public import Lean.KeyedDeclsAttribute
 public import Lean.PrettyPrinter.Delaborator.TopDownAnalyze
 import Lean.Elab.InfoTree.Main
-meta import Init.Data.ToString.Name
 import Lean.ExtraModUses
+public meta import Init.Data.ToString.Name
 
 public section
 
@@ -165,7 +165,7 @@ def getOptionsAtCurrPos : DelabM Options := do
   let mut opts ← getOptions
   if let some opts' := ctx.optionsPerPos.get? (← getPos) then
     for (k, v) in opts' do
-      opts := opts.insert k v
+      opts := opts.set k v
   return opts
 
 /-- Evaluate option accessor, using subterm-specific options if set. -/
@@ -185,7 +185,7 @@ def withOptionAtCurrPos (k : Name) (v : DataValue) (x : DelabM α) : DelabM α :
   let pos ← getPos
   withReader
     (fun ctx =>
-      let opts' := ctx.optionsPerPos.get? pos |>.getD {} |>.insert k v
+      let opts' := ctx.optionsPerPos.get? pos |>.getD {} |>.set k v
       { ctx with optionsPerPos := ctx.optionsPerPos.insert pos opts' })
     x
 
@@ -450,6 +450,10 @@ partial def delab : Delab := do
   else
     return stx
 
+def delabLevel (l : Level) (prec : Nat) : DelabM Syntax.Level := do
+  let mvars ← getPPOption getPPMVarsLevels
+  return Level.quote l prec (mvars := mvars) (lIndex? := (← getMCtx).findLevelIndex?)
+
 /--
 Registers an unexpander for applications of a given constant.
 
@@ -477,7 +481,11 @@ unsafe builtin_initialize appUnexpanderAttribute : KeyedDeclsAttribute Unexpande
 end Delaborator
 
 open SubExpr (Pos PosMap)
-open Delaborator (OptionsPerPos topDownAnalyze DelabM)
+open Delaborator (OptionsPerPos topDownAnalyze DelabM getPPOption)
+
+def delabLevel (l : Level) (prec : Nat) : MetaM Syntax.Level := do
+  let mvars := getPPMVarsLevels (← getOptions)
+  return Level.quote l prec (mvars := mvars) (lIndex? := (← getMCtx).findLevelIndex?)
 
 def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab : DelabM α) :
     MetaM (α × PosMap Elab.Info) := do

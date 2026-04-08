@@ -6,7 +6,11 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-public import Init.Meta
+public import Init.Data.Nat.Div.Basic
+public import Init.SimpLemmas
+import Init.Data.List.Notation
+import Init.Data.Nat.Basic
+meta import Init.Meta.Defs
 
 public section
 

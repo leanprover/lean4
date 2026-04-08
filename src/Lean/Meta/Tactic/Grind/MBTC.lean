@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Canon
 import Lean.Meta.Tactic.Grind.CastLike
 public section
 namespace Lean.Meta.Grind
@@ -66,7 +65,7 @@ private def mkKey (e : Expr) (i : Nat) : MetaM Key :=
       let arg := args[j]
       if i == j then
         args := args.set j mainMark
-      else if !(← Canon.isSupport info.paramInfo j arg) then
+      else if !(← Sym.Canon.isSupport info.paramInfo j arg) then
         args := args.set j otherMark
     let mask := mkAppN f args.toArray
     return { mask }
@@ -85,7 +84,7 @@ private def mkCandidate (a b : ArgInfo) (i : Nat) : GoalM SplitInfo := do
 /-- Returns `true` if `f` is a type class instance -/
 private def isFnInstance (f : Expr) : CoreM Bool := do
   let .const declName _ := f | return false
-  isInstance declName
+  isImplicitReducible declName
 
 /-- Model-based theory combination. -/
 def mbtc (ctx : MBTC.Context) : GoalM Bool := do

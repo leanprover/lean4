@@ -6,7 +6,9 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Elab.Tactic.Grind.Basic
-meta import Lean.Elab.Tactic.ConfigSetter
+import Lean.Elab.Tactic.ConfigSetter
+import Lean.Elab.DeprecatedSyntax  -- shake: skip (workaround for `mkConfigSetter` failing to interpret `deprecatedSyntaxExt`, to be fixed)
+
 public section
 namespace Lean.Elab.Tactic.Grind
 

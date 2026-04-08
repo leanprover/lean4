@@ -1,0 +1,15 @@
+2 failures:
+  @1 (⟨1, 1⟩): expected identifier
+    "\n    test\n arg}\n\n\nHere's a paragraph."
+  @19 (⟨6, 0⟩): '['; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+    "Here's a paragraph."
+
+Final stack:
+  (Lean.Doc.Syntax.para
+   "para{"
+   [(Lean.Doc.Syntax.role
+     "{"
+     <missing>
+     "["
+     [(Lean.Doc.Syntax.footnote <missing>)]
+     "]")])

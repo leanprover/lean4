@@ -6,7 +6,16 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.Array.Lemmas
+public import Init.BinderPredicates
+public import Init.Ext
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Data.Bool
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.TakeDrop
+import Init.Omega
 
 public section
 

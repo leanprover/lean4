@@ -6,9 +6,13 @@ Authors: Kim Morrison
 module
 
 prelude
-public import Init.Data.List.Nat.Perm
 import all Init.Data.Array.Basic
-public import Init.Data.Array.Lemmas
+public import Init.Data.Array.Basic
+import Init.Data.Array.Lemmas
+import Init.Data.List.Nat.Perm
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Perm
+import Init.Omega
 
 public section
 
@@ -122,6 +126,14 @@ theorem swap_perm {xs : Array α} {i j : Nat} (h₁ : i < xs.size) (h₂ : j < x
   simp only [swap, perm_iff_toList_perm, toList_set]
   apply set_set_perm
 
+theorem Perm.pairwise_iff {R : α → α → Prop} (S : ∀ {x y}, R x y → R y x) {xs ys : Array α}
+    : ∀ _p : xs.Perm ys, xs.toList.Pairwise R ↔ ys.toList.Pairwise R := by
+  simpa only [perm_iff_toList_perm] using List.Perm.pairwise_iff S
+
+theorem Perm.pairwise {R : α → α → Prop} {xs ys : Array α} (hp : xs ~ ys)
+    (hR : xs.toList.Pairwise R) (hsymm : ∀ {x y}, R x y → R y x) :
+    ys.toList.Pairwise R := (hp.pairwise_iff hsymm).mp hR
+
 namespace Perm
 
 set_option linter.indexVariables false in
@@ -131,7 +143,7 @@ theorem extract {xs ys : Array α} (h : xs ~ ys) {lo hi : Nat}
   rcases xs with ⟨xs⟩
   rcases ys with ⟨ys⟩
   simp_all only [perm_iff_toList_perm, List.getElem?_toArray, List.extract_toArray,
-    List.extract_eq_drop_take]
+    List.extract_eq_take_drop]
   apply List.Perm.take_of_getElem? (w := fun i h => by simpa using whi (lo + i) (by omega))
   apply List.Perm.drop_of_getElem? (w := wlo)
   exact h

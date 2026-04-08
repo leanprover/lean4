@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+export ${TEST_VARS}
+source "$TEST_DIR/util.sh"
+
+TEST_SCRIPT="$1"; shift
+cd "$(dirname "$TEST_SCRIPT")"
+source "$(basename "$TEST_SCRIPT")"

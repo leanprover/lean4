@@ -1,5 +1,0 @@
-1363.lean:4:2-4:14: error: Cannot add `[macro_inline]` attribute to `f`: This attribute does not support this kind of declaration; only non-recursive definitions are supported
-1363.lean:9:2-9:14: error: Cannot add `[macro_inline]` attribute to `g`: This attribute does not support this kind of declaration; only non-recursive definitions are supported
-1363.lean:15:2-15:14: error: Cannot add `[macro_inline]` attribute to `h._unary`: This attribute does not support this kind of declaration; only non-recursive definitions are supported
-1363.lean:15:2-15:14: error: Cannot add `[macro_inline]` attribute to `h`: This attribute does not support this kind of declaration; only non-recursive definitions are supported
-1363.lean:21:2-21:14: error: Cannot add `[macro_inline]` attribute to `skipMany`: This attribute does not support this kind of declaration; only non-recursive definitions are supported

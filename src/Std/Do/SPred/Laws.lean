@@ -29,7 +29,7 @@ variable {σs : List (Type u)}
 
 /-! # Entailment -/
 
-@[refl, simp]
+@[refl, simp, grind ←]
 theorem entails.refl (P : SPred σs) : P ⊢ₛ P := by
   induction σs with
   | nil => simp [entails]

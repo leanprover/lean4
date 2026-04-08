@@ -12,6 +12,7 @@ public import Lean.Data.Lsp.Diagnostics
 public import Lean.Data.Lsp.Extra
 import Init.Data.List.Sort.Basic
 public import Lean.Data.Lsp.LanguageFeatures
+import Init.While
 
 public section
 

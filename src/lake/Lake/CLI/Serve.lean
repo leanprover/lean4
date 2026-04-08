@@ -32,7 +32,7 @@ public def invalidConfigEnvVar := "LAKE_INVALID_CONFIG"
 
 /--
 Build the dependencies of a Lean file and print the computed module's setup as JSON.
-If `header?` is not not `none`, it will be used to determine imports instead of the
+If `header?` is not `none`, it will be used to determine imports instead of the
 file's own header.
 
 Requires a configuration file to succeed. If no configuration file exists, it

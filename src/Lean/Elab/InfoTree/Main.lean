@@ -10,6 +10,7 @@ prelude
 public import Init.Task
 public import Lean.Meta.PPGoal
 public import Lean.ReservedNameAction
+import Init.Data.Format.Macro
 
 public section
 

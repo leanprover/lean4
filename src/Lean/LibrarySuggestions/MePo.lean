@@ -8,7 +8,6 @@ module
 prelude
 public import Lean.LibrarySuggestions.Basic
 import Lean.LibrarySuggestions.SymbolFrequency
-import Lean.Meta.Basic
 
 /-!
 # MePo premise selection

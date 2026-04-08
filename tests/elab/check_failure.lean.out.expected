@@ -1,0 +1,2 @@
+typeclass instance problem is stuck, it is often due to metavariables
+  Inhabited (Nat × ?m)

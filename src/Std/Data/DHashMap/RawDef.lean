@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Data.DHashMap.Internal.AssocList.Basic
+public import Init.Data.Array.Basic
 
 public section
 

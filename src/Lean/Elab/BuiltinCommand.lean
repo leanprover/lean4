@@ -9,7 +9,12 @@ prelude
 public import Lean.Meta.Reduce
 public import Lean.Elab.Eval
 public import Lean.Elab.Command
+import Lean.Elab.DeprecatedSyntax
 public import Lean.Elab.Open
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
+import Init.System.Platform
+import Lean.DeprecatedModule
 
 public section
 
@@ -21,14 +26,19 @@ namespace Lean.Elab.Command
 
   match stx[1] with
   | Syntax.atom _ val =>
-    if getVersoModuleDocs (← getEnv) |>.isEmpty then
+    if getMainVersoModuleDocs (← getEnv) |>.isEmpty then
       let doc := String.Pos.Raw.extract val 0 (val.rawEndPos.unoffsetBy ⟨2⟩)
       modifyEnv fun env => addMainModuleDoc env ⟨doc, range⟩
     else
       throwError m!"Can't add Markdown-format module docs because there is already Verso-format content present."
   | Syntax.node _ ``Lean.Parser.Command.versoCommentBody args =>
-    runTermElabM fun _ => do
-      addVersoModDocString range ⟨args.getD 0 .missing⟩
+    let docSyntax := args.getD 0 .missing
+    if docSyntax.getKind == `Lean.Doc.Syntax.parseFailure then
+      -- Report parser errors without attempting elaboration
+      runTermElabM fun _ => reportVersoParseFailure docSyntax
+    else
+      runTermElabM fun _ => do
+        addVersoModDocString range ⟨docSyntax⟩
   | _ => throwErrorAt stx "unexpected module doc string{indentD <| stx}"
 
 private def addScope (isNewNamespace : Bool) (header : String) (newNamespace : Name)
@@ -62,15 +72,16 @@ where go
 private def addNamespace (header : Name) : CommandElabM Unit :=
   addScopes (isNewNamespace := true) (isNoncomputable := false) (attrs := []) header
 
+private def popScopes (numScopes : Nat) : CommandElabM Unit :=
+  for _ in *...numScopes do
+    popScope
+
 def withNamespace {α} (ns : Name) (elabFn : CommandElabM α) : CommandElabM α := do
   addNamespace ns
   let a ← elabFn
   modify fun s => { s with scopes := s.scopes.drop ns.getNumParts }
+  popScopes ns.getNumParts
   pure a
-
-private def popScopes (numScopes : Nat) : CommandElabM Unit :=
-  for _ in *...numScopes do
-    popScope
 
 private def innermostScopeName? : List Scope → Option Name
   | { header := "", .. } :: _ => none
@@ -456,7 +467,7 @@ where
       withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
       -- TODO: add options or notation for setting the following parameters
-      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.setBool `smartUnfolding false }) do
+      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `smartUnfolding false }) do
         let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := skipProofs) (skipTypes := skipTypes)
         logInfoAt tk e
 
@@ -499,9 +510,19 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     pure ()
 
 @[builtin_command_elab «set_option»] def elabSetOption : CommandElab := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let (options, decl) ← Elab.elabSetOption stx[1] stx[3]
+  withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   modify fun s => { s with maxRecDepth := maxRecDepth.get options }
   modifyScope fun scope => { scope with opts := options }
+
+@[builtin_command_elab «unlock_limits»] def elabUnlockLimits : CommandElab := fun _ => do
+  let opts ← getOptions
+  let opts := maxHeartbeats.set opts 0
+  let opts := maxRecDepth.set opts 0
+  let opts := synthInstance.maxHeartbeats.set opts 0
+  modifyScope ({ · with opts })
+  -- update cached value as well
+  modify ({ · with maxRecDepth := 0 })
 
 open Lean.Parser.Command.InternalSyntax in
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
@@ -696,5 +717,55 @@ where
   fun _ => do
     let env ← getEnv
     IO.eprintln (← env.dbgFormatAsyncState)
+
+/-- Elaborate `deprecated_module`, marking the current module as deprecated. -/
+@[builtin_command_elab Parser.Command.deprecated_module]
+def elabDeprecatedModule : CommandElab
+  | `(Parser.Command.deprecated_module| deprecated_module $[$msg?]? $[(since := $since?)]?) => do
+    let message? := msg?.map TSyntax.getString
+    let since? := since?.map TSyntax.getString
+    if (deprecatedModuleExt.getState (← getEnv)).isSome then
+      logWarning "module is already marked as deprecated"
+    if since?.isNone then
+      logWarning "`deprecated_module` should specify the date or library version \
+        at which the deprecation was introduced, using `(since := \"...\")`"
+    modifyEnv fun env => env.setDeprecatedModule (some { message?, since? })
+  | _ => throwUnsupportedSyntax
+
+/-- Elaborate `#show_deprecated_modules`, displaying all deprecated modules. -/
+@[builtin_command_elab Parser.Command.showDeprecatedModules]
+def elabShowDeprecatedModules : CommandElab := fun _ => do
+  let env ← getEnv
+  let mut parts : Array String := #["Deprecated modules\n"]
+  for h : idx in [:env.header.moduleNames.size] do
+    if let some entry := env.getDeprecatedModuleByIdx? idx then
+      let modName := env.header.moduleNames[idx]
+      let msg := match entry.message? with
+        | some str => s!"message '{str}'"
+        | none => "no message"
+      let replacements := env.header.moduleData[idx]!.imports.filter fun imp =>
+        imp.module != `Init
+      parts := parts.push s!"'{modName}' deprecates to\n{replacements.map (·.module)}\nwith {msg}\n"
+  -- Also show the current module's deprecation if set.
+  if let some entry := deprecatedModuleExt.getState env then
+    let modName := env.mainModule
+    let msg := match entry.message? with
+      | some str => s!"message '{str}'"
+      | none => "no message"
+    let replacements := env.imports.filter fun imp =>
+      imp.module != `Init
+    parts := parts.push s!"'{modName}' deprecates to\n{replacements.map (·.module)}\nwith {msg}\n"
+  logInfo (String.intercalate "\n" parts.toList)
+
+@[builtin_command_elab Parser.Command.deprecatedSyntax] def elabDeprecatedSyntax : CommandElab := fun stx => do
+  let id := stx[1]
+  let kind ← liftCoreM <| checkSyntaxNodeKindAtNamespaces id.getId (← getCurrNamespace)
+  let text? := if stx[2].isNone then none else stx[2][0].isStrLit?
+  let since? := if stx[3].isNone then none else stx[3][3].isStrLit?
+  if since?.isNone then
+    logWarning "`deprecated_syntax` should specify the date or library version at which the \
+      deprecation was introduced, using `(since := \"...\")`"
+  modifyEnv fun env =>
+    deprecatedSyntaxExt.addEntry env { kind, text?, since? }
 
 end Lean.Elab.Command

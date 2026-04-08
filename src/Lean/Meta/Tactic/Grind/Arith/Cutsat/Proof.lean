@@ -14,8 +14,10 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.VarRename
-import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
-import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+import Lean.Meta.Sym.Arith.VarRename
+import Lean.Meta.Sym.Arith.ToExpr
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 deriving instance Hashable for Int.Linear.Expr
@@ -163,7 +165,7 @@ private def mkContext
   let h := mkLetOfMap polyDecls h (cond prime `p' `p) (mkConst ``Int.Linear.Poly) fun p => toExpr <| p.renameVars varRename
   let h := h.abstract #[ctxVar]
   if h.hasLooseBVars then
-    let ctxType := mkApp (mkConst ``RArray [levelZero]) Int.mkType
+    let ctxType := mkApp (mkConst ``RArray [Level.zero]) Int.mkType
     let ctxVal ← toContextExprCore vars Int.mkType
     return .letE (cond prime `ctx' `ctx) ctxType ctxVal h (nondep := false)
   else
@@ -181,7 +183,7 @@ private def mkRingContext (h : Expr) : ProofM Expr := do
   let h := mkLetOfMap (← get).ringPolyDecls h `rp (mkConst ``Grind.CommRing.Poly) fun p => toExpr <| p.renameVars varRename
   let h := h.abstract #[(← read).ringCtx]
   if h.hasLooseBVars then
-    let ctxType := mkApp (mkConst ``RArray [levelZero]) Int.mkType
+    let ctxType := mkApp (mkConst ``RArray [Level.zero]) Int.mkType
     let ctxVal ← toContextExprCore vars Int.mkType
     return .letE `rctx ctxType ctxVal h (nondep := false)
   else
@@ -227,6 +229,7 @@ private inductive MulEqProof where
   | mulVar (k : Int) (a : Expr) (h : Expr)
   | none
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_cutsat_eq_cnstr_to_proof"] -- forward definition
 private opaque EqCnstr.toExprProof (c' : EqCnstr) : ProofM Expr
 
@@ -253,7 +256,7 @@ where
 
   go (e : Expr) : ProofM MulEqProof := do
     let_expr HMul.hMul _ _ _ i a b := e | goVar e
-    if !(← isInstHMulInt i) then goVar e else
+    if !(← Structural.isInstHMulInt i) then goVar e else
     let ha ← go a
     if let .const 0 h := ha then
       return .const 0 (mkApp3 (mkConst ``Int.Linear.mul_eq_zero_left) a b h)
@@ -322,7 +325,9 @@ private def mkPowEqProof (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Opt
   let h := mkApp8 (mkConst ``Int.Linear.pow_eq) a b (toExpr ka) (toExpr kbInt) (toExpr k) h₁ h₂ eagerReflBoolTrue
   return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
 
+set_option compiler.ignoreBorrowAnnotation true in
 mutual
+
 @[export lean_cutsat_eq_cnstr_to_proof]
 private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.lia.proof] "{← c'.pp}"

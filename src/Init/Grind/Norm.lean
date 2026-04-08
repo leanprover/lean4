@@ -5,10 +5,14 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Init.Data.Int.Linear
-public import Init.Grind.Ring.Field
-public import Init.Data.Rat.Lemmas
-public import Init.Grind.Ring.OfScientific
+public import Init.Data.Int.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.Linear  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Rat.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Grind.Ring.OfScientific  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.Pow  -- shake: keep (used in `init_grind_norm`)
+public import Init.Data.Int.DivMod.Lemmas  -- shake: keep (used in `init_grind_norm`)
+public import Init.Omega
+import Init.ByCases
 public section
 
 namespace Lean.Grind

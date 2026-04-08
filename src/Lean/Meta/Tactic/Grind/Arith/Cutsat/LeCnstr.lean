@@ -8,7 +8,6 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.ToInt
 import Init.Data.Int.OfNat
 import Lean.Meta.Tactic.Simp.Arith.Int
-import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
@@ -100,6 +99,7 @@ where
         return some { p := c.p.addConst 1, h := .ofLeDiseq c c' }
     return none
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_cutsat_assert_le]
 def LeCnstr.assertImpl (c : LeCnstr) : GoalM Unit := do
   if (← inconsistent) then return ()
@@ -130,7 +130,7 @@ private def reportNonNormalized (e : Expr) : GoalM Unit := do
 
 private def toPolyLe? (e : Expr) : GoalM (Option Poly) := do
   let_expr LE.le _ inst a b ← e | return none
-  unless (← isInstLEInt inst) do return none
+  unless (← Structural.isInstLEInt inst) do return none
   let some k ← getIntValue? b
     | reportNonNormalized e; return none
   unless k == 0 do

@@ -8,6 +8,7 @@ module
 prelude
 public import Init.System.IO
 import Init.Data.String.TakeDrop
+import Init.Data.ToString.Macro
 
 public section
 
@@ -63,7 +64,7 @@ If multiple libraries share common symbols, those symbols should be linked
 and loaded as separate libraries.
 -/
 @[export lean_load_dynlib]
-def loadDynlib (path : @& System.FilePath) : IO Unit := do
+def loadDynlib (path : System.FilePath) : IO Unit := do
   let dynlib ← Dynlib.load path
   -- Lean never unloads libraries.
   -- Safety: There are no concurrent accesses to `dynlib` at this point.

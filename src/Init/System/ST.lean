@@ -6,9 +6,9 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Classical
-public import Init.Control.EState
-public import Init.Control.Reader
+public import Init.Control.Except
+public import Init.NotationExtra
+import Init.Classical
 
 public section
 
@@ -19,7 +19,7 @@ opaque Void.nonemptyType (σ : Type) : NonemptyType.{0}
 instance Void.instNonempty : Nonempty (Void σ) :=
   by exact (Void.nonemptyType σ).property
 
-@[extern "lean_void_mk"]
+@[extern "lean_void_mk", never_extract]
 opaque Void.mk (x : σ) : Void σ
 
 structure ST.Out (σ : Type) (α : Type) where
@@ -60,6 +60,10 @@ instance : MonadFinally (ST σ) where
 
 instance {σ : Type} {α : Type} [Inhabited α] : Inhabited (ST σ α) where
   default := fun s => .mk default s
+
+instance {σ : Type} : MonadAttach (ST σ) where
+  CanReturn x a := ∃ s s', x s = ⟨a, s'⟩
+  attach x s := match h : x s with | ⟨a, s'⟩ => ⟨⟨a, s, s', h⟩, s'⟩
 
 inductive EST.Out (ε : Type) (σ : Type) (α : Type) where
   | ok : α → Void σ → EST.Out ε σ α
@@ -111,6 +115,12 @@ instance : MonadFinally (EST ε σ) where
       match f none s with
       | .ok _ s => .error e s
       | .error e s => .error e s
+
+instance {ε σ : Type} : MonadAttach (EST ε σ) where
+  CanReturn x a := ∃ s s', x s = .ok a s'
+  attach x s := match h : x s with
+    | .ok a s' => .ok ⟨a, s, s', h⟩ s'
+    | .error e s' => .error e s'
 
 instance (ε σ : Type) : MonadExceptOf ε (EST ε σ) where
   throw := EST.throw
@@ -262,6 +272,7 @@ Creates a `MonadStateOf` instance from a reference cell.
 This allows programs written against the [state monad](lean-manual://section/state-monads) API to
 be executed using a mutable reference cell to track the state.
 -/
+@[implicit_reducible]
 def Ref.toMonadStateOf (r : Ref σ α) : MonadStateOf α m where
   get := r.get
   set := r.set

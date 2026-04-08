@@ -9,6 +9,7 @@ prelude
 public import Std.Data.DHashMap.Lemmas
 public import Std.Data.HashMap.AdditionalOperations
 import all Std.Data.DHashMap.Basic
+import Init.Data.List.Pairwise
 
 @[expose] public section
 
@@ -68,7 +69,7 @@ theorem mem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) :
     a ∈ m ↔ b ∈ m :=
   DHashMap.mem_congr hab
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem contains_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : HashMap α β).contains a = false :=
   DHashMap.contains_emptyWithCapacity
 
@@ -112,7 +113,7 @@ theorem isEmpty_iff_forall_not_mem [EquivBEq α] [LawfulHashable α] :
     Singleton.singleton p = (∅ : HashMap α β).insert p.1 p.2 :=
   rfl
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem contains_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
     (m.insert k v).contains a = (k == a || m.contains a) :=
   DHashMap.contains_insert
@@ -183,7 +184,7 @@ theorem size_insert_le [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
     (m.insert k v).size ≤ m.size + 1 :=
   DHashMap.size_insert_le
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem erase_emptyWithCapacity {a : α} {c : Nat} : (emptyWithCapacity c : HashMap α β).erase a = emptyWithCapacity c :=
   ext DHashMap.erase_emptyWithCapacity
 
@@ -196,7 +197,7 @@ theorem isEmpty_erase [EquivBEq α] [LawfulHashable α] {k : α} :
     (m.erase k).isEmpty = (m.isEmpty || (m.size == 1 && m.contains k)) :=
   DHashMap.isEmpty_erase
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem contains_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.erase k).contains a = (!(k == a) && m.contains a) :=
   DHashMap.contains_erase
@@ -246,7 +247,7 @@ theorem containsThenInsertIfNew_snd {k : α} {v : β} :
 @[simp, grind =] theorem get?_eq_getElem? {a : α} : get? m a = m[a]? := rfl
 @[simp, grind =] theorem get!_eq_getElem! [Inhabited β] {a : α} : get! m a = m[a]! := rfl
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem getElem?_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : HashMap α β)[a]? = none :=
   DHashMap.Const.get?_emptyWithCapacity
 
@@ -259,7 +260,7 @@ theorem getElem?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
     m.isEmpty = true → m[a]? = none :=
   DHashMap.Const.get?_of_isEmpty
 
-@[grind =] theorem getElem?_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
+@[grind =, cbv_eval] theorem getElem?_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
     (m.insert k v)[a]? = if k == a then some v else m[a]? :=
   DHashMap.Const.get?_insert
 
@@ -267,6 +268,15 @@ theorem getElem?_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} :
 theorem getElem?_insert_self [EquivBEq α] [LawfulHashable α] {k : α} {v : β} :
     (m.insert k v)[k]? = some v :=
   DHashMap.Const.get?_insert_self
+
+@[cbv_eval]
+theorem get?_emptyWithCapacity {a : α} {c} : (emptyWithCapacity c : HashMap α β).get? a = none :=
+  getElem?_emptyWithCapacity
+
+@[cbv_eval]
+theorem get?_insert [EquivBEq α] [LawfulHashable α] {k a : α} {v : β} :
+    (m.insert k v).get? a = if k == a then some v else m.get? a :=
+  getElem?_insert
 
 -- TODO: request this is reversed, and made `@[simp, grind]`
 theorem contains_eq_isSome_getElem? [EquivBEq α] [LawfulHashable α] {a : α} :
@@ -298,13 +308,18 @@ theorem getElem?_eq_none_of_contains_eq_false [EquivBEq α] [LawfulHashable α] 
 theorem getElem?_eq_none [EquivBEq α] [LawfulHashable α] {a : α} : ¬a ∈ m → m[a]? = none :=
   DHashMap.Const.get?_eq_none
 
-@[grind =] theorem getElem?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+@[grind =, cbv_eval] theorem getElem?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
     (m.erase k)[a]? = if k == a then none else m[a]? :=
   DHashMap.Const.get?_erase
 
 @[simp]
 theorem getElem?_erase_self [EquivBEq α] [LawfulHashable α] {k : α} : (m.erase k)[k]? = none :=
   DHashMap.Const.get?_erase_self
+
+@[cbv_eval]
+theorem get?_erase [EquivBEq α] [LawfulHashable α] {k a : α} :
+    (m.erase k).get? a = if k == a then none else m.get? a :=
+  getElem?_erase
 
 theorem getElem?_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b) : m[a]? = m[b]? :=
   DHashMap.Const.get?_congr hab
@@ -348,7 +363,7 @@ theorem getElem_congr [EquivBEq α] [LawfulHashable α] {a b : α} (hab : a == b
     m[a]'h' = m[b]'((mem_congr hab).1 h') :=
   DHashMap.Const.get_congr hab (h' := h')
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem getElem!_emptyWithCapacity [Inhabited β] {a : α} {c} : (emptyWithCapacity c : HashMap α β)[a]! = default :=
   DHashMap.Const.get!_emptyWithCapacity
 
@@ -360,9 +375,19 @@ theorem getElem!_of_isEmpty [EquivBEq α] [LawfulHashable α] [Inhabited β] {a 
     m.isEmpty = true → m[a]! = default :=
   DHashMap.Const.get!_of_isEmpty
 
-@[grind =] theorem getElem!_insert [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
+@[grind =, cbv_eval] theorem getElem!_insert [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
     (m.insert k v)[a]! = if k == a then v else m[a]! :=
   DHashMap.Const.get!_insert
+
+@[cbv_eval]
+theorem get!_emptyWithCapacity [Inhabited β] {a : α} {c} :
+    (emptyWithCapacity c : HashMap α β).get! a = default :=
+  getElem!_emptyWithCapacity
+
+@[cbv_eval]
+theorem get!_insert [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} {v : β} :
+    (m.insert k v).get! a = if k == a then v else m.get! a :=
+  getElem!_insert
 
 @[simp]
 theorem getElem!_insert_self [EquivBEq α] [LawfulHashable α] [Inhabited β] {k : α} {v : β} :
@@ -377,7 +402,7 @@ theorem getElem!_eq_default [EquivBEq α] [LawfulHashable α] [Inhabited β] {a 
     ¬a ∈ m → m[a]! = default :=
   DHashMap.Const.get!_eq_default
 
-@[grind =] theorem getElem!_erase [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} :
+@[grind =, cbv_eval] theorem getElem!_erase [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} :
     (m.erase k)[a]! = if k == a then default else m[a]! :=
   DHashMap.Const.get!_erase
 
@@ -385,6 +410,11 @@ theorem getElem!_eq_default [EquivBEq α] [LawfulHashable α] [Inhabited β] {a 
 theorem getElem!_erase_self [EquivBEq α] [LawfulHashable α] [Inhabited β] {k : α} :
     (m.erase k)[k]! = default :=
   DHashMap.Const.get!_erase_self
+
+@[cbv_eval]
+theorem get!_erase [EquivBEq α] [LawfulHashable α] [Inhabited β] {k a : α} :
+    (m.erase k).get! a = if k == a then default else m.get! a :=
+  getElem!_erase
 
 theorem getElem?_eq_some_getElem!_of_contains [EquivBEq α] [LawfulHashable α] [Inhabited β]
     {a : α} : m.contains a = true → m[a]? = some m[a]! :=
@@ -406,7 +436,7 @@ theorem getElem!_congr [EquivBEq α] [LawfulHashable α] [Inhabited β] {a b : �
     m[a]! = m[b]! :=
   DHashMap.Const.get!_congr hab
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem getD_emptyWithCapacity {a : α} {fallback : β} {c} :
     (emptyWithCapacity c : HashMap α β).getD a fallback = fallback :=
   DHashMap.Const.getD_emptyWithCapacity
@@ -419,7 +449,7 @@ theorem getD_of_isEmpty [EquivBEq α] [LawfulHashable α] {a : α} {fallback : �
     m.isEmpty = true → m.getD a fallback = fallback :=
   DHashMap.Const.getD_of_isEmpty
 
-@[grind =] theorem getD_insert [EquivBEq α] [LawfulHashable α] {k a : α} {fallback v : β} :
+@[grind =, cbv_eval] theorem getD_insert [EquivBEq α] [LawfulHashable α] {k a : α} {fallback v : β} :
     (m.insert k v).getD a fallback = if k == a then v else m.getD a fallback :=
   DHashMap.Const.getD_insert
 
@@ -436,7 +466,7 @@ theorem getD_eq_fallback [EquivBEq α] [LawfulHashable α] {a : α} {fallback : 
     ¬a ∈ m → m.getD a fallback = fallback :=
   DHashMap.Const.getD_eq_fallback
 
-@[grind =] theorem getD_erase [EquivBEq α] [LawfulHashable α] {k a : α} {fallback : β} :
+@[grind =, cbv_eval] theorem getD_erase [EquivBEq α] [LawfulHashable α] {k a : α} {fallback : β} :
     (m.erase k).getD a fallback = if k == a then fallback else m.getD a fallback :=
   DHashMap.Const.getD_erase
 
@@ -1377,6 +1407,9 @@ theorem Equiv.beq [EquivBEq α] [LawfulHashable α] [ReflBEq β] (h : m₁ ~m m�
 
 theorem equiv_of_beq [LawfulBEq α] [LawfulBEq β] (h : m₁ == m₂) : m₁ ~m m₂ :=
   ⟨DHashMap.Const.equiv_of_beq h⟩
+
+theorem beq_iff_equiv [LawfulBEq α] [LawfulBEq β] : (m₁ == m₂) ↔ m₁ ~m m₂ :=
+  ⟨equiv_of_beq, Equiv.beq⟩
 
 theorem Equiv.beq_congr [EquivBEq α] [LawfulHashable α] {m₃ m₄ : HashMap α β} (w₁ : m₁ ~m m₃) (w₂ : m₂ ~m m₄) : (m₁ == m₂) = (m₃ == m₄) :=
   DHashMap.Const.Equiv.beq_congr w₁.1 w₂.1
@@ -2547,6 +2580,10 @@ theorem unitOfList_cons {hd : α} {tl : List α} :
       insertManyIfNewUnit ((∅ : HashMap α Unit).insertIfNew hd ()) tl :=
   ext DHashMap.Const.unitOfList_cons
 
+theorem unitOfList_eq_insertManyIfNewUnit_empty {l : List α} :
+    unitOfList l = insertManyIfNewUnit ∅ l :=
+  ext DHashMap.Const.unitOfList_eq_insertManyIfNewUnit_empty
+
 @[simp]
 theorem contains_unitOfList [EquivBEq α] [LawfulHashable α]
     {l : List α} {k : α} :
@@ -3172,6 +3209,29 @@ theorem equiv_iff_keys_unit_perm {m₁ m₂ : HashMap α Unit} [EquivBEq α] [La
     m₁ ~m m₂ ↔ m₁.keys.Perm m₂.keys :=
   ⟨Equiv.keys_perm, Equiv.of_keys_unit_perm⟩
 
+theorem insertMany_list_equiv_foldl {m : HashMap α β} {l : List (α × β)} :
+    m.insertMany l ~m l.foldl (init := m) fun acc p => acc.insert p.1 p.2 := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc p => acc.insert p.1 p.2)]
+  · exact DHashMap.Const.insertMany_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem ofList_equiv_foldl {l : List (α × β)} :
+    ofList l ~m l.foldl (init := ∅) fun acc p => acc.insert p.1 p.2 :=
+  insertMany_list_equiv_foldl
+
+theorem insertManyIfNewUnit_list_equiv_foldl {m : HashMap α Unit}
+    {l : List α} :
+    insertManyIfNewUnit m l ~m l.foldl (init := m) fun acc a=> acc.insertIfNew a () := by
+  constructor
+  rw [← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact DHashMap.Const.insertManyIfNewUnit_list_equiv_foldl
+  · exact fun _ _ => rfl
+
+theorem unitOfList_equiv_foldl {l : List α} :
+    unitOfList l ~m l.foldl (init := ∅) fun acc a => acc.insertIfNew a () :=
+  insertManyIfNewUnit_list_equiv_foldl
+
 end Equiv
 
 section filterMap
@@ -3232,7 +3292,7 @@ theorem getElem?_filterMap [EquivBEq α] [LawfulHashable α]
   DHashMap.Const.get?_filterMap
 
 /-- Simpler variant of `getElem?_filterMap` when `LawfulBEq` is available. -/
-@[grind =]
+@[grind =, cbv_eval]
 theorem getElem?_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} :
     (m.filterMap f)[k]? = m[k]?.bind fun x => f k x := by
@@ -3275,7 +3335,7 @@ theorem getElem!_filterMap [EquivBEq α] [LawfulHashable α] [Inhabited γ]
   DHashMap.Const.get!_filterMap
 
 /-- Simpler variant of `getElem!_filterMap` when `LawfulBEq` is available. -/
-@[grind =]
+@[grind =, cbv_eval]
 theorem getElem!_filterMap' [LawfulBEq α] [Inhabited γ]
     {f : α → β → Option γ} {k : α} :
     (m.filterMap f)[k]! = (m[k]?.bind (f k)).get! := by
@@ -3294,7 +3354,7 @@ theorem getD_filterMap [EquivBEq α] [LawfulHashable α]
   DHashMap.Const.getD_filterMap
 
 /-- Simpler variant of `getD_filterMap` when `LawfulBEq` is available. -/
-@[grind =]
+@[grind =, cbv_eval]
 theorem getD_filterMap' [LawfulBEq α]
     {f : α → β → Option γ} {k : α} {fallback : γ} :
     (m.filterMap f).getD k fallback = (m[k]?.bind (f k)).getD fallback := by
@@ -3410,7 +3470,7 @@ theorem getElem?_filter [EquivBEq α] [LawfulHashable α]
   DHashMap.Const.get?_filter
 
 /-- Simpler variant of `getElem?_filter` when `LawfulBEq` is available. -/
-@[grind =]
+@[grind =, cbv_eval]
 theorem getElem?_filter' [LawfulBEq α]
     {f : α → β → Bool} {k : α} :
     (m.filter f)[k]? = m[k]?.filter (f k) := by
@@ -3436,7 +3496,7 @@ theorem getElem!_filter [EquivBEq α] [LawfulHashable α] [Inhabited β]
   DHashMap.Const.get!_filter
 
 /-- Simpler variant of `getElem!_filter` when `LawfulBEq` is available. -/
-@[grind =]
+@[grind =, cbv_eval]
 theorem getElem!_filter' [LawfulBEq α] [Inhabited β]
     {f : α → β → Bool} {k : α} :
     (m.filter f)[k]! = (m[k]?.filter (f k)).get! := by
@@ -3455,7 +3515,7 @@ theorem getD_filter [EquivBEq α] [LawfulHashable α]
   DHashMap.Const.getD_filter
 
 /-- Simpler variant of `getD_filter` when `LawfulBEq` is available. -/
-@[grind =]
+@[grind =, cbv_eval]
 theorem getD_filter' [LawfulBEq α]
     {f : α → β → Bool} {k : α} {fallback : β} :
     (m.filter f).getD k fallback = (m[k]?.filter (f k)).getD fallback := by
@@ -3481,6 +3541,7 @@ theorem getKey?_filter [EquivBEq α] [LawfulHashable α]
       (f x (m[x]'(mem_of_getKey?_eq_some h')))) :=
   DHashMap.Const.getKey?_filter
 
+@[cbv_eval]
 theorem getKey?_filter_key [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} {k : α} :
     (m.filter fun k _ => f k).getKey? k = (m.getKey? k).filter f :=
@@ -3500,6 +3561,7 @@ theorem getKey!_filter [EquivBEq α] [LawfulHashable α] [Inhabited α]
       (f x (m[x]'(mem_of_getKey?_eq_some h'))))).get! :=
   DHashMap.Const.getKey!_filter
 
+@[cbv_eval]
 theorem getKey!_filter_key [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {f : α → Bool} {k : α} :
     (m.filter fun k _ => f k).getKey! k = ((m.getKey? k).filter f).get! :=
@@ -3513,6 +3575,7 @@ theorem getKeyD_filter [EquivBEq α] [LawfulHashable α]
       (f x (m[x]'(mem_of_getKey?_eq_some h'))))).getD fallback :=
   DHashMap.Const.getKeyD_filter
 
+@[cbv_eval]
 theorem getKeyD_filter_key [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} {k fallback : α} :
     (m.filter fun k _ => f k).getKeyD k fallback = ((m.getKey? k).filter f).getD fallback :=
@@ -3543,13 +3606,13 @@ theorem filterMap_equiv_map [EquivBEq α] [LawfulHashable α]
     (m.filterMap (fun k v => some (f k v))) ~m m.map f :=
   ⟨DHashMap.filterMap_equiv_map⟩
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem isEmpty_map [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} :
     (m.map f).isEmpty = m.isEmpty :=
   DHashMap.isEmpty_map
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem contains_map [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} :
     (m.map f).contains k = m.contains k :=
@@ -3571,13 +3634,13 @@ theorem mem_of_mem_map [EquivBEq α] [LawfulHashable α]
     k ∈ m.map f → k ∈ m :=
   DHashMap.contains_of_contains_map
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem size_map [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} :
     (m.map f).size = m.size :=
   DHashMap.size_map
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem getElem?_map [LawfulBEq α]
     {f : α → β → γ} {k : α} :
     (m.map f)[k]? = m[k]?.map (f k) :=
@@ -3611,7 +3674,7 @@ theorem getElem_map' [EquivBEq α] [LawfulHashable α]
       f (m.getKey k (mem_of_mem_map h')) (m[k]'(mem_of_mem_map h')) :=
   DHashMap.Const.get_map'
 
-@[grind =]
+@[grind =, cbv_eval]
 theorem getElem!_map [LawfulBEq α] [Inhabited γ]
     {f : α → β → γ} {k : α} :
     (m.map f)[k]! =
@@ -3631,7 +3694,7 @@ theorem getElem!_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhab
     (m.map f)[k]! = (m[k]?.map (f k')).get! :=
   DHashMap.Const.get!_map_of_getKey?_eq_some h
 
-@[grind =]
+@[grind =, cbv_eval]
 theorem getD_map [LawfulBEq α]
     {f : α → β → γ} {k : α} {fallback : γ} :
     (m.map f).getD k fallback =
@@ -3651,7 +3714,7 @@ theorem getD_map_of_getKey?_eq_some [EquivBEq α] [LawfulHashable α] [Inhabited
     (m.map f).getD k fallback = (m[k]?.map (f k')).getD fallback :=
   DHashMap.Const.getD_map_of_getKey?_eq_some h
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem getKey?_map [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k : α} :
     (m.map f).getKey? k = m.getKey? k :=
@@ -3663,13 +3726,13 @@ theorem getKey_map [EquivBEq α] [LawfulHashable α]
     (m.map f).getKey k h' = m.getKey k (mem_of_mem_map h') :=
   DHashMap.getKey_map
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem getKey!_map [EquivBEq α] [LawfulHashable α] [Inhabited α]
     {f : α → β → γ} {k : α} :
     (m.map f).getKey! k = m.getKey! k :=
   DHashMap.getKey!_map
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval]
 theorem getKeyD_map [EquivBEq α] [LawfulHashable α]
     {f : α → β → γ} {k fallback : α} :
     (m.map f).getKeyD k fallback = m.getKeyD k fallback :=

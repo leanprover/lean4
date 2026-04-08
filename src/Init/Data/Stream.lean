@@ -82,7 +82,7 @@ instance : ToStream (Subarray α) (Subarray α) where
 instance : ToStream String Substring.Raw where
   toStream s := s.toRawSubstring
 
-instance : ToStream Std.Range Std.Range where
+instance : ToStream Std.Legacy.Range Std.Legacy.Range where
   toStream r := r
 
 instance [Stream ρ α] [Stream γ β] : Stream (ρ × γ) (α × β) where
@@ -108,7 +108,7 @@ instance : Stream (Subarray α) α where
     else
       none
 
-instance : Stream Std.Range Nat where
+instance : Stream Std.Legacy.Range Nat where
   next? r :=
     if r.start < r.stop then
       some (r.start, { r with start := r.start + r.step })

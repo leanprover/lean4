@@ -7,7 +7,6 @@ module
 prelude
 
 public import Lean.Elab.Term.TermElabM
-import Lean.Elab.DocString
 
 set_option linter.missingDocs true
 

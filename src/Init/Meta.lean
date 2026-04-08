@@ -9,6 +9,7 @@ module
 prelude
 public import Init.Meta.Defs
 public meta import Init.Meta.Defs
+public meta import Init.Syntax
 public section
 namespace Lean
 

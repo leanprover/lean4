@@ -9,7 +9,6 @@ prelude
 public import Lean.Elab.MacroArgUtil
 public import Lean.Elab.AuxDef
 public import Lean.Elab.Do.Basic
-meta import Lean.Parser.Syntax
 
 public section
 
@@ -59,7 +58,7 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
         fun stx expectedType? => Lean.Elab.Term.withExpectedType expectedType? fun $expId => match stx with
           $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
     else if catName == `doElem then
-      `($[$doc?:docComment]? @[$(← mkAttrs `do_elab),*] $vis:visibility
+      `($[$doc?:docComment]? @[$(← mkAttrs `doElem_elab),*] $vis:visibility
         aux_def elabRules $(mkIdent k) : Lean.Elab.Do.DoElab :=
         fun stx $expId => match stx with
           $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
@@ -79,7 +78,7 @@ def elabElabRulesAux (doc? : Option (TSyntax ``docComment))
       aux_def elabRules $(mkIdent k) : Lean.Elab.Tactic.Tactic :=
       fun $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)
   else if catName == `doElem then
-    `($[$doc?:docComment]? @[$(← mkAttrs `do_elab),*] $vis:visibility
+    `($[$doc?:docComment]? @[$(← mkAttrs `doElem_elab),*] $vis:visibility
       aux_def elabRules $(mkIdent k) : Lean.Elab.Do.DoElab :=
       fun stx cont => match stx with
         $alts:matchAlt* | _ => no_error_if_unused% throwUnsupportedSyntax)

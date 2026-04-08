@@ -104,7 +104,7 @@ def IndGroupInst.nestedTypeFormers (igi : IndGroupInst) : MetaM (Array Expr) := 
   assert! recInfo.numMotives = igi.numMotives
   let lvls :=
     if igi.levels.length = recInfo.levelParams.length then igi.levels
-    else levelZero :: igi.levels
+    else Level.zero :: igi.levels
   let aux := mkAppN (.const recName lvls) igi.params
   let motives ← inferArgumentTypesN recInfo.numMotives aux
   let auxMotives : Array Expr := motives[igi.all.size...*]

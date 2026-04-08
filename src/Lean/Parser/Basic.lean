@@ -166,7 +166,7 @@ def checkPrec (prec : Nat) : Parser := {
   fn   := checkPrecFn prec
 }
 
-/-- Succeeds if `c.lhsPrec >= prec` -/
+/-- Succeeds if `s.lhsPrec >= prec` -/
 def checkLhsPrecFn (prec : Nat) : ParserFn := fun _ s =>
   if s.lhsPrec >= prec then s
   else s.mkUnexpectedError "unexpected token at this precedence level; consider parenthesizing the term"

@@ -25,37 +25,43 @@ This module contains definitions for resolving the dependencies of a package.
 
 namespace Lake
 
+/-- Returns the load configuration of a materialized dependency. -/
+@[inline] def mkDepLoadConfig
+  (ws : Workspace) (dep : MaterializedDep)
+  (lakeOpts : NameMap String) (leanOpts : Options) (reconfigure : Bool)
+: LoadConfig where
+  lakeEnv := ws.lakeEnv
+  wsDir := ws.dir
+  pkgIdx := ws.packages.size
+  pkgName := dep.name
+  pkgDir := dep.pkgDir
+  relPkgDir := dep.relPkgDir
+  relConfigFile := dep.relConfigFile
+  relManifestFile := dep.relManifestFile
+  lakeOpts; leanOpts; reconfigure
+  scope := dep.scope
+  remoteUrl := dep.remoteUrl
+
+def Workspace.addFacetDecls (decls : Array FacetDecl) (self : Workspace) : Workspace :=
+  decls.foldl (·.addFacetConfig ·.config) self
+
 /--
 Loads the package configuration of a materialized dependency.
-Adds the facets defined in the package to the `Workspace`.
+Adds the package and the facets defined within it to the `Workspace`.
 -/
-def loadDepPackage
-  (wsIdx : Nat)
+def addDepPackage
   (dep : MaterializedDep)
   (lakeOpts : NameMap String)
   (leanOpts : Options) (reconfigure : Bool)
 : StateT Workspace LogIO Package := fun ws => do
-  let name := dep.name.toString (escape := false)
-  let pkgDir := ws.dir / dep.relPkgDir
-  let some pkgDir ← resolvePath? pkgDir
-    | error s!"{name}: package directory not found: {pkgDir}"
-  let (pkg, env?) ← loadPackageCore name {
-    lakeEnv := ws.lakeEnv
-    wsDir := ws.dir
-    pkgIdx := wsIdx
-    pkgName := dep.name
-    pkgDir
-    relPkgDir := dep.relPkgDir
-    relConfigFile := dep.configFile
-    lakeOpts, leanOpts, reconfigure
-    scope := dep.scope
-    remoteUrl := dep.remoteUrl
-  }
-  if let some env := env? then
-    let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts
-    return (pkg, ws)
-  else
-    return (pkg, ws)
+  let wsIdx := ws.packages.size
+  let loadCfg := mkDepLoadConfig ws dep lakeOpts leanOpts reconfigure
+  let ⟨loadCfg, h⟩ ← resolveConfigFile dep.prettyName loadCfg
+  let fileCfg ← loadConfigFile loadCfg h
+  let pkg := mkPackage loadCfg fileCfg wsIdx
+  let ws := ws.addPackage' pkg wsIdx_mkPackage
+  let ws := ws.addFacetDecls fileCfg.facetDecls
+  return (pkg, ws)
 
 /--
 The resolver's call stack of dependencies.
@@ -94,13 +100,13 @@ abbrev ResolveT m := DepStackT <| StateT Workspace m
   (root := ws.root) (stack : DepStack  := {})
 : m Workspace := do
   let (_, ws) ← ResolveT.run ws (stack := stack) do
-    inline <| recFetchAcyclic (·.baseName) go root
+    recFetchAcyclic (·.baseName) go root
   return ws
 
 /-
 Recursively visits each node in a package's dependency graph, starting from
 the workspace package `root`. Each dependency missing from the workspace is
-resolved using the `load` function and added into the workspace.
+added to the workspace using the `resolve` function.
 
 Recursion occurs breadth-first. Each direct dependency of a package is
 resolved in reverse order before recursing to the dependencies' dependencies.
@@ -108,9 +114,10 @@ resolved in reverse order before recursing to the dependencies' dependencies.
 See `Workspace.updateAndMaterializeCore` for more details.
 -/
 @[inline] private def Workspace.resolveDepsCore
-  [Monad m] [MonadError m] (ws : Workspace)
-  (load : Package → Dependency → Nat → StateT Workspace m Package)
+  [Monad m] [MonadError m] [MonadLiftT LogIO m] (ws : Workspace)
+  (resolve : Package → Dependency → Workspace → m MaterializedDep)
   (root : Package := ws.root) (stack : DepStack := {})
+  (leanOpts : Options := {}) (reconfigure := true)
 : m Workspace := do
   ws.runResolveT go root stack
 where
@@ -123,8 +130,8 @@ where
         return -- already handled in another branch
       if pkg.baseName = dep.name then
         error s!"{pkg.prettyName}: package requires itself (or a package with the same name)"
-      let depPkg ← load pkg dep ws.packages.size
-      modifyThe Workspace (·.addPackage depPkg)
+      let matDep ← resolve pkg dep (← getWorkspace)
+      discard <| addDepPackage matDep dep.opts leanOpts reconfigure
     -- Recursively load the dependencies' dependencies
     (← getWorkspace).packages.forM recurse start
 
@@ -171,17 +178,17 @@ private def reuseManifest
     logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
 
 /-- Add a package dependency's manifest entries to the update state. -/
-private def addDependencyEntries (pkg : Package) : UpdateT LoggerIO PUnit := do
-  match (← Manifest.load pkg.manifestFile |>.toBaseIO) with
+private def addDependencyEntries (dep : MaterializedDep) : UpdateT LoggerIO PUnit := do
+  match (← Manifest.load dep.manifestFile |>.toBaseIO) with
   | .ok manifest =>
     manifest.packages.forM fun entry => do
       unless (← getThe (NameMap PackageEntry)).contains entry.name do
-        let entry := entry.setInherited.inDirectory pkg.relDir
+        let entry := entry.setInherited.inDirectory dep.relPkgDir
         store entry.name entry
   | .error (.noFileOrDirectory ..) =>
-    logWarning s!"{pkg.prettyName}: ignoring missing manifest '{pkg.manifestFile}'"
+    logWarning s!"{dep.prettyName}: ignoring missing manifest:\n  {dep.manifestFile}"
   | .error e =>
-    logWarning s!"{pkg.prettyName}: ignoring manifest because it failed to load: {e}"
+    logWarning s!"{dep.prettyName}: ignoring manifest because it failed to load: {e}"
 
 /-- Materialize a single dependency, updating it if desired. -/
 private def updateAndMaterializeDep
@@ -210,6 +217,36 @@ Used, for instance, if the toolchain is updated and no Elan is detected.
 -/
 def restartCode : ExitCode := 4
 
+/-- The toolchain information of a package. -/
+private structure ToolchainCandidate where
+  /-- The name of the package which provided the toolchain candidate. -/
+  src : Name
+  /-- The version of the toolchain candidate. -/
+  ver : ToolchainVer
+  /-- Whether the candidate toolchain been fixed to particular version. -/
+  fixed : Bool := false
+
+private structure ToolchainState where
+  /-- The name of dependency which provided the current candidate toolchain. -/
+  src : Name
+  /-- The current candidate toolchain version (if any). -/
+  tc? : Option ToolchainVer
+  /-- Incompatible candidate toolchains (if any). -/
+  clashes : Array ToolchainCandidate
+  /--
+  Whether the candidate toolchain been fixed to particular version.
+  If `false`, the search will update the toolchain further where possible.
+  -/
+  fixed : Bool
+
+@[inline] def ToolchainState.replace
+  (src : Name) (tc? : Option ToolchainVer) (fixed : Bool) (self : ToolchainState)
+: ToolchainState := {self with src, tc?, fixed}
+
+@[inline] def ToolchainState.addClash
+  (src : Name) (ver : ToolchainVer) (fixed : Bool) (self : ToolchainState)
+: ToolchainState := {self with clashes := self.clashes.push {src, ver, fixed}}
+
 /--
 Update the workspace's `lean-toolchain` if necessary.
 
@@ -222,23 +259,38 @@ def Workspace.updateToolchain
 : LoggerIO PUnit := do
   let rootToolchainFile := ws.root.dir / toolchainFileName
   let rootTc? ← ToolchainVer.ofDir? ws.dir
-  let (src, tc?, tcs) ← rootDeps.foldlM (init := (ws.root.baseName, rootTc?, #[])) fun s dep => do
+  let s : ToolchainState := ⟨ws.root.baseName, rootTc?, #[], ws.root.fixedToolchain⟩
+  let ⟨src, tc?, tcs, fixed⟩ ← rootDeps.foldlM (init := s) fun s dep => do
     let depTc? ← ToolchainVer.ofDir? (ws.dir / dep.relPkgDir)
     let some depTc := depTc?
       | return s
-    let (src, tc?, tcs) := s
-    let some tc := tc?
-      | return (dep.name, depTc?, tcs)
-    if depTc ≤ tc then
-      return (src, tc, tcs)
-    else if tc < depTc then
-      return (dep.name, depTc, tcs)
+    let some tc := s.tc?
+      | return s.replace dep.name depTc? dep.fixedToolchain
+    if dep.fixedToolchain then
+      if s.fixed then
+        if tc = depTc then
+          return s
+        else
+          return s.addClash dep.name depTc dep.fixedToolchain -- true
+      else
+        if tc ≤ depTc then
+          return s.replace dep.name depTc dep.fixedToolchain -- true
+        else
+          return s.addClash dep.name depTc dep.fixedToolchain -- true
     else
-      return (src, tc, tcs.push (dep.name, depTc))
+      if depTc ≤ tc then
+        return s
+      else if !s.fixed && tc < depTc then
+        return s.replace dep.name depTc dep.fixedToolchain -- false
+      else
+        return s.addClash dep.name depTc dep.fixedToolchain -- false
   if 0 < tcs.size then
     let s := "toolchain not updated; multiple toolchain candidates:"
-    let s := if let some tc := tc? then s!"{s}\n  {tc}\n    from {src}" else s
-    let s := tcs.foldl (init := s) fun s (d, tc) => s!"{s}\n  {tc}\n    from {d}"
+    let addEntry s tc src fixed :=
+      let fixed := if fixed then " (fixed toolchain)" else ""
+      s!"{s}\n  {tc}\n    from {src}{fixed}"
+    let s := if let some tc := tc? then addEntry s tc src fixed else s
+    let s := tcs.foldl (init := s) fun s ⟨src, tc, fixed⟩ => addEntry s tc src fixed
     logWarning s
   else if let some tc := tc? then
     if rootTc?.any (· == tc) then
@@ -311,7 +363,6 @@ def Workspace.updateAndMaterializeCore
   (updateToolchain := true)
 : LoggerIO (Workspace × NameMap PackageEntry) := UpdateT.run do
   reuseManifest ws toUpdate
-  let ws := ws.addPackage ws.root
   if updateToolchain then
     let deps := ws.root.depConfigs.reverse
     let matDeps ← deps.mapM fun dep => do
@@ -320,21 +371,18 @@ def Workspace.updateAndMaterializeCore
     ws.updateToolchain matDeps
     let start := ws.packages.size
     let ws ← (deps.zip matDeps).foldlM (init := ws) fun ws (dep, matDep) => do
-      let (depPkg, ws) ← loadUpdatedDep ws.packages.size dep matDep ws
-      let ws := ws.addPackage depPkg
+      addDependencyEntries matDep
+      let (_, ws) ← addDepPackage matDep dep.opts leanOpts true ws
       return ws
     ws.packages.foldlM (init := ws) (start := start) fun ws pkg =>
-      ws.resolveDepsCore (stack := [ws.root.baseName]) updateAndLoadDep pkg
+      ws.resolveDepsCore updateAndAddDep pkg [ws.root.baseName] leanOpts true
   else
-    ws.resolveDepsCore updateAndLoadDep
+    ws.resolveDepsCore updateAndAddDep (leanOpts := leanOpts) (reconfigure := true)
 where
-  @[inline] updateAndLoadDep pkg dep wsIdx := do
-    let matDep ← updateAndMaterializeDep (← getWorkspace) pkg dep
-    loadUpdatedDep wsIdx dep matDep
-  @[inline] loadUpdatedDep wsIdx dep matDep : StateT Workspace (UpdateT LoggerIO) Package  := do
-    let depPkg ← loadDepPackage wsIdx matDep dep.opts leanOpts true
-    addDependencyEntries depPkg
-    return depPkg
+  @[inline] updateAndAddDep pkg dep ws := do
+    let matDep ← updateAndMaterializeDep ws pkg dep
+    addDependencyEntries matDep
+    return matDep
 
 /-- Write package entries to the workspace manifest. -/
 def Workspace.writeManifest
@@ -347,6 +395,7 @@ def Workspace.writeManifest
     | none => arr -- should only be the case for the root
   let manifest : Manifest := {
     name := ws.root.baseName
+    fixedToolchain := ws.root.fixedToolchain
     lakeDir := ws.relLakeDir
     packagesDir? := ws.relPkgsDir
     packages := manifestEntries
@@ -425,12 +474,9 @@ public def Workspace.materializeDeps
   if pkgEntries.isEmpty && !ws.root.depConfigs.isEmpty then
     error "missing manifest; use `lake update` to generate one"
   -- Materialize all dependencies
-  let ws := ws.addPackage ws.root
-  ws.resolveDepsCore fun pkg dep wsIdx => do
-    let ws ← getWorkspace
+  ws.resolveDepsCore (leanOpts := leanOpts) (reconfigure := reconfigure) fun pkg dep ws => do
     if let some entry := pkgEntries.find? dep.name then
-      let result ← entry.materialize ws.lakeEnv ws.dir relPkgsDir
-      loadDepPackage wsIdx result dep.opts leanOpts reconfigure
+      entry.materialize ws.lakeEnv ws.dir relPkgsDir
     else
       if pkg.isRoot then
         error <|

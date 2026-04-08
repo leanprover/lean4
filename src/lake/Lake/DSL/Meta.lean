@@ -8,8 +8,6 @@ module
 prelude
 public import Lean.ToExpr
 import Lean.Elab.Eval
-import Lean.Elab.ElabRules
-import Lake.Util.FilePath
 import Lake.DSL.Syntax
 
 /-!

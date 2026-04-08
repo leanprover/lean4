@@ -8,7 +8,7 @@ module
 prelude
 public import Init.Data.Range.Polymorphic.Iterators
 public import Std.Internal.Parsec
-import Init.Data.ByteArray.Extra
+import Init.Data.Int.Repr
 
 public section
 

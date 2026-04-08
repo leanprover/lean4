@@ -10,6 +10,7 @@ public import Init.Dynamic
 public import Init.System.FilePath
 public import Lean.Data.NameMap.Basic
 import Init.Data.ToString.Name
+import Init.Data.ToString.Macro
 
 /- # Package Dependency Configuration
 
@@ -26,7 +27,7 @@ The source of a `Dependency`.
 That is, where Lake should look to materialize the dependency.
 -/
 public inductive DependencySrc where
-/- A package located a fixed path relative to the dependent package's directory. -/
+/- A package located at a fixed path relative to the dependent package's directory. -/
 | path (dir : FilePath)
 /- A package cloned from a Git repository available at a fixed Git `url`. -/
 | git (url : String) (rev : Option String) (subDir : Option FilePath)

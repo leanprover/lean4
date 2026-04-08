@@ -4,11 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: François G. Dorais
 -/
 module
-
 prelude
 public import Init.Control.Lawful.Basic
-public import Init.Data.Fin.Lemmas
-
+public import Init.Ext
+import Init.Data.Fin.Lemmas
+import Init.Data.Nat.Lemmas
+import Init.Omega
+import Init.TacticsExtra
+import Init.WFTactics
+import Init.Hints
 public section
 
 namespace Fin

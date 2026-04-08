@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Grind.Ordered.Ring
-import Init.Grind.Ring
+import Init.Data.Int.LemmasAux
+import Init.Ext
+import Init.Grind.Ordered.Order
+import Init.Omega
 public section
 namespace Lean.Grind.Order
 
@@ -225,7 +228,7 @@ theorem le_eq_true_of_lt {α} [LE α] [LT α] [Std.LawfulOrderLT α]
 
 theorem le_eq_true {α} [LE α] [Std.IsPreorder α]
     {a : α} : (a ≤ a) = True := by
-  simp; exact Std.le_refl a
+  simp
 
 theorem le_eq_true_k {α} [LE α] [LT α] [Std.LawfulOrderLT α] [Std.IsPreorder α] [Ring α] [OrderedRing α]
     {a : α} {k : Int} : (0 : Int).ble' k → (a ≤ a + k) = True := by

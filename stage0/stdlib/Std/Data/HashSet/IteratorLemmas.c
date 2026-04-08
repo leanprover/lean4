@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Data.HashSet.IteratorLemmas
-// Imports: import Init.Data.Iterators.Lemmas.Combinators import Std.Data.DHashMap.IteratorLemmas import all Std.Data.HashMap.IteratorLemmas public import Std.Data.HashSet.Iterator import all Std.Data.HashSet.Iterator import Std.Data.HashSet.RawLemmas import Std.Data.HashSet.Lemmas import all Std.Data.DHashMap.Basic
+// Imports: import Std.Data.DHashMap.IteratorLemmas import all Std.Data.HashMap.IteratorLemmas public import Std.Data.HashSet.Iterator import all Std.Data.HashSet.Iterator import Std.Data.HashSet.RawLemmas import all Std.Data.DHashMap.Basic
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,22 +13,55 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_DHashMap_IteratorLemmas(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_HashMap_IteratorLemmas(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_HashSet_Iterator(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_HashSet_Iterator(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_HashSet_RawLemmas(uint8_t builtin);
+lean_object* runtime_initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Std_Data_HashSet_IteratorLemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Std_Data_DHashMap_IteratorLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_HashMap_IteratorLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_HashSet_Iterator(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_HashSet_Iterator(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_HashSet_RawLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Data_DHashMap_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
+}
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Std_Data_HashSet_IteratorLemmas(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
+}
 lean_object* initialize_Std_Data_DHashMap_IteratorLemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_HashMap_IteratorLemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_HashSet_Iterator(uint8_t builtin);
 lean_object* initialize_Std_Data_HashSet_Iterator(uint8_t builtin);
 lean_object* initialize_Std_Data_HashSet_RawLemmas(uint8_t builtin);
-lean_object* initialize_Std_Data_HashSet_Lemmas(uint8_t builtin);
 lean_object* initialize_Std_Data_DHashMap_Basic(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Data_HashSet_IteratorLemmas(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Init_Data_Iterators_Lemmas_Combinators(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_IteratorLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -44,13 +77,16 @@ lean_dec_ref(res);
 res = initialize_Std_Data_HashSet_RawLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Data_HashSet_Lemmas(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = initialize_Std_Data_DHashMap_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-return lean_io_result_mk_ok(lean_box(0));
+res = runtime_initialize_Std_Data_HashSet_IteratorLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = meta_initialize_Std_Data_HashSet_IteratorLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Std_Data_HashSet_IteratorLemmas(builtin);
 }
 #ifdef __cplusplus
 }

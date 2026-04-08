@@ -10,6 +10,7 @@ public import Lean.Elab.BindersUtil
 public import Lean.Elab.PatternVar
 public import Lean.Elab.Quotation.Util
 meta import Lean.Parser.Do
+import Init.Omega
 
 public section
 
@@ -35,6 +36,7 @@ private def getDoSeq (doStx : Syntax) : Syntax :=
 def elabLiftMethod : TermElab := fun stx _ =>
   throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
 
+
 /-- Return true if we should not lift `(<- ...)` actions nested in the syntax nodes with the given kind. -/
 private def liftMethodDelimiter (k : SyntaxNodeKind) : Bool :=
   k == ``Parser.Term.do ||
@@ -52,7 +54,7 @@ private def letDeclArgHasBinders (letDeclArg : Syntax) : Bool :=
     false
   else if k == ``Parser.Term.letEqnsDecl then
     true
-  else if k == ``Parser.Term.letIdDecl then
+  else if k == ``Parser.Term.letIdDecl || k == ``Parser.Term.letIdDeclNoBinders then
     -- letIdLhs := binderIdent >> checkWsBefore "expected space before binders" >> many (ppSpace >> letIdBinder)) >> optType
     let binders := letDeclArg[1]
     binders.getNumArgs > 0
@@ -75,9 +77,9 @@ private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
   else if k == ``Parser.Term.let then
     letDeclHasBinders stx[1]
   else if k == ``Parser.Term.doLet then
-    letDeclHasBinders stx[2]
+    letDeclHasBinders stx[3]
   else if k == ``Parser.Term.doLetArrow then
-    letDeclArgHasBinders stx[2]
+    letDeclArgHasBinders stx[3]
   else
     false
 
@@ -662,7 +664,7 @@ def getLetIdVars (letId : Syntax) : Array Var :=
     #[]
 
 def getLetIdDeclVars (letIdDecl : Syntax) : Array Var :=
-  assert! letIdDecl.isOfKind ``Parser.Term.letIdDecl
+  assert! letIdDecl.isOfKind ``Parser.Term.letIdDecl || letIdDecl.isOfKind ``Parser.Term.letIdDeclNoBinders
   -- def letIdLhs : Parser := letId >> many (ppSpace >> letIdBinder) >> optType
   -- def letIdDecl := leading_parser letIdLhs >> " := " >> termParser
   getLetIdVars letIdDecl[0]
@@ -690,7 +692,7 @@ def getLetEqnsDeclVars (letEqnsDecl : Syntax) : Array Var :=
 def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Var) := do
   -- def letDecl := leading_parser letIdDecl <|> letPatDecl <|> letEqnsDecl
   let arg := letDecl[0]
-  if arg.getKind == ``Parser.Term.letIdDecl then
+  if arg.getKind == ``Parser.Term.letIdDecl || arg.getKind == ``Parser.Term.letIdDeclNoBinders then
     return getLetIdDeclVars arg
   else if arg.getKind == ``Parser.Term.letPatDecl then
     getLetPatDeclVars arg
@@ -700,12 +702,12 @@ def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Var) := do
     throwError "unexpected kind of let declaration"
 
 def getDoLetVars (doLet : Syntax) : TermElabM (Array Var) :=
-  -- leading_parser "let " >> optional "mut " >> letDecl
-  getLetDeclVars doLet[2]
+  -- leading_parser "let " >> optional "mut " >> letConfig >> letDecl
+  getLetDeclVars doLet[3]
 
 def getDoHaveVars (doHave : Syntax) : TermElabM (Array Var) :=
-  -- leading_parser "have" >> letDecl
-  getLetDeclVars doHave[1]
+  -- leading_parser "have" >> letConfig >> letDecl
+  getLetDeclVars doHave[2]
 
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Var) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
@@ -721,14 +723,14 @@ def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Var) := do
 def getDoIdDeclVar (doIdDecl : Syntax) : Var :=
   doIdDecl[0]
 
--- termParser >> leftArrow >> termParser >> optional (" | " >> termParser)
+-- termParser >> optType >> leftArrow >> termParser >> optional (" | " >> termParser)
 def getDoPatDeclVars (doPatDecl : Syntax) : TermElabM (Array Var) := do
   let pattern := doPatDecl[0]
   getPatternVarsEx pattern
 
--- leading_parser "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
+-- leading_parser "let " >> optional "mut " >> letConfig >> (doIdDecl <|> doPatDecl)
 def getDoLetArrowVars (doLetArrow : Syntax) : TermElabM (Array Var) := do
-  let decl := doLetArrow[2]
+  let decl := doLetArrow[3]
   if decl.getKind == ``Parser.Term.doIdDecl then
     return #[getDoIdDeclVar decl]
   else if decl.getKind == ``Parser.Term.doPatDecl then
@@ -738,7 +740,7 @@ def getDoLetArrowVars (doLetArrow : Syntax) : TermElabM (Array Var) := do
 
 def getDoReassignVars (doReassign : Syntax) : TermElabM (Array Var) := do
   let arg := doReassign[0]
-  if arg.getKind == ``Parser.Term.letIdDecl then
+  if arg.getKind == ``Parser.Term.letIdDecl || arg.getKind == ``Parser.Term.letIdDeclNoBinders then
     return getLetIdDeclVars arg
   else if arg.getKind == ``Parser.Term.letPatDecl then
     getLetPatDeclVars arg
@@ -769,14 +771,18 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
 /--
   If the given syntax is a `doLetExpr` or `doLetMetaExpr`, return an equivalent `doIf` that has an `else` but no `else if`s or `if let`s.  -/
 private def expandDoLetExpr? (stx : Syntax) (doElems : List Syntax) : MacroM (Option Syntax) := match stx with
-  | `(doElem| let_expr $pat:matchExprPat := $discr:term | $elseBranch:doSeq) =>
+  | `(doElem| let_expr $pat:matchExprPat := $discr:term
+                | $elseBranch
+              $thenBranch) =>
     return some (← `(doElem| match_expr (meta := false) $discr:term with
-                             | $pat:matchExprPat => $(mkDoSeq doElems.toArray)
-                             | _ => $elseBranch))
-  | `(doElem| let_expr $pat:matchExprPat ← $discr:term | $elseBranch:doSeq) =>
+                             | $pat:matchExprPat => $(mkDoSeq (getDoSeqElems thenBranch ++ doElems).toArray)
+                             | _ => $elseBranch:doSeqIndent))
+  | `(doElem| let_expr $pat:matchExprPat ← $discr:term
+                | $elseBranch
+              $thenBranch) =>
     return some (← `(doElem| match_expr $discr:term with
-                             | $pat:matchExprPat => $(mkDoSeq doElems.toArray)
-                             | _ => $elseBranch))
+                             | $pat:matchExprPat => $(mkDoSeq (getDoSeqElems thenBranch ++ doElems).toArray)
+                             | _ => $elseBranch:doSeqIndent))
   | _ => return none
 
 structure DoIfView where
@@ -1055,14 +1061,15 @@ def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := withRef action <| wit
 def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFreshMacroScope do
   let kind := decl.getKind
   if kind == ``Parser.Term.doLet then
-    let letDecl := decl[2]
-    `(let $letDecl:letDecl; $k)
+    let letConfig : TSyntax ``Parser.Term.letConfig := ⟨decl[2]⟩
+    let letDecl := decl[3]
+    `(let $letConfig:letConfig $letDecl:letDecl; $k)
   else if kind == ``Parser.Term.doLetRec then
     let letRecToken := decl[0]
     let letRecDecls := decl[1]
     return mkNode ``Parser.Term.letrec #[letRecToken, letRecDecls, mkNullNode, k]
   else if kind == ``Parser.Term.doLetArrow then
-    let arg := decl[2]
+    let arg := decl[3]
     if arg.getKind == ``Parser.Term.doIdDecl then
       let id     := arg[0]
       let type   := expandOptType id arg[1]
@@ -1410,16 +1417,16 @@ mutual
   /-- Generate `CodeBlock` for `doLetArrow; doElems`
      `doLetArrow` is of the form
      ```
-     "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
+     "let " >> optional "mut " >> letConfig >> (doIdDecl <|> doPatDecl)
      ```
      where
      ```
      def doIdDecl   := leading_parser ident >> optType >> leftArrow >> doElemParser
-     def doPatDecl  := leading_parser termParser >> leftArrow >> doElemParser >> optional (" | " >> doSeq)
+     def doPatDecl  := leading_parser termParser >> optType >> leftArrow >> doElemParser >> optional ((" | " >> doSeq) >> optional doSeq)
      ```
   -/
   partial def doLetArrowToCode (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    let decl    := doLetArrow[2]
+    let decl    := doLetArrow[3]
     if decl.getKind == ``Parser.Term.doIdDecl then
       let y := decl[0]
       checkNotShadowingMutable #[y]
@@ -1435,40 +1442,54 @@ mutual
         | kRef::_  => concat c kRef y k
     else if decl.getKind == ``Parser.Term.doPatDecl then
       let pattern := decl[0]
-      let doElem  := decl[2]
-      let optElse := decl[3]
+      let optType := decl[1]
+      let doElem  := decl[3]
+      let optElse := decl[4]
       if optElse.isNone then withFreshMacroScope do
-        let auxDo ← if isMutableLet doLetArrow then
-          `(do let%$doLetArrow __discr ← $doElem; let%$doLetArrow mut $pattern:term := __discr)
+        let auxDo ← if optType.isNone then
+          if isMutableLet doLetArrow then
+            `(do let%$doLetArrow __discr ← $doElem; let%$doLetArrow mut $pattern:term := __discr)
+          else
+            `(do let%$doLetArrow __discr ← $doElem; let%$doLetArrow $pattern:term := __discr)
         else
-          `(do let%$doLetArrow __discr ← $doElem; let%$doLetArrow $pattern:term := __discr)
+          let ty := optType[0][1]
+          if isMutableLet doLetArrow then
+            `(do let%$doLetArrow __discr : $ty ← $doElem; let%$doLetArrow mut $pattern:term := __discr)
+          else
+            `(do let%$doLetArrow __discr : $ty ← $doElem; let%$doLetArrow $pattern:term := __discr)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
+        let elseSeq := optElse[1]
+        let contSeq := optElse[2][0] -- 0 unwraps the optional; if none then getDoSeqElems is empty
         let contSeq ← if isMutableLet doLetArrow then
           let vars ← (← getPatternVarsEx pattern).mapM fun var => `(doElem| let mut $var := $var)
-          pure (vars ++ doElems.toArray)
+          pure (vars ++ (getDoSeqElems contSeq).toArray)
         else
-          pure doElems.toArray
+          pure (getDoSeqElems contSeq).toArray
         let contSeq := mkDoSeq contSeq
-        let elseSeq := optElse[1]
-        let auxDo ← `(do let%$doLetArrow __discr ← $doElem; match%$doLetArrow __discr with | $pattern:term => $contSeq | _ => $elseSeq)
-        doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
+        let auxDo ← if optType.isNone then
+          `(do let%$doLetArrow __discr ← $doElem; match%$doLetArrow __discr with | $pattern:term => $contSeq | _ => $elseSeq)
+        else
+          let ty := optType[0][1]
+          `(do let%$doLetArrow __discr : $ty ← $doElem; match%$doLetArrow __discr with | $pattern:term => $contSeq | _ => $elseSeq)
+        doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
     else
       throwError "unexpected kind of `do` declaration"
 
   partial def doLetElseToCode (doLetElse : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    -- "let " >> optional "mut " >> termParser >> " := " >> termParser >> checkColGt >> " | " >> doSeq
-    let pattern := doLetElse[2]
-    let val     := doLetElse[4]
-    let elseSeq := doLetElse[6]
+    -- "let " >> optional "mut " >> letConfig >> termParser >> " := " >> termParser >> (checkColGt >> " | " >> doSeq) >> optional doSeq
+    let pattern := doLetElse[3]
+    let val     := doLetElse[5]
+    let elseSeq := doLetElse[7]
+    let bodySeq := doLetElse[8][0]
     let contSeq ← if isMutableLet doLetElse then
       let vars ← (← getPatternVarsEx pattern).mapM fun var => `(doElem| let mut $var := $var)
-      pure (vars ++ doElems.toArray)
+      pure (vars ++ (getDoSeqElems bodySeq).toArray)
     else
-      pure doElems.toArray
+      pure (getDoSeqElems bodySeq).toArray
     let contSeq := mkDoSeq contSeq
-    let auxDo ← `(do match $val:term with | $pattern:term => $contSeq | _ => $elseSeq)
-    doSeqToCode <| getDoSeqElems (getDoSeq auxDo)
+    let auxDo ← `(doElem| match $val:term with | $pattern:term => $contSeq | _ => $elseSeq)
+    doSeqToCode <| auxDo :: doElems
 
   /-- Generate `CodeBlock` for `doReassignArrow; doElems`
      `doReassignArrow` is of the form
@@ -1485,10 +1506,15 @@ mutual
       doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
     else if decl.getKind == ``Parser.Term.doPatDecl then
       let pattern := decl[0]
-      let doElem  := decl[2]
-      let optElse := decl[3]
+      let optType := decl[1]
+      let doElem  := decl[3]
+      let optElse := decl[4]
       if optElse.isNone then withFreshMacroScope do
-        let auxDo ← `(do let __discr ← $doElem; $pattern:term := __discr)
+        let auxDo ← if optType.isNone then
+          `(do let __discr ← $doElem; $pattern:term := __discr)
+        else
+          let ty := optType[0][1]
+          `(do let __discr : $ty ← $doElem; $pattern:term := __discr)
         doSeqToCode <| getDoSeqElems (getDoSeq auxDo) ++ doElems
       else
         throwError "reassignment with `|` (i.e., \"else clause\") is not currently supported"
@@ -1616,11 +1642,12 @@ mutual
   /-- Generate `CodeBlock` for `doMatch; doElems` -/
   partial def doMatchToCode (doMatch : Syntax) (doElems: List Syntax) : M CodeBlock := do
     let ref       := doMatch
-    let genParam  := doMatch[1]
-    let optMotive := doMatch[2]
-    let discrs    := doMatch[3]
-    let matchAlts := doMatch[5][0].getArgs -- Array of `doMatchAlt`
-    let matchAlts ← matchAlts.foldlM (init := #[]) fun result matchAlt => return result ++ (expandMatchAlt matchAlt)
+    let depParam  := doMatch[1]
+    let genParam  := doMatch[2]
+    let optMotive := doMatch[3]
+    let discrs    := doMatch[4]
+    let matchAlts := doMatch[6][0].getArgs -- Array of `doMatchAlt`
+    let matchAlts ← matchAlts.foldlM (init := #[]) fun result matchAlt => return result ++ expandMatchAlt matchAlt
     let alts ←  matchAlts.mapM fun matchAlt => do
       let patterns := matchAlt[1][0]
       let vars ← getPatternsVarsEx patterns.getSepArgs

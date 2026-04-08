@@ -10,13 +10,13 @@ import gdb
 import gdb.printing
 
 def is_scalar(o):
-    return o.cast(gdb.lookup_type('uintptr_t')) & 1 == 1
+    return o.cast(gdb.lookup_type('size_t')) & 1 == 1
 
 def box(n):
     return gdb.Value(n << 1 | 1).cast(gdb.lookup_type('lean_object').pointer())
 
 def unbox(o):
-    return o.cast(gdb.lookup_type('uintptr_t')) >> 1
+    return o.cast(gdb.lookup_type('size_t')) >> 1
 
 def to_cnstr(o):
     return o.cast(gdb.lookup_type('lean_ctor_object').pointer())

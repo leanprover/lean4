@@ -5,12 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Types
 import Init.Grind
-import Lean.Meta.Tactic.Grind.PropagatorAttr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
+public import Lean.Meta.Tactic.Grind.PropagatorAttr
 public section
 namespace Lean.Meta.Grind.Arith
 
@@ -82,7 +81,12 @@ See comment at `propagateMul`.
 private def isUnsupportedSemiring? (type : Expr) : GoalM (Option Expr) := do
   if isSupportedSemiringQuick type then return none
   if (← getCommRingId? type).isSome then return none
-  if (← getCommSemiringId? type).isSome then return none
+  if let some id ← getCommSemiringId? type then
+    -- CommSemiring also needs `propagateMul` because the ring envelope approach
+    -- does not propagate `0 * a = 0` back to original terms.
+    -- In the future, we want to add support for propagating equalities when the
+    -- `CommSemiring` implements `AddRightCancel`.
+    return some (← SemiringM.run id (return (← getSemiring).semiringInst))
   if let some id ← getNonCommRingId? type then
     let inst ← NonCommRingM.run id do return (← getRing).semiringInst
     return some inst

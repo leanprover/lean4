@@ -7,7 +7,6 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Cutsat.Types
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
 public section
 namespace Int.Linear
 /-- Returns `true` if all coefficients are not `0`. -/

@@ -6,7 +6,6 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.CoreM
 public import Lake.Toml.Data.Value
 public import Lake.Toml.Grammar
 meta import all Lake.Toml.Grammar -- for quotations

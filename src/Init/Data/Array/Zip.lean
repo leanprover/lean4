@@ -7,7 +7,14 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-public import Init.Data.Array.TakeDrop
+public import Init.Control.Lawful
+public import Init.Data.Function
+import Init.Data.Array.Lemmas
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Zip
+import Init.Data.Option.Lemmas
+import Init.Data.Prod
+import Init.Omega
 
 public section
 

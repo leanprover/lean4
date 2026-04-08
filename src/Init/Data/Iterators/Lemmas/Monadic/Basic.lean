@@ -10,7 +10,8 @@ public import Init.Data.Iterators.Basic
 
 public section
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 /--
 Induction principle for finite monadic iterators: One can define a function `f` that maps every
@@ -46,4 +47,4 @@ def IterM.inductSkips {α m β} [Iterator α m β] [Productive α m]
   step it (fun {it'} _ => inductSkips motive step it')
 termination_by it.finitelyManySkips
 
-end Std.Iterators
+end Std

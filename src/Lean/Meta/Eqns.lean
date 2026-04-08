@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.Match.MatcherInfo
 public import Lean.DefEqAttrib
+public import Lean.Meta.RecExt
 public import Lean.Meta.LetToHave
 import Lean.Meta.AppBuilder
 
@@ -18,6 +19,7 @@ namespace Lean.Meta
 register_builtin_option backward.eqns.nonrecursive : Bool := {
     defValue := true
     descr    := "Create fine-grained equational lemmas even for non-recursive definitions."
+    deprecation? := some { since := "2026-03-30" }
   }
 
 register_builtin_option backward.eqns.deepRecursiveSplit : Bool := {
@@ -27,6 +29,7 @@ register_builtin_option backward.eqns.deepRecursiveSplit : Bool := {
                 that do not contain recursive calls do not cause further splits in the \
                 equational lemmas. This was the behavior before Lean 4.12, and the purpose of \
                 this option is to help migrating old code."
+    deprecation? := some { since := "2026-03-30" }
   }
 
 
@@ -39,26 +42,6 @@ This is implemented by
  * when realizing them lazily, reset the options to their default
 -/
 def eqnAffectingOptions : Array (Lean.Option Bool) := #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit]
-
-/--
-Environment extension for storing which declarations are recursive.
-This information is populated by the `PreDefinition` module, but the simplifier
-uses when unfolding declarations.
--/
-builtin_initialize recExt : TagDeclarationExtension ←
-  mkTagDeclarationExtension `recExt (asyncMode := .async .asyncEnv)
-
-/--
-Marks the given declaration as recursive.
--/
-def markAsRecursive (declName : Name) : CoreM Unit :=
-  modifyEnv (recExt.tag · declName)
-
-/--
-Returns `true` if `declName` was defined using well-founded recursion, or structural recursion.
--/
-def isRecursiveDefinition (declName : Name) : CoreM Bool :=
-  return recExt.isTagged (← getEnv) declName
 
 def eqnThmSuffixBase := "eq"
 def eqnThmSuffixBasePrefix := eqnThmSuffixBase ++ "_"
@@ -323,7 +306,7 @@ def getUnfoldEqnFor? (declName : Name) (nonRec := false) : MetaM (Option Name) :
 
 builtin_initialize
   registerReservedNameAction fun name => do
-    withTraceNode `ReservedNameAction (pure m!"{exceptBoolEmoji ·} Lean.Meta.Eqns reserved name action for {name}") do
+    withTraceNode `ReservedNameAction (fun _ => pure m!"Lean.Meta.Eqns reserved name action for {name}") do
       if let some (declName, suffix) := declFromEqLikeName (← getEnv) name then
         if name == mkEqLikeNameFor (← getEnv) declName suffix then
           if isEqnReservedNameSuffix suffix then

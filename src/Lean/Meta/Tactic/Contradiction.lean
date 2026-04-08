@@ -9,8 +9,8 @@ prelude
 public import Lean.Meta.Tactic.Assumption
 public import Lean.Meta.Tactic.Cases
 public import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Simp.Main
 import Lean.Meta.HasNotBit
+import Lean.Meta.Tactic.Simp.Rewrite
 
 public section
 

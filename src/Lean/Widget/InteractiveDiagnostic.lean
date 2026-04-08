@@ -116,7 +116,7 @@ private abbrev MsgFmtM := StateT (Array EmbedFmt) IO
 
 open MessageData in
 private partial def msgToInteractiveAux (msgData : MessageData) : IO (Format × Array EmbedFmt) :=
-  go { currNamespace := Name.anonymous, openDecls := [] } none msgData #[]
+  go { currNamespace := Name.anonymous, openDecls := [] } none msgData |>.run #[]
 where
   pushEmbed (e : EmbedFmt) : MsgFmtM Nat :=
     modifyGet fun es => (es.size, es.push e)

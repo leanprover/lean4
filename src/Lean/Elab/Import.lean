@@ -9,6 +9,7 @@ prelude
 public import Lean.Parser.Module
 meta import Lean.Parser.Module
 import Lean.Compiler.ModPkgExt
+public import Lean.DeprecatedModule
 
 public section
 
@@ -42,12 +43,66 @@ def HeaderSyntax.toModuleHeader (stx : HeaderSyntax) : ModuleHeader where
 
 abbrev headerToImports := @HeaderSyntax.imports
 
+/--
+Check imported modules for deprecation and emit warnings.
+
+The `-- deprecated_module: ignore` comment can be placed on the `module` keyword to suppress
+all warnings, or on individual `import` statements to suppress specific ones.
+This follows the same pattern as `-- shake: keep` in Lake shake.
+
+The `headerStx?` parameter carries the header syntax used for checking trailing comments.
+When called from the Language Server, the main header syntax may have its trailing trivia
+stripped by `unsetTrailing` for caching purposes, so `origHeaderStx?` can supply the original
+(untrimmed) syntax to preserve `-- deprecated_module: ignore` annotations on the last import.
+-/
+def checkDeprecatedImports
+    (env : Environment) (imports : Array Import) (opts : Options)
+    (inputCtx : Parser.InputContext) (startPos : String.Pos.Raw) (messages : MessageLog)
+    (headerStx? : Option HeaderSyntax := none)
+    (origHeaderStx? : Option HeaderSyntax := none)
+    : MessageLog := Id.run do
+  let mut opts := opts
+  let mut ignoreDeprecatedImports : NameSet := {}
+  if let some headerStx := origHeaderStx? <|> headerStx? then
+    match headerStx with
+    | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$_]? $importsStx*) =>
+      if moduleTk.any (·.getTrailing?.any (·.toString.contains "deprecated_module: ignore")) then
+        opts := linter.deprecated.module.set opts false
+      for impStx in importsStx do
+        if impStx.raw.getTrailing?.any (·.toString.contains "deprecated_module: ignore") then
+          match impStx with
+          | `(Parser.Module.import| $[public%$_]? $[meta%$_]? import $[all%$_]? $n) =>
+            ignoreDeprecatedImports := ignoreDeprecatedImports.insert n.getId
+          | _ => pure ()
+    | _ => pure ()
+  if !linter.deprecated.module.get opts then
+    return messages
+  imports.foldl (init := messages) fun messages imp =>
+    if ignoreDeprecatedImports.contains imp.module then
+      messages
+    else
+    match env.getModuleIdx? imp.module with
+    | some idx =>
+      match env.getDeprecatedModuleByIdx? idx with
+      | some entry =>
+        let pos := inputCtx.fileMap.toPosition startPos
+        messages.add {
+          fileName := inputCtx.fileName
+          pos := pos
+          severity := .warning
+          data := .tagged ``deprecatedModuleExt <| formatDeprecatedModuleWarning env idx imp.module entry
+        }
+      | none => messages
+    | none => messages
+
 def processHeaderCore
     (startPos : String.Pos.Raw) (imports : Array Import) (isModule : Bool)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
     (trustLevel : UInt32 := 0) (plugins : Array System.FilePath := #[]) (leakEnv := false)
     (mainModule := Name.anonymous) (package? : Option PkgId := none)
     (arts : NameMap ImportArtifacts := {})
+    (headerStx? : Option HeaderSyntax := none)
+    (origHeaderStx? : Option HeaderSyntax := none)
     : IO (Environment × MessageLog) := do
   let level := if isModule then
     if Elab.inServer.get opts then
@@ -66,6 +121,7 @@ def processHeaderCore
     let pos := inputCtx.fileMap.toPosition startPos
     pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos })
   let env := env.setMainModule mainModule |>.setModulePackage package?
+  let messages := checkDeprecatedImports env imports opts inputCtx startPos messages headerStx? origHeaderStx?
   return (env, messages)
 
 /--
@@ -82,6 +138,7 @@ backwards compatibility measure not compatible with the module system.
     : IO (Environment × MessageLog) := do
   processHeaderCore header.startPos header.imports header.isModule
     opts messages inputCtx trustLevel plugins leakEnv mainModule
+    (headerStx? := header)
 
 def parseImports (input : String) (fileName : Option String := none) : IO (Array Import × Position × MessageLog) := do
   let fileName := fileName.getD "<input>"

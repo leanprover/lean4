@@ -307,6 +307,7 @@ def recover'.parenthesizer (p : PrettyPrinter.Parenthesizer) : PrettyPrinter.Par
 -- Note that there is a mutual recursion
 -- `categoryParser -> mkAntiquot -> termParser -> categoryParser`, so we need to introduce an indirection somewhere
 -- anyway.
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_mk_antiquot_parenthesizer"]
 opaque mkAntiquot.parenthesizer' (name : String) (kind : SyntaxNodeKind) (anonymous := true) (isPseudoKind := false) : Parenthesizer
 
@@ -314,6 +315,7 @@ opaque mkAntiquot.parenthesizer' (name : String) (kind : SyntaxNodeKind) (anonym
   liftM x
 
 -- break up big mutual recursion
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_pretty_printer_parenthesizer_interpret_parser_descr"]
 opaque interpretParserDescr' : ParserDescr → CoreM Parenthesizer
 

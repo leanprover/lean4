@@ -39,6 +39,15 @@ structure ConfigOptions where
   Cache closed terms and evaluate them at initialization time.
   -/
   extractClosed : Bool := true
+  /--
+  Maximum number of times a definition tagged with `@[specialize]` can be recursively specialized
+  before generating an error during compilation.
+  -/
+  maxRecSpecialize : Nat := 64
+  /--
+  Insert reset-reuse instructions.
+  -/
+  resetReuse : Bool := true
   deriving Inhabited
 
 register_builtin_option compiler.small : Nat := {
@@ -66,12 +75,24 @@ register_builtin_option compiler.extract_closed : Bool := {
   descr    := "(compiler) enable/disable closed term caching"
 }
 
+register_builtin_option compiler.maxRecSpecialize : Nat := {
+  defValue := 64
+  descr    := "(compiler) maximum number of times a definition tagged with `@[specialize]` can be recursively specialized before generating an error during compilation."
+}
+
+register_builtin_option compiler.reuse : Bool := {
+  defValue := true
+  descr    := "heuristically insert reset/reuse instruction pairs"
+}
+
 def toConfigOptions (opts : Options) : ConfigOptions := {
   smallThreshold := compiler.small.get opts
   maxRecInline   := compiler.maxRecInline.get opts
   maxRecInlineIfReduce := compiler.maxRecInlineIfReduce.get opts
   checkTypes := compiler.checkTypes.get opts
   extractClosed := compiler.extract_closed.get opts
+  maxRecSpecialize := compiler.maxRecSpecialize.get opts
+  resetReuse := compiler.reuse.get opts
 }
 
 end Lean.Compiler.LCNF

@@ -119,7 +119,7 @@ into the workspace's `packagesDir`.
 from <path>
 ```
 
-Lake loads the package located a fixed `path` relative to the
+Lake loads the package located at a fixed `path` relative to the
 requiring package's directory.
 
 **Git Dependencies**

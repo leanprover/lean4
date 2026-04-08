@@ -6,9 +6,10 @@ Authors: Mac Malone
 module
 
 prelude
-public import Lean.Parser.Types
 import Lake.Toml.ParserUtil
 import Lean.Parser
+public import Lean.PrettyPrinter.Formatter
+public import Lean.PrettyPrinter.Parenthesizer
 
 /-!
 # TOML Grammar

@@ -1,0 +1,4 @@
+Failure @0 (⟨1, 0⟩): unexpected '[' (use '\[' to escape); expected text
+Final stack:
+  <missing>
+Remaining: "[abc"

@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Meta.CompletionName
 public import Lean.Meta.DiscrTree
+import Init.Omega
 
 public section
 
@@ -78,7 +79,7 @@ def tmpStar := mkMVar tmpMVarId
 def ignoreArg (a : Expr) (i : Nat) (infos : Array ParamInfo) : MetaM Bool := do
   if h : i < infos.size then
     let info := infos[i]
-    if info.isInstImplicit then
+    if info.isInstance then
       return true
     else if info.isImplicit || info.isStrictImplicit then
       return !(← isType a)
@@ -802,10 +803,27 @@ structure Cache where
 
 def Cache.empty (ngen : NameGenerator) : Cache := { ngen := ngen, core := {}, «meta» := {} }
 
+/--
+Check if a private declaration is accessible from the current environment.
+- Local private declarations (defined in current module) are always accessible.
+- Imported private declarations are accessible only in the module system with `import all`.
+-/
+private def isAccessiblePrivateName (env : Environment) (declName : Name) : Bool :=
+  if !isPrivateName declName then
+    false -- Not private; the isInternalDetail check should still apply
+  else
+    match env.getModuleIdxFor? declName with
+    | some modIdx =>
+      -- Imported private: accessible only in module system with `import all`
+      env.header.isModule && env.header.modules[modIdx]?.any (·.importAll)
+    | none =>
+      -- Local private: always accessible
+      true
+
 def blacklistInsertion (env : Environment) (declName : Name) : Bool :=
   !allowCompletion env declName
   || declName == ``sorryAx
-  || declName.isInternalDetail
+  || (declName.isInternalDetail && !isAccessiblePrivateName env declName)
   || (declName matches .str _ "inj")
   || (declName matches .str _ "noConfusionType")
 
@@ -878,10 +896,9 @@ partial def loadImportedModule
     (mname : Name)
     (mdata : ModuleData)
     (i : Nat := 0) : BaseIO (PreDiscrTree α) := do
-  if h : i < mdata.constNames.size then
-    let name := mdata.constNames[i]
-    let constInfo  := mdata.constants[i]!
-    let tree ← addConstImportData cctx env mname d cacheRef tree act name constInfo
+  if h : i < mdata.constants.size then
+    let constInfo  := mdata.constants[i]
+    let tree ← addConstImportData cctx env mname d cacheRef tree act constInfo.name constInfo
     loadImportedModule cctx env act d cacheRef tree mname mdata (i+1)
   else
     pure tree

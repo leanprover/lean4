@@ -107,7 +107,7 @@ def containsThenInsertIfNew [EquivBEq α] [LawfulHashable α]
   ⟨replaced, ⟨r⟩⟩
 
 /--
-Checks whether a key is present in a map, returning the associate value, and inserts a value for
+Checks whether a key is present in a map, returning the associated value, and inserts a value for
 the key if it was not found.
 
 If the returned value is `some v`, then the returned map is unaltered. If it is `none`, then the

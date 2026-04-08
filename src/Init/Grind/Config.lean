@@ -15,12 +15,17 @@ Passed to `grind` using, for example, the `grind (config := { matchEqs := true }
 structure Config where
   /-- If `trace` is `true`, `grind` records used E-matching theorems and case-splits. -/
   trace : Bool := false
+  /-- If `markInstances` is `true`, E-matching proofs are marked with instance IDs
+  for precise tracking of which theorems appear in the final proof. -/
+  markInstances : Bool := false
   /-- If `lax` is `true`, `grind` will silently ignore any parameters referring to non-existent theorems
   or for which no patterns can be generated. -/
   lax : Bool := false
   /-- If `suggestions` is `true`, `grind` will invoke the currently configured library suggestion engine on the current goal,
   and add attempt to use the resulting suggestions as additional parameters to the `grind` tactic. -/
   suggestions : Bool := false
+  /-- If `locals` is `true`, `grind` will add all definitions from the current file. -/
+  locals : Bool := false
   /-- Maximum number of case-splits in a proof search branch. It does not include splits performed during normalization. -/
   splits : Nat := 9
   /-- Maximum number of E-matching (aka heuristic theorem instantiation) rounds before each case split. -/
@@ -106,11 +111,10 @@ structure Config where
   ring := true
   /--
   Maximum number of steps performed by the `ring` solver.
-  A step is counted whenever one polynomial is used to simplify another.
-  For example, given `x^2 + 1` and `x^2 * y^3 + x * y`, the first can be
-  used to simplify the second to `-1 * y^3 + x * y`.
+  A step is counted whenever one polynomial is used to simplify another,
+  weighted by the number of terms in the resulting polynomial.
   -/
-  ringSteps := 10000
+  ringSteps := 100000
   /--
   When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
   `CommRing`.
@@ -211,6 +215,11 @@ structure Config where
   reducible declarations are always unfolded in those contexts.
   -/
   reducible := true
+  /--
+  Maximum number of library suggestions to use. If `none`, uses the default limit.
+  Only relevant when `suggestions` is `true`.
+  -/
+  maxSuggestions : Option Nat := none
   deriving Inhabited, BEq
 
 /--
@@ -240,12 +249,14 @@ structure NoopConfig extends Config where
   extAll    := false
   etaStruct := false
   funext    := false
+  funCC     := false
 
   -- Disable all solver modules
   ring      := false
   linarith  := false
   lia       := false
   ac        := false
+  order     := false
 
 /--
 A `grind` configuration that only uses `cutsat` and splitting.
@@ -256,6 +267,24 @@ We don't currently have a mechanism to enable only a small set of lemmas.
 -- This is a `structure` rather than `def` so we can use `declare_config_elab`.
 structure CutsatConfig extends NoopConfig where
   lia := true
+  -- Allow the default number of splits.
+  splits := ({} : Config).splits
+
+/--
+A `grind` configuration that only uses `linarith`.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure LinarithConfig extends NoopConfig where
+  linarith := true
+  -- Allow the default number of splits.
+  splits := ({} : Config).splits
+
+/--
+A `grind` configuration that only uses `order`.
+-/
+-- This is a `structure` rather than `def` so we can use `declare_config_elab`.
+structure OrderConfig extends NoopConfig where
+  order := true
   -- Allow the default number of splits.
   splits := ({} : Config).splits
 

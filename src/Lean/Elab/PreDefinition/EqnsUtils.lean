@@ -9,10 +9,10 @@ module
 prelude
 public import Lean.Meta.Basic
 import Lean.Meta.Tactic.Split
-import Lean.Meta.Match.Match
 import Lean.Meta.Tactic.Refl
 import Lean.Meta.Tactic.Delta
 import Lean.Meta.Tactic.SplitIf
+import Lean.Meta.Tactic.Contradiction
 
 /-!
 This module contains helpers useful to prove unfolding and/or equational theorems.

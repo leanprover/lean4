@@ -8,10 +8,8 @@ prelude
 public import Lean.Elab.Tactic.Grind.Basic
 import Lean.Elab.Tactic.Grind.Config
 import Lean.Elab.Tactic.Grind.Param
-import Init.Grind.Interactive
 import Lean.Meta.Tactic.TryThis
 import Lean.Meta.Tactic.Grind.Finish
-import Lean.Meta.Tactic.Grind.Split
 import Lean.Meta.Tactic.Grind.CollectParams
 namespace Lean.Elab.Tactic.Grind
 open Meta

@@ -7,6 +7,8 @@ module
 
 prelude
 public import Init.Data.BitVec.BasicAux
+public import Init.Data.Fin.Basic
+import Init.Data.Nat.Div.Basic
 
 public section
 
@@ -207,6 +209,28 @@ theorem UInt32.lt_ofNatLT_of_lt {n m : Nat} (h1 : n < UInt32.size) (h2 : m < UIn
   simp only [(· < ·), BitVec.toNat, ofNatLT, BitVec.ofNatLT, ofNat, BitVec.ofNat, Fin.Internal.ofNat_eq_ofNat,
     Fin.ofNat, Nat.mod_eq_of_lt h2, imp_self]
 
+
+/--
+Adds two 32-bit unsigned integers, wrapping around on overflow. Usually accessed via the `+`
+operator.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint32_add"]
+protected def UInt32.add (a b : UInt32) : UInt32 := ⟨a.toBitVec + b.toBitVec⟩
+
+/--
+Subtracts one 32-bit unsigned integer from another, wrapping around on underflow. Usually accessed
+via the `-` operator.
+
+This function is overridden at runtime with an efficient implementation.
+-/
+@[extern "lean_uint32_sub"]
+protected def UInt32.sub (a b : UInt32) : UInt32 := ⟨a.toBitVec - b.toBitVec⟩
+
+instance : Add UInt32       := ⟨UInt32.add⟩
+instance : Sub UInt32       := ⟨UInt32.sub⟩
+
 /-- Converts a `UInt64` into the corresponding `Fin UInt64.size`. -/
 def UInt64.toFin (x : UInt64) : Fin UInt64.size := x.toBitVec.toFin
 
@@ -375,7 +399,7 @@ Examples:
  * `(if (5 : USize) < 5 then "yes" else "no") = "no"`
  * `show ¬((7 : USize) < 7) by decide`
 -/
-@[extern "lean_usize_dec_lt"]
+@[extern "lean_usize_dec_lt", implicit_reducible]
 def USize.decLt (a b : USize) : Decidable (a < b) :=
   inferInstanceAs (Decidable (a.toBitVec < b.toBitVec))
 
@@ -391,7 +415,7 @@ Examples:
  * `(if (5 : USize) ≤ 15 then "yes" else "no") = "yes"`
  * `show (7 : USize) ≤ 7 by decide`
 -/
-@[extern "lean_usize_dec_le"]
+@[extern "lean_usize_dec_le", implicit_reducible]
 def USize.decLe (a b : USize) : Decidable (a ≤ b) :=
   inferInstanceAs (Decidable (a.toBitVec ≤ b.toBitVec))
 

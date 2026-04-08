@@ -8,6 +8,8 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Std.Sat.AIG.LawfulVecOperator
+import Init.Data.Nat.Order
+import Init.Data.Order.Lemmas
 
 @[expose] public section
 

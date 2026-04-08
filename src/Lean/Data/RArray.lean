@@ -8,6 +8,8 @@ module
 
 prelude
 public import Lean.Meta.DecLevel
+public import Init.Data.RArray
+import Init.Omega
 
 public section
 

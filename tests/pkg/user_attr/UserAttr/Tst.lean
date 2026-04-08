@@ -1,29 +1,45 @@
-import Lean
-import UserAttr.BlaAttr
+module
+
+public import UserAttr.BlaAttr
+meta import Lean
+import all Lean.ExtraModUses
+
+public section
+
+-- Like in extraModUses.lean, but there we do not have registered custom attributes
+meta def resetExtraModUses : Lean.CoreM Unit := do
+  Lean.modifyEnv (Lean.PersistentEnvExtension.setState Lean.extraModUses · ⟨[], ∅⟩)
+  Lean.modifyEnv (Lean.PersistentEnvExtension.setState Lean.isExtraRevModUseExt · ⟨[], ()⟩)
 
 attribute [-simp] Nat.add_left_cancel_iff Nat.add_right_cancel_iff
 
-@[bla] def f (x : Nat) := x + 2
-@[bla] def g (x : Nat) := x + 1
+@[bla, expose] def f (x : Nat) := x + 2
+@[bla, expose] def g (x : Nat) := x + 1
 
 @[foo 10] def h1 (x : Nat) := 2*x + 1
 @[foo 20 important] def h2 (x : Nat) := 2*x + 1
 
 open Lean in
-def hasBlaAttr (declName : Name) : CoreM Bool :=
+meta def hasBlaAttr (declName : Name) : CoreM Bool :=
   return blaAttr.hasTag (← getEnv) declName
 
 #eval hasBlaAttr ``f
 #eval hasBlaAttr ``id
 
 open Lean in
-def getFooAttrInfo? (declName : Name) : CoreM (Option (Nat × Bool)) :=
+meta def getFooAttrInfo? (declName : Name) : CoreM (Option (Nat × Bool)) :=
   return fooAttr.getParam? (← getEnv) declName
 
 #eval getFooAttrInfo? ``f
 #eval getFooAttrInfo? ``h1
 #eval getFooAttrInfo? ``h2
 
+#eval resetExtraModUses
+/--
+trace: [extraModUses] recording private regular extra mod use UserAttr.BlaAttr of ext
+-/
+#guard_msgs (substring := true) in
+set_option trace.extraModUses true in
 @[my_simp] theorem f_eq : f x = x + 2 := rfl
 @[my_simp] theorem g_eq : g x = x + 1 := rfl
 
@@ -31,6 +47,12 @@ example : f x + g x = 2*x + 3 := by
   fail_if_success simp +arith -- does not apply f_eq and g_eq
   simp +arith [f, g]
 
+#eval resetExtraModUses
+/--
+trace: [extraModUses] recording private regular extra mod use UserAttr.BlaAttr of ext
+-/
+#guard_msgs (substring := true) in
+set_option trace.extraModUses true in
 example : f x + g x = 2*x + 3 := by
   simp +arith [my_simp]
 
@@ -155,3 +177,51 @@ termination_by n => n
 end
 
 end TraceAdd
+
+namespace GrindAttr
+
+opaque f : Nat → Nat
+opaque g : Nat → Nat
+opaque foo : Nat → Nat → Nat
+opaque boo : Nat → Nat → Nat
+
+@[my_grind] theorem fax : f (f x) = f x := sorry
+
+@[my_grind =] theorem fax2 : f (f (f x)) = f x := by
+  fail_if_success grind
+  grind [my_grind]
+
+@[my_grind? .] theorem fg : g (f x) = x := sorry
+
+@[my_grind? =] theorem fax3 : f (f (f x)) = f x := sorry
+
+@[my_grind!? .] theorem fax4 : f (f (f x)) = f x := sorry
+
+theorem fooAx : foo x (f x) = x := sorry
+
+grind_pattern fooAx => foo x (f x)
+
+example : foo x (f (f x)) = x := by
+  fail_if_success grind only [my_grind]
+  grind only [my_grind, usr fooAx]
+
+grind_pattern [my_grind] fooAx => foo x (f x)
+
+#eval resetExtraModUses
+/--
+[extraModUses] recording private regular extra mod use UserAttr.BlaAttr of ext
+-/
+#guard_msgs (substring := true) in
+set_option trace.extraModUses true in
+example : foo x (f (f x)) = x := by
+  grind only [my_grind]
+
+theorem booAx : boo (f x) (f x) = x := sorry
+
+grind_pattern [my_grind] booAx => boo (f x) (f x)
+
+example : boo (f (f (f x))) (f (f x)) = x := by
+  grind only [my_grind]
+
+
+end GrindAttr

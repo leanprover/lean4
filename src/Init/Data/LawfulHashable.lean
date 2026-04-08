@@ -11,7 +11,7 @@ public import Init.Core
 public section
 
 /--
-The `BEq α` and `Hashable α` instances on `α` are compatible. This means that that `a == b` implies
+The `BEq α` and `Hashable α` instances on `α` are compatible. This means that `a == b` implies
 `hash a = hash b`.
 
 This is automatic if the `BEq` instance is lawful.

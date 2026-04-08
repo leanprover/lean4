@@ -13,24 +13,19 @@ import Lean.Meta.Tactic.Grind.Arith.Linear.Search
 import Lean.Meta.Tactic.Grind.Arith.CommRing.EqCnstr
 import Lean.Meta.Tactic.Grind.AC.Eq
 import Lean.Meta.Tactic.Grind.EMatch
-import Lean.Meta.Tactic.Grind.EMatchTheorem
 import Lean.Meta.Tactic.Grind.PP
 import Lean.Meta.Tactic.Grind.Internalize
 import Lean.Meta.Tactic.Grind.Intro
 import Lean.Meta.Tactic.Grind.Split
-import Lean.Meta.Tactic.Grind.Anchor
 import Lean.Meta.Tactic.Grind.Arith.CommRing.PP
 import Lean.Meta.Tactic.Grind.Arith.Linear.PP
 import Lean.Meta.Tactic.Grind.AC.PP
 import Lean.Meta.Tactic.ExposeNames
-import Lean.Elab.Tactic.Basic
 import Lean.Elab.Tactic.RenameInaccessibles
-import Lean.Elab.Tactic.Grind.Filter
 import Lean.Elab.Tactic.Grind.Anchor
 import Lean.Elab.Tactic.Grind.ShowState
 import Lean.Elab.Tactic.Grind.Config
 import Lean.Elab.Tactic.Grind.Param
-import Lean.Elab.SetOption
 namespace Lean.Elab.Tactic.Grind
 
 def showStateAt (ref : Syntax) (filter? : Option (TSyntax `grind_filter)) : GrindTacticM Unit := do
@@ -81,6 +76,10 @@ def evalGrindSeq : GrindTactic := fun stx =>
 @[builtin_grind_tactic skip] def evalSkip : GrindTactic := fun _ =>
   return ()
 
+@[builtin_grind_tactic showGoals] def evalShowGoals : GrindTactic := fun _ => do
+  let goals ← getUnsolvedGoalMVarIds
+  addRawTrace (goalsToMessageData goals)
+
 @[builtin_grind_tactic paren] def evalParen : GrindTactic := fun stx =>
   evalGrindTactic stx[1]
 
@@ -107,6 +106,12 @@ If the goal is not inconsistent and progress has been made,
 -/
 def evalCheck (tacticName : Name) (k : GoalM Bool)
     (pp? : Goal → MetaM (Option MessageData)) : GrindTacticM Unit := do
+  /- In sym mode, introduce remaining binders + by-contradiction + internalize
+     so that satellite solvers (lia, ring, linarith) see all hypotheses.
+     This matches the behavior of these tactics in default tactic mode
+     where `lia` can close `x > 1 → x + y + z > 0` directly. -/
+  if (← read).sym then
+    liftAction <| Action.intros 0 >> Action.assertAll
   let recover := (← read).recover
   liftGoalM do
     let progress ← k
@@ -153,9 +158,10 @@ def ematchThms (only : Bool) (thms : Array EMatchTheorem) : GrindTacticM Unit :=
   if let some thmRefs := thmRefs? then
     for thmRef in thmRefs do
       match thmRef with
+      -- **Note**: Delete `namespace` modifier. We should use a custom `grind` attribute for this.
       | `(Parser.Tactic.Grind.thm| namespace $ns:ident) =>
         let namespaceName := ns.getId
-        let scopedThms ← Grind.getEMatchTheoremsForNamespace namespaceName
+        let scopedThms ← Grind.grindExt.getEMatchTheoremsForNamespace namespaceName
         thms := thms ++ scopedThms
       | `(Parser.Tactic.Grind.thm| #$anchor:hexnum) => thms := thms ++ (← withRef thmRef <| elabLocalEMatchTheorem anchor)
       | `(Parser.Tactic.Grind.thm| $[$mod?:grindMod]? $id:ident) => thms := thms ++ (← withRef thmRef <| elabThm mod? id false)
@@ -229,8 +235,8 @@ where
     match kind with
     | .ematch .user =>
       ensureNoMinIndexable minIndexable
-      let s ← Grind.getEMatchTheorems
-      let thms := s.find (.decl declName)
+      let params := (← read).params
+      let thms := params.extensions.find (.decl declName)
       let thms := thms.filter fun thm => thm.kind == .user
       if thms.isEmpty then
         throwError "invalid use of `usr` modifier, `{.ofConstName declName}` does not have patterns specified with the command `grind_pattern`"
@@ -244,7 +250,7 @@ where
         elabEMatchTheorem declName (.default false) minIndexable
       else
         return thms.toArray
-    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC =>
+    | .cases _ | .intro | .inj | .ext | .symbol _ | .funCC | .norm .. | .unfold =>
       throwError "invalid modifier"
 
 def logAnchor (c : SplitInfo) : TermElabM Unit := do
@@ -431,7 +437,8 @@ where
   replaceMainGoal [{ goal with mvarId }]
 
 @[builtin_grind_tactic setOption] def elabSetOption : GrindTactic := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let (options, decl) ← Elab.elabSetOption stx[1] stx[3]
+  withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   withOptions (fun _ => options) do evalGrindTactic stx[5]
 
 @[builtin_grind_tactic setConfig] def elabSetConfig : GrindTactic := fun stx => do

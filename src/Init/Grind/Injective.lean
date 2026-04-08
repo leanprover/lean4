@@ -6,7 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Init.Data.Function
-public import Init.Classical
+public import Init.NotationExtra
+import Init.Classical
 public section
 namespace Lean.Grind
 open Function

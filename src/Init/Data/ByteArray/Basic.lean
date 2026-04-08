@@ -6,9 +6,12 @@ Author: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.UInt.Basic
 import all Init.Data.UInt.BasicAux
-public import Init.Data.Array.Extract
+public import Init.Data.Array.DecidableEq
+public import Init.Data.List.Attach
+import Init.Data.Array.Bootstrap
+import Init.Data.Array.Lemmas
+import Init.Omega
 
 set_option doc.verso true
 
@@ -17,12 +20,20 @@ universe u
 
 namespace ByteArray
 
-deriving instance BEq for ByteArray
+@[extern "lean_sarray_dec_eq"]
+def beq (lhs rhs : @& ByteArray) : Bool :=
+  lhs.data == rhs.data
+
+instance : BEq ByteArray where
+  beq := beq
 
 attribute [ext] ByteArray
 
-instance : DecidableEq ByteArray :=
-  fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
+@[extern "lean_sarray_dec_eq"]
+def decEq (lhs rhs : @& ByteArray) : Decidable (lhs = rhs) :=
+  decidable_of_decidable_of_iff ByteArray.ext_iff.symm
+
+instance : DecidableEq ByteArray := decEq
 
 instance : Inhabited ByteArray where
   default := empty
@@ -269,6 +280,8 @@ unsafe def foldlMUnsafe {β : Type v} {m : Type v → Type w} [Monad m] (f : β 
   if start < stop then
     if stop ≤ as.size then
       fold (USize.ofNat start) (USize.ofNat stop) init
+    else if start < as.size then
+      fold (USize.ofNat start) (USize.ofNat as.size) init
     else
       pure init
   else
@@ -464,5 +477,3 @@ def prevn : Iterator → Nat → Iterator
 
 end Iterator
 end ByteArray
-
-instance : ToString ByteArray := ⟨fun bs => bs.toList.toString⟩

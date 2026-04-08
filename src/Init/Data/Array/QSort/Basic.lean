@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Vector.Basic
 public import Init.Data.Ord.Basic
+import Init.Omega
 
 public section
 

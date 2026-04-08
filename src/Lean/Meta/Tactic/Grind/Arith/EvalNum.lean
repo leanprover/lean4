@@ -25,6 +25,10 @@ def checkExp (k : Nat) : OptionT GrindM Unit := do
     reportIssue! "exponent {k} exceeds threshold for exponentiation `(exp := {(← getConfig).exp})`"
     failure
 
+/-
+**Note**: It is safe to use (the more efficient) structural instances tests here because `grind` uses the canonicalizer.
+-/
+open Structural in
 mutual
 private partial def evalNatCore (e : Expr) : OptionT GrindM Nat := do
   match_expr e with

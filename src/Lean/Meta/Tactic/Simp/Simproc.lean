@@ -153,9 +153,9 @@ def addSimprocAttrCore (ext : SimprocExtension) (declName : Name) (kind : Attrib
 def Simprocs.addCore (s : Simprocs) (keys : Array SimpTheoremKey) (declName : Name) (post : Bool) (proc : Sum Simproc DSimproc) : Simprocs :=
   let s := { s with simprocNames := s.simprocNames.insert declName, erased := s.erased.erase declName }
   if post then
-    { s with post := s.post.insertCore keys { declName, keys, post, proc } }
+    { s with post := s.post.insertKeyValue keys { declName, keys, post, proc } }
   else
-    { s with pre := s.pre.insertCore keys { declName, keys, post, proc } }
+    { s with pre := s.pre.insertKeyValue keys { declName, keys, post, proc } }
 
 /--
 Implements attributes `builtin_simproc` and `builtin_sevalproc`.

@@ -97,6 +97,8 @@ def mkCnstrNorm0 (s : Struct) (ringInst : Expr) (kind : CnstrKind) (lhs rhs : Ex
   | .le => mkLeNorm0 s ringInst lhs rhs
   | .lt => mkLtNorm0 s ringInst lhs rhs
 
+open Sym.Arith (MonadCanon)
+
 /--
 Returns `rel lhs (rhs + 0)`
 -/
@@ -206,7 +208,7 @@ where
 def internalizeCnstr (e : Expr) (kind : CnstrKind) (lhs rhs : Expr) : OrderM Unit := do
   let some c ← mkCnstr? e kind lhs rhs | return ()
   trace[grind.order.internalize] "{c.u}, {c.v}, {c.k}"
-  if grind.debug.get (← getOptions) then
+  if (← isDebugEnabled) then
     if let some h := c.h? then check h
   let u ← mkNode c.u
   let v ← mkNode c.v

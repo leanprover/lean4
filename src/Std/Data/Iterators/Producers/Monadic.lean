@@ -7,4 +7,5 @@ module
 
 prelude
 public import Std.Data.Iterators.Producers.Monadic.Array
+public import Std.Data.Iterators.Producers.Monadic.Vector
 public import Std.Data.Iterators.Producers.Monadic.Empty

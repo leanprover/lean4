@@ -4,13 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Kim Morrison
 -/
 module
+
 prelude
-import Init.Data.Dyadic.Round
-import Init.Grind.Ordered.Ring
+public import Init.Data.Dyadic.Basic
+import Init.Data.Rat.Lemmas
 
 /-!
 # Inversion for dyadic numbers
 -/
+
+@[expose] public section
 
 namespace Dyadic
 

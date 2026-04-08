@@ -7,7 +7,9 @@ module
 
 prelude
 import all Init.Data.Array.Basic
-public import Init.Data.Nat.Linear
+public import Init.Data.Array.Set
+public import Init.Util
+import Init.Data.Nat.Linear
 
 public section
 

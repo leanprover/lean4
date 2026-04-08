@@ -11,7 +11,6 @@ import Init.GrindInstances.ToInt
 import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.EvalNum
-import Lean.Meta.Tactic.Grind.Arith.Cutsat.Norm
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
 

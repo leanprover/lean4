@@ -8,8 +8,11 @@ module
 prelude
 public import Init.Data.Dyadic.Basic
 public import Init.Grind.Ordered.Ring
+import Init.Data.Rat.Lemmas
 
 /-! # Internal `grind` algebra instances for `Dyadic`. -/
+
+@[expose] public section
 
 open Lean.Grind
 

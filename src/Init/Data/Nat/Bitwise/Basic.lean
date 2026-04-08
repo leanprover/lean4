@@ -6,7 +6,10 @@ Authors: Leonardo de Moura
 module
 
 prelude
-public import Init.Data.Nat.Div.Basic
+public import Init.Grind.Tactics
+import Init.Data.Nat.Div.Basic
+meta import Init.MetaTypes
+import Init.WFTactics
 
 public section
 
@@ -98,6 +101,12 @@ instance : OrOp Nat := ⟨Nat.lor⟩
 instance : XorOp Nat := ⟨Nat.xor⟩
 instance : ShiftLeft Nat := ⟨Nat.shiftLeft⟩
 instance : ShiftRight Nat := ⟨Nat.shiftRight⟩
+
+@[simp] theorem land_eq {m n : Nat} : m.land n = m &&& n := rfl
+@[simp] theorem lor_eq {m n : Nat} : m.lor n = m ||| n := rfl
+@[simp] theorem xor_eq {m n : Nat} : m.xor n = m ^^^ n := rfl
+@[simp] theorem shiftLeft_eq' {m n : Nat} : m.shiftLeft n = m <<< n := rfl
+@[simp] theorem shiftRight_eq' {m n : Nat} : m.shiftRight n = m >>> n := rfl
 
 theorem shiftLeft_eq (a b : Nat) : a <<< b = a * 2 ^ b :=
   match b with

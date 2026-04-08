@@ -1017,6 +1017,12 @@ theorem insertMany_list_eq_empty_iff [TransCmp cmp] {l : List α} :
     t.insertMany l = ∅ ↔ t = ∅ ∧ l = [] := by
   simpa only [ext_iff] using ExtTreeMap.insertManyIfNewUnit_list_eq_empty_iff
 
+theorem insertMany_list_eq_foldl [TransCmp cmp] {l : List α} :
+    t.insertMany l = l.foldl (init := t) fun acc a => acc.insert a := by
+  rw [ext_iff, ← List.foldl_hom inner (g₂ := fun acc a => acc.insertIfNew a ())]
+  · exact ExtTreeMap.insertManyIfNewUnit_list_eq_foldl
+  · exact fun _ _ => rfl
+
 @[simp, grind =]
 theorem ofList_nil :
     ofList ([] : List α) cmp =
@@ -1036,9 +1042,7 @@ theorem ofList_cons [TransCmp cmp] {hd : α} {tl : List α} :
 
 theorem ofList_eq_insertMany_empty [TransCmp cmp] {l : List α} :
     ofList l cmp = insertMany (∅ : ExtTreeSet α cmp) l :=
-  match l with
-  | [] => by simp
-  | hd :: tl => by simp [ofList_cons, insertMany_cons]
+  ext ExtTreeMap.unitOfList_eq_insertManyIfNewUnit_empty
 
 @[simp, grind =]
 theorem contains_ofList [TransCmp cmp] [BEq α] [LawfulBEqCmp cmp] {l : List α} {k : α} :
@@ -1111,6 +1115,10 @@ grind_pattern size_ofList_le => (ofList l cmp).size
 theorem ofList_eq_empty_iff [TransCmp cmp] {l : List α} :
     ofList l cmp = ∅ ↔ l = [] :=
   ext_iff.trans ExtTreeMap.unitOfList_eq_empty_iff
+
+theorem ofList_eq_foldl [TransCmp cmp] {l : List α} :
+    ofList l cmp = l.foldl (init := ∅) fun acc a => acc.insert a := by
+  rw [ofList_eq_insertMany_empty, insertMany_list_eq_foldl]
 
 section Min
 

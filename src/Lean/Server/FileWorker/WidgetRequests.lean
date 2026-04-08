@@ -11,6 +11,7 @@ prelude
 public import Lean.Server.Rpc.RequestHandling
 public import Lean.Server.FileWorker.RequestHandling
 import Lean.PrettyPrinter.Delaborator.Builtins
+import Init.Omega
 
 public section
 
@@ -191,7 +192,7 @@ private def matchEndPos (query : String) (startPos : String.Pos.Raw) : String.Po
   startPos + query
 
 @[specialize]
-private def hightlightStringMatches? (query text : String) (matchPositions : Array String.Pos.Raw)
+private def highlightStringMatches? (query text : String) (matchPositions : Array String.Pos.Raw)
     (highlight : α) (offset : String.Pos.Raw := ⟨0⟩) (mapIdx : Nat → Nat := id) :
     Option (TaggedText α) := Id.run do
   if query.isEmpty || text.isEmpty || matchPositions.isEmpty then
@@ -244,7 +245,7 @@ private def advanceTaggedTextHighlightState (text : String) (highlighted : α) :
   let query := (← get).query
   let p := (← get).p
   let ms := (← get).ms
-  let highlighted? := hightlightStringMatches? query text ms highlighted (offset := p)
+  let highlighted? := highlightStringMatches? query text ms highlighted (offset := p)
     (mapIdx := fun i => ms.size - i - 1)
   updateState text highlighted?.isSome
   return highlighted?.getD (.text text)

@@ -8,7 +8,8 @@ module
 prelude
 public import Lean.Parser.Do
 import Lean.DocString.Parser
-meta import Lean.Parser.Basic
+meta import Lean.Parser.Do
+meta import Lean.DocString.Parser
 
 public section
 
@@ -57,7 +58,7 @@ multiple times in the same file.
 -/
 @[builtin_command_parser]
 def moduleDoc := leading_parser ppDedent <|
-  "/-!" >> Doc.Parser.ifVerso versoCommentBody commentBody >> ppLine
+  "/-!" >> Doc.Parser.ifVersoModuleDocs versoCommentBody commentBody >> ppLine
 
 
 def namedPrio := leading_parser
@@ -187,7 +188,7 @@ def derivingClass    := leading_parser
   optional ("@[" >> nonReservedSymbol "expose" >> "]") >> withForbidden "for" termParser
 def derivingClasses  := sepBy1 derivingClass ", "
 def optDefDeriving   :=
-  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
+  optional (ppDedent ppLine >> atomic ("deriving " >> notSymbol "instance" >> notSymbol "noncomputable") >> derivingClasses)
 def definition     := leading_parser
   "def " >> recover declId skipUntilWsOrDelim >> ppIndent optDeclSig >> declVal >> optDefDeriving
 def «theorem»        := leading_parser
@@ -208,7 +209,7 @@ def ctor             := leading_parser
   atomic (optional docComment >> "\n| ") >>
   ppGroup (declModifiers true >> rawIdent >> optDeclSig)
 def optDeriving      := leading_parser
-  optional (ppLine >> atomic ("deriving " >> notSymbol "instance") >> derivingClasses)
+  optional (ppLine >> atomic ("deriving " >> notSymbol "instance" >> notSymbol "noncomputable") >> derivingClasses)
 def computedField    := leading_parser
   declModifiers true >> ident >> " : " >> termParser >> Term.matchAlts
 def computedFields   := leading_parser
@@ -281,7 +282,7 @@ def «structure»          := leading_parser
   («abbrev» <|> definition <|> «theorem» <|> «opaque» <|> «instance» <|> «axiom» <|> «example» <|>
    «inductive» <|> «coinductive» <|> classInductive <|> «structure»)
 @[builtin_command_parser] def «deriving»     := leading_parser
-  "deriving " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
+  "deriving " >> optional "noncomputable " >> "instance " >> derivingClasses >> " for " >> sepBy1 (recover termParser skip) ", "
 def sectionHeader := leading_parser
   optional ("@[" >> nonReservedSymbol "expose" >> "] ") >>
   optional ("public ") >>
@@ -531,6 +532,31 @@ structure Pair (α : Type u) (β : Type v) : Type (max u v) where
 @[builtin_command_parser] def check_failure  := leading_parser
   "#check_failure " >> termParser -- Like `#check`, but succeeds only if term does not type check
 /--
+`#import_path Foo` prints the transitive import chain that brings the declaration `Foo`
+into the current file's scope.
+-/
+@[builtin_command_parser] def importPath := leading_parser
+  "#import_path " >> ident
+/--
+`assert_not_exists Foo Bar` asserts that the declarations `Foo` and `Bar` do not exist
+in the current import scope. Used for dependency management.
+-/
+@[builtin_command_parser] def assertNotExists := leading_parser
+  "assert_not_exists " >> many1 ident
+/--
+`assert_not_imported Mod1 Mod2` asserts that the modules `Mod1` and `Mod2` are not
+transitively imported by the current file. Used for dependency management.
+-/
+@[builtin_command_parser] def assertNotImported := leading_parser
+  "assert_not_imported " >> many1 ident
+/--
+`#check_assertions` reports whether all `assert_not_exists` and `assert_not_imported`
+assertions in the current file and its imports have been satisfied.
+Use `#check_assertions!` to only show unsatisfied assertions.
+-/
+@[builtin_command_parser] def checkAssertions := leading_parser
+  "#check_assertions" >> optional "!"
+/--
 `#eval e` evaluates the expression `e` by compiling and evaluating it.
 
 * The command attempts to use `ToExpr`, `Repr`, or `ToString` instances to print the result.
@@ -566,6 +592,8 @@ See also: `#reduce e` for evaluation by term reduction.
   "#print " >> (ident <|> strLit)
 @[builtin_command_parser] def printSig       := leading_parser
   "#print " >> nonReservedSymbol "sig " >> ident
+/-- Prints the axioms used by a declaration, directly or indirectly.
+Please consult [the reference manual](lean-manual://section/validating-proofs) to understand the significance of the output. -/
 @[builtin_command_parser] def printAxioms    := leading_parser
   "#print " >> nonReservedSymbol "axioms " >> ident
 @[builtin_command_parser] def printEqns      := leading_parser
@@ -594,6 +622,15 @@ declaration signatures.
 /-- Debugging command: Prints the result of `Environment.dumpAsyncEnvState`. -/
 @[builtin_command_parser] def dumpAsyncEnvState := leading_parser
   "#dump_async_env_state"
+/--
+Mark a syntax kind as deprecated. When this syntax is elaborated, a warning will be emitted.
+
+```
+deprecated_syntax Lean.Parser.Term.let_fun "use `have` instead" (since := "2026-03-18")
+```
+-/
+@[builtin_command_parser] def deprecatedSyntax := leading_parser
+  "deprecated_syntax " >> ident >> optional (ppSpace >> strLit) >> optional (" (" >> nonReservedSymbol "since" >> " := " >> strLit >> ")")
 @[builtin_command_parser] def «init_quot»    := leading_parser
   "init_quot"
 /--
@@ -601,6 +638,27 @@ An internal bootstrapping command that reinterprets a Markdown docstring as Vers
 -/
 @[builtin_command_parser] def «docs_to_verso»    := leading_parser
   "docs_to_verso " >> sepBy1 ident ", "
+/--
+`deprecated_module` marks the current module as deprecated.
+When another module imports a deprecated module, a warning is emitted during elaboration.
+
+```
+deprecated_module "use NewModule instead" (since := "2026-03-19")
+```
+
+The warning message is optional but recommended.
+The warning can be disabled with `set_option linter.deprecated.module false` or
+`-Dlinter.deprecated.module=false`.
+-/
+@[builtin_command_parser] def «deprecated_module» := leading_parser
+  "deprecated_module" >> optional (ppSpace >> strLit) >> optional (" (" >> nonReservedSymbol "since" >> " := " >> strLit >> ")")
+
+/--
+`#show_deprecated_modules` displays all modules in the current environment that have been
+marked with `deprecated_module`.
+-/
+@[builtin_command_parser] def showDeprecatedModules := leading_parser
+  "#show_deprecated_modules"
 
 def optionValue := nonReservedSymbol "true" <|> nonReservedSymbol "false" <|> strLit <|> numLit
 /--
@@ -620,6 +678,12 @@ only in a single term or tactic.
 -/
 @[builtin_command_parser] def «set_option»   := leading_parser
   "set_option " >> identWithPartialTrailingDot >> ppSpace >> optionValue
+/--
+`unlock_limits` disables all built-in resource limit options (currently `maxRecDepth`,
+`maxHeartbeats`, and `synthInstance.maxHeartbeats`) in the current scope by setting them to 0.
+-/
+@[builtin_command_parser] def «unlock_limits» := leading_parser
+  "unlock_limits"
 def eraseAttr := leading_parser
   "-" >> rawIdent
 @[builtin_command_parser] def «attribute»    := leading_parser
@@ -939,21 +1003,7 @@ Registers an error explanation.
 Note that the error name is not relativized to the current namespace.
 -/
 @[builtin_command_parser] def registerErrorExplanationStx := leading_parser
-  docComment >> "register_error_explanation " >> ident >> termParser
-
-/--
-Returns syntax for `private` or `public` visibility depending on `isPublic`. This function should be
-used to generate visibility syntax for declarations that is independent of the presence of
-`public section`s.
--/
-def visibility.ofBool (isPublic : Bool) : TSyntax ``visibility :=
-  Unhygienic.run <| if isPublic then `(visibility| public) else `(visibility| private)
-
-/--
-Returns syntax for `private` if `attrKind` is `local` and `public` otherwise.
--/
-def visibility.ofAttrKind (attrKind : TSyntax ``Term.attrKind) : TSyntax ``visibility :=
-  visibility.ofBool <| !attrKind matches `(attrKind| local)
+  optional docComment >> "register_error_explanation " >> ident >> termParser
 
 end Command
 

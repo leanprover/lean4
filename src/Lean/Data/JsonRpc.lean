@@ -224,7 +224,7 @@ instance : Coe JsonNumber RequestID := ⟨RequestID.num⟩
   | RequestID.num _, RequestID.str _            => true
   | _, _ /- str < *, num < null, null < null -/ => false
 
-@[expose] def RequestID.ltProp : LT RequestID :=
+@[expose, implicit_reducible] def RequestID.ltProp : LT RequestID :=
   ⟨fun a b => RequestID.lt a b = true⟩
 
 instance : LT RequestID :=

@@ -8,12 +8,12 @@ prelude
 public import Init.Grind.Lemmas
 public import Lean.Meta.Tactic.Grind.Action
 import Lean.Meta.Tactic.Apply
-import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Util
 import Lean.Meta.Tactic.Grind.CasesMatch
 import Lean.Meta.Tactic.Grind.Injection
 import Lean.Meta.Tactic.Grind.Core
 import Lean.Meta.Tactic.Grind.RevertAll
+import Init.Grind.Util
 public section
 namespace Lean.Meta.Grind
 
@@ -182,9 +182,9 @@ private partial def introNext (goal : Goal) (generation : Nat) : GrindM IntroRes
     else
       return .done goal
 
-private def isEagerCasesCandidate (goal : Goal) (type : Expr) : Bool := Id.run do
+private def isEagerCasesCandidate (type : Expr) : GrindM Bool := do
   let .const declName _ := type.getAppFn | return false
-  return goal.split.casesTypes.isEagerSplit declName
+  isEagerSplit declName
 
 /-- Returns `true` if `type` is an inductive type with at most one constructor. -/
 private def isCheapInductive (type : Expr) : CoreM Bool := do
@@ -215,7 +215,7 @@ private def applyCases? (goal : Goal) (fvarId : FVarId) (kp : ActionCont) : Grin
   Example: `a ∣ b` is defined as `∃ x, b = a * x`
   -/
   let type ← whnf (← fvarId.getType)
-  unless isEagerCasesCandidate goal type do return none
+  unless (← isEagerCasesCandidate type) do return none
   if (← cheapCasesOnly) then
     unless (← isCheapInductive type) do return none
   if let .const declName _ := type.getAppFn then
@@ -268,14 +268,14 @@ def intros (generation : Nat) : Action :=
 
 /-- Asserts a new fact `prop` with proof `proof` to the given `goal`. -/
 private def assertAt (proof : Expr) (prop : Expr) (generation : Nat) : Action := fun goal kna kp => do
-  if isEagerCasesCandidate goal prop then
+  if (← isEagerCasesCandidate prop) then
     let mvarId ← goal.mvarId.assert (← mkFreshUserName `h) prop proof
     intros generation { goal with mvarId } kna kp
   else goal.withContext do
     let goal ← GoalM.run' goal do
       let r ← preprocess prop
       let prop' := r.expr
-      let proof' := mkApp4 (mkConst ``Eq.mp [levelZero]) prop r.expr (← r.getProof) proof
+      let proof' := mkApp4 (mkConst ``Eq.mp [Level.zero]) prop r.expr (← r.getProof) proof
       add prop' proof' generation
     kp goal
 
@@ -299,5 +299,17 @@ def assertAll : Action :=
   assertNext.loop hugeNumber
 
 end Action
+
+/-
+Creates an action that tries all solver extensions using `Action.andAlso`,
+then drains the `newRawFacts` queue via `assertAll`.
+The `assertAll` step is necessary because `processNewFacts` (called by `solverAction` on the
+`.propagated` path) drains the `newFacts` queue (equations and propositions for the e-graph),
+but the resulting propagation cascade (e.g., congruence closure, or-propagation,
+`propagateForallPropDown`) can call `addNewRawFact`, which enqueues to the separate
+`newRawFacts` queue. Without this step, these raw facts are never asserted. See issue #12581.
+-/
+def Solvers.mkAction : IO Action := do
+  return (← Solvers.mkActionCore) >> Action.assertAll
 
 end Lean.Meta.Grind

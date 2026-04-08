@@ -76,7 +76,7 @@ inductive RecKind where
 /-- Codegen-relevant modifiers. -/
 inductive ComputeKind where
   | regular | «meta» | «noncomputable»
-  deriving Inhabited, BEq
+  deriving Inhabited, BEq, Repr
 
 /-- Flags and data added to declarations (eg docstrings, attributes, `private`, `unsafe`, `partial`, ...). -/
 structure Modifiers where
@@ -124,6 +124,10 @@ def Modifiers.addFirstAttr (modifiers : Modifiers) (attr : Attribute) : Modifier
 /-- Filters attributes using `p` -/
 def Modifiers.filterAttrs (modifiers : Modifiers) (p : Attribute → Bool) : Modifiers :=
   { modifiers with attrs := modifiers.attrs.filter p }
+
+/-- Returns `true` if `modifiers` contains an attribute satisfying `p`. -/
+def Modifiers.anyAttr (modifiers : Modifiers) (p : Attribute → Bool) : Bool :=
+  modifiers.attrs.any p
 
 instance : ToFormat Modifiers := ⟨fun m =>
   let components : List Format :=

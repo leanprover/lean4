@@ -6,7 +6,7 @@ Authors: Leonardo de Moura, Jeremy Avigad, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Ord.Basic
+public import Init.Data.Order.ClassesExtra
 import all Init.Data.Ord.Basic
 
 public section
@@ -69,5 +69,9 @@ protected theorem isGE_compare {a b : Nat} :
     (compare a b).isGE ↔ b ≤ a := by
   rw [← Nat.compare_swap, Ordering.isGE_swap]
   exact Nat.isLE_compare
+
+public instance : Std.LawfulOrderOrd Nat where
+  isLE_compare _ _ := Nat.isLE_compare
+  isGE_compare _ _ := Nat.isGE_compare
 
 end Nat

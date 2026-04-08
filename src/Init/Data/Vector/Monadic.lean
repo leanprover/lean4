@@ -8,6 +8,7 @@ module
 prelude
 import all Init.Data.Vector.Basic
 public import Init.Data.Vector.Attach
+import Init.Data.Array.Monadic
 
 public section
 

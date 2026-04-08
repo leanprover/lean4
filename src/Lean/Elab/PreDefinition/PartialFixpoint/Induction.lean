@@ -7,12 +7,10 @@ Authors: Joachim Breitner
 module
 
 prelude
-import Lean.Meta.Match.MatcherApp.Transform
 import Lean.Meta.Injective -- for elimOptParam
-import Lean.Meta.ArgsPacker
 import Lean.Elab.PreDefinition.PartialFixpoint.Eqns
-import Lean.Meta.Tactic.ElimInfo
 import Init.Internal.Order.Basic
+import Lean.Meta.PProdN
 
 namespace Lean.Elab.PartialFixpoint
 

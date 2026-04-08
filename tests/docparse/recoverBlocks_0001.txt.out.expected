@@ -1,0 +1,44 @@
+Failure @92 (⟨7, 0⟩): '['; expected '![', '$$', '$', '*', '[', '[^', '_', '`' or '{'
+Final stack:
+  [(Lean.Doc.Syntax.dl
+    "dl{"
+    [(Lean.Doc.Syntax.desc
+      ":"
+      [(Lean.Doc.Syntax.text (str "\" \""))
+       (Lean.Doc.Syntax.role
+        "{"
+        `ref
+        [(Lean.Doc.Syntax.anon
+          (Lean.Doc.Syntax.arg_ident `defs))]
+        "}"
+        "["
+        [(Lean.Doc.Syntax.text
+          (str "\"Basic definitions\""))]
+        "]")]
+      "=>"
+      [(Lean.Doc.Syntax.para
+        "para{"
+        [(Lean.Doc.Syntax.text
+          (str "\"The def is something\""))]
+        "}")])
+     (Lean.Doc.Syntax.desc
+      ":"
+      [(Lean.Doc.Syntax.text (str "\" \""))
+       (Lean.Doc.Syntax.role
+        "{"
+        `ref
+        [(Lean.Doc.Syntax.anon
+          (Lean.Doc.Syntax.arg_ident `large))]
+        "}"
+        "["
+        [(Lean.Doc.Syntax.role
+          "{"
+          `Sufficiently
+          [(Lean.Doc.Syntax.anon
+            (Lean.Doc.Syntax.arg_ident `large))]
+          "}"
+          "["
+          [(Lean.Doc.Syntax.footnote <missing>)]
+          "]")]
+        "]")])])]
+Remaining: "  More text\n\n: `foo`\n\n  Thing\n"

@@ -9,6 +9,8 @@ prelude
 public import Init.Data.Random
 public import Std.Internal.Async.Basic
 import Init.Data.ByteArray.Extra
+import Init.Data.Array.Lemmas
+import Init.Omega
 
 public section
 

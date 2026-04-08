@@ -101,20 +101,18 @@ extern "C" LEAN_EXPORT obj_res lean_io_baserecmutex_unlock(b_obj_arg mtx) {
     return box(0);
 }
 
-// We use a `shared_timed_mutex` instead of a `shared_mutex` for now as the latter is only available
-// in C++ 17 and we are currently on C++ 14.
 static lean_external_class * g_basesharedmutex_external_class = nullptr;
 static void basesharedmutex_finalizer(void * h) {
-    delete static_cast<shared_timed_mutex *>(h);
+    delete static_cast<shared_mutex *>(h);
 }
 static void basesharedmutex_foreach(void *, b_obj_arg) {}
 
-static shared_timed_mutex * basesharedmutex_get(lean_object * mtx) {
-    return static_cast<shared_timed_mutex *>(lean_get_external_data(mtx));
+static shared_mutex * basesharedmutex_get(lean_object * mtx) {
+    return static_cast<shared_mutex *>(lean_get_external_data(mtx));
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_new() {
-    return lean_alloc_external(g_basesharedmutex_external_class, new shared_timed_mutex);
+    return lean_alloc_external(g_basesharedmutex_external_class, new shared_mutex);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_basesharedmutex_write(b_obj_arg mtx) {

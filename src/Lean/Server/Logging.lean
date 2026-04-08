@@ -7,9 +7,7 @@ Author: Marc Huisinga
 module
 
 prelude
-public import Lean.Data.JsonRpc
 import Std.Time
-import Lean.Data.Lsp.Extra
 public import Lean.Data.Lsp.InitShutdown
 
 namespace Lean.Server.Logging

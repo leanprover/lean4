@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Sat.AIG.Lemmas
+import Init.Omega
 
 @[expose] public section
 

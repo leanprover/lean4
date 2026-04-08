@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Simp.BuiltinSimprocs.Int
+import Init.Data.SInt.Lemmas
 
 public section
 

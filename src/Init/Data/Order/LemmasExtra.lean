@@ -6,9 +6,14 @@ Authors: Paul Reichert
 module
 
 prelude
-public import Init.Data.Order.FactoriesExtra
-public import Init.Data.Order.Lemmas
 import Init.ByCases
+public import Init.Classical
+public import Init.Data.Order.Classes
+public import Init.Data.Order.ClassesExtra
+public import Init.Data.Order.Ord
+import Init.Data.Bool
+import Init.Data.Order.FactoriesExtra
+import Init.Data.Order.Lemmas
 
 namespace Std
 
@@ -66,7 +71,7 @@ public theorem compare_eq_eq_iff_eq {α : Type u} [Ord α] [LawfulEqOrd α] {a b
 
 public theorem IsLinearPreorder.of_ord {α : Type u} [LE α] [Ord α] [LawfulOrderOrd α]
     [TransOrd α] : IsLinearPreorder α where
-  le_refl a := by simp [← isLE_compare]
+  le_refl a := by simp
   le_trans a b c := by simpa [← isLE_compare] using TransOrd.isLE_trans
   le_total a b := Total.total a b
 

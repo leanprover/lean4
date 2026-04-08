@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Grind.ToInt
 import all Init.Grind.ToInt
+public import Init.Data.Option.Basic
 
 public section
 

@@ -6,10 +6,11 @@ Authors: Jeremy Avigad, Deniz Aydin, Floris van Doorn, Mario Carneiro
 module
 
 prelude
-public import Init.Data.Int.Lemmas
-public import Init.ByCases
-public import Init.Data.Order.Factories
 import Init.Data.Order.Lemmas
+public import Init.Data.Order.Classes
+public import Init.NotationExtra
+import Init.ByCases
+import Init.Data.Int.Lemmas
 
 public section
 
@@ -148,17 +149,20 @@ protected theorem one_ne_zero : (1 : Int) ≠ 0 := by decide
 
 protected theorem one_nonneg : 0 ≤ (1 : Int) := Int.le_of_lt Int.zero_lt_one
 
-protected theorem lt_iff_le_not_le {a b : Int} : a < b ↔ a ≤ b ∧ ¬b ≤ a := by
+protected theorem lt_iff_le_and_not_ge {a b : Int} : a < b ↔ a ≤ b ∧ ¬b ≤ a := by
   rw [Int.lt_iff_le_and_ne]
   constructor <;> refine fun ⟨h, h'⟩ => ⟨h, h'.imp fun h' => ?_⟩
   · exact Int.le_antisymm h h'
   · subst h'; apply Int.le_refl
 
+@[deprecated Int.lt_iff_le_and_not_ge (since := "2026-02-11")]
+protected def lt_iff_le_not_le := @Int.lt_iff_le_and_not_ge
+
 protected theorem lt_of_not_ge {a b : Int} (h : ¬a ≤ b) : b < a :=
-  Int.lt_iff_le_not_le.mpr ⟨(Int.le_total ..).resolve_right h, h⟩
+  Int.lt_iff_le_and_not_ge.mpr ⟨(Int.le_total ..).resolve_right h, h⟩
 
 protected theorem not_le_of_gt {a b : Int} (h : b < a) : ¬a ≤ b :=
-  (Int.lt_iff_le_not_le.mp h).right
+  (Int.lt_iff_le_and_not_ge.mp h).right
 
 @[simp] protected theorem not_le {a b : Int} : ¬a ≤ b ↔ b < a :=
   Iff.intro Int.lt_of_not_ge Int.not_le_of_gt
@@ -305,6 +309,12 @@ protected theorem le_of_neg_le_neg {a b : Int} (h : -b ≤ -a) : a ≤ b :=
   suffices - -a ≤ - -b by simp [Int.neg_neg] at this; assumption
   Int.neg_le_neg h
 
+protected theorem neg_le_iff {x y : Int} : -x ≤ y ↔ -y ≤ x := by
+  rw [← Int.neg_neg y, Int.neg_le_neg_iff, Int.neg_neg y]
+
+protected theorem le_neg_iff {x y : Int} : x ≤ -y ↔ y ≤ -x := by
+  rw [← Int.neg_neg x, Int.neg_le_neg_iff, Int.neg_neg x]
+
 protected theorem neg_nonpos_of_nonneg {a : Int} (h : 0 ≤ a) : -a ≤ 0 := by
   have : -a ≤ -0 := Int.neg_le_neg h
   rwa [Int.neg_zero] at this
@@ -326,6 +336,12 @@ protected theorem neg_lt_neg {a b : Int} (h : a < b) : -b < -a := by
 
 @[simp] protected theorem zero_lt_neg_iff {a : Int} : 0 < -a ↔ a < 0 := by
   rw [← Int.neg_zero, Int.neg_lt_neg_iff, Int.neg_zero]
+
+protected theorem neg_lt_iff {x y : Int} : -x < y ↔ -y < x := by
+  rw [← Int.neg_neg y, Int.neg_lt_neg_iff, Int.neg_neg y]
+
+protected theorem lt_neg_iff {x y : Int} : x < -y ↔ y < -x := by
+  rw [← Int.neg_neg x, Int.neg_lt_neg_iff, Int.neg_neg x]
 
 protected theorem neg_neg_of_pos {a : Int} (h : 0 < a) : -a < 0 :=
   Int.neg_lt_zero_iff.2 h
@@ -474,6 +490,20 @@ protected theorem max_lt {a b c : Int} : max a b < c ↔ a < c ∧ b < c := by
   simp only [Int.lt_iff_add_one_le]
   simpa using Int.max_le (a := a + 1) (b := b + 1) (c := c)
 
+protected theorem max_eq_right_iff {a b : Int} : max a b = b ↔ a ≤ b := by
+  apply Iff.intro
+  · intro h
+    rw [← h]
+    apply Int.le_max_left
+  · apply Int.max_eq_right
+
+protected theorem max_eq_left_iff {a b : Int} : max a b = a ↔ b ≤ a := by
+  apply Iff.intro
+  · intro h
+    rw [← h]
+    apply Int.le_max_right
+  · apply Int.max_eq_left
+
 @[simp] theorem ofNat_max_zero (n : Nat) : (max (n : Int) 0) = n := by
   rw [Int.max_eq_left (natCast_nonneg n)]
 
@@ -526,7 +556,7 @@ protected theorem mul_le_mul_of_nonneg_left {a b c : Int}
     simp [Int.le_antisymm hc0 h₂, Int.zero_mul]
   else by
     exact Int.le_of_lt <| Int.mul_lt_mul_of_pos_left
-      (Int.lt_iff_le_not_le.2 ⟨h₁, hba⟩) (Int.lt_iff_le_not_le.2 ⟨h₂, hc0⟩)
+      (Int.lt_iff_le_and_not_ge.2 ⟨h₁, hba⟩) (Int.lt_iff_le_and_not_ge.2 ⟨h₂, hc0⟩)
 
 protected theorem mul_le_mul_of_nonneg_right {a b c : Int}
     (h₁ : a ≤ b) (h₂ : 0 ≤ c) : a * c ≤ b * c := by
@@ -912,6 +942,16 @@ protected theorem sub_right_le_of_le_add {a b c : Int} (h : a ≤ b + c) : a - c
   have h := Int.add_le_add_right h (-c)
   rwa [Int.add_neg_cancel_right] at h
 
+protected theorem sub_right_le_iff_le_add {a b c : Int} : a - c ≤ b ↔ a ≤ b + c :=
+  ⟨Int.le_add_of_sub_right_le, Int.sub_right_le_of_le_add⟩
+
+theorem toNat_sub_eq_zero_iff (m n : Int) : toNat (m - n) = 0 ↔ m ≤ n := by
+  rw [← ofNat_inj, ofNat_toNat, cast_ofNat_Int, Int.max_eq_right_iff, Int.sub_right_le_iff_le_add,
+    Int.zero_add]
+
+theorem zero_eq_toNat_sub_iff (m n : Int) : 0 = toNat (m - n) ↔ m ≤ n := by
+  rw [eq_comm (a := 0), toNat_sub_eq_zero_iff]
+
 protected theorem le_add_of_neg_add_le_left {a b c : Int} (h : -b + a ≤ c) : a ≤ b + c := by
   rw [Int.add_comm] at h
   exact Int.le_add_of_sub_left_le h
@@ -988,6 +1028,10 @@ protected theorem add_lt_of_lt_sub_right {a b c : Int} (h : a < c - b) : a + b <
 protected theorem lt_sub_right_of_add_lt {a b c : Int} (h : a + b < c) : a < c - b := by
   have h := Int.add_lt_add_right h (-b)
   rwa [Int.add_neg_cancel_right] at h
+
+protected theorem lt_sub_right_iff_add_lt {a b c : Int} :
+    a < c - b ↔ a + b < c :=
+  ⟨Int.add_lt_of_lt_sub_right, Int.lt_sub_right_of_add_lt⟩
 
 protected theorem lt_add_of_neg_add_lt {a b c : Int} (h : -b + a < c) : a < b + c := by
   have h := Int.add_lt_add_left h b
@@ -1418,5 +1462,13 @@ instance instIsLinearOrder : IsLinearOrder Int := by
 instance : LawfulOrderLT Int where
   lt_iff := by
     simp [← Int.not_le, Decidable.imp_iff_not_or, Std.Total.total]
+
+instance : LawfulOrderLeftLeaningMin Int where
+  min_eq_left _ _ := Int.min_eq_left
+  min_eq_right _ _ h := Int.min_eq_right (le_of_lt (not_le.1 h))
+
+instance : LawfulOrderLeftLeaningMax Int where
+  max_eq_left _ _ := Int.max_eq_left
+  max_eq_right _ _ h := Int.max_eq_right (le_of_lt (not_le.1 h))
 
 end Int

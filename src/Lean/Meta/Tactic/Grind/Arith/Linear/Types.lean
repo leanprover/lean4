@@ -8,7 +8,6 @@ prelude
 public import Init.Grind.Ring.CommSolver
 public import Init.Grind.Ordered.Linarith
 public import Lean.Meta.Tactic.Grind.Types
-public import Init.Data.Rat.Basic
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 export Lean.Grind.Linarith (Var Poly)

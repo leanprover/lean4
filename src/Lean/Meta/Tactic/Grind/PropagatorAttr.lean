@@ -6,7 +6,6 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Proof
-import Lean.Compiler.InitAttr
 import Init.Grind
 public section
 namespace Lean.Meta.Grind
@@ -52,6 +51,9 @@ private def addBuiltin (propagatorName : Name) (stx : Syntax) : AttrM Unit := do
     declareBuiltin initDeclName val
   go.run' {}
 
+/-
+**Note**: We currently use the same propagators for all `grind` attributes.
+-/
 builtin_initialize
   registerBuiltinAttribute {
     ref             := by exact decl_name%

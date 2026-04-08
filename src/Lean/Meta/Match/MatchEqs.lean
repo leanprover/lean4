@@ -72,8 +72,7 @@ partial def proveCondEqThm (matchDeclName : Name) (type : Expr)
   if heqNum > 0 then
     mvarId := (← mvarId.introN heqPos).2
     for _ in *...heqNum do
-      let (h, mvarId') ← mvarId.intro1
-      mvarId ← subst mvarId' h
+      (_, mvarId) ← introSubstEq mvarId
     trace[Meta.Match.matchEqs] "proveCondEqThm after subst{mvarId}"
   mvarId := (← mvarId.intros).2
   try mvarId.refl
@@ -139,6 +138,7 @@ Creates conditional equations and splitter for the given match auxiliary declara
 
 See also `getEquationsFor`.
 -/
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_get_match_equations_for]
 def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   /-
@@ -233,7 +233,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
       assert! matchInfo.altInfos == splitterAltInfos
       -- This match statement does not need a splitter, we can use itself for that.
       -- (We still have to generate a declaration to satisfy the realizable constant)
-      addAndCompile (logCompileErrors := false) <| Declaration.defnDecl {
+      let decl := Declaration.defnDecl {
         name        := splitterName
         levelParams := constInfo.levelParams
         type        := constInfo.type
@@ -241,21 +241,13 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
         hints       := .abbrev
         safety      := .safe
       }
+      addDecl decl
       setInlineAttribute splitterName
+      compileDecl (logErrors := false) decl
     let result := { eqnNames, splitterName, splitterMatchInfo }
     registerMatchEqns matchDeclName result
 
-/- We generate the equations and splitter on demand, and do not save them on .olean files. -/
-builtin_initialize matchCongrEqnsExt : EnvExtension (PHashMap Name (Array Name)) ←
-  -- Using `local` allows us to use the extension in `realizeConst` without specifying `replay?`.
-  -- The resulting state can still be accessed on the generated declarations using `.asyncEnv`;
-  -- see below
-  registerEnvExtension (pure {}) (asyncMode := .local)
-
-def registerMatchCongrEqns (matchDeclName : Name) (eqnNames : Array Name) : CoreM Unit := do
-  modifyEnv fun env => matchCongrEqnsExt.modifyState env fun map =>
-    map.insert matchDeclName eqnNames
-
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Generate the congruence equations for the given match auxiliary declaration.
 The congruence equations have a completely unrestricted left-hand side (arbitrary discriminants),
@@ -269,11 +261,14 @@ not always needed, so for now we live with the code duplication.
 -/
 @[export lean_get_congr_match_equations_for]
 def genMatchCongrEqnsImpl (matchDeclName : Name) : MetaM (Array Name) := do
-  let baseName := mkPrivateName (← getEnv) matchDeclName
-  let firstEqnName := .str baseName congrEqn1ThmSuffix
-  realizeConst matchDeclName firstEqnName (go baseName)
-  return matchCongrEqnsExt.getState (asyncMode := .async .asyncEnv) (asyncDecl := firstEqnName) (← getEnv) |>.find! matchDeclName
-where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
+  let firstEqnName := matchDeclName.str congrEqn1ThmSuffix
+  realizeConst matchDeclName firstEqnName go
+  let some matchInfo ← getMatcherInfo? matchDeclName | throwError "`{matchDeclName}` is not a matcher function"
+  let mut thmNames := #[]
+  for i in *...matchInfo.numAlts do
+    thmNames := thmNames.push <|(matchDeclName.str congrEqnThmSuffixBase).appendIndexAfter (i+1)
+  return thmNames
+where go := withConfig (fun c => { c with etaStruct := .none }) do
   withConfig (fun c => { c with etaStruct := .none }) do
   let constInfo ← getConstInfo matchDeclName
   let us := constInfo.levelParams.map mkLevelParam
@@ -290,7 +285,7 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
     let mut idx := 1
     for i in *...alts.size do
       let altInfo := matchInfo.altInfos[i]!
-      let thmName := (Name.str baseName congrEqnThmSuffixBase).appendIndexAfter idx
+      let thmName := (Name.str matchDeclName congrEqnThmSuffixBase).appendIndexAfter idx
       eqnNames := eqnNames.push thmName
       let notAlt ← do
         let alt := alts[i]!
@@ -333,26 +328,36 @@ where go baseName := withConfig (fun c => { c with etaStruct := .none }) do
           return notAlt
       notAlts := notAlts.push notAlt
       idx := idx + 1
-    registerMatchCongrEqns matchDeclName eqnNames
 
 builtin_initialize registerTraceClass `Meta.Match.matchEqs
 
-private def isMatchEqName? (env : Environment) (n : Name) : Option (Name × Bool) := do
+private def isMatchEqName? (env : Environment) (n : Name) : Option Name := do
   let .str p s := n | failure
-  guard <| isEqnReservedNameSuffix s || s == "splitter" || isCongrEqnReservedNameSuffix s
+  guard <| isEqnReservedNameSuffix s || s == "splitter"
   let p ← privateToUserName? p
   guard <| isMatcherCore env p
-  return (p, isCongrEqnReservedNameSuffix s)
+  return p
 
 builtin_initialize registerReservedNamePredicate (isMatchEqName? · · |>.isSome)
 
 builtin_initialize registerReservedNameAction fun name => do
-  let some (p, isGenEq) := isMatchEqName? (← getEnv) name |
+  let some p := isMatchEqName? (← getEnv) name |
     return false
-  if isGenEq then
-    let _ ← MetaM.run' <| genMatchCongrEqnsImpl p
-  else
-    let _ ← MetaM.run' <| getEquationsFor p
+  let _ ← MetaM.run' <| getEquationsForImpl p
+  return true
+
+private def isMatchCongrEqName? (env : Environment) (n : Name) : Option Name := do
+  let .str p s := n | failure
+  guard <| isCongrEqnReservedNameSuffix s
+  guard <| isMatcherCore env p
+  return p
+
+builtin_initialize registerReservedNamePredicate (isMatchCongrEqName? · · |>.isSome)
+
+builtin_initialize registerReservedNameAction fun name => do
+  let some p := isMatchCongrEqName? (← getEnv) name |
+    return false
+  let _ ← MetaM.run' <| genMatchCongrEqnsImpl p
   return true
 
 end Lean.Meta.Match

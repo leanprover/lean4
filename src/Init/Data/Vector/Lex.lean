@@ -7,10 +7,13 @@ module
 
 prelude
 import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Lemmas
 import all Init.Data.Array.Lex.Basic
-public import Init.Data.Array.Lex.Lemmas
 import Init.Data.Range.Polymorphic.Lemmas
+public import Init.Data.Array.Lex.Basic
+public import Init.Data.BEq
+public import Init.Data.Vector.Basic
+import Init.Data.Array.Lex.Lemmas
+import Init.Data.Vector.Lemmas
 
 public section
 

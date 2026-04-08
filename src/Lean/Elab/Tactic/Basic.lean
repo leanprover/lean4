@@ -8,7 +8,8 @@ module
 prelude
 public import Lean.Meta.Tactic.Util
 public import Lean.Elab.Term
-import Lean.ExtraModUses
+import Lean.Elab.DeprecatedSyntax
+import Init.Omega
 
 public section
 
@@ -63,7 +64,7 @@ See comment at `Monad TermElabM`
 -/
 @[always_inline]
 instance : Monad TacticM :=
-  let i := inferInstanceAs (Monad TacticM);
+  let i : Monad TacticM := inferInstance;
   { pure := i.pure, bind := i.bind }
 
 instance : Inhabited (TacticM α) where
@@ -192,6 +193,7 @@ partial def evalTactic (stx : Syntax) : TacticM Unit := do
         Term.withoutTacticIncrementality true <| withTacticInfoContext stx do
           stx.getArgs.forM evalTactic
       else withTraceNode `Elab.step (fun _ => return stx) (tag := stx.getKind.toString) do
+        checkDeprecatedSyntax stx (← readThe Term.Context).macroStack
         let evalFns := tacticElabAttribute.getEntries (← getEnv) stx.getKind
         let macros  := macroAttribute.getEntries (← getEnv) stx.getKind
         if evalFns.isEmpty && macros.isEmpty then
@@ -368,6 +370,33 @@ def withoutRecover (x : TacticM α) : TacticM α :=
 /-- Execute `x` with error recovery disabled -/
 def withRecover (recover : Bool) (x : TacticM α) : TacticM α :=
   withReader (fun ctx => { ctx with recover }) x
+
+/-! ## Message log utilities -/
+
+/-- Execute an action while suppressing any new messages it generates.
+    Restores the original message log after the action completes.
+    Useful for trying tactics without polluting the message log with errors from failed attempts. -/
+def withSuppressedMessages (action : TacticM α) : TacticM α := do
+  let initialLog ← Core.getMessageLog
+  try
+    action
+  finally
+    Core.setMessageLog initialLog
+
+/-- Execute an action and return any new messages it generates.
+    Restores the original message log afterward.
+    Useful for inspecting messages produced by a tactic without committing them. -/
+def withCapturedMessages (action : TacticM α) : TacticM (α × List Message) := do
+  let initialLog ← Core.getMessageLog
+  let initialMsgCount := initialLog.toList.length
+  let result ← action
+  let newMsgs := (← Core.getMessageLog).toList.drop initialMsgCount
+  Core.setMessageLog initialLog
+  return (result, newMsgs)
+
+/-- Check if any messages in the list are errors. -/
+def hasErrorMessages (msgs : List Message) : Bool :=
+  msgs.any (·.severity == .error)
 
 /--
 Like `throwErrorAt`, but, if recovery is enabled, logs the error instead.

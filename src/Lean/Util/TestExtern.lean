@@ -10,6 +10,9 @@ public meta import Lean.Meta.Tactic.Unfold
 public meta import Lean.Meta.Eval
 public meta import Lean.Compiler.ImplementedByAttr
 public meta import Lean.Elab.Command
+public import Init.Notation
+import Lean.Exception
+public meta import Lean.Compiler.ExternAttr
 
 public section
 

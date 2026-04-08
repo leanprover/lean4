@@ -7,7 +7,8 @@ module
 
 prelude
 public import Init.Data.ByteArray.Basic
-import Init.Data.String.Basic
+import Init.Data.String.Defs
+import Init.Data.UInt.Basic
 
 set_option doc.verso true
 

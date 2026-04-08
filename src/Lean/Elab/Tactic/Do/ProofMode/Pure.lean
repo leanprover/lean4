@@ -6,9 +6,7 @@ Authors: Lars König, Mario Carneiro, Sebastian Graf
 module
 
 prelude
-public import Lean.Elab.Tactic.Basic
 public import Lean.Elab.Tactic.Do.ProofMode.MGoal
-import Std.Tactic.Do.Syntax
 import Lean.Elab.Tactic.Meta
 import Lean.Elab.Tactic.Do.ProofMode.Basic
 import Lean.Elab.Tactic.Do.ProofMode.Focus
@@ -82,13 +80,27 @@ def elabMPureIntro : Tactic
     replaceMainGoal [mv]
   | _ => throwUnsupportedSyntax
 
+private def extractPureProp (e : Expr) : MetaM (Option Expr) := do
+  let e ← instantiateMVarsIfMVarApp e
+  let some (_, e) := e.app2? ``ULift.down | return none
+  let f := e.getAppFn
+  unless f.isConstOf ``SPred.pure do return none
+  let args := e.getAppArgs
+  if args.size < 2 then return none
+  let σs := args[0]!
+  let n ← TypeList.length σs
+  unless n = args.size - 2 do return none
+  let p := args[1]!
+  return p
+
 partial def _root_.Lean.MVarId.applyRflAndAndIntro (mvar : MVarId) : MetaM Unit := do
-  -- The target might look like `(⌜?n = nₛ ∧ ?m = b⌝ s).down`, which we reduce to
-  -- `?n = nₛ ∧ ?m = b` by `whnfD`.
+  -- The target might look like `(⌜nₛ = ?n ∧ ?m = b⌝ s).down`, which we reduce to
+  -- `nₛ = ?n ∧ ?m = b` with `extractPureProp`.
   -- (Recall that `⌜s = 4⌝ s` is `SPred.pure (σs:=[Nat]) (s = 4) s` and `SPred.pure` is
   -- semi-reducible.)
-  let ty ← whnfD (← mvar.getType)
-  trace[Elab.Tactic.Do.spec] "whnf: {ty}"
+  let ty ← mvar.getType >>= instantiateMVarsIfMVarApp
+  let ty ← (·.getD ty) <$> extractPureProp ty
+  trace[Elab.Tactic.Do.spec] "pure Prop: {ty}"
   if ty.isAppOf ``True then
     mvar.assign (mkConst ``True.intro)
   else if let some (lhs, rhs) := ty.app2? ``And then
@@ -127,16 +139,3 @@ def MGoal.pureTrivial (goal : MGoal) : OptionT MetaM Expr := do
       return ((), m)
     return prf
   catch _ => failure
-
-/-
-def MGoal.pureRfl (goal : MGoal) : OptionT MetaM Expr := do
-  let mv ← mkFreshExprMVar goal.toExpr
-  let ([], _) ← try runTactic mv.mvarId! (← `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro); rfl)) catch _ => failure
-    | failure
-  return mv
-def MGoal.pureRfl (goal : MGoal) : OptionT MetaM Expr := do
-  let mv ← mkFreshExprMVar goal.toExpr
-  let ([], _) ← try runTactic mv.mvarId! (← `(tactic| apply $(mkIdent ``Std.Do.SPred.Tactic.Pure.intro); rfl)) catch _ => failure
-    | failure
-  return mv
--/

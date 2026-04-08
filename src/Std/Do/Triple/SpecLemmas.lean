@@ -10,11 +10,24 @@ public import Std.Do.Triple.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
 public import Init.Data.Slice.Array
-public import Init.Data.Iterators.ToIterator
 
 -- This public import is a workaround for #10652.
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
 public import Init.Data.Iterators.Lemmas.Combinators.FilterMap
+public import Init.Data.Range
+import Init.Data.Iterators.Lemmas
+import Init.Data.List.Nat.Range
+import Init.Data.List.Nat.TakeDrop
+import Init.Data.List.Range
+import Init.Data.List.TakeDrop
+import Init.Data.Nat.Mod
+import Init.Data.Slice.Lemmas
+import Init.Omega
+public import Init.Data.String.Defs
+public import Init.Data.String.Iterate
+import Init.Data.String.Lemmas.Splits
+import Init.Data.String.Termination
+import Init.Data.String.Lemmas.Iterate
 
 set_option linter.missingDocs true
 
@@ -26,15 +39,15 @@ set_option linter.missingDocs true
 This module contains Hoare triple specifications for some functions in Core.
 -/
 
-namespace Std.Range
+namespace Std.Legacy.Range
 
 /--
 Converts a range to the list of all numbers in the range.
 -/
-abbrev toList (r : Std.Range) : List Nat :=
+abbrev toList (r : Std.Legacy.Range) : List Nat :=
   List.range' r.start ((r.stop - r.start + r.step - 1) / r.step) r.step
 
-end Std.Range
+end Std.Legacy.Range
 
 namespace List
 
@@ -123,6 +136,15 @@ theorem Cursor.pos_at {l : List α} {n : Nat} (h : n < l.length) :
 theorem Cursor.pos_mk {l pre suff : List α} (h : pre ++ suff = l) :
     (Cursor.mk pre suff h).pos = pre.length := rfl
 
+theorem Cursor.pos_le_length {c : Cursor l} : c.pos ≤ l.length := by
+  simp [← congrArg List.length c.property]
+
+theorem Cursor.length_prefix_le_length {c : Cursor l} : c.prefix.length ≤ l.length :=
+  pos_le_length
+
+theorem Cursor.length_suffix_le_length {c : Cursor l} : c.suffix.length ≤ l.length := by
+  simp [← congrArg List.length c.property]
+
 @[grind →]
 theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
     cur = s + step * xs.length := by
@@ -172,67 +194,93 @@ variable {m : Type u → Type v} {ps : PostShape.{u}}
 
 theorem Spec.pure' [Monad m] [WPMonad m ps] {P : Assertion ps} {Q : PostCond α ps}
     (h : P ⊢ₛ Q.1 a) :
-    Triple (Pure.pure (f:=m) a) (spred(P)) spred(Q) := Triple.pure a h
+    Triple (Pure.pure (f:=m) a) P Q := Triple.pure a h
 
 @[spec]
 theorem Spec.pure [Monad m] [WPMonad m ps] {α} {a : α} {Q : PostCond α ps} :
-  Triple (Pure.pure (f:=m) a) (spred(Q.1 a)) spred(Q) := Spec.pure' .rfl
+  Triple (Pure.pure (f:=m) a) (spred(Q.1 a)) Q := Spec.pure' .rfl
 
 theorem Spec.bind' [Monad m] [WPMonad m ps] {x : m α} {f : α → m β} {P : Assertion ps} {Q : PostCond β ps}
-    (h : Triple x (spred(P)) (spred(fun a => wp⟦f a⟧ Q), Q.2)) :
-    Triple (x >>= f) (spred(P)) spred(Q) := Triple.bind x f h (fun _ => .rfl)
+    (h : Triple x P (spred(fun a => wp⟦f a⟧ Q), Q.2)) :
+    Triple (x >>= f) P Q := Triple.bind x f h (fun _ => Triple.iff.mpr .rfl)
 
 @[spec]
 theorem Spec.bind [Monad m] [WPMonad m ps] {α β} {x : m α} {f : α → m β} {Q : PostCond β ps} :
-  Triple (x >>= f) (spred(wp⟦x⟧ (fun a => wp⟦f a⟧ Q, Q.2))) spred(Q) := Spec.bind' .rfl
+  Triple (x >>= f) (spred(wp⟦x⟧ (fun a => wp⟦f a⟧ Q, Q.2))) Q := Spec.bind' (Triple.iff.mpr .rfl)
+
+theorem Spec.map' [Monad m] [WPMonad m ps] {α β} {x : m α} {f : α → β} {Q : PostCond β ps}
+    (h : Triple x P (fun a => Q.1 (f a), Q.2)) :
+    Triple (f <$> x) P Q := by
+  apply Triple.iff.mpr
+  rw [WPMonad.wp_map]
+  apply h.entails_wp_of_post
+  simp
 
 @[spec]
 theorem Spec.map [Monad m] [WPMonad m ps] {α β} {x : m α} {f : α → β} {Q : PostCond β ps} :
-  Triple (f <$> x) (spred(wp⟦x⟧ (fun a => Q.1 (f a), Q.2))) spred(Q) := by simp [Triple, SPred.entails.refl]
+    Triple (f <$> x) (spred(wp⟦x⟧ (fun a => Q.1 (f a), Q.2))) Q := Spec.map' (Triple.iff.mpr .rfl)
+
+theorem Spec.seq' [Monad m] [WPMonad m ps] {α β} {x : m (α → β)} {y : m α} {Q : PostCond β ps}
+    (h : Triple x P (fun f => wp⟦y⟧ (fun a => Q.1 (f a), Q.2), Q.2)) :
+    Triple (x <*> y) P Q := by
+  apply Triple.iff.mpr
+  rw [WPMonad.wp_seq]
+  apply h.entails_wp_of_post
+  simp only [PostCond.entails, ExceptConds.entails.refl, and_true]
+  intro _
+  rfl
 
 @[spec]
 theorem Spec.seq [Monad m] [WPMonad m ps] {α β} {x : m (α → β)} {y : m α} {Q : PostCond β ps} :
-  Triple (x <*> y) (spred(wp⟦x⟧ (fun f => wp⟦y⟧ (fun a => Q.1 (f a), Q.2), Q.2))) spred(Q) := by simp [Triple, SPred.entails.refl]
+    Triple (x <*> y) (spred(wp⟦x⟧ (fun f => wp⟦y⟧ (fun a => Q.1 (f a), Q.2), Q.2))) Q := Spec.seq' (Triple.iff.mpr .rfl)
 
 /-! # `MonadLift` -/
 
 @[spec]
 theorem Spec.monadLift_StateT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.arg σ ps)) :
-  Triple (MonadLift.monadLift x : StateT σ m α) (spred(fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))) spred(Q) := by simp [Triple, SPred.entails.refl]
+  Triple (MonadLift.monadLift x : StateT σ m α) (spred(fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))) Q := by simp [Triple.iff, SPred.entails.refl]
 
 @[spec]
 theorem Spec.monadLift_ReaderT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.arg ρ ps)) :
-  Triple (MonadLift.monadLift x : ReaderT ρ m α) (spred(fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))) spred(Q) := by simp [Triple, SPred.entails.refl]
+  Triple (MonadLift.monadLift x : ReaderT ρ m α) (spred(fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))) Q := by simp [Triple.iff, SPred.entails.refl]
 
 @[spec]
 theorem Spec.monadLift_ExceptT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.except ε ps)) :
   Triple (ps:=.except ε ps)
     (MonadLift.monadLift x : ExceptT ε m α)
     (wp⟦x⟧ (fun a => Q.1 a, Q.2.2))
-    Q := by simp [Triple, SPred.entails.refl]
+    Q := by simp [Triple.iff, SPred.entails.refl]
 
 @[spec]
 theorem Spec.monadLift_OptionT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.except PUnit ps)) :
   Triple (ps:=.except PUnit ps)
     (MonadLift.monadLift x : OptionT m α)
     (wp⟦x⟧ (fun a => Q.1 a, Q.2.2))
-    Q := by simp [Triple, SPred.entails.refl]
+    Q := by simp [Triple.iff, SPred.entails.refl]
 
 /-! # `MonadLiftT` -/
 
-attribute [spec] liftM instMonadLiftTOfMonadLift instMonadLiftT
+@[spec]
+theorem Spec.UnfoldLift.monadLift_trans [MonadLift n o] [MonadLiftT m n] (x : m α) :
+    (MonadLiftT.monadLift x : o α) = MonadLift.monadLift (m := n) (monadLift x) := rfl
+
+@[spec]
+theorem Spec.UnfoldLift.monadLift_refl (x : m α) :
+    (MonadLiftT.monadLift x : m α) = x := rfl
+
+attribute [spec] liftM Spec.UnfoldLift.monadLift_trans Spec.UnfoldLift.monadLift_refl
 
 /-! # `MonadFunctor` -/
 
 @[spec]
 theorem Spec.monadMap_StateT [Monad m] [WP m ps]
     (f : ∀{β}, m β → m β) {α} (x : StateT σ m α) (Q : PostCond α (.arg σ ps)) :
-    Triple (MonadFunctor.monadMap (m:=m) f x) (spred(fun s => wp⟦f (x.run s)⟧ (fun (a, s) => Q.1 a s, Q.2))) spred(Q) := .rfl
+    Triple (MonadFunctor.monadMap (m:=m) f x) (spred(fun s => wp⟦f (x.run s)⟧ (fun (a, s) => Q.1 a s, Q.2))) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.monadMap_ReaderT [Monad m] [WP m ps]
     (f : ∀{β}, m β → m β) {α} (x : ReaderT ρ m α) (Q : PostCond α (.arg ρ ps)) :
-    Triple (MonadFunctor.monadMap (m:=m) f x) (spred(fun s => wp⟦f (x.run s)⟧ (fun a => Q.1 a s, Q.2))) spred(Q) := .rfl
+    Triple (MonadFunctor.monadMap (m:=m) f x) (spred(fun s => wp⟦f (x.run s)⟧ (fun a => Q.1 a s, Q.2))) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.monadMap_ExceptT [Monad m] [WP m ps]
@@ -240,7 +288,7 @@ theorem Spec.monadMap_ExceptT [Monad m] [WP m ps]
   Triple (ps:=.except ε ps)
     (MonadFunctor.monadMap (m:=m) f x)
     (wp⟦f x.run⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
-    Q := by simp [Triple]
+    Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.monadMap_OptionT [Monad m] [WP m ps]
@@ -248,7 +296,7 @@ theorem Spec.monadMap_OptionT [Monad m] [WP m ps]
   Triple (ps:=.except PUnit ps)
     (MonadFunctor.monadMap (m:=m) f x)
     (wp⟦f x.run⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
-    Q := by simp [Triple]
+    Q := by simp [Triple.iff]
 
 /-! # `MonadFunctorT` -/
 
@@ -257,11 +305,11 @@ theorem Spec.monadMap_trans [WP o ps] [MonadFunctor n o] [MonadFunctorT m n] :
   Triple (ps:=ps)
     (MonadFunctorT.monadMap f x : o α)
     (wp⟦MonadFunctor.monadMap (m:=n) (MonadFunctorT.monadMap (m:=m) f) x : o α⟧ Q)
-    Q := by simp [Triple]
+    Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.monadMap_refl [WP m ps] :
-  Triple (MonadFunctorT.monadMap f x : m α) (spred(wp⟦f x : m α⟧ Q)) spred(Q) := by simp [Triple]
+  Triple (MonadFunctorT.monadMap f x : m α) (spred(wp⟦f x : m α⟧ Q)) Q := by simp [Triple.iff]
 
 /-! # `MonadControl` -/
 
@@ -271,7 +319,7 @@ theorem Spec.liftWith_StateT [Monad m] [WPMonad m ps]
     Triple
       (MonadControl.liftWith (m:=m) f)
       (fun s => wp⟦f (fun x => x.run s)⟧ (fun a => Q.1 a s, Q.2))
-      Q := by simp [Triple]
+      Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.liftWith_ReaderT [Monad m] [WPMonad m ps]
@@ -279,7 +327,7 @@ theorem Spec.liftWith_ReaderT [Monad m] [WPMonad m ps]
     Triple
       (MonadControl.liftWith (m:=m) f)
       (fun s => wp⟦f (fun x => x.run s)⟧ (fun a => Q.1 a s, Q.2))
-      Q := by simp [Triple]
+      Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.liftWith_ExceptT [Monad m] [WPMonad m ps]
@@ -287,7 +335,7 @@ theorem Spec.liftWith_ExceptT [Monad m] [WPMonad m ps]
     Triple (ps := .except ε ps)
       (MonadControl.liftWith (m:=m) f)
       (wp⟦f (fun x => x.run)⟧ (Q.1, Q.2.2))
-      Q := by simp [Triple]
+      Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.liftWith_OptionT [Monad m] [WPMonad m ps]
@@ -295,35 +343,35 @@ theorem Spec.liftWith_OptionT [Monad m] [WPMonad m ps]
     Triple (ps := .except PUnit ps)
       (MonadControl.liftWith (m:=m) f)
       (wp⟦f (fun x => x.run)⟧ (Q.1, Q.2.2))
-      Q := by simp [Triple]
+      Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.restoreM_StateT [Monad m] [WPMonad m ps] (x : m (α × σ)) :
     Triple
-      (MonadControl.restoreM x : StateT σ m α)
+      (MonadControl.restoreM (m := m) x : StateT σ m α)
       (fun _ => wp⟦x⟧ (fun (a, s) => Q.1 a s, Q.2))
-      Q := by simp [Triple]
+      Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.restoreM_ReaderT [Monad m] [WPMonad m ps] (x : m α) :
     Triple (m := ReaderT ρ m)
       (MonadControl.restoreM (m:=m) x)
       (fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))
-      Q := by simp [Triple]
+      Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.restoreM_ExceptT [Monad m] [WPMonad m ps] (x : m (Except ε α)) :
     Triple (ps := .except ε ps)
-      (MonadControl.restoreM x : ExceptT ε m α)
+      (MonadControl.restoreM (m := m) x : ExceptT ε m α)
       (wp⟦x⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
-      Q := by simp [Triple]
+      Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.restoreM_OptionT [Monad m] [WPMonad m ps] (x : m (Option α)) :
     Triple (ps := .except PUnit ps)
-      (MonadControl.restoreM x : OptionT m α)
+      (MonadControl.restoreM (m := m) x : OptionT m α)
       (wp⟦x⟧ (fun e => e.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
-      Q := by simp [Triple]
+      Q := by simp [Triple.iff]
 
 /-! # `MonadControlT` -/
 
@@ -333,7 +381,7 @@ theorem Spec.liftWith_trans [WP o ps] [MonadControl n o] [MonadControlT m n]
     Triple (m:=o)
       (MonadControlT.liftWith (m:=m) f)
       (wp⟦MonadControl.liftWith (m:=n) fun x₂ => MonadControlT.liftWith fun x₁ => f (x₁ ∘ x₂) : o α⟧ Q)
-      Q := .rfl
+      Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.liftWith_refl [WP m ps] [Pure m]
@@ -341,7 +389,7 @@ theorem Spec.liftWith_refl [WP m ps] [Pure m]
     Triple (m:=m)
       (MonadControlT.liftWith (m:=m) f)
       (wp⟦f (fun x => x) : m α⟧ Q)
-      Q := .rfl
+      Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.restoreM_trans [WP o ps] [MonadControl n o] [MonadControlT m n]
@@ -349,7 +397,7 @@ theorem Spec.restoreM_trans [WP o ps] [MonadControl n o] [MonadControlT m n]
     Triple (m:=o)
       (MonadControlT.restoreM (m:=m) x)
       (wp⟦MonadControl.restoreM (m:=n) (MonadControlT.restoreM (m:=m) x) : o α⟧ Q)
-      Q := .rfl
+      Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.restoreM_refl [WP m ps] [Pure m]
@@ -357,7 +405,7 @@ theorem Spec.restoreM_refl [WP m ps] [Pure m]
     Triple (m:=m)
       (MonadControlT.restoreM (m:=m) x)
       (wp⟦Pure.pure x : m α⟧ Q)
-      Q := .rfl
+      Q := by simp [Triple.iff]
 
 attribute [spec] controlAt control
 
@@ -367,15 +415,15 @@ attribute [spec] ReaderT.run
 
 @[spec]
 theorem Spec.read_ReaderT [Monad m] [WPMonad m psm] :
-  Triple (MonadReaderOf.read : ReaderT ρ m ρ) (spred(fun r => Q.1 r r)) spred(Q) := by simp [Triple]
+  Triple (MonadReaderOf.read : ReaderT ρ m ρ) (spred(fun r => Q.1 r r)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.withReader_ReaderT [WP m psm] :
-  Triple (MonadWithReaderOf.withReader f x : ReaderT ρ m α) (spred(fun r => wp⟦x⟧ (fun a _ => Q.1 a r, Q.2) (f r))) spred(Q) := by simp [Triple]
+  Triple (MonadWithReaderOf.withReader f x : ReaderT ρ m α) (spred(fun r => wp⟦x⟧ (fun a _ => Q.1 a r, Q.2) (f r))) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.adapt_ReaderT [WP m ps] (f : ρ → ρ') :
-  Triple (ReaderT.adapt f x : ReaderT ρ m α) spred(fun r => wp⟦x⟧ (fun a _ => Q.1 a r, Q.2) (f r)) spred(Q) := by simp [Triple]
+  Triple (ReaderT.adapt f x : ReaderT ρ m α) spred(fun r => wp⟦x⟧ (fun a _ => Q.1 a r, Q.2) (f r)) Q := by simp [Triple.iff]
 
 /-! # `StateT` -/
 
@@ -383,16 +431,16 @@ attribute [spec] StateT.run
 
 @[spec]
 theorem Spec.get_StateT [Monad m] [WPMonad m psm] :
-  Triple (MonadStateOf.get : StateT σ m σ) (spred(fun s => Q.1 s s)) spred(Q) := by simp [Triple]
+  Triple (MonadStateOf.get : StateT σ m σ) (spred(fun s => Q.1 s s)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.set_StateT [Monad m] [WPMonad m psm] :
-  Triple (MonadStateOf.set s : StateT σ m PUnit) (spred(fun _ => Q.1 ⟨⟩ s)) spred(Q) := by simp [Triple]
+  Triple (MonadStateOf.set s : StateT σ m PUnit) (spred(fun _ => Q.1 ⟨⟩ s)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.modifyGet_StateT [Monad m] [WPMonad m ps] :
-  Triple (MonadStateOf.modifyGet f : StateT σ m α) (spred(fun s => let t := f s; Q.1 t.1 t.2)) spred(Q) := by
-    simp [Triple]
+  Triple (MonadStateOf.modifyGet f : StateT σ m α) (spred(fun s => let t := f s; Q.1 t.1 t.2)) Q := by
+    simp [Triple.iff]
 
 /-! # `ExceptT` -/
 
@@ -401,42 +449,42 @@ theorem Spec.run_ExceptT [WP m ps] (x : ExceptT ε m α) :
   Triple (ps:=ps)
     (x.run : m (Except ε α))
     (wp⟦x⟧ (fun a => Q.1 (.ok a), fun e => Q.1 (.error e), Q.2))
-    Q := by simp [Triple]
+    Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.throw_ExceptT [Monad m] [WPMonad m ps] :
-    Triple (MonadExceptOf.throw e : ExceptT ε m α) (spred(Q.2.1 e)) spred(Q) := by
-  simp [Triple]
+    Triple (MonadExceptOf.throw e : ExceptT ε m α) (spred(Q.2.1 e)) Q := by
+  simp [Triple.iff]
 
 @[spec]
 theorem Spec.tryCatch_ExceptT [Monad m] [WPMonad m ps] (Q : PostCond α (.except ε ps)) :
-    Triple (MonadExceptOf.tryCatch x h : ExceptT ε m α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
-  simp [Triple]
+    Triple (MonadExceptOf.tryCatch x h : ExceptT ε m α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) Q := by
+  simp [Triple.iff]
 
 @[spec]
 theorem Spec.orElse_ExceptT [Monad m] [WPMonad m ps] (Q : PostCond α (.except ε ps)) :
-    Triple (OrElse.orElse x h : ExceptT ε m α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
-  simp [Triple]
+    Triple (OrElse.orElse x h : ExceptT ε m α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) Q := by
+  simp [Triple.iff]
 
 @[spec]
 theorem Spec.adapt_ExceptT [Monad m] [WPMonad m ps] (f : ε → ε') (Q : PostCond α (.except ε' ps)) :
-  Triple (ps := .except ε' ps) (ExceptT.adapt f x : ExceptT ε' m α) (wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2)) Q := by simp [Triple]
+  Triple (ps := .except ε' ps) (ExceptT.adapt f x : ExceptT ε' m α) (wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2)) Q := by simp [Triple.iff]
 
 /-! # `Except` -/
 
 @[spec]
 theorem Spec.throw_Except [Monad m] [WPMonad m ps] :
-  Triple (MonadExceptOf.throw e : Except ε α) (spred(Q.2.1 e)) spred(Q) := SPred.entails.rfl
+  Triple (MonadExceptOf.throw e : Except ε α) (spred(Q.2.1 e)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.tryCatch_Except (Q : PostCond α (.except ε .pure)) :
-    Triple (MonadExceptOf.tryCatch x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
-  simp [Triple]
+    Triple (MonadExceptOf.tryCatch x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) Q := by
+  simp [Triple.iff]
 
 @[spec]
 theorem Spec.orElse_Except (Q : PostCond α (.except ε .pure)) :
-    Triple (OrElse.orElse x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
-  simp [Triple]
+    Triple (OrElse.orElse x h : Except ε α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) Q := by
+  simp [Triple.iff]
 
 /-! # `OptionT` -/
 
@@ -445,83 +493,102 @@ theorem Spec.run_OptionT [WP m ps] (x : OptionT m α) :
   Triple (ps:=ps)
     (x.run : m (Option α))
     (wp⟦x⟧ (fun a => Q.1 (.some a), fun _ => Q.1 .none, Q.2))
-    Q := by simp [Triple]
+    Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.throw_OptionT [Monad m] [WPMonad m ps] :
-    Triple (MonadExceptOf.throw e : OptionT m α) (spred(Q.2.1 e)) spred(Q) := by
-  simp [Triple]
+    Triple (MonadExceptOf.throw e : OptionT m α) (spred(Q.2.1 e)) Q := by
+  simp [Triple.iff]
 
 @[spec]
 theorem Spec.tryCatch_OptionT [Monad m] [WPMonad m ps] (Q : PostCond α (.except PUnit ps)) :
-    Triple (MonadExceptOf.tryCatch x h : OptionT m α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
-  simp [Triple]
+    Triple (MonadExceptOf.tryCatch x h : OptionT m α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) Q := by
+  simp [Triple.iff]
 
 @[spec]
 theorem Spec.orElse_OptionT [Monad m] [WPMonad m ps] (Q : PostCond α (.except PUnit ps)) :
-    Triple (OrElse.orElse x h : OptionT m α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
-  simp [Triple]
+    Triple (OrElse.orElse x h : OptionT m α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) Q := by
+  simp [Triple.iff]
 
 /-! # `Option` -/
 
 @[spec]
 theorem Spec.throw_Option [Monad m] [WPMonad m ps] :
-  Triple (MonadExceptOf.throw e : Option α) (spred(Q.2.1 e)) spred(Q) := SPred.entails.rfl
+  Triple (MonadExceptOf.throw e : Option α) (spred(Q.2.1 e)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.tryCatch_Option (Q : PostCond α (.except PUnit .pure)) :
-    Triple (MonadExceptOf.tryCatch x h : Option α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) spred(Q) := by
-  simp [Triple]
+    Triple (MonadExceptOf.tryCatch x h : Option α) (spred(wp⟦x⟧ (Q.1, fun e => wp⟦h e⟧ Q, Q.2.2))) Q := by
+  simp [Triple.iff]
 
 @[spec]
 theorem Spec.orElse_Option (Q : PostCond α (.except PUnit .pure)) :
-    Triple (OrElse.orElse x h : Option α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) spred(Q) := by
-  simp [Triple]
+    Triple (OrElse.orElse x h : Option α) (spred(wp⟦x⟧ (Q.1, fun _ => wp⟦h ()⟧ Q, Q.2.2))) Q := by
+  simp [Triple.iff]
 
 /-! # `EStateM` -/
 
 @[spec]
 theorem Spec.get_EStateM :
-  Triple (MonadStateOf.get : EStateM ε σ σ) (spred(fun s => Q.1 s s)) spred(Q) := SPred.entails.rfl
+    Triple (MonadStateOf.get : EStateM ε σ σ) (spred(fun s => Q.1 s s)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.set_EStateM :
-  Triple (MonadStateOf.set s : EStateM ε σ PUnit) (spred(fun _ => Q.1 () s)) spred(Q) := SPred.entails.rfl
+    Triple (MonadStateOf.set s : EStateM ε σ PUnit) (spred(fun _ => Q.1 () s)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.modifyGet_EStateM :
-  Triple (MonadStateOf.modifyGet f : EStateM ε σ α) (spred(fun s => let t := f s; Q.1 t.1 t.2)) spred(Q) := SPred.entails.rfl
+    Triple (MonadStateOf.modifyGet f : EStateM ε σ α) (spred(fun s => let t := f s; Q.1 t.1 t.2)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.throw_EStateM :
-  Triple (MonadExceptOf.throw e : EStateM ε σ α) (spred(Q.2.1 e)) spred(Q) := SPred.entails.rfl
+    Triple (MonadExceptOf.throw e : EStateM ε σ α) (spred(Q.2.1 e)) Q := by simp [Triple.iff]
 
 open EStateM.Backtrackable in
 @[spec]
 theorem Spec.tryCatch_EStateM (Q : PostCond α (.except ε (.arg σ .pure))) :
-  Triple (MonadExceptOf.tryCatch x h : EStateM ε σ α) (spred(fun s => wp⟦x⟧ (Q.1, fun e s' => wp⟦h e⟧ Q (restore s' (save s)), Q.2.2) s)) spred(Q) := by
-  simp [Triple]
+    Triple (MonadExceptOf.tryCatch x h : EStateM ε σ α) (spred(fun s => wp⟦x⟧ (Q.1, fun e s' => wp⟦h e⟧ Q (restore s' (save s)), Q.2.2) s)) Q := by simp [Triple.iff]
 
 open EStateM.Backtrackable in
 @[spec]
 theorem Spec.orElse_EStateM (Q : PostCond α (.except ε (.arg σ .pure))) :
-  Triple (OrElse.orElse x h : EStateM ε σ α) (spred(fun s => wp⟦x⟧ (Q.1, fun _ s' => wp⟦h ()⟧ Q (restore s' (save s)), Q.2.2) s)) spred(Q) := by
-  simp [Triple]
+  Triple (OrElse.orElse x h : EStateM ε σ α) (spred(fun s => wp⟦x⟧ (Q.1, fun _ s' => wp⟦h ()⟧ Q (restore s' (save s)), Q.2.2) s)) Q := by
+  simp [Triple.iff]
 
 @[spec]
 theorem Spec.adaptExcept_EStateM (f : ε → ε') (Q : PostCond α (.except ε' (.arg σ .pure))) :
-  Triple (ps := .except ε' (.arg σ .pure)) (EStateM.adaptExcept f x : EStateM ε' σ α) (wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2)) Q := by simp [Triple]
+  Triple (ps := .except ε' (.arg σ .pure)) (EStateM.adaptExcept f x : EStateM ε' σ α) (wp⟦x⟧ (Q.1, fun e => Q.2.1 (f e), Q.2.2)) Q := by simp [Triple.iff]
 
 /-! # Lifting `MonadStateOf` -/
 
+@[spec]
+theorem Spec.UnfoldLift.get [MonadLift m n] [MonadStateOf σ m] :
+    (MonadStateOf.get : n σ) = monadLift (MonadStateOf.get : m σ) := rfl
+
+@[spec]
+theorem Spec.UnfoldLift.set [MonadLift m n] [MonadStateOf σ m] (s : σ) :
+    (MonadStateOf.set (m := n) s) = monadLift (MonadStateOf.set (m := m) s) := rfl
+
+@[spec]
+theorem Spec.UnfoldLift.modifyGet [MonadLift m n] [MonadStateOf σ m] (f : σ → α × σ) :
+    MonadStateOf.modifyGet (m := n) f = monadLift (MonadStateOf.modifyGet (m := m) f) := rfl
+
 attribute [spec] modify modifyThe getThe getModify modifyGetThe
-  instMonadStateOfMonadStateOf instMonadStateOfOfMonadLift
+  MonadState.get MonadState.set MonadState.modifyGet
+  Spec.UnfoldLift.get Spec.UnfoldLift.set Spec.UnfoldLift.modifyGet
 
 /-! # Lifting `MonadReaderOf` -/
 
+@[spec]
+theorem Spec.UnfoldLift.read [MonadLift m n] [MonadReaderOf ρ m] :
+    (MonadReaderOf.read : n ρ) = monadLift (MonadReaderOf.read : m ρ) := rfl
+
+@[spec]
+theorem Spec.UnfoldLift.withReader [MonadFunctor m n] [MonadWithReaderOf ρ m] (f : ρ → ρ) :
+    (MonadWithReaderOf.withReader f : n α → n α) = monadMap (m := m) (MonadWithReaderOf.withReader f) := rfl
+
 attribute [spec] readThe withTheReader
-  instMonadReaderOfMonadReaderOf instMonadReaderOfOfMonadLift
-  instMonadWithReaderOfMonadWithReaderOf instMonadWithReaderOfOfMonadFunctor
+  read withReader Spec.UnfoldLift.read Spec.UnfoldLift.withReader
 
 /-! # Lifting `MonadExceptOf` -/
 
@@ -529,19 +596,19 @@ attribute [spec] throwThe tryCatchThe
 
 @[spec]
 theorem Spec.throw_MonadExcept [MonadExceptOf ε m] [WP m _]:
-  Triple (throw e : m α) (spred(wp⟦MonadExceptOf.throw e : m α⟧ Q)) spred(Q) := SPred.entails.rfl
+  Triple (throw e : m α) (spred(wp⟦MonadExceptOf.throw e : m α⟧ Q)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.tryCatch_MonadExcept [MonadExceptOf ε m] [WP m ps] (Q : PostCond α ps) :
-  Triple (tryCatch x h : m α) (spred(wp⟦MonadExceptOf.tryCatch x h : m α⟧ Q)) spred(Q) := SPred.entails.rfl
+  Triple (tryCatch x h : m α) (spred(wp⟦MonadExceptOf.tryCatch x h : m α⟧ Q)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.throw_ReaderT  [WP m sh] [MonadExceptOf ε m] :
-  Triple (MonadExceptOf.throw e : ReaderT ρ m α) (spred(wp⟦MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) e : m α) : ReaderT ρ m α⟧ Q)) spred(Q) := SPred.entails.rfl
+  Triple (MonadExceptOf.throw e : ReaderT ρ m α) (spred(wp⟦MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) e : m α) : ReaderT ρ m α⟧ Q)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.throw_StateT [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond α (.arg σ ps)) :
-  Triple (MonadExceptOf.throw e : StateT σ m α) (spred(wp⟦MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) e : m α) : StateT σ m α⟧ Q)) spred(Q) := SPred.entails.rfl
+  Triple (MonadExceptOf.throw e : StateT σ m α) (spred(wp⟦MonadLift.monadLift (MonadExceptOf.throw (ε:=ε) e : m α) : StateT σ m α⟧ Q)) Q := by simp [Triple.iff]
 
 @[spec]
 theorem Spec.throw_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
@@ -549,7 +616,7 @@ theorem Spec.throw_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α 
     (MonadExceptOf.throw e : ExceptT ε' m α)
     (wp⟦MonadExceptOf.throw (ε:=ε) e : m (Except ε' α)⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
     Q := by
-  simp [Triple]
+  simp [Triple.iff]
   apply (wp _).mono
   simp
   intro x
@@ -561,7 +628,7 @@ theorem Spec.throw_Option_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (
     (MonadExceptOf.throw e : OptionT m α)
     (wp⟦MonadExceptOf.throw (ε:=ε) e : m (Option α)⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
     Q := by
-  simp [Triple]
+  simp [Triple.iff]
   apply (wp _).mono
   simp
   intro x
@@ -569,11 +636,15 @@ theorem Spec.throw_Option_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (
 
 @[spec]
 theorem Spec.tryCatch_ReaderT [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.arg ρ ps)) :
-  Triple (MonadExceptOf.tryCatch x h : ReaderT ρ m α) (spred(fun r => wp⟦MonadExceptOf.tryCatch (ε:=ε) (x.run r) (fun e => (h e).run r) : m α⟧ (fun a => Q.1 a r, Q.2))) spred(Q) := SPred.entails.rfl
+    Triple (MonadExceptOf.tryCatch x h : ReaderT ρ m α) (spred(fun r => wp⟦MonadExceptOf.tryCatch (ε:=ε) (x.run r) (fun e => (h e).run r) : m α⟧ (fun a => Q.1 a r, Q.2))) Q := by
+  apply Triple.iff.mpr
+  rfl
 
 @[spec]
 theorem Spec.tryCatch_StateT [WP m ps] [Monad m] [MonadExceptOf ε m] (Q : PostCond α (.arg σ ps)) :
-  Triple (MonadExceptOf.tryCatch x h : StateT σ m α) (spred(fun s => wp⟦MonadExceptOf.tryCatch (ε:=ε) (x.run s) (fun e => (h e).run s) : m (α × σ)⟧ (fun xs => Q.1 xs.1 xs.2, Q.2))) spred(Q) := SPred.entails.rfl
+    Triple (MonadExceptOf.tryCatch x h : StateT σ m α) (spred(fun s => wp⟦MonadExceptOf.tryCatch (ε:=ε) (x.run s) (fun e => (h e).run s) : m (α × σ)⟧ (fun xs => Q.1 xs.1 xs.2, Q.2))) Q := by
+  apply Triple.iff.mpr
+  rfl
 
 @[spec]
 theorem Spec.tryCatch_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond α (.except ε' ps)) :
@@ -582,7 +653,7 @@ theorem Spec.tryCatch_ExceptT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond 
       (MonadExceptOf.tryCatch x h : ExceptT ε' m α)
       (wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Except ε' α)⟧ (fun e => e.casesOn Q.2.1 Q.1, Q.2.2))
       Q := by
-  simp only [Triple]
+  simp only [Triple.iff]
   apply (wp _).mono
   simp
   intro x
@@ -595,13 +666,11 @@ theorem Spec.tryCatch_OptionT_lift [WP m ps] [MonadExceptOf ε m] (Q : PostCond 
       (MonadExceptOf.tryCatch x h : OptionT m α)
       (wp⟦MonadExceptOf.tryCatch (ε:=ε) x h : m (Option α)⟧ (fun o => o.casesOn (Q.2.1 ⟨⟩) Q.1, Q.2.2))
       Q := by
-  simp only [Triple]
+  simp only [Triple.iff]
   apply (wp _).mono
   simp
   intro x
   split <;> rfl
-
-/-! # Lifting `OrElse` -/
 
 end Std.Do
 
@@ -628,6 +697,7 @@ After leaving the loop, the cursor's prefix is `xs` and the suffix is empty.
 During the induction step, the invariant holds for a suffix with head element `x`.
 After running the loop body, the invariant then holds after shifting `x` to the prefix.
 -/
+@[spec_invariant_type]
 abbrev Invariant {α : Type u₁} (xs : List α) (β : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
   PostCond (List.Cursor xs × β) ps
 
@@ -649,11 +719,23 @@ successfully proving the induction step, as it contradicts with the assumption t
 won't need to prove anything about the bogus case where the loop has returned early yet takes
 another iteration of the loop body.
 -/
-abbrev Invariant.withEarlyReturn
+abbrev Invariant.withEarlyReturn {α} {xs : List α} {γ : Type (max u₁ u₂)}
   (onContinue : List.Cursor xs → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
     Invariant xs (MProd (Option γ) β) ps :=
+  ⟨fun ⟨xs, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue xs b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suffix = []⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+/-- Like `Invariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
+instead of `MProd` for the state tuple. -/
+abbrev Invariant.withEarlyReturnNewDo {α} {xs : List α} {γ : Type (max u₁ u₂)}
+  (onContinue : List.Cursor xs → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    Invariant xs (Prod (Option γ) β) ps :=
   ⟨fun ⟨xs, x, b⟩ => spred(
         (⌜x = none⌝ ∧ onContinue xs b)
       ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜xs.suffix = []⌝ ∧ onReturn r b)),
@@ -747,8 +829,9 @@ theorem Spec.foldlM_list
     simp only [List.forIn_yield_eq_foldlM, id_map']
   rw[this]
   apply Spec.forIn_list inv
-  simp only [Triple, WPMonad.wp_map, PredTrans.map_apply]
-  exact step
+  intros
+  apply Spec.map'
+  apply step <;> assumption
 
 -- using the postcondition as a constant invariant:
 theorem Spec.foldlM_list_const_inv
@@ -765,23 +848,23 @@ theorem Spec.foldlM_list_const_inv
 @[spec]
 theorem Spec.forIn'_range {β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
-    {xs : Std.Range} {init : β} {f : (a : Nat) → a ∈ xs → β → m (ForInStep β)}
+    {xs : Std.Legacy.Range} {init : β} {f : (a : Nat) → a ∈ xs → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
-        (f cur (by simp [Std.Range.mem_of_mem_range', h]) b)
+        (f cur (by simp [Std.Legacy.Range.mem_of_mem_range', h]) b)
         (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
         (fun r => match r with
           | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
           | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
     Triple (forIn' xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
-  simp only [Std.Range.forIn'_eq_forIn'_range', Std.Range.size, Std.Range.size.eq_1]
+  simp only [Std.Legacy.Range.forIn'_eq_forIn'_range', Std.Legacy.Range.size, Std.Legacy.Range.size.eq_1]
   apply Spec.forIn'_list inv (fun c hcur b => step c hcur b)
 
 @[spec]
 theorem Spec.forIn_range {β : Type u} {m : Type u → Type v} {ps : PostShape}
     [Monad m] [WPMonad m ps]
-    {xs : Std.Range} {init : β} {f : Nat → β → m (ForInStep β)}
+    {xs : Std.Legacy.Range} {init : β} {f : Nat → β → m (ForInStep β)}
     (inv : Invariant xs.toList β ps)
     (step : ∀ pref cur suff (h : xs.toList = pref ++ cur :: suff) b,
       Triple
@@ -791,7 +874,7 @@ theorem Spec.forIn_range {β : Type u} {m : Type u → Type v} {ps : PostShape}
           | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
           | .done b' => inv.1 (⟨xs.toList, [], by simp⟩, b'), inv.2)) :
     Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
-  simp only [Std.Range.forIn_eq_forIn_range', Std.Range.size]
+  simp only [Std.Legacy.Range.forIn_eq_forIn_range', Std.Legacy.Range.size]
   apply Spec.forIn_list inv step
 
 open Std.PRange in
@@ -1146,8 +1229,6 @@ theorem Spec.forIn_slice {m : Type w → Type x} {ps : PostShape}
     [Iterator α Id β]
     [IteratorLoop α Id m]
     [LawfulIteratorLoop α Id m]
-    [IteratorCollect α Id Id]
-    [LawfulIteratorCollect α Id Id]
     [Finite α Id]
     {init : δ} {f : β → δ → m (ForInStep δ)}
     {xs : Slice γ}
@@ -1162,6 +1243,732 @@ theorem Spec.forIn_slice {m : Type w → Type x} {ps : PostShape}
     Triple (forIn xs init f) (inv.1 (⟨[], xs.toList, rfl⟩, init)) (fun b => inv.1 (⟨xs.toList, [], by simp⟩, b), inv.2) := by
   simp only [← Slice.forIn_toList]
   exact Spec.forIn_list inv step
+
+section Iterators
+open Std.Iterators
+
+@[spec low]
+theorem Spec.forIn_iter {ps : PostShape} [Monad n] [WPMonad n ps]
+    {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {init : γ} {f : β → γ → n (ForInStep γ)}
+    {it : Iter (α := α) β}
+    (inv : Invariant it.toList γ ps)
+    (step : ∀ pref cur suff (h : it.toList = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨it.toList, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn it init f) (inv.1 (⟨[], it.toList, rfl⟩, init)) (fun b => inv.1 (⟨it.toList, [], by simp⟩, b), inv.2) := by
+  simp only [← Iter.forIn_toList]
+  exact Spec.forIn_list inv step
+
+@[spec low]
+theorem Spec.forIn_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
+    {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {init : γ} {f : β → γ → n (ForInStep γ)}
+    {it : IterM (α := α) Id β}
+    (inv : Invariant it.toList.run γ ps)
+    (step : ∀ pref cur suff (h : it.toList.run = pref ++ cur :: suff) b,
+      Triple
+        (f cur b)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b')
+          | .done b' => inv.1 (⟨it.toList.run, [], by simp⟩, b'), inv.2)) :
+    Triple (forIn it init f) (inv.1 (⟨[], it.toList.run, rfl⟩, init)) (fun b => inv.1 (⟨it.toList.run, [], by simp⟩, b), inv.2) := by
+  conv =>
+    congr
+    rw [← Iter.toIterM_toIter (it := it), ← Iter.forIn_eq_forIn_toIterM, ← Iter.forIn_toList,
+      IterM.toList_toIter]
+  exact Spec.forIn_list inv step
+
+@[spec low]
+theorem Spec.foldM_iter {ps : PostShape} [Monad n] [WPMonad n ps]
+    {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {it : Iter (α := α) β}
+    {init : γ} {f : γ → β → n γ}
+    (inv : Invariant it.toList γ ps)
+    (step : ∀ pref cur suff (h : it.toList = pref ++ cur :: suff) b,
+      Triple
+        (f b cur)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b'), inv.2)) :
+    Triple (it.foldM f init) (inv.1 (⟨[], it.toList, rfl⟩, init)) (fun b => inv.1 (⟨it.toList, [], by simp⟩, b), inv.2) := by
+  rw [← Iter.foldlM_toList]
+  exact Spec.foldlM_list inv step
+
+@[spec low]
+theorem Spec.foldM_iterM_id {ps : PostShape} [Monad n] [WPMonad n ps]
+    {α β γ} [Iterator α Id β] [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {it : IterM (α := α) Id β}
+    {init : γ} {f : γ → β → n γ}
+    (inv : Invariant it.toList.run γ ps)
+    (step : ∀ pref cur suff (h : it.toList.run = pref ++ cur :: suff) b,
+      Triple
+        (f b cur)
+        (inv.1 (⟨pref, cur::suff, h.symm⟩, b))
+        (fun b' => inv.1 (⟨pref ++ [cur], suff, by simp [h]⟩, b'), inv.2)) :
+    Triple (it.foldM f init) (inv.1 (⟨[], it.toList.run, rfl⟩, init)) (fun b => inv.1 (⟨it.toList.run, [], by simp⟩, b), inv.2) := by
+  rw [← IterM.foldlM_toList]
+  exact Spec.foldlM_list inv step
+
+@[spec]
+theorem Spec.IterM.forIn_filterMapWithPostcondition {m β ps}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m]
+    [IteratorLoop α m o] [LawfulIteratorLoop α m o]
+    {it : IterM (α := α) m β} {f : β → PostconditionT n (Option β₂)} {init : γ}
+    {g : β₂ → γ → o (ForInStep γ)} {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨monadLift⟩
+        Triple (m := o) (forIn it init (fun out acc => do
+          match ← (f out).run with
+          | some c => g c acc
+          | none => return .yield acc)) P Q) :
+    Triple (forIn (it.filterMapWithPostcondition f) init g) P Q := by
+  rwa [Std.IterM.forIn_filterMapWithPostcondition]
+
+@[spec]
+theorem Spec.IterM.forIn_filterMapM {m β ps}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m]
+    [IteratorLoop α m o] [LawfulIteratorLoop α m o]
+    {it : IterM (α := α) m β} {f : β → n (Option β₂)} {init : γ} {g : β₂ → γ → o (ForInStep γ)}
+    {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨monadLift⟩
+        Triple (forIn (m := o) it init (fun out acc => do
+          match ← f out with
+          | some c => g c acc
+          | none => return .yield acc)) P Q) :
+    Triple (forIn (it.filterMapM f) init g) P Q := by
+  rwa [Std.IterM.forIn_filterMapM]
+
+@[spec]
+theorem Spec.IterM.forIn_filterMap {m β ps}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m]
+    [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    {it : IterM (α := α) m β} {f : β → Option β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)} {P Q}
+    (h :
+        Triple (forIn it init (fun out acc => do
+          match f out with
+          | some c => g c acc
+          | none => return .yield acc)) P Q) :
+    Triple (forIn (it.filterMap f) init g) P Q := by
+  rwa [Std.IterM.forIn_filterMap]
+
+@[spec]
+theorem Spec.IterM.forIn_mapWithPostcondition {m β ps}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m]
+    [IteratorLoop α m o] [LawfulIteratorLoop α m o]
+    {it : IterM (α := α) m β} {f : β → PostconditionT n β₂} {init : γ}
+    {g : β₂ → γ → o (ForInStep γ)} {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨monadLift⟩
+        Triple (forIn (m := o) it init (fun out acc => do g (← (f out).run) acc)) P Q) :
+    Triple (forIn (it.mapWithPostcondition f) init g) P Q := by
+  rwa [Std.IterM.forIn_mapWithPostcondition]
+
+@[spec]
+theorem Spec.IterM.forIn_mapM {m β ps}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m]
+    [IteratorLoop α m o] [LawfulIteratorLoop α m o]
+    {it : IterM (α := α) m β} {f : β → n β₂} {init : γ} {g : β₂ → γ → o (ForInStep γ)} {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨monadLift⟩
+        Triple (forIn (m := o) it init (fun out acc => do g (← f out) acc)) P Q) :
+    Triple (forIn (it.mapM f) init g) P Q := by
+  rwa [Std.IterM.forIn_mapM]
+
+@[spec]
+theorem Spec.IterM.forIn_map {m β ps}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    {it : IterM (α := α) m β} {f : β → β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)} {P Q}
+    (h : Triple (forIn it init (fun out acc => do g (f out) acc)) P Q) :
+    Triple (forIn (it.map f) init g) P Q := by
+  rwa [Std.IterM.forIn_map]
+
+@[spec]
+theorem Spec.IterM.forIn_filterWithPostcondition {m β ps}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m]
+    [IteratorLoop α m o] [LawfulIteratorLoop α m o]
+    {it : IterM (α := α) m β} {f : β → PostconditionT n (ULift Bool)} {init : γ}
+    {g : β → γ → o (ForInStep γ)} {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨monadLift⟩
+        Triple (forIn (m := o) it init (fun out acc => do if (← (f out).run).down then g out acc else return .yield acc)) P Q) :
+    Triple (forIn (it.filterWithPostcondition f) init g) P Q := by
+  rwa [Std.IterM.forIn_filterWithPostcondition]
+
+@[spec]
+theorem Spec.IterM.forIn_filterM {m β ps}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Iterator α m β] [Finite α m]
+    [IteratorLoop α m o] [LawfulIteratorLoop α m o]
+    {it : IterM (α := α) m β} {f : β → n (ULift Bool)} {init : γ} {g : β → γ → o (ForInStep γ)} {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨monadLift⟩
+        Triple (forIn (m := o) it init (fun out acc => do if (← f out).down then g out acc else return .yield acc)) P Q):
+    Triple (forIn (it.filterM f) init g) P Q := by
+  rwa [Std.IterM.forIn_filterM]
+
+@[spec]
+theorem Spec.IterM.forIn_filter {m β ps}
+    [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    [Iterator α m β] [Finite α m] [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    {it : IterM (α := α) m β} {f : β → Bool} {init : γ} {g : β → γ → n (ForInStep γ)} {P Q}
+    (h : Triple (forIn (m := n) it init (fun out acc => do if f out then g out acc else return .yield acc)) P Q) :
+    Triple (forIn (it.filter f) init g) P Q := by
+  rwa [Std.IterM.forIn_filter]
+
+@[spec]
+theorem Spec.IterM.foldM_filterMapWithPostcondition {α β γ δ : Type w} {ps}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α m n] [IteratorLoop α m o]
+    [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    {f : β → PostconditionT n (Option γ)} {g : δ → γ → o δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
+        Triple (it.foldM (n := o) (init := init) (fun d b => do
+          let some c ← (f b).run | Pure.pure d
+          g d c)) P Q) :
+    Triple ((it.filterMapWithPostcondition f).foldM (init := init) g) P Q := by
+  rwa [Std.IterM.foldM_filterMapWithPostcondition]
+
+@[spec]
+theorem Spec.IterM.foldM_filterMapM {α β γ δ : Type w} {ps}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α m n] [IteratorLoop α m o]
+    [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    {f : β → n (Option γ)} {g : δ → γ → o δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
+        Triple (it.foldM (n := o) (init := init) (fun d b => do
+          let some c ← f b | Pure.pure d
+          g d c)) P Q):
+    Triple ((it.filterMapM f).foldM (init := init) g) P Q := by
+  rwa [Std.IterM.foldM_filterMapM]
+
+@[spec]
+theorem Spec.IterM.foldM_mapWithPostcondition {α β γ δ : Type w} {ps}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α m n] [IteratorLoop α m o]
+    [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    {f : β → PostconditionT n γ} {g : δ → γ → o δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
+        Triple (it.foldM (n := o) (init := init) (fun d b => do let c ← (f b).run; g d c)) P Q):
+    Triple ((it.mapWithPostcondition f).foldM (init := init) g) P Q := by
+  rwa [Std.IterM.foldM_mapWithPostcondition]
+
+@[spec]
+theorem Spec.IterM.foldM_mapM {α β γ δ : Type w} {ps}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α m n] [IteratorLoop α m o]
+    [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    {f : β → n γ} {g : δ → γ → o δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
+        Triple (it.foldM (n := o) (init := init) (fun d b => do let c ← f b; g d c)) P Q) :
+    Triple ((it.mapM f).foldM (init := init) g) P Q := by
+  rwa [Std.IterM.foldM_mapM]
+
+@[spec]
+theorem Spec.IterM.foldM_filterWithPostcondition {α β δ : Type w} {ps}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m] [LawfulMonad n] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α m n] [IteratorLoop α m o]
+    [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    {f : β → PostconditionT n (ULift Bool)} {g : δ → β → o δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
+        Triple (it.foldM (n := o) (init := init) (fun d b => do if (← (f b).run).down then g d b else Pure.pure d)) P Q):
+    Triple ((it.filterWithPostcondition f).foldM (init := init) g) P Q := by
+  rwa [Std.IterM.foldM_filterWithPostcondition]
+
+@[spec]
+theorem Spec.IterM.foldM_filterM {α β δ : Type w} {ps}
+    {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α m n] [IteratorLoop α m o]
+    [LawfulIteratorLoop α m n] [LawfulIteratorLoop α m o]
+    [MonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT m n] [LawfulMonadLiftT n o]
+    {f : β → n (ULift Bool)} {g : δ → β → o δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h :
+        haveI : MonadLift n o := ⟨MonadLiftT.monadLift⟩
+        Triple (it.foldM (n := o) (init := init) (fun d b => do if (← f b).down then g d b else Pure.pure d)) P Q) :
+    Triple ((it.filterM f).foldM (init := init) g) P Q := by
+  rwa [Std.IterM.foldM_filterM]
+
+@[spec]
+theorem Spec.IterM.foldM_filterMap {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {ps}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α m n]
+    [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → Option γ} {g : δ → γ → n δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.foldM (n := n) (init := init) (fun d b => do
+          let some c := f b | Pure.pure d
+          g d c)) P Q) :
+    Triple ((it.filterMap f).foldM (init := init) g) P Q := by
+  rwa [Std.IterM.foldM_filterMap]
+
+@[spec]
+theorem Spec.IterM.foldM_map {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {ps}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → γ} {g : δ → γ → n δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => do g d (f b))) P Q) :
+    Triple ((it.map f).foldM (init := init) g) P Q := by
+  rwa [Std.IterM.foldM_map]
+
+@[spec]
+theorem Spec.IterM.foldM_filter {α β δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {ps}
+    [Iterator α m β] [Finite α m] [Monad m] [Monad n] [LawfulMonad m] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α m n]
+    [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → Bool} {g : δ → β → n δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => if f b then g d b else Pure.pure d)) P Q) :
+    Triple ((it.filter f).foldM (init := init) g) P Q := by
+  rwa [Std.IterM.foldM_filter]
+
+@[spec]
+theorem Spec.IterM.fold_filterMapWithPostcondition {α β γ δ : Type w} {m : Type w → Type w'} {ps}
+    {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → PostconditionT n (Option γ)} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.foldM (n := n) (init := init) (fun d b => do
+          let some c ← (f b).run | Pure.pure d
+          return g d c)) P Q) :
+    Triple ((it.filterMapWithPostcondition f).fold (init := init) g) P Q := by
+  rwa [Std.IterM.fold_filterMapWithPostcondition]
+
+@[spec]
+theorem Spec.IterM.fold_filterMapM {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {ps}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [WPMonad n ps]
+    [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → n (Option γ)} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => do
+          let some c ← f b | Pure.pure d
+          return g d c)) P Q) :
+    Triple ((it.filterMapM f).fold (init := init) g) P Q := by
+  rwa [Std.IterM.fold_filterMapM]
+
+@[spec]
+theorem Spec.IterM.fold_mapWithPostcondition {α β γ δ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} {ps}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → PostconditionT n γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => do let c ← (f b).run; return g d c)) P Q) :
+    Triple ((it.mapWithPostcondition f).fold (init := init) g) P Q := by
+  rwa [Std.IterM.fold_mapWithPostcondition]
+
+@[spec]
+theorem Spec.IterM.fold_mapM {α β γ δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {ps}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [WPMonad n ps]
+    [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → n γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => do let c ← f b; return g d c)) P Q) :
+    Triple ((it.mapM f).fold (init := init) g) P Q := by
+  rwa [Std.IterM.fold_mapM]
+
+@[spec]
+theorem Spec.IterM.fold_filterWithPostcondition {α β δ : Type w} {m : Type w → Type w'} {ps}
+    {n : Type w → Type w''}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → PostconditionT n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => return if (← (f b).run).down then g d b else d)) P Q) :
+    Triple ((it.filterWithPostcondition f).fold (init := init) g) P Q := by
+  rwa [Std.IterM.fold_filterWithPostcondition]
+
+@[spec]
+theorem Spec.IterM.fold_filterM {α β δ : Type w} {m : Type w → Type w'} {n : Type w → Type w''} {ps}
+    [Iterator α m β] [Finite α m]
+    [Monad m] [LawfulMonad m]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [WPMonad n ps]
+    [IteratorLoop α m n] [LawfulIteratorLoop α m n]
+    [MonadLiftT m n] [LawfulMonadLiftT m n]
+    {f : β → n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => return if (← f b).down then g d b else d)) P Q) :
+    Triple ((it.filterM f).fold (init := init) g) P Q := by
+  rwa [Std.IterM.fold_filterM]
+
+@[spec]
+theorem Spec.IterM.fold_filterMap {α β γ δ : Type w} {m : Type w → Type w'} {ps}
+    [Iterator α m β] [Finite α m] [Monad m] [LawfulMonad m] [WPMonad m ps]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {f : β → Option γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.fold (init := init) (fun d b =>
+          match f b with
+          | some c => g d c
+          | _ => d)) P Q) :
+    Triple ((it.filterMap f).fold (init := init) g) P Q := by
+  rwa [Std.IterM.fold_filterMap]
+
+@[spec]
+theorem Spec.IterM.fold_map {α β γ δ : Type w} {m : Type w → Type w'} {ps}
+    [Iterator α m β] [Finite α m] [Monad m] [LawfulMonad m] [WPMonad m ps]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {f : β → γ} {g : δ → γ → δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.fold (init := init) (fun d b => g d (f b))) P Q) :
+    Triple ((it.map f).fold (init := init) g) P Q := by
+  rwa [Std.IterM.fold_map]
+
+@[spec]
+theorem Spec.IterM.fold_filter {α β δ : Type w} {m : Type w → Type w'} {ps}
+    [Iterator α m β] [Finite α m] [Monad m] [LawfulMonad m] [WPMonad m ps]
+    [IteratorLoop α m m] [LawfulIteratorLoop α m m]
+    {f : β → Bool} {g : δ → β → δ} {init : δ} {it : IterM (α := α) m β} {P Q}
+    (h : Triple (it.fold (init := init) (fun d b => if f b then g d b else d)) P Q) :
+    Triple ((it.filter f).fold (init := init) g) P Q := by
+  rwa [Std.IterM.fold_filter]
+
+variable {α β β₂ γ : Type w} [Iterator α Id β] {ps : PostShape}
+
+@[spec]
+theorem Spec.Iter.forIn_filterMapWithPostcondition
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
+    [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → PostconditionT n (Option β₂)} {init : γ}
+    {g : β₂ → γ → o (ForInStep γ)} {P Q}
+    (h : Triple (forIn (m := o) it init (fun out acc => do
+        match ← (f out).run with
+        | some c => g c acc
+        | none => return .yield acc)) P Q) :
+    Triple (forIn (it.filterMapWithPostcondition f) init g) P Q := by
+  rwa [Std.Iter.forIn_filterMapWithPostcondition]
+
+@[spec]
+theorem Spec.Iter.forIn_filterMapM
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Finite α Id] [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → n (Option β₂)} {init : γ} {g : β₂ → γ → o (ForInStep γ)} {P Q}
+    (h : Triple (forIn (m := o) it init (fun out acc => do
+        match ← f out with
+        | some c => g c acc
+        | none => return .yield acc)) P Q) :
+    Triple (forIn (it.filterMapM f) init g) P Q := by
+  rwa [Std.Iter.forIn_filterMapM]
+
+@[spec]
+theorem Spec.Iter.forIn_filterMap
+    [Monad n] [LawfulMonad n] [WPMonad n ps] [Finite α Id]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {it : Iter (α := α) β} {f : β → Option β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)} {P Q}
+    (h : Triple (forIn it init (fun out acc => do
+        match f out with
+        | some c => g c acc
+        | none => return .yield acc)) P Q) :
+    Triple (forIn (it.filterMap f) init g) P Q := by
+  rwa [Std.Iter.forIn_filterMap]
+
+@[spec]
+theorem Spec.Iter.forIn_mapWithPostcondition
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
+    [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → PostconditionT n β₂} {init : γ}
+    {g : β₂ → γ → o (ForInStep γ)} {P Q}
+    (h : Triple (forIn (m := o) it init (fun out acc => do g (← (f out).run) acc)) P Q) :
+    Triple (forIn (it.mapWithPostcondition f) init g) P Q := by
+  rwa [Std.Iter.forIn_mapWithPostcondition]
+
+@[spec]
+theorem Spec.Iter.forIn_mapM
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Finite α Id]
+    [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → n β₂} {init : γ} {g : β₂ → γ → o (ForInStep γ)} {P Q}
+    (h : Triple (forIn (m := o) it init (fun out acc => do g (← f out) acc)) P Q) :
+    Triple (forIn (it.mapM f) init g) P Q := by
+  rwa [Std.Iter.forIn_mapM]
+
+@[spec]
+theorem Spec.Iter.forIn_map
+    [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {it : Iter (α := α) β} {f : β → β₂} {init : γ} {g : β₂ → γ → n (ForInStep γ)} {P Q}
+    (h : Triple (forIn it init (fun out acc => do g (f out) acc)) P Q) :
+    Triple (forIn (it.map f) init g) P Q := by
+  rwa [Std.Iter.forIn_map]
+
+@[spec]
+theorem Spec.Iter.forIn_filterWithPostcondition
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    [Finite α Id] [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → PostconditionT n (ULift Bool)} {init : γ}
+    {g : β → γ → o (ForInStep γ)} {P Q}
+    (h : Triple (forIn (m := o) it init (fun out acc => do if (← (f out).run).down then g out acc else return .yield acc)) P Q) :
+    Triple (forIn (it.filterWithPostcondition f) init g) P Q := by
+  rwa [Std.Iter.forIn_filterWithPostcondition]
+
+@[spec]
+theorem Spec.Iter.forIn_filterM
+    [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [MonadAttach n] [WeaklyLawfulMonadAttach n]
+    [MonadLiftT n o] [LawfulMonadLiftT n o] [Finite α Id]
+    [IteratorLoop α Id o] [LawfulIteratorLoop α Id o]
+    {it : Iter (α := α) β} {f : β → n (ULift Bool)} {init : γ} {g : β → γ → o (ForInStep γ)} {P Q}
+    (h : Triple (forIn (m := o) it init (fun out acc => do if (← f out).down then g out acc else return .yield acc)) P Q):
+    Triple (forIn (it.filterM f) init g) P Q := by
+  rwa [Std.Iter.forIn_filterM]
+
+@[spec]
+theorem Spec.Iter.forIn_filter
+    [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [Finite α Id] [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {it : Iter (α := α) β} {f : β → Bool} {init : γ} {g : β → γ → n (ForInStep γ)} {P Q}
+    (h : Triple (forIn it init (fun out acc => do if f out then g out acc else return .yield acc)) P Q) :
+    Triple (forIn (it.filter f) init g) P Q := by
+  rwa [Std.Iter.forIn_filter]
+
+@[spec]
+theorem Iter.foldM_filterMapWithPostcondition {α β γ δ : Type w}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [Monad o] [LawfulMonad n] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → PostconditionT n (Option γ)} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do
+          let some c ← (f b).run | pure d
+          g d c)) P Q) :
+    Triple ((it.filterMapWithPostcondition f).foldM (init := init) g) P Q := by
+  rwa [Std.Iter.foldM_filterMapWithPostcondition]
+
+@[spec]
+theorem Iter.foldM_filterMapM {α β γ δ : Type w}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → n (Option γ)} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do
+          let some c ← f b | Pure.pure d
+          g d c)) P Q) :
+    Triple ((it.filterMapM f).foldM (init := init) g) P Q := by
+  rwa [Std.Iter.foldM_filterMapM]
+
+@[spec]
+theorem Iter.foldM_mapWithPostcondition {α β γ δ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad m] [Monad n] [Monad o] [LawfulMonad m][LawfulMonad n] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → PostconditionT n γ} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do let c ← (f b).run; g d c)) P Q) :
+    Triple ((it.mapWithPostcondition f).foldM (init := init) g) P Q := by
+  rwa [Std.Iter.foldM_mapWithPostcondition (m := m)]
+
+@[spec]
+theorem Iter.foldM_mapM {α β γ δ : Type w}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → n γ} {g : δ → γ → o δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do let c ← f b; g d c)) P Q) :
+    Triple ((it.mapM f).foldM (init := init) g) P Q := by
+  rwa [Std.Iter.foldM_mapM]
+
+@[spec]
+theorem Iter.foldM_filterWithPostcondition {α β δ : Type w}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [Monad o] [LawfulMonad n] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → PostconditionT n (ULift Bool)} {g : δ → β → o δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do if (← (f b).run).down then g d b else pure d)) P Q) :
+    Triple ((it.filterWithPostcondition f).foldM (init := init) g) P Q := by
+  rwa [Std.Iter.foldM_filterWithPostcondition]
+
+@[spec]
+theorem Iter.foldM_filterM {α β δ : Type w}
+    {n : Type w → Type w''} {o : Type w → Type w'''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n]
+    [Monad o] [LawfulMonad o] [WPMonad o ps]
+    [IteratorLoop α Id n] [IteratorLoop α Id o]
+    [LawfulIteratorLoop α Id n] [LawfulIteratorLoop α Id o]
+    [MonadLiftT n o] [LawfulMonadLiftT n o]
+    {f : β → n (ULift Bool)} {g : δ → β → o δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (m := o) (init := init) (fun d b => do if (← f b).down then g d b else pure d)) P Q) :
+    Triple ((it.filterM f).foldM (init := init) g) P Q := by
+  rwa [Std.Iter.foldM_filterM]
+
+@[spec]
+theorem Iter.foldM_filterMap {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id] [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α Id n]
+    [LawfulIteratorLoop α Id n]
+    {f : β → Option γ} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => do
+          let some c := f b | pure d
+          g d c)) P Q) :
+    Triple ((it.filterMap f).foldM (init := init) g) P Q := by
+  rwa [Std.Iter.foldM_filterMap]
+
+@[spec]
+theorem Iter.foldM_map {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id] [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → γ} {g : δ → γ → n δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => do g d (f b))) P Q) :
+    Triple ((it.map f).foldM (init := init) g) P Q := by
+  rwa [Std.Iter.foldM_map]
+
+@[spec]
+theorem Iter.foldM_filter {α β δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id] [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → Bool} {g : δ → β → n δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => if f b then g d b else pure d)) P Q) :
+    Triple ((it.filter f).foldM (init := init) g) P Q := by
+  rwa [Std.Iter.foldM_filter]
+
+@[spec]
+theorem Iter.fold_filterMapWithPostcondition {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → PostconditionT n (Option γ)} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => do
+          let some c ← (f b).run | pure d
+          return g d c)) P Q) :
+    Triple ((it.filterMapWithPostcondition f).fold (init := init) g) P Q := by
+  rwa [Std.Iter.fold_filterMapWithPostcondition]
+
+@[spec]
+theorem Iter.fold_filterMapM {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [WPMonad n ps]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → n (Option γ)} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => do
+          let some c ← f b | pure d
+          return g d c)) P Q) :
+    Triple ((it.filterMapM f).fold (init := init) g) P Q := by
+  rwa [Std.Iter.fold_filterMapM]
+
+@[spec]
+theorem Iter.fold_mapWithPostcondition {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → PostconditionT n γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => do let c ← (f b).run; return g d c)) P Q) :
+    Triple ((it.mapWithPostcondition f).fold (init := init) g) P Q := by
+  rwa [Std.Iter.fold_mapWithPostcondition]
+
+@[spec]
+theorem Iter.fold_mapM {α β γ δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [WPMonad n ps]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → n γ} {g : δ → γ → δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => do let c ← f b; return g d c)) P Q) :
+    Triple ((it.mapM f).fold (init := init) g) P Q := by
+  rwa [Std.Iter.fold_mapM]
+
+@[spec]
+theorem Iter.fold_filterWithPostcondition {α β δ : Type w}
+    {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [LawfulMonad n] [WPMonad n ps]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → PostconditionT n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => return if (← (f b).run).down then g d b else d)) P Q) :
+    Triple ((it.filterWithPostcondition f).fold (init := init) g) P Q := by
+  rwa [Std.Iter.fold_filterWithPostcondition]
+
+@[spec]
+theorem Iter.fold_filterM {α β δ : Type w} {n : Type w → Type w''}
+    [Iterator α Id β] [Finite α Id]
+    [Monad n] [MonadAttach n] [LawfulMonad n] [WeaklyLawfulMonadAttach n] [WPMonad n ps]
+    [IteratorLoop α Id n] [LawfulIteratorLoop α Id n]
+    {f : β → n (ULift Bool)} {g : δ → β → δ} {init : δ} {it : Iter (α := α) β} {P Q}
+    (h : Triple (it.foldM (init := init) (fun d b => return if (← f b).down then g d b else d)) P Q) :
+    Triple ((it.filterM f).fold (init := init) g) P Q := by
+  rwa [Std.Iter.fold_filterM]
+
+end Iterators
 
 @[spec]
 theorem Spec.forIn'_array {α β : Type u} {m : Type u → Type v} {ps : PostShape}
@@ -1211,3 +2018,173 @@ theorem Spec.foldlM_array {α β : Type u} {m : Type u → Type v} {ps : PostSha
   cases xs
   simp
   apply Spec.foldlM_list inv step
+
+/--
+The type of loop invariants used by the specifications of `for ... in ...` loops over strings.
+A loop invariant is a `PostCond` that takes as parameters
+
+* A `String.Pos` representing the current position in the string `s`.
+* A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
+  `let mut` variables and early return.
+-/
+@[spec_invariant_type]
+abbrev StringInvariant (s : String) (β : Type u) (ps : PostShape.{u}) :=
+  PostCond (s.Pos × β) ps
+
+/--
+Helper definition for specifying loop invariants for loops with early return.
+
+`for ... in ...` loops with early return of type `γ` elaborate to a call like this:
+```lean
+forIn (β := MProd (Option γ) ...) (b := ⟨none, ...⟩) collection loopBody
+```
+Note that the first component of the `MProd` state tuple is the optional early return value.
+It is `none` as long as there was no early return and `some r` if the loop returned early with `r`.
+
+This function allows to specify different invariants for the loop body depending on whether the loop
+terminated early or not. When there was an early return, the loop has effectively finished, which is
+encoded by the additional `⌜pos = s.endPos⌝` assertion in the invariant. This assertion is vital for
+successfully proving the induction step, as it contradicts with the assumption that
+`pos ≠ s.endPos` of the inductive hypothesis at the start of the loop body, meaning that users
+won't need to prove anything about the bogus case where the loop has returned early yet takes
+another iteration of the loop body.
+-/
+abbrev StringInvariant.withEarlyReturn {s : String}
+  (onContinue : s.Pos → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    StringInvariant s (MProd (Option γ) β) ps
+    :=
+  ⟨fun ⟨pos, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue pos b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+/-- Like `StringInvariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
+instead of `MProd` for the state tuple. -/
+abbrev StringInvariant.withEarlyReturnNewDo {s : String}
+  (onContinue : s.Pos → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    StringInvariant s (Prod (Option γ) β) ps
+    :=
+  ⟨fun ⟨pos, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue pos b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+@[spec]
+theorem Spec.forIn_string
+    {s : String} {init : β} {f : Char → β → m (ForInStep β)}
+    (inv : StringInvariant s β ps)
+    (step : ∀ pos b (h : pos ≠ s.endPos),
+      Triple
+        (f (pos.get h) b)
+        (inv.1 (pos, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (pos.next h, b')
+          | .done b' => inv.1 (s.endPos, b'), inv.2)) :
+    Triple (forIn s init f) (inv.1 (s.startPos, init)) (fun b => inv.1 (s.endPos, b), inv.2) := by
+  suffices h : ∀ (p : s.Pos) (t₁ t₂ : String) (h : p.Splits t₁ t₂),
+      Triple (forIn t₂.toList init f) (inv.1 (p, init)) (fun b => inv.1 (s.endPos, b), inv.2) by
+    simpa using h s.startPos _ _ s.splits_startPos
+  intro p
+  induction p using String.Pos.next_induction generalizing init with
+  | next p hp ih =>
+    intro t₁ t₂ hsp
+    obtain ⟨t₂, rfl⟩ := hsp.exists_eq_singleton_append hp
+    simp only [String.toList_append, String.toList_singleton, List.cons_append, List.nil_append,
+      List.forIn_cons]
+    apply Triple.bind
+    case hx => exact step _ _ hp
+    case hf =>
+      intro r
+      split
+      next => apply Triple.pure; simp
+      next b => simp [ih _ _ hsp.next]
+  | endPos => simpa using Triple.pure _ (by simp)
+
+/--
+The type of loop invariants used by the specifications of `for ... in ...` loops over string slices.
+A loop invariant is a `PostCond` that takes as parameters
+
+* A `String.Slice.Pos` representing the current position in the string slice `s`.
+* A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
+  `let mut` variables and early return.
+-/
+@[spec_invariant_type]
+abbrev StringSliceInvariant (s : String.Slice) (β : Type u) (ps : PostShape.{u}) :=
+  PostCond (s.Pos × β) ps
+
+/--
+Helper definition for specifying loop invariants for loops with early return.
+
+`for ... in ...` loops with early return of type `γ` elaborate to a call like this:
+```lean
+forIn (β := MProd (Option γ) ...) (b := ⟨none, ...⟩) collection loopBody
+```
+Note that the first component of the `MProd` state tuple is the optional early return value.
+It is `none` as long as there was no early return and `some r` if the loop returned early with `r`.
+
+This function allows to specify different invariants for the loop body depending on whether the loop
+terminated early or not. When there was an early return, the loop has effectively finished, which is
+encoded by the additional `⌜pos = s.endPos⌝` assertion in the invariant. This assertion is vital for
+successfully proving the induction step, as it contradicts with the assumption that
+`pos ≠ s.endPos` of the inductive hypothesis at the start of the loop body, meaning that users
+won't need to prove anything about the bogus case where the loop has returned early yet takes
+another iteration of the loop body.
+-/
+abbrev StringSliceInvariant.withEarlyReturn {s : String.Slice}
+  (onContinue : s.Pos → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    StringSliceInvariant s (MProd (Option γ) β) ps
+    :=
+  ⟨fun ⟨pos, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue pos b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+/-- Like `StringSliceInvariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
+instead of `MProd` for the state tuple. -/
+abbrev StringSliceInvariant.withEarlyReturnNewDo {s : String.Slice}
+  (onContinue : s.Pos → β → Assertion ps)
+  (onReturn : γ → β → Assertion ps)
+  (onExcept : ExceptConds ps := ExceptConds.false) :
+    StringSliceInvariant s (Prod (Option γ) β) ps
+    :=
+  ⟨fun ⟨pos, x, b⟩ => spred(
+        (⌜x = none⌝ ∧ onContinue pos b)
+      ∨ (∃ r, ⌜x = some r⌝ ∧ ⌜pos = s.endPos⌝ ∧ onReturn r b)),
+   onExcept⟩
+
+@[spec]
+theorem Spec.forIn_stringSlice
+    {s : String.Slice} {init : β} {f : Char → β → m (ForInStep β)}
+    (inv : StringSliceInvariant s β ps)
+    (step : ∀ pos b (h : pos ≠ s.endPos),
+      Triple
+        (f (pos.get h) b)
+        (inv.1 (pos, b))
+        (fun r => match r with
+          | .yield b' => inv.1 (pos.next h, b')
+          | .done b' => inv.1 (s.endPos, b'), inv.2)) :
+    Triple (forIn s init f) (inv.1 (s.startPos, init)) (fun b => inv.1 (s.endPos, b), inv.2) := by
+  suffices h : ∀ (p : s.Pos) (t₁ t₂ : String) (h : p.Splits t₁ t₂),
+      Triple (forIn t₂.toList init f) (inv.1 (p, init)) (fun b => inv.1 (s.endPos, b), inv.2) by
+    simpa using h s.startPos _ _ s.splits_startPos
+  intro p
+  induction p using String.Slice.Pos.next_induction generalizing init with
+  | next p hp ih =>
+    intro t₁ t₂ hsp
+    obtain ⟨t₂, rfl⟩ := hsp.exists_eq_singleton_append hp
+    simp only [String.toList_append, String.toList_singleton, List.cons_append, List.nil_append,
+      List.forIn_cons]
+    apply Triple.bind
+    case hx => exact step _ _ hp
+    case hf =>
+      intro r
+      split
+      next => apply Triple.pure; simp
+      next b => simp [ih _ _ hsp.next]
+  | endPos => simpa using Triple.pure _ (by simp)

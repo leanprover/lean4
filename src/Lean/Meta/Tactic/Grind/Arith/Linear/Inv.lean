@@ -97,7 +97,7 @@ def checkStructInvs : LinearM Unit := do
   checkDiseqCnstrs
 
 public def checkInvariants : GoalM Unit := do
-  unless grind.debug.get (← getOptions) do return ()
+  if (← isDebugEnabled) then
   for structId in *...(← get').structs.size do
     LinearM.run structId do
       assert! (← getStructId) == structId

@@ -11,3 +11,8 @@ public import Init.Omega.IntList
 public import Init.Omega.LinearCombo
 public import Init.Omega.Constraint
 public import Init.Omega.Logic
+
+public import Init.Data.Int.Lemmas  -- shake: keep (`omega` output dependency)
+public import Init.Data.Int.Order  -- shake: keep (`omega` output dependency)
+public import Init.Data.Nat.Order  -- shake: keep (`omega` output dependency)
+public import Init.Data.Order.Lemmas  -- shake: keep (`omega` output dependency)

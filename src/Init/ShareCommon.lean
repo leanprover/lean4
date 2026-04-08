@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.UInt.Basic
+public import Init.Control.State
 
 public section
 

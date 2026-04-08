@@ -15,7 +15,8 @@ This module proves that the step functions of equivalent iterators behave the sa
 circumstances.
 -/
 
-namespace Std.Iterators
+namespace Std
+open Std.Iterators
 
 /--
 This function is used in lemmas about iterator equivalence (`Iter.Equiv` and `IterM.Equiv`).
@@ -34,8 +35,8 @@ This type is used in lemmas about iterator equivalence (`Iter.Equiv` and `IterM.
 `it.QuotStep` is the quotient of `it.Step` where two steps are identified if they agree up to
 equivalence of their successor iterator.
 -/
-def IterM.QuotStep [Iterator α m β] [Monad m] [LawfulMonad m]
-    (it : IterM (α := α) m β) :=
+abbrev IterM.QuotStep [Iterator α m β] [Monad m] [LawfulMonad m]
+    (it : IterM (α := α) m β) : Type _ :=
   Quot (fun (s₁ s₂ : it.Step) => s₁.1.bundledQuotient = s₂.1.bundledQuotient)
 
 /--
@@ -232,4 +233,4 @@ theorem IterM.Equiv.liftInner_stepAsHetT_bind_congr [Monad m] [LawfulMonad m]
   apply liftInner_stepAsHetT_pbind_congr h
   exact hfg
 
-end Std.Iterators
+end Std

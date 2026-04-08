@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Tactic.BVDecide.Bitblast.BVExpr.Basic
 public import Std.Sat.AIG.LawfulVecOperator
+import Init.Omega
 
 @[expose] public section
 
@@ -56,7 +57,7 @@ instance : AIG.LawfulVecOperator α AIG.ShiftTarget blastRotateRight where
   decl_eq := by
     intros
     unfold blastRotateRight
-    dsimp only
+    dsimp only; rfl
 
 end bitblast
 end BVExpr

@@ -21,6 +21,8 @@ public import Lean.Server.FileWorker.SetupFile
 public import Lean.Server.Completion.ImportCompletion
 public import Lean.Server.CodeActions.UnknownIdentifier
 
+import Init.Data.String.OrderInstances
+
 public section
 
 /-!
@@ -155,13 +157,12 @@ section Elab
     let param := { version := m.version, references, decls }
     return { method, param }
 
-  private def mkIleanHeaderInfoNotification (m : DocumentMeta)
-      (directImports : Array ImportInfo) : JsonRpc.Notification Lsp.LeanILeanHeaderInfoParams :=
-    { method := "$/lean/ileanHeaderInfo", param := { version := m.version, directImports } }
-
   private def mkIleanHeaderSetupInfoNotification (m : DocumentMeta)
-      (isSetupFailure : Bool) : JsonRpc.Notification Lsp.LeanILeanHeaderSetupInfoParams :=
-    { method := "$/lean/ileanHeaderSetupInfo", param := { version := m.version, isSetupFailure } }
+      (directImports : Array ImportInfo) (isSetupFailure : Bool) :
+      JsonRpc.Notification Lsp.LeanILeanHeaderSetupInfoParams := {
+    method := "$/lean/ileanHeaderSetupInfo"
+    param := { version := m.version, directImports, isSetupFailure }
+  }
 
   private def mkIleanInfoUpdateNotification : DocumentMeta → Array Elab.InfoTree →
       BaseIO (JsonRpc.Notification Lsp.LeanIleanInfoParams) :=
@@ -244,9 +245,9 @@ This option can only be set on the command line, not in the lakefile or via `set
         return ()
       -- callback at the end of reporting
       if st.hasFatal then
-        ctx.chanOut.send <| .ofMsg <| mkFileProgressAtPosNotification doc.meta 0 .fatalError
+        discard <| ctx.chanOut.send <| .ofMsg <| mkFileProgressAtPosNotification doc.meta 0 .fatalError
       else
-        ctx.chanOut.send <| .ofMsg <| mkFileProgressDoneNotification doc.meta
+        discard <| ctx.chanOut.send <| .ofMsg <| mkFileProgressDoneNotification doc.meta
       unless st.hasBlocked do  -- "Debouncing 4."
         publishDiagnostics ctx doc
       -- This will overwrite existing ilean info for the file, in case something
@@ -400,7 +401,6 @@ def setupImports
     return .error { diagnostics := .empty, result? := none, metaSnap := default }
 
   let header := stx.toModuleHeader
-  chanOut.sync.send <| .ofMsg <| mkIleanHeaderInfoNotification doc <| collectImports stx
   let fileSetupResult ← setupFile doc header fun stderrLine => do
     let progressDiagnostic := {
       range      := ⟨⟨0, 0⟩, ⟨1, 0⟩⟩
@@ -410,29 +410,33 @@ def setupImports
       message    := stderrLine
     }
     chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[progressDiagnostic]
-  let isSetupError := fileSetupResult.kind matches .importsOutOfDate
-    || fileSetupResult.kind matches .error ..
-  chanOut.sync.send <| .ofMsg <| mkIleanHeaderSetupInfoNotification doc isSetupError
+  let isSetupError := fileSetupResult matches .importsOutOfDate
+    || fileSetupResult matches .error ..
+  chanOut.sync.send <| .ofMsg <|
+    mkIleanHeaderSetupInfoNotification doc (collectImports stx) isSetupError
   -- clear progress notifications in the end
   chanOut.sync.send <| .ofMsg <| mkPublishDiagnosticsNotification doc #[]
-  match fileSetupResult.kind with
-  | .importsOutOfDate =>
-    return .error {
-      diagnostics := (← Language.diagnosticsOfHeaderError
-        "Imports are out of date and must be rebuilt; \
-          use the \"Restart File\" command in your editor.")
-      result? := none
-      metaSnap := default
-    }
-  | .error msg =>
-    return .error {
-      diagnostics := (← diagnosticsOfHeaderError msg)
-      result? := none
-      metaSnap := default
-    }
-  | _ => pure ()
-
-  let setup := fileSetupResult.setup
+  let setup ← do
+    match fileSetupResult with
+    | .importsOutOfDate =>
+      return .error {
+        diagnostics := (← Language.diagnosticsOfHeaderError
+          "Imports are out of date and must be rebuilt; \
+            use the \"Restart File\" command in your editor.")
+        result? := none
+        metaSnap := default
+        : Language.Lean.HeaderProcessedSnapshot
+      }
+    | .error msg =>
+      return .error {
+        diagnostics := (← diagnosticsOfHeaderError msg)
+        result? := none
+        metaSnap := default
+      }
+    | .noLakefile =>
+      pure { name := doc.mod, isModule := header.isModule }
+    | .success setup =>
+      pure setup
 
   -- override cmdline options with file options
   let opts := cmdlineOpts.mergeBy (fun _ _ fileOpt => fileOpt) setup.options.toOptions
@@ -650,15 +654,17 @@ section NotificationHandling
 def handleRpcRelease (p : Lsp.RpcReleaseParams) : WorkerM Unit := do
   -- NOTE(WN): when the worker restarts e.g. due to changed imports, we may receive `rpc/release`
   -- for the previous RPC session. This is fine, just ignore.
+  let ctx ← read
   if let some seshRef := (← get).rpcSessions.get? p.sessionId then
     let monoMsNow ← IO.monoMsNow
-    let discardRefs : StateM RpcObjectStore Unit := do
-      for ref in p.refs do
-        discard do rpcReleaseRef ref
-    seshRef.modify fun st =>
-      let st := st.keptAlive monoMsNow
-      let ((), objects) := discardRefs st.objects
-      { st with objects }
+    let wireFormat ← seshRef.modifyGet fun st =>
+      (st.objects.wireFormat, st.keptAlive monoMsNow)
+    for ref in p.refs do
+      let .ok p := ref.getObjVal? wireFormat.refFieldName >>= fromJson?
+        | ctx.hLog.putStrLn s!"malformed RPC ref (wire format {toJson wireFormat}): {ref.compress}"
+      seshRef.modify fun st =>
+        let (_, objects) := rpcReleaseRef ⟨p⟩ |>.run st.objects
+        { st with objects }
 
 def handleRpcKeepAlive (p : Lsp.RpcKeepAliveParams) : WorkerM Unit := do
   match (← get).rpcSessions.get? p.sessionId with
@@ -672,7 +678,8 @@ end NotificationHandling
 section RequestHandling
 
 def handleRpcConnect (_ : RpcConnectParams) : WorkerM RpcConnected := do
-  let (newId, newSesh) ← RpcSession.new
+  let wireFormat := (← read).initParams.capabilities.rpcWireFormat
+  let (newId, newSesh) ← RpcSession.new wireFormat
   let newSeshRef ← IO.mkRef newSesh
   modify fun st => { st with rpcSessions := st.rpcSessions.insert newId newSeshRef }
   return { sessionId := newId }
@@ -704,14 +711,14 @@ section MessageHandling
       : WorkerM (ServerTask (Except Error AvailableImportsCache)) := do
     let ctx ← read
     let st ← get
-    let mod := st.doc.meta.mod
+    let uri := st.doc.meta.uri
     let text := st.doc.meta.text
 
     match st.importCachingTask? with
     | none => ServerTask.IO.asTask do
       let availableImports ← ImportCompletion.collectAvailableImports
       let lastRequestTimestampMs ← IO.monoMsNow
-      let completions := ImportCompletion.find mod params.position text ⟨st.doc.initSnap.stx⟩ availableImports
+      let completions := ImportCompletion.find uri params.position text ⟨st.doc.initSnap.stx⟩ availableImports
       ctx.chanOut.sync.send <| .ofMsg <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -721,7 +728,7 @@ section MessageHandling
       if timestampNowMs - lastRequestTimestampMs >= 10000 then
         availableImports ← ImportCompletion.collectAvailableImports
       lastRequestTimestampMs := timestampNowMs
-      let completions := ImportCompletion.find  mod params.position text ⟨st.doc.initSnap.stx⟩ availableImports
+      let completions := ImportCompletion.find uri params.position text ⟨st.doc.initSnap.stx⟩ availableImports
       ctx.chanOut.sync.send <| .ofMsg <| .response id (toJson completions)
       pure { availableImports, lastRequestTimestampMs : AvailableImportsCache }
 
@@ -793,21 +800,24 @@ section MessageHandling
         rpcEncode resp st.objects |>.map (·) ({st with objects := ·})
       return some <| .pure { response? := resp, serialized := resp.compress, isComplete := true }
     | "codeAction/resolve" =>
+      let jsonParams := params
       let params ← RequestM.parseRequestParams CodeAction params
       let some data := params.data?
         | throw (RequestError.invalidParams "Expected a data field on CodeAction.")
       let data ← RequestM.parseRequestParams CodeActionResolveData data
-      if data.providerName != importAllUnknownIdentifiersProvider then
-        return none
-      return some <| ← RequestM.asTask do
-        let unknownIdentifierRanges ← waitAllUnknownIdentifierMessageRanges st.doc
-        if unknownIdentifierRanges.isEmpty then
-          let p := toJson params
-          return { response? := p, serialized := p.compress, isComplete := true }
-        let action? ← handleResolveImportAllUnknownIdentifiersCodeAction? id params unknownIdentifierRanges
-        let action := action?.getD params
-        let action := toJson action
-        return { response? := action, serialized := action.compress, isComplete := true }
+      if data.providerName == importUnknownIdentifiersProvider then
+        return some <| RequestTask.pure { response? := jsonParams, serialized := jsonParams.compress, isComplete := true }
+      if data.providerName == importAllUnknownIdentifiersProvider then
+        return some <| ← RequestM.asTask do
+          let unknownIdentifierRanges ← waitAllUnknownIdentifierMessageRanges st.doc
+          if unknownIdentifierRanges.isEmpty then
+            let p := toJson params
+            return { response? := p, serialized := p.compress, isComplete := true }
+          let action? ← handleResolveImportAllUnknownIdentifiersCodeAction? id params unknownIdentifierRanges
+          let action := action?.getD params
+          let action := toJson action
+          return { response? := action, serialized := action.compress, isComplete := true }
+      return none
     | _ =>
       return none
 

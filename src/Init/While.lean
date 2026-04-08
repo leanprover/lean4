@@ -40,7 +40,7 @@ macro_rules
 syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
 
 macro_rules
-  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h : $cond then $seq else break)
+  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h:ident : $cond then $seq else break)
 
 syntax "while " termBeforeDo " do " doSeq : doElem
 

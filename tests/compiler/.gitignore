@@ -1,5 +1,0 @@
-*.lean.out
-*.lean.c
-*.lean.linked.bc
-*.dSYM
-test_flags.sh

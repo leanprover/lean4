@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Load.Config
-// Imports: public import Lake.Config.Env public import Lake.Load.Manifest public import Lake.Util.FilePath
+// Imports: public import Lake.Config.Env public import Lake.Config.LakeConfig public import Lake.Load.Manifest
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,33 +13,50 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object*);
 extern lean_object* l_Lake_defaultLakeDir;
-static lean_object* l_Lake_LoadConfig_lakeDir___closed__0;
 lean_object* l_Lake_joinRelative(lean_object*, lean_object*);
-static lean_object* _init_l_Lake_LoadConfig_lakeDir___closed__0() {
+LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object*);
+LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object* v_cfg_1_){
 _start:
 {
-lean_object* x_1; 
-x_1 = l_Lake_defaultLakeDir;
-return x_1;
+lean_object* v_pkgDir_2_; lean_object* v___x_3_; lean_object* v___x_4_; 
+v_pkgDir_2_ = lean_ctor_get(v_cfg_1_, 6);
+lean_inc_ref(v_pkgDir_2_);
+lean_dec_ref(v_cfg_1_);
+v___x_3_ = l_Lake_defaultLakeDir;
+v___x_4_ = l_Lake_joinRelative(v_pkgDir_2_, v___x_3_);
+return v___x_4_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_LoadConfig_lakeDir(lean_object* x_1) {
-_start:
-{
-lean_object* x_2; lean_object* x_3; lean_object* x_4; 
-x_2 = lean_ctor_get(x_1, 6);
-lean_inc_ref(x_2);
-lean_dec_ref(x_1);
-x_3 = l_Lake_LoadConfig_lakeDir___closed__0;
-x_4 = l_Lake_joinRelative(x_2, x_3);
-return x_4;
+lean_object* runtime_initialize_Lake_Config_Env(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Config_LakeConfig(uint8_t builtin);
+lean_object* runtime_initialize_Lake_Load_Manifest(uint8_t builtin);
+static bool _G_runtime_initialized = false;
+LEAN_EXPORT lean_object* runtime_initialize_Lake_Load_Config(uint8_t builtin) {
+lean_object * res;
+if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_runtime_initialized = true;
+res = runtime_initialize_Lake_Config_Env(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Config_LakeConfig(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lake_Load_Manifest(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return lean_io_result_mk_ok(lean_box(0));
 }
+static bool _G_meta_initialized = false;
+LEAN_EXPORT lean_object* meta_initialize_Lake_Load_Config(uint8_t builtin) {
+lean_object * res;
+if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
+_G_meta_initialized = true;
+return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lake_Config_Env(uint8_t builtin);
+lean_object* initialize_Lake_Config_LakeConfig(uint8_t builtin);
 lean_object* initialize_Lake_Load_Manifest(uint8_t builtin);
-lean_object* initialize_Lake_Util_FilePath(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lake_Load_Config(uint8_t builtin) {
 lean_object * res;
@@ -48,15 +65,19 @@ _G_initialized = true;
 res = initialize_Lake_Config_Env(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lake_Config_LakeConfig(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lake_Load_Manifest(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lake_Util_FilePath(builtin);
+res = runtime_initialize_Lake_Load_Config(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lake_LoadConfig_lakeDir___closed__0 = _init_l_Lake_LoadConfig_lakeDir___closed__0();
-lean_mark_persistent(l_Lake_LoadConfig_lakeDir___closed__0);
-return lean_io_result_mk_ok(lean_box(0));
+res = meta_initialize_Lake_Load_Config(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+return initialize_Lake_Load_Config(builtin);
 }
 #ifdef __cplusplus
 }

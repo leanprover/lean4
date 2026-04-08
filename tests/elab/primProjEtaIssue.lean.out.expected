@@ -1,0 +1,2 @@
+primProjEtaIssue.lean:1:0-1:7: warning: declaration uses `sorry`
+primProjEtaIssue.lean:9:0-9:7: warning: declaration uses `sorry`

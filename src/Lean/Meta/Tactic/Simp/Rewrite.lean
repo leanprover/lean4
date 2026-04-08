@@ -4,7 +4,6 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
-
 prelude
 public import Lean.Meta.ACLt
 public import Lean.Meta.Match.MatchEqsExt
@@ -12,11 +11,10 @@ public import Lean.Meta.Tactic.UnifyEq
 public import Lean.Meta.Tactic.Simp.Arith
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.BinderNameHint
-
+import Lean.Meta.WHNF
+public import Lean.Meta.HasAssignableMVar
 public section
-
 namespace Lean.Meta.Simp
-
 /--
 Helper type for implementing `discharge?'`
 -/
@@ -102,7 +100,7 @@ where
       if (← withReducibleAndInstances <| isDefEq x val) then
         return true
       else
-        trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsythesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
+        trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsynthesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
         return false
     | _ =>
       trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
@@ -221,6 +219,7 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
       for (thm, numExtraArgs) in candidates do
+        checkSystem "simp"
         if inErasedSet thm then continue
         if rflOnly then
           unless thm.rfl do
@@ -248,6 +247,7 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
       for thm in candidates do
+        checkSystem "simp"
         unless inErasedSet thm || (rflOnly && !thm.rfl) do
           let result? ← withNewMCtxDepth do
             let val  ← thm.getValue
@@ -633,7 +633,7 @@ def dischargeDefault? (e : Expr) : SimpM (Option Expr) := do
     if let some r ← dischargeEqnThmHypothesis? e then return some r
   let r ← simp e
   if let some p ← dischargeRfl r.expr then
-    return some (mkApp4 (mkConst ``Eq.mpr [levelZero]) e r.expr (← r.getProof) p)
+    return some (mkApp4 (mkConst ``Eq.mpr [Level.zero]) e r.expr (← r.getProof) p)
   else if r.expr.isTrue then
     return some (← mkOfEqTrue (← r.getProof))
   else

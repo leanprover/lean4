@@ -8,7 +8,9 @@ module
 prelude
 import all Init.Data.Array.Count
 import all Init.Data.Vector.Basic
-public import Init.Data.Vector.Lemmas
+public import Init.BinderPredicates
+public import Init.Data.Vector.Basic
+import Init.Data.Vector.Lemmas
 
 public section
 
@@ -70,6 +72,18 @@ theorem countP_le_size {xs : Vector α n} : countP p xs ≤ n := by
   cases xs
   simp
 
+/-- This lemma is only relevant for `grind`. -/
+@[grind ←=]
+theorem _root_.Std.Internal.Vector.countP_eq_zero_of_forall {xs : Vector α n} (h : ∀ x ∈ xs, ¬ p x) : xs.countP p = 0 :=
+  countP_eq_zero.mpr h
+
+/-- This lemma is only relevant for `grind`. -/
+theorem _root_.Std.Internal.Vector.not_of_countP_eq_zero_of_mem {xs : Vector α n} (h : xs.countP p = 0) (h' : x ∈ xs) : ¬ p x :=
+   countP_eq_zero.mp h _ h'
+
+grind_pattern Std.Internal.Vector.not_of_countP_eq_zero_of_mem => xs.countP p, x ∈ xs where
+  guard xs.countP p = 0
+
 @[simp] theorem countP_eq_size {p} {xs : Vector α n} : countP p xs = n ↔ ∀ a ∈ xs, p a := by
   rcases xs with ⟨xs, rfl⟩
   simp
@@ -82,11 +96,14 @@ theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a 
   simp only [replicate_eq_mk_replicate, countP_mk]
   simp [Array.countP_replicate]
 
+set_option backward.isDefEq.respectTransparency false in
 theorem boole_getElem_le_countP {p : α → Bool} {xs : Vector α n} (h : i < n) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.boole_getElem_le_countP]
 
+set_option backward.isDefEq.respectTransparency false in
+@[grind =]
 theorem countP_set {p : α → Bool} {xs : Vector α n} {a : α} (h : i < n) :
     (xs.set i a).countP p = xs.countP p - (if p xs[i] then 1 else 0) + (if p a then 1 else 0) := by
   rcases xs with ⟨xs, rfl⟩
@@ -173,6 +190,7 @@ theorem count_le_count_push {a b : α} {xs : Vector α n} : count a xs ≤ count
   rcases xs with ⟨xs, rfl⟩
   simp
 
+set_option backward.isDefEq.respectTransparency false in
 theorem boole_getElem_le_count {a : α} {xs : Vector α n} (h : i < n) :
     (if xs[i] == a then 1 else 0) ≤ xs.count a := by
   rcases xs with ⟨xs, rfl⟩
@@ -181,7 +199,7 @@ theorem boole_getElem_le_count {a : α} {xs : Vector α n} (h : i < n) :
 theorem count_set {a b : α} {xs : Vector α n} (h : i < n) :
     (xs.set i a).count b = xs.count b - (if xs[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.count_set]
+  simp [Array.count_set]; rfl
 
 @[simp] theorem count_cast {xs : Vector α n} : (xs.cast h).count a = xs.count a := by
   rcases xs with ⟨xs, rfl⟩

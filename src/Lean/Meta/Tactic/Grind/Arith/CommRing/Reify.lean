@@ -7,10 +7,9 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
-import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith (MonadCanon)
 
 variable [MonadLiftT MetaM m] [MonadError m] [Monad m] [MonadCanon m] [MonadRing m]
 
@@ -139,11 +138,15 @@ variable [MonadLiftT GoalM m] [MonadError m] [Monad m] [MonadCanon m] [MonadSemi
 Similar to `reify?` but for `CommSemiring`
 -/
 partial def sreifyCore? (e : Expr) : m (Option SemiringExpr) := do
+  let mkVar (e : Expr) : m Var := do
+    unless (← alreadyInternalized e) do
+      internalize e 0
+    mkSVarCore e
   let toVar (e : Expr) : m SemiringExpr := do
-    return .var (← mkSVarCore e)
+    return .var (← mkVar e)
   let asVar (e : Expr) : m SemiringExpr := do
     reportSAppIssue e
-    return .var (← mkSVarCore e)
+    return .var (← mkVar e)
   let rec go (e : Expr) : m SemiringExpr := do
     match_expr e with
     | HAdd.hAdd _ _ _ i a b =>

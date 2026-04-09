@@ -992,6 +992,13 @@ add_custom_target(
 
 add_custom_target(clean-olean DEPENDS clean-stdlib)
 
+if(USE_LAKE_CACHE)
+  add_custom_target(
+    cache-get
+    COMMAND ${PREV_STAGE}/bin/lake${CMAKE_EXECUTABLE_SUFFIX} cache get --repo=leanprover/lean4
+  )
+endif()
+
 install(
   DIRECTORY "${CMAKE_BINARY_DIR}/lib/"
   DESTINATION lib

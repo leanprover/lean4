@@ -220,7 +220,9 @@ add_custom_target(
   DEPENDS stage2
 )
 
-add_custom_target(clean-stdlib COMMAND $(MAKE) -C stage1 clean-stdlib DEPENDS stage1)
+add_custom_target(clean-stdlib COMMAND $(MAKE) -C stage1 clean-stdlib DEPENDS stage1-configure)
+
+add_custom_target(cache-get COMMAND $(MAKE) -C stage1 cache-get DEPENDS stage1-configure)
 
 install(CODE "execute_process(COMMAND make -C stage1 install)")
 

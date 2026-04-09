@@ -213,6 +213,9 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
 @[simp, grind =] theorem sum_toArray [Add α] [Zero α] (l : List α) : l.toArray.sum = l.sum := by
   simp [Array.sum, List.sum]
 
+@[simp, grind =] theorem prod_toArray [Mul α] [One α] (l : List α) : l.toArray.prod = l.prod := by
+  simp [Array.prod, List.prod]
+
 @[simp, grind =] theorem append_toArray (l₁ l₂ : List α) :
     l₁.toArray ++ l₂.toArray = (l₁ ++ l₂).toArray := by
   apply ext'

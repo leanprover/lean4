@@ -149,17 +149,15 @@ partial def mkSizeOfFn (recName : Name) (declName : Name): MetaM Unit := do
           trace[Meta.sizeOf] "declName: {declName}"
           trace[Meta.sizeOf] "type: {sizeOfType}"
           trace[Meta.sizeOf] "val: {sizeOfValue}"
-          -- We expose the `sizeOf` functions so that the `spec` theorems can be publicly `defeq`
-          withExporting do
-            addDecl <| Declaration.defnDecl {
-              name        := declName
-              levelParams := levelParams
-              type        := sizeOfType
-              value       := sizeOfValue
-              safety      := DefinitionSafety.safe
-              hints       := ReducibilityHints.abbrev
-            }
-            enableRealizationsForConst declName
+          addDecl <| Declaration.defnDecl {
+            name        := declName
+            levelParams := levelParams
+            type        := sizeOfType
+            value       := sizeOfValue
+            safety      := DefinitionSafety.safe
+            hints       := ReducibilityHints.abbrev
+          }
+          enableRealizationsForConst declName
 
 /--
   Create `sizeOf` functions for all inductive datatypes in the mutual inductive declaration containing `typeName`
@@ -469,7 +467,6 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
         type        := thmType
         value       := thmValue
       }
-      inferDefEqAttr thmName
       simpAttr.add thmName default .global
       grindAttr.add thmName grindAttrStx .global
 

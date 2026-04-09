@@ -7375,8 +7375,8 @@ return v___x_2236_;
 }
 else
 {
-lean_dec(v_head_2196_);
 lean_dec_ref(v_symbols_2195_);
+lean_dec(v_head_2196_);
 lean_dec_ref(v_thm_2191_);
 lean_dec_ref(v_s_2190_);
 goto v___jp_2192_;

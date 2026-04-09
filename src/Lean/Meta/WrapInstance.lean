@@ -149,8 +149,7 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
       return inst
 
   -- Try to reduce it to a constructor.
-  let inst ← whnf inst
-  inst.withApp fun f args => do
+  (← whnf inst).withApp fun f args => do
     let some (.ctorInfo ci) ← f.constName?.mapM getConstInfo
       | do
         trace[Meta.wrapInstance] "did not reduce to constructor application, returning/wrapping as is: {inst}"

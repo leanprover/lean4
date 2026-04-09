@@ -77,7 +77,7 @@ jobs:
       # sync options with `Linux Lake` to ensure cache reuse
       run: |
         mkdir -p build
-        cmake --preset release -B build -DLEAN_EXTRA_MAKE_OPTS=-DwarningAsError=true
+        cmake --preset release -B build -DWFAIL=ON
       shell: 'nix develop -c bash -euxo pipefail {0}'
     - if: env.should_update_stage0 == 'yes'
       run: |

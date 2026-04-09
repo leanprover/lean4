@@ -116,11 +116,19 @@ option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current ver
 option(USE_LAKE "Use Lake instead of lean.mk for building core libs from language server" ON)
 option(USE_LAKE_CACHE "Use the Lake artifact cache for stage 1 builds (requires USE_LAKE)" OFF)
 
-set(LEAN_EXTRA_MAKE_OPTS "" CACHE STRING "extra options to lean --make")
+set(LEAN_EXTRA_OPTS "" CACHE STRING "extra options to lean (via lake or make)")
+set(LEAN_EXTRA_MAKE_OPTS "" CACHE STRING "extra options to leanmake")
 set(LEANC_CC ${CMAKE_C_COMPILER} CACHE STRING "C compiler to use in `leanc`")
 
 # Temporary, core-only flags. Must be synced with stdlib_flags.h.
-string(APPEND LEAN_EXTRA_MAKE_OPTS " -Dbackward.do.legacy=false")
+string(APPEND LEAN_EXTRA_OPTS " -Dbackward.do.legacy=false")
+
+# option used by the CI to fail on warnings
+option(WFAIL "Fail build if warnings are emitted by Lean" ON)
+if(WFAIL MATCHES "ON")
+  string(APPEND LAKE_EXTRA_ARGS " --wfail")
+  string(APPEND LEAN_EXTRA_MAKE_OPTS " -DwarningAsError=true")
+endif()
 
 if(LAZY_RC MATCHES "ON")
   set(LEAN_LAZY_RC "#define LEAN_LAZY_RC")
@@ -198,7 +206,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}/lib/lean")
 
 # OSX default thread stack size is very small. Moreover, in Debug mode, each new stack frame consumes a lot of extra memory.
 if((MULTI_THREAD MATCHES "ON") AND (CMAKE_SYSTEM_NAME MATCHES "Darwin"))
-  string(APPEND LEAN_EXTRA_MAKE_OPTS " -s40000")
+  string(APPEND LEAN_EXTRA_OPTS " -s40000")
 endif()
 
 # We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
@@ -670,6 +678,9 @@ else()
   set(LEAN_PATH_SEPARATOR ":")
 endif()
 
+# inherit genral options for lean.mk.in and stdlib.make.in
+string(APPEND LEAN_EXTRA_MAKE_OPTS " ${LEAN_EXTRA_OPTS}")
+
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/include/lean/version.h")
 if(STAGE EQUAL 0)
@@ -1054,7 +1065,7 @@ string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_CC "${LEANC_CC}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_FLAGS "${LEANC_INTERNAL_FLAGS}")
 string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}" LEANC_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
 
-toml_escape("${LEAN_EXTRA_MAKE_OPTS}" LEAN_EXTRA_OPTS_TOML)
+toml_escape("${LEAN_EXTRA_OPTS}" LEAN_EXTRA_OPTS_TOML)
 
 if(CMAKE_BUILD_TYPE MATCHES "Debug|Release|RelWithDebInfo|MinSizeRel")
   set(CMAKE_BUILD_TYPE_TOML "${CMAKE_BUILD_TYPE}")

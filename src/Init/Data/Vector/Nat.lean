@@ -37,4 +37,23 @@ theorem sum_reverse_nat (xs : Vector Nat n) : xs.reverse.sum = xs.sum := by
 theorem sum_eq_foldl_nat {xs : Vector Nat n} : xs.sum = xs.foldl (b := 0) (· + ·) := by
   simp only [foldl_eq_foldr_reverse, Nat.add_comm, ← sum_eq_foldr, sum_reverse_nat]
 
+protected theorem prod_pos_iff_forall_pos_nat {xs : Vector Nat n} : 0 < xs.prod ↔ ∀ x ∈ xs, 0 < x := by
+  simp [← prod_toArray, Array.prod_pos_iff_forall_pos_nat]
+
+protected theorem prod_eq_zero_iff_exists_zero_nat {xs : Vector Nat n} :
+    xs.prod = 0 ↔ ∃ x ∈ xs, x = 0 := by
+  simp [← prod_toArray, Array.prod_eq_zero_iff_exists_zero_nat]
+
+@[simp] theorem prod_replicate_nat {n : Nat} {a : Nat} : (replicate n a).prod = a ^ n := by
+  simp [← prod_toArray, Array.prod_replicate_nat]
+
+theorem prod_append_nat {as₁ as₂ : Vector Nat n} : (as₁ ++ as₂).prod = as₁.prod * as₂.prod := by
+  simp [← prod_toArray]
+
+theorem prod_reverse_nat (xs : Vector Nat n) : xs.reverse.prod = xs.prod := by
+  simp [prod_reverse]
+
+theorem prod_eq_foldl_nat {xs : Vector Nat n} : xs.prod = xs.foldl (b := 1) (· * ·) := by
+  simp only [foldl_eq_foldr_reverse, Nat.mul_comm, ← prod_eq_foldr, prod_reverse_nat]
+
 end Vector

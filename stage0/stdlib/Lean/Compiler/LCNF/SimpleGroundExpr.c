@@ -5152,8 +5152,8 @@ goto _start;
 else
 {
 lean_object* v___x_1671_; lean_object* v___x_1672_; 
-lean_dec_ref(v_x_1651_);
 lean_dec(v_head_1657_);
+lean_dec_ref(v_x_1651_);
 lean_dec(v_x_1652_);
 v___x_1671_ = lean_box(0);
 v___x_1672_ = lean_alloc_ctor(0, 1, 0);

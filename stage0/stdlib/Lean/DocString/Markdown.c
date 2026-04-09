@@ -4103,11 +4103,11 @@ lean_object* v___x_1254_; lean_object* v___x_1255_; lean_object* v___x_1256_; le
 v___x_1254_ = lean_unsigned_to_nat(1u);
 v___x_1255_ = lean_nat_add(v___y_1253_, v___x_1254_);
 lean_dec(v___y_1253_);
-v___x_1256_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_quoteCode_spec__1(v___x_1255_, v___y_1251_);
+v___x_1256_ = l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00__private_Lean_DocString_Markdown_0__Lean_Doc_quoteCode_spec__1(v___x_1255_, v___y_1252_);
 lean_inc_ref(v___x_1256_);
 v___x_1257_ = lean_string_append(v___x_1256_, v___x_1249_);
-v___x_1258_ = lean_string_append(v___x_1257_, v___y_1252_);
-lean_dec_ref(v___y_1252_);
+v___x_1258_ = lean_string_append(v___x_1257_, v___y_1251_);
+lean_dec_ref(v___y_1251_);
 v___x_1259_ = lean_string_append(v___x_1258_, v___x_1256_);
 lean_dec_ref(v___x_1256_);
 v___x_1260_ = lean_string_append(v___x_1259_, v___x_1249_);
@@ -4121,16 +4121,16 @@ v___x_1264_ = lean_nat_dec_le(v_fst_1246_, v_fst_1247_);
 if (v___x_1264_ == 0)
 {
 lean_dec(v_fst_1247_);
-v___y_1251_ = v___x_1263_;
-v___y_1252_ = v___y_1262_;
+v___y_1251_ = v___y_1262_;
+v___y_1252_ = v___x_1263_;
 v___y_1253_ = v_fst_1246_;
 goto v___jp_1250_;
 }
 else
 {
 lean_dec(v_fst_1246_);
-v___y_1251_ = v___x_1263_;
-v___y_1252_ = v___y_1262_;
+v___y_1251_ = v___y_1262_;
+v___y_1252_ = v___x_1263_;
 v___y_1253_ = v_fst_1247_;
 goto v___jp_1250_;
 }

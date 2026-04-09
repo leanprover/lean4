@@ -481,11 +481,9 @@ def execute_release_steps(repo, version, config):
         run_command("lake update", cwd=repo_path, stream_output=True)
     elif repo_name == "verso":
         # verso has nested Lake projects in test-projects/ that each have their own
-        # lake-manifest.json with a subverso pin. After updating the root manifest via
-        # `lake update`, sync the de-modulized subverso rev into all sub-manifests.
-        # The sub-projects use an old toolchain (v4.21.0) that doesn't support module/prelude
-        # syntax, so they need the de-modulized version (tagged no-modules/<root-rev>).
-        # The "SubVerso version consistency" CI check accepts either the root or de-modulized rev.
+        # lake-manifest.json with a subverso pin and their own lean-toolchain.
+        # After updating the root manifest via `lake update`, sync the de-modulized
+        # subverso rev into all sub-manifests, and update their lean-toolchain files.
         run_command("lake update", cwd=repo_path, stream_output=True)
         print(blue("Syncing de-modulized subverso rev to test-project sub-manifests..."))
         sync_script = (
@@ -498,6 +496,15 @@ def execute_release_steps(repo, version, config):
         )
         run_command(sync_script, cwd=repo_path)
         print(green("Synced de-modulized subverso rev to all test-project sub-manifests"))
+        # Update all lean-toolchain files in test-projects/ to match the root
+        print(blue("Updating lean-toolchain files in test-projects/..."))
+        find_result = run_command("find test-projects -name lean-toolchain", cwd=repo_path)
+        for tc_path in find_result.stdout.strip().splitlines():
+            if tc_path:
+                tc_file = repo_path / tc_path
+                with open(tc_file, "w") as f:
+                    f.write(f"leanprover/lean4:{version}\n")
+                print(green(f"  Updated {tc_path}"))
     elif dependencies:
         run_command(f'perl -pi -e \'s/"v4\\.[0-9]+(\\.[0-9]+)?(-rc[0-9]+)?"/"' + version + '"/g\' lakefile.*', cwd=repo_path)
         run_command("lake update", cwd=repo_path, stream_output=True)
@@ -659,56 +666,61 @@ def execute_release_steps(repo, version, config):
         # Fetch latest changes to ensure we have the most up-to-date nightly-testing branch
         print(blue("Fetching latest changes from origin..."))
         run_command("git fetch origin", cwd=repo_path)
-        
-        try:
-            print(blue("Merging origin/nightly-testing..."))
-            run_command("git merge origin/nightly-testing", cwd=repo_path)
-            print(green("Merge completed successfully"))
-        except subprocess.CalledProcessError:
-            # Merge failed due to conflicts - check which files are conflicted
-            print(blue("Merge conflicts detected, checking which files are affected..."))
-            
-            # Get conflicted files using git status
-            status_result = run_command("git status --porcelain", cwd=repo_path)
-            conflicted_files = []
-            
-            for line in status_result.stdout.splitlines():
-                if len(line) >= 2 and line[:2] in ['UU', 'AA', 'DD', 'AU', 'UA', 'DU', 'UD']:
-                    # Extract filename (skip the first 3 characters which are status codes)
-                    conflicted_files.append(line[3:])
-            
-            # Filter out allowed files
-            allowed_patterns = ['lean-toolchain', 'lake-manifest.json']
-            problematic_files = []
-            
-            for file in conflicted_files:
-                is_allowed = any(pattern in file for pattern in allowed_patterns)
-                if not is_allowed:
-                    problematic_files.append(file)
-            
-            if problematic_files:
-                # There are conflicts in non-allowed files - fail
-                print(red("❌ Merge failed!"))
-                print(red(f"Merging nightly-testing resulted in conflicts in:"))
-                for file in problematic_files:
-                    print(red(f"  - {file}"))
-                print(red("Please resolve these conflicts manually."))
-                return
-            else:
-                # Only allowed files are conflicted - resolve them automatically
-                print(green(f"✅ Only allowed files conflicted: {', '.join(conflicted_files)}"))
-                print(blue("Resolving conflicts automatically..."))
-                
-                # For lean-toolchain and lake-manifest.json, keep our versions
+
+        # Check if nightly-testing branch exists on origin (use local ref after fetch for exact match)
+        nightly_check = run_command("git show-ref --verify --quiet refs/remotes/origin/nightly-testing", cwd=repo_path, check=False)
+        if nightly_check.returncode != 0:
+            print(yellow("No nightly-testing branch found on origin, skipping merge"))
+        else:
+            try:
+                print(blue("Merging origin/nightly-testing..."))
+                run_command("git merge origin/nightly-testing", cwd=repo_path)
+                print(green("Merge completed successfully"))
+            except subprocess.CalledProcessError:
+                # Merge failed due to conflicts - check which files are conflicted
+                print(blue("Merge conflicts detected, checking which files are affected..."))
+
+                # Get conflicted files using git status
+                status_result = run_command("git status --porcelain", cwd=repo_path)
+                conflicted_files = []
+
+                for line in status_result.stdout.splitlines():
+                    if len(line) >= 2 and line[:2] in ['UU', 'AA', 'DD', 'AU', 'UA', 'DU', 'UD']:
+                        # Extract filename (skip the first 3 characters which are status codes)
+                        conflicted_files.append(line[3:])
+
+                # Filter out allowed files
+                allowed_patterns = ['lean-toolchain', 'lake-manifest.json']
+                problematic_files = []
+
                 for file in conflicted_files:
-                    print(blue(f"Keeping our version of {file}"))
-                    run_command(f"git checkout --ours {file}", cwd=repo_path)
-                
-                # Complete the merge
-                run_command("git add .", cwd=repo_path)
-                run_command("git commit --no-edit", cwd=repo_path)
-                
-                print(green("✅ Merge completed successfully with automatic conflict resolution"))
+                    is_allowed = any(pattern in file for pattern in allowed_patterns)
+                    if not is_allowed:
+                        problematic_files.append(file)
+
+                if problematic_files:
+                    # There are conflicts in non-allowed files - fail
+                    print(red("❌ Merge failed!"))
+                    print(red(f"Merging nightly-testing resulted in conflicts in:"))
+                    for file in problematic_files:
+                        print(red(f"  - {file}"))
+                    print(red("Please resolve these conflicts manually."))
+                    return
+                else:
+                    # Only allowed files are conflicted - resolve them automatically
+                    print(green(f"✅ Only allowed files conflicted: {', '.join(conflicted_files)}"))
+                    print(blue("Resolving conflicts automatically..."))
+
+                    # For lean-toolchain and lake-manifest.json, keep our versions
+                    for file in conflicted_files:
+                        print(blue(f"Keeping our version of {file}"))
+                        run_command(f"git checkout --ours {file}", cwd=repo_path)
+
+                    # Complete the merge
+                    run_command("git add .", cwd=repo_path)
+                    run_command("git commit --no-edit", cwd=repo_path)
+
+                    print(green("✅ Merge completed successfully with automatic conflict resolution"))
 
     # Build and test (skip for Mathlib)
     if repo_name not in ["mathlib4"]:

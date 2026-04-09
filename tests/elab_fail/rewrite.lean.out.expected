@@ -1,7 +1,7 @@
 α : Type u_1
 as bs : List α
 ⊢ as ++ bs ++ bs = as ++ (bs ++ bs)
-rewrite.lean:18:20-18:29: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
+rewrite.lean:18:22-18:31: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern
   (List.reverse ?as).reverse
 in the target expression
   as ++ [] ++ [] ++ bs ++ bs = as ++ (bs ++ bs)
@@ -13,7 +13,7 @@ x y z : Nat
 h₁ : x = y
 h₂ : y = z
 ⊢ x = z
-rewrite.lean:37:9-37:20: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern in the current goal
+rewrite.lean:37:11-37:22: error: Tactic `rewrite` failed: Did not find an occurrence of the pattern in the current goal
 
 x y z : Nat
 h₁ : 0 + x = y

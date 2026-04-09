@@ -9874,8 +9874,8 @@ lean_inc(v_a_3187_);
 v___x_3189_ = l_Lean_Exception_isRuntime(v_a_3187_);
 v___y_3133_ = v_a_3187_;
 v___y_3134_ = v___x_3186_;
-v___y_3135_ = v_inheritedTraceOptions_3164_;
-v___y_3136_ = v_options_3160_;
+v___y_3135_ = v_options_3160_;
+v___y_3136_ = v_inheritedTraceOptions_3164_;
 v___y_3137_ = v___x_3189_;
 goto v___jp_3132_;
 }
@@ -9883,8 +9883,8 @@ else
 {
 v___y_3133_ = v_a_3187_;
 v___y_3134_ = v___x_3186_;
-v___y_3135_ = v_inheritedTraceOptions_3164_;
-v___y_3136_ = v_options_3160_;
+v___y_3135_ = v_options_3160_;
+v___y_3136_ = v_inheritedTraceOptions_3164_;
 v___y_3137_ = v___x_3188_;
 goto v___jp_3132_;
 }
@@ -10042,7 +10042,7 @@ if (v___y_3137_ == 0)
 {
 uint8_t v_hasTrace_3138_; 
 lean_dec_ref(v___y_3134_);
-v_hasTrace_3138_ = lean_ctor_get_uint8(v___y_3136_, sizeof(void*)*1);
+v_hasTrace_3138_ = lean_ctor_get_uint8(v___y_3135_, sizeof(void*)*1);
 if (v_hasTrace_3138_ == 0)
 {
 lean_dec_ref(v___y_3133_);
@@ -10059,7 +10059,7 @@ v___x_3140_ = l_Lean_Name_mkStr4(v___x_3090_, v___x_3091_, v___x_3092_, v___x_31
 v___x_3141_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecAttr___lam__1___closed__11));
 lean_inc(v___x_3140_);
 v___x_3142_ = l_Lean_Name_append(v___x_3141_, v___x_3140_);
-v___x_3143_ = l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(v___y_3135_, v___y_3136_, v___x_3142_);
+v___x_3143_ = l___private_Lean_Util_Trace_0__Lean_checkTraceOption_go(v___y_3136_, v___y_3135_, v___x_3142_);
 lean_dec(v___x_3142_);
 if (v___x_3143_ == 0)
 {

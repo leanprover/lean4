@@ -71,7 +71,7 @@ lean_object* lean_private_prefix(lean_object*);
 lean_object* l_Lean_privateToUserName(lean_object*);
 lean_object* l_Lean_Name_appendCore(lean_object*, lean_object*);
 uint8_t l_Lean_Environment_hasUnsafe(lean_object*, lean_object*);
-lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* l_Lean_markAuxRecursor(lean_object*, lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
@@ -3449,7 +3449,7 @@ v_reusejp_1208_:
 {
 uint8_t v___x_1210_; lean_object* v___x_1211_; 
 v___x_1210_ = 1;
-v___x_1211_ = l_Lean_addAndCompile(v___x_1209_, v___x_1210_, v_a_1178_, v_a_1179_);
+v___x_1211_ = l_Lean_addAndCompile(v___x_1209_, v___x_1210_, v___x_1189_, v_a_1178_, v_a_1179_);
 if (lean_obj_tag(v___x_1211_) == 0)
 {
 lean_object* v___x_1212_; lean_object* v_env_1213_; lean_object* v_nextMacroScope_1214_; lean_object* v_ngen_1215_; lean_object* v_auxDeclNGen_1216_; lean_object* v_traceState_1217_; lean_object* v_messages_1218_; lean_object* v_infoState_1219_; lean_object* v_snapshotTasks_1220_; lean_object* v___x_1222_; uint8_t v_isShared_1223_; uint8_t v_isSharedCheck_1279_; 
@@ -4932,7 +4932,7 @@ v_reusejp_1909_:
 {
 uint8_t v___x_1911_; lean_object* v___x_1912_; 
 v___x_1911_ = 1;
-v___x_1912_ = l_Lean_addAndCompile(v___x_1910_, v___x_1911_, v_a_1879_, v_a_1880_);
+v___x_1912_ = l_Lean_addAndCompile(v___x_1910_, v___x_1911_, v___x_1897_, v_a_1879_, v_a_1880_);
 if (lean_obj_tag(v___x_1912_) == 0)
 {
 lean_object* v___x_1913_; lean_object* v_env_1914_; lean_object* v_nextMacroScope_1915_; lean_object* v_ngen_1916_; lean_object* v_auxDeclNGen_1917_; lean_object* v_traceState_1918_; lean_object* v_messages_1919_; lean_object* v_infoState_1920_; lean_object* v_snapshotTasks_1921_; lean_object* v___x_1923_; uint8_t v_isShared_1924_; uint8_t v_isSharedCheck_2013_; 
@@ -6308,7 +6308,7 @@ goto v_reusejp_2442_;
 v_reusejp_2442_:
 {
 lean_object* v___x_2444_; 
-v___x_2444_ = l_Lean_addAndCompile(v___x_2443_, v___x_2418_, v___y_2413_, v___y_2414_);
+v___x_2444_ = l_Lean_addAndCompile(v___x_2443_, v___x_2418_, v___x_2427_, v___y_2413_, v___y_2414_);
 if (lean_obj_tag(v___x_2444_) == 0)
 {
 lean_object* v___x_2445_; lean_object* v_env_2446_; lean_object* v_nextMacroScope_2447_; lean_object* v_ngen_2448_; lean_object* v_auxDeclNGen_2449_; lean_object* v_traceState_2450_; lean_object* v_messages_2451_; lean_object* v_infoState_2452_; lean_object* v_snapshotTasks_2453_; lean_object* v___x_2455_; uint8_t v_isShared_2456_; uint8_t v_isSharedCheck_2583_; 

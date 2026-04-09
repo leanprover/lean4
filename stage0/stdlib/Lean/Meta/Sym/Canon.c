@@ -555,7 +555,7 @@ return v_res_83_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Canon_0__Lean_Meta_Sym_Canon_normOfNatArgs_x3f(lean_object* v_args_95_, lean_object* v_a_96_, lean_object* v_a_97_, lean_object* v_a_98_, lean_object* v_a_99_){
 _start:
 {
-lean_object* v___y_105_; uint8_t v___y_106_; lean_object* v___y_110_; lean_object* v___y_111_; lean_object* v___y_112_; uint8_t v___y_113_; lean_object* v_args_140_; uint8_t v_modified_141_; lean_object* v___y_142_; lean_object* v___x_170_; lean_object* v___x_171_; uint8_t v___x_172_; 
+lean_object* v___y_105_; uint8_t v___y_106_; lean_object* v___y_110_; lean_object* v___y_111_; uint8_t v___y_112_; lean_object* v___y_113_; lean_object* v_args_140_; uint8_t v_modified_141_; lean_object* v___y_142_; lean_object* v___x_170_; lean_object* v___x_171_; uint8_t v___x_172_; 
 v___x_170_ = lean_array_get_size(v_args_95_);
 v___x_171_ = lean_unsigned_to_nat(3u);
 v___x_172_ = lean_nat_dec_eq(v___x_170_, v___x_171_);
@@ -683,7 +683,7 @@ return v___x_108_;
 v___jp_109_:
 {
 lean_object* v___x_114_; 
-v___x_114_ = l_Lean_Meta_Structural_isInstOfNatInt___redArg(v___y_112_, v___y_111_);
+v___x_114_ = l_Lean_Meta_Structural_isInstOfNatInt___redArg(v___y_111_, v___y_113_);
 if (lean_obj_tag(v___x_114_) == 0)
 {
 lean_object* v_a_115_; lean_object* v___x_117_; uint8_t v_isShared_118_; uint8_t v_isSharedCheck_130_; 
@@ -712,7 +712,7 @@ if (v___x_119_ == 0)
 {
 lean_del_object(v___x_117_);
 v___y_105_ = v___y_110_;
-v___y_106_ = v___y_113_;
+v___y_106_ = v___y_112_;
 goto v___jp_104_;
 }
 else
@@ -752,7 +752,7 @@ else
 {
 lean_del_object(v___x_117_);
 v___y_105_ = v___y_110_;
-v___y_106_ = v___y_113_;
+v___y_106_ = v___y_112_;
 goto v___jp_104_;
 }
 }
@@ -837,9 +837,9 @@ if (v___x_150_ == 0)
 lean_inc(v_inst_144_);
 lean_del_object(v___x_148_);
 v___y_110_ = v_args_140_;
-v___y_111_ = v___y_142_;
-v___y_112_ = v_inst_144_;
-v___y_113_ = v_modified_141_;
+v___y_111_ = v_inst_144_;
+v___y_112_ = v_modified_141_;
+v___y_113_ = v___y_142_;
 goto v___jp_109_;
 }
 else
@@ -880,9 +880,9 @@ else
 lean_inc(v_inst_144_);
 lean_del_object(v___x_148_);
 v___y_110_ = v_args_140_;
-v___y_111_ = v___y_142_;
-v___y_112_ = v_inst_144_;
-v___y_113_ = v_modified_141_;
+v___y_111_ = v_inst_144_;
+v___y_112_ = v_modified_141_;
+v___y_113_ = v___y_142_;
 goto v___jp_109_;
 }
 }

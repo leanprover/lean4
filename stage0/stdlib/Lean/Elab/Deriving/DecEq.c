@@ -19,7 +19,7 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkLambdaFVars(lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkArrow(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
-lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Lean_addAndCompile(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isAppOf(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Expr_app___override(lean_object*, lean_object*);
@@ -10545,7 +10545,7 @@ lean_ctor_set(v___x_4146_, 3, v___x_4145_);
 lean_ctor_set_uint8(v___x_4146_, sizeof(void*)*4, v___x_4143_);
 v___x_4147_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_4147_, 0, v___x_4146_);
-v___x_4148_ = l_Lean_addAndCompile(v___x_4147_, v___x_4133_, v___y_4124_, v___y_4125_);
+v___x_4148_ = l_Lean_addAndCompile(v___x_4147_, v___x_4133_, v___x_4132_, v___y_4124_, v___y_4125_);
 return v___x_4148_;
 }
 else
@@ -11402,7 +11402,7 @@ goto v_reusejp_4520_;
 v_reusejp_4520_:
 {
 lean_object* v___x_4522_; 
-v___x_4522_ = l_Lean_addAndCompile(v___x_4521_, v___x_4496_, v___y_4486_, v___y_4487_);
+v___x_4522_ = l_Lean_addAndCompile(v___x_4521_, v___x_4496_, v___x_4495_, v___y_4486_, v___y_4487_);
 return v___x_4522_;
 }
 }

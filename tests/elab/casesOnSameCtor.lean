@@ -109,7 +109,7 @@ info: theorem Vec.decEqVec.eq_def.{u_1} : ∀ {α : Type u_1} {a : Nat} [inst : 
 #print sig decEqVec.eq_def
 
 
--- Incidentially, normal match syntax is able to produce an equivalent matcher
+-- Incidentally, normal match syntax is able to produce an equivalent matcher
 -- (with different implementation):
 -- (see #10195 for problems with equation generation)
 

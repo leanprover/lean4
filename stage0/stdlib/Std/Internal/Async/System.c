@@ -3713,6 +3713,8 @@ _start:
 {
 lean_object* v_res_1220_; 
 v_res_1220_ = l_Std_Internal_IO_Async_System_setEnvVar(v_name_1217_, v_value_1218_);
+lean_dec_ref(v_value_1218_);
+lean_dec_ref(v_name_1217_);
 return v_res_1220_;
 }
 }
@@ -3729,6 +3731,7 @@ _start:
 {
 lean_object* v_res_1226_; 
 v_res_1226_ = l_Std_Internal_IO_Async_System_getEnvVar(v_name_1224_);
+lean_dec_ref(v_name_1224_);
 return v_res_1226_;
 }
 }
@@ -3745,6 +3748,7 @@ _start:
 {
 lean_object* v_res_1232_; 
 v_res_1232_ = l_Std_Internal_IO_Async_System_unsetEnvVar(v_name_1230_);
+lean_dec_ref(v_name_1230_);
 return v_res_1232_;
 }
 }

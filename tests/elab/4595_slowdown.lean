@@ -248,7 +248,7 @@ theorem inverse_map_f {X Y : Karoubi (Karoubi C)} (f : X ⟶ Y) : ((inverse C).m
 -- ```
 -- but I've maximally expanded out the autoparams:
 -- it seems the slow down is in the `simp only` tactics, not the automation that finds them.
-
+set_option maxHeartbeats 230000 -- before https://github.com/leanprover/lean4/pull/13030, 153000 sufficed
 def counitIso : inverse C ⋙ toKaroubi (Karoubi C) ≅ 𝟭 (Karoubi (Karoubi C)) where
   hom :=
     { app := fun P =>

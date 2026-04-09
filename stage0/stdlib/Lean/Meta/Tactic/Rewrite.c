@@ -807,7 +807,7 @@ v___x_213_ = lean_st_ref_get(v___y_211_);
 v_mctx_214_ = lean_ctor_get(v___x_213_, 0);
 lean_inc_ref(v_mctx_214_);
 lean_dec(v___x_213_);
-v_eAssignment_215_ = lean_ctor_get(v_mctx_214_, 7);
+v_eAssignment_215_ = lean_ctor_get(v_mctx_214_, 8);
 lean_inc_ref(v_eAssignment_215_);
 lean_dec_ref(v_mctx_214_);
 v___x_216_ = l_Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_MVarId_rewrite_spec__0_spec__0___redArg(v_eAssignment_215_, v_mvarId_210_);

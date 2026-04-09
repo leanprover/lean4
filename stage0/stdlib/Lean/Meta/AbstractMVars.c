@@ -1265,6 +1265,7 @@ case 5:
 lean_object* v_a_353_; lean_object* v_depth_354_; lean_object* v___x_355_; uint8_t v___x_356_; 
 v_a_353_ = lean_ctor_get(v_u_264_, 0);
 v_depth_354_ = lean_ctor_get(v_mctx_270_, 0);
+lean_inc(v_a_353_);
 lean_inc_ref(v_mctx_270_);
 v___x_355_ = l_Lean_MetavarContext_getLevelDepth(v_mctx_270_, v_a_353_);
 v___x_356_ = lean_nat_dec_eq(v___x_355_, v_depth_354_);

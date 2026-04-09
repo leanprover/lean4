@@ -882,13 +882,19 @@ the available context).
 -/
 def identProjKind := `Lean.Parser.Term.identProj
 
+@[builtin_term_parser] def dotIdent := leading_parser
+  "." >> checkNoWsBefore >> rawIdent
+
 def isIdent (stx : Syntax) : Bool :=
   -- antiquotations should also be allowed where an identifier is expected
   stx.isAntiquot || stx.isIdent
 
+def isIdentOrDotIdent (stx : Syntax) : Bool :=
+  isIdent stx || stx.isOfKind ``dotIdent
+
 /-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
 @[builtin_term_parser] def explicitUniv : TrailingParser := trailing_parser
-  checkStackTop isIdent "expected preceding identifier" >>
+  checkStackTop isIdentOrDotIdent "expected preceding identifier" >>
   checkNoWsBefore "no space before '.{'" >> ".{" >>
   sepBy1 levelParser ", " >> "}"
 /-- `x@e` or `x@h:e` matches the pattern `e` and binds its value to the identifier `x`.
@@ -975,9 +981,6 @@ appropriate parameter for the underlying monad's `ST` effects, then passes it to
 
 @[builtin_term_parser] def dynamicQuot := withoutPosition <| leading_parser
   "`(" >> ident >> "| " >> incQuotDepth (parserOfStack 1) >> ")"
-
-@[builtin_term_parser] def dotIdent := leading_parser
-  "." >> checkNoWsBefore >> rawIdent
 
 /--
 Implementation of the `show_term` term elaborator.

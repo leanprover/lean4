@@ -3514,16 +3514,17 @@ _start:
 lean_object* v___x_930_; lean_object* v___x_931_; lean_object* v___x_932_; 
 v___x_930_ = lean_obj_once(&l_List_forIn_x27_loop___at___00__private_Lean_Compiler_LCNF_ToImpureType_0__Lean_Compiler_LCNF_nameToImpureType_fillCache_spec__3___redArg___closed__8, &l_List_forIn_x27_loop___at___00__private_Lean_Compiler_LCNF_ToImpureType_0__Lean_Compiler_LCNF_nameToImpureType_fillCache_spec__3___redArg___closed__8_once, _init_l_List_forIn_x27_loop___at___00__private_Lean_Compiler_LCNF_ToImpureType_0__Lean_Compiler_LCNF_nameToImpureType_fillCache_spec__3___redArg___closed__8);
 v___x_931_ = lean_unsigned_to_nat(0u);
-v___x_932_ = lean_alloc_ctor(0, 9, 0);
+v___x_932_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_932_, 0, v___x_931_);
 lean_ctor_set(v___x_932_, 1, v___x_931_);
 lean_ctor_set(v___x_932_, 2, v___x_931_);
-lean_ctor_set(v___x_932_, 3, v___x_930_);
+lean_ctor_set(v___x_932_, 3, v___x_931_);
 lean_ctor_set(v___x_932_, 4, v___x_930_);
 lean_ctor_set(v___x_932_, 5, v___x_930_);
 lean_ctor_set(v___x_932_, 6, v___x_930_);
 lean_ctor_set(v___x_932_, 7, v___x_930_);
 lean_ctor_set(v___x_932_, 8, v___x_930_);
+lean_ctor_set(v___x_932_, 9, v___x_930_);
 return v___x_932_;
 }
 }

@@ -203,7 +203,7 @@ Inside a test directory, they receive no arguments.
 
 A test succeeds iff the `run_test.sh` script exits with exit code 0.
 A benchmark additionally must produce a measurements file:
-Inside a test pile, `run_bench.sh` is expected to produce a `<testfile>.measurments.jsonl` file.
+Inside a test pile, `run_bench.sh` is expected to produce a `<testfile>.measurements.jsonl` file.
 Inside a test directory, `run_bench.sh` is expected to produce a `measurements.jsonl` file.
 
 ## The `elab*` test pile

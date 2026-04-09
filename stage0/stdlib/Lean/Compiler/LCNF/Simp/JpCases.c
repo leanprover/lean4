@@ -6734,16 +6734,17 @@ _start:
 lean_object* v___x_1843_; lean_object* v___x_1844_; lean_object* v___x_1845_; 
 v___x_1843_ = lean_obj_once(&l_Lean_addTrace___at___00Lean_Compiler_LCNF_Simp_simpJpCases_x3f_spec__4___closed__1, &l_Lean_addTrace___at___00Lean_Compiler_LCNF_Simp_simpJpCases_x3f_spec__4___closed__1_once, _init_l_Lean_addTrace___at___00Lean_Compiler_LCNF_Simp_simpJpCases_x3f_spec__4___closed__1);
 v___x_1844_ = lean_unsigned_to_nat(0u);
-v___x_1845_ = lean_alloc_ctor(0, 9, 0);
+v___x_1845_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_1845_, 0, v___x_1844_);
 lean_ctor_set(v___x_1845_, 1, v___x_1844_);
 lean_ctor_set(v___x_1845_, 2, v___x_1844_);
-lean_ctor_set(v___x_1845_, 3, v___x_1843_);
+lean_ctor_set(v___x_1845_, 3, v___x_1844_);
 lean_ctor_set(v___x_1845_, 4, v___x_1843_);
 lean_ctor_set(v___x_1845_, 5, v___x_1843_);
 lean_ctor_set(v___x_1845_, 6, v___x_1843_);
 lean_ctor_set(v___x_1845_, 7, v___x_1843_);
 lean_ctor_set(v___x_1845_, 8, v___x_1843_);
+lean_ctor_set(v___x_1845_, 9, v___x_1843_);
 return v___x_1845_;
 }
 }

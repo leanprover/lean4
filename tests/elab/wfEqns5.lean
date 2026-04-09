@@ -1,3 +1,4 @@
+set_option linter.deprecated.options false
 
 def foo : Nat → Nat → Nat
   | 0, m => match m with | 0 => 0 | m => m

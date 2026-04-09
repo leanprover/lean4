@@ -77,6 +77,15 @@ theorem join_cons : join (s :: l) = s ++ join l := by
 theorem toList_join {l : List String} : (String.join l).toList = l.flatMap String.toList := by
   induction l <;> simp_all
 
+@[simp]
+theorem join_append {l m : List String} : String.join (l ++ m) = String.join l ++ String.join m := by
+  simp [← toList_inj]
+
+@[simp]
+theorem length_join {l : List String} : (String.join l).length = (l.map String.length).sum := by
+  simp only [← length_toList, toList_join, List.length_flatMap]
+  simp
+
 namespace Slice
 
 @[simp]

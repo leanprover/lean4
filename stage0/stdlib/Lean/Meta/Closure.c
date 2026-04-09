@@ -10446,16 +10446,17 @@ _start:
 lean_object* v___x_3154_; lean_object* v___x_3155_; lean_object* v___x_3156_; 
 v___x_3154_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Meta_Closure_0__Lean_Meta_Closure_sortDecls_visit_spec__5_spec__10___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Meta_Closure_0__Lean_Meta_Closure_sortDecls_visit_spec__5_spec__10___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Meta_Closure_0__Lean_Meta_Closure_sortDecls_visit_spec__5_spec__10___closed__1);
 v___x_3155_ = lean_unsigned_to_nat(0u);
-v___x_3156_ = lean_alloc_ctor(0, 9, 0);
+v___x_3156_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_3156_, 0, v___x_3155_);
 lean_ctor_set(v___x_3156_, 1, v___x_3155_);
 lean_ctor_set(v___x_3156_, 2, v___x_3155_);
-lean_ctor_set(v___x_3156_, 3, v___x_3154_);
+lean_ctor_set(v___x_3156_, 3, v___x_3155_);
 lean_ctor_set(v___x_3156_, 4, v___x_3154_);
 lean_ctor_set(v___x_3156_, 5, v___x_3154_);
 lean_ctor_set(v___x_3156_, 6, v___x_3154_);
 lean_ctor_set(v___x_3156_, 7, v___x_3154_);
 lean_ctor_set(v___x_3156_, 8, v___x_3154_);
+lean_ctor_set(v___x_3156_, 9, v___x_3154_);
 return v___x_3156_;
 }
 }
@@ -10870,9 +10871,9 @@ return v_res_3305_;
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Closure_0__Lean_Meta_Closure_sortDecls_visit___lam__0___boxed(lean_object* v___x_3306_, lean_object* v_m_3307_, lean_object* v_e_3308_, lean_object* v___y_3309_, lean_object* v___y_3310_, lean_object* v___y_3311_, lean_object* v___y_3312_){
 _start:
 {
-uint8_t v___x_19743__boxed_3313_; lean_object* v_res_3314_; 
-v___x_19743__boxed_3313_ = lean_unbox(v___x_3306_);
-v_res_3314_ = l___private_Lean_Meta_Closure_0__Lean_Meta_Closure_sortDecls_visit___lam__0(v___x_19743__boxed_3313_, v_m_3307_, v_e_3308_, v___y_3309_, v___y_3310_, v___y_3311_);
+uint8_t v___x_19745__boxed_3313_; lean_object* v_res_3314_; 
+v___x_19745__boxed_3313_ = lean_unbox(v___x_3306_);
+v_res_3314_ = l___private_Lean_Meta_Closure_0__Lean_Meta_Closure_sortDecls_visit___lam__0(v___x_19745__boxed_3313_, v_m_3307_, v_e_3308_, v___y_3309_, v___y_3310_, v___y_3311_);
 lean_dec(v___y_3311_);
 lean_dec_ref(v___y_3310_);
 lean_dec_ref(v_e_3308_);

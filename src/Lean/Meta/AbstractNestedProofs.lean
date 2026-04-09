@@ -70,6 +70,7 @@ structure Context where
 abbrev M := ReaderT Context $ MonadCacheT ExprStructEq Expr MetaM
 
 partial def visit (e : Expr) : M Expr := do
+  checkSystem "abstract nested proofs"
   if e.isAtomic then
     pure e
   else

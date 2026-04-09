@@ -125,18 +125,22 @@ def ctorSuggestion1 (pair : MyProd) : Nat :=
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
 Hint: Using one of these would be valid:
-  [apply] `Std.DHashMap.Internal.AssocList.cons`
-  [apply] `List.Pairwise.cons`
-  [apply] `Lean.Grind.AC.Seq.cons`
+  [apply] `List.cons`
+  [apply] `Lean.AssocList.cons`
   [apply] `List.Lex.cons`
-  [apply] `List.Sublist.below.cons`
+  [apply] `List.Pairwise.cons`
   [apply] `List.Perm.cons`
   [apply] `List.Sublist.cons`
-  [apply] `Lean.AssocList.cons`
-  [apply] `List.Perm.below.cons`
   [apply] `List.Lex.below.cons`
   [apply] `List.Pairwise.below.cons`
-  [apply] `List.cons`
+  [apply] `List.Perm.below.cons`
+  [apply] `List.Sublist.below.cons`
+  [apply] `Lean.Grind.AC.Seq.cons`
+  [apply] `Std.DHashMap.Internal.AssocList.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestMatchAtChain.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestRevMatchAtChain.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestMatchAtChain.below.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestRevMatchAtChain.below.cons`
 ---
 warning: Local variable 'nil' resembles constructor 'List.nil' - write '.nil' (with a dot) or 'List.nil' to use the constructor.
 
@@ -157,19 +161,23 @@ inductive StringList : Type where
 error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
 
 Hint: Using one of these would be valid:
-  [apply] `Std.DHashMap.Internal.AssocList.cons`
-  [apply] `List.Pairwise.cons`
-  [apply] `Lean.Grind.AC.Seq.cons`
-  [apply] `List.Lex.cons`
-  [apply] `List.Sublist.below.cons`
-  [apply] `List.Perm.cons`
-  [apply] `List.Sublist.cons`
-  [apply] `Lean.AssocList.cons`
-  [apply] `List.Perm.below.cons`
-  [apply] `List.Lex.below.cons`
-  [apply] `List.Pairwise.below.cons`
   [apply] `List.cons`
   [apply] `StringList.cons`
+  [apply] `Lean.AssocList.cons`
+  [apply] `List.Lex.cons`
+  [apply] `List.Pairwise.cons`
+  [apply] `List.Perm.cons`
+  [apply] `List.Sublist.cons`
+  [apply] `List.Lex.below.cons`
+  [apply] `List.Pairwise.below.cons`
+  [apply] `List.Perm.below.cons`
+  [apply] `List.Sublist.below.cons`
+  [apply] `Lean.Grind.AC.Seq.cons`
+  [apply] `Std.DHashMap.Internal.AssocList.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestMatchAtChain.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestRevMatchAtChain.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestMatchAtChain.below.cons`
+  [apply] `String.Slice.Pattern.Model.IsLongestRevMatchAtChain.below.cons`
 ---
 warning: Local variable 'nil' resembles constructor 'List.nil' - write '.nil' (with a dot) or 'List.nil' to use the constructor.
 

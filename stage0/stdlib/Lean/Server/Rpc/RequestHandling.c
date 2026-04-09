@@ -4377,16 +4377,17 @@ _start:
 lean_object* v___x_1452_; lean_object* v___x_1453_; lean_object* v___x_1454_; 
 v___x_1452_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Server_registerRpcProcedure_spec__3_spec__3___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Server_registerRpcProcedure_spec__3_spec__3___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Server_registerRpcProcedure_spec__3_spec__3___closed__1);
 v___x_1453_ = lean_unsigned_to_nat(0u);
-v___x_1454_ = lean_alloc_ctor(0, 9, 0);
+v___x_1454_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_1454_, 0, v___x_1453_);
 lean_ctor_set(v___x_1454_, 1, v___x_1453_);
 lean_ctor_set(v___x_1454_, 2, v___x_1453_);
-lean_ctor_set(v___x_1454_, 3, v___x_1452_);
+lean_ctor_set(v___x_1454_, 3, v___x_1453_);
 lean_ctor_set(v___x_1454_, 4, v___x_1452_);
 lean_ctor_set(v___x_1454_, 5, v___x_1452_);
 lean_ctor_set(v___x_1454_, 6, v___x_1452_);
 lean_ctor_set(v___x_1454_, 7, v___x_1452_);
 lean_ctor_set(v___x_1454_, 8, v___x_1452_);
+lean_ctor_set(v___x_1454_, 9, v___x_1452_);
 return v___x_1454_;
 }
 }
@@ -4615,16 +4616,17 @@ _start:
 lean_object* v___x_1543_; lean_object* v___x_1544_; lean_object* v___x_1545_; 
 v___x_1543_ = lean_obj_once(&l_Lean_Server_registerRpcProcedure___closed__7, &l_Lean_Server_registerRpcProcedure___closed__7_once, _init_l_Lean_Server_registerRpcProcedure___closed__7);
 v___x_1544_ = lean_unsigned_to_nat(0u);
-v___x_1545_ = lean_alloc_ctor(0, 9, 0);
+v___x_1545_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_1545_, 0, v___x_1544_);
 lean_ctor_set(v___x_1545_, 1, v___x_1544_);
 lean_ctor_set(v___x_1545_, 2, v___x_1544_);
-lean_ctor_set(v___x_1545_, 3, v___x_1543_);
+lean_ctor_set(v___x_1545_, 3, v___x_1544_);
 lean_ctor_set(v___x_1545_, 4, v___x_1543_);
 lean_ctor_set(v___x_1545_, 5, v___x_1543_);
 lean_ctor_set(v___x_1545_, 6, v___x_1543_);
 lean_ctor_set(v___x_1545_, 7, v___x_1543_);
 lean_ctor_set(v___x_1545_, 8, v___x_1543_);
+lean_ctor_set(v___x_1545_, 9, v___x_1543_);
 return v___x_1545_;
 }
 }

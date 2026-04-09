@@ -893,16 +893,17 @@ _start:
 lean_object* v___x_224_; lean_object* v___x_225_; lean_object* v___x_226_; 
 v___x_224_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Term_Doc_elabRecommendedSpelling_spec__0_spec__0___redArg___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Term_Doc_elabRecommendedSpelling_spec__0_spec__0___redArg___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Term_Doc_elabRecommendedSpelling_spec__0_spec__0___redArg___closed__1);
 v___x_225_ = lean_unsigned_to_nat(0u);
-v___x_226_ = lean_alloc_ctor(0, 9, 0);
+v___x_226_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_226_, 0, v___x_225_);
 lean_ctor_set(v___x_226_, 1, v___x_225_);
 lean_ctor_set(v___x_226_, 2, v___x_225_);
-lean_ctor_set(v___x_226_, 3, v___x_224_);
+lean_ctor_set(v___x_226_, 3, v___x_225_);
 lean_ctor_set(v___x_226_, 4, v___x_224_);
 lean_ctor_set(v___x_226_, 5, v___x_224_);
 lean_ctor_set(v___x_226_, 6, v___x_224_);
 lean_ctor_set(v___x_226_, 7, v___x_224_);
 lean_ctor_set(v___x_226_, 8, v___x_224_);
+lean_ctor_set(v___x_226_, 9, v___x_224_);
 return v___x_226_;
 }
 }
@@ -2967,10 +2968,10 @@ return v___x_942_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Term_Doc_elabRecommendedSpelling_spec__2_spec__4_spec__7_spec__11___boxed(lean_object* v_00_u03b2_943_, lean_object* v_x_944_, lean_object* v_x_945_, lean_object* v_x_946_){
 _start:
 {
-size_t v_x_9790__boxed_947_; uint8_t v_res_948_; lean_object* v_r_949_; 
-v_x_9790__boxed_947_ = lean_unbox_usize(v_x_945_);
+size_t v_x_9792__boxed_947_; uint8_t v_res_948_; lean_object* v_r_949_; 
+v_x_9792__boxed_947_ = lean_unbox_usize(v_x_945_);
 lean_dec(v_x_945_);
-v_res_948_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Term_Doc_elabRecommendedSpelling_spec__2_spec__4_spec__7_spec__11(v_00_u03b2_943_, v_x_944_, v_x_9790__boxed_947_, v_x_946_);
+v_res_948_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_Term_Doc_elabRecommendedSpelling_spec__2_spec__4_spec__7_spec__11(v_00_u03b2_943_, v_x_944_, v_x_9792__boxed_947_, v_x_946_);
 lean_dec_ref(v_x_946_);
 lean_dec_ref(v_x_944_);
 v_r_949_ = lean_box(v_res_948_);

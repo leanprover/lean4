@@ -2252,16 +2252,17 @@ _start:
 lean_object* v___x_611_; lean_object* v___x_612_; lean_object* v___x_613_; 
 v___x_611_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lean_Elab_Command_mkDefViewOfInstance_spec__1_spec__8___redArg___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lean_Elab_Command_mkDefViewOfInstance_spec__1_spec__8___redArg___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_addTrace___at___00Lean_Elab_Command_mkDefViewOfInstance_spec__1_spec__8___redArg___closed__1);
 v___x_612_ = lean_unsigned_to_nat(0u);
-v___x_613_ = lean_alloc_ctor(0, 9, 0);
+v___x_613_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_613_, 0, v___x_612_);
 lean_ctor_set(v___x_613_, 1, v___x_612_);
 lean_ctor_set(v___x_613_, 2, v___x_612_);
-lean_ctor_set(v___x_613_, 3, v___x_611_);
+lean_ctor_set(v___x_613_, 3, v___x_612_);
 lean_ctor_set(v___x_613_, 4, v___x_611_);
 lean_ctor_set(v___x_613_, 5, v___x_611_);
 lean_ctor_set(v___x_613_, 6, v___x_611_);
 lean_ctor_set(v___x_613_, 7, v___x_611_);
 lean_ctor_set(v___x_613_, 8, v___x_611_);
+lean_ctor_set(v___x_613_, 9, v___x_611_);
 return v___x_613_;
 }
 }
@@ -2713,10 +2714,10 @@ return v___x_759_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__1_spec__3_spec__8_spec__12___redArg___boxed(lean_object* v_x_760_, lean_object* v_x_761_, lean_object* v_x_762_){
 _start:
 {
-size_t v_x_16982__boxed_763_; uint8_t v_res_764_; lean_object* v_r_765_; 
-v_x_16982__boxed_763_ = lean_unbox_usize(v_x_761_);
+size_t v_x_16984__boxed_763_; uint8_t v_res_764_; lean_object* v_r_765_; 
+v_x_16984__boxed_763_ = lean_unbox_usize(v_x_761_);
 lean_dec(v_x_761_);
-v_res_764_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__1_spec__3_spec__8_spec__12___redArg(v_x_760_, v_x_16982__boxed_763_, v_x_762_);
+v_res_764_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__1_spec__3_spec__8_spec__12___redArg(v_x_760_, v_x_16984__boxed_763_, v_x_762_);
 lean_dec_ref(v_x_762_);
 lean_dec_ref(v_x_760_);
 v_r_765_ = lean_box(v_res_764_);
@@ -5944,10 +5945,10 @@ return v___x_1819_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__1_spec__3_spec__8_spec__12___boxed(lean_object* v_00_u03b2_1820_, lean_object* v_x_1821_, lean_object* v_x_1822_, lean_object* v_x_1823_){
 _start:
 {
-size_t v_x_18708__boxed_1824_; uint8_t v_res_1825_; lean_object* v_r_1826_; 
-v_x_18708__boxed_1824_ = lean_unbox_usize(v_x_1822_);
+size_t v_x_18710__boxed_1824_; uint8_t v_res_1825_; lean_object* v_r_1826_; 
+v_x_18710__boxed_1824_ = lean_unbox_usize(v_x_1822_);
 lean_dec(v_x_1822_);
-v_res_1825_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__1_spec__3_spec__8_spec__12(v_00_u03b2_1820_, v_x_1821_, v_x_18708__boxed_1824_, v_x_1823_);
+v_res_1825_ = l_Lean_PersistentHashMap_containsAux___at___00Lean_PersistentHashMap_contains___at___00__private_Lean_ExtraModUses_0__Lean_recordExtraModUseCore___at___00Lean_recordExtraModUseFromDecl___at___00Lean_Elab_liftMacroM___at___00Lean_Elab_Command_mkDefViewOfInstance_spec__0_spec__1_spec__3_spec__8_spec__12(v_00_u03b2_1820_, v_x_1821_, v_x_18710__boxed_1824_, v_x_1823_);
 lean_dec_ref(v_x_1823_);
 lean_dec_ref(v_x_1821_);
 v_r_1826_ = lean_box(v_res_1825_);

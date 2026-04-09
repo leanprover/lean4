@@ -7,11 +7,12 @@ module
 
 prelude
 import Init.While
-public import Init.Data.String
+public import Init.Data.String.Basic
 public import Std.Internal.Parsec
 public import Std.Internal.Parsec.ByteArray
 public import Std.Internal.Http.Data.URI.Basic
 public import Std.Internal.Http.Data.URI.Config
+import Init.Data.String.Search
 
 public section
 
@@ -279,13 +280,13 @@ private def parseQuery (config : URI.Config) : Parser URI.Query := do
   if queryStr.isEmpty then
     return URI.Query.empty
 
-  let rawPairs := queryStr.splitOn "&"
+  let rawPairs := queryStr.split '&'
 
   if rawPairs.length > config.maxQueryParams then
     fail s!"too many query parameters (limit: {config.maxQueryParams})"
 
-  let pairs : Option URI.Query := rawPairs.foldlM (init := URI.Query.empty) fun acc pair => do
-    match pair.splitOn "=" with
+  let pairs : Option URI.Query := rawPairs.foldM (init := URI.Query.empty) fun acc pair => do
+    match pair.split '=' |>.toStringList with
     | [key] =>
       let key ← URI.EncodedQueryParam.fromString? key
       pure (acc.insertEncoded key none)

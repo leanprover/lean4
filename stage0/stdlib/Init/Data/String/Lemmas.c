@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas
-// Imports: public import Init.Data.String.Lemmas.Splits public import Init.Data.String.Lemmas.Modify public import Init.Data.String.Lemmas.Search public import Init.Data.String.Lemmas.FindPos public import Init.Data.String.Lemmas.Basic public import Init.Data.String.Lemmas.Order public import Init.Data.String.Lemmas.IsEmpty public import Init.Data.String.Lemmas.Pattern public import Init.Data.String.Lemmas.Slice public import Init.Data.String.Lemmas.Iterate public import Init.Data.String.Lemmas.Intercalate public import Init.Data.String.Lemmas.Iter public import Init.Data.String.Lemmas.Hashable public import Init.Data.String.Lemmas.TakeDrop import Init.Data.Order.Lemmas public import Init.Data.String.Basic import Init.Data.Char.Lemmas import Init.Data.Char.Order import Init.Data.List.Lex
+// Imports: public import Init.Data.String.Lemmas.Splits public import Init.Data.String.Lemmas.Modify public import Init.Data.String.Lemmas.Search public import Init.Data.String.Lemmas.FindPos public import Init.Data.String.Lemmas.Basic public import Init.Data.String.Lemmas.Order public import Init.Data.String.Lemmas.IsEmpty public import Init.Data.String.Lemmas.Pattern public import Init.Data.String.Lemmas.Slice public import Init.Data.String.Lemmas.Iterate public import Init.Data.String.Lemmas.Intercalate public import Init.Data.String.Lemmas.Iter public import Init.Data.String.Lemmas.Hashable public import Init.Data.String.Lemmas.TakeDrop public import Init.Data.String.Lemmas.StringOrder
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -27,11 +27,7 @@ lean_object* runtime_initialize_Init_Data_String_Lemmas_Intercalate(uint8_t buil
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Iter(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Hashable(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_TakeDrop(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Order_Lemmas(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Char_Lemmas(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_Char_Order(uint8_t builtin);
-lean_object* runtime_initialize_Init_Data_List_Lex(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_StringOrder(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -79,19 +75,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Lemmas_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Order_Lemmas(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Init_Data_String_Basic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Char_Lemmas(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Init_Data_Char_Order(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Init_Data_List_Lex(builtin);
+res = runtime_initialize_Init_Data_String_Lemmas_StringOrder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -117,11 +101,7 @@ lean_object* initialize_Init_Data_String_Lemmas_Intercalate(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Iter(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Hashable(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_TakeDrop(uint8_t builtin);
-lean_object* initialize_Init_Data_Order_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
-lean_object* initialize_Init_Data_Char_Lemmas(uint8_t builtin);
-lean_object* initialize_Init_Data_Char_Order(uint8_t builtin);
-lean_object* initialize_Init_Data_List_Lex(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_StringOrder(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas(uint8_t builtin) {
 lean_object * res;
@@ -169,19 +149,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_String_Lemmas_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Init_Data_Order_Lemmas(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_String_Basic(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Char_Lemmas(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_Char_Order(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Init_Data_List_Lex(builtin);
+res = initialize_Init_Data_String_Lemmas_StringOrder(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Lemmas(builtin);

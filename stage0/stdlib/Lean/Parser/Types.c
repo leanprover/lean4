@@ -4896,6 +4896,11 @@ return v___x_1481_;
 }
 }
 }
+case 1:
+{
+lean_dec_ref(v_x_1462_);
+return v_x_1463_;
+}
 default: 
 {
 lean_dec(v_x_1463_);

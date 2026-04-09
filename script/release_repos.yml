@@ -28,6 +28,14 @@ repositories:
     branch: main
     dependencies: []
 
+  - name: leansqlite
+    url: https://github.com/leanprover/leansqlite
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies:
+      - plausible
+
   - name: verso
     url: https://github.com/leanprover/verso
     toolchain-tag: true
@@ -100,7 +108,7 @@ repositories:
     toolchain-tag: true
     stable-branch: false
     branch: main
-    dependencies: [lean4-cli, BibtexQuery, mathlib4]
+    dependencies: [lean4-cli, BibtexQuery, mathlib4, leansqlite]
 
   - name: cslib
     url: https://github.com/leanprover/cslib

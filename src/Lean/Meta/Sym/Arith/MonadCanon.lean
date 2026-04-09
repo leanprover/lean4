@@ -1,24 +1,23 @@
 /-
-Copyright (c) 2025 Amazon.com, Inc. or its affiliates. All Rights Reserved.
+Copyright (c) 2026 Amazon.com, Inc. or its affiliates. All Rights Reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Leonardo de Moura
 -/
 module
 prelude
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
+public import Lean.Meta.Sym.Arith.Types
 public section
-namespace Lean.Meta.Grind.Arith.CommRing
+namespace Lean.Meta.Sym.Arith
 
 class MonadCanon (m : Type → Type) where
   /--
-  Helper function for removing dependency on `GoalM`.
-  In `RingM` and `SemiringM`, this is just `sharedCommon (← canon e)`
-  When printing counterexamples, we are at `MetaM`, and this is just the identity function.
+  Canonicalize an expression (types, instances, support arguments).
+  In `SymM`, this is `Sym.canon`. In `PP.M` (diagnostics), this is the identity.
   -/
   canonExpr : Expr → m Expr
   /--
-  Helper function for removing dependency on `GoalM`. During search we
-  want to track the instances synthesized by `grind`, and this is `Grind.synthInstance`.
+  Synthesize an instance, returning `none` on failure.
+  In `SymM`, this is `Sym.synthInstance?`. In `PP.M`, this is `Meta.synthInstance?`.
   -/
   synthInstance? : Expr → m (Option Expr)
 
@@ -31,7 +30,7 @@ instance (m n) [MonadLift m n] [MonadCanon m] : MonadCanon n where
 
 def MonadCanon.synthInstance [Monad m] [MonadError m] [MonadCanon m] (type : Expr) : m Expr := do
   let some inst ← synthInstance? type
-    | throwError "`grind` failed to find instance{indentExpr type}"
+    | throwError "failed to find instance{indentExpr type}"
   return inst
 
-end Lean.Meta.Grind.Arith.CommRing
+end Lean.Meta.Sym.Arith

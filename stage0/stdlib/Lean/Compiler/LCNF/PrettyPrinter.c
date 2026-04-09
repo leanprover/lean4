@@ -1041,16 +1041,17 @@ _start:
 lean_object* v___x_309_; lean_object* v___x_310_; lean_object* v___x_311_; 
 v___x_309_ = lean_obj_once(&l_Lean_Compiler_LCNF_PP_ppExpr___redArg___closed__5, &l_Lean_Compiler_LCNF_PP_ppExpr___redArg___closed__5_once, _init_l_Lean_Compiler_LCNF_PP_ppExpr___redArg___closed__5);
 v___x_310_ = lean_unsigned_to_nat(0u);
-v___x_311_ = lean_alloc_ctor(0, 9, 0);
+v___x_311_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_311_, 0, v___x_310_);
 lean_ctor_set(v___x_311_, 1, v___x_310_);
 lean_ctor_set(v___x_311_, 2, v___x_310_);
-lean_ctor_set(v___x_311_, 3, v___x_309_);
+lean_ctor_set(v___x_311_, 3, v___x_310_);
 lean_ctor_set(v___x_311_, 4, v___x_309_);
 lean_ctor_set(v___x_311_, 5, v___x_309_);
 lean_ctor_set(v___x_311_, 6, v___x_309_);
 lean_ctor_set(v___x_311_, 7, v___x_309_);
 lean_ctor_set(v___x_311_, 8, v___x_309_);
+lean_ctor_set(v___x_311_, 9, v___x_309_);
 return v___x_311_;
 }
 }

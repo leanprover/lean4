@@ -247,6 +247,18 @@ very simple unification and/or non-nested TC. So, if the "app builder" becomes a
 we may solve the issue by implementing `isDefEqCheap` that never invokes TC and uses tmp metavars.
 -/
 
+structure LevelMetavarDecl where
+  /-- The nesting depth of this metavariable. We do not want
+  unification subproblems to influence the results of parent
+  problems. The depth keeps track of this information and ensures
+  that unification subproblems cannot leak information out, by unifying
+  based on depth. -/
+  depth : Nat
+  /-- This field tracks how old a metavariable is. It is set using a counter at `MetavarContext`.
+  We primarily use the index of a level metavariable for pretty printing. -/
+  index : Nat
+  deriving Inhabited
+
 /--
 `LocalInstance` represents a local typeclass instance registered by and for
 the elaborator. It stores the name of the typeclass in `className`, and the
@@ -309,7 +321,8 @@ structure MetavarDecl where
   kind           : MetavarKind
   /-- See comment at `CheckAssignment` `Meta/ExprDefEq.lean` -/
   numScopeArgs   : Nat := 0
-  /-- We use this field to track how old a metavariable is. It is set using a counter at `MetavarContext` -/
+  /-- We use this field to track how old a metavariable is. It is set using a counter at `MetavarContext`.
+  We also use it for pretty printing anonymous metavariables. -/
   index          : Nat
   deriving Inhabited
 
@@ -340,9 +353,12 @@ structure MetavarContext where
   depth          : Nat := 0
   /-- At what depth level mvars can be assigned. -/
   levelAssignDepth : Nat := 0
+  /-- Counter for setting the field `index` at `LevelMetavarDecl`. -/
+  lmvarCounter   : Nat := 0
   /-- Counter for setting the field `index` at `MetavarDecl` -/
   mvarCounter    : Nat := 0
-  lDepth         : PersistentHashMap LMVarId Nat := {}
+  /-- Level metavariable declarations. -/
+  lDecls         : PersistentHashMap LMVarId LevelMetavarDecl := {}
   /-- Metavariable declarations. -/
   decls          : PersistentHashMap MVarId MetavarDecl := {}
   /-- Index mapping user-friendly names to ids. -/
@@ -443,6 +459,22 @@ def _root_.Lean.MVarId.isAssignedOrDelayedAssigned [Monad m] [MonadMCtx m] (mvar
     m Bool := do
   let mctx ← getMCtx
   return mctx.eAssignment.contains mvarId || mctx.dAssignment.contains mvarId
+
+def MetavarContext.findLevelDecl? (mctx : MetavarContext) (mvarId : LMVarId) : Option LevelMetavarDecl :=
+  mctx.lDecls.find? mvarId
+
+def MetavarContext.getLevelDecl (mctx : MetavarContext) (mvarId : LMVarId) : LevelMetavarDecl :=
+  match mctx.lDecls.find? mvarId with
+  | some decl => decl
+  | none      => panic! s!"unknown universe metavariable {mvarId.name}"
+
+def isLevelMVarAssignable [Monad m] [MonadMCtx m] (mvarId : LMVarId) : m Bool := do
+  let mctx ← getMCtx
+  let decl := mctx.getLevelDecl mvarId
+  return decl.depth >= mctx.levelAssignDepth
+
+def MetavarContext.findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
+  mctx.decls.find? mvarId
 
 def MetavarContext.getDecl (mctx : MetavarContext) (mvarId : MVarId) : MetavarDecl :=
   match mctx.decls.find? mvarId with
@@ -796,10 +828,11 @@ def addExprMVarDeclExp (mctx : MetavarContext) (mvarId : MVarId) (userName : Nam
    It is used to implement actions in the monads `MetaM`, `ElabM` and `TacticM`.
    It should not be used directly since the argument `(mvarId : MVarId)` is assumed to be "unique". -/
 def addLevelMVarDecl (mctx : MetavarContext) (mvarId : LMVarId) : MetavarContext :=
-  { mctx with lDepth := mctx.lDepth.insert mvarId mctx.depth }
-
-def findDecl? (mctx : MetavarContext) (mvarId : MVarId) : Option MetavarDecl :=
-  mctx.decls.find? mvarId
+  { mctx with
+    lmvarCounter := mctx.lmvarCounter + 1
+    lDecls := mctx.lDecls.insert mvarId {
+      depth := mctx.depth
+      index := mctx.lmvarCounter } }
 
 def findUserName? (mctx : MetavarContext) (userName : Name) : Option MVarId :=
   mctx.userNames.find? userName
@@ -879,12 +912,13 @@ def setFVarBinderInfo (mctx : MetavarContext) (mvarId : MVarId)
   mctx.modifyExprMVarLCtx mvarId (·.setBinderInfo fvarId bi)
 
 def findLevelDepth? (mctx : MetavarContext) (mvarId : LMVarId) : Option Nat :=
-  mctx.lDepth.find? mvarId
+  (mctx.findLevelDecl? mvarId).map LevelMetavarDecl.depth
 
 def getLevelDepth (mctx : MetavarContext) (mvarId : LMVarId) : Nat :=
-  match mctx.findLevelDepth? mvarId with
-  | some d => d
-  | none   => panic! "unknown metavariable"
+  (mctx.getLevelDecl mvarId).depth
+
+def findLevelIndex? (mctx : MetavarContext) (mvarId : LMVarId) : Option Nat :=
+  (mctx.findLevelDecl? mvarId).map LevelMetavarDecl.index
 
 def isAnonymousMVar (mctx : MetavarContext) (mvarId : MVarId) : Bool :=
   match mctx.findDecl? mvarId with

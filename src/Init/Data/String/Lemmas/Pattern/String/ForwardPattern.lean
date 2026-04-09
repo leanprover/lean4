@@ -56,7 +56,7 @@ theorem skipPrefix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     simp only [reduceCtorEq, false_iff]
     intro heq
     have := h (s.sliceFrom pos).copy
-    simp [← heq, pos.splits.eq_append] at this
+    simp [← heq, -sliceTo_append_sliceFrom, pos.splits.eq_append] at this
 
 theorem isSome_skipPrefix? {pat s : Slice} : (skipPrefix? pat s).isSome = startsWith pat s := by
   fun_cases skipPrefix? <;> simp_all
@@ -76,14 +76,11 @@ namespace Model.ForwardSliceSearcher
 
 open Pattern.ForwardSliceSearcher
 
-public instance {pat : Slice} : LawfulForwardPattern pat where
+public instance {pat : Slice} : LawfulForwardPatternModel pat where
   skipPrefixOfNonempty?_eq _ := rfl
   startsWith_eq _ := isSome_skipPrefix?.symm
-
-public theorem lawfulForwardPatternModel {pat : Slice} (hpat : pat.isEmpty = false) :
-    LawfulForwardPatternModel pat where
   skipPrefix?_eq_some_iff pos := by
-    simp [ForwardPattern.skipPrefix?, skipPrefix?_eq_some_iff, isLongestMatch_iff hpat]
+    simp [ForwardPattern.skipPrefix?, skipPrefix?_eq_some_iff, isLongestMatch_iff]
 
 end Model.ForwardSliceSearcher
 
@@ -91,14 +88,11 @@ namespace Model.ForwardStringSearcher
 
 open Pattern.ForwardSliceSearcher
 
-public instance {pat : String} : LawfulForwardPattern pat where
+public instance {pat : String} : LawfulForwardPatternModel pat where
   skipPrefixOfNonempty?_eq _ := rfl
   startsWith_eq _ := isSome_skipPrefix?.symm
-
-public theorem lawfulForwardPatternModel {pat : String} (hpat : pat ≠ "") :
-    LawfulForwardPatternModel pat where
   skipPrefix?_eq_some_iff pos := by
-    simp [ForwardPattern.skipPrefix?, skipPrefix?_eq_some_iff, isLongestMatch_iff hpat]
+    simp [ForwardPattern.skipPrefix?, skipPrefix?_eq_some_iff, isLongestMatch_iff]
 
 end Model.ForwardStringSearcher
 
@@ -153,7 +147,7 @@ theorem skipSuffix?_eq_some_iff {pat s : Slice} {pos : s.Pos} :
     simp only [reduceCtorEq, false_iff]
     intro heq
     have := h (s.sliceTo pos).copy
-    simp [← heq, pos.splits.eq_append] at this
+    simp [← heq, -sliceTo_append_sliceFrom, pos.splits.eq_append] at this
 
 theorem isSome_skipSuffix? {pat s : Slice} : (skipSuffix? pat s).isSome = endsWith pat s := by
   fun_cases skipSuffix? <;> simp_all
@@ -173,15 +167,12 @@ namespace Model.BackwardSliceSearcher
 
 open Pattern.BackwardSliceSearcher
 
-public instance {pat : Slice} : LawfulBackwardPattern pat where
+public instance {pat : Slice} : LawfulBackwardPatternModel pat where
   skipSuffixOfNonempty?_eq _ := rfl
   endsWith_eq _ := isSome_skipSuffix?.symm
-
-public theorem lawfulBackwardPatternModel {pat : Slice} (hpat : pat.isEmpty = false) :
-    LawfulBackwardPatternModel pat where
   skipSuffix?_eq_some_iff pos := by
     simp [BackwardPattern.skipSuffix?, skipSuffix?_eq_some_iff,
-      ForwardSliceSearcher.isLongestRevMatch_iff hpat]
+      ForwardSliceSearcher.isLongestRevMatch_iff]
 
 end Model.BackwardSliceSearcher
 
@@ -189,15 +180,12 @@ namespace Model.BackwardStringSearcher
 
 open Pattern.BackwardSliceSearcher
 
-public instance {pat : String} : LawfulBackwardPattern pat where
+public instance {pat : String} : LawfulBackwardPatternModel pat where
   skipSuffixOfNonempty?_eq _ := rfl
   endsWith_eq _ := isSome_skipSuffix?.symm
-
-public theorem lawfulBackwardPatternModel {pat : String} (hpat : pat ≠ "") :
-    LawfulBackwardPatternModel pat where
   skipSuffix?_eq_some_iff pos := by
     simp [BackwardPattern.skipSuffix?, skipSuffix?_eq_some_iff,
-      ForwardStringSearcher.isLongestRevMatch_iff hpat]
+      ForwardStringSearcher.isLongestRevMatch_iff]
 
 end Model.BackwardStringSearcher
 
@@ -219,19 +207,22 @@ public theorem Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice
     {pat : String} {s : Slice} :
     skipPrefix? pat s = skipPrefix? pat.toSlice s := (rfl)
 
+public theorem Pos.skip?_string_eq_skip?_toSlice {pat : String} {s : Slice} {pos : s.Pos} :
+    pos.skip? pat = pos.skip? pat.toSlice := (rfl)
+
 public theorem Pos.skipWhile_string_eq_skipWhile_toSlice {pat : String} {s : Slice}
     (curr : s.Pos) :
     Pos.skipWhile curr pat = Pos.skipWhile curr pat.toSlice := by
   fun_induction Pos.skipWhile curr pat with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice, h₁, h₂, ih]
+    simp [← Pos.skip?_string_eq_skip?_toSlice, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice, h, ih]
+    simp [← Pos.skip?_string_eq_skip?_toSlice, h, ih]
   | case3 pos h =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_string_eq_skipPrefix?_toSlice]
+    simp [← Pos.skip?_string_eq_skip?_toSlice, h]
 
 public theorem skipPrefixWhile_string_eq_skipPrefixWhile_toSlice {pat : String} {s : Slice} :
     s.skipPrefixWhile pat = s.skipPrefixWhile pat.toSlice :=
@@ -247,7 +238,7 @@ public theorem takeWhile_string_eq_takeWhile_toSlice {pat : String} {s : Slice} 
 
 public theorem all_string_eq_all_toSlice {pat : String} {s : Slice} :
     s.all pat = s.all pat.toSlice := by
-  simp only [all, dropWhile_string_eq_dropWhile_toSlice]
+  simp only [all, skipPrefixWhile_string_eq_skipPrefixWhile_toSlice]
 
 public theorem endsWith_string_eq_endsWith_toSlice {pat : String} {s : Slice} :
     s.endsWith pat = s.endsWith pat.toSlice := (rfl)
@@ -265,19 +256,22 @@ public theorem Pattern.BackwardPattern.skipSuffix?_string_eq_skipSuffix?_toSlice
     {pat : String} {s : Slice} :
     skipSuffix? pat s = skipSuffix? pat.toSlice s := (rfl)
 
+public theorem Pos.revSkip?_string_eq_revSkip?_toSlice {pat : String} {s : Slice} {pos : s.Pos} :
+    pos.revSkip? pat = pos.revSkip? pat.toSlice := (rfl)
+
 public theorem Pos.revSkipWhile_string_eq_revSkipWhile_toSlice {pat : String} {s : Slice}
     (curr : s.Pos) :
     Pos.revSkipWhile curr pat = Pos.revSkipWhile curr pat.toSlice := by
   fun_induction Pos.revSkipWhile curr pat with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_string_eq_skipSuffix?_toSlice, h₁, h₂, ih]
+    simp [← Pos.revSkip?_string_eq_revSkip?_toSlice, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_string_eq_skipSuffix?_toSlice, h, ih]
+    simp [← Pos.revSkip?_string_eq_revSkip?_toSlice, h, ih]
   | case3 pos h =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_string_eq_skipSuffix?_toSlice]
+    simp [← Pos.revSkip?_string_eq_revSkip?_toSlice, h]
 
 public theorem skipSuffixWhile_string_eq_skipSuffixWhile_toSlice {pat : String} {s : Slice} :
     s.skipSuffixWhile pat = s.skipSuffixWhile pat.toSlice :=
@@ -290,5 +284,9 @@ public theorem dropEndWhile_string_eq_dropEndWhile_toSlice {pat : String} {s : S
 public theorem takeEndWhile_string_eq_takeEndWhile_toSlice {pat : String} {s : Slice} :
     s.takeEndWhile pat = s.takeEndWhile pat.toSlice := by
   simp only [takeEndWhile]; exact congrArg _ skipSuffixWhile_string_eq_skipSuffixWhile_toSlice
+
+public theorem revAll_string_eq_revAll_toSlice {pat : String} {s : Slice} :
+    s.revAll pat = s.revAll pat.toSlice := by
+  simp [revAll, skipSuffixWhile_string_eq_skipSuffixWhile_toSlice]
 
 end String.Slice

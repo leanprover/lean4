@@ -2717,16 +2717,17 @@ _start:
 lean_object* v___x_829_; lean_object* v___x_830_; lean_object* v___x_831_; 
 v___x_829_ = lean_obj_once(&l_Lean_throwError___at___00__private_Lean_Compiler_LCNF_ToImpure_0__Lean_Compiler_LCNF_lowerLet_spec__12___redArg___closed__1, &l_Lean_throwError___at___00__private_Lean_Compiler_LCNF_ToImpure_0__Lean_Compiler_LCNF_lowerLet_spec__12___redArg___closed__1_once, _init_l_Lean_throwError___at___00__private_Lean_Compiler_LCNF_ToImpure_0__Lean_Compiler_LCNF_lowerLet_spec__12___redArg___closed__1);
 v___x_830_ = lean_unsigned_to_nat(0u);
-v___x_831_ = lean_alloc_ctor(0, 9, 0);
+v___x_831_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_831_, 0, v___x_830_);
 lean_ctor_set(v___x_831_, 1, v___x_830_);
 lean_ctor_set(v___x_831_, 2, v___x_830_);
-lean_ctor_set(v___x_831_, 3, v___x_829_);
+lean_ctor_set(v___x_831_, 3, v___x_830_);
 lean_ctor_set(v___x_831_, 4, v___x_829_);
 lean_ctor_set(v___x_831_, 5, v___x_829_);
 lean_ctor_set(v___x_831_, 6, v___x_829_);
 lean_ctor_set(v___x_831_, 7, v___x_829_);
 lean_ctor_set(v___x_831_, 8, v___x_829_);
+lean_ctor_set(v___x_831_, 9, v___x_829_);
 return v___x_831_;
 }
 }

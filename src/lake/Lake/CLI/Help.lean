@@ -356,9 +356,9 @@ USAGE:
 
 COMMANDS:
   get [<mappings>]      download build outputs into the local Lake cache
-  put <mappings>        upload build ouptuts to a remote cache
+  put <mappings>        upload build outputs to a remote cache
   add <mappings>        add input-to-output mappings to the Lake cache
-  clean                 removes ALL froms the local Lake cache
+  clean                 removes ALL from the local Lake cache
   services              print configured remote cache services
 
 STAGING COMMANDS:
@@ -415,7 +415,7 @@ will search the repository's entire history (or as far as Git will allow).
 
 By default, Lake will download both the input-to-output mappings and the
 output artifacts for a package. By using `--mappings-onlys`, Lake will only
-download the mappings abd delay downloading artifacts until they are needed.
+download the mappings and delay downloading artifacts until they are needed.
 
 If a download for an artifact fails or the download process for a whole
 package fails, Lake will report this and continue on to the next. Once done,
@@ -469,7 +469,7 @@ OPTIONS:
   --scope=<remote-scope>          the prefix of artifacts within the service
   --repo=<github-repo>            for Reservoir, a GitHub repository scope
 
-Reads a list of input-to-output mapppings from the provided file and adds
+Reads a list of input-to-output mappings from the provided file and adds
 them to the local Lake cache. If `--service` is provided, the output artifacts
 can then be fetched lazily from that service during a Lake build. The service
 must either be `reservoir` or  be configured through the Lake system

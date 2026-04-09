@@ -722,6 +722,7 @@ def simpAppUsingCongr (e : Expr) : SimpM Result := do
     if i == 0 then
       simp f
     else
+      checkSystem "simp"
       let i := i - 1
       let .app f a := e | unreachable!
       let fr ← visit f i

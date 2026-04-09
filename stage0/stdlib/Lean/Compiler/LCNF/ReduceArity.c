@@ -4072,16 +4072,17 @@ _start:
 lean_object* v___x_1269_; lean_object* v___x_1270_; lean_object* v___x_1271_; 
 v___x_1269_ = lean_obj_once(&l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_reduceArity_spec__9___closed__1, &l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_reduceArity_spec__9___closed__1_once, _init_l_Lean_addTrace___at___00Lean_Compiler_LCNF_Decl_reduceArity_spec__9___closed__1);
 v___x_1270_ = lean_unsigned_to_nat(0u);
-v___x_1271_ = lean_alloc_ctor(0, 9, 0);
+v___x_1271_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_1271_, 0, v___x_1270_);
 lean_ctor_set(v___x_1271_, 1, v___x_1270_);
 lean_ctor_set(v___x_1271_, 2, v___x_1270_);
-lean_ctor_set(v___x_1271_, 3, v___x_1269_);
+lean_ctor_set(v___x_1271_, 3, v___x_1270_);
 lean_ctor_set(v___x_1271_, 4, v___x_1269_);
 lean_ctor_set(v___x_1271_, 5, v___x_1269_);
 lean_ctor_set(v___x_1271_, 6, v___x_1269_);
 lean_ctor_set(v___x_1271_, 7, v___x_1269_);
 lean_ctor_set(v___x_1271_, 8, v___x_1269_);
+lean_ctor_set(v___x_1271_, 9, v___x_1269_);
 return v___x_1271_;
 }
 }
@@ -4941,13 +4942,13 @@ return v___x_1556_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Decl_reduceArity_spec__3___boxed(lean_object* v_sz_1559_, lean_object* v_i_1560_, lean_object* v_bs_1561_, lean_object* v___y_1562_, lean_object* v___y_1563_, lean_object* v___y_1564_, lean_object* v___y_1565_, lean_object* v___y_1566_, lean_object* v___y_1567_, lean_object* v___y_1568_){
 _start:
 {
-size_t v_sz_boxed_1569_; size_t v_i_boxed_1570_; uint8_t v___y_12529__boxed_1571_; lean_object* v_res_1572_; 
+size_t v_sz_boxed_1569_; size_t v_i_boxed_1570_; uint8_t v___y_12531__boxed_1571_; lean_object* v_res_1572_; 
 v_sz_boxed_1569_ = lean_unbox_usize(v_sz_1559_);
 lean_dec(v_sz_1559_);
 v_i_boxed_1570_ = lean_unbox_usize(v_i_1560_);
 lean_dec(v_i_1560_);
-v___y_12529__boxed_1571_ = lean_unbox(v___y_1562_);
-v_res_1572_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Decl_reduceArity_spec__3(v_sz_boxed_1569_, v_i_boxed_1570_, v_bs_1561_, v___y_12529__boxed_1571_, v___y_1563_, v___y_1564_, v___y_1565_, v___y_1566_, v___y_1567_);
+v___y_12531__boxed_1571_ = lean_unbox(v___y_1562_);
+v_res_1572_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Compiler_LCNF_Decl_reduceArity_spec__3(v_sz_boxed_1569_, v_i_boxed_1570_, v_bs_1561_, v___y_12531__boxed_1571_, v___y_1563_, v___y_1564_, v___y_1565_, v___y_1566_, v___y_1567_);
 lean_dec(v___y_1567_);
 lean_dec_ref(v___y_1566_);
 lean_dec(v___y_1565_);
@@ -6325,8 +6326,8 @@ else
 {
 lean_object* v_a_1945_; lean_object* v___x_1947_; uint8_t v_isShared_1948_; uint8_t v_isSharedCheck_1952_; 
 lean_dec_ref(v_code_1693_);
-lean_dec_ref(v_value_1689_);
 lean_dec_ref(v_toSignature_1690_);
+lean_dec_ref(v_value_1689_);
 lean_dec_ref(v_decl_1683_);
 v_a_1945_ = lean_ctor_get(v___x_1694_, 0);
 v_isSharedCheck_1952_ = !lean_is_exclusive(v___x_1694_);
@@ -6458,13 +6459,13 @@ return v___x_1991_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_Decl_reduceArity_spec__4___boxed(lean_object* v_as_1992_, lean_object* v_sz_1993_, lean_object* v_i_1994_, lean_object* v_b_1995_, lean_object* v___y_1996_, lean_object* v___y_1997_, lean_object* v___y_1998_, lean_object* v___y_1999_, lean_object* v___y_2000_, lean_object* v___y_2001_, lean_object* v___y_2002_){
 _start:
 {
-size_t v_sz_boxed_2003_; size_t v_i_boxed_2004_; uint8_t v___y_13283__boxed_2005_; lean_object* v_res_2006_; 
+size_t v_sz_boxed_2003_; size_t v_i_boxed_2004_; uint8_t v___y_13285__boxed_2005_; lean_object* v_res_2006_; 
 v_sz_boxed_2003_ = lean_unbox_usize(v_sz_1993_);
 lean_dec(v_sz_1993_);
 v_i_boxed_2004_ = lean_unbox_usize(v_i_1994_);
 lean_dec(v_i_1994_);
-v___y_13283__boxed_2005_ = lean_unbox(v___y_1996_);
-v_res_2006_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_Decl_reduceArity_spec__4(v_as_1992_, v_sz_boxed_2003_, v_i_boxed_2004_, v_b_1995_, v___y_13283__boxed_2005_, v___y_1997_, v___y_1998_, v___y_1999_, v___y_2000_, v___y_2001_);
+v___y_13285__boxed_2005_ = lean_unbox(v___y_1996_);
+v_res_2006_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Compiler_LCNF_Decl_reduceArity_spec__4(v_as_1992_, v_sz_boxed_2003_, v_i_boxed_2004_, v_b_1995_, v___y_13285__boxed_2005_, v___y_1997_, v___y_1998_, v___y_1999_, v___y_2000_, v___y_2001_);
 lean_dec(v___y_2001_);
 lean_dec_ref(v___y_2000_);
 lean_dec(v___y_1999_);

@@ -58,7 +58,7 @@ public structure Env where
   If `none`, no suitable system directory for the cache exists.
   -/
   lakeSystemCache? : Option Cache := none
-  /-- The path to the sytem Lake configuration (i.e., `LAKE_CONFIG`). -/
+  /-- The path to the system Lake configuration (i.e., `LAKE_CONFIG`). -/
   lakeConfig? : Option FilePath
   /-- The authentication key for cache uploads (i.e., `LAKE_CACHE_KEY`). -/
   cacheKey? : Option String

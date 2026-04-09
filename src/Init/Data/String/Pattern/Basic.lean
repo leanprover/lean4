@@ -96,6 +96,44 @@ theorem endPos_ofSliceFrom {s : Slice} {p : s.Pos} {st : SearchStep (s.sliceFrom
     st.ofSliceFrom.endPos = Slice.Pos.ofSliceFrom st.endPos := by
   cases st <;> simp [ofSliceFrom]
 
+/--
+Converts a {lean}`SearchStep s` into a {lean}`SearchStep t` by applying {name}`Slice.Pos.cast` to the
+start and end position.
+-/
+@[inline]
+def cast {s t : Slice} (hst : s.copy = t.copy) : SearchStep s → SearchStep t
+  | .rejected startPos endPos => .rejected (startPos.cast hst) (endPos.cast hst)
+  | .matched startPos endPos => .matched (startPos.cast hst) (endPos.cast hst)
+
+@[simp]
+theorem cast_rejected {s t : Slice} {hst : s.copy = t.copy} {startPos endPos : s.Pos} :
+    (SearchStep.rejected startPos endPos).cast hst = .rejected (startPos.cast hst) (endPos.cast hst) :=
+  (rfl)
+
+@[simp]
+theorem cast_matched {s t : Slice} {hst : s.copy = t.copy} {startPos endPos : s.Pos} :
+    (SearchStep.matched startPos endPos).cast hst = .matched (startPos.cast hst) (endPos.cast hst) :=
+  (rfl)
+
+@[simp]
+theorem startPos_cast {s t : Slice} (hst : s.copy = t.copy) {st : SearchStep s} :
+    (st.cast hst).startPos = st.startPos.cast hst := by
+  cases st <;> simp
+
+@[simp]
+theorem endPos_cast {s t : Slice} (hst : s.copy = t.copy) {st : SearchStep s} :
+    (st.cast hst).endPos = st.endPos.cast hst := by
+  cases st <;> simp
+
+@[simp]
+theorem cast_rfl {s : Slice} {st : SearchStep s} : st.cast rfl = st := by
+  cases st <;> simp
+
+@[simp]
+theorem cast_cast {s t u : Slice} {hst : s.copy = t.copy} {htu : t.copy = u.copy} {st : SearchStep s} :
+    (st.cast hst).cast htu = st.cast (hst.trans htu) := by
+  cases st <;> simp
+
 end SearchStep
 
 /--

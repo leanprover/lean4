@@ -14,12 +14,6 @@ open Lean
 
 namespace Lean.Meta
 
-def isLevelMVarAssignable (mvarId : LMVarId) : MetaM Bool := do
-  let mctx ← getMCtx
-  match mctx.lDepth.find? mvarId with
-  | some d => return d >= mctx.levelAssignDepth
-  | _      => panic! s!"unknown universe metavariable {mvarId.name}"
-
 def hasAssignableLevelMVar : Level → MetaM Bool
   | .succ lvl       => pure lvl.hasMVar <&&> hasAssignableLevelMVar lvl
   | .max lvl₁ lvl₂  => (pure lvl₁.hasMVar <&&> hasAssignableLevelMVar lvl₁) <||> (pure lvl₂.hasMVar <&&> hasAssignableLevelMVar lvl₂)

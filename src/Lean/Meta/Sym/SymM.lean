@@ -152,8 +152,6 @@ structure Canon.State where
   cache       : Std.HashMap Expr Expr := {}
   /-- Cache for type-level canonicalization (reductions applied). -/
   cacheInType : Std.HashMap Expr Expr := {}
-  /-- Cache mapping instances to their canonical synthesized instances. -/
-  cacheInsts  : Std.HashMap Expr Expr := {}
 
 /-- Mutable state for the symbolic computation framework. -/
 structure State where

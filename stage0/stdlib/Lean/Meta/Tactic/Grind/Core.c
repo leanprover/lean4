@@ -2628,7 +2628,7 @@ v___x_806_ = lean_st_ref_get(v___y_804_);
 v_mctx_807_ = lean_ctor_get(v___x_806_, 0);
 lean_inc_ref(v_mctx_807_);
 lean_dec(v___x_806_);
-v_eAssignment_808_ = lean_ctor_get(v_mctx_807_, 7);
+v_eAssignment_808_ = lean_ctor_get(v_mctx_807_, 8);
 lean_inc_ref(v_eAssignment_808_);
 lean_dec_ref(v_mctx_807_);
 v___x_809_ = l_Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00__private_Lean_Meta_Tactic_Grind_Core_0__Lean_Meta_Grind_closeGoalWithTrueEqFalse_spec__0_spec__0___redArg(v_eAssignment_808_, v_mvarId_803_);

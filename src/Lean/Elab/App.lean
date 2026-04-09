@@ -1832,13 +1832,15 @@ To infer a namespace from the expected type, we do the following operations:
 - if the type is of the form `c x₁ ... xₙ` with `c` a constant, then try using `c` as the namespace,
   and if that doesn't work, try unfolding the expression and continuing.
 -/
-private partial def resolveDottedIdentFn (idRef : Syntax) (id : Name) (expectedType? : Option Expr) : TermElabM (List (Expr × Syntax × List Syntax)) := do
+private partial def resolveDottedIdentFn (idRef : Syntax) (id : Name) (explicitUnivs : List Level) (expectedType? : Option Expr) : TermElabM (List (Expr × Syntax × List Syntax)) := do
   unless id.isAtomic do
     throwError "Invalid dotted identifier notation: The name `{id}` must be atomic"
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?
     | throwNoExpectedType
   addCompletionInfo <| CompletionInfo.dotId idRef id (← getLCtx) expectedType?
+  -- We will check deprecations in `elabAppFnResolutions`.
+  withoutCheckDeprecated do
   withForallBody expectedType fun resultType => do
     go resultType expectedType #[]
 where
@@ -1878,8 +1880,10 @@ where
           |>.filter (fun (_, fieldList) => fieldList.isEmpty)
           |>.map Prod.fst
         if !candidates.isEmpty then
-          candidates.mapM fun resolvedName => return (← mkConst resolvedName, ← getRef, [])
+          candidates.mapM fun resolvedName => return (← mkConst resolvedName explicitUnivs, ← getRef, [])
         else if let some (fvar, []) ← resolveLocalName fullName then
+          unless explicitUnivs.isEmpty do
+            throwInvalidExplicitUniversesForLocal fvar
           return [(fvar, ← getRef, [])]
         else
           throwUnknownIdentifierAt (← getRef) (declHint := fullName) <| m!"Unknown constant `{.ofConstName fullName}`"
@@ -1919,6 +1923,10 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
       let some idx := idxStx.isFieldIdx?
         | throwError "Internal error: Unexpected field index syntax `{idxStx}`"
       elabAppFn e (LVal.fieldIdx idxStx idx :: lvals) namedArgs args expectedType? explicit ellipsis overloaded acc
+    let elabDottedIdent (id : Syntax) (explicitUnivs : List Level) (explicit : Bool) : TermElabM (Array (TermElabResult Expr)) := do
+      let res ← withRef f <| resolveDottedIdentFn id id.getId.eraseMacroScopes explicitUnivs expectedType?
+      -- Use (forceTermInfo := true) because we want to record the result of .ident resolution even in patterns
+      elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc (forceTermInfo := true)
     match f with
     | `($(e).$idx:fieldIdx) => elabFieldIdx e idx explicit
     | `($e |>.$idx:fieldIdx) => elabFieldIdx e idx explicit
@@ -1934,16 +1942,17 @@ private partial def elabAppFn (f : Syntax) (lvals : List LVal) (namedArgs : Arra
     | `($id:ident.{$us,*}) => do
       let us ← elabExplicitUnivs us
       elabAppFnId id us lvals namedArgs args expectedType? explicit ellipsis overloaded acc
-    | `(@$id:ident) =>
-      elabAppFn id lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
-    | `(@$_:ident.{$_us,*}) =>
+    | `(.$id:ident) => elabDottedIdent id [] explicit
+    | `(.$id:ident.{$us,*}) =>
+      let us ← elabExplicitUnivs us
+      elabDottedIdent id us explicit
+    | `(@$_:ident)
+    | `(@$_:ident.{$_us,*})
+    | `(@.$_:ident)
+    | `(@.$_:ident.{$_us,*}) =>
       elabAppFn (f.getArg 1) lvals namedArgs args expectedType? (explicit := true) ellipsis overloaded acc
     | `(@$_)     => throwUnsupportedSyntax -- invalid occurrence of `@`
     | `(_)       => throwError "A placeholder `_` cannot be used where a function is expected"
-    | `(.$id:ident) =>
-        let res ← withRef f <| resolveDottedIdentFn id id.getId.eraseMacroScopes expectedType?
-        -- Use (forceTermInfo := true) because we want to record the result of .ident resolution even in patterns
-        elabAppFnResolutions f res lvals namedArgs args expectedType? explicit ellipsis overloaded acc (forceTermInfo := true)
     | _ => do
       let catchPostpone := !overloaded
       /- If we are processing a choice node, then we should use `catchPostpone == false` when elaborating terms.
@@ -2086,13 +2095,15 @@ private def elabAtom : TermElab := fun stx expectedType? => do
 
 @[builtin_term_elab explicit] def elabExplicit : TermElab := fun stx expectedType? =>
   match stx with
-  | `(@$_:ident)          => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
-  | `(@$_:ident.{$_us,*}) => elabAtom stx expectedType?
-  | `(@$(_).$_:fieldIdx)  => elabAtom stx expectedType?
-  | `(@$(_).$_:ident)     => elabAtom stx expectedType?
-  | `(@($t))             => elabTerm t expectedType? (implicitLambda := false)    -- `@` is being used just to disable implicit lambdas
-  | `(@$t)               => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
-  | _                    => throwUnsupportedSyntax
+  | `(@$_:ident)           => elabAtom stx expectedType?  -- Recall that `elabApp` also has support for `@`
+  | `(@$_:ident.{$_us,*})  => elabAtom stx expectedType?
+  | `(@$(_).$_:fieldIdx)   => elabAtom stx expectedType?
+  | `(@$(_).$_:ident)      => elabAtom stx expectedType?
+  | `(@.$_:ident)          => elabAtom stx expectedType?
+  | `(@.$_:ident.{$_us,*}) => elabAtom stx expectedType?
+  | `(@($t))               => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
+  | `(@$t)                 => elabTerm t expectedType? (implicitLambda := false)   -- `@` is being used just to disable implicit lambdas
+  | _                      => throwUnsupportedSyntax
 
 @[builtin_term_elab choice] def elabChoice : TermElab := elabAtom
 @[builtin_term_elab proj] def elabProj : TermElab := elabAtom

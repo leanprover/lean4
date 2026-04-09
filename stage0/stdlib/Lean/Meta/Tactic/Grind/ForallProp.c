@@ -1715,7 +1715,7 @@ _start:
 {
 if (lean_obj_tag(v_e_379_) == 7)
 {
-lean_object* v_binderName_391_; lean_object* v_binderType_392_; lean_object* v_body_393_; uint8_t v_binderInfo_394_; lean_object* v___y_396_; lean_object* v___y_397_; lean_object* v___y_398_; uint8_t v___y_399_; lean_object* v___y_400_; lean_object* v___y_401_; lean_object* v___y_402_; lean_object* v___y_403_; lean_object* v___y_404_; lean_object* v___y_405_; lean_object* v___y_406_; lean_object* v_inheritedTraceOptions_420_; lean_object* v_cls_421_; uint8_t v___y_423_; lean_object* v___y_424_; lean_object* v___y_425_; lean_object* v___y_426_; lean_object* v___y_427_; lean_object* v___y_428_; lean_object* v___y_429_; lean_object* v___y_430_; lean_object* v___y_431_; lean_object* v___y_432_; lean_object* v___y_433_; lean_object* v___y_485_; lean_object* v___y_486_; lean_object* v___y_487_; lean_object* v___y_488_; lean_object* v___y_489_; lean_object* v___y_490_; lean_object* v___y_491_; lean_object* v___y_492_; lean_object* v___y_493_; lean_object* v___y_494_; lean_object* v___x_526_; lean_object* v_a_527_; uint8_t v___x_528_; 
+lean_object* v_binderName_391_; lean_object* v_binderType_392_; lean_object* v_body_393_; uint8_t v_binderInfo_394_; lean_object* v___y_396_; lean_object* v___y_397_; uint8_t v___y_398_; lean_object* v___y_399_; lean_object* v___y_400_; lean_object* v___y_401_; lean_object* v___y_402_; lean_object* v___y_403_; lean_object* v___y_404_; lean_object* v___y_405_; lean_object* v___y_406_; lean_object* v_inheritedTraceOptions_420_; lean_object* v_cls_421_; uint8_t v___y_423_; lean_object* v___y_424_; lean_object* v___y_425_; lean_object* v___y_426_; lean_object* v___y_427_; lean_object* v___y_428_; lean_object* v___y_429_; lean_object* v___y_430_; lean_object* v___y_431_; lean_object* v___y_432_; lean_object* v___y_433_; lean_object* v___y_485_; lean_object* v___y_486_; lean_object* v___y_487_; lean_object* v___y_488_; lean_object* v___y_489_; lean_object* v___y_490_; lean_object* v___y_491_; lean_object* v___y_492_; lean_object* v___y_493_; lean_object* v___y_494_; lean_object* v___x_526_; lean_object* v_a_527_; uint8_t v___x_528_; 
 v_binderName_391_ = lean_ctor_get(v_e_379_, 0);
 v_binderType_392_ = lean_ctor_get(v_e_379_, 1);
 v_body_393_ = lean_ctor_get(v_e_379_, 2);
@@ -1791,16 +1791,16 @@ v_a_408_ = lean_ctor_get(v___x_407_, 0);
 lean_inc(v_a_408_);
 lean_dec_ref(v___x_407_);
 v___x_409_ = lean_obj_once(&l_Lean_Meta_Grind_propagateForallPropUp___closed__2, &l_Lean_Meta_Grind_propagateForallPropUp___closed__2_once, _init_l_Lean_Meta_Grind_propagateForallPropUp___closed__2);
-lean_inc_ref(v___y_398_);
+lean_inc_ref(v___y_399_);
 lean_inc_ref(v_binderType_392_);
-v___x_410_ = l_Lean_mkApp5(v___x_409_, v_binderType_392_, v___y_397_, v___y_398_, v___y_396_, v_a_408_);
-v___x_411_ = l_Lean_Meta_Grind_pushEqCore___redArg(v_e_379_, v___y_398_, v___x_410_, v___y_399_, v___y_401_, v___y_402_, v___y_403_, v___y_404_, v___y_405_, v___y_406_);
+v___x_410_ = l_Lean_mkApp5(v___x_409_, v_binderType_392_, v___y_397_, v___y_399_, v___y_396_, v_a_408_);
+v___x_411_ = l_Lean_Meta_Grind_pushEqCore___redArg(v_e_379_, v___y_399_, v___x_410_, v___y_398_, v___y_401_, v___y_402_, v___y_403_, v___y_404_, v___y_405_, v___y_406_);
 return v___x_411_;
 }
 else
 {
 lean_object* v_a_412_; lean_object* v___x_414_; uint8_t v_isShared_415_; uint8_t v_isSharedCheck_419_; 
-lean_dec_ref(v___y_398_);
+lean_dec_ref(v___y_399_);
 lean_dec_ref(v___y_397_);
 lean_dec_ref(v___y_396_);
 lean_dec_ref(v_e_379_);
@@ -1911,8 +1911,8 @@ if (v_hasTrace_447_ == 0)
 {
 v___y_396_ = v_a_435_;
 v___y_397_ = v___x_448_;
-v___y_398_ = v_expr_442_;
-v___y_399_ = v___y_423_;
+v___y_398_ = v___y_423_;
+v___y_399_ = v_expr_442_;
 v___y_400_ = v_a_439_;
 v___y_401_ = v___y_424_;
 v___y_402_ = v___y_426_;
@@ -1931,8 +1931,8 @@ if (v___x_450_ == 0)
 {
 v___y_396_ = v_a_435_;
 v___y_397_ = v___x_448_;
-v___y_398_ = v_expr_442_;
-v___y_399_ = v___y_423_;
+v___y_398_ = v___y_423_;
+v___y_399_ = v_expr_442_;
 v___y_400_ = v_a_439_;
 v___y_401_ = v___y_424_;
 v___y_402_ = v___y_426_;
@@ -1971,8 +1971,8 @@ if (lean_obj_tag(v___x_459_) == 0)
 lean_dec_ref(v___x_459_);
 v___y_396_ = v_a_435_;
 v___y_397_ = v___x_448_;
-v___y_398_ = v_expr_442_;
-v___y_399_ = v___y_423_;
+v___y_398_ = v___y_423_;
+v___y_399_ = v_expr_442_;
 v___y_400_ = v_a_439_;
 v___y_401_ = v___y_424_;
 v___y_402_ = v___y_426_;

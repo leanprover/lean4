@@ -271,7 +271,7 @@ private def optionPelim' {α : Type u_1} (t : Option α) {β :  Sort u_2}
 
 /--
 Inserts an `Option` case distinction after the first computation of a call to `MonadAttach.pbind`.
-This lemma is useful for simplifying the second computation, which often involes `match` expressions
+This lemma is useful for simplifying the second computation, which often involves `match` expressions
 that use `pbind`'s proof term.
 -/
 private theorem pbind_eq_pbind_if_isSome [Monad m] [MonadAttach m] (x : m (Option α)) (f : (_ : _) → _ → m β) :

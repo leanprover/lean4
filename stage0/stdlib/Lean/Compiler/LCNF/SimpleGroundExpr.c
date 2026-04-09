@@ -10745,16 +10745,17 @@ _start:
 lean_object* v___x_3069_; lean_object* v___x_3070_; lean_object* v___x_3071_; 
 v___x_3069_ = lean_obj_once(&l_Lean_addTrace___at___00__private_Lean_Compiler_LCNF_SimpleGroundExpr_0__Lean_Compiler_LCNF_Decl_detectSimpleGround_spec__0___closed__1, &l_Lean_addTrace___at___00__private_Lean_Compiler_LCNF_SimpleGroundExpr_0__Lean_Compiler_LCNF_Decl_detectSimpleGround_spec__0___closed__1_once, _init_l_Lean_addTrace___at___00__private_Lean_Compiler_LCNF_SimpleGroundExpr_0__Lean_Compiler_LCNF_Decl_detectSimpleGround_spec__0___closed__1);
 v___x_3070_ = lean_unsigned_to_nat(0u);
-v___x_3071_ = lean_alloc_ctor(0, 9, 0);
+v___x_3071_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_3071_, 0, v___x_3070_);
 lean_ctor_set(v___x_3071_, 1, v___x_3070_);
 lean_ctor_set(v___x_3071_, 2, v___x_3070_);
-lean_ctor_set(v___x_3071_, 3, v___x_3069_);
+lean_ctor_set(v___x_3071_, 3, v___x_3070_);
 lean_ctor_set(v___x_3071_, 4, v___x_3069_);
 lean_ctor_set(v___x_3071_, 5, v___x_3069_);
 lean_ctor_set(v___x_3071_, 6, v___x_3069_);
 lean_ctor_set(v___x_3071_, 7, v___x_3069_);
 lean_ctor_set(v___x_3071_, 8, v___x_3069_);
+lean_ctor_set(v___x_3071_, 9, v___x_3069_);
 return v___x_3071_;
 }
 }

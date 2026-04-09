@@ -138,7 +138,7 @@ def L.badAppend : L α → L α → L α
 
 /--
 error: function `@L.badAppend` is called with universe parameters
-  [u+1]
+  [u + 1]
 which differs from the instances' universe parameters
   [u]
 -/

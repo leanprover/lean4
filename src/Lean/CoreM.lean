@@ -20,6 +20,8 @@ register_builtin_option diagnostics : Bool := {
   descr    := "collect diagnostic information"
 }
 
+builtin_initialize registerTraceClass `diagnostics
+
 register_builtin_option diagnostics.threshold : Nat := {
   defValue := 20
   descr    := "only diagnostic counters above this threshold are reported by the definitional equality"
@@ -444,20 +446,25 @@ Note that the value of `ctx.initHeartbeats` is ignored and replaced with `IO.get
 @[inline] def CoreM.toIO' (x : CoreM α) (ctx : Context) (s : State) : IO α :=
   (·.1) <$> x.toIO ctx s
 
-/-- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`. -/
-protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
-  controlAt CoreM fun runInBase => withIncRecDepth (runInBase x)
-
 /--
 Throws an internal interrupt exception if cancellation has been requested. The exception is not
 caught by `try catch` but is intended to be caught by `Command.withLoggingExceptions` at the top
 level of elaboration. In particular, we want to skip producing further incremental snapshots after
 the exception has been thrown.
+
+Like `checkSystem` but without the global heartbeat check, for callers that have their own
+heartbeat tracking (e.g. `SynthInstance`).
  -/
 @[inline] def checkInterrupted : CoreM Unit := do
   if let some tk := (← read).cancelTk? then
     if (← tk.isSet) then
       throwInterruptException
+
+/-- withIncRecDepth for a monad `m` such that `[MonadControlT CoreM n]`.
+Also checks for cancellation, so that recursive elaboration functions
+(inferType, whnf, isDefEq, …) respond promptly to interrupt requests. -/
+protected def withIncRecDepth [Monad m] [MonadControlT CoreM m] (x : m α) : m α :=
+  controlAt CoreM fun runInBase => do checkInterrupted; withIncRecDepth (runInBase x)
 
 register_builtin_option debug.moduleNameAtTimeout : Bool := {
   defValue := true
@@ -708,11 +715,11 @@ breaks the cycle by making `compileDeclsImpl` a "dynamic" call through the ref t
 to the linker. In the compiler there is a matching `builtin_initialize` to set this ref to the
 actual implementation of compileDeclsRef.
 -/
-builtin_initialize compileDeclsRef : IO.Ref (Array Name → CoreM Unit) ←
-  IO.mkRef (fun _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
+builtin_initialize compileDeclsRef : IO.Ref (Array Name → Options → CoreM Unit) ←
+  IO.mkRef (fun _ _ => throwError m!"call to compileDecls with uninitialized compileDeclsRef")
 
 private def compileDeclsImpl (declNames : Array Name) : CoreM Unit := do
-  (← compileDeclsRef.get) declNames
+  (← compileDeclsRef.get) declNames {}
 
 -- `ref?` is used for error reporting if available
 def compileDecls (decls : Array Name) (logErrors := true) : CoreM Unit := do

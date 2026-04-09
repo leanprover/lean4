@@ -22,15 +22,17 @@ open Lean (Name LeanOptions)
 
 namespace Lake
 
-/-- **For internal use only.** Computes the cache to use for the package based on the environment. -/
+/--
+**For internal use only.**
+Computes the cache to use for the package based on the environment.
+-/
 public def computeLakeCache (pkg : Package) (lakeEnv : Lake.Env) : Cache :=
   if pkg.bootstrap then
     lakeEnv.lakeSystemCache?.getD ⟨pkg.lakeDir / "cache"⟩
   else
     lakeEnv.lakeCache?.getD ⟨pkg.lakeDir / "cache"⟩
 
-/-- A Lake workspace -- the top-level package directory. -/
-public structure Workspace : Type where
+public structure Workspace.Raw : Type where
   /-- The root package of the workspace. -/
   root : Package
   /-- The detected {lean}`Lake.Env` of the workspace. -/
@@ -49,14 +51,25 @@ public structure Workspace : Type where
   The packages within the workspace
   (in {lit}`require` declaration order with the root coming first).
   -/
-  packages : Array Package := {}
+  packages : Array Package := #[]
   /-- Name-package map of packages within the workspace. -/
   packageMap : DNameMap NPackage := {}
   /-- Configuration map of facets defined in the workspace. -/
-  facetConfigs : DNameMap FacetConfig := {}
+  facetConfigs : FacetConfigMap := {}
+  deriving Nonempty
 
-public instance : Nonempty Workspace :=
-  ⟨by constructor <;> exact Classical.ofNonempty⟩
+public structure Workspace.Raw.WF (ws : Workspace.Raw) : Prop where
+  packages_wsIdx : ∀ (h : i < ws.packages.size), (ws.packages[i]'h).wsIdx = i
+
+/-- A Lake workspace -- the top-level package directory. -/
+public structure Workspace extends raw : Workspace.Raw, wf : raw.WF
+
+public instance : Nonempty Workspace := .intro {
+  lakeEnv := default
+  lakeConfig := Classical.ofNonempty
+  root := Classical.ofNonempty
+  packages_wsIdx h := by simp at h
+}
 
 public hydrate_opaque_type OpaqueWorkspace Workspace
 
@@ -175,9 +188,20 @@ This is configured through {lit}`cache.service` entries in the system Lake confi
 @[inline] public def packageOverridesFile (self : Workspace) : FilePath :=
   self.lakeDir / "package-overrides.json"
 
+/-- **For internal use only.** Add a well-formed package to the workspace. -/
+@[inline] public def addPackage' (pkg : Package) (self : Workspace) (h : pkg.wsIdx = self.packages.size) : Workspace :=
+  {self with
+    packages := self.packages.push pkg
+    packageMap := self.packageMap.insert pkg.keyName pkg
+    packages_wsIdx {i} i_lt := by
+      cases Nat.lt_add_one_iff_lt_or_eq.mp <| Array.size_push .. ▸ i_lt with
+      | inl i_lt => simpa [Array.getElem_push_lt i_lt] using self.packages_wsIdx i_lt
+      | inr i_eq => simpa [i_eq] using h
+  }
+
 /-- Add a package to the workspace. -/
-public def addPackage (pkg : Package) (self : Workspace) : Workspace :=
-  {self with packages := self.packages.push pkg, packageMap := self.packageMap.insert pkg.keyName pkg}
+@[inline] public def addPackage (pkg : Package) (self : Workspace) : Workspace :=
+  self.addPackage' {pkg with wsIdx := self.packages.size} rfl
 
 /-- Returns the unique package in the workspace (if any) that is identified by  {lean}`keyName`. -/
 @[inline] public protected def findPackageByKey? (keyName : Name) (self : Workspace) : Option (NPackage keyName) :=
@@ -251,15 +275,15 @@ public def findTargetDecl? (name : Name) (self : Workspace) : Option ((pkg : Pac
   self.packages.findSome? fun pkg => pkg.findTargetDecl? name <&> (⟨pkg, ·⟩)
 
 /-- Add a facet to the workspace. -/
-public def addFacetConfig {name} (cfg : FacetConfig name) (self : Workspace) : Workspace :=
-  {self with facetConfigs := self.facetConfigs.insert name cfg}
+@[inline] public def addFacetConfig {name} (cfg : FacetConfig name) (self : Workspace) : Workspace :=
+  {self with facetConfigs := self.facetConfigs.insert cfg}
 
 /-- Try to find a facet configuration in the workspace with the given name. -/
-public def findFacetConfig? (name : Name) (self : Workspace) : Option (FacetConfig name) :=
+@[inline] public def findFacetConfig? (name : Name) (self : Workspace) : Option (FacetConfig name) :=
   self.facetConfigs.get? name
 
 /-- Add a module facet to the workspace. -/
-public def addModuleFacetConfig (cfg : ModuleFacetConfig name) (self : Workspace) : Workspace :=
+@[inline] public def addModuleFacetConfig (cfg : ModuleFacetConfig name) (self : Workspace) : Workspace :=
   self.addFacetConfig cfg.toFacetConfig
 
 /-- Try to find a module facet configuration in the workspace with the given name. -/
@@ -267,7 +291,7 @@ public def findModuleFacetConfig? (name : Name) (self : Workspace) : Option (Mod
   self.findFacetConfig? name |>.bind (·.toKind? Module.facetKind)
 
 /-- Add a package facet to the workspace. -/
-public def addPackageFacetConfig (cfg : PackageFacetConfig name) (self : Workspace) : Workspace :=
+@[inline] public def addPackageFacetConfig (cfg : PackageFacetConfig name) (self : Workspace) : Workspace :=
   self.addFacetConfig cfg.toFacetConfig
 
 /-- Try to find a package facet configuration in the workspace with the given name. -/
@@ -275,7 +299,7 @@ public def findPackageFacetConfig? (name : Name) (self : Workspace) : Option (Pa
   self.findFacetConfig? name |>.bind (·.toKind? Package.facetKind)
 
 /-- Add a library facet to the workspace. -/
-public def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : Workspace :=
+@[inline] public def addLibraryFacetConfig (cfg : LibraryFacetConfig name) (self : Workspace) : Workspace :=
   self.addFacetConfig cfg.toFacetConfig
 
 /-- Try to find a library facet configuration in the workspace with the given name. -/

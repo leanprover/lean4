@@ -13,7 +13,7 @@ def f (xs : List Nat) : Nat :=
   | _ => 2
 
 /--
-info: def f.match_1.{u_1} : (motive : List Nat → Sort u_1) →
+info: @[implicit_reducible] def f.match_1.{u_1} : (motive : List Nat → Sort u_1) →
   (xs : List Nat) → (Unit → motive []) → ((x : List Nat) → motive x) → motive xs
 -/
 #guard_msgs in
@@ -62,7 +62,7 @@ def Option_map (f : α → β) : Option α → Option β
   | none   => none
 
 /--
-info: def Option_map.match_1.{u_1, u_2} : {α : Type u_1} →
+info: @[implicit_reducible] def Option_map.match_1.{u_1, u_2} : {α : Type u_1} →
   (motive : Option α → Sort u_2) → (x : Option α) → ((x : α) → motive (some x)) → (Unit → motive none) → motive x
 -/
 #guard_msgs in

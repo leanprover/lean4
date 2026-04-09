@@ -219,7 +219,7 @@ lemma for the backward rule.
 
 It is unnecessary to use the `bind` rule in full generality. It is much more efficient to specialize
 it for the particular monad, postshape and `WP` instance. In doing so we can also unfold many
-`Std.Do` abbrevations, such as `Assertion ps` and `PostCond α ps`.
+`Std.Do` abbreviations, such as `Assertion ps` and `PostCond α ps`.
 We do that by doing `unfoldReducible` on the forall telescope. The type for `StateM Nat` and one
 excess state arg `s` becomes
 ```
@@ -1032,11 +1032,7 @@ private meta def elabGrindParams (grindStx : Syntax) (goal : MVarId) : TacticM G
   let `(tactic| grind $config:optConfig $[only%$only]? $[ [$grindParams:grindParam,*] ]? $[=> $_:grindSeq]?) := grindStx
     | throwUnsupportedSyntax
   let grindConfig ← elabGrindConfig config
-  let params ← mkGrindParams grindConfig only.isSome (grindParams.getD {}).getElems goal
-  -- FIXME: Expose grind's internal simp step limit as a user-facing option instead of hardcoding.
-  -- Grind's `simpCore` uses the default `Simp.Config.maxSteps` (100k) which is too low for large
-  -- unrolled goals (fails around n=400 for GetThrowSet).
-  return { params with norm := ← params.norm.setConfig { params.norm.config with maxSteps := 10000000 } }
+  mkGrindParams grindConfig only.isSome (grindParams.getD {}).getElems goal
 
 /--
 Build `Sym.Simp.Methods` from a variant name and extra theorems.

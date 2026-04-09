@@ -4346,16 +4346,17 @@ _start:
 lean_object* v___x_1813_; lean_object* v___x_1814_; lean_object* v___x_1815_; 
 v___x_1813_ = lean_obj_once(&l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_mkCasesOnSameCtorHet_spec__0_spec__0_spec__7_spec__17_spec__22_spec__27___redArg___closed__1, &l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_mkCasesOnSameCtorHet_spec__0_spec__0_spec__7_spec__17_spec__22_spec__27___redArg___closed__1_once, _init_l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_mkCasesOnSameCtorHet_spec__0_spec__0_spec__7_spec__17_spec__22_spec__27___redArg___closed__1);
 v___x_1814_ = lean_unsigned_to_nat(0u);
-v___x_1815_ = lean_alloc_ctor(0, 9, 0);
+v___x_1815_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_1815_, 0, v___x_1814_);
 lean_ctor_set(v___x_1815_, 1, v___x_1814_);
 lean_ctor_set(v___x_1815_, 2, v___x_1814_);
-lean_ctor_set(v___x_1815_, 3, v___x_1813_);
+lean_ctor_set(v___x_1815_, 3, v___x_1814_);
 lean_ctor_set(v___x_1815_, 4, v___x_1813_);
 lean_ctor_set(v___x_1815_, 5, v___x_1813_);
 lean_ctor_set(v___x_1815_, 6, v___x_1813_);
 lean_ctor_set(v___x_1815_, 7, v___x_1813_);
 lean_ctor_set(v___x_1815_, 8, v___x_1813_);
+lean_ctor_set(v___x_1815_, 9, v___x_1813_);
 return v___x_1815_;
 }
 }

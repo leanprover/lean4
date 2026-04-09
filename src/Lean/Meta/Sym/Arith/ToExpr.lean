@@ -8,7 +8,7 @@ prelude
 public import Init.Grind.Ring.CommSemiringAdapter
 public import Lean.ToExpr
 public section
-namespace Lean.Meta.Grind.Arith.CommRing
+namespace Lean.Meta.Sym.Arith
 open Grind.CommRing
 /-!
 `ToExpr` instances for `CommRing.Poly` types.
@@ -57,4 +57,4 @@ instance : ToExpr CommRing.Expr where
   toExpr := ofRingExpr
   toTypeExpr := mkConst ``CommRing.Expr
 
-end Lean.Meta.Grind.Arith.CommRing
+end Lean.Meta.Sym.Arith

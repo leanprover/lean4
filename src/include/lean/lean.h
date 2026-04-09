@@ -976,6 +976,13 @@ static inline void lean_sarray_set_size(u_lean_obj_arg o, size_t sz) {
 }
 static inline uint8_t* lean_sarray_cptr(lean_object * o) { return lean_to_sarray(o)->m_data; }
 
+LEAN_EXPORT bool lean_sarray_eq_cold(b_lean_obj_arg a1, b_lean_obj_arg a2);
+static inline bool lean_sarray_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    assert(lean_sarray_elem_size(a1) == lean_sarray_elem_size(a2));
+    return a1 == a2 || (lean_sarray_size(a1) == lean_sarray_size(a2) && lean_sarray_eq_cold(a1, a2));
+}
+static inline uint8_t lean_sarray_dec_eq(b_lean_obj_arg a1, b_lean_obj_arg a2) { return lean_sarray_eq(a1, a2); }
+
 /* Remark: expand sarray API after we add better support in the compiler */
 
 /* ByteArray (special case of Array of Scalars) */
@@ -3159,6 +3166,10 @@ static inline lean_obj_res lean_nat_pred(b_lean_obj_arg n) {
 
 static inline lean_obj_res lean_manual_get_root(lean_obj_arg _unit) {
     return lean_mk_string(LEAN_MANUAL_ROOT);
+}
+
+static inline lean_obj_res lean_runtime_hold(b_lean_obj_arg a) {
+    return lean_box(0);
 }
 
 #ifdef LEAN_EMSCRIPTEN

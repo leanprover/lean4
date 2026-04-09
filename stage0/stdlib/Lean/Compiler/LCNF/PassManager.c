@@ -1246,16 +1246,17 @@ _start:
 lean_object* v___x_392_; lean_object* v___x_393_; lean_object* v___x_394_; 
 v___x_392_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Compiler_LCNF_PassManager_0__Lean_Compiler_LCNF_PassManager_validatePasses_spec__0_spec__0___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Compiler_LCNF_PassManager_0__Lean_Compiler_LCNF_PassManager_validatePasses_spec__0_spec__0___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Compiler_LCNF_PassManager_0__Lean_Compiler_LCNF_PassManager_validatePasses_spec__0_spec__0___closed__1);
 v___x_393_ = lean_unsigned_to_nat(0u);
-v___x_394_ = lean_alloc_ctor(0, 9, 0);
+v___x_394_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_394_, 0, v___x_393_);
 lean_ctor_set(v___x_394_, 1, v___x_393_);
 lean_ctor_set(v___x_394_, 2, v___x_393_);
-lean_ctor_set(v___x_394_, 3, v___x_392_);
+lean_ctor_set(v___x_394_, 3, v___x_393_);
 lean_ctor_set(v___x_394_, 4, v___x_392_);
 lean_ctor_set(v___x_394_, 5, v___x_392_);
 lean_ctor_set(v___x_394_, 6, v___x_392_);
 lean_ctor_set(v___x_394_, 7, v___x_392_);
 lean_ctor_set(v___x_394_, 8, v___x_392_);
+lean_ctor_set(v___x_394_, 9, v___x_392_);
 return v___x_394_;
 }
 }

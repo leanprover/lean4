@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith
 
 structure SemiringM.Context where
   semiringId : Nat

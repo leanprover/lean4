@@ -219,6 +219,7 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
       for (thm, numExtraArgs) in candidates do
+        checkSystem "simp"
         if inErasedSet thm then continue
         if rflOnly then
           unless thm.rfl do
@@ -246,6 +247,7 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
       for thm in candidates do
+        checkSystem "simp"
         unless inErasedSet thm || (rflOnly && !thm.rfl) do
           let result? ← withNewMCtxDepth do
             let val  ← thm.getValue

@@ -28,7 +28,9 @@ namespace String.Slice.Pattern.Model.Char
 
 instance {c : Char} : PatternModel c where
   Matches s := s = String.singleton c
-  not_matches_empty := by simp
+
+instance {c : Char} : StrictPatternModel c where
+  not_matches_empty := by simp [PatternModel.Matches]
 
 instance {c : Char} : NoPrefixPatternModel c :=
   .of_length_eq (by simp +contextual [PatternModel.Matches])
@@ -168,10 +170,60 @@ theorem isLongestMatchAt_iff_isLongestMatchAt_beq {c : Char} {s : Slice}
     IsLongestMatchAt c pos pos' ↔ IsLongestMatchAt (· == c) pos pos' := by
   simp [Model.isLongestMatchAt_iff, isLongestMatch_iff_isLongestMatch_beq]
 
+theorem isLongestMatchAtChain_iff_isLongestMatchAtChain_beq {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestMatchAtChain c pos pos' ↔ IsLongestMatchAtChain (· == c) pos pos' := by
+  refine ⟨fun h => ?_, fun h => ?_⟩
+  · induction h with
+    | nil => simp
+    | cons p₁ p₂ p₃ h₁ h₂ ih => exact .cons _ _ _ (isLongestMatchAt_iff_isLongestMatchAt_beq.1 h₁) ih
+  · induction h with
+    | nil => simp
+    | cons p₁ p₂ p₃ h₁ h₂ ih => exact .cons _ _ _ (isLongestMatchAt_iff_isLongestMatchAt_beq.2 h₁) ih
+
+theorem isLongestMatchAtChain_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestMatchAtChain c pos pos' ↔ pos ≤ pos' ∧ ∀ pos'', pos ≤ pos'' → (h : pos'' < pos') → pos''.get (Pos.ne_endPos_of_lt h) = c := by
+  simp [isLongestMatchAtChain_iff_isLongestMatchAtChain_beq, CharPred.isLongestMatchAtChain_iff]
+
+theorem isLongestMatchAtChain_iff_toList {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestMatchAtChain c pos pos' ↔
+      ∃ (h : pos ≤ pos'), (s.slice pos pos' h).copy.toList = List.replicate (s.slice pos pos' h).copy.length c := by
+  simp [isLongestMatchAtChain_iff_isLongestMatchAtChain_beq, CharPred.isLongestMatchAtChain_iff_toList,
+    List.eq_replicate_iff]
+
+theorem isLongestMatchAtChain_startPos_endPos_iff_toList {c : Char} {s : Slice} :
+    IsLongestMatchAtChain c s.startPos s.endPos ↔ s.copy.toList = List.replicate s.copy.length c := by
+  simp [isLongestMatchAtChain_iff_isLongestMatchAtChain_beq,
+    CharPred.isLongestMatchAtChain_startPos_endPos_iff_toList, List.eq_replicate_iff]
+
 theorem isLongestRevMatchAt_iff_isLongestRevMatchAt_beq {c : Char} {s : Slice}
     {pos pos' : s.Pos} :
     IsLongestRevMatchAt c pos pos' ↔ IsLongestRevMatchAt (· == c) pos pos' := by
   simp [Model.isLongestRevMatchAt_iff, isLongestRevMatch_iff_isLongestRevMatch_beq]
+
+theorem isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_beq {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestRevMatchAtChain c pos pos' ↔ IsLongestRevMatchAtChain (· == c) pos pos' := by
+  refine ⟨fun h => ?_, fun h => ?_⟩
+  · induction h with
+    | nil => simp
+    | cons p₂ p₃ _ hmatch ih => exact .cons _ _ _ ih (isLongestRevMatchAt_iff_isLongestRevMatchAt_beq.1 hmatch)
+  · induction h with
+    | nil => simp
+    | cons p₂ p₃ _ hmatch ih => exact .cons _ _ _ ih (isLongestRevMatchAt_iff_isLongestRevMatchAt_beq.2 hmatch)
+
+theorem isLongestRevMatchAtChain_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestRevMatchAtChain c pos pos' ↔ pos ≤ pos' ∧ ∀ pos'', pos ≤ pos'' → (h : pos'' < pos') → pos''.get (Pos.ne_endPos_of_lt h) = c := by
+  simp [isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_beq, CharPred.isLongestRevMatchAtChain_iff]
+
+theorem isLongestRevMatchAtChain_iff_toList {c : Char} {s : Slice} {pos pos' : s.Pos} :
+    IsLongestRevMatchAtChain c pos pos' ↔
+      ∃ (h : pos ≤ pos'), (s.slice pos pos' h).copy.toList = List.replicate (s.slice pos pos' h).copy.length c := by
+  simp [isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_beq, CharPred.isLongestRevMatchAtChain_iff_toList,
+    List.eq_replicate_iff]
+
+theorem isLongestRevMatchAtChain_startPos_endPos_iff_toList {c : Char} {s : Slice} :
+    IsLongestRevMatchAtChain c s.startPos s.endPos ↔ s.copy.toList = List.replicate s.copy.length c := by
+  simp [isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_beq,
+    CharPred.isLongestRevMatchAtChain_startPos_endPos_iff_toList, List.eq_replicate_iff]
 
 theorem matchesAt_iff_matchesAt_beq {c : Char} {s : Slice} {pos : s.Pos} :
     MatchesAt c pos ↔ MatchesAt (· == c) pos := by
@@ -242,18 +294,21 @@ theorem skipPrefix?_char_eq_skipPrefix?_beq {c : Char} {s : Slice} :
 theorem Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq {c : Char} {s : Slice} :
     skipPrefix? c s = skipPrefix? (· == c) s := (rfl)
 
+theorem Pos.skip?_char_eq_skip?_beq {c : Char} {s : Slice} {pos : s.Pos} :
+    pos.skip? c = pos.skip? (· == c) := (rfl)
+
 theorem Pos.skipWhile_char_eq_skipWhile_beq {c : Char} {s : Slice} (curr : s.Pos) :
     Pos.skipWhile curr c = Pos.skipWhile curr (· == c) := by
   fun_induction Pos.skipWhile curr c with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq, h₁, h₂, ih]
+    simp [← Pos.skip?_char_eq_skip?_beq, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq, h, ih]
+    simp [← Pos.skip?_char_eq_skip?_beq, h, ih]
   | case3 pos h =>
     conv => rhs; rw [Pos.skipWhile]
-    simp [← Pattern.ForwardPattern.skipPrefix?_char_eq_skipPrefix?_beq]
+    simp [← Pos.skip?_char_eq_skip?_beq, h]
 
 theorem skipPrefixWhile_char_eq_skipPrefixWhile_beq {c : Char} {s : Slice} :
     s.skipPrefixWhile c = s.skipPrefixWhile (· == c) :=
@@ -269,7 +324,7 @@ theorem takeWhile_char_eq_takeWhile_beq {c : Char} {s : Slice} :
 
 theorem all_char_eq_all_beq {c : Char} {s : Slice} :
     s.all c = s.all (· == c) := by
-  simp only [all, dropWhile_char_eq_dropWhile_beq]
+  simp only [all, skipPrefixWhile_char_eq_skipPrefixWhile_beq]
 
 theorem find?_char_eq_find?_beq {c : Char} {s : Slice} :
     s.find? c = s.find? (· == c) :=
@@ -298,18 +353,21 @@ theorem dropSuffix_char_eq_dropSuffix_beq {c : Char} {s : Slice} :
 theorem Pattern.BackwardPattern.skipSuffix?_char_eq_skipSuffix?_beq {c : Char} {s : Slice} :
     skipSuffix? c s = skipSuffix? (· == c) s := (rfl)
 
+theorem Pos.revSkip?_char_eq_revSkip?_beq {c : Char} {s : Slice} {pos : s.Pos} :
+    pos.revSkip? c = pos.revSkip? (· == c) := (rfl)
+
 theorem Pos.revSkipWhile_char_eq_revSkipWhile_beq {c : Char} {s : Slice} (curr : s.Pos) :
     Pos.revSkipWhile curr c = Pos.revSkipWhile curr (· == c) := by
   fun_induction Pos.revSkipWhile curr c with
   | case1 pos nextCurr h₁ h₂ ih =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_char_eq_skipSuffix?_beq, h₁, h₂, ih]
+    simp [← Pos.revSkip?_char_eq_revSkip?_beq, h₁, h₂, ih]
   | case2 pos nextCurr h ih =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_char_eq_skipSuffix?_beq, h, ih]
+    simp [← Pos.revSkip?_char_eq_revSkip?_beq, h, ih]
   | case3 pos h =>
     conv => rhs; rw [Pos.revSkipWhile]
-    simp [← Pattern.BackwardPattern.skipSuffix?_char_eq_skipSuffix?_beq]
+    simp [← Pos.revSkip?_char_eq_revSkip?_beq, h]
 
 theorem skipSuffixWhile_char_eq_skipSuffixWhile_beq {c : Char} {s : Slice} :
     s.skipSuffixWhile c = s.skipSuffixWhile (· == c) :=
@@ -322,5 +380,17 @@ theorem dropEndWhile_char_eq_dropEndWhile_beq {c : Char} {s : Slice} :
 theorem takeEndWhile_char_eq_takeEndWhile_beq {c : Char} {s : Slice} :
     s.takeEndWhile c = s.takeEndWhile (· == c) := by
   simp only [takeEndWhile]; exact congrArg _ skipSuffixWhile_char_eq_skipSuffixWhile_beq
+
+theorem revFind?_char_eq_revFind?_beq {c : Char} {s : Slice} :
+    s.revFind? c = s.revFind? (· == c) :=
+  (rfl)
+
+theorem Pos.revFind?_char_eq_revFind?_beq {c : Char} {s : Slice} {p : s.Pos} :
+    p.revFind? c = p.revFind? (· == c) :=
+  (rfl)
+
+theorem revAll_char_eq_revAll_beq {c : Char} {s : Slice} :
+    s.revAll c = s.revAll (· == c) := by
+  simp [revAll, skipSuffixWhile_char_eq_skipSuffixWhile_beq]
 
 end String.Slice

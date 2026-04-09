@@ -1153,7 +1153,7 @@ v___x_345_ = lean_st_ref_get(v___y_343_);
 v_mctx_346_ = lean_ctor_get(v___x_345_, 0);
 lean_inc_ref(v_mctx_346_);
 lean_dec(v___x_345_);
-v_eAssignment_347_ = lean_ctor_get(v_mctx_346_, 7);
+v_eAssignment_347_ = lean_ctor_get(v_mctx_346_, 8);
 lean_inc_ref(v_eAssignment_347_);
 lean_dec_ref(v_mctx_346_);
 v___x_348_ = l_Lean_PersistentHashMap_contains___at___00Lean_MVarId_isAssigned___at___00Lean_Meta_repeat_x27Core___at___00Lean_Meta_repeat_x27___at___00Lean_Elab_Tactic_evalRepeat_x27_spec__0_spec__0_spec__2_spec__6___redArg(v_eAssignment_347_, v_mvarId_342_);

@@ -49,6 +49,16 @@ register_builtin_option backward.isDefEq.respectTransparency : Bool := {
 }
 
 /--
+Controls the transparency used to check whether the type of metavariable matches the type of the
+term being assigned to it.
+-/
+register_builtin_option backward.isDefEq.respectTransparency.types : Bool := {
+  defValue := false -- TODO: replace with `true` after we fix stage0
+  descr    := "if true, do not bump transparency to `.default` \
+  when checking whether the type of a metavariable matches the type of the term being assigned to it."
+}
+
+/--
 Controls whether *all* implicit arguments (not just instance-implicit `[..]`) get their
 transparency bumped to `TransparencyMode.instances` during `isDefEq`.
 
@@ -335,10 +345,10 @@ private def isDefEqArgsFirstPass
 
 /--
 Ensure `MetaM` configuration is strong enough for checking definitional equality of
-instances. For example, we must be able to unfold instances, `beta := true`, `proj := .yesWithDelta`
-are essential.
+implicit arguments (e.g., instances) and types.
+For example, we must be able to unfold instances, `beta := true`, `proj := .yesWithDelta` are essential.
 -/
-@[inline] def withInstanceConfig (x : MetaM α) : MetaM α :=
+@[inline] def withImplicitConfig (x : MetaM α) : MetaM α :=
   withAtLeastTransparency .instances do
     let cfg ← getConfig
     if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
@@ -382,7 +392,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
       -- Bump to `.instances` so that `[implicit_reducible]` definitions (instances, `Nat.add`,
       -- `Array.size`, etc.) are unfolded. The user doesn't choose implicit arguments directly,
       -- so Lean should try harder than the caller's transparency to make them match.
-      unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+      unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else if respectTransparency then
       unless (← Meta.isExprDefEqAux a₁ a₂) do return false
     else
@@ -392,7 +402,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     if respectTransparency && (implicitBump || finfo.paramInfo[i]!.isInstance) then
-      unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+      unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else if !respectTransparency && finfo.paramInfo[i]!.isInstance then
       -- Old behavior
       unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
@@ -454,6 +464,19 @@ private partial def isDefEqBindingAux (lctx : LocalContext) (fvars : Array Expr)
   let lctx ← getLCtx
   isDefEqBindingAux lctx #[] a b #[]
 
+/--
+Returns `true` if both `backward.isDefEq.respectTransparency` and `backward.isDefEq.respectTransparency.types` is true.
+
+The option `backward.isDefEq.respectTransparency.types` is newer than ``backward.isDefEq.respectTransparency`,
+and is used to enable the transparency bump when checking metavariable assignments.
+
+If `backward.isDefEq.respectTransparency` is `false`, then we automatically disable
+`backward.isDefEq.respectTransparency.types` too.
+-/
+abbrev respectTransparencyAtTypes : CoreM Bool := do
+  let opts ← getOptions
+  return backward.isDefEq.respectTransparency.types.get opts && backward.isDefEq.respectTransparency.get opts
+
 private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
   withTraceNodeBefore `Meta.isDefEq.assign.checkTypes (fun _ => return m!"({mvar} : {← inferType mvar}) := ({v} : {← inferType v})") do
     if !mvar.isMVar then
@@ -462,14 +485,24 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
     else
       -- must check whether types are definitionally equal or not, before assigning and returning true
       let mvarType ← inferType mvar
-      -- **TODO**: avoid transparency bump. Let's fix other issues first
-      withInferTypeConfig do
-        let vType ← inferType v
-        if (← Meta.isExprDefEqAux mvarType vType) then
-          mvar.mvarId!.assign v
-          pure true
-        else
-          pure false
+      let vType ← inferType v
+      if (← respectTransparencyAtTypes) then
+        withImplicitConfig do
+          if (← Meta.isExprDefEqAux mvarType vType) then
+            mvar.mvarId!.assign v
+            return true
+          else
+            if (← isDiagnosticsEnabled) then withInferTypeConfig do
+              if (← Meta.isExprDefEqAux mvarType vType) then
+                trace[diagnostics] "failure when assigning metavariable with type{indentExpr mvarType}\nwhich is not definitionally equal to{indentExpr vType}\nwhen using `.instances` transparency, but it is with `.default`.\nWorkaround: `set_option backward.isDefEq.respectTransparency.types false`"
+            return false
+      else
+        withInferTypeConfig do
+          if (← Meta.isExprDefEqAux mvarType vType) then
+            mvar.mvarId!.assign v
+            return true
+          else
+            return false
 
 /--
 Auxiliary method for solving constraints of the form `?m xs := v`.
@@ -2062,7 +2095,7 @@ private def isDefEqProj : Expr → Expr → MetaM Bool
        for instance-implicit parameters. -/
     let fromClass := isClass (← getEnv) m
     let isDefEqStructArgs (x : MetaM Bool) : MetaM Bool :=
-      if fromClass then withInstanceConfig x else x
+      if fromClass then withImplicitConfig x else x
     if (← read).inTypeClassResolution then
       -- See comment at `inTypeClassResolution`
       pure (i == j && m == n) <&&> isDefEqStructArgs (Meta.isExprDefEqAux t s)

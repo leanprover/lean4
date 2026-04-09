@@ -1973,7 +1973,7 @@ def SolverExtension.markTerm (ext : SolverExtension σ) (e : Expr) : GoalM Unit 
     | .next id' e' sTerms' =>
       if id == id' then
         -- Skip if `e` and `e'` have different types (e.g., they were merged via `HEq` from `cast`).
-        -- This can happen when we have heterogenous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
+        -- This can happen when we have heterogeneous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
         if (← pure !root.heqProofs <||> hasSameType e e') then
           (← solverExtensionsRef.get)[id]!.newEq e e'
         return sTerms
@@ -2056,7 +2056,7 @@ where
     | .nil => return ()
     | .eq solverId lhs rhs rest =>
       -- Skip if `lhs` and `rhs` have different types (e.g., they were merged via `HEq` from `cast`).
-      -- This can happen when we have heterogenous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
+      -- This can happen when we have heterogeneous equalities in an equivalence class containing types such as `Fin n` and `Fin m`
       let root ← getRootENode lhs
       if (← pure !root.heqProofs <||> hasSameType lhs rhs) then
         (← solverExtensionsRef.get)[solverId]!.newEq lhs rhs

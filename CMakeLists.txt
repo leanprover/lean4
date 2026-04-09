@@ -127,7 +127,8 @@ if(USE_MIMALLOC)
     # Unnecessarily deep directory structure, but it saves us from a complicated
     # stage0 update for now. If we ever update the other dependencies like
     # cadical, it might be worth reorganizing the directory structure.
-    SOURCE_DIR "${CMAKE_BINARY_DIR}/mimalloc/src/mimalloc"
+    SOURCE_DIR
+    "${CMAKE_BINARY_DIR}/mimalloc/src/mimalloc"
   )
   FetchContent_MakeAvailable(mimalloc)
 endif()

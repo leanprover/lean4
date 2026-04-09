@@ -208,6 +208,7 @@ struct module_file {
 
 extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, object *) {
     array_ref<string_ref> fnames(ofnames, true);
+    lean_always_assert(fnames.size() > 0);
 
     // first read in all headers
     std::vector<module_file> files;
@@ -329,12 +330,15 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
 
         size_t big_size = files[files.size()-1].m_base_addr + files[files.size()-1].m_size - files[0].m_base_addr;
         char * big_buffer = static_cast<char *>(malloc(big_size));
+        if (big_buffer == nullptr) {
+            return io_result_mk_error((sstream() << "failed to allocate " << big_size << " bytes of memory for loading " << files[0].m_fname << "(" << files.size() << " parts)").str());
+        }
         for (auto & file : files) {
             std::string const & olean_fn = file.m_fname;
             try {
                 file.m_buffer = big_buffer + (file.m_base_addr - files[0].m_base_addr);
                 if (read(file.m_fd.get(), file.m_buffer, file.m_size) != static_cast<ssize_t>(file.m_size)) {
-                    return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
+                    return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "': " << strerror(errno)).str());
                 }
             } catch (exception & ex) {
                 return io_result_mk_error((sstream() << "failed to read '" << olean_fn << "': " << ex.what()).str());

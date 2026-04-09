@@ -67,7 +67,9 @@ structure Snapshot where
   `diagnostics`) occurred that prevents processing of the remainder of the file.
   -/
   isFatal := false
-deriving Inhabited
+
+instance : Inhabited Snapshot where
+  default := { desc := "", diagnostics := default }
 
 /-- Range that is marked as being processed by the server while a task is running. -/
 inductive SnapshotTask.ReportingRange where

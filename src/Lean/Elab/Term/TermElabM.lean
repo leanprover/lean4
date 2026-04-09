@@ -245,7 +245,10 @@ structure TacticParsedSnapshot extends Language.Snapshot where
   finished : SnapshotTask TacticFinishedSnapshot
   /-- Tasks for subsequent, potentially parallel, tactic steps. -/
   next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
-deriving Inhabited
+
+instance : Inhabited TacticParsedSnapshot where
+  default := { toSnapshot := default, stx := default, finished := default }
+
 partial instance : ToSnapshotTree TacticParsedSnapshot where
   toSnapshotTree := go where
     go := fun s => ⟨s.toSnapshot,

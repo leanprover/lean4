@@ -79,21 +79,6 @@ register_builtin_option backward.inferInstanceAs.wrap.data : Bool := {
 builtin_initialize registerTraceClass `Meta.wrapInstance
 
 /--
-Rebuild a type application with fresh synthetic metavariables for instance-implicit arguments.
-Non-instance-implicit arguments are assigned from the original application's arguments.
-If the function is over-applied, extra arguments are preserved.
--/
-def abstractInstImplicitArgs (type : Expr) : MetaM Expr := do
-  let fn := type.getAppFn
-  let args := type.getAppArgs
-  let (mvars, bis, _) ← forallMetaTelescope (← inferType fn)
-  for i in [:mvars.size] do
-    unless bis[i]!.isInstImplicit do
-      mvars[i]!.mvarId!.assign args[i]!
-  let args := mvars ++ args.drop mvars.size
-  instantiateMVars (mkAppN fn args)
-
-/--
 Wrap an instance value so its type matches the expected type exactly.
 See the module docstring for the full algorithm specification.
 -/

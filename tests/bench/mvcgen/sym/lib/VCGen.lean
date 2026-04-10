@@ -477,6 +477,9 @@ public structure VCGen.Context where
   postCondEntailsMkRule : BackwardRule
   /-- The backward rule for `ExceptConds.entails.rfl`. -/
   exceptCondsEntailsRflRule : BackwardRule
+  /-- The backward rule for `ExceptConds.entails.pure`. Closes the exception side for
+  pure PostShapes, where `ExceptConds.entails` reduces to `True`. -/
+  exceptCondsEntailsPureRule : BackwardRule
   /-- The backward rule for `Triple.of_entails_wp`. -/
   tripleOfEntailsWPRule : BackwardRule
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
@@ -585,6 +588,8 @@ meta def solvePostCondEntails (goal : MVarId) : _root_.VCGenM (Option (List MVar
     let P ← shareCommonInc P
     let Q ← shareCommonInc Q
     let goal₂ ← goal₂.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent ps P Q)
+    if let .goals [] ← (← read).exceptCondsEntailsPureRule.apply goal₂ then
+      return none
     if let .goals [] ← (← read).exceptCondsEntailsRflRule.apply goal₂ then
       return none
     return some goal₂
@@ -1039,6 +1044,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
   let postCondEntailsRflRule ← mkBackwardRuleFromDecl ``PostCond.entails.rfl
   let postCondEntailsMkRule ← mkBackwardRuleFromDecl ``PostCond.entails.mk
   let exceptCondsEntailsRflRule ← mkBackwardRuleFromDecl ``ExceptConds.entails.rfl
+  let exceptCondsEntailsPureRule ← mkBackwardRuleFromDecl ``ExceptConds.entails.pure
   let tripleOfEntailsWPRule ← mkBackwardRuleFromDecl ``Triple.of_entails_wp
   let specThmsNew ← SymM.run <| migrateSpecTheoremsDatabase specThms simpThms
   return {
@@ -1047,6 +1053,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
     postCondEntailsRflRule,
     postCondEntailsMkRule,
     exceptCondsEntailsRflRule,
+    exceptCondsEntailsPureRule,
     tripleOfEntailsWPRule,
   }
 

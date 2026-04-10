@@ -1312,10 +1312,11 @@ goto v___jp_257_;
 v___jp_240_:
 {
 lean_object* v___x_245_; lean_object* v___x_246_; lean_object* v___x_247_; lean_object* v___x_248_; lean_object* v___x_249_; lean_object* v___x_250_; lean_object* v___x_251_; lean_object* v___x_252_; lean_object* v___x_253_; uint8_t v___x_254_; lean_object* v___x_255_; lean_object* v___x_256_; 
+lean_inc(v___y_242_);
 v___x_245_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_245_, 0, v___y_242_);
 lean_ctor_set(v___x_245_, 1, v___y_244_);
-lean_inc(v___y_243_);
+lean_inc_n(v___y_243_, 2);
 v___x_246_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_246_, 0, v___x_245_);
 lean_ctor_set(v___x_246_, 1, v___y_243_);
@@ -1332,6 +1333,7 @@ v___x_251_ = l_Int_Linear_instReprPoly__lean_repr(v_p_238_, v___x_239_);
 v___x_252_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_252_, 0, v___x_250_);
 lean_ctor_set(v___x_252_, 1, v___x_251_);
+lean_inc(v___y_241_);
 v___x_253_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_253_, 0, v___y_241_);
 lean_ctor_set(v___x_253_, 1, v___x_252_);
@@ -1381,9 +1383,11 @@ goto v___jp_240_;
 v___jp_203_:
 {
 lean_object* v___x_207_; lean_object* v___x_208_; uint8_t v___x_209_; lean_object* v___x_210_; lean_object* v___x_211_; 
+lean_inc(v___y_204_);
 v___x_207_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_207_, 0, v___y_204_);
 lean_ctor_set(v___x_207_, 1, v___y_206_);
+lean_inc(v___y_205_);
 v___x_208_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_208_, 0, v___y_205_);
 lean_ctor_set(v___x_208_, 1, v___x_207_);
@@ -1581,6 +1585,7 @@ lean_object* v___x_372_; lean_object* v___x_373_; uint8_t v___x_374_; lean_objec
 v___x_372_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_372_, 0, v___x_368_);
 lean_ctor_set(v___x_372_, 1, v___x_371_);
+lean_inc(v___y_367_);
 v___x_373_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_373_, 0, v___y_367_);
 lean_ctor_set(v___x_373_, 1, v___x_372_);
@@ -1667,6 +1672,7 @@ v___x_397_ = l_Int_Linear_instReprExpr__lean_repr(v_b_384_, v___x_388_);
 v___x_398_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_398_, 0, v___x_396_);
 lean_ctor_set(v___x_398_, 1, v___x_397_);
+lean_inc(v___y_390_);
 v___x_399_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_399_, 0, v___y_390_);
 lean_ctor_set(v___x_399_, 1, v___x_398_);
@@ -1753,6 +1759,7 @@ v___x_422_ = l_Int_Linear_instReprExpr__lean_repr(v_b_409_, v___x_413_);
 v___x_423_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_423_, 0, v___x_421_);
 lean_ctor_set(v___x_423_, 1, v___x_422_);
+lean_inc(v___y_415_);
 v___x_424_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_424_, 0, v___y_415_);
 lean_ctor_set(v___x_424_, 1, v___x_423_);
@@ -1796,6 +1803,7 @@ v___x_438_ = l_Int_Linear_instReprExpr__lean_repr(v_a_433_, v___x_434_);
 v___x_439_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_439_, 0, v___x_437_);
 lean_ctor_set(v___x_439_, 1, v___x_438_);
+lean_inc(v___y_436_);
 v___x_440_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_440_, 0, v___y_436_);
 lean_ctor_set(v___x_440_, 1, v___x_439_);
@@ -1850,6 +1858,7 @@ goto v___jp_468_;
 v___jp_453_:
 {
 lean_object* v___x_459_; 
+lean_inc(v___y_456_);
 if (v_isShared_451_ == 0)
 {
 lean_ctor_set(v___x_450_, 1, v___y_457_);
@@ -1869,6 +1878,7 @@ goto v_reusejp_458_;
 v_reusejp_458_:
 {
 lean_object* v___x_460_; lean_object* v___x_461_; lean_object* v___x_462_; lean_object* v___x_463_; uint8_t v___x_464_; lean_object* v___x_465_; lean_object* v___x_466_; 
+lean_inc(v___y_454_);
 v___x_460_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_460_, 0, v___x_459_);
 lean_ctor_set(v___x_460_, 1, v___y_454_);
@@ -1876,6 +1886,7 @@ v___x_461_ = l_Int_Linear_instReprExpr__lean_repr(v_a_448_, v___x_452_);
 v___x_462_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_462_, 0, v___x_460_);
 lean_ctor_set(v___x_462_, 1, v___x_461_);
+lean_inc(v___y_455_);
 v___x_463_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_463_, 0, v___y_455_);
 lean_ctor_set(v___x_463_, 1, v___x_462_);
@@ -2031,6 +2042,7 @@ lean_object* v___x_324_; lean_object* v___x_325_; uint8_t v___x_326_; lean_objec
 v___x_324_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_324_, 0, v___y_321_);
 lean_ctor_set(v___x_324_, 1, v___y_323_);
+lean_inc(v___y_322_);
 v___x_325_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_325_, 0, v___y_322_);
 lean_ctor_set(v___x_325_, 1, v___x_324_);
@@ -2044,9 +2056,11 @@ return v___x_328_;
 v___jp_329_:
 {
 lean_object* v___x_333_; lean_object* v___x_334_; uint8_t v___x_335_; lean_object* v___x_336_; lean_object* v___x_337_; 
+lean_inc(v___y_330_);
 v___x_333_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_333_, 0, v___y_330_);
 lean_ctor_set(v___x_333_, 1, v___y_332_);
+lean_inc(v___y_331_);
 v___x_334_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_334_, 0, v___y_331_);
 lean_ctor_set(v___x_334_, 1, v___x_333_);

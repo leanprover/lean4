@@ -2034,13 +2034,12 @@ _start:
 {
 lean_object* v_discr_502_; lean_object* v_lhs_503_; lean_object* v_rhs_504_; lean_object* v___x_505_; lean_object* v_res_506_; lean_object* v_aig_507_; lean_object* v_ref_508_; lean_object* v___x_510_; uint8_t v_isShared_511_; uint8_t v_isSharedCheck_561_; 
 v_discr_502_ = lean_ctor_get(v_input_501_, 0);
-lean_inc_ref(v_discr_502_);
+lean_inc_ref_n(v_discr_502_, 2);
 v_lhs_503_ = lean_ctor_get(v_input_501_, 1);
 lean_inc_ref(v_lhs_503_);
 v_rhs_504_ = lean_ctor_get(v_input_501_, 2);
 lean_inc_ref(v_rhs_504_);
 lean_dec_ref(v_input_501_);
-lean_inc_ref(v_discr_502_);
 v___x_505_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_505_, 0, v_discr_502_);
 lean_ctor_set(v___x_505_, 1, v_lhs_503_);

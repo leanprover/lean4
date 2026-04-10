@@ -288,6 +288,7 @@ v___jp_57_:
 lean_object* v___x_61_; lean_object* v___x_62_; lean_object* v___x_63_; 
 v___x_61_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_61_, 0, v___y_60_);
+lean_inc_ref(v___y_59_);
 v___x_62_ = l_Lake_JsonObject_insertJson(v___y_58_, v___y_59_, v___x_61_);
 v___x_63_ = lean_alloc_ctor(5, 1, 0);
 lean_ctor_set(v___x_63_, 0, v___x_62_);
@@ -347,6 +348,7 @@ v___jp_85_:
 lean_object* v___x_89_; lean_object* v___x_90_; 
 v___x_89_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_89_, 0, v___y_88_);
+lean_inc_ref(v___y_87_);
 v___x_90_ = l_Lake_JsonObject_insertJson(v___y_86_, v___y_87_, v___x_89_);
 v_obj_71_ = v___x_90_;
 goto v___jp_70_;
@@ -356,6 +358,7 @@ v___jp_91_:
 lean_object* v___x_95_; lean_object* v___x_96_; 
 v___x_95_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_95_, 0, v___y_94_);
+lean_inc_ref(v___y_92_);
 v___x_96_ = l_Lake_JsonObject_insertJson(v___y_93_, v___y_92_, v___x_95_);
 if (lean_obj_tag(v_bc_x3f_68_) == 1)
 {
@@ -442,6 +445,7 @@ v___jp_122_:
 lean_object* v___x_126_; lean_object* v___x_127_; 
 v___x_126_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_126_, 0, v___y_125_);
+lean_inc_ref(v___y_124_);
 v___x_127_ = l_Lake_JsonObject_insertJson(v___y_123_, v___y_124_, v___x_126_);
 v_obj_110_ = v___x_127_;
 goto v___jp_109_;

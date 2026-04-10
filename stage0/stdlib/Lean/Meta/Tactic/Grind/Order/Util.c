@@ -186,6 +186,7 @@ v___x_40_ = lean_obj_once(&l_Lean_Meta_Grind_Order_Cnstr_pp___closed__2, &l_Lean
 v___x_41_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_41_, 0, v___x_39_);
 lean_ctor_set(v___x_41_, 1, v___x_40_);
+lean_inc_ref(v___y_36_);
 v___x_42_ = l_Lean_stringToMessageData(v___y_36_);
 v___x_43_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_43_, 0, v___x_41_);
@@ -235,6 +236,7 @@ v___x_57_ = lean_obj_once(&l_Lean_Meta_Grind_Order_Cnstr_pp___closed__2, &l_Lean
 v___x_58_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_58_, 0, v___x_56_);
 lean_ctor_set(v___x_58_, 1, v___x_57_);
+lean_inc_ref(v___y_36_);
 v___x_59_ = l_Lean_stringToMessageData(v___y_36_);
 v___x_60_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_60_, 0, v___x_58_);

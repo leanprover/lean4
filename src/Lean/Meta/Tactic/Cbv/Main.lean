@@ -206,7 +206,7 @@ def handleApp : Simproc := fun e => do
   match fn with
   | .const constName _ =>
     if (← isCbvOpaque constName) then
-      return (← tryCbvTheorems e).markAsDone
+      return markAsDoneIfFailed <| ← tryCbvTheorems e
     let info ← getConstInfo constName
     tryCbvTheorems <|> (guardSimproc (fun _ => info.hasValue) handleConstApp) <|> reduceRecMatcher <| e
   | .lam .. => betaReduce e
@@ -215,7 +215,7 @@ def handleApp : Simproc := fun e => do
 def handleOpaqueConst : Simproc := fun e => do
   let .const constName _ := e | return .rfl
   if (← isCbvOpaque constName) then
-    return (← tryCbvTheorems e).markAsDone
+    return markAsDoneIfFailed <| ← tryCbvTheorems e
   return .rfl
 
 def foldLit : Simproc := fun e => do
@@ -272,7 +272,7 @@ def handleProj : Simproc := fun e => do
         let reduced ← Sym.share reduced
         return .step reduced (← Sym.mkEqRefl reduced)
       | .none =>
-       -- If we failed to reduce it, we turn to a last resort; we try use heterogenous congruence lemma that we then try to turn into an equality.
+       -- If we failed to reduce it, we turn to a last resort; we try use heterogeneous congruence lemma that we then try to turn into an equality.
         unless (← isDefEq struct e') do
           -- If we rewrote the projection body using something that holds up to propositional equality, then there is nothing we can do.
           -- TODO: Check if there is a need to report this to a user, or shall we fail silently.
@@ -283,6 +283,7 @@ def handleProj : Simproc := fun e => do
         let newProof ← mkEqOfHEq newProof (check := false)
         return .step (← Lean.Expr.updateProjS! e e') newProof
 
+open Sym.Internal in
 /--
 For an application whose head is neither a constant nor a lambda (e.g. a projection
 like `p.1 x`), simplify the function head and lift the proof via `congrArg`.

@@ -20,7 +20,7 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -448,7 +448,7 @@ _start:
 {
 lean_object* v___x_15_; lean_object* v___x_16_; 
 v___x_15_ = lean_unsigned_to_nat(0u);
-v___x_16_ = lean_panic_fn(v___x_15_, v_msg_14_);
+v___x_16_ = lean_panic_fn_borrowed(v___x_15_, v_msg_14_);
 return v___x_16_;
 }
 }
@@ -500,7 +500,7 @@ _start:
 {
 lean_object* v___x_35_; lean_object* v___x_36_; 
 v___x_35_ = lean_unsigned_to_nat(1u);
-v___x_36_ = lean_panic_fn(v___x_35_, v_msg_34_);
+v___x_36_ = lean_panic_fn_borrowed(v___x_35_, v_msg_34_);
 return v___x_36_;
 }
 }
@@ -2214,7 +2214,7 @@ _start:
 {
 lean_object* v___x_666_; lean_object* v___x_667_; 
 v___x_666_ = l_Lean_instInhabitedSubExpr_default;
-v___x_667_ = lean_panic_fn(v___x_666_, v_msg_665_);
+v___x_667_ = lean_panic_fn_borrowed(v___x_666_, v_msg_665_);
 return v___x_667_;
 }
 }

@@ -4,8 +4,11 @@ rm -f measurements.jsonl
 lake build Cases Driver Baseline
 
 # Run benchmarks single-threaded for reproducible measurements.
-LEAN_NUM_THREADS=1 lake build VCGenBench 2>&1 | tee vcgen.out
-LEAN_NUM_THREADS=1 lake build BaselineBench 2>&1 | tee -a vcgen.out
+# Use `capture` instead of piping through `tee` so that build failures are not masked.
+LEAN_NUM_THREADS=1 capture lake build VCGenBench
+cat "$CAPTURED.out.produced" > vcgen.out
+LEAN_NUM_THREADS=1 capture lake build BaselineBench
+cat "$CAPTURED.out.produced" >> vcgen.out
 
 # Parse lines like:
 #   AddSubCancel(1000):   528 ms, 1 VCs by grind: 245 ms, kernel: 446 ms

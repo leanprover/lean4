@@ -518,9 +518,8 @@ _start:
 {
 lean_object* v_map_217_; lean_object* v___f_218_; lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; lean_object* v___x_222_; 
 v_map_217_ = lean_ctor_get(v_toFunctor_210_, 0);
-lean_inc(v_map_217_);
+lean_inc_n(v_map_217_, 2);
 lean_dec_ref(v_toFunctor_210_);
-lean_inc(v_map_217_);
 v___f_218_ = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__1___boxed), 5, 4);
 lean_closure_set(v___f_218_, 0, v_toPure_211_);
 lean_closure_set(v___f_218_, 1, v_a_216_);
@@ -562,13 +561,12 @@ _start:
 {
 lean_object* v_map_241_; lean_object* v___f_242_; lean_object* v___x_243_; lean_object* v___x_244_; lean_object* v___x_245_; lean_object* v___x_246_; 
 v_map_241_ = lean_ctor_get(v_toFunctor_237_, 0);
-lean_inc(v_map_241_);
+lean_inc_n(v_map_241_, 2);
 lean_dec_ref(v_toFunctor_237_);
 v___f_242_ = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__5), 2, 1);
 lean_closure_set(v___f_242_, 0, v_a_240_);
 v___x_243_ = lean_box(0);
 v___x_244_ = lean_apply_1(v_x_238_, v___x_243_);
-lean_inc(v_map_241_);
 v___x_245_ = lean_apply_4(v_map_241_, lean_box(0), lean_box(0), v___f_242_, v___x_244_);
 v___x_246_ = lean_apply_4(v_map_241_, lean_box(0), lean_box(0), v___f_239_, v___x_245_);
 return v___x_246_;
@@ -622,23 +620,19 @@ v_resetjp_261_:
 {
 lean_object* v___f_264_; lean_object* v___f_265_; lean_object* v___f_266_; lean_object* v___f_267_; lean_object* v___x_268_; lean_object* v___x_269_; lean_object* v___x_271_; 
 v___f_264_ = ((lean_object*)(l_Std_Iterators_PostconditionT_bind___redArg___closed__0));
-lean_inc(v_toBind_258_);
-lean_inc_ref(v_toFunctor_259_);
+lean_inc_n(v_toBind_258_, 3);
+lean_inc_ref_n(v_toFunctor_259_, 3);
 v___f_265_ = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__0), 7, 3);
 lean_closure_set(v___f_265_, 0, v_toFunctor_259_);
 lean_closure_set(v___f_265_, 1, v___f_264_);
 lean_closure_set(v___f_265_, 2, v_toBind_258_);
-lean_inc(v_toBind_258_);
 lean_inc(v_toPure_260_);
-lean_inc_ref(v_toFunctor_259_);
 v___f_266_ = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__3), 9, 5);
 lean_closure_set(v___f_266_, 0, v_toFunctor_259_);
 lean_closure_set(v___f_266_, 1, v_toPure_260_);
 lean_closure_set(v___f_266_, 2, v___f_264_);
 lean_closure_set(v___f_266_, 3, v_toBind_258_);
 lean_closure_set(v___f_266_, 4, v___f_264_);
-lean_inc(v_toBind_258_);
-lean_inc_ref(v_toFunctor_259_);
 v___f_267_ = lean_alloc_closure((void*)(l_Std_Iterators_instMonadPostconditionT___redArg___lam__7), 7, 3);
 lean_closure_set(v___f_267_, 0, v_toFunctor_259_);
 lean_closure_set(v___f_267_, 1, v___f_264_);

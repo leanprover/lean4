@@ -450,6 +450,10 @@ partial def delab : Delab := do
   else
     return stx
 
+def delabLevel (l : Level) (prec : Nat) : DelabM Syntax.Level := do
+  let mvars ← getPPOption getPPMVarsLevels
+  return Level.quote l prec (mvars := mvars) (lIndex? := (← getMCtx).findLevelIndex?)
+
 /--
 Registers an unexpander for applications of a given constant.
 
@@ -477,7 +481,11 @@ unsafe builtin_initialize appUnexpanderAttribute : KeyedDeclsAttribute Unexpande
 end Delaborator
 
 open SubExpr (Pos PosMap)
-open Delaborator (OptionsPerPos topDownAnalyze DelabM)
+open Delaborator (OptionsPerPos topDownAnalyze DelabM getPPOption)
+
+def delabLevel (l : Level) (prec : Nat) : MetaM Syntax.Level := do
+  let mvars := getPPMVarsLevels (← getOptions)
+  return Level.quote l prec (mvars := mvars) (lIndex? := (← getMCtx).findLevelIndex?)
 
 def delabCore (e : Expr) (optionsPerPos : OptionsPerPos := {}) (delab : DelabM α) :
     MetaM (α × PosMap Elab.Info) := do

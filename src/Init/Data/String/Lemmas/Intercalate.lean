@@ -60,6 +60,32 @@ theorem toList_intercalate {s : String} {l : List String} :
   | nil => simp
   | cons hd tl ih => cases tl <;> simp_all
 
+theorem join_eq_foldl : join l = l.foldl (fun r s => r ++ s) "" :=
+  (rfl)
+
+@[simp]
+theorem join_nil : join [] = "" := by
+  simp [join]
+
+@[simp]
+theorem join_cons : join (s :: l) = s ++ join l := by
+  simp only [join, List.foldl_cons, empty_append]
+  conv => lhs; rw [← String.append_empty (s := s)]
+  rw [List.foldl_assoc]
+
+@[simp]
+theorem toList_join {l : List String} : (String.join l).toList = l.flatMap String.toList := by
+  induction l <;> simp_all
+
+@[simp]
+theorem join_append {l m : List String} : String.join (l ++ m) = String.join l ++ String.join m := by
+  simp [← toList_inj]
+
+@[simp]
+theorem length_join {l : List String} : (String.join l).length = (l.map String.length).sum := by
+  simp only [← length_toList, toList_join, List.length_flatMap]
+  simp
+
 namespace Slice
 
 @[simp]
@@ -75,6 +101,10 @@ theorem intercalate_eq {s : Slice} {l : List Slice} :
   induction l with
   | nil => simp [intercalate]
   | cons hd tl ih => cases tl <;> simp_all [intercalate, intercalate.go, intercalateGo_append]
+
+@[simp]
+theorem join_eq {l : List Slice} : join l = String.join (l.map copy) := by
+  simp [join, String.join, List.foldl_map]
 
 end Slice
 

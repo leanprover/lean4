@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Simp.Arith
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.BinderNameHint
 import Lean.Meta.WHNF
+public import Lean.Meta.HasAssignableMVar
 public section
 namespace Lean.Meta.Simp
 /--
@@ -99,7 +100,7 @@ where
       if (← withReducibleAndInstances <| isDefEq x val) then
         return true
       else
-        trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsythesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
+        trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsynthesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
         return false
     | _ =>
       trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
@@ -218,6 +219,7 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
       for (thm, numExtraArgs) in candidates do
+        checkSystem "simp"
         if inErasedSet thm then continue
         if rflOnly then
           unless thm.rfl do
@@ -245,6 +247,7 @@ where
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
       for thm in candidates do
+        checkSystem "simp"
         unless inErasedSet thm || (rflOnly && !thm.rfl) do
           let result? ← withNewMCtxDepth do
             let val  ← thm.getValue

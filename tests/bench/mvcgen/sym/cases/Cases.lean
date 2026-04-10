@@ -3,7 +3,8 @@ import Cases.AddSubCancelDeep
 import Cases.AddSubCancelSimp
 import Cases.DiteSplit
 import Cases.GetThrowSet
+import Cases.LetBinding
+import Cases.MatchIota
 import Cases.MatchSplit
-import Cases.MatchSplitState
 import Cases.PurePrecond
 import Cases.ReaderState

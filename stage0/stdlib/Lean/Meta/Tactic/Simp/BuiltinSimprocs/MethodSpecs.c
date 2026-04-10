@@ -34,7 +34,7 @@ lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_Simp_instInhabitedSimpM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_instInhabitedSimpTheorem_default;
 lean_object* l_Lean_Meta_Simp_tryTheorem_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -110,7 +110,7 @@ _start:
 {
 lean_object* v___f_11_; lean_object* v___x_8504__overap_12_; lean_object* v___x_13_; 
 v___f_11_ = ((lean_object*)(l_panic___at___00__private_Lean_Meta_Tactic_Simp_BuiltinSimprocs_MethodSpecs_0__reduceMethod_spec__0___closed__0));
-v___x_8504__overap_12_ = lean_panic_fn(v___f_11_, v_msg_2_);
+v___x_8504__overap_12_ = lean_panic_fn_borrowed(v___f_11_, v_msg_2_);
 lean_inc(v___y_9_);
 lean_inc_ref(v___y_8_);
 lean_inc(v___y_7_);

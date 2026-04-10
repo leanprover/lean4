@@ -193,6 +193,7 @@ public theorem Array.toSubarray_eq_toSubarray_of_min_eq_min {xs : Array α}
         simp [*]; omega
       · simp
 
+@[cbv_eval]
 public theorem Array.toSubarray_eq_min {xs : Array α} {lo hi : Nat} :
     xs.toSubarray lo hi = ⟨⟨xs, min lo (min hi xs.size), min hi xs.size, Nat.min_le_right _ _,
       Nat.min_le_right _ _⟩⟩ := by

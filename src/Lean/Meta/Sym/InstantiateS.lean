@@ -86,22 +86,8 @@ It assumes the input is maximally shared, and ensures the output is too.
 public def instantiateS  (e : Expr) (subst : Array Expr) : SymM Expr :=
   liftBuilderM <| instantiateS' e subst
 
-/-- `mkAppRevRangeS f b e args == mkAppRev f (revArgs.extract b e)` -/
-def mkAppRevRangeS (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : AlphaShareBuilderM Expr :=
-  loop revArgs beginIdx f endIdx
-where
-  loop (revArgs : Array Expr) (start : Nat) (b : Expr) (i : Nat) : AlphaShareBuilderM Expr := do
-  if i ≤ start then
-    return b
-  else
-    let i := i - 1
-    loop revArgs start (← mkAppS b revArgs[i]!) i
-
-/--
-Beta-reduces `f` applied to reversed arguments `revArgs`, ensuring maximally shared terms.
-`betaRevS f #[a₃, a₂, a₁]` computes the beta-normal form of `f a₁ a₂ a₃`.
--/
-partial def betaRevS (f : Expr) (revArgs : Array Expr) : AlphaShareBuilderM Expr :=
+/-- Internal variant of `betaRevS` that runs in `AlphaShareBuilderM`. -/
+private partial def betaRevS' (f : Expr) (revArgs : Array Expr) : AlphaShareBuilderM Expr :=
   if revArgs.size == 0 then
     return f
   else
@@ -173,7 +159,7 @@ where
     | .bvar bidx =>
       let f' ← visitBVar f bidx offset
       if modified || !isSameExpr f f' then
-        betaRevS f' argsRev
+        betaRevS' f' argsRev
       else
         return e
     | _ => unreachable!
@@ -214,5 +200,19 @@ With `instantiateRevBetaS`, the type of `?h` becomes `p ?w ∧ q ?w` instead of
 public def instantiateRevBetaS (e : Expr) (subst : Array Expr) : SymM Expr := do
   if !e.hasLooseBVars || subst.isEmpty then return e
   else liftBuilderM <| instantiateRevBetaS' e subst
+
+/--
+Beta-reduces `f` applied to reversed arguments `revArgs`, ensuring maximally shared terms.
+`betaRevS f #[a₃, a₂, a₁]` computes the beta-normal form of `f a₁ a₂ a₃`.
+-/
+public def betaRevS (f : Expr) (revArgs : Array Expr) : SymM Expr :=
+  liftBuilderM <| betaRevS' f revArgs
+
+/--
+Apply the given arguments to `f`, beta-reducing if `f` is a lambda expression,
+ensuring maximally shared terms. See `betaRevS` for details.
+-/
+public def betaS (f : Expr) (args : Array Expr) : SymM Expr :=
+  betaRevS f args.reverse
 
 end Lean.Meta.Sym

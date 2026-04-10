@@ -81,8 +81,15 @@ private def pushTypeIntoReassignment (letOrReassign : LetOrReassign) (decl : TSy
   else
     pure decl
 
-partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
+private def checkLetConfigInDo (config : Term.LetConfig) : DoElabM Unit := do
+  if config.postponeValue then
+    throwError "`+postponeValue` is not supported in `do` blocks"
+  if config.generalize then
+    throwError "`+generalize` is not supported in `do` blocks"
+
+partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
     (dec : DoElemCont) : DoElabM Expr := do
+  checkLetConfigInDo config
   let vars ← getLetDeclVars decl
   letOrReassign.checkMutVars vars
   -- Some decl preprocessing on the patterns and expected types:
@@ -91,7 +98,7 @@ partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax 
   match decl with
   | `(letDecl| $decl:letEqnsDecl) =>
     let declNew ← `(letDecl| $(⟨← liftMacroM <| Term.expandLetEqnsDecl decl⟩):letIdDecl)
-    return ← Term.withMacroExpansion decl declNew <| elabDoLetOrReassign letOrReassign declNew dec
+    return ← Term.withMacroExpansion decl declNew <| elabDoLetOrReassign config letOrReassign declNew dec
   | `(letDecl| $pattern:term $[: $xType?]? := $rhs) =>
     let rhs ← match xType? with | some xType => `(($rhs : $xType)) | none => pure rhs
     let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars dec.continueWithUnit
@@ -99,15 +106,21 @@ partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax 
     -- The infamous MVar postponement trick below popularized by `if` is necessary in Lake.CLI.Main.
     -- We need it because we specify a constant motive, otherwise the `match` elaborator would have postponed.
     let mvar ← Lean.withRef rhs `(?m)
-    let term ← `(let_mvar% ?m := $rhs;
-                 wait_if_type_mvar% ?m;
-                 match (motive := ∀_, $(← Term.exprToSyntax mγ)) $mvar:term with
-                 | $pattern:term => $body)
+    let term ← if let some h := config.eq? then
+      `(let_mvar% ?m := $rhs;
+        wait_if_type_mvar% ?m;
+        match $h:ident : $mvar:term with
+        | $pattern:term => $body)
+    else
+      `(let_mvar% ?m := $rhs;
+        wait_if_type_mvar% ?m;
+        match (motive := ∀_, $(← Term.exprToSyntax mγ)) $mvar:term with
+        | $pattern:term => $body)
     Term.withMacroExpansion (← getRef) term do Term.elabTermEnsuringType term (some mγ)
   | `(letDecl| $decl:letIdDecl) =>
     let { id, binders, type, value } := Term.mkLetIdDeclView decl
     let id ← if id.isIdent then pure id else Term.mkFreshIdent id (canonical := true)
-    let nondep := letOrReassign matches .have
+    let nondep := config.nondep || letOrReassign matches .have
     -- Only non-`mut` lets will be elaborated as `let`s; `let mut` and reassigns behave as `have`s.
     -- See `elabLetDeclAux` for rationale.
     let (type, val) ← Term.elabBindersEx binders fun xs => do
@@ -128,8 +141,25 @@ partial def elabDoLetOrReassign (letOrReassign : LetOrReassign) (decl : TSyntax 
     withLetDecl id.getId (kind := kind) type val (nondep := nondep) fun x => do
       Term.addLocalVarInfo id x
       elabWithReassignments letOrReassign vars do
-      let body ← dec.continueWithUnit
-      mkLetFVars #[x] body (usedLetOnly := false) (generalizeNondepLet := false)
+      match config.eq? with
+      | none =>
+        let body ← dec.continueWithUnit
+        if config.zeta then
+          pure <| (← body.abstractM #[x]).instantiate1 val
+        else
+          mkLetFVars #[x] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
+      | some h =>
+        let hTy ← mkEq x val
+        withLetDecl h.getId hTy (← mkEqRefl x) (nondep := true) fun h' => do
+          Term.addLocalVarInfo h h'
+          let body ← dec.continueWithUnit
+          if config.zeta then
+            pure <| (← body.abstractM #[x, h']).instantiateRev #[val, ← mkEqRefl val]
+          else if nondep then
+            let f ← mkLambdaFVars #[x, h'] body
+            return mkApp2 f val (← mkEqRefl val)
+          else
+            mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   | _ => throwUnsupportedSyntax
 
 def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (dec : DoElemCont) : DoElabM Expr := do
@@ -168,13 +198,21 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
         elabDoElem (← `(doElem| $pattern:term := $x)) dec
   | _ => throwUnsupportedSyntax
 
+private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letConfig)
+    (mutTk? : Option Syntax) (initConfig : Term.LetConfig := {}) : DoElabM Term.LetConfig := do
+  if mutTk?.isSome && !letConfigStx.raw[0].getArgs.isEmpty then
+    throwErrorAt letConfigStx "configuration options are not allowed with `let mut`"
+  Term.mkLetConfig letConfigStx initConfig
+
 @[builtin_doElem_elab Lean.Parser.Term.doLet] def elabDoLet : DoElab := fun stx dec => do
-  let `(doLet| let $[mut%$mutTk?]? $decl:letDecl) := stx | throwUnsupportedSyntax
-  elabDoLetOrReassign (.let mutTk?) decl dec
+  let `(doLet| let $[mut%$mutTk?]? $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax
+  let config ← getLetConfigAndCheckMut config mutTk?
+  elabDoLetOrReassign config (.let mutTk?) decl dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doHave] def elabDoHave : DoElab := fun stx dec => do
-  let `(doHave| have $decl:letDecl) := stx | throwUnsupportedSyntax
-  elabDoLetOrReassign .have decl dec
+  let `(doHave| have $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax
+  let config ← Term.mkLetConfig config { nondep := true }
+  elabDoLetOrReassign config .have decl dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetRec] def elabDoLetRec : DoElab := fun stx dec => do
   let `(doLetRec| let rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
@@ -192,14 +230,17 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   | `(doReassign| $x:ident $[: $xType?]? := $rhs) =>
     let decl : TSyntax ``letIdDecl ← `(letIdDecl| $x:ident $[: $xType?]? := $rhs)
     let decl : TSyntax ``letDecl := ⟨mkNode ``letDecl #[decl]⟩
-    elabDoLetOrReassign .reassign decl dec
+    elabDoLetOrReassign {} .reassign decl dec
   | `(doReassign| $decl:letPatDecl) =>
     let decl : TSyntax ``letDecl := ⟨mkNode ``letDecl #[decl]⟩
-    elabDoLetOrReassign .reassign decl dec
+    elabDoLetOrReassign {} .reassign decl dec
   | _ => throwUnsupportedSyntax
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetElse] def elabDoLetElse : DoElab := fun stx dec => do
-  let `(doLetElse| let $[mut%$mutTk?]? $pattern := $rhs | $otherwise $(body?)?) := stx | throwUnsupportedSyntax
+  let `(doLetElse| let $[mut%$mutTk?]? $cfg:letConfig $pattern := $rhs | $otherwise $(body?)?) := stx
+    | throwUnsupportedSyntax
+  let config ← getLetConfigAndCheckMut cfg mutTk?
+  checkLetConfigInDo config
   let letOrReassign := LetOrReassign.let mutTk?
   let vars ← getPatternVarsEx pattern
   letOrReassign.checkMutVars vars
@@ -208,10 +249,17 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
   if mutTk?.isSome then
     for var in vars do
       body ← `(doSeqIndent| let mut $var := $var; do $body:doSeqIndent)
-  elabDoElem (← `(doElem| match $rhs:term with | $pattern => $body:doSeqIndent | _ => $otherwise:doSeqIndent)) dec
+  if let some h := config.eq? then
+    elabDoElem (← `(doElem| match $h:ident : $rhs:term with | $pattern => $body:doSeqIndent | _ => $otherwise:doSeqIndent)) dec
+  else
+    elabDoElem (← `(doElem| match $rhs:term with | $pattern => $body:doSeqIndent | _ => $otherwise:doSeqIndent)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetArrow] def elabDoLetArrow : DoElab := fun stx dec => do
-  let `(doLetArrow| let $[mut%$mutTk?]? $decl) := stx | throwUnsupportedSyntax
+  let `(doLetArrow| let $[mut%$mutTk?]? $cfg:letConfig $decl) := stx | throwUnsupportedSyntax
+  let config ← getLetConfigAndCheckMut cfg mutTk?
+  checkLetConfigInDo config
+  if config.nondep || config.usedOnly || config.zeta || config.eq?.isSome then
+    throwErrorAt cfg "configuration options are not supported with `←`"
   elabDoArrow (.let mutTk?) decl dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doReassignArrow] def elabDoReassignArrow : DoElab := fun stx dec => do

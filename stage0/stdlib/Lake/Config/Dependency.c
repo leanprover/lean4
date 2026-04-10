@@ -454,6 +454,7 @@ v___x_126_ = l_Repr_addAppParen(v___x_125_, v___x_120_);
 v___x_127_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_127_, 0, v___x_119_);
 lean_ctor_set(v___x_127_, 1, v___x_126_);
+lean_inc(v___y_118_);
 v___x_128_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_128_, 0, v___y_118_);
 lean_ctor_set(v___x_128_, 1, v___x_127_);
@@ -519,6 +520,7 @@ v___x_153_ = l_Option_repr___at___00Lake_instReprDependencySrc_repr_spec__1(v_su
 v___x_154_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_154_, 0, v___x_152_);
 lean_ctor_set(v___x_154_, 1, v___x_153_);
+lean_inc(v___y_142_);
 v___x_155_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_155_, 0, v___y_142_);
 lean_ctor_set(v___x_155_, 1, v___x_154_);

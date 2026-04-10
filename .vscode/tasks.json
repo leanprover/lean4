@@ -12,6 +12,15 @@
 			}
 		},
 		{
+			"label": "build stage2",
+			"type": "shell",
+			"command": "make -C build/release stage2 -j$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4)",
+			"problemMatcher": [],
+			"group": {
+				"kind": "build"
+			}
+		},
+		{
 			"label": "build-old",
 			"type": "shell",
 			"command": "make -C build/release -j$(nproc 2>/dev/null || sysctl -n hw.logicalcpu 2>/dev/null || echo 4) LAKE_EXTRA_ARGS=--old",

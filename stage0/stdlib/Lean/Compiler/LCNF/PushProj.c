@@ -681,11 +681,10 @@ lean_object* v_decl_244_; lean_object* v_fvarId_245_; lean_object* v_value_246_;
 v_decl_244_ = lean_ctor_get(v_b_216_, 0);
 v_fvarId_245_ = lean_ctor_get(v_decl_244_, 0);
 v_value_246_ = lean_ctor_get(v_decl_244_, 3);
-lean_inc_ref(v_b_216_);
+lean_inc_ref_n(v_b_216_, 2);
 lean_inc_ref(v_ctx_202_);
 v___x_247_ = lean_array_push(v_ctx_202_, v_b_216_);
 lean_inc_ref(v_ctxUsed_203_);
-lean_inc_ref(v_b_216_);
 v___x_248_ = l_Lean_Compiler_LCNF_CodeDecl_collectUsed(v___x_212_, v_b_216_, v_ctxUsed_203_);
 switch(lean_obj_tag(v_value_246_))
 {

@@ -948,6 +948,7 @@ lean_object* v___x_166_; lean_object* v___x_167_; uint8_t v___x_168_; lean_objec
 v___x_166_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_166_, 0, v___x_162_);
 lean_ctor_set(v___x_166_, 1, v___x_165_);
+lean_inc(v___y_161_);
 v___x_167_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_167_, 0, v___y_161_);
 lean_ctor_set(v___x_167_, 1, v___x_166_);
@@ -1025,6 +1026,7 @@ lean_object* v___x_187_; lean_object* v___x_188_; uint8_t v___x_189_; lean_objec
 v___x_187_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_187_, 0, v___x_183_);
 lean_ctor_set(v___x_187_, 1, v___x_186_);
+lean_inc(v___y_182_);
 v___x_188_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_188_, 0, v___y_182_);
 lean_ctor_set(v___x_188_, 1, v___x_187_);
@@ -1111,6 +1113,7 @@ v___x_212_ = l_Lean_Meta_Simp_Arith_Nat_instReprExpr__lean_repr(v_b_199_, v___x_
 v___x_213_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_213_, 0, v___x_211_);
 lean_ctor_set(v___x_213_, 1, v___x_212_);
+lean_inc(v___y_205_);
 v___x_214_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_214_, 0, v___y_205_);
 lean_ctor_set(v___x_214_, 1, v___x_213_);
@@ -1199,6 +1202,7 @@ v___x_238_ = l_Lean_Meta_Simp_Arith_Nat_instReprExpr__lean_repr(v_a_224_, v___x_
 v___x_239_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_239_, 0, v___x_237_);
 lean_ctor_set(v___x_239_, 1, v___x_238_);
+lean_inc(v___y_230_);
 v___x_240_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_240_, 0, v___y_230_);
 lean_ctor_set(v___x_240_, 1, v___x_239_);
@@ -1287,6 +1291,7 @@ lean_ctor_set(v___x_264_, 0, v___x_263_);
 v___x_265_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_265_, 0, v___x_262_);
 lean_ctor_set(v___x_265_, 1, v___x_264_);
+lean_inc(v___y_256_);
 v___x_266_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_266_, 0, v___y_256_);
 lean_ctor_set(v___x_266_, 1, v___x_265_);
@@ -2235,6 +2240,7 @@ v___jp_668_:
 lean_object* v___x_670_; lean_object* v___x_671_; lean_object* v___x_672_; 
 v___x_670_ = l_Lean_Meta_Simp_Arith_Nat_LinearExpr_toExpr(v_lhs_665_);
 v___x_671_ = l_Lean_Meta_Simp_Arith_Nat_LinearExpr_toExpr(v_rhs_666_);
+lean_inc_ref(v___y_669_);
 v___x_672_ = l_Lean_mkApp3(v___x_667_, v___y_669_, v___x_670_, v___x_671_);
 return v___x_672_;
 }

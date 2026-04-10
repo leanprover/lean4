@@ -509,6 +509,7 @@ lean_object* v___x_91_; lean_object* v___x_92_; uint8_t v___x_93_; lean_object* 
 v___x_91_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_91_, 0, v___x_87_);
 lean_ctor_set(v___x_91_, 1, v___x_90_);
+lean_inc(v___y_86_);
 v___x_92_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_92_, 0, v___y_86_);
 lean_ctor_set(v___x_92_, 1, v___x_91_);
@@ -551,6 +552,7 @@ v___x_106_ = l_Bool_repr___redArg(v_b_102_);
 v___x_107_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_107_, 0, v___x_105_);
 lean_ctor_set(v___x_107_, 1, v___x_106_);
+lean_inc(v___y_104_);
 v___x_108_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_108_, 0, v___y_104_);
 lean_ctor_set(v___x_108_, 1, v___x_107_);
@@ -626,6 +628,7 @@ lean_object* v___x_126_; lean_object* v___x_127_; uint8_t v___x_128_; lean_objec
 v___x_126_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_126_, 0, v___x_122_);
 lean_ctor_set(v___x_126_, 1, v___x_125_);
+lean_inc(v___y_121_);
 v___x_127_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_127_, 0, v___y_121_);
 lean_ctor_set(v___x_127_, 1, v___x_126_);

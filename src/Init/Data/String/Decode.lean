@@ -363,7 +363,7 @@ theorem toBitVec_eq_of_parseFirstByte_eq_threeMore {b : UInt8} (h : parseFirstBy
 public def isInvalidContinuationByte (b : UInt8) : Bool :=
   b &&& 0xc0 != 0x80
 
-theorem isInvalidContinutationByte_eq_false_iff {b : UInt8} :
+theorem isInvalidContinuationByte_eq_false_iff {b : UInt8} :
     isInvalidContinuationByte b = false ↔ b &&& 0xc0 = 0x80 := by
   simp [isInvalidContinuationByte]
 

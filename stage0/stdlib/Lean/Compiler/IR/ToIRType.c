@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_panic___at___00Lean_IR_nameToIRType_spec__0(lean_object*);
@@ -62,7 +62,7 @@ _start:
 {
 lean_object* v___x_2_; lean_object* v___x_3_; 
 v___x_2_ = lean_box(0);
-v___x_3_ = lean_panic_fn(v___x_2_, v_msg_1_);
+v___x_3_ = lean_panic_fn_borrowed(v___x_2_, v_msg_1_);
 return v___x_3_;
 }
 }

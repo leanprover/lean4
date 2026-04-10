@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Data.Char
-public import Init.Data.String
+public import Init.Data.String.Basic
 public import Init.Data.Int
 public import Init.Grind
 

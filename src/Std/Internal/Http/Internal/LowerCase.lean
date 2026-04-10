@@ -9,7 +9,8 @@ prelude
 import Init.Grind
 import Init.Data.Int.OfNat
 import Init.Data.UInt.Lemmas
-public import Init.Data.String
+public import Init.Data.String.Modify
+import Init.Data.String.Lemmas.Modify
 
 @[expose]
 public section

@@ -69,8 +69,8 @@ open ImpureType
 abbrev Mask := Array (Option FVarId)
 
 /--
-Try to erase `inc` instructions on projections of `targetId` occuring in the tail of `ds`.
-Return the updated `ds` and mask contianing the `FVarId`s whose `inc` was removed.
+Try to erase `inc` instructions on projections of `targetId` occurring in the tail of `ds`.
+Return the updated `ds` and mask containing the `FVarId`s whose `inc` was removed.
 -/
 partial def eraseProjIncFor (nFields : Nat) (targetId : FVarId) (ds : Array (CodeDecl .impure)) :
     CompilerM (Array (CodeDecl .impure) × Mask) := do

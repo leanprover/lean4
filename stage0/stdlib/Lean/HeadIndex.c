@@ -27,7 +27,7 @@ uint64_t lean_uint64_of_nat(lean_object*);
 uint64_t l_Lean_Literal_hash(lean_object*);
 lean_object* lean_expr_instantiate1(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 lean_object* l_Lean_Name_reprPrec(lean_object*, lean_object*);
@@ -659,6 +659,7 @@ v___x_213_ = l_Lean_Name_reprPrec(v_fvarId_208_, v___x_212_);
 v___x_214_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_214_, 0, v___x_211_);
 lean_ctor_set(v___x_214_, 1, v___x_213_);
+lean_inc(v___y_210_);
 v___x_215_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_215_, 0, v___y_210_);
 lean_ctor_set(v___x_215_, 1, v___x_214_);
@@ -701,6 +702,7 @@ v___x_228_ = l_Lean_Name_reprPrec(v_mvarId_223_, v___x_227_);
 v___x_229_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_229_, 0, v___x_226_);
 lean_ctor_set(v___x_229_, 1, v___x_228_);
+lean_inc(v___y_225_);
 v___x_230_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_230_, 0, v___y_225_);
 lean_ctor_set(v___x_230_, 1, v___x_229_);
@@ -743,6 +745,7 @@ v___x_243_ = l_Lean_Name_reprPrec(v_constName_238_, v___x_242_);
 v___x_244_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_244_, 0, v___x_241_);
 lean_ctor_set(v___x_244_, 1, v___x_243_);
+lean_inc(v___y_240_);
 v___x_245_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_245_, 0, v___y_240_);
 lean_ctor_set(v___x_245_, 1, v___x_244_);
@@ -830,6 +833,7 @@ lean_ctor_set(v___x_268_, 0, v___x_267_);
 v___x_269_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_269_, 0, v___x_266_);
 lean_ctor_set(v___x_269_, 1, v___x_268_);
+lean_inc(v___y_259_);
 v___x_270_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_270_, 0, v___y_259_);
 lean_ctor_set(v___x_270_, 1, v___x_269_);
@@ -874,6 +878,7 @@ v___x_285_ = l_Lean_instReprLiteral_repr(v_litVal_280_, v___x_284_);
 v___x_286_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_286_, 0, v___x_283_);
 lean_ctor_set(v___x_286_, 1, v___x_285_);
+lean_inc(v___y_282_);
 v___x_287_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_287_, 0, v___y_282_);
 lean_ctor_set(v___x_287_, 1, v___x_286_);
@@ -950,6 +955,7 @@ v___jp_187_:
 {
 lean_object* v___x_189_; lean_object* v___x_190_; uint8_t v___x_191_; lean_object* v___x_192_; lean_object* v___x_193_; 
 v___x_189_ = ((lean_object*)(l_Lean_instReprHeadIndex_repr___closed__1));
+lean_inc(v___y_188_);
 v___x_190_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_190_, 0, v___y_188_);
 lean_ctor_set(v___x_190_, 1, v___x_189_);
@@ -964,6 +970,7 @@ v___jp_194_:
 {
 lean_object* v___x_196_; lean_object* v___x_197_; uint8_t v___x_198_; lean_object* v___x_199_; lean_object* v___x_200_; 
 v___x_196_ = ((lean_object*)(l_Lean_instReprHeadIndex_repr___closed__3));
+lean_inc(v___y_195_);
 v___x_197_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_197_, 0, v___y_195_);
 lean_ctor_set(v___x_197_, 1, v___x_196_);
@@ -978,6 +985,7 @@ v___jp_201_:
 {
 lean_object* v___x_203_; lean_object* v___x_204_; uint8_t v___x_205_; lean_object* v___x_206_; lean_object* v___x_207_; 
 v___x_203_ = ((lean_object*)(l_Lean_instReprHeadIndex_repr___closed__5));
+lean_inc(v___y_202_);
 v___x_204_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_204_, 0, v___y_202_);
 lean_ctor_set(v___x_204_, 1, v___x_203_);
@@ -1318,7 +1326,7 @@ _start:
 {
 lean_object* v___x_407_; lean_object* v___x_408_; 
 v___x_407_ = l_Lean_instInhabitedHeadIndex_default;
-v___x_408_ = lean_panic_fn(v___x_407_, v_msg_406_);
+v___x_408_ = lean_panic_fn_borrowed(v___x_407_, v_msg_406_);
 return v___x_408_;
 }
 }

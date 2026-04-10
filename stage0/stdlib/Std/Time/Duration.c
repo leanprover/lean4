@@ -696,6 +696,7 @@ v___jp_146_:
 lean_object* v___x_150_; lean_object* v___x_151_; lean_object* v___x_152_; uint8_t v___x_153_; 
 v___x_150_ = l_Int_repr(v_fst_148_);
 lean_dec(v_fst_148_);
+lean_inc_ref(v_fst_147_);
 v___x_151_ = lean_string_append(v_fst_147_, v___x_150_);
 lean_dec_ref(v___x_150_);
 v___x_152_ = lean_obj_once(&l_Std_Time_instToStringDuration___lam__0___closed__1, &l_Std_Time_instToStringDuration___lam__0___closed__1_once, _init_l_Std_Time_instToStringDuration___lam__0___closed__1);
@@ -810,6 +811,7 @@ v___jp_186_:
 lean_object* v___x_190_; lean_object* v___x_191_; lean_object* v___x_192_; uint8_t v___x_193_; 
 v___x_190_ = l_Int_repr(v_fst_188_);
 lean_dec(v_fst_188_);
+lean_inc_ref(v_fst_187_);
 v___x_191_ = lean_string_append(v_fst_187_, v___x_190_);
 lean_dec_ref(v___x_190_);
 v___x_192_ = lean_obj_once(&l_Std_Time_instToStringDuration___lam__0___closed__1, &l_Std_Time_instToStringDuration___lam__0___closed__1_once, _init_l_Std_Time_instToStringDuration___lam__0___closed__1);

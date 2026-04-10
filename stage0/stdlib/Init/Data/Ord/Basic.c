@@ -559,6 +559,7 @@ v___jp_106_:
 {
 lean_object* v___x_108_; lean_object* v___x_109_; uint8_t v___x_110_; lean_object* v___x_111_; lean_object* v___x_112_; 
 v___x_108_ = ((lean_object*)(l_instReprOrdering_repr___closed__1));
+lean_inc(v___y_107_);
 v___x_109_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_109_, 0, v___y_107_);
 lean_ctor_set(v___x_109_, 1, v___x_108_);
@@ -573,6 +574,7 @@ v___jp_113_:
 {
 lean_object* v___x_115_; lean_object* v___x_116_; uint8_t v___x_117_; lean_object* v___x_118_; lean_object* v___x_119_; 
 v___x_115_ = ((lean_object*)(l_instReprOrdering_repr___closed__3));
+lean_inc(v___y_114_);
 v___x_116_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_116_, 0, v___y_114_);
 lean_ctor_set(v___x_116_, 1, v___x_115_);
@@ -587,6 +589,7 @@ v___jp_120_:
 {
 lean_object* v___x_122_; lean_object* v___x_123_; uint8_t v___x_124_; lean_object* v___x_125_; lean_object* v___x_126_; 
 v___x_122_ = ((lean_object*)(l_instReprOrdering_repr___closed__5));
+lean_inc(v___y_121_);
 v___x_123_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_123_, 0, v___y_121_);
 lean_ctor_set(v___x_123_, 1, v___x_122_);

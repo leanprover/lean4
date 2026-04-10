@@ -94,4 +94,3 @@ def parseOrRoot (s : String) : Std.Http.URI.Path :=
   parse? s |>.getD { segments := #[], absolute := true }
 
 end Std.Http.URI.Path
-

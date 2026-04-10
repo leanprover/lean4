@@ -468,22 +468,17 @@ LEAN_EXPORT lean_object* l_Lake_instMonadCycleOfCycleTOfMonad___redArg(lean_obje
 _start:
 {
 lean_object* v___f_161_; lean_object* v___f_162_; lean_object* v___f_163_; lean_object* v___f_164_; lean_object* v___f_165_; lean_object* v___x_166_; lean_object* v___x_167_; lean_object* v___x_168_; lean_object* v___x_169_; lean_object* v___x_170_; lean_object* v___x_171_; lean_object* v___x_172_; lean_object* v___x_173_; 
-lean_inc_ref(v_inst_160_);
+lean_inc_ref_n(v_inst_160_, 7);
 v___f_161_ = lean_alloc_closure((void*)(l_Lake_instMonadCycleOfCycleTOfMonad___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(v___f_161_, 0, v_inst_160_);
-lean_inc_ref(v_inst_160_);
 v___f_162_ = lean_alloc_closure((void*)(l_ExceptT_instMonad___redArg___lam__1), 5, 1);
 lean_closure_set(v___f_162_, 0, v_inst_160_);
-lean_inc_ref(v_inst_160_);
 v___f_163_ = lean_alloc_closure((void*)(l_ExceptT_instMonad___redArg___lam__4), 5, 1);
 lean_closure_set(v___f_163_, 0, v_inst_160_);
-lean_inc_ref(v_inst_160_);
 v___f_164_ = lean_alloc_closure((void*)(l_ExceptT_instMonad___redArg___lam__7), 5, 1);
 lean_closure_set(v___f_164_, 0, v_inst_160_);
-lean_inc_ref(v_inst_160_);
 v___f_165_ = lean_alloc_closure((void*)(l_ExceptT_instMonad___redArg___lam__9), 5, 1);
 lean_closure_set(v___f_165_, 0, v_inst_160_);
-lean_inc_ref(v_inst_160_);
 v___x_166_ = lean_alloc_closure((void*)(l_ExceptT_map), 7, 3);
 lean_closure_set(v___x_166_, 0, lean_box(0));
 lean_closure_set(v___x_166_, 1, lean_box(0));
@@ -491,7 +486,6 @@ lean_closure_set(v___x_166_, 2, v_inst_160_);
 v___x_167_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_167_, 0, v___x_166_);
 lean_ctor_set(v___x_167_, 1, v___f_162_);
-lean_inc_ref(v_inst_160_);
 v___x_168_ = lean_alloc_closure((void*)(l_ExceptT_pure), 5, 3);
 lean_closure_set(v___x_168_, 0, lean_box(0));
 lean_closure_set(v___x_168_, 1, lean_box(0));

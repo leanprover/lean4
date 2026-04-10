@@ -53,7 +53,7 @@ def mkEqCnstr (p : Poly) (h : EqCnstrProof) : RingM EqCnstr := do
 Returns the ring expression denoting the given Lean expression.
 Recall that we compute the ring expressions during internalization.
 -/
-private def toRingExpr? [Monad m] [MonadLiftT GrindM m] [MonadRing m] (e : Expr) : m (Option RingExpr) := do
+private def toRingExpr? [Monad m] [MonadLiftT GrindM m] [MonadLiftT Sym.SymM m] [MonadRing m] (e : Expr) : m (Option RingExpr) := do
   let ring ← getRing
   if let some re := ring.denote.find? { expr := e } then
     return some re
@@ -67,7 +67,7 @@ private def toRingExpr? [Monad m] [MonadLiftT GrindM m] [MonadRing m] (e : Expr)
 Returns the semiring expression denoting the given Lean expression.
 Recall that we compute the semiring expressions during internalization.
 -/
-private def toSemiringExpr? [Monad m] [MonadLiftT GrindM m] [MonadSemiring m] (e : Expr) : m (Option SemiringExpr) := do
+private def toSemiringExpr? [Monad m] [MonadLiftT GrindM m] [MonadLiftT Sym.SymM m] [MonadSemiring m] (e : Expr) : m (Option SemiringExpr) := do
   let semiring ← getSemiring
   if let some re := semiring.denote.find? { expr := e } then
     return some re

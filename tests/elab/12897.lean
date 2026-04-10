@@ -1,4 +1,4 @@
--- Tests that `normalizeInstance` auxiliary definitions work correctly
+-- Tests that `wrapInstance` auxiliary definitions work correctly
 -- when used inside a `meta` section, for both `inferInstanceAs` and `deriving`.
 
 module
@@ -11,7 +11,7 @@ namespace Test
 
 open Lean
 
--- `@[expose]` forces `normalizeInstance` to create aux wrapper definitions,
+-- `@[expose]` forces `wrapInstance` to create aux wrapper definitions,
 -- which is where the meta marking matters.
 @[expose] def Foo := Unit
 deriving Inhabited

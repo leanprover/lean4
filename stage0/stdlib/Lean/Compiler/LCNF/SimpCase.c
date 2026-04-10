@@ -49,7 +49,7 @@ lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__3(lean_object*, le
 lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_registerTraceClass(lean_object*, uint8_t, lean_object*);
@@ -679,7 +679,8 @@ v___x_164_ = lean_box(0);
 v___x_165_ = l_instInhabitedOfMonad___redArg(v___x_163_, v___x_164_);
 v___f_166_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_166_, 0, v___x_165_);
-v___x_2328__overap_167_ = lean_panic_fn(v___f_166_, v_msg_132_);
+v___x_2328__overap_167_ = lean_panic_fn_borrowed(v___f_166_, v_msg_132_);
+lean_dec_ref(v___f_166_);
 lean_inc(v___y_136_);
 lean_inc_ref(v___y_135_);
 lean_inc(v___y_134_);

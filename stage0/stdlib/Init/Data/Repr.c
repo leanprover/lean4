@@ -42,7 +42,7 @@ lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_string_mk(lean_object*);
 size_t lean_usize_of_nat(lean_object*);
-lean_object* lean_array_fget(lean_object*, lean_object*);
+lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_uint16_to_nat(uint16_t);
 lean_object* lean_usize_to_nat(size_t);
 extern lean_object* l_Std_Format_defWidth;
@@ -1864,8 +1864,9 @@ return v___x_571_;
 else
 {
 lean_object* v___x_572_; 
-v___x_572_ = lean_array_fget(v___x_562_, v_n_561_);
+v___x_572_ = lean_array_fget_borrowed(v___x_562_, v_n_561_);
 lean_dec(v_n_561_);
+lean_inc(v___x_572_);
 return v___x_572_;
 }
 }
@@ -3116,6 +3117,7 @@ lean_ctor_set(v___x_1049_, 1, v___x_1036_);
 v___x_1050_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1050_, 0, v___x_1045_);
 lean_ctor_set(v___x_1050_, 1, v___x_1049_);
+lean_inc(v___y_1022_);
 v___x_1051_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_1051_, 0, v___y_1022_);
 lean_ctor_set(v___x_1051_, 1, v___x_1050_);
@@ -3193,6 +3195,7 @@ v___x_1080_ = l_Bool_repr___redArg(v_canonical_1061_);
 v___x_1081_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_1081_, 0, v___x_1079_);
 lean_ctor_set(v___x_1081_, 1, v___x_1080_);
+lean_inc(v___y_1063_);
 v___x_1082_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_1082_, 0, v___y_1063_);
 lean_ctor_set(v___x_1082_, 1, v___x_1081_);
@@ -3229,6 +3232,7 @@ v___jp_1010_:
 {
 lean_object* v___x_1012_; lean_object* v___x_1013_; uint8_t v___x_1014_; lean_object* v___x_1015_; lean_object* v___x_1016_; 
 v___x_1012_ = ((lean_object*)(l_instReprSourceInfo_repr___closed__1));
+lean_inc(v___y_1011_);
 v___x_1013_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_1013_, 0, v___y_1011_);
 lean_ctor_set(v___x_1013_, 1, v___x_1012_);

@@ -70,8 +70,8 @@ LEAN_EXPORT lean_object* l_Array_instAppendSubarray___lam__0(lean_object*, lean_
 LEAN_EXPORT lean_object* l_Array_instAppendSubarray___lam__2(lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_closure_object l_Array_instAppendSubarray___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Array_instAppendSubarray___lam__0, .m_arity = 3, .m_num_fixed = 0, .m_objs = {} };
 static const lean_object* l_Array_instAppendSubarray___closed__0 = (const lean_object*)&l_Array_instAppendSubarray___closed__0_value;
-static lean_once_cell_t l_Array_instAppendSubarray___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Array_instAppendSubarray___closed__1;
+static const lean_closure_object l_Array_instAppendSubarray___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*2, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Array_instAppendSubarray___lam__2, .m_arity = 4, .m_num_fixed = 2, .m_objs = {((lean_object*)&l_Array_instAppendSubarray___closed__0_value),((lean_object*)&l_Array_instAppendSubarray___closed__0_value)} };
+static const lean_object* l_Array_instAppendSubarray___closed__1 = (const lean_object*)&l_Array_instAppendSubarray___closed__1_value;
 LEAN_EXPORT lean_object* l_Array_instAppendSubarray(lean_object*);
 static const lean_string_object l_Array_Subarray_repr___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 12, .m_capacity = 12, .m_length = 11, .m_data = ".toSubarray"};
 static const lean_object* l_Array_Subarray_repr___redArg___closed__0 = (const lean_object*)&l_Array_Subarray_repr___redArg___closed__0_value;
@@ -710,9 +710,8 @@ v_toBind_191_ = lean_ctor_get(v_inst_186_, 1);
 lean_inc(v_toBind_191_);
 lean_dec_ref(v_inst_186_);
 v_toPure_192_ = lean_ctor_get(v_toApplicative_190_, 1);
-lean_inc(v_toPure_192_);
+lean_inc_n(v_toPure_192_, 2);
 lean_dec_ref(v_toApplicative_190_);
-lean_inc(v_toPure_192_);
 v___f_193_ = lean_alloc_closure((void*)(l_Subarray_forIn___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_193_, 0, v_toPure_192_);
 v___f_194_ = lean_alloc_closure((void*)(l_Subarray_forIn___redArg___lam__2), 8, 4);
@@ -734,9 +733,8 @@ v_toBind_204_ = lean_ctor_get(v_inst_199_, 1);
 lean_inc(v_toBind_204_);
 lean_dec_ref(v_inst_199_);
 v_toPure_205_ = lean_ctor_get(v_toApplicative_203_, 1);
-lean_inc(v_toPure_205_);
+lean_inc_n(v_toPure_205_, 2);
 lean_dec_ref(v_toApplicative_203_);
-lean_inc(v_toPure_205_);
 v___f_206_ = lean_alloc_closure((void*)(l_Subarray_forIn___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_206_, 0, v_toPure_205_);
 v___f_207_ = lean_alloc_closure((void*)(l_Subarray_forIn___redArg___lam__2), 8, 4);
@@ -959,22 +957,11 @@ v___x_279_ = l_Array_toSubarray___redArg(v_a_277_, v___x_273_, v___x_278_);
 return v___x_279_;
 }
 }
-static lean_object* _init_l_Array_instAppendSubarray___closed__1(void){
-_start:
-{
-lean_object* v___f_281_; lean_object* v___f_282_; 
-v___f_281_ = ((lean_object*)(l_Array_instAppendSubarray___closed__0));
-v___f_282_ = lean_alloc_closure((void*)(l_Array_instAppendSubarray___lam__2), 4, 2);
-lean_closure_set(v___f_282_, 0, v___f_281_);
-lean_closure_set(v___f_282_, 1, v___f_281_);
-return v___f_282_;
-}
-}
 LEAN_EXPORT lean_object* l_Array_instAppendSubarray(lean_object* v_00_u03b1_283_){
 _start:
 {
 lean_object* v___f_284_; 
-v___f_284_ = lean_obj_once(&l_Array_instAppendSubarray___closed__1, &l_Array_instAppendSubarray___closed__1_once, _init_l_Array_instAppendSubarray___closed__1);
+v___f_284_ = ((lean_object*)(l_Array_instAppendSubarray___closed__1));
 return v___f_284_;
 }
 }

@@ -104,6 +104,8 @@ private def discharge? (e : Expr) : SimpM (Option Expr) := do
 open Sym
 
 def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTactic := none) : MetaM α := Sym.SymM.run do
+  withNewIssueContext do
+  withReader (fun ctx => { ctx with config.verbose := params.config.verbose }) do
   /- **Note**: Consider using `Sym.simp` in the future. -/
   let simprocs  := params.normProcs
   let simpMethods := Simp.mkMethods simprocs discharge? (wellBehavedDischarge := true)
@@ -332,7 +334,7 @@ private def initCore (mvarId : MVarId) : GrindM Goal := do
     processHypotheses goal
 
 def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
-  let issues     := (← get).issues
+  let issues     ← Sym.getIssues
   let counters   := (← get).counters
   let splitDiags := (← get).splitDiags
   let simp       := { (← get).simp with }

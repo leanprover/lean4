@@ -23,6 +23,7 @@ trace: [Compiler.IR] [result]
       ret x_1
     def instSemiringUInt8 : obj :=
       let x_1 : obj := instSemiringUInt8._closed_0;
+      inc x_1;
       ret x_1
 -/
 #guard_msgs in

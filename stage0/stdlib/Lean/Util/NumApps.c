@@ -1207,9 +1207,8 @@ v_resetjp_390_:
 {
 lean_object* v___y_394_; lean_object* v_a_395_; lean_object* v_a_401_; lean_object* v___x_403_; 
 v_a_401_ = lean_ctor_get(v_a_389_, 0);
-lean_inc(v_a_401_);
+lean_inc_n(v_a_401_, 2);
 lean_dec(v_a_389_);
-lean_inc(v_a_401_);
 if (v_isShared_392_ == 0)
 {
 lean_ctor_set(v___x_391_, 0, v_a_401_);

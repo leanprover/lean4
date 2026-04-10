@@ -7,7 +7,7 @@ module
 
 prelude
 public import Init.Dynamic
-public import Init.Data.String
+public import Init.Data.String.Basic
 public import Std.Data.TreeMap
 
 open Lean

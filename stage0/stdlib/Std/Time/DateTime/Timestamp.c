@@ -425,6 +425,7 @@ v___jp_62_:
 lean_object* v___x_66_; lean_object* v___x_67_; lean_object* v___x_68_; uint8_t v___x_69_; 
 v___x_66_ = l_Int_repr(v_fst_64_);
 lean_dec(v_fst_64_);
+lean_inc_ref(v_fst_63_);
 v___x_67_ = lean_string_append(v_fst_63_, v___x_66_);
 lean_dec_ref(v___x_66_);
 v___x_68_ = lean_obj_once(&l_Std_Time_instReprTimestamp_repr___redArg___closed__14, &l_Std_Time_instReprTimestamp_repr___redArg___closed__14_once, _init_l_Std_Time_instReprTimestamp_repr___redArg___closed__14);

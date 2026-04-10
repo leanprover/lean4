@@ -316,7 +316,7 @@ def AES256KBR : KBR :=
 def KeySchedule : Type := List (BitVec WordSize)
 
 -- Declare KeySchedule to be an instance HAppend
--- so we can apply `++` to KeySchedules propertly
+-- so we can apply `++` to KeySchedules properly
 instance : HAppend KeySchedule KeySchedule KeySchedule where
   hAppend := List.append
 

@@ -1069,12 +1069,10 @@ case 4:
 {
 lean_object* v_declName_415_; lean_object* v___f_416_; lean_object* v___x_417_; lean_object* v___x_418_; lean_object* v___x_419_; 
 v_declName_415_ = lean_ctor_get(v_a_414_, 0);
-lean_inc(v_declName_415_);
+lean_inc_n(v_declName_415_, 3);
 lean_dec_ref(v_a_414_);
-lean_inc(v_declName_415_);
 v___f_416_ = lean_alloc_closure((void*)(l___private_Lean_Elab_Tactic_Unfold_0__Lean_Elab_Tactic_evalUnfold_go___lam__0___boxed), 11, 1);
 lean_closure_set(v___f_416_, 0, v_declName_415_);
-lean_inc(v_declName_415_);
 v___x_417_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_unfoldLocalDecl___boxed), 11, 1);
 lean_closure_set(v___x_417_, 0, v_declName_415_);
 v___x_418_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_unfoldTarget___boxed), 10, 1);

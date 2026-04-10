@@ -1448,12 +1448,10 @@ _start:
 lean_object* v___x_493_; lean_object* v_toApplicative_494_; lean_object* v_toFunctor_495_; lean_object* v___f_496_; lean_object* v___x_497_; lean_object* v___x_28__overap_498_; lean_object* v___x_499_; 
 v___x_493_ = lean_obj_once(&l_Std_Internal_IO_Process_getResourceUsage___closed__0, &l_Std_Internal_IO_Process_getResourceUsage___closed__0_once, _init_l_Std_Internal_IO_Process_getResourceUsage___closed__0);
 v_toApplicative_494_ = lean_ctor_get(v___x_493_, 0);
-lean_inc_ref(v_toApplicative_494_);
 v_toFunctor_495_ = lean_ctor_get(v_toApplicative_494_, 0);
-lean_inc_ref(v_toFunctor_495_);
-lean_dec_ref(v_toApplicative_494_);
 v___f_496_ = ((lean_object*)(l_Std_Internal_IO_Process_getResourceUsage___closed__1));
 v___x_497_ = ((lean_object*)(l_Std_Internal_IO_Process_getResourceUsage___closed__2));
+lean_inc_ref(v_toFunctor_495_);
 v___x_28__overap_498_ = l_Functor_mapRev___redArg(v_toFunctor_495_, v___x_497_, v___f_496_);
 v___x_499_ = lean_apply_1(v___x_28__overap_498_, lean_box(0));
 return v___x_499_;

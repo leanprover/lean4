@@ -328,7 +328,7 @@ lean_object* v___x_125_; lean_object* v___x_126_; lean_object* v___x_127_; lean_
 v___x_125_ = lean_nat_mul(v_len_115_, v_w_114_);
 v___x_126_ = lean_nat_mul(v___x_120_, v_iterNum_116_);
 v___x_127_ = lean_nat_mul(v___x_126_, v_w_114_);
-lean_inc_ref(v_oldLayer_117_);
+lean_inc_ref_n(v_oldLayer_117_, 2);
 lean_inc(v___x_125_);
 v___x_128_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_128_, 0, v___x_125_);
@@ -346,7 +346,6 @@ v___x_133_ = lean_nat_add(v___x_126_, v___x_132_);
 lean_dec(v___x_126_);
 v___x_134_ = lean_nat_mul(v___x_133_, v_w_114_);
 lean_dec(v___x_133_);
-lean_inc_ref(v_oldLayer_117_);
 v___x_135_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_135_, 0, v___x_125_);
 lean_ctor_set(v___x_135_, 1, v_oldLayer_117_);

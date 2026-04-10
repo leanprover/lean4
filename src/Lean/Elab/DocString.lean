@@ -85,6 +85,10 @@ structure State where
   -/
   lctx : LocalContext
   /--
+  The local instances.
+
+  The `MonadLift TermElabM DocM` instance runs the lifted action with these instances, so elaboration
+  commands that mutate this state cause it to take effect in subsequent commands.
   -/
   localInstances : LocalInstances
   /--

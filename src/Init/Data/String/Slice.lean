@@ -426,13 +426,13 @@ Advances {name}`pos` as long as {name}`pat` matches.
 -/
 @[specialize pat]
 def Pos.skipWhile {s : Slice} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : s.Pos :=
-  if let some nextCurr := ForwardPattern.skipPrefix? pat (s.sliceFrom pos) then
-    if pos < Pos.ofSliceFrom nextCurr then
-      skipWhile (Pos.ofSliceFrom nextCurr) pat
+  match pos.skip? pat with
+  | some nextCurr =>
+    if pos < nextCurr then
+      skipWhile nextCurr pat
     else
       pos
-  else
-    pos
+  | none => pos
 termination_by pos
 
 /--
@@ -572,7 +572,7 @@ Examples:
 -/
 @[inline]
 def all (s : Slice) (pat : ρ) [ForwardPattern pat] : Bool :=
-  s.dropWhile pat |>.isEmpty
+  s.skipPrefixWhile pat == s.endPos
 
 end ForwardPatternUsers
 
@@ -706,14 +706,14 @@ Returns {name}`none` otherwise.
 This function is generic over all currently supported patterns.
 -/
 @[inline]
-def Pos.revSkip? {s : Slice} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
-  ((s.sliceFrom pos).skipPrefix? pat).map Pos.ofSliceFrom
+def Pos.revSkip? {s : Slice} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] : Option s.Pos :=
+  ((s.sliceTo pos).skipSuffix? pat).map Pos.ofSliceTo
 
 /--
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
 
 Use {name (scope := "Init.Data.String.Slice")}`String.Slice.dropSuffix` to return the slice
-unchanged when {name}`pat` does not match a prefix.
+unchanged when {name}`pat` does not match a suffix.
 
 This function is generic over all currently supported patterns.
 
@@ -765,22 +765,52 @@ Rewinds {name}`pos` as long as {name}`pat` matches.
 -/
 @[specialize pat]
 def Pos.revSkipWhile {s : Slice} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] : s.Pos :=
-  if let some nextCurr := BackwardPattern.skipSuffix? pat (s.sliceTo pos) then
-    if Pos.ofSliceTo nextCurr < pos then
-      revSkipWhile (Pos.ofSliceTo nextCurr) pat
+  match pos.revSkip? pat with
+  | some nextCurr =>
+    if nextCurr < pos then
+      revSkipWhile nextCurr pat
     else
       pos
-  else
-    pos
+  | none => pos
 termination_by pos.down
 
 /--
-Returns the position a the start of the longest suffix of {name}`s` for which {name}`pat` matches
+Returns the position at the start of the longest suffix of {name}`s` for which {name}`pat` matches
 (potentially repeatedly).
 -/
 @[inline]
 def skipSuffixWhile (s : Slice) (pat : ρ) [BackwardPattern pat] : s.Pos :=
   s.endPos.revSkipWhile pat
+
+/--
+Checks whether a slice only consists of matches of the pattern {name}`pat`, starting from the back
+of the string.
+
+Short-circuits at the first pattern mis-match.
+
+This function is generic over all currently supported patterns.
+
+For many types of patterns, this function can be expected to return the same result as
+{name}`Slice.all`. If mismatches are expected to occur close to the end of the string, this function
+might be more efficient.
+
+For some types of patterns, this function will return a different result than {name}`Slice.all`.
+Consider, for example, a pattern that matches the longest string at the given position that matches
+the regular expression {lean}`"a|aa|ab"`. Then, given the input string {lean}`"aab"`, performing
+{name}`Slice.all` will greedily match the prefix {lean}`"aa"` and then get stuck on the remainder
+{lean}`"b"`, causing it to return {lean}`false`. On the other hand, {name}`Slice.revAll` will match
+the suffix {lean}`"ab"` and then match the remainder {lean}`"a"`, so it will return {lean}`true`.
+
+Examples:
+ * {lean}`"brown".toSlice.revAll Char.isLower = true`
+ * {lean}`"brown and orange".toSlice.revAll Char.isLower = false`
+ * {lean}`"aaaaaa".toSlice.revAll 'a' = true`
+ * {lean}`"aaaaaa".toSlice.revAll "aa" = true`
+ * {lean}`"aaaaaaa".toSlice.revAll "aa" = false`
+-/
+@[inline]
+def revAll (s : Slice) (pat : ρ) [BackwardPattern pat] : Bool :=
+  s.skipSuffixWhile pat == s.startPos
 
 /--
 Creates a new slice that contains the longest suffix of {name}`s` for which {name}`pat` matched
@@ -1151,6 +1181,19 @@ def intercalate (s : Slice) : List Slice → String
 where go (acc : String) (s : Slice) : List Slice → String
   | a :: as => go (acc ++ s ++ a) s as
   | []      => acc
+
+/--
+Appends all the slices in a list of slices, in order.
+
+Use {name}`String.Slice.intercalate` to place a separator string between the strings in a list.
+
+Examples:
+ * {lean}`String.Slice.join ["gr", "ee", "n"] = "green"`
+ * {lean}`String.Slice.join ["b", "", "l", "", "ue"] = "blue"`
+ * {lean}`String.Slice.join [] = ""`
+-/
+def join (l : List String.Slice) : String :=
+  l.foldl (fun (r : String) (s : String.Slice) => r ++ s) ""
 
 /--
 Converts a string to the Lean compiler's representation of names. The resulting name is

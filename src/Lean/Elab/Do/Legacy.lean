@@ -36,6 +36,7 @@ private def getDoSeq (doStx : Syntax) : Syntax :=
 def elabLiftMethod : TermElab := fun stx _ =>
   throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
 
+
 /-- Return true if we should not lift `(<- ...)` actions nested in the syntax nodes with the given kind. -/
 private def liftMethodDelimiter (k : SyntaxNodeKind) : Bool :=
   k == ``Parser.Term.do ||
@@ -76,9 +77,9 @@ private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
   else if k == ``Parser.Term.let then
     letDeclHasBinders stx[1]
   else if k == ``Parser.Term.doLet then
-    letDeclHasBinders stx[2]
+    letDeclHasBinders stx[3]
   else if k == ``Parser.Term.doLetArrow then
-    letDeclArgHasBinders stx[2]
+    letDeclArgHasBinders stx[3]
   else
     false
 
@@ -701,12 +702,12 @@ def getLetDeclVars (letDecl : Syntax) : TermElabM (Array Var) := do
     throwError "unexpected kind of let declaration"
 
 def getDoLetVars (doLet : Syntax) : TermElabM (Array Var) :=
-  -- leading_parser "let " >> optional "mut " >> letDecl
-  getLetDeclVars doLet[2]
+  -- leading_parser "let " >> optional "mut " >> letConfig >> letDecl
+  getLetDeclVars doLet[3]
 
 def getDoHaveVars (doHave : Syntax) : TermElabM (Array Var) :=
-  -- leading_parser "have" >> letDecl
-  getLetDeclVars doHave[1]
+  -- leading_parser "have" >> letConfig >> letDecl
+  getLetDeclVars doHave[2]
 
 def getDoLetRecVars (doLetRec : Syntax) : TermElabM (Array Var) := do
   -- letRecDecls is an array of `(group (optional attributes >> letDecl))`
@@ -727,9 +728,9 @@ def getDoPatDeclVars (doPatDecl : Syntax) : TermElabM (Array Var) := do
   let pattern := doPatDecl[0]
   getPatternVarsEx pattern
 
--- leading_parser "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
+-- leading_parser "let " >> optional "mut " >> letConfig >> (doIdDecl <|> doPatDecl)
 def getDoLetArrowVars (doLetArrow : Syntax) : TermElabM (Array Var) := do
-  let decl := doLetArrow[2]
+  let decl := doLetArrow[3]
   if decl.getKind == ``Parser.Term.doIdDecl then
     return #[getDoIdDeclVar decl]
   else if decl.getKind == ``Parser.Term.doPatDecl then
@@ -1060,14 +1061,15 @@ def seqToTerm (action : Syntax) (k : Syntax) : M Syntax := withRef action <| wit
 def declToTerm (decl : Syntax) (k : Syntax) : M Syntax := withRef decl <| withFreshMacroScope do
   let kind := decl.getKind
   if kind == ``Parser.Term.doLet then
-    let letDecl := decl[2]
-    `(let $letDecl:letDecl; $k)
+    let letConfig : TSyntax ``Parser.Term.letConfig := ⟨decl[2]⟩
+    let letDecl := decl[3]
+    `(let $letConfig:letConfig $letDecl:letDecl; $k)
   else if kind == ``Parser.Term.doLetRec then
     let letRecToken := decl[0]
     let letRecDecls := decl[1]
     return mkNode ``Parser.Term.letrec #[letRecToken, letRecDecls, mkNullNode, k]
   else if kind == ``Parser.Term.doLetArrow then
-    let arg := decl[2]
+    let arg := decl[3]
     if arg.getKind == ``Parser.Term.doIdDecl then
       let id     := arg[0]
       let type   := expandOptType id arg[1]
@@ -1415,7 +1417,7 @@ mutual
   /-- Generate `CodeBlock` for `doLetArrow; doElems`
      `doLetArrow` is of the form
      ```
-     "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
+     "let " >> optional "mut " >> letConfig >> (doIdDecl <|> doPatDecl)
      ```
      where
      ```
@@ -1424,7 +1426,7 @@ mutual
      ```
   -/
   partial def doLetArrowToCode (doLetArrow : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    let decl    := doLetArrow[2]
+    let decl    := doLetArrow[3]
     if decl.getKind == ``Parser.Term.doIdDecl then
       let y := decl[0]
       checkNotShadowingMutable #[y]
@@ -1475,11 +1477,11 @@ mutual
       throwError "unexpected kind of `do` declaration"
 
   partial def doLetElseToCode (doLetElse : Syntax) (doElems : List Syntax) : M CodeBlock := do
-    -- "let " >> optional "mut " >> termParser >> " := " >> termParser >> (checkColGt >> " | " >> doSeq) >> optional doSeq
-    let pattern := doLetElse[2]
-    let val     := doLetElse[4]
-    let elseSeq := doLetElse[6]
-    let bodySeq := doLetElse[7][0]
+    -- "let " >> optional "mut " >> letConfig >> termParser >> " := " >> termParser >> (checkColGt >> " | " >> doSeq) >> optional doSeq
+    let pattern := doLetElse[3]
+    let val     := doLetElse[5]
+    let elseSeq := doLetElse[7]
+    let bodySeq := doLetElse[8][0]
     let contSeq ← if isMutableLet doLetElse then
       let vars ← (← getPatternVarsEx pattern).mapM fun var => `(doElem| let mut $var := $var)
       pure (vars ++ (getDoSeqElems bodySeq).toArray)

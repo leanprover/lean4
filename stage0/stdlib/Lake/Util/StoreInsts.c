@@ -141,9 +141,8 @@ v_resetjp_22_:
 {
 lean_object* v_toPure_25_; lean_object* v___f_26_; lean_object* v___x_28_; 
 v_toPure_25_ = lean_ctor_get(v_toApplicative_20_, 1);
-lean_inc(v_toPure_25_);
+lean_inc_n(v_toPure_25_, 2);
 lean_dec_ref(v_toApplicative_20_);
-lean_inc(v_toPure_25_);
 v___f_26_ = lean_alloc_closure((void*)(l_Lake_instMonadDStoreStateTDTreeMapOfMonadOfLawfulEqCmp___redArg___lam__0), 4, 3);
 lean_closure_set(v___f_26_, 0, v_cmp_17_);
 lean_closure_set(v___f_26_, 1, v_k_18_);
@@ -447,9 +446,8 @@ v_resetjp_145_:
 {
 lean_object* v_toPure_148_; lean_object* v___f_149_; lean_object* v___x_151_; 
 v_toPure_148_ = lean_ctor_get(v_toApplicative_143_, 1);
-lean_inc(v_toPure_148_);
+lean_inc_n(v_toPure_148_, 2);
 lean_dec_ref(v_toApplicative_143_);
-lean_inc(v_toPure_148_);
 v___f_149_ = lean_alloc_closure((void*)(l_Lake_instMonadStoreStateTRBArrayOfMonad___redArg___lam__0), 4, 3);
 lean_closure_set(v___f_149_, 0, v_cmp_140_);
 lean_closure_set(v___f_149_, 1, v_k_141_);
@@ -763,9 +761,8 @@ v_resetjp_268_:
 {
 lean_object* v_toPure_271_; lean_object* v___f_272_; lean_object* v___x_274_; 
 v_toPure_271_ = lean_ctor_get(v_toApplicative_266_, 1);
-lean_inc(v_toPure_271_);
+lean_inc_n(v_toPure_271_, 2);
 lean_dec_ref(v_toApplicative_266_);
-lean_inc(v_toPure_271_);
 v___f_272_ = lean_alloc_closure((void*)(l_Lake_instMonadStoreNameStateTNameMapOfMonad___redArg___lam__0___boxed), 3, 2);
 lean_closure_set(v___f_272_, 0, v_k_264_);
 lean_closure_set(v___f_272_, 1, v_toPure_271_);

@@ -1275,7 +1275,6 @@ lean_inc_ref(v_env_350_);
 lean_dec(v___x_349_);
 v___x_351_ = l___private_Lean_Meta_Tactic_Cbv_TheoremsLookup_0__Lean_Meta_Tactic_Cbv_cbvTheoremsLookup;
 v_asyncMode_352_ = lean_ctor_get(v___x_351_, 2);
-lean_inc(v_asyncMode_352_);
 v___x_353_ = l_Lean_Meta_Tactic_Cbv_instInhabitedCbvTheoremsLookupState_default;
 v___x_354_ = lean_box(0);
 v___x_355_ = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(v___x_353_, v___x_351_, v_env_350_, v_asyncMode_352_, v___x_354_);
@@ -1286,7 +1285,6 @@ v___x_357_ = l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Tactic_Cbv_get
 if (lean_obj_tag(v___x_357_) == 1)
 {
 lean_object* v_val_358_; lean_object* v___x_360_; uint8_t v_isShared_361_; uint8_t v_isSharedCheck_365_; 
-lean_dec(v_asyncMode_352_);
 lean_dec(v_fnName_343_);
 v_val_358_ = lean_ctor_get(v___x_357_, 0);
 v_isSharedCheck_365_ = !lean_is_exclusive(v___x_357_);
@@ -1431,7 +1429,6 @@ v___f_393_ = lean_alloc_closure((void*)(l_Lean_Meta_Tactic_Cbv_getEqnTheorems___
 lean_closure_set(v___f_393_, 0, v_fnName_343_);
 lean_closure_set(v___f_393_, 1, v___x_392_);
 v___x_394_ = l_Lean_EnvExtension_modifyState___redArg(v___x_351_, v_env_380_, v___f_393_, v_asyncMode_352_, v___x_354_);
-lean_dec(v_asyncMode_352_);
 v___x_395_ = lean_obj_once(&l_Lean_Meta_Tactic_Cbv_getEqnTheorems___closed__2, &l_Lean_Meta_Tactic_Cbv_getEqnTheorems___closed__2_once, _init_l_Lean_Meta_Tactic_Cbv_getEqnTheorems___closed__2);
 if (v_isShared_390_ == 0)
 {
@@ -1539,7 +1536,6 @@ return v___x_412_;
 else
 {
 lean_object* v_a_421_; lean_object* v___x_423_; uint8_t v_isShared_424_; uint8_t v_isSharedCheck_428_; 
-lean_dec(v_asyncMode_352_);
 lean_dec(v_fnName_343_);
 v_a_421_ = lean_ctor_get(v___x_374_, 0);
 v_isSharedCheck_428_ = !lean_is_exclusive(v___x_374_);
@@ -1584,7 +1580,6 @@ else
 {
 lean_object* v___x_429_; lean_object* v___x_431_; 
 lean_dec(v_a_367_);
-lean_dec(v_asyncMode_352_);
 lean_dec(v_fnName_343_);
 v___x_429_ = lean_obj_once(&l_Lean_Meta_Tactic_Cbv_getEqnTheorems___closed__1, &l_Lean_Meta_Tactic_Cbv_getEqnTheorems___closed__1_once, _init_l_Lean_Meta_Tactic_Cbv_getEqnTheorems___closed__1);
 if (v_isShared_370_ == 0)
@@ -1611,7 +1606,6 @@ return v___x_431_;
 else
 {
 lean_object* v_a_434_; lean_object* v___x_436_; uint8_t v_isShared_437_; uint8_t v_isSharedCheck_441_; 
-lean_dec(v_asyncMode_352_);
 lean_dec(v_fnName_343_);
 v_a_434_ = lean_ctor_get(v___x_366_, 0);
 v_isSharedCheck_441_ = !lean_is_exclusive(v___x_366_);
@@ -1890,7 +1884,6 @@ lean_inc_ref(v_env_559_);
 lean_dec(v___x_558_);
 v___x_560_ = l___private_Lean_Meta_Tactic_Cbv_TheoremsLookup_0__Lean_Meta_Tactic_Cbv_cbvTheoremsLookup;
 v_asyncMode_561_ = lean_ctor_get(v___x_560_, 2);
-lean_inc(v_asyncMode_561_);
 v___x_562_ = l_Lean_Meta_Tactic_Cbv_instInhabitedCbvTheoremsLookupState_default;
 v___x_563_ = lean_box(0);
 v___x_564_ = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(v___x_562_, v___x_560_, v_env_559_, v_asyncMode_561_, v___x_563_);
@@ -1901,7 +1894,6 @@ v___x_566_ = l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Tactic_Cbv_get
 if (lean_obj_tag(v___x_566_) == 1)
 {
 lean_object* v___x_567_; 
-lean_dec(v_asyncMode_561_);
 lean_dec(v_fnName_552_);
 v___x_567_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_567_, 0, v___x_566_);
@@ -2023,7 +2015,6 @@ v___f_595_ = lean_alloc_closure((void*)(l_Lean_Meta_Tactic_Cbv_getUnfoldTheorem_
 lean_closure_set(v___f_595_, 0, v_fnName_552_);
 lean_closure_set(v___f_595_, 1, v_a_579_);
 v___x_596_ = l_Lean_EnvExtension_modifyState___redArg(v___x_560_, v_env_584_, v___f_595_, v_asyncMode_561_, v___x_563_);
-lean_dec(v_asyncMode_561_);
 v___x_597_ = lean_obj_once(&l_Lean_Meta_Tactic_Cbv_getUnfoldTheorem___closed__2, &l_Lean_Meta_Tactic_Cbv_getUnfoldTheorem___closed__2_once, _init_l_Lean_Meta_Tactic_Cbv_getUnfoldTheorem___closed__2);
 if (v_isShared_594_ == 0)
 {
@@ -2150,7 +2141,6 @@ else
 {
 lean_object* v_a_626_; lean_object* v___x_628_; uint8_t v_isShared_629_; uint8_t v_isSharedCheck_633_; 
 lean_del_object(v___x_576_);
-lean_dec(v_asyncMode_561_);
 lean_dec(v_fnName_552_);
 v_a_626_ = lean_ctor_get(v___x_578_, 0);
 v_isSharedCheck_633_ = !lean_is_exclusive(v___x_578_);
@@ -2196,7 +2186,6 @@ else
 {
 lean_object* v___x_635_; lean_object* v___x_637_; 
 lean_dec(v_a_570_);
-lean_dec(v_asyncMode_561_);
 lean_dec(v_fnName_552_);
 v___x_635_ = lean_box(0);
 if (v_isShared_573_ == 0)
@@ -2223,7 +2212,6 @@ return v___x_637_;
 else
 {
 lean_object* v_a_640_; lean_object* v___x_642_; uint8_t v_isShared_643_; uint8_t v_isSharedCheck_647_; 
-lean_dec(v_asyncMode_561_);
 lean_dec(v_fnName_552_);
 v_a_640_ = lean_ctor_get(v___x_569_, 0);
 v_isSharedCheck_647_ = !lean_is_exclusive(v___x_569_);
@@ -2339,7 +2327,6 @@ lean_inc_ref(v_env_676_);
 lean_dec(v___x_675_);
 v___x_677_ = l___private_Lean_Meta_Tactic_Cbv_TheoremsLookup_0__Lean_Meta_Tactic_Cbv_cbvTheoremsLookup;
 v_asyncMode_678_ = lean_ctor_get(v___x_677_, 2);
-lean_inc(v_asyncMode_678_);
 v___x_679_ = l_Lean_Meta_Tactic_Cbv_instInhabitedCbvTheoremsLookupState_default;
 v___x_680_ = lean_box(0);
 v___x_681_ = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(v___x_679_, v___x_677_, v_env_676_, v_asyncMode_678_, v___x_680_);
@@ -2350,7 +2337,6 @@ v___x_683_ = l_Lean_PersistentHashMap_find_x3f___at___00Lean_Meta_Tactic_Cbv_get
 if (lean_obj_tag(v___x_683_) == 1)
 {
 lean_object* v_val_684_; lean_object* v___x_686_; uint8_t v_isShared_687_; uint8_t v_isSharedCheck_691_; 
-lean_dec(v_asyncMode_678_);
 lean_dec(v_matcherName_669_);
 v_val_684_ = lean_ctor_get(v___x_683_, 0);
 v_isSharedCheck_691_ = !lean_is_exclusive(v___x_683_);
@@ -2480,7 +2466,6 @@ v___f_716_ = lean_alloc_closure((void*)(l_Lean_Meta_Tactic_Cbv_getMatchTheorems_
 lean_closure_set(v___f_716_, 0, v_matcherName_669_);
 lean_closure_set(v___f_716_, 1, v___x_715_);
 v___x_717_ = l_Lean_EnvExtension_modifyState___redArg(v___x_677_, v_env_703_, v___f_716_, v_asyncMode_678_, v___x_680_);
-lean_dec(v_asyncMode_678_);
 v___x_718_ = lean_obj_once(&l_Lean_Meta_Tactic_Cbv_getEqnTheorems___closed__2, &l_Lean_Meta_Tactic_Cbv_getEqnTheorems___closed__2_once, _init_l_Lean_Meta_Tactic_Cbv_getEqnTheorems___closed__2);
 if (v_isShared_713_ == 0)
 {
@@ -2588,7 +2573,6 @@ return v___x_735_;
 else
 {
 lean_object* v_a_744_; lean_object* v___x_746_; uint8_t v_isShared_747_; uint8_t v_isSharedCheck_751_; 
-lean_dec(v_asyncMode_678_);
 lean_dec(v_matcherName_669_);
 v_a_744_ = lean_ctor_get(v___x_697_, 0);
 v_isSharedCheck_751_ = !lean_is_exclusive(v___x_697_);
@@ -2632,7 +2616,6 @@ return v___x_749_;
 else
 {
 lean_object* v_a_752_; lean_object* v___x_754_; uint8_t v_isShared_755_; uint8_t v_isSharedCheck_759_; 
-lean_dec(v_asyncMode_678_);
 lean_dec(v_matcherName_669_);
 v_a_752_ = lean_ctor_get(v___x_692_, 0);
 v_isSharedCheck_759_ = !lean_is_exclusive(v___x_692_);

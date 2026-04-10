@@ -1036,12 +1036,11 @@ else
 {
 lean_object* v_head_373_; lean_object* v_tail_374_; lean_object* v___x_375_; uint8_t v___x_376_; 
 v_head_373_ = lean_ctor_get(v_a_371_, 0);
-lean_inc(v_head_373_);
+lean_inc_n(v_head_373_, 2);
 v_tail_374_ = lean_ctor_get(v_a_371_, 1);
 lean_inc(v_tail_374_);
 lean_dec_ref(v_a_371_);
 lean_inc_ref(v_p_369_);
-lean_inc(v_head_373_);
 v___x_375_ = lean_apply_1(v_p_369_, v_head_373_);
 v___x_376_ = lean_unbox(v___x_375_);
 if (v___x_376_ == 0)
@@ -1881,13 +1880,12 @@ else
 {
 lean_object* v_head_712_; lean_object* v_tail_713_; lean_object* v___x_714_; uint8_t v___x_715_; 
 v_head_712_ = lean_ctor_get(v_a_710_, 0);
-lean_inc(v_head_712_);
+lean_inc_n(v_head_712_, 2);
 v_tail_713_ = lean_ctor_get(v_a_710_, 1);
 lean_inc(v_tail_713_);
 lean_dec_ref(v_a_710_);
 lean_inc_ref(v_inst_707_);
 lean_inc(v_a_709_);
-lean_inc(v_head_712_);
 v___x_714_ = lean_apply_2(v_inst_707_, v_head_712_, v_a_709_);
 v___x_715_ = lean_unbox(v___x_714_);
 if (v___x_715_ == 0)
@@ -1988,12 +1986,11 @@ else
 {
 lean_object* v_head_761_; lean_object* v_tail_762_; lean_object* v___x_763_; uint8_t v___x_764_; 
 v_head_761_ = lean_ctor_get(v_a_759_, 0);
-lean_inc(v_head_761_);
+lean_inc_n(v_head_761_, 2);
 v_tail_762_ = lean_ctor_get(v_a_759_, 1);
 lean_inc(v_tail_762_);
 lean_dec_ref(v_a_759_);
 lean_inc_ref(v_p_757_);
-lean_inc(v_head_761_);
 v___x_763_ = lean_apply_1(v_p_757_, v_head_761_);
 v___x_764_ = lean_unbox(v___x_763_);
 if (v___x_764_ == 0)

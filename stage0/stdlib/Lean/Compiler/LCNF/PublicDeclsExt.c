@@ -362,11 +362,9 @@ v___jp_89_:
 lean_object* v___x_91_; lean_object* v_asyncMode_92_; lean_object* v___x_93_; lean_object* v___x_94_; lean_object* v___x_95_; lean_object* v_snd_96_; uint8_t v___x_97_; 
 v___x_91_ = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt;
 v_asyncMode_92_ = lean_ctor_get(v___x_91_, 2);
-lean_inc(v_asyncMode_92_);
 v___x_93_ = ((lean_object*)(l_Lean_Compiler_LCNF_isDeclPublic___closed__0));
 v___x_94_ = lean_box(0);
 v___x_95_ = l___private_Lean_Environment_0__Lean_EnvExtension_getStateUnsafe___redArg(v___x_93_, v___x_91_, v_env_87_, v_asyncMode_92_, v___x_94_);
-lean_dec(v_asyncMode_92_);
 v_snd_96_ = lean_ctor_get(v___x_95_, 1);
 lean_inc(v_snd_96_);
 lean_dec(v___x_95_);
@@ -450,12 +448,10 @@ if (v___x_124_ == 0)
 lean_object* v___x_125_; lean_object* v_asyncMode_126_; lean_object* v___f_127_; lean_object* v___x_128_; lean_object* v___x_129_; 
 v___x_125_ = l___private_Lean_Compiler_LCNF_PublicDeclsExt_0__Lean_Compiler_LCNF_publicDeclsExt;
 v_asyncMode_126_ = lean_ctor_get(v___x_125_, 2);
-lean_inc(v_asyncMode_126_);
 v___f_127_ = lean_alloc_closure((void*)(l_Lean_Compiler_LCNF_setDeclPublic___lam__0), 2, 1);
 lean_closure_set(v___f_127_, 0, v_declName_123_);
 v___x_128_ = lean_box(0);
 v___x_129_ = l_Lean_EnvExtension_modifyState___redArg(v___x_125_, v_env_122_, v___f_127_, v_asyncMode_126_, v___x_128_);
-lean_dec(v_asyncMode_126_);
 return v___x_129_;
 }
 else

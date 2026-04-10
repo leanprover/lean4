@@ -23,7 +23,7 @@ uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -2184,7 +2184,7 @@ v___jp_525_:
 {
 lean_object* v___x_544_; lean_object* v___x_545_; 
 lean_inc_ref(v___y_542_);
-lean_inc(v___y_532_);
+lean_inc_n(v___y_532_, 2);
 lean_inc(v_elan_x3f_522_);
 v___x_544_ = lean_alloc_ctor(0, 19, 2);
 lean_ctor_set(v___x_544_, 0, v_lake_520_);
@@ -3327,7 +3327,7 @@ _start:
 {
 lean_object* v___x_955_; lean_object* v___x_956_; 
 v___x_955_ = lean_box(1);
-v___x_956_ = lean_panic_fn(v___x_955_, v_msg_954_);
+v___x_956_ = lean_panic_fn_borrowed(v___x_955_, v_msg_954_);
 return v___x_956_;
 }
 }
@@ -5223,6 +5223,7 @@ lean_object* v_sysroot_1400_; lean_object* v_lean_1401_; lean_object* v_ar_1402_
 v_sysroot_1400_ = lean_ctor_get(v_lean_1376_, 0);
 v_lean_1401_ = lean_ctor_get(v_lean_1376_, 7);
 v_ar_1402_ = lean_ctor_get(v_lean_1376_, 13);
+lean_inc_ref(v___y_1392_);
 v___x_1403_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1403_, 0, v___y_1392_);
 lean_ctor_set(v___x_1403_, 1, v___y_1399_);
@@ -5276,8 +5277,10 @@ return v___x_1433_;
 v___jp_1434_:
 {
 lean_object* v___x_1444_; lean_object* v___x_1445_; lean_object* v___x_1446_; lean_object* v___x_1447_; lean_object* v___x_1448_; lean_object* v___x_1449_; lean_object* v___x_1450_; lean_object* v___x_1451_; lean_object* v___x_1452_; 
+lean_inc_ref(v___y_1443_);
 v___x_1444_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_1444_, 0, v___y_1443_);
+lean_inc_ref(v___y_1440_);
 v___x_1445_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1445_, 0, v___y_1440_);
 lean_ctor_set(v___x_1445_, 1, v___x_1444_);
@@ -5371,6 +5374,7 @@ goto v___jp_1386_;
 v___jp_1462_:
 {
 lean_object* v___x_1470_; lean_object* v___x_1471_; lean_object* v___x_1472_; lean_object* v___x_1473_; lean_object* v___x_1474_; lean_object* v___x_1475_; lean_object* v___x_1476_; 
+lean_inc_ref(v___y_1464_);
 v___x_1470_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1470_, 0, v___y_1464_);
 lean_ctor_set(v___x_1470_, 1, v___y_1469_);
@@ -5422,6 +5426,7 @@ lean_inc_ref(v_home_1484_);
 v_lake_1485_ = lean_ctor_get(v_lake_1375_, 5);
 lean_inc_ref(v_lake_1485_);
 lean_dec_ref(v_lake_1375_);
+lean_inc_ref(v___y_1482_);
 v___x_1486_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1486_, 0, v___y_1482_);
 lean_ctor_set(v___x_1486_, 1, v___y_1483_);
@@ -5504,6 +5509,7 @@ goto v___jp_1462_;
 v___jp_1503_:
 {
 lean_object* v___x_1507_; lean_object* v___x_1508_; lean_object* v___x_1509_; lean_object* v___x_1510_; uint8_t v___x_1511_; 
+lean_inc_ref(v___y_1505_);
 v___x_1507_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1507_, 0, v___y_1505_);
 lean_ctor_set(v___x_1507_, 1, v___y_1506_);
@@ -5688,6 +5694,8 @@ goto v___jp_1593_;
 v___jp_1552_:
 {
 lean_object* v___x_1556_; lean_object* v___x_1557_; lean_object* v___x_1558_; lean_object* v___x_1559_; lean_object* v___x_1560_; lean_object* v___x_1561_; lean_object* v___x_1562_; lean_object* v___x_1563_; lean_object* v___x_1564_; lean_object* v___x_1565_; lean_object* v___x_1566_; lean_object* v___x_1567_; lean_object* v___x_1568_; lean_object* v___x_1569_; lean_object* v___x_1570_; lean_object* v___x_1571_; lean_object* v___x_1572_; lean_object* v___x_1573_; lean_object* v___x_1574_; lean_object* v___x_1575_; lean_object* v___x_1576_; lean_object* v___x_1577_; lean_object* v___x_1578_; lean_object* v___x_1579_; lean_object* v___x_1580_; lean_object* v___x_1581_; lean_object* v___x_1582_; lean_object* v___x_1583_; lean_object* v_vars_1584_; uint8_t v___x_1585_; 
+lean_inc(v___y_1555_);
+lean_inc_ref(v___y_1554_);
 v___x_1556_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1556_, 0, v___y_1554_);
 lean_ctor_set(v___x_1556_, 1, v___y_1555_);

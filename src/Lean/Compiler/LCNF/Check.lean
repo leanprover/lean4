@@ -232,6 +232,7 @@ partial def checkCases (c : Cases .pure) : CheckM Unit := do
       withParams params do check k
 
 partial def check (code : Code .pure) : CheckM Unit := do
+  checkSystem "LCNF check"
   match code with
   | .let decl k => checkLetDecl decl; withFVarId decl.fvarId do check k
   | .fun decl k =>

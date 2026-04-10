@@ -56,7 +56,7 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 extern lean_object* l_instInhabitedError;
 lean_object* l_instInhabitedEIO___aux__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonRange_fromJson(lean_object*);
 lean_object* l_Lean_Lsp_instToJsonCallHierarchyPrepareParams_toJson(lean_object*);
@@ -586,7 +586,6 @@ _start:
 lean_object* v_stdin_7_; lean_object* v___x_8_; lean_object* v___x_9_; 
 v_stdin_7_ = lean_ctor_get(v_a_5_, 0);
 lean_inc(v_stdin_7_);
-lean_dec_ref(v_a_5_);
 v___x_8_ = lean_stream_of_handle(v_stdin_7_);
 v___x_9_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_9_, 0, v___x_8_);
@@ -598,6 +597,7 @@ _start:
 {
 lean_object* v_res_12_; 
 v_res_12_ = l_Lean_Lsp_Ipc_stdin(v_a_10_);
+lean_dec_ref(v_a_10_);
 return v_res_12_;
 }
 }
@@ -607,7 +607,6 @@ _start:
 lean_object* v_stdout_15_; lean_object* v___x_16_; lean_object* v___x_17_; 
 v_stdout_15_ = lean_ctor_get(v_a_13_, 1);
 lean_inc(v_stdout_15_);
-lean_dec_ref(v_a_13_);
 v___x_16_ = lean_stream_of_handle(v_stdout_15_);
 v___x_17_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_17_, 0, v___x_16_);
@@ -619,6 +618,7 @@ _start:
 {
 lean_object* v_res_20_; 
 v_res_20_ = l_Lean_Lsp_Ipc_stdout(v_a_18_);
+lean_dec_ref(v_a_18_);
 return v_res_20_;
 }
 }
@@ -626,7 +626,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___redArg(lean_object* v_ins
 _start:
 {
 lean_object* v___x_25_; lean_object* v_a_26_; lean_object* v___x_27_; 
-lean_inc_ref(v_a_23_);
 v___x_25_ = l_Lean_Lsp_Ipc_stdin(v_a_23_);
 v_a_26_ = lean_ctor_get(v___x_25_, 0);
 lean_inc(v_a_26_);
@@ -665,7 +664,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeNotification___redArg(lean_object* 
 _start:
 {
 lean_object* v___x_49_; lean_object* v_a_50_; lean_object* v___x_51_; 
-lean_inc_ref(v_a_47_);
 v___x_49_ = l_Lean_Lsp_Ipc_stdin(v_a_47_);
 v_a_50_ = lean_ctor_get(v___x_49_, 0);
 lean_inc(v_a_50_);
@@ -719,7 +717,8 @@ lean_object* v___x_74_; lean_object* v___f_75_; lean_object* v___x_2948__overap_
 v___x_74_ = lean_obj_once(&l_panic___at___00Lean_Lsp_Ipc_shutdown_spec__2___closed__0, &l_panic___at___00Lean_Lsp_Ipc_shutdown_spec__2___closed__0_once, _init_l_panic___at___00Lean_Lsp_Ipc_shutdown_spec__2___closed__0);
 v___f_75_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_75_, 0, v___x_74_);
-v___x_2948__overap_76_ = lean_panic_fn(v___f_75_, v_msg_71_);
+v___x_2948__overap_76_ = lean_panic_fn_borrowed(v___f_75_, v_msg_71_);
+lean_dec_ref(v___f_75_);
 lean_inc_ref(v___y_72_);
 v___x_77_ = lean_apply_2(v___x_2948__overap_76_, v___y_72_, lean_box(0));
 return v___x_77_;
@@ -1337,12 +1336,10 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_shutdown(lean_object* v_requestNo_242_, 
 _start:
 {
 lean_object* v___x_245_; lean_object* v_a_246_; lean_object* v___x_247_; lean_object* v_a_248_; lean_object* v___x_250_; uint8_t v_isShared_251_; uint8_t v_isSharedCheck_270_; 
-lean_inc_ref(v_a_243_);
 v___x_245_ = l_Lean_Lsp_Ipc_stdout(v_a_243_);
 v_a_246_ = lean_ctor_get(v___x_245_, 0);
 lean_inc(v_a_246_);
 lean_dec_ref(v___x_245_);
-lean_inc_ref(v_a_243_);
 v___x_247_ = l_Lean_Lsp_Ipc_stdin(v_a_243_);
 v_a_248_ = lean_ctor_get(v___x_247_, 0);
 v_isSharedCheck_270_ = !lean_is_exclusive(v___x_247_);
@@ -1498,7 +1495,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readMessage(lean_object* v_a_293_){
 _start:
 {
 lean_object* v___x_295_; lean_object* v_a_296_; lean_object* v___x_297_; 
-lean_inc_ref(v_a_293_);
 v___x_295_ = l_Lean_Lsp_Ipc_stdout(v_a_293_);
 v_a_296_ = lean_ctor_get(v___x_295_, 0);
 lean_inc(v_a_296_);
@@ -1520,7 +1516,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readRequestAs___redArg(lean_object* v_ex
 _start:
 {
 lean_object* v___x_305_; lean_object* v_a_306_; lean_object* v___x_307_; 
-lean_inc_ref(v_a_303_);
 v___x_305_ = l_Lean_Lsp_Ipc_stdout(v_a_303_);
 v_a_306_ = lean_ctor_get(v___x_305_, 0);
 lean_inc(v_a_306_);
@@ -2003,7 +1998,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___redArg(lean_object* v_e
 _start:
 {
 lean_object* v___x_442_; 
-lean_inc_ref(v_a_440_);
 v___x_442_ = l_Lean_Lsp_Ipc_stdout(v_a_440_);
 if (lean_obj_tag(v___x_442_) == 0)
 {
@@ -2374,6 +2368,8 @@ goto v___jp_543_;
 v___jp_513_:
 {
 lean_object* v___x_518_; lean_object* v___x_519_; lean_object* v___x_520_; lean_object* v___x_521_; lean_object* v___x_522_; lean_object* v___x_523_; lean_object* v___x_524_; lean_object* v___x_525_; lean_object* v___x_526_; lean_object* v___x_527_; lean_object* v___x_528_; lean_object* v___x_529_; lean_object* v___x_530_; lean_object* v___x_531_; lean_object* v___x_532_; lean_object* v___x_533_; lean_object* v___x_534_; lean_object* v___x_535_; lean_object* v___x_536_; lean_object* v___x_537_; lean_object* v___x_538_; lean_object* v___x_540_; 
+lean_inc(v___y_517_);
+lean_inc_ref(v___y_514_);
 v___x_518_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_518_, 0, v___y_514_);
 lean_ctor_set(v___x_518_, 1, v___y_517_);
@@ -2394,6 +2390,7 @@ v___x_525_ = ((lean_object*)(l_Lean_Lsp_Ipc_readResponseAs___redArg___closed__9)
 v___x_526_ = l_Lean_Json_opt___redArg(v___x_511_, v___x_525_, v_data_x3f_509_);
 v___x_527_ = l_List_appendTR___redArg(v___x_524_, v___x_526_);
 v___x_528_ = l_Lean_Json_mkObj(v___x_527_);
+lean_inc_ref(v___y_515_);
 v___x_529_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_529_, 0, v___y_515_);
 lean_ctor_set(v___x_529_, 1, v___x_528_);
@@ -3379,7 +3376,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___at___00Lean_Lsp_Ipc_colle
 _start:
 {
 lean_object* v___x_775_; lean_object* v_a_776_; lean_object* v___x_777_; 
-lean_inc_ref(v_a_773_);
 v___x_775_ = l_Lean_Lsp_Ipc_stdin(v_a_773_);
 v_a_776_ = lean_ctor_get(v___x_775_, 0);
 lean_inc(v_a_776_);
@@ -3600,7 +3596,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___at___00Lean_Lsp_Ipc_waitF
 _start:
 {
 lean_object* v___x_843_; lean_object* v_a_844_; lean_object* v___x_845_; 
-lean_inc_ref(v_a_841_);
 v___x_843_ = l_Lean_Lsp_Ipc_stdin(v_a_841_);
 v_a_844_ = lean_ctor_get(v___x_843_, 0);
 lean_inc(v_a_844_);
@@ -6933,7 +6928,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___00__private_Lean_D
 _start:
 {
 lean_object* v___x_1738_; 
-lean_inc_ref(v_a_1736_);
 v___x_1738_ = l_Lean_Lsp_Ipc_stdout(v_a_1736_);
 if (lean_obj_tag(v___x_1738_) == 0)
 {
@@ -7301,6 +7295,8 @@ goto v___jp_1838_;
 v___jp_1808_:
 {
 lean_object* v___x_1813_; lean_object* v___x_1814_; lean_object* v___x_1815_; lean_object* v___x_1816_; lean_object* v___x_1817_; lean_object* v___x_1818_; lean_object* v___x_1819_; lean_object* v___x_1820_; lean_object* v___x_1821_; lean_object* v___x_1822_; lean_object* v___x_1823_; lean_object* v___x_1824_; lean_object* v___x_1825_; lean_object* v___x_1826_; lean_object* v___x_1827_; lean_object* v___x_1828_; lean_object* v___x_1829_; lean_object* v___x_1830_; lean_object* v___x_1831_; lean_object* v___x_1832_; lean_object* v___x_1833_; lean_object* v___x_1835_; 
+lean_inc(v___y_1812_);
+lean_inc_ref(v___y_1809_);
 v___x_1813_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1813_, 0, v___y_1809_);
 lean_ctor_set(v___x_1813_, 1, v___y_1812_);
@@ -7322,6 +7318,7 @@ v___x_1821_ = l_Lean_Json_opt___at___00Lean_Lsp_Ipc_readResponseAs___at___00__pr
 lean_dec(v_data_x3f_1805_);
 v___x_1822_ = l_List_appendTR___redArg(v___x_1819_, v___x_1821_);
 v___x_1823_ = l_Lean_Json_mkObj(v___x_1822_);
+lean_inc_ref(v___y_1811_);
 v___x_1824_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1824_, 0, v___y_1811_);
 lean_ctor_set(v___x_1824_, 1, v___x_1823_);
@@ -7756,7 +7753,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___at___00__private_Lean_Dat
 _start:
 {
 lean_object* v___x_1931_; lean_object* v_a_1932_; lean_object* v___x_1933_; 
-lean_inc_ref(v_a_1929_);
 v___x_1931_ = l_Lean_Lsp_Ipc_stdin(v_a_1929_);
 v_a_1932_ = lean_ctor_get(v___x_1931_, 0);
 lean_inc(v_a_1932_);
@@ -8559,7 +8555,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___00Lean_Lsp_Ipc_exp
 _start:
 {
 lean_object* v___x_2172_; 
-lean_inc_ref(v_a_2170_);
 v___x_2172_ = l_Lean_Lsp_Ipc_stdout(v_a_2170_);
 if (lean_obj_tag(v___x_2172_) == 0)
 {
@@ -8927,6 +8922,8 @@ goto v___jp_2272_;
 v___jp_2242_:
 {
 lean_object* v___x_2247_; lean_object* v___x_2248_; lean_object* v___x_2249_; lean_object* v___x_2250_; lean_object* v___x_2251_; lean_object* v___x_2252_; lean_object* v___x_2253_; lean_object* v___x_2254_; lean_object* v___x_2255_; lean_object* v___x_2256_; lean_object* v___x_2257_; lean_object* v___x_2258_; lean_object* v___x_2259_; lean_object* v___x_2260_; lean_object* v___x_2261_; lean_object* v___x_2262_; lean_object* v___x_2263_; lean_object* v___x_2264_; lean_object* v___x_2265_; lean_object* v___x_2266_; lean_object* v___x_2267_; lean_object* v___x_2269_; 
+lean_inc(v___y_2246_);
+lean_inc_ref(v___y_2244_);
 v___x_2247_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_2247_, 0, v___y_2244_);
 lean_ctor_set(v___x_2247_, 1, v___y_2246_);
@@ -8948,6 +8945,7 @@ v___x_2255_ = l_Lean_Json_opt___at___00Lean_Lsp_Ipc_readResponseAs___at___00__pr
 lean_dec(v_data_x3f_2239_);
 v___x_2256_ = l_List_appendTR___redArg(v___x_2253_, v___x_2255_);
 v___x_2257_ = l_Lean_Json_mkObj(v___x_2256_);
+lean_inc_ref(v___y_2245_);
 v___x_2258_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_2258_, 0, v___y_2245_);
 lean_ctor_set(v___x_2258_, 1, v___x_2257_);
@@ -9521,7 +9519,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___at___00Lean_Lsp_Ipc_expan
 _start:
 {
 lean_object* v___x_2410_; lean_object* v_a_2411_; lean_object* v___x_2412_; 
-lean_inc_ref(v_a_2408_);
 v___x_2410_ = l_Lean_Lsp_Ipc_stdin(v_a_2408_);
 v_a_2411_ = lean_ctor_get(v___x_2410_, 0);
 lean_inc(v_a_2411_);
@@ -10087,7 +10084,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___00__private_Lean_D
 _start:
 {
 lean_object* v___x_2564_; 
-lean_inc_ref(v_a_2562_);
 v___x_2564_ = l_Lean_Lsp_Ipc_stdout(v_a_2562_);
 if (lean_obj_tag(v___x_2564_) == 0)
 {
@@ -10455,6 +10451,8 @@ goto v___jp_2664_;
 v___jp_2634_:
 {
 lean_object* v___x_2639_; lean_object* v___x_2640_; lean_object* v___x_2641_; lean_object* v___x_2642_; lean_object* v___x_2643_; lean_object* v___x_2644_; lean_object* v___x_2645_; lean_object* v___x_2646_; lean_object* v___x_2647_; lean_object* v___x_2648_; lean_object* v___x_2649_; lean_object* v___x_2650_; lean_object* v___x_2651_; lean_object* v___x_2652_; lean_object* v___x_2653_; lean_object* v___x_2654_; lean_object* v___x_2655_; lean_object* v___x_2656_; lean_object* v___x_2657_; lean_object* v___x_2658_; lean_object* v___x_2659_; lean_object* v___x_2661_; 
+lean_inc(v___y_2638_);
+lean_inc_ref(v___y_2637_);
 v___x_2639_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_2639_, 0, v___y_2637_);
 lean_ctor_set(v___x_2639_, 1, v___y_2638_);
@@ -10476,6 +10474,7 @@ v___x_2647_ = l_Lean_Json_opt___at___00Lean_Lsp_Ipc_readResponseAs___at___00__pr
 lean_dec(v_data_x3f_2631_);
 v___x_2648_ = l_List_appendTR___redArg(v___x_2645_, v___x_2647_);
 v___x_2649_ = l_Lean_Json_mkObj(v___x_2648_);
+lean_inc_ref(v___y_2636_);
 v___x_2650_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_2650_, 0, v___y_2636_);
 lean_ctor_set(v___x_2650_, 1, v___x_2649_);
@@ -10910,7 +10909,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___at___00__private_Lean_Dat
 _start:
 {
 lean_object* v___x_2757_; lean_object* v_a_2758_; lean_object* v___x_2759_; 
-lean_inc_ref(v_a_2755_);
 v___x_2757_ = l_Lean_Lsp_Ipc_stdin(v_a_2755_);
 v_a_2758_ = lean_ctor_get(v___x_2757_, 0);
 lean_inc(v_a_2758_);
@@ -12582,7 +12580,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___00__private_Lean_D
 _start:
 {
 lean_object* v___x_3246_; 
-lean_inc_ref(v_a_3244_);
 v___x_3246_ = l_Lean_Lsp_Ipc_stdout(v_a_3244_);
 if (lean_obj_tag(v___x_3246_) == 0)
 {
@@ -12950,6 +12947,8 @@ goto v___jp_3346_;
 v___jp_3316_:
 {
 lean_object* v___x_3321_; lean_object* v___x_3322_; lean_object* v___x_3323_; lean_object* v___x_3324_; lean_object* v___x_3325_; lean_object* v___x_3326_; lean_object* v___x_3327_; lean_object* v___x_3328_; lean_object* v___x_3329_; lean_object* v___x_3330_; lean_object* v___x_3331_; lean_object* v___x_3332_; lean_object* v___x_3333_; lean_object* v___x_3334_; lean_object* v___x_3335_; lean_object* v___x_3336_; lean_object* v___x_3337_; lean_object* v___x_3338_; lean_object* v___x_3339_; lean_object* v___x_3340_; lean_object* v___x_3341_; lean_object* v___x_3343_; 
+lean_inc(v___y_3320_);
+lean_inc_ref(v___y_3319_);
 v___x_3321_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_3321_, 0, v___y_3319_);
 lean_ctor_set(v___x_3321_, 1, v___y_3320_);
@@ -12971,6 +12970,7 @@ v___x_3329_ = l_Lean_Json_opt___at___00Lean_Lsp_Ipc_readResponseAs___at___00__pr
 lean_dec(v_data_x3f_3313_);
 v___x_3330_ = l_List_appendTR___redArg(v___x_3327_, v___x_3329_);
 v___x_3331_ = l_Lean_Json_mkObj(v___x_3330_);
+lean_inc_ref(v___y_3317_);
 v___x_3332_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_3332_, 0, v___y_3317_);
 lean_ctor_set(v___x_3332_, 1, v___x_3331_);
@@ -13415,7 +13415,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___at___00__private_Lean_Dat
 _start:
 {
 lean_object* v___x_3441_; lean_object* v_a_3442_; lean_object* v___x_3443_; 
-lean_inc_ref(v_a_3439_);
 v___x_3441_ = l_Lean_Lsp_Ipc_stdin(v_a_3439_);
 v_a_3442_ = lean_ctor_get(v___x_3441_, 0);
 lean_inc(v_a_3442_);
@@ -14050,7 +14049,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___at___00Lean_Lsp_Ipc_expan
 _start:
 {
 lean_object* v___x_3618_; lean_object* v_a_3619_; lean_object* v___x_3620_; 
-lean_inc_ref(v_a_3616_);
 v___x_3618_ = l_Lean_Lsp_Ipc_stdin(v_a_3616_);
 v_a_3619_ = lean_ctor_get(v___x_3618_, 0);
 lean_inc(v_a_3619_);
@@ -14173,7 +14171,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_readResponseAs___at___00Lean_Lsp_Ipc_exp
 _start:
 {
 lean_object* v___x_3650_; 
-lean_inc_ref(v_a_3648_);
 v___x_3650_ = l_Lean_Lsp_Ipc_stdout(v_a_3648_);
 if (lean_obj_tag(v___x_3650_) == 0)
 {
@@ -14541,6 +14538,8 @@ goto v___jp_3750_;
 v___jp_3720_:
 {
 lean_object* v___x_3725_; lean_object* v___x_3726_; lean_object* v___x_3727_; lean_object* v___x_3728_; lean_object* v___x_3729_; lean_object* v___x_3730_; lean_object* v___x_3731_; lean_object* v___x_3732_; lean_object* v___x_3733_; lean_object* v___x_3734_; lean_object* v___x_3735_; lean_object* v___x_3736_; lean_object* v___x_3737_; lean_object* v___x_3738_; lean_object* v___x_3739_; lean_object* v___x_3740_; lean_object* v___x_3741_; lean_object* v___x_3742_; lean_object* v___x_3743_; lean_object* v___x_3744_; lean_object* v___x_3745_; lean_object* v___x_3747_; 
+lean_inc(v___y_3724_);
+lean_inc_ref(v___y_3721_);
 v___x_3725_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_3725_, 0, v___y_3721_);
 lean_ctor_set(v___x_3725_, 1, v___y_3724_);
@@ -14562,6 +14561,7 @@ v___x_3733_ = l_Lean_Json_opt___at___00Lean_Lsp_Ipc_readResponseAs___at___00__pr
 lean_dec(v_data_x3f_3717_);
 v___x_3734_ = l_List_appendTR___redArg(v___x_3731_, v___x_3733_);
 v___x_3735_ = l_Lean_Json_mkObj(v___x_3734_);
+lean_inc_ref(v___y_3723_);
 v___x_3736_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_3736_, 0, v___y_3723_);
 lean_ctor_set(v___x_3736_, 1, v___x_3735_);
@@ -15408,7 +15408,6 @@ LEAN_EXPORT lean_object* l_Lean_Lsp_Ipc_writeRequest___at___00__private_Lean_Dat
 _start:
 {
 lean_object* v___x_3939_; lean_object* v_a_3940_; lean_object* v___x_3941_; 
-lean_inc_ref(v_a_3937_);
 v___x_3939_ = l_Lean_Lsp_Ipc_stdin(v_a_3937_);
 v_a_3940_ = lean_ctor_get(v___x_3939_, 0);
 lean_inc(v_a_3940_);

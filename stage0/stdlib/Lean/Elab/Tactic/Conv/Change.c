@@ -157,9 +157,8 @@ if (lean_obj_tag(v___x_46_) == 0)
 {
 lean_object* v_a_47_; lean_object* v___x_48_; 
 v_a_47_ = lean_ctor_get(v___x_46_, 0);
-lean_inc(v_a_47_);
+lean_inc_n(v_a_47_, 2);
 lean_dec_ref(v___x_46_);
-lean_inc(v_a_47_);
 v___x_48_ = l_Lean_Meta_getMVars(v_a_47_, v___y_37_, v___y_38_, v___y_39_, v___y_40_);
 if (lean_obj_tag(v___x_48_) == 0)
 {
@@ -170,7 +169,7 @@ lean_dec(v___x_44_);
 v_a_50_ = lean_ctor_get(v___x_48_, 0);
 lean_inc(v_a_50_);
 lean_dec_ref(v___x_48_);
-v_mvarCounter_51_ = lean_ctor_get(v_mctx_49_, 2);
+v_mvarCounter_51_ = lean_ctor_get(v_mctx_49_, 3);
 lean_inc(v_mvarCounter_51_);
 lean_dec_ref(v_mctx_49_);
 v___x_52_ = l_Lean_Elab_Tactic_filterOldMVars___redArg(v_a_50_, v_mvarCounter_51_, v___y_38_);

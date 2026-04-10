@@ -1009,13 +1009,12 @@ goto v_resetjp_360_;
 v_resetjp_360_:
 {
 lean_object* v___x_363_; lean_object* v___x_364_; lean_object* v___x_365_; lean_object* v___x_367_; 
-lean_inc(v_a_353_);
+lean_inc_n(v_a_353_, 2);
 v___x_363_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_363_, 0, v_kind_338_);
 lean_ctor_set(v___x_363_, 1, v_a_353_);
 lean_ctor_set(v___x_363_, 2, v_a_355_);
 v___x_364_ = l_Lean_PersistentArray_push___redArg(v_cases_357_, v___x_363_);
-lean_inc(v_a_353_);
 v___x_365_ = l_Lean_FVarIdSet_insert(v_decVars_359_, v_a_353_);
 if (v_isShared_362_ == 0)
 {

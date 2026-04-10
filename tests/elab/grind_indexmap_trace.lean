@@ -209,8 +209,14 @@ example (m : IndexMap α β) (a a' : α) (b : β) :
       · instantiate only
         instantiate only [= HashMap.contains_insert]
     · cases #2eb4
-      · cases #cc2e <;> finish only [= HashMap.contains_insert]
-      · cases #54dd <;> finish only [= HashMap.contains_insert]
+      · cases #cc2e
+        · instantiate only
+        · instantiate only
+          instantiate only [= HashMap.contains_insert]
+      · cases #54dd
+        · instantiate only
+        · instantiate only
+          instantiate only [= HashMap.contains_insert]
 
 example (m : IndexMap α β) (a a' : α) (b : β) :
     a' ∈ m.insert a b ↔ a' = a ∨ a' ∈ m := by

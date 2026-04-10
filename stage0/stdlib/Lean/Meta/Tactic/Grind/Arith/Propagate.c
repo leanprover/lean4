@@ -475,7 +475,7 @@ if (lean_obj_tag(v___x_59_) == 0)
 {
 lean_object* v_a_60_; lean_object* v___x_61_; lean_object* v___x_62_; 
 v_a_60_ = lean_ctor_get(v___x_59_, 0);
-lean_inc(v_a_60_);
+lean_inc_n(v_a_60_, 2);
 lean_dec_ref(v___x_59_);
 v___x_61_ = lean_box(0);
 lean_inc(v_a_17_);
@@ -488,7 +488,6 @@ lean_inc(v_a_11_);
 lean_inc_ref(v_a_10_);
 lean_inc(v_a_9_);
 lean_inc(v_a_8_);
-lean_inc(v_a_60_);
 v___x_62_ = lean_grind_internalize(v_a_60_, v___x_47_, v___x_61_, v_a_8_, v_a_9_, v_a_10_, v_a_11_, v_a_12_, v_a_13_, v_a_14_, v_a_15_, v_a_16_, v_a_17_);
 if (lean_obj_tag(v___x_62_) == 0)
 {

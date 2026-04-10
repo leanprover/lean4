@@ -1568,13 +1568,11 @@ _start:
 {
 lean_object* v___f_384_; lean_object* v___f_385_; lean_object* v___f_386_; lean_object* v___f_387_; lean_object* v___f_388_; lean_object* v___f_389_; lean_object* v___x_390_; 
 v___f_384_ = ((lean_object*)(l_Std_Internal_IO_Async_Sleep_selector___closed__0));
-lean_inc(v_s_383_);
+lean_inc_n(v_s_383_, 3);
 v___f_385_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Sleep_selector___lam__1___boxed), 2, 1);
 lean_closure_set(v___f_385_, 0, v_s_383_);
-lean_inc(v_s_383_);
 v___f_386_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Sleep_selector___lam__5___boxed), 3, 1);
 lean_closure_set(v___f_386_, 0, v_s_383_);
-lean_inc(v_s_383_);
 v___f_387_ = lean_alloc_closure((void*)(l_Std_Internal_IO_Async_Sleep_selector___lam__6___boxed), 4, 2);
 lean_closure_set(v___f_387_, 0, v___f_384_);
 lean_closure_set(v___f_387_, 1, v_s_383_);

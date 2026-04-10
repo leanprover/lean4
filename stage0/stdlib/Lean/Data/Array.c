@@ -20,7 +20,7 @@ lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
+lean_object* lean_array_get(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_get_size(lean_object*);
@@ -158,8 +158,10 @@ lean_closure_set(v___f_38_, 0, v_toPure_26_);
 lean_closure_set(v___f_38_, 1, v_next_32_);
 lean_closure_set(v___f_38_, 2, v_G_35_);
 v___x_43_ = lean_box(v___x_29_);
-v___x_44_ = lean_array_get_borrowed(v___x_43_, v_fst_30_, v_next_32_);
+v___x_44_ = lean_array_get(v___x_43_, v_fst_30_, v_next_32_);
+lean_dec(v___x_43_);
 v___x_45_ = lean_unbox(v___x_44_);
+lean_dec(v___x_44_);
 if (v___x_45_ == 0)
 {
 lean_object* v___x_46_; lean_object* v___x_47_; lean_object* v___x_48_; lean_object* v___x_49_; 
@@ -532,8 +534,8 @@ v_resetjp_197_:
 {
 lean_object* v___f_200_; lean_object* v___y_202_; lean_object* v___x_205_; lean_object* v___f_206_; uint8_t v___y_208_; lean_object* v___x_218_; lean_object* v___x_219_; uint8_t v___x_220_; 
 lean_inc(v___x_182_);
-lean_inc(v_next_189_);
-lean_inc(v_toPure_181_);
+lean_inc_n(v_next_189_, 2);
+lean_inc_n(v_toPure_181_, 2);
 v___f_200_ = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__8___boxed), 5, 4);
 lean_closure_set(v___f_200_, 0, v_toPure_181_);
 lean_closure_set(v___f_200_, 1, v_next_189_);
@@ -543,8 +545,6 @@ v___x_205_ = lean_box(v___x_193_);
 lean_inc(v_next_185_);
 lean_inc(v_fst_195_);
 lean_inc(v_snd_196_);
-lean_inc(v_toPure_181_);
-lean_inc(v_next_189_);
 v___f_206_ = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__9___boxed), 8, 7);
 lean_closure_set(v___f_206_, 0, v___x_182_);
 lean_closure_set(v___f_206_, 1, v_next_189_);
@@ -554,14 +554,18 @@ lean_closure_set(v___f_206_, 4, v_snd_196_);
 lean_closure_set(v___f_206_, 5, v_fst_195_);
 lean_closure_set(v___f_206_, 6, v_next_185_);
 v___x_218_ = lean_box(v___x_188_);
-v___x_219_ = lean_array_get_borrowed(v___x_218_, v_fst_195_, v_next_185_);
+v___x_219_ = lean_array_get(v___x_218_, v_fst_195_, v_next_185_);
+lean_dec(v___x_218_);
 v___x_220_ = lean_unbox(v___x_219_);
 if (v___x_220_ == 0)
 {
 lean_object* v___x_221_; lean_object* v___x_222_; uint8_t v___x_223_; 
+lean_dec(v___x_219_);
 v___x_221_ = lean_box(v___x_188_);
-v___x_222_ = lean_array_get_borrowed(v___x_221_, v_fst_195_, v_next_189_);
+v___x_222_ = lean_array_get(v___x_221_, v_fst_195_, v_next_189_);
+lean_dec(v___x_221_);
 v___x_223_ = lean_unbox(v___x_222_);
+lean_dec(v___x_222_);
 v___y_208_ = v___x_223_;
 goto v___jp_207_;
 }
@@ -569,6 +573,7 @@ else
 {
 uint8_t v___x_224_; 
 v___x_224_ = lean_unbox(v___x_219_);
+lean_dec(v___x_219_);
 v___y_208_ = v___x_224_;
 goto v___jp_207_;
 }
@@ -692,7 +697,7 @@ goto v_resetjp_258_;
 v_resetjp_258_:
 {
 lean_object* v___f_261_; lean_object* v___x_262_; lean_object* v___x_263_; lean_object* v___f_264_; lean_object* v___x_265_; lean_object* v___x_267_; 
-lean_inc(v_next_250_);
+lean_inc_n(v_next_250_, 2);
 lean_inc(v_toPure_242_);
 v___f_261_ = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__7___boxed), 4, 3);
 lean_closure_set(v___f_261_, 0, v_toPure_242_);
@@ -700,7 +705,6 @@ lean_closure_set(v___f_261_, 1, v_next_250_);
 lean_closure_set(v___f_261_, 2, v_G_253_);
 v___x_262_ = lean_unsigned_to_nat(1u);
 v___x_263_ = lean_box(v___x_247_);
-lean_inc(v_next_250_);
 lean_inc(v_toBind_243_);
 v___f_264_ = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__10___boxed), 13, 9);
 lean_closure_set(v___f_264_, 0, v___x_241_);
@@ -732,9 +736,8 @@ v_reusejp_266_:
 {
 lean_object* v___x_268_; lean_object* v___x_269_; lean_object* v___x_270_; lean_object* v___x_271_; 
 v___x_268_ = l_WellFounded_opaqueFix_u2083___redArg(v___f_264_, v___x_265_, v___x_267_, lean_box(0));
-lean_inc(v_toBind_243_);
+lean_inc_n(v_toBind_243_, 2);
 v___x_269_ = lean_apply_4(v_toBind_243_, lean_box(0), lean_box(0), v___x_268_, v___f_248_);
-lean_inc(v_toBind_243_);
 v___x_270_ = lean_apply_4(v_toBind_243_, lean_box(0), lean_box(0), v___x_269_, v___f_249_);
 v___x_271_ = lean_apply_4(v_toBind_243_, lean_box(0), lean_box(0), v___x_270_, v___f_261_);
 return v___x_271_;
@@ -778,25 +781,21 @@ v_resetjp_294_:
 {
 lean_object* v_toPure_297_; uint8_t v___x_298_; lean_object* v___x_299_; lean_object* v___x_300_; lean_object* v_removed_301_; lean_object* v___f_302_; lean_object* v___f_303_; lean_object* v___f_304_; lean_object* v___x_305_; lean_object* v___f_306_; lean_object* v___f_307_; lean_object* v___x_308_; lean_object* v___f_309_; lean_object* v___x_310_; lean_object* v___x_312_; 
 v_toPure_297_ = lean_ctor_get(v_toApplicative_292_, 1);
-lean_inc(v_toPure_297_);
+lean_inc_n(v_toPure_297_, 6);
 lean_dec_ref(v_toApplicative_292_);
 v___x_298_ = 0;
 v___x_299_ = lean_array_get_size(v_a_290_);
 v___x_300_ = lean_box(v___x_298_);
 v_removed_301_ = lean_mk_array(v___x_299_, v___x_300_);
-lean_inc(v_toPure_297_);
 v___f_302_ = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__0), 2, 1);
 lean_closure_set(v___f_302_, 0, v_toPure_297_);
-lean_inc(v_toPure_297_);
 v___f_303_ = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__2), 2, 1);
 lean_closure_set(v___f_303_, 0, v_toPure_297_);
-lean_inc(v_toPure_297_);
 v___f_304_ = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__1), 2, 1);
 lean_closure_set(v___f_304_, 0, v_toPure_297_);
 v___x_305_ = lean_box(v___x_298_);
 lean_inc_ref(v_a_290_);
-lean_inc(v_toBind_293_);
-lean_inc(v_toPure_297_);
+lean_inc_n(v_toBind_293_, 2);
 v___f_306_ = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__5___boxed), 8, 7);
 lean_closure_set(v___f_306_, 0, v___x_299_);
 lean_closure_set(v___f_306_, 1, v_toPure_297_);
@@ -805,12 +804,10 @@ lean_closure_set(v___f_306_, 3, v___f_303_);
 lean_closure_set(v___f_306_, 4, v___x_305_);
 lean_closure_set(v___f_306_, 5, v_a_290_);
 lean_closure_set(v___f_306_, 6, v___f_304_);
-lean_inc(v_toPure_297_);
 v___f_307_ = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__6), 2, 1);
 lean_closure_set(v___f_307_, 0, v_toPure_297_);
 v___x_308_ = lean_box(v___x_298_);
 lean_inc_ref(v___f_302_);
-lean_inc(v_toBind_293_);
 v___f_309_ = lean_alloc_closure((void*)(l_Array_filterPairsM___redArg___lam__11___boxed), 13, 9);
 lean_closure_set(v___f_309_, 0, v___x_299_);
 lean_closure_set(v___f_309_, 1, v_toPure_297_);

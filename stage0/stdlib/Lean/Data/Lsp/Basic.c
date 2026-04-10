@@ -16829,6 +16829,7 @@ goto v___jp_4316_;
 v___jp_4316_:
 {
 lean_object* v___x_4318_; lean_object* v___x_4319_; lean_object* v___x_4320_; lean_object* v___x_4321_; lean_object* v___x_4322_; lean_object* v___x_4323_; lean_object* v___x_4324_; lean_object* v___x_4325_; lean_object* v___x_4326_; lean_object* v___x_4327_; lean_object* v___x_4328_; lean_object* v___x_4329_; 
+lean_inc(v___y_4317_);
 v___x_4318_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_4318_, 0, v___x_4315_);
 lean_ctor_set(v___x_4318_, 1, v___y_4317_);

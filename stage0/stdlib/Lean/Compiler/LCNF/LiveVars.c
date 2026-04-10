@@ -61,7 +61,7 @@ lean_object* l_StateT_pure(lean_object*, lean_object*, lean_object*, lean_object
 lean_object* l_StateT_bind(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 extern lean_object* l_Lean_instEmptyCollectionFVarIdHashSet;
 lean_object* l_Lean_instSingletonFVarIdFVarIdSet___lam__0(lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Compiler_LCNF_LiveVars_0__Lean_Compiler_LCNF_Code_isFVarLiveIn_visitVar___redArg(lean_object*, lean_object*, lean_object*);
@@ -461,19 +461,15 @@ goto v_reusejp_135_;
 v_reusejp_135_:
 {
 lean_object* v___f_137_; lean_object* v___f_138_; lean_object* v___f_139_; lean_object* v___f_140_; lean_object* v___x_141_; lean_object* v___x_142_; lean_object* v___x_143_; lean_object* v___x_144_; lean_object* v___x_145_; lean_object* v___x_146_; uint8_t v___x_147_; lean_object* v___x_148_; lean_object* v___x_149_; lean_object* v___f_150_; lean_object* v___x_17243__overap_151_; lean_object* v___x_152_; 
-lean_inc_ref(v___x_136_);
+lean_inc_ref_n(v___x_136_, 6);
 v___f_137_ = lean_alloc_closure((void*)(l_StateT_instMonad___redArg___lam__1), 6, 1);
 lean_closure_set(v___f_137_, 0, v___x_136_);
-lean_inc_ref(v___x_136_);
 v___f_138_ = lean_alloc_closure((void*)(l_StateT_instMonad___redArg___lam__4), 6, 1);
 lean_closure_set(v___f_138_, 0, v___x_136_);
-lean_inc_ref(v___x_136_);
 v___f_139_ = lean_alloc_closure((void*)(l_StateT_instMonad___redArg___lam__7), 6, 1);
 lean_closure_set(v___f_139_, 0, v___x_136_);
-lean_inc_ref(v___x_136_);
 v___f_140_ = lean_alloc_closure((void*)(l_StateT_instMonad___redArg___lam__9), 6, 1);
 lean_closure_set(v___f_140_, 0, v___x_136_);
-lean_inc_ref(v___x_136_);
 v___x_141_ = lean_alloc_closure((void*)(l_StateT_map), 8, 3);
 lean_closure_set(v___x_141_, 0, lean_box(0));
 lean_closure_set(v___x_141_, 1, lean_box(0));
@@ -481,7 +477,6 @@ lean_closure_set(v___x_141_, 2, v___x_136_);
 v___x_142_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_142_, 0, v___x_141_);
 lean_ctor_set(v___x_142_, 1, v___f_137_);
-lean_inc_ref(v___x_136_);
 v___x_143_ = lean_alloc_closure((void*)(l_StateT_pure), 6, 3);
 lean_closure_set(v___x_143_, 0, lean_box(0));
 lean_closure_set(v___x_143_, 1, lean_box(0));
@@ -504,7 +499,8 @@ v___x_148_ = lean_box(v___x_147_);
 v___x_149_ = l_instInhabitedOfMonad___redArg(v___x_146_, v___x_148_);
 v___f_150_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_150_, 0, v___x_149_);
-v___x_17243__overap_151_ = lean_panic_fn(v___f_150_, v_msg_80_);
+v___x_17243__overap_151_ = lean_panic_fn_borrowed(v___f_150_, v_msg_80_);
+lean_dec_ref(v___f_150_);
 lean_inc(v___y_86_);
 lean_inc_ref(v___y_85_);
 lean_inc(v___y_84_);
@@ -1966,9 +1962,8 @@ _start:
 {
 lean_object* v___x_628_; lean_object* v___x_629_; lean_object* v___x_630_; lean_object* v___x_631_; 
 v___x_628_ = l_Lean_instEmptyCollectionFVarIdHashSet;
-lean_inc(v_fvarId_622_);
+lean_inc_n(v_fvarId_622_, 2);
 v___x_629_ = l_Lean_instSingletonFVarIdFVarIdSet___lam__0(v_fvarId_622_);
-lean_inc(v_fvarId_622_);
 v___x_630_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_630_, 0, v___x_629_);
 lean_ctor_set(v___x_630_, 1, v_fvarId_622_);

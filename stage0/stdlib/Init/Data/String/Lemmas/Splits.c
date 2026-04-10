@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas.Splits
-// Imports: public import Init.Data.String.Basic public import Init.Data.String.FindPos import Init.Data.ByteArray.Lemmas import Init.Data.String.Lemmas.Basic import Init.Data.Nat.MinMax import Init.Data.String.Lemmas.IsEmpty import Init.Data.String.Lemmas.Order import Init.Data.String.OrderInstances import Init.Data.Nat.Order import Init.Omega import Init.Data.String.Lemmas.FindPos
+// Imports: public import Init.Data.String.Basic public import Init.Data.String.FindPos import Init.Data.ByteArray.Lemmas import Init.Data.String.Lemmas.Basic import Init.Data.Nat.MinMax import Init.Data.String.Lemmas.IsEmpty import Init.Data.String.Lemmas.Order import Init.Data.String.OrderInstances import Init.Data.Nat.Order import Init.Omega import Init.Data.String.Lemmas.FindPos import Init.Data.List.TakeDrop import Init.Data.List.Nat.TakeDrop
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -31,6 +31,14 @@ LEAN_EXPORT lean_object* l_String_Pos_Splits_rotateLeft___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_Splits_rotateLeft___redArg___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_Splits_rotateLeft(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Pos_Splits_rotateLeft___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pos_ofEqAppend___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pos_ofEqAppend___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pos_ofEqAppend(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Slice_Pos_ofEqAppend___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_ofEqAppend___redArg(lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_ofEqAppend___redArg___boxed(lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_ofEqAppend(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_String_Pos_ofEqAppend___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_Slice_Pos_Splits_rotateRight___redArg(lean_object* v_p_1_, lean_object* v_t_u2082_2_){
 _start:
 {
@@ -189,6 +197,78 @@ lean_dec_ref(v_s_74_);
 return v_res_80_;
 }
 }
+LEAN_EXPORT lean_object* l_String_Slice_Pos_ofEqAppend___redArg(lean_object* v_t_u2081_81_){
+_start:
+{
+lean_object* v___x_82_; 
+v___x_82_ = lean_string_utf8_byte_size(v_t_u2081_81_);
+return v___x_82_;
+}
+}
+LEAN_EXPORT lean_object* l_String_Slice_Pos_ofEqAppend___redArg___boxed(lean_object* v_t_u2081_83_){
+_start:
+{
+lean_object* v_res_84_; 
+v_res_84_ = l_String_Slice_Pos_ofEqAppend___redArg(v_t_u2081_83_);
+lean_dec_ref(v_t_u2081_83_);
+return v_res_84_;
+}
+}
+LEAN_EXPORT lean_object* l_String_Slice_Pos_ofEqAppend(lean_object* v_s_85_, lean_object* v_t_u2081_86_, lean_object* v_t_u2082_87_, lean_object* v_h_88_){
+_start:
+{
+lean_object* v___x_89_; 
+v___x_89_ = lean_string_utf8_byte_size(v_t_u2081_86_);
+return v___x_89_;
+}
+}
+LEAN_EXPORT lean_object* l_String_Slice_Pos_ofEqAppend___boxed(lean_object* v_s_90_, lean_object* v_t_u2081_91_, lean_object* v_t_u2082_92_, lean_object* v_h_93_){
+_start:
+{
+lean_object* v_res_94_; 
+v_res_94_ = l_String_Slice_Pos_ofEqAppend(v_s_90_, v_t_u2081_91_, v_t_u2082_92_, v_h_93_);
+lean_dec_ref(v_t_u2082_92_);
+lean_dec_ref(v_t_u2081_91_);
+lean_dec_ref(v_s_90_);
+return v_res_94_;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_ofEqAppend___redArg(lean_object* v_t_u2081_95_){
+_start:
+{
+lean_object* v___x_96_; 
+v___x_96_ = lean_string_utf8_byte_size(v_t_u2081_95_);
+return v___x_96_;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_ofEqAppend___redArg___boxed(lean_object* v_t_u2081_97_){
+_start:
+{
+lean_object* v_res_98_; 
+v_res_98_ = l_String_Pos_ofEqAppend___redArg(v_t_u2081_97_);
+lean_dec_ref(v_t_u2081_97_);
+return v_res_98_;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_ofEqAppend(lean_object* v_s_99_, lean_object* v_t_u2081_100_, lean_object* v_t_u2082_101_, lean_object* v_h_102_){
+_start:
+{
+lean_object* v___x_103_; 
+v___x_103_ = lean_string_utf8_byte_size(v_t_u2081_100_);
+return v___x_103_;
+}
+}
+LEAN_EXPORT lean_object* l_String_Pos_ofEqAppend___boxed(lean_object* v_s_104_, lean_object* v_t_u2081_105_, lean_object* v_t_u2082_106_, lean_object* v_h_107_){
+_start:
+{
+lean_object* v_res_108_; 
+v_res_108_ = l_String_Pos_ofEqAppend(v_s_104_, v_t_u2081_105_, v_t_u2082_106_, v_h_107_);
+lean_dec_ref(v_t_u2082_106_);
+lean_dec_ref(v_t_u2081_105_);
+lean_dec_ref(v_s_104_);
+return v_res_108_;
+}
+}
 lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_FindPos(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_ByteArray_Lemmas(uint8_t builtin);
@@ -200,6 +280,8 @@ lean_object* runtime_initialize_Init_Data_String_OrderInstances(uint8_t builtin)
 lean_object* runtime_initialize_Init_Data_Nat_Order(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_TakeDrop(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin) {
 lean_object * res;
@@ -238,6 +320,12 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Lemmas_FindPos(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Nat_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -258,6 +346,8 @@ lean_object* initialize_Init_Data_String_OrderInstances(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Order(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
+lean_object* initialize_Init_Data_List_TakeDrop(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas_Splits(uint8_t builtin) {
 lean_object * res;
@@ -294,6 +384,12 @@ res = initialize_Init_Omega(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Lemmas_FindPos(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_TakeDrop(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_TakeDrop(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Lemmas_Splits(builtin);

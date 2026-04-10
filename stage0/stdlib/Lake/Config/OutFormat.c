@@ -1205,6 +1205,7 @@ v___x_403_ = lean_array_get_size(v_imports_398_);
 v___x_404_ = lean_nat_dec_lt(v___x_402_, v___x_403_);
 if (v___x_404_ == 0)
 {
+lean_inc_ref(v___y_401_);
 return v___y_401_;
 }
 else
@@ -1215,6 +1216,7 @@ if (v___x_405_ == 0)
 {
 if (v___x_404_ == 0)
 {
+lean_inc_ref(v___y_401_);
 return v___y_401_;
 }
 else
@@ -1222,6 +1224,7 @@ else
 size_t v___x_406_; size_t v___x_407_; lean_object* v___x_408_; 
 v___x_406_ = ((size_t)0ULL);
 v___x_407_ = lean_usize_of_nat(v___x_403_);
+lean_inc_ref(v___y_401_);
 v___x_408_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_ppModuleHeader_spec__0(v_isModule_399_, v_imports_398_, v___x_406_, v___x_407_, v___y_401_);
 return v___x_408_;
 }
@@ -1231,6 +1234,7 @@ else
 size_t v___x_409_; size_t v___x_410_; lean_object* v___x_411_; 
 v___x_409_ = ((size_t)0ULL);
 v___x_410_ = lean_usize_of_nat(v___x_403_);
+lean_inc_ref(v___y_401_);
 v___x_411_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_ppModuleHeader_spec__0(v_isModule_399_, v_imports_398_, v___x_409_, v___x_410_, v___y_401_);
 return v___x_411_;
 }

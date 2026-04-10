@@ -486,7 +486,7 @@ example (cache : Std.HashMap (Nat × Nat) Bool) : Bool := Id.run do
 
 -- Extracted from MathlibTest.random.lean. The problem here is that the `match` elaborator used to
 -- destructure the `(x, y)` pattern into `x` and `y` caused defaulting of `count` to `Nat`.
--- Nowadays, the `match` elaborator does not trigger global defaulting (in constrast to the term
+-- Nowadays, the `match` elaborator does not trigger global defaulting (in contrast to the term
 -- `match` elaborator), fixing this test case.
 example : IO Bool := do
   let mut count := 0

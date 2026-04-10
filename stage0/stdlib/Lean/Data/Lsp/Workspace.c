@@ -2672,6 +2672,7 @@ goto v___jp_689_;
 v___jp_689_:
 {
 lean_object* v___x_691_; lean_object* v___x_692_; lean_object* v___x_693_; lean_object* v___x_694_; lean_object* v___x_695_; lean_object* v___x_696_; lean_object* v___x_697_; 
+lean_inc(v___y_690_);
 v___x_691_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_691_, 0, v___x_688_);
 lean_ctor_set(v___x_691_, 1, v___y_690_);

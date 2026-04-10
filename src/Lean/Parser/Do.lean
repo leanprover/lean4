@@ -67,9 +67,9 @@ def notFollowedByRedefinedTermToken :=
     "token at 'do' element"
 
 @[builtin_doElem_parser] def doLet      := leading_parser
-  "let " >> optional "mut " >> letDecl
+  "let " >> optional "mut " >> letConfig >> letDecl
 @[builtin_doElem_parser] def doLetElse  := leading_parser withPosition <|
-  "let " >> optional "mut " >> termParser >> " := " >> termParser >>
+  "let " >> optional "mut " >> letConfig >> termParser >> " := " >> termParser >>
   (checkColGe >> " | " >> doSeqIndent) >> optional (checkColGe >> doSeqIndent)
 
 @[builtin_doElem_parser] def doLetExpr  := leading_parser withPosition <|
@@ -89,7 +89,7 @@ def doPatDecl  := leading_parser
   atomic (termParser >> optType >> ppSpace >> leftArrow) >>
   doElemParser >> optional ((checkColGe >> " | " >> doSeqIndent) >> optional (checkColGe >> doSeqIndent))
 @[builtin_doElem_parser] def doLetArrow      := leading_parser withPosition <|
-  "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
+  "let " >> optional "mut " >> letConfig >> (doIdDecl <|> doPatDecl)
 
 /-
 We use `letIdDeclNoBinders` to define `doReassign`.
@@ -114,7 +114,7 @@ def letIdDeclNoBinders := leading_parser
 @[builtin_doElem_parser] def doReassignArrow := leading_parser
   notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
 @[builtin_doElem_parser] def doHave     := leading_parser
-  "have" >> Term.letDecl
+  "have" >> Term.letConfig >> Term.letDecl
 /-
 In `do` blocks, we support `if` without an `else`.
 Thus, we use indentation to prevent examples such as

@@ -9,6 +9,7 @@ public import Lean.Meta.Tactic.Grind.SynthInstance
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym.Arith
 
 def checkMaxSteps : GoalM Bool := do
   return (← get').steps >= (← getConfig).ringSteps

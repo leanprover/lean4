@@ -12,7 +12,7 @@ import Init.Data.SInt.Lemmas
 import Init.Data.UInt.Lemmas
 import Init.Data.UInt.Bitwise
 import Init.Data.Array.Lemmas
-public import Init.Data.String
+public import Init.Data.String.Basic
 public import Std.Internal.Http.Internal.Char
 
 public section

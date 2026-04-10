@@ -14,13 +14,6 @@ repositories:
     bump-branch: true
     dependencies: []
 
-  - name: lean4checker
-    url: https://github.com/leanprover/lean4checker
-    toolchain-tag: true
-    stable-branch: true
-    branch: master
-    dependencies: []
-
   - name: quote4
     url: https://github.com/leanprover-community/quote4
     toolchain-tag: true
@@ -34,6 +27,14 @@ repositories:
     stable-branch: false
     branch: main
     dependencies: []
+
+  - name: leansqlite
+    url: https://github.com/leanprover/leansqlite
+    toolchain-tag: true
+    stable-branch: false
+    branch: main
+    dependencies:
+      - plausible
 
   - name: verso
     url: https://github.com/leanprover/verso
@@ -107,7 +108,7 @@ repositories:
     toolchain-tag: true
     stable-branch: false
     branch: main
-    dependencies: [lean4-cli, BibtexQuery, mathlib4]
+    dependencies: [lean4-cli, BibtexQuery, mathlib4, leansqlite]
 
   - name: cslib
     url: https://github.com/leanprover/cslib

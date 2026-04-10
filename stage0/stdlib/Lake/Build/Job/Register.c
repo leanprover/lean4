@@ -38,7 +38,7 @@ lean_object* l_String_Slice_toString(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 uint8_t lean_string_validate_utf8(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_string_from_utf8_unchecked(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
@@ -769,7 +769,7 @@ _start:
 {
 lean_object* v___x_205_; lean_object* v___x_206_; 
 v___x_205_ = ((lean_object*)(l_panic___at___00Lake_ensureJob_spec__0___closed__0));
-v___x_206_ = lean_panic_fn(v___x_205_, v_msg_204_);
+v___x_206_ = lean_panic_fn_borrowed(v___x_205_, v_msg_204_);
 return v___x_206_;
 }
 }
@@ -887,11 +887,10 @@ if (lean_obj_tag(v___x_276_) == 0)
 {
 lean_object* v_a_323_; lean_object* v_a_324_; lean_object* v___x_325_; lean_object* v___x_326_; lean_object* v_a_327_; lean_object* v___x_328_; lean_object* v_data_329_; lean_object* v___y_331_; uint8_t v___x_346_; 
 v_a_323_ = lean_ctor_get(v___x_276_, 0);
-lean_inc(v_a_323_);
+lean_inc_n(v_a_323_, 2);
 v_a_324_ = lean_ctor_get(v___x_276_, 1);
 lean_inc(v_a_324_);
 lean_dec_ref(v___x_276_);
-lean_inc(v_a_323_);
 v___x_325_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_325_, 0, v_a_323_);
 v___x_326_ = l_Lake_ensureJob___redArg___lam__0(v___x_274_, v___x_275_, v___x_325_, v_a_324_);

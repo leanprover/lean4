@@ -2267,7 +2267,6 @@ else
 {
 lean_object* v_a_813_; lean_object* v___x_814_; 
 v_a_813_ = lean_array_uget_borrowed(v_as_792_, v_i_794_);
-lean_inc_ref(v___y_800_);
 lean_inc(v_a_813_);
 v___x_814_ = l_Lean_FVarId_getDecl___redArg(v_a_813_, v___y_800_, v___y_802_, v___y_803_);
 if (lean_obj_tag(v___x_814_) == 0)

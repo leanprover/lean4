@@ -523,7 +523,6 @@ lean_inc_ref(v_env_222_);
 v___x_402_ = l_Lean_Environment_find_x3f(v_env_222_, v_declName_400_, v___x_401_);
 if (lean_obj_tag(v___x_402_) == 0)
 {
-lean_dec_ref(v_a_205_);
 v_a_384_ = v_detail_x3f_224_;
 goto v___jp_383_;
 }
@@ -549,7 +548,6 @@ lean_inc_ref(v_lctx_406_);
 v___x_407_ = lean_local_ctx_find(v_lctx_406_, v_id_405_);
 if (lean_obj_tag(v___x_407_) == 0)
 {
-lean_dec_ref(v_a_205_);
 v_a_384_ = v_detail_x3f_224_;
 goto v___jp_383_;
 }
@@ -569,7 +567,6 @@ v___jp_387_:
 {
 lean_object* v___x_389_; 
 v___x_389_ = l___private_Lean_Server_Completion_CompletionResolution_0__Lean_Lsp_consumeImplicitPrefix___redArg(v_val_388_, v___f_386_, v_a_205_, v_a_206_, v_a_207_, v_a_208_);
-lean_dec_ref(v_a_205_);
 if (lean_obj_tag(v___x_389_) == 0)
 {
 lean_object* v_a_390_; lean_object* v___x_391_; 
@@ -635,7 +632,6 @@ return v___x_397_;
 }
 else
 {
-lean_dec_ref(v_a_205_);
 v_item_322_ = v_item_203_;
 v_label_323_ = v_label_223_;
 v_detail_x3f_324_ = v_detail_x3f_224_;
@@ -1284,6 +1280,7 @@ v_res_417_ = l_Lean_Lsp_CompletionItem_resolve(v_item_410_, v_id_411_, v_a_412_,
 lean_dec(v_a_415_);
 lean_dec_ref(v_a_414_);
 lean_dec(v_a_413_);
+lean_dec_ref(v_a_412_);
 return v_res_417_;
 }
 }

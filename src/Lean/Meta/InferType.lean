@@ -180,12 +180,14 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
   if !(← read).cacheInferType || e.hasMVar then
+    Core.checkInterrupted
     inferType
   else
     let key ← mkExprConfigCacheKey e
     match (← get).cache.inferType.find? key with
     | some type => return type
     | none =>
+      Core.checkInterrupted
       let type ← inferType
       unless type.hasMVar do
         modifyInferTypeCache fun c => c.insert key type

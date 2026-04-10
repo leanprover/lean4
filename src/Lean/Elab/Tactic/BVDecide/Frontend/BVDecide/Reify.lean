@@ -33,6 +33,7 @@ where
   Reify `x`, returns `none` if the reification procedure failed.
   -/
   go (origExpr : Expr) : LemmaM (Option ReifiedBVExpr) := do
+    checkSystem "bv_decide"
     match_expr origExpr with
     | BitVec.ofNat _ _ => goBvLit origExpr
     | HAnd.hAnd _ _ _ _ lhsExpr rhsExpr =>
@@ -340,6 +341,7 @@ where
   Reify `t`, returns `none` if the reification procedure failed.
   -/
   go (origExpr : Expr) : LemmaM (Option ReifiedBVLogical) := do
+    checkSystem "bv_decide"
     match_expr origExpr with
     | Bool.true => ReifiedBVLogical.mkBoolConst true
     | Bool.false => ReifiedBVLogical.mkBoolConst false

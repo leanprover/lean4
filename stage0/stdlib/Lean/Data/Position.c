@@ -1507,7 +1507,6 @@ lean_object* v___x_482_; lean_object* v___x_483_;
 v___x_482_ = lean_nat_sub(v___x_478_, v___x_476_);
 v___x_483_ = lean_array_get_borrowed(v___x_480_, v_positions_468_, v___x_482_);
 lean_dec(v___x_482_);
-lean_inc(v___x_483_);
 v___y_470_ = v___x_483_;
 goto v___jp_469_;
 }
@@ -1522,7 +1521,6 @@ else
 lean_object* v___x_484_; 
 v___x_484_ = lean_array_fget_borrowed(v_positions_468_, v___x_477_);
 lean_dec(v___x_477_);
-lean_inc(v___x_484_);
 v___y_470_ = v___x_484_;
 goto v___jp_469_;
 }
@@ -1537,7 +1535,6 @@ lean_ctor_set(v___x_473_, 0, v_source_467_);
 lean_ctor_set(v___x_473_, 1, v___x_472_);
 lean_ctor_set(v___x_473_, 2, v___x_471_);
 v___x_474_ = l_String_Slice_pos_x21(v___x_473_, v___y_470_);
-lean_dec(v___y_470_);
 v___x_475_ = l_String_Slice_Pos_nextn(v___x_473_, v___x_474_, v_column_466_);
 lean_dec_ref(v___x_473_);
 return v___x_475_;

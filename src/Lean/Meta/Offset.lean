@@ -105,7 +105,7 @@ private def isNatZero (e : Expr) : MetaM Bool := do
   | some v => return v == 0
   | _      => return false
 
-private def mkOffset (e : Expr) (offset : Nat) : MetaM Expr := do
+def mkOffset (e : Expr) (offset : Nat) : MetaM Expr := do
   if offset == 0 then
     return e
   else if (← isNatZero e) then

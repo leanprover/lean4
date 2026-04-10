@@ -150,25 +150,27 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
 
   -- Try to reduce it to a constructor.
   (← whnf inst).withApp fun f args => do
-    let some (.ctorInfo ci) ← f.constName?.mapM getConstInfo
-      | do
-        trace[Meta.wrapInstance] "did not reduce to constructor application, returning/wrapping as is: {inst}"
-        if backward.inferInstanceAs.wrap.instances.get (← getOptions) then
-          let instType ← inferType inst
-          if ← isDefEq expectedType instType then
-            return inst
-          else
-            let name ← mkAuxDeclName
-            let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
-            setReducibilityStatus name .implicitReducible
-            if isMeta then modifyEnv (markMeta · name)
-            if compile then
-              compileDecls (logErrors := logCompileErrors) #[name]
-            enableRealizationsForConst name
-            return wrapped
-        else
+    let wrapInst := do
+      trace[Meta.wrapInstance] "did not reduce to constructor application, returning/wrapping as is: {inst}"
+      if backward.inferInstanceAs.wrap.instances.get (← getOptions) then
+        let instType ← inferType inst
+        if ← isDefEq expectedType instType then
           return inst
-    let (mvars, _, cls) ← forallMetaTelescope (← inferType f)
+        else
+          let name ← mkAuxDeclName
+          let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
+          setReducibilityStatus name .implicitReducible
+          if isMeta then modifyEnv (markMeta · name)
+          if compile then
+            compileDecls (logErrors := logCompileErrors) #[name]
+          enableRealizationsForConst name
+          return wrapped
+      else
+        return inst
+    let .const ctorName _ := f | wrapInst
+    let .ctorInfo ci ← getConstInfo ctorName | wrapInst
+    let ctor ← mkConstWithFreshMVarLevels ctorName
+    let (mvars, _, cls) ← forallMetaTelescope (← inferType ctor)
     if h₁ : args.size ≠ mvars.size then
       throwError "wrapInstance: incorrect number of arguments for \
         constructor application `{f}`: {args}"
@@ -240,4 +242,4 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
             enableRealizationsForConst name
         else
           mvarId.assign arg
-      return mkAppN f (← mvars.mapM instantiateMVars)
+      instantiateMVars (mkAppN ctor mvars)

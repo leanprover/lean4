@@ -10,6 +10,7 @@ public import Lean.Meta.Match.MatchEqsExt
 public import Lean.Meta.Tactic.UnifyEq
 public import Lean.Meta.Tactic.Simp.Arith
 public import Lean.Meta.Tactic.Simp.Attr
+public import Lean.Meta.Tactic.Simp.ExpectTrue
 public import Lean.Meta.BinderNameHint
 import Lean.Meta.WHNF
 public import Lean.Meta.HasAssignableMVar
@@ -40,18 +41,19 @@ def discharge?' (thmId : Origin) (x : Expr) (type : Expr) : SimpM Bool := do
     if ctx.dischargeDepth >= ctx.maxDischargeDepth then
       return .maxDepth
     else withIncDischargeDepth do
-      -- We save the state, so that `UsedTheorems` does not accumulate
-      -- `simp` lemmas used during unsuccessful discharging.
+      -- We save the state, so that `UsedTheorems` and `pendingGoals` do not accumulate
+      -- `simp` lemmas or goals from unsuccessful discharging.
       -- We use `withPreservedCache` to ensure the cache is restored after `discharge?`
       let usedTheorems := (← get).usedTheorems
+      let pendingGoals := (← get).pendingGoals
       match (← withPreservedCache <| (← getMethods).discharge? type) with
       | some proof =>
         unless (← isDefEq x proof) do
-          modify fun s => { s with usedTheorems }
+          modify fun s => { s with usedTheorems, pendingGoals }
           return .failedAssign
         return .proved
       | none =>
-        modify fun s => { s with usedTheorems }
+        modify fun s => { s with usedTheorems, pendingGoals }
         return .notProved
   return r = .proved
 
@@ -111,6 +113,148 @@ private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
     return (← getConfig).implicitDefEqProofs
   else
     return false
+
+/--
+Variant of `synthesizeArgs` for theorems with `@[expect_true]` annotations.
+When an `expect_true` hypothesis cannot be discharged, its metavar is recorded as a pending goal
+instead of causing the theorem to be rejected.
+Returns `(success, pendingMVarIds)`.
+-/
+private def synthesizeArgsExpectTrue (thmId : Origin) (bis : Array BinderInfo) (xs : Array Expr)
+    (expectTrueIndices : Array Nat) : SimpM (Bool × Array MVarId) := do
+  let mut pendingGoals : Array MVarId := #[]
+  let skipAssignedInstances := tactic.skipAssignedInstances.get (← getOptions)
+  for h : idx in [:xs.size] do
+    let x := xs[idx]
+    let bi := bis[idx]!
+    let type ← inferType x
+    if !skipAssignedInstances && bi.isInstImplicit then
+      unless (← synthesizeInstance x type) do
+        return (false, #[])
+    if (← instantiateMVars x).isMVar then
+      if (← isClass? type).isSome then
+        if (← synthesizeInstance x type) then
+          continue
+      if (← isProp type) then
+        unless (← discharge?' thmId x type) do
+          if expectTrueIndices.contains idx then
+            pendingGoals := pendingGoals.push x.mvarId!
+          else
+            return (false, #[])
+  return (true, pendingGoals)
+where
+  synthesizeInstance (x type : Expr) : SimpM Bool := do
+    match (← trySynthInstance type) with
+    | LOption.some val =>
+      if (← withReducibleAndInstances <| isDefEq x val) then
+        return true
+      else
+        trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsynthesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
+        return false
+    | _ =>
+      trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
+      return false
+
+/-- Like `hasAssignableMVar` but skips metavariables in the `except` set. -/
+private partial def hasAssignableMVarExcept (e : Expr) (except : MVarIdSet) : MetaM Bool :=
+  if !e.hasMVar then
+    return false
+  else
+    go e |>.run' {}
+where
+  go (e : Expr) : StateRefT ExprSet MetaM Bool :=
+    match e with
+    | .const _ lvls    => lvls.anyM (liftM <| hasAssignableLevelMVar ·)
+    | .sort lvl        => liftM <| hasAssignableLevelMVar lvl
+    | .app f a         => do checkSystem "hasAssignableMVarExcept"; visit f <||> visit a
+    | .letE _ t v b _  => do checkSystem "hasAssignableMVarExcept"; visit t <||> visit v <||> visit b
+    | .forallE _ d b _ => do checkSystem "hasAssignableMVarExcept"; visit d <||> visit b
+    | .lam _ d b _     => do checkSystem "hasAssignableMVarExcept"; visit d <||> visit b
+    | .fvar _          => return false
+    | .bvar _          => return false
+    | .lit _           => return false
+    | .mdata _ e       => visit e
+    | .proj _ _ e      => visit e
+    | .mvar mvarId     => if except.contains mvarId then return false else mvarId.isAssignable
+  visit (e : Expr) : StateRefT ExprSet MetaM Bool := do
+    if !e.hasMVar then return false
+    if (← get).contains e then return false
+    modify fun s => s.insert e
+    go e
+
+/-- Save metavar context, run `x`, and restore on failure. Used for `@[expect_true]` theorems
+    instead of `withNewMCtxDepth` so that pending goal metavars survive. -/
+private def withMCtxRollback (x : SimpM (Option α)) : SimpM (Option α) := do
+  let savedMCtx ← getMCtx
+  match (← x) with
+  | some r => return some r
+  | none =>
+    setMCtx savedMCtx
+    return none
+
+/--
+Look up `@[expect_true]` hypothesis names for a simp theorem, if any.
+Returns `none` for theorems without the attribute or non-declaration origins.
+-/
+private def getExpectTrueNames? (thm : SimpTheorem) : SimpM (Option (Array Name)) := do
+  match thm.origin with
+  | .decl declName .. => return getExpectTrueHyps? (← getEnv) declName
+  | _ => return none
+
+/--
+Variant of `tryTheoremCore` for theorems with `@[expect_true]` annotations.
+Returns `(Result, Array MVarId)` where the second component contains pending goal metavars
+for undischarged `expect_true` hypotheses.
+-/
+private def tryTheoremCoreExpectTrue (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo)
+    (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat)
+    (expectTrueIndices : Array Nat) : SimpM (Option (Result × Array MVarId)) := do
+  recordTriedSimpTheorem thm.origin
+  let rec go (e : Expr) : SimpM (Option (Result × Array MVarId)) := do
+    trace[Debug.Meta.Tactic.simp] "trying {← ppSimpTheorem thm} to rewrite (expect_true){indentExpr e}"
+    if (← withSimpMetaConfig <| isDefEq lhs e) then
+      let (ok, pendingMVarIds) ← synthesizeArgsExpectTrue thm.origin bis xs expectTrueIndices
+      unless ok do
+        return none
+      let proof? ← if (← useImplicitDefEqProof thm) then
+        pure none
+      else
+        let proof ← instantiateMVars (mkAppN val xs)
+        let exceptSet := pendingMVarIds.foldl (init := (∅ : MVarIdSet)) fun s id => s.insert id
+        if (← hasAssignableMVarExcept proof exceptSet) then
+          trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, has unassigned metavariables after unification (expect_true)"
+          return none
+        pure <| some proof
+      let rhs := (← instantiateMVars type).appArg!
+      if (← instantiateMVars e) == rhs then
+        return none
+      if thm.perm then
+        if !(← acLt rhs e .reduceSimpleOnly) then
+          trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, perm rejected {e} ==> {rhs}"
+          return none
+      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm} (expect_true):{indentExpr e}\n==>{indentExpr rhs}"
+      let rhs ← if type.hasBinderNameHint then rhs.resolveBinderNameHint else pure rhs
+      recordSimpTheorem thm.origin
+      return some ({ expr := rhs, proof? }, pendingMVarIds)
+    else
+      unless lhs.isMVar do
+        trace[Meta.Tactic.simp.unify] "{← ppSimpTheorem thm}, failed to unify{indentExpr lhs}\nwith{indentExpr e}"
+      return none
+  let mut extraArgs := #[]
+  let mut e := e
+  for _ in *...numExtraArgs do
+    extraArgs := extraArgs.push e.appArg!
+    e := e.appFn!
+  extraArgs := extraArgs.reverse
+  match (← go e) with
+  | none => return none
+  | some (r, pendingMVarIds) =>
+    let exceptSet := pendingMVarIds.foldl (init := (∅ : MVarIdSet)) fun s id => s.insert id
+    if (← hasAssignableMVarExcept r.expr exceptSet) then
+      trace[Meta.Tactic.simp.rewrite] "{← ppSimpTheorem thm}, resulting expression has unassigned metavariables (expect_true)"
+      return none
+    let r ← r.addExtraArgs extraArgs
+    return some (r, pendingMVarIds)
 
 private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInfo) (val : Expr) (type : Expr) (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
   recordTriedSimpTheorem thm.origin
@@ -175,31 +319,69 @@ private def tryTheoremCore (lhs : Expr) (xs : Array Expr) (bis : Array BinderInf
       return none
     r.addExtraArgs extraArgs
 
-def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) :=
-  withNewMCtxDepth do
-    let val  ← thm.getValue
-    let type ← inferType val
-    let (xs, bis, type) ← forallMetaTelescopeReducing type
-    let type ← whnf (← instantiateMVars type)
-    let lhs := type.appFn!.appArg!
-    tryTheoremCore lhs xs bis val type e thm numExtraArgs
+def tryTheoremWithExtraArgs? (e : Expr) (thm : SimpTheorem) (numExtraArgs : Nat) : SimpM (Option Result) := do
+  if let some expectTrueNames ← getExpectTrueNames? thm then
+    withMCtxRollback do
+      let val  ← thm.getValue
+      let type ← inferType val
+      let (xs, bis, type) ← forallMetaTelescopeReducing type
+      let type ← whnf (← instantiateMVars type)
+      let lhs := type.appFn!.appArg!
+      let expectTrueIndices ← getExpectTrueIndices xs expectTrueNames
+      match (← tryTheoremCoreExpectTrue lhs xs bis val type e thm numExtraArgs expectTrueIndices) with
+      | some (result, pending) =>
+        modify fun s => { s with pendingGoals := s.pendingGoals ++ pending }
+        return some result
+      | none => return none
+  else
+    withNewMCtxDepth do
+      let val  ← thm.getValue
+      let type ← inferType val
+      let (xs, bis, type) ← forallMetaTelescopeReducing type
+      let type ← whnf (← instantiateMVars type)
+      let lhs := type.appFn!.appArg!
+      tryTheoremCore lhs xs bis val type e thm numExtraArgs
 
 def tryTheorem? (e : Expr) (thm : SimpTheorem) : SimpM (Option Result) := do
-  withNewMCtxDepth do
-    let val  ← thm.getValue
-    let type ← inferType val
-    let (xs, bis, type) ← forallMetaTelescopeReducing type
-    let type ← whnf (← instantiateMVars type)
-    let lhs := type.appFn!.appArg!
-    match (← tryTheoremCore lhs xs bis val type e thm 0) with
-    | some result => return some result
-    | none =>
-      let lhsNumArgs := lhs.getAppNumArgs
-      let eNumArgs   := e.getAppNumArgs
-      if eNumArgs > lhsNumArgs then
-        tryTheoremCore lhs xs bis val type e thm (eNumArgs - lhsNumArgs)
-      else
-        return none
+  if let some expectTrueNames ← getExpectTrueNames? thm then
+    withMCtxRollback do
+      let val  ← thm.getValue
+      let type ← inferType val
+      let (xs, bis, type) ← forallMetaTelescopeReducing type
+      let type ← whnf (← instantiateMVars type)
+      let lhs := type.appFn!.appArg!
+      let expectTrueIndices ← getExpectTrueIndices xs expectTrueNames
+      match (← tryTheoremCoreExpectTrue lhs xs bis val type e thm 0 expectTrueIndices) with
+      | some (result, pending) =>
+        modify fun s => { s with pendingGoals := s.pendingGoals ++ pending }
+        return some result
+      | none =>
+        let lhsNumArgs := lhs.getAppNumArgs
+        let eNumArgs   := e.getAppNumArgs
+        if eNumArgs > lhsNumArgs then
+          match (← tryTheoremCoreExpectTrue lhs xs bis val type e thm (eNumArgs - lhsNumArgs) expectTrueIndices) with
+          | some (result, pending) =>
+            modify fun s => { s with pendingGoals := s.pendingGoals ++ pending }
+            return some result
+          | none => return none
+        else
+          return none
+  else
+    withNewMCtxDepth do
+      let val  ← thm.getValue
+      let type ← inferType val
+      let (xs, bis, type) ← forallMetaTelescopeReducing type
+      let type ← whnf (← instantiateMVars type)
+      let lhs := type.appFn!.appArg!
+      match (← tryTheoremCore lhs xs bis val type e thm 0) with
+      | some result => return some result
+      | none =>
+        let lhsNumArgs := lhs.getAppNumArgs
+        let eNumArgs   := e.getAppNumArgs
+        if eNumArgs > lhsNumArgs then
+          tryTheoremCore lhs xs bis val type e thm (eNumArgs - lhsNumArgs)
+        else
+          return none
 
 /--
 Remark: the parameter tag is used for creating trace messages. It is irrelevant otherwise.
@@ -249,14 +431,30 @@ where
       for thm in candidates do
         checkSystem "simp"
         unless inErasedSet thm || (rflOnly && !thm.rfl) do
-          let result? ← withNewMCtxDepth do
-            let val  ← thm.getValue
-            let type ← inferType val
-            let (xs, bis, type) ← forallMetaTelescopeReducing type
-            let type ← whnf (← instantiateMVars type)
-            let lhs := type.appFn!.appArg!
-            let lhsNumArgs := lhs.getAppNumArgs
-            tryTheoremCore lhs xs bis val type e thm (numArgs - lhsNumArgs)
+          let result? ← do
+            if let some expectTrueNames ← getExpectTrueNames? thm then
+              withMCtxRollback do
+                let val  ← thm.getValue
+                let type ← inferType val
+                let (xs, bis, type) ← forallMetaTelescopeReducing type
+                let type ← whnf (← instantiateMVars type)
+                let lhs := type.appFn!.appArg!
+                let lhsNumArgs := lhs.getAppNumArgs
+                let expectTrueIndices ← getExpectTrueIndices xs expectTrueNames
+                match (← tryTheoremCoreExpectTrue lhs xs bis val type e thm (numArgs - lhsNumArgs) expectTrueIndices) with
+                | some (result, pending) =>
+                  modify fun s => { s with pendingGoals := s.pendingGoals ++ pending }
+                  return some result
+                | none => return none
+            else
+              withNewMCtxDepth do
+                let val  ← thm.getValue
+                let type ← inferType val
+                let (xs, bis, type) ← forallMetaTelescopeReducing type
+                let type ← whnf (← instantiateMVars type)
+                let lhs := type.appFn!.appArg!
+                let lhsNumArgs := lhs.getAppNumArgs
+                tryTheoremCore lhs xs bis val type e thm (numArgs - lhsNumArgs)
           if let some result := result? then
             trace[Debug.Meta.Tactic.simp] "rewrite result {e} => {result.expr}"
             diagnoseWhenNoIndex thm

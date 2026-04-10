@@ -802,6 +802,7 @@ Examples:
 def firstM {α : Type u} {m : Type v → Type w} [Alternative m] (f : α → m β) (as : Array α) : m β :=
   go 0
 where
+  @[specialize]
   go (i : Nat) : m β :=
     if hlt : i < as.size then
       f as[i] <|> go (i+1)
@@ -1264,7 +1265,7 @@ Examples:
 -/
 @[inline, expose]
 def findIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option Nat :=
-  let rec loop (j : Nat) :=
+  let rec @[specialize] loop (j : Nat) :=
     if h : j < as.size then
       if p as[j] then some j else loop (j + 1)
     else none

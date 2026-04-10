@@ -13,6 +13,8 @@ import Lake.Util.Git
 import Lake.Util.IO
 import Lake.Reservoir
 
+set_option doc.verso true
+
 open System Lean
 
 /-! # Dependency Materialization
@@ -23,9 +25,12 @@ or resolve a local path dependency.
 
 namespace Lake
 
-/-- Update the Git package in `repo` to `rev` if not already at it. -/
+/--
+Update the Git package in {lean}`repo` to the revision {lean}`rev?` if not already at it.
+IF no revision is specified (i.e., {lean}`rev? = none`), then uses the latest {lit}`master`.
+-/
 def updateGitPkg
-  (name : String) (repo : GitRepo) (rev? : Option String)
+  (name : String) (repo : GitRepo) (rev? : Option GitRev)
 : LoggerIO PUnit := do
   let rev ← repo.findRemoteRevision rev?
   if (← repo.getHeadRevision) = rev then
@@ -40,9 +45,9 @@ def updateGitPkg
     -- so stale ones from the previous revision cause incorrect trace computations.
     repo.clean
 
-/-- Clone the Git package as `repo`. -/
+/-- Clone the Git package as {lean}`repo`. -/
 def cloneGitPkg
-  (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
+  (name : String) (repo : GitRepo) (url : String) (rev? : Option GitRev)
 : LoggerIO PUnit := do
   logInfo s!"{name}: cloning {url}"
   repo.clone url
@@ -52,9 +57,9 @@ def cloneGitPkg
     repo.checkoutDetach rev
 
 /--
-Update the Git repository from `url` in `repo` to `rev?`.
-If `repo` is already from `url`, just checkout the new revision.
-Otherwise, delete the local repository and clone a fresh copy from `url`.
+Update the Git repository from {lean}`url` in {lean}`repo` to {lean}`rev?`.
+If {lean}`repo` is already from {lean}`url`, just checkout the new revision.
+Otherwise, delete the local repository and clone a fresh copy from {lean}`url`.
 -/
 def updateGitRepo
   (name : String) (repo : GitRepo) (url : String) (rev? : Option String)
@@ -75,8 +80,9 @@ def updateGitRepo
       IO.FS.removeDirAll repo.dir
       cloneGitPkg name repo url rev?
 
+
 /--
-Materialize the Git repository from `url` into `repo` at `rev?`.
+Materialize the Git repository from {lean}`url` into {lean}`repo` at {lean}`rev?`.
 Clone it if no local copy exists, otherwise update it.
 -/
 def materializeGitRepo
@@ -114,11 +120,11 @@ namespace MaterializedDep
 @[inline] public def scope (self : MaterializedDep) : String :=
   self.manifestEntry.scope
 
-/-- Path to the dependency's manfiest file (relative to `relPkgDir`). -/
+/-- Path to the dependency's manfiest file (relative to {lean}`relPkgDir`). -/
 @[inline] public def relManifestFile? (self : MaterializedDep) : Option FilePath :=
   self.manifestEntry.manifestFile?
 
-/-- Path to the dependency's manfiest file (relative to `relPkgDir`). -/
+/-- Path to the dependency's manfiest file (relative to {lean}`relPkgDir`). -/
 @[inline] public def relManifestFile (self : MaterializedDep) : FilePath :=
   self.relManifestFile?.getD defaultManifestFile
 
@@ -126,7 +132,7 @@ namespace MaterializedDep
 @[inline] public def manifestFile (self : MaterializedDep) : FilePath :=
   self.pkgDir / self.relManifestFile
 
-/-- Path to the dependency's configuration file (relative to `relPkgDir`). -/
+/-- Path to the dependency's configuration file (relative to {lean}`relPkgDir`). -/
 @[inline] public def relConfigFile (self : MaterializedDep) : FilePath :=
   self.manifestEntry.configFile
 
@@ -143,7 +149,7 @@ end MaterializedDep
 
 inductive InputVer
 | none
-| git (rev : String)
+| git (rev : GitRev)
 | ver (ver : VerRange)
 
 def pkgNotIndexed (scope name : String) (ver : InputVer) : String :=

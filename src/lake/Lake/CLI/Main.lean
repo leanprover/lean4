@@ -69,7 +69,7 @@ public structure LakeOptions where
   scope? : Option CacheServiceScope := none
   platform? : Option CachePlatform := none
   toolchain? : Option CacheToolchain := none
-  rev? : Option String := none
+  rev? : Option GitRev := none
   maxRevs : Nat := 100
   shake : Shake.Args := {}
 
@@ -563,7 +563,7 @@ private def computePackageRev (pkgDir : FilePath) : CliStateM String := do
   repo.getHeadRevision
 
 private def putCore
-  (rev : String)  (outputs : FilePath) (artDir : FilePath)
+  (rev : GitRev)  (outputs : FilePath) (artDir : FilePath)
   (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : LoggerIO Unit := do

@@ -1086,6 +1086,17 @@ def sum {α} [Add α] [Zero α] : Array α → α :=
   foldr (· + ·) 0
 
 /--
+Computes the product of the elements of an array.
+
+Examples:
+ * `#[a, b, c].prod = a * (b * (c * 1))`
+ * `#[1, 2, 5].prod = 10`
+-/
+@[inline, expose]
+def prod {α} [Mul α] [One α] : Array α → α :=
+  foldr (· * ·) 1
+
+/--
 Counts the number of elements in the array `as` that satisfy the Boolean predicate `p`.
 
 Examples:

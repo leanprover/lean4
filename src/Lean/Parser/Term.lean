@@ -889,14 +889,21 @@ def isIdent (stx : Syntax) : Bool :=
   -- antiquotations should also be allowed where an identifier is expected
   stx.isAntiquot || stx.isIdent
 
-def isIdentOrDotIdent (stx : Syntax) : Bool :=
-  isIdent stx || stx.isOfKind ``dotIdent
+/-- Predicate for what `explicitUniv` can follow. It is only meant to be used on an identifier
+that becomes the head constant of an application. -/
+def isIdentOrDotIdentOrProj (stx : Syntax) : Bool :=
+  isIdent stx || stx.isOfKind ``dotIdent || stx.isOfKind ``proj
 
-/-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
-@[builtin_term_parser] def explicitUniv : TrailingParser := trailing_parser
-  checkStackTop isIdentOrDotIdent "expected preceding identifier" >>
+/-- Syntax for `.{u, ...}` itself. Generally the `explicitUniv` trailing parser suffices.
+However, for `e |>.x.{u} a1 a2 a3` notation we need to be able to express explicit universes in the
+middle of the syntax. -/
+def explicitUnivSuffix : Parser :=
   checkNoWsBefore "no space before '.{'" >> ".{" >>
   sepBy1 levelParser ", " >> "}"
+/-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
+@[builtin_term_parser] def explicitUniv : TrailingParser := trailing_parser
+  checkStackTop isIdentOrDotIdentOrProj "expected preceding identifier" >>
+  explicitUnivSuffix
 /-- `x@e` or `x@h:e` matches the pattern `e` and binds its value to the identifier `x`.
 If present, the identifier `h` is bound to a proof of `x = e`. -/
 @[builtin_term_parser] def namedPattern : TrailingParser := trailing_parser
@@ -909,7 +916,7 @@ If present, the identifier `h` is bound to a proof of `x = e`. -/
 It is especially useful for avoiding parentheses with repeated applications.
 -/
 @[builtin_term_parser] def pipeProj   := trailing_parser:minPrec
-  " |>." >> checkNoWsBefore >> (fieldIdx <|> rawIdent) >> many argument
+  " |>." >> checkNoWsBefore >> (fieldIdx <|> rawIdent) >> optional explicitUnivSuffix >> many argument
 @[builtin_term_parser] def pipeCompletion := trailing_parser:minPrec
   " |>."
 

@@ -111,8 +111,14 @@ open Lean.Meta
     for x in loopMutVars do
       let defn ← getLocalDeclFromUserName x.getId
       Term.addTermInfo' x defn.toExpr
-      -- ForIn forces all mut vars into the same universe: that of the do block result type.
-      discard <| Term.ensureHasType (mkSort (mi.u.succ)) defn.type
+      -- ForIn forces the mut tuple into the universe mi.u: that of the do block result type.
+      -- If we don't do this, then we are stuck on solving constraints such as
+      --   `max ?u.46 ?u.47 =?= max (max ?u.22 ?u.46) ?u.47`
+      -- It's important we do this as a separate isLevelDefEq check on the decremented level because
+      -- otherwise (`ensureHasType (mkSort mi.u.succ)`) we are stuck on constraints like
+      --   `max (?u+1) (?v+1) =?= ?u+1`
+      let u ← getDecLevel defn.type
+      discard <| isLevelDefEq u mi.u
       defs := defs.push defn.toExpr
     if info.returnsEarly && loopMutVars.isEmpty then
       defs := defs.push (mkConst ``Unit.unit)

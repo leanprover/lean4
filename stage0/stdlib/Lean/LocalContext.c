@@ -12663,10 +12663,10 @@ goto v___jp_3767_;
 v___jp_3740_:
 {
 lean_object* v___x_3745_; 
-v___x_3745_ = l_Lean_LocalContext_setUserName(v_a_3729_, v___y_3744_, v___y_3743_);
+v___x_3745_ = l_Lean_LocalContext_setUserName(v_a_3729_, v___y_3744_, v___y_3741_);
 v_i_3728_ = v_n_3739_;
 v_a_3729_ = v___x_3745_;
-v___y_3730_ = v___y_3741_;
+v___y_3730_ = v___y_3743_;
 v___y_3731_ = v___y_3742_;
 goto _start;
 }
@@ -12684,9 +12684,9 @@ lean_dec_ref(v___x_3751_);
 v_fvarId_3754_ = lean_ctor_get(v___y_3748_, 1);
 lean_inc(v_fvarId_3754_);
 lean_dec_ref(v___y_3748_);
-v___y_3741_ = v___x_3750_;
+v___y_3741_ = v_fst_3752_;
 v___y_3742_ = v_snd_3753_;
-v___y_3743_ = v_fst_3752_;
+v___y_3743_ = v___x_3750_;
 v___y_3744_ = v_fvarId_3754_;
 goto v___jp_3740_;
 }
@@ -12886,8 +12886,8 @@ lean_dec_ref(v___x_3829_);
 v_fvarId_3832_ = lean_ctor_get(v_val_3826_, 1);
 lean_inc(v_fvarId_3832_);
 lean_dec(v_val_3826_);
-v___y_3820_ = v___y_3828_;
-v___y_3821_ = v_val_3831_;
+v___y_3820_ = v_val_3831_;
+v___y_3821_ = v___y_3828_;
 v___y_3822_ = v_fvarId_3832_;
 goto v___jp_3819_;
 }
@@ -12896,13 +12896,13 @@ goto v___jp_3819_;
 v___jp_3812_:
 {
 uint8_t v___x_3816_; 
-v___x_3816_ = l_Lean_instBEqFVarId_beq(v___y_3813_, v___y_3815_);
+v___x_3816_ = l_Lean_instBEqFVarId_beq(v___y_3814_, v___y_3815_);
 lean_dec(v___y_3815_);
-lean_dec(v___y_3813_);
+lean_dec(v___y_3814_);
 if (v___x_3816_ == 0)
 {
 lean_object* v___x_3817_; 
-lean_dec(v___y_3814_);
+lean_dec(v___y_3813_);
 v___x_3817_ = lean_box(0);
 return v___x_3817_;
 }
@@ -12910,18 +12910,18 @@ else
 {
 lean_object* v___x_3818_; 
 v___x_3818_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_3818_, 0, v___y_3814_);
+lean_ctor_set(v___x_3818_, 0, v___y_3813_);
 return v___x_3818_;
 }
 }
 v___jp_3819_:
 {
 lean_object* v_fvarId_3823_; 
-v_fvarId_3823_ = lean_ctor_get(v___y_3821_, 1);
+v_fvarId_3823_ = lean_ctor_get(v___y_3820_, 1);
 lean_inc(v_fvarId_3823_);
-lean_dec_ref(v___y_3821_);
-v___y_3813_ = v___y_3822_;
-v___y_3814_ = v___y_3820_;
+lean_dec_ref(v___y_3820_);
+v___y_3813_ = v___y_3821_;
+v___y_3814_ = v___y_3822_;
 v___y_3815_ = v_fvarId_3823_;
 goto v___jp_3812_;
 }

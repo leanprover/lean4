@@ -24,6 +24,11 @@ namespace Lake
 
 /-! ## Build Lean & Static Lib -/
 
+private structure ModuleCollection where
+  mods : Array Module := #[]
+  modSet : ModuleSet := ∅
+  hasErrors : Bool := false
+
 /--
 Collect the local modules of a library.
 That is, the modules from `getModuleArray` plus their local transitive imports.
@@ -31,23 +36,27 @@ That is, the modules from `getModuleArray` plus their local transitive imports.
 private partial def LeanLib.recCollectLocalModules
   (self : LeanLib) : FetchM (Job (Array Module))
 := ensureJob do
-  let mut mods := #[]
-  let mut modSet := ModuleSet.empty
+  let mut col : ModuleCollection := {}
   for mod in (← self.getModuleArray) do
-    (mods, modSet) ← go mod mods modSet
-  return Job.pure mods
+    col ← go mod col
+  if col.hasErrors then
+    -- This is not considered a fatal error because we want the modules
+    -- built to provide better error categorization in the monitor.
+    logError s!"{self.name}: some modules have bad imports"
+  return Job.pure col.mods
 where
-  go root mods modSet := do
-    let mut mods := mods
-    let mut modSet := modSet
-    unless modSet.contains root do
-      modSet := modSet.insert root
-      let imps ← (← root.imports.fetch).await
+  go root col := do
+    let mut col := col
+    unless col.modSet.contains root do
+      col := {col with modSet := col.modSet.insert root}
+      -- We discard errors here as they will be reported later when the module is built.
+      let some imps ← (← root.imports.fetch).wait?
+        | return {col with hasErrors := true}
       for mod in imps do
         if mod.lib.name = self.name then
-          (mods, modSet) ← go mod mods modSet
-      mods := mods.push root
-    return (mods, modSet)
+          col ← go mod col
+      col := {col with mods := col.mods.push root}
+    return col
 
 /-- The `LibraryFacetConfig` for the builtin `modulesFacet`. -/
 private def LeanLib.modulesFacetConfig : LibraryFacetConfig modulesFacet :=

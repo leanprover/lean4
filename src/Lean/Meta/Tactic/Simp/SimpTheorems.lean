@@ -242,7 +242,6 @@ def ppSimpTheorem [Monad m] [MonadEnv m] [MonadError m] (s : SimpTheorem) : m Me
 instance : BEq SimpTheorem where
   beq e₁ e₂ := e₁.proof == e₂.proof
 
-
 /--
 Configuration for `MetaM` used to process global simp theorems
 -/
@@ -255,8 +254,6 @@ def simpGlobalConfig : ConfigWithKey :=
 
 @[inline] def withSimpGlobalConfig : MetaM α → MetaM α :=
   withConfigWithKey simpGlobalConfig
-
-
 
 private partial def isPerm : Expr → Expr → MetaM Bool
   | .app f₁ a₁, .app f₂ a₂ => isPerm f₁ f₂ <&&> isPerm a₁ a₂
@@ -370,11 +367,32 @@ private def mkSimpTheoremKeys (type : Expr) (noIndexAtArgs : Bool) : MetaM (Arra
     | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
     | none => throwError "Unexpected kind of simp theorem{indentExpr type}"
 
-private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array Name) (proof : Expr) (post : Bool) (prio : Nat) (noIndexAtArgs : Bool) : MetaM SimpTheorem := do
+register_builtin_option simp.rfl.checkTransparency: Bool := {
+  defValue := false
+  descr    := "if true, Lean generates a warning if the left and right-hand sides of the `[simp]` equation are not definitionally equal at the restricted transparency level used by `simp` "
+}
+
+private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array Name) (proof : Expr)
+    (post : Bool) (prio : Nat) (noIndexAtArgs : Bool) : MetaM SimpTheorem := do
   assert! origin != .fvar ⟨.anonymous⟩
   let type ← instantiateMVars (← inferType e)
   let (keys, perm) ← mkSimpTheoremKeys type noIndexAtArgs
-  return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl := (← isRflProof proof) }
+  let rfl ← isRflProof proof
+  if rfl && simp.rfl.checkTransparency.get (← getOptions) then
+    forallTelescopeReducing type fun _ type => do
+      let checkDefEq (lhs rhs : Expr) := do
+        unless (← withTransparency .instances <| isDefEq lhs rhs) do
+          logWarning m!"`{origin.key}` is a `[defeq]` simp theorem, but its left-hand side{indentExpr lhs}\n\
+            is not definitionally equal to the right-hand side{indentExpr rhs}\n\
+            at `.instances` transparency. Possible solutions:\n\
+            1- use `(rfl)` as the proof\n\
+            2- mark constants occurring in the lhs and rhs as `[implicit_reducible]`"
+      match_expr type with
+      | Eq _ lhs rhs => checkDefEq lhs rhs
+      | Iff lhs rhs => checkDefEq lhs rhs
+      | _ =>
+        logWarning m!"'{origin.key}' is a 'rfl' simp theorem, unexpected resulting type{indentExpr type}"
+  return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl }
 
 /--
 Creates a `SimpTheorem` from a global theorem.

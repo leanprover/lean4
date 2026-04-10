@@ -91,7 +91,6 @@ lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasExprMVar(lean_object*);
 lean_object* l_Lean_Expr_hasExprMVar___boxed(lean_object*);
 uint8_t l_List_any___redArg(lean_object*, lean_object*);
-extern lean_object* l_Lean_instInhabitedMVarId_default;
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_Pattern_ctorIdx(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_Pattern_ctorIdx___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_Pattern_ctorElim___redArg(lean_object*, lean_object*);
@@ -318,10 +317,10 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Match_Example_toMessageData(lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Meta_Match_Example_toMessageData_spec__1(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_List_mapTR_loop___at___00Lean_Meta_Match_examplesToMessageData_spec__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Match_examplesToMessageData(lean_object*);
-static lean_once_cell_t l_Lean_Meta_Match_instInhabitedProblem_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_Meta_Match_instInhabitedProblem_default___closed__0;
-LEAN_EXPORT lean_object* l_Lean_Meta_Match_instInhabitedProblem_default;
-LEAN_EXPORT lean_object* l_Lean_Meta_Match_instInhabitedProblem;
+static const lean_ctor_object l_Lean_Meta_Match_instInhabitedProblem_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*4 + 0, .m_other = 4, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_Meta_Match_instInhabitedProblem_default___closed__0 = (const lean_object*)&l_Lean_Meta_Match_instInhabitedProblem_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Meta_Match_instInhabitedProblem_default = (const lean_object*)&l_Lean_Meta_Match_instInhabitedProblem_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_Meta_Match_instInhabitedProblem = (const lean_object*)&l_Lean_Meta_Match_instInhabitedProblem_default___closed__0_value;
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___00Lean_Meta_Match_withGoalOf_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___00Lean_Meta_Match_withGoalOf_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___00Lean_Meta_Match_withGoalOf_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -6655,36 +6654,6 @@ v___x_1829_ = l_Lean_MessageData_joinSep(v___x_1827_, v___x_1828_);
 return v___x_1829_;
 }
 }
-static lean_object* _init_l_Lean_Meta_Match_instInhabitedProblem_default___closed__0(void){
-_start:
-{
-lean_object* v___x_1830_; lean_object* v___x_1831_; lean_object* v___x_1832_; 
-v___x_1830_ = lean_box(0);
-v___x_1831_ = l_Lean_instInhabitedMVarId_default;
-v___x_1832_ = lean_alloc_ctor(0, 4, 0);
-lean_ctor_set(v___x_1832_, 0, v___x_1831_);
-lean_ctor_set(v___x_1832_, 1, v___x_1830_);
-lean_ctor_set(v___x_1832_, 2, v___x_1830_);
-lean_ctor_set(v___x_1832_, 3, v___x_1830_);
-return v___x_1832_;
-}
-}
-static lean_object* _init_l_Lean_Meta_Match_instInhabitedProblem_default(void){
-_start:
-{
-lean_object* v___x_1833_; 
-v___x_1833_ = lean_obj_once(&l_Lean_Meta_Match_instInhabitedProblem_default___closed__0, &l_Lean_Meta_Match_instInhabitedProblem_default___closed__0_once, _init_l_Lean_Meta_Match_instInhabitedProblem_default___closed__0);
-return v___x_1833_;
-}
-}
-static lean_object* _init_l_Lean_Meta_Match_instInhabitedProblem(void){
-_start:
-{
-lean_object* v___x_1834_; 
-v___x_1834_ = l_Lean_Meta_Match_instInhabitedProblem_default;
-return v___x_1834_;
-}
-}
 LEAN_EXPORT lean_object* l_Lean_MVarId_withContext___at___00Lean_Meta_Match_withGoalOf_spec__0___redArg(lean_object* v_mvarId_1835_, lean_object* v_x_1836_, lean_object* v___y_1837_, lean_object* v___y_1838_, lean_object* v___y_1839_, lean_object* v___y_1840_){
 _start:
 {
@@ -8697,10 +8666,6 @@ l_Lean_Meta_Match_instInhabitedAlt_default = _init_l_Lean_Meta_Match_instInhabit
 lean_mark_persistent(l_Lean_Meta_Match_instInhabitedAlt_default);
 l_Lean_Meta_Match_instInhabitedAlt = _init_l_Lean_Meta_Match_instInhabitedAlt();
 lean_mark_persistent(l_Lean_Meta_Match_instInhabitedAlt);
-l_Lean_Meta_Match_instInhabitedProblem_default = _init_l_Lean_Meta_Match_instInhabitedProblem_default();
-lean_mark_persistent(l_Lean_Meta_Match_instInhabitedProblem_default);
-l_Lean_Meta_Match_instInhabitedProblem = _init_l_Lean_Meta_Match_instInhabitedProblem();
-lean_mark_persistent(l_Lean_Meta_Match_instInhabitedProblem);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;

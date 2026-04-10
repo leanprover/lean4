@@ -280,7 +280,7 @@ v___x_2_ = lean_task_pure(v_inst_1_);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedServerTask_default(lean_object* v_a_3_, lean_object* v_inst_4_){
+LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedServerTask_default(lean_object* v_00_u03b1_3_, lean_object* v_inst_4_){
 _start:
 {
 lean_object* v___x_5_; 

@@ -6808,8 +6808,8 @@ v___x_2050_ = lean_ptr_addr(v_a_1975_);
 v___x_2051_ = lean_usize_dec_eq(v___x_2049_, v___x_2050_);
 if (v___x_2051_ == 0)
 {
-v___y_1995_ = v_snd_2043_;
-v___y_1996_ = v_a_2046_;
+v___y_1995_ = v_a_2046_;
+v___y_1996_ = v_snd_2043_;
 v___y_1997_ = v___x_2051_;
 goto v___jp_1994_;
 }
@@ -6819,8 +6819,8 @@ size_t v___x_2052_; size_t v___x_2053_; uint8_t v___x_2054_;
 v___x_2052_ = lean_ptr_addr(v_decl_2047_);
 v___x_2053_ = lean_ptr_addr(v_a_2046_);
 v___x_2054_ = lean_usize_dec_eq(v___x_2052_, v___x_2053_);
-v___y_1995_ = v_snd_2043_;
-v___y_1996_ = v_a_2046_;
+v___y_1995_ = v_a_2046_;
+v___y_1996_ = v_snd_2043_;
 v___y_1997_ = v___x_2054_;
 goto v___jp_1994_;
 }
@@ -7399,8 +7399,8 @@ v___x_2178_ = lean_ptr_addr(v_a_1975_);
 v___x_2179_ = lean_usize_dec_eq(v___x_2177_, v___x_2178_);
 if (v___x_2179_ == 0)
 {
-v___y_1980_ = v_snd_2171_;
-v___y_1981_ = v_a_2174_;
+v___y_1980_ = v_a_2174_;
+v___y_1981_ = v_snd_2171_;
 v___y_1982_ = v___x_2179_;
 goto v___jp_1979_;
 }
@@ -7410,8 +7410,8 @@ size_t v___x_2180_; size_t v___x_2181_; uint8_t v___x_2182_;
 v___x_2180_ = lean_ptr_addr(v_decl_2175_);
 v___x_2181_ = lean_ptr_addr(v_a_2174_);
 v___x_2182_ = lean_usize_dec_eq(v___x_2180_, v___x_2181_);
-v___y_1980_ = v_snd_2171_;
-v___y_1981_ = v_a_2174_;
+v___y_1980_ = v_a_2174_;
+v___y_1981_ = v_snd_2171_;
 v___y_1982_ = v___x_2182_;
 goto v___jp_1979_;
 }
@@ -8106,17 +8106,17 @@ if (v___y_1982_ == 0)
 lean_object* v___x_1983_; 
 lean_dec_ref(v_code_1939_);
 v___x_1983_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_1983_, 0, v___y_1981_);
+lean_ctor_set(v___x_1983_, 0, v___y_1980_);
 lean_ctor_set(v___x_1983_, 1, v_a_1975_);
-v___y_1965_ = v___y_1980_;
+v___y_1965_ = v___y_1981_;
 v___y_1966_ = v___x_1983_;
 goto v___jp_1964_;
 }
 else
 {
-lean_dec_ref(v___y_1981_);
+lean_dec_ref(v___y_1980_);
 lean_dec(v_a_1975_);
-v___y_1965_ = v___y_1980_;
+v___y_1965_ = v___y_1981_;
 v___y_1966_ = v_code_1939_;
 goto v___jp_1964_;
 }
@@ -8181,17 +8181,17 @@ if (v___y_1997_ == 0)
 lean_object* v___x_1998_; 
 lean_dec_ref(v_code_1939_);
 v___x_1998_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_1998_, 0, v___y_1996_);
+lean_ctor_set(v___x_1998_, 0, v___y_1995_);
 lean_ctor_set(v___x_1998_, 1, v_a_1975_);
-v___y_1958_ = v___y_1995_;
+v___y_1958_ = v___y_1996_;
 v___y_1959_ = v___x_1998_;
 goto v___jp_1957_;
 }
 else
 {
-lean_dec_ref(v___y_1996_);
+lean_dec_ref(v___y_1995_);
 lean_dec(v_a_1975_);
-v___y_1958_ = v___y_1995_;
+v___y_1958_ = v___y_1996_;
 v___y_1959_ = v_code_1939_;
 goto v___jp_1957_;
 }
@@ -9252,8 +9252,8 @@ return v___x_2538_;
 else
 {
 lean_object* v_a_2548_; lean_object* v___x_2550_; uint8_t v_isShared_2551_; uint8_t v_isSharedCheck_2555_; 
-lean_dec(v_fvarId_2526_);
 lean_dec_ref(v_code_2349_);
+lean_dec(v_fvarId_2526_);
 v_a_2548_ = lean_ctor_get(v___x_2535_, 0);
 v_isSharedCheck_2555_ = !lean_is_exclusive(v___x_2535_);
 if (v_isSharedCheck_2555_ == 0)
@@ -9296,8 +9296,8 @@ return v___x_2553_;
 else
 {
 lean_object* v_a_2556_; lean_object* v___x_2558_; uint8_t v_isShared_2559_; uint8_t v_isSharedCheck_2563_; 
-lean_dec(v_fvarId_2526_);
 lean_dec_ref(v_code_2349_);
+lean_dec(v_fvarId_2526_);
 v_a_2556_ = lean_ctor_get(v___x_2531_, 0);
 v_isSharedCheck_2563_ = !lean_is_exclusive(v___x_2531_);
 if (v_isSharedCheck_2563_ == 0)
@@ -9350,8 +9350,8 @@ return v___x_2564_;
 else
 {
 lean_object* v_a_2565_; lean_object* v___x_2567_; uint8_t v_isShared_2568_; uint8_t v_isSharedCheck_2572_; 
-lean_dec(v_fvarId_2526_);
 lean_dec_ref(v_code_2349_);
+lean_dec(v_fvarId_2526_);
 v_a_2565_ = lean_ctor_get(v___x_2527_, 0);
 v_isSharedCheck_2572_ = !lean_is_exclusive(v___x_2527_);
 if (v_isSharedCheck_2572_ == 0)
@@ -9718,8 +9718,8 @@ else
 lean_dec_ref(v_k_2591_);
 lean_dec(v_y_2590_);
 lean_dec(v_i_2589_);
-lean_dec(v_fvarId_2588_);
 lean_dec_ref(v_code_2349_);
+lean_dec(v_fvarId_2588_);
 return v___x_2592_;
 }
 }
@@ -10000,8 +10000,8 @@ lean_dec_ref(v_ty_2644_);
 lean_dec(v_y_2643_);
 lean_dec(v_offset_2642_);
 lean_dec(v_i_2641_);
-lean_dec(v_fvarId_2640_);
 lean_dec_ref(v_code_2349_);
+lean_dec(v_fvarId_2640_);
 return v___x_2646_;
 }
 }

@@ -51,3 +51,43 @@ instCI2
 -/
 #guard_msgs in
 #print instCD2._aux_1
+
+/-! Flattened inheritance test. -/
+
+class Base (α : Type) where
+  b : α
+
+class Foo (α : Type) extends Base α where
+  a : α
+
+class Bar (α : Type) extends Base α where
+  c : α
+
+class FooBar (α : Type) extends Foo α, Bar α
+
+instance : FooBar Nat where
+  a := 0
+  b := 1
+  c := 2
+
+def MyNat := Nat
+deriving Foo, Bar, FooBar
+
+theorem zou : instFooBarMyNat.toBar = instBarMyNat := by
+  with_reducible_and_instances rfl
+
+/-! Non-constructor instances should be used as is. -/
+
+@[macro_inline, implicit_reducible]
+def dite' {α : Sort u} (c : Prop) [h : Decidable c] (t : c → α) (e : Not c → α) : α :=
+  h.casesOn e t
+
+instance Nat.decLe' (n m : @& Nat) : Decidable (LE.le n m) :=
+  dite' (Eq (Nat.ble n m) true) (fun h => isTrue (Nat.le_of_ble_eq_true h)) (fun h => isFalse (Nat.not_le_of_not_ble_eq_true h))
+
+#guard_msgs in
+instance (x y : BitVec w) : Decidable (LE.le x y) :=
+  (inferInstance : Decidable (LE.le x.toNat y.toNat))
+
+instance (x y : BitVec w) : Decidable (LE.le x y) :=
+  inferInstanceAs (Decidable (LE.le x.toNat y.toNat))

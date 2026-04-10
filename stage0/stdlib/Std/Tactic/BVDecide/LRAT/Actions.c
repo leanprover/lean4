@@ -355,7 +355,7 @@ v___x_88_ = l_Std_Tactic_BVDecide_LRAT_Action_ctorElim___redArg(v_t_85_, v_del_8
 return v___x_88_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instInhabitedAction_default(lean_object* v_a_94_, lean_object* v_a_95_){
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instInhabitedAction_default(lean_object* v_00_u03b2_94_, lean_object* v_00_u03b1_95_){
 _start:
 {
 lean_object* v___x_96_; 

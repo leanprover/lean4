@@ -178,8 +178,8 @@ def reuseManifest
     logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
 
 /-- Add a package dependency's manifest entries to the update state. -/
-private def addDependencyEntries (pkg : Package) (matDep : MaterializedDep) : UpdateT LoggerIO PUnit := do
-  match matDep.manifest? with
+def addDependencyEntries (dep : MaterializedDep) : UpdateT LoggerIO PUnit := do
+  match (← Manifest.load dep.manifestFile |>.toBaseIO) with
   | .ok manifest =>
     manifest.packages.forM fun entry => do
       unless (← getThe (NameMap PackageEntry)).contains entry.name do

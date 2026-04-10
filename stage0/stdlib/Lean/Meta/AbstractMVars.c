@@ -2371,8 +2371,8 @@ else
 lean_object* v_val_705_; lean_object* v___x_706_; 
 lean_dec_ref(v_type_652_);
 lean_dec(v_userName_651_);
-lean_dec_ref(v_e_643_);
 lean_dec(v_mvarId_647_);
+lean_dec_ref(v_e_643_);
 v_val_705_ = lean_ctor_get(v___x_657_, 0);
 lean_inc(v_val_705_);
 lean_dec_ref(v___x_657_);

@@ -1134,7 +1134,7 @@ lean_ctor_set(v___x_221_, 3, v___x_220_);
 return v___x_221_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instInhabitedTheorems_default(lean_object* v_a_222_){
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_instInhabitedTheorems_default(lean_object* v_00_u03b1_222_){
 _start:
 {
 lean_object* v___x_223_; 

@@ -73,8 +73,43 @@ def Visibility.isPublic : Visibility → Bool
   | .public    => true
   | _          => false
 
+/--
+Returns whether the given visibility modifier should be interpreted as `public` in the current
+environment.
+
+NOTE: `Environment.isExporting` defaults to `false` when command elaborators are invoked for
+backward compatibility. It needs to be initialized apropriately first before calling this function
+as e.g. done in `elabDeclaration`.
+-/
 def Visibility.isInferredPublic (env : Environment) (v : Visibility) : Bool :=
   if env.isExporting || !env.header.isModule then !v.isPrivate else v.isPublic
+
+/-- Converts optional visibility syntax to a `Visibility` value. -/
+def elabVisibility [Monad m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
+    [AddMessageContext m]
+    (vis? : Option (TSyntax ``Parser.Command.visibility)) :
+    m Visibility := do
+  let env ← getEnv
+  match vis? with
+  | none   => pure .regular
+  | some v =>
+    match v with
+    | `(Parser.Command.visibility| private) =>
+      if v.raw.getHeadInfo matches .original .. then  -- skip macro output
+        if env.header.isModule && !env.isExporting then
+          Linter.logLintIf linter.redundantVisibility v
+            m!"`private` has no effect in a `module` file outside `public section`; \
+            declarations are already `private` by default"
+      pure .private
+    | `(Parser.Command.visibility| public) =>
+      if v.raw.getHeadInfo matches .original .. then  -- skip macro output
+        if env.isExporting || !env.header.isModule then
+          Linter.logLintIf linter.redundantVisibility v
+            m!"`public` is the default visibility{
+              if env.header.isModule then " inside a `public section`" else ""
+            }; the modifier has no effect"
+      pure .public
+    | _ => throwErrorAt v "unexpected visibility modifier"
 
 /-- Whether a declaration is default, partial or nonrec. -/
 inductive RecKind where
@@ -191,32 +226,7 @@ def elabModifiers (stx : TSyntax ``Parser.Command.declModifiers) : m Modifiers :
     else
       RecKind.nonrec
   let docString? := docCommentStx.getOptional?.map (TSyntax.mk ·, doc.verso.get (← getOptions))
-  let visibility ← match visibilityStx.getOptional? with
-    | none   => pure .regular
-    | some v =>
-      match v with
-      | `(Parser.Command.visibility| private) => do
-        let env ← getEnv
-        if v.getHeadInfo matches .original .. then  -- skip macro output
-          if env.header.isModule && !env.isExporting &&
-              Linter.getLinterValue linter.redundantVisibility (← Linter.getLinterOptions) then
-            logWarningAt v m!"`private` has no effect outside a `public section` in a `module` file; \
-              declarations are already `private` by default{
-              .note m!"This linter can be disabled with \
-                `set_option {linter.redundantVisibility.name} false`"}"
-        pure .private
-      | `(Parser.Command.visibility| public) => do
-        let env ← getEnv
-        if v.getHeadInfo matches .original .. then  -- skip macro output
-          if (env.isExporting || !env.header.isModule) &&
-              Linter.getLinterValue linter.redundantVisibility (← Linter.getLinterOptions) then
-            logWarningAt v m!"`public` is the default visibility{
-              if env.header.isModule then " inside a `public section`" else ""
-              }; the modifier has no effect{
-              .note m!"This linter can be disabled with \
-                `set_option {linter.redundantVisibility.name} false`"}"
-        pure .public
-      | _ => throwErrorAt v "unexpected visibility modifier"
+  let visibility ← elabVisibility (visibilityStx.getOptional?.map (⟨·⟩))
   let isProtected := !protectedStx.isNone
   let attrs ← match attrsStx.getOptional? with
     | none       => pure #[]

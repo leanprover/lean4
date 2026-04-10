@@ -282,6 +282,7 @@ The lexicographic order with respect to `lt` is:
 * `as.lex [] = false` is `false`
 * `(a :: as).lex (b :: bs)` is true if `lt a b` or `a == b` and `lex lt as bs` is true.
 -/
+@[specialize]
 def lex [BEq α] (l₁ l₂ : List α) (lt : α → α → Bool := by exact (· < ·)) : Bool :=
   match l₁, l₂ with
   | [],      _ :: _  => true
@@ -1004,6 +1005,7 @@ Examples:
  * `[8, 3, 2, 4, 2, 7, 4].dropWhile (· < 4) = [8, 3, 2, 4, 2, 7, 4]`
  * `[8, 3, 2, 4, 2, 7, 4].dropWhile (· < 100) = []`
 -/
+@[specialize]
 def dropWhile (p : α → Bool) : List α → List α
   | []   => []
   | a::l => match p a with
@@ -1460,9 +1462,11 @@ Examples:
 ["circle", "square", "triangle"]
 ```
 -/
+@[inline]
 def modifyTailIdx (l : List α) (i : Nat) (f : List α → List α) : List α :=
   go i l
 where
+  @[specialize]
   go : Nat → List α → List α
   | 0, l => f l
   | _+1, [] => []
@@ -1498,6 +1502,7 @@ Examples:
  * `[1, 2, 3].modify 2 (· * 10) = [1, 2, 30]`
  * `[1, 2, 3].modify 3 (· * 10) = [1, 2, 3]`
 -/
+@[inline]
 def modify (l : List α) (i : Nat) (f : α → α) : List α :=
   l.modifyTailIdx i (modifyHead f)
 
@@ -1604,6 +1609,7 @@ Examples:
 * `[7, 6, 5, 8, 1, 2, 6].find? (· < 5) = some 1`
 * `[7, 6, 5, 8, 1, 2, 6].find? (· < 1) = none`
 -/
+@[specialize]
 def find? (p : α → Bool) : List α → Option α
   | []    => none
   | a::as => match p a with
@@ -1626,6 +1632,7 @@ Examples:
  * `[7, 6, 5, 8, 1, 2, 6].findSome? (fun x => if x < 5 then some (10 * x) else none) = some 10`
  * `[7, 6, 5, 8, 1, 2, 6].findSome? (fun x => if x < 1 then some (10 * x) else none) = none`
 -/
+@[specialize]
 def findSome? (f : α → Option β) : List α → Option β
   | []    => none
   | a::as => match f a with
@@ -1649,6 +1656,7 @@ Examples:
 * `[7, 6, 5, 8, 1, 2, 6].findRev? (· < 5) = some 2`
 * `[7, 6, 5, 8, 1, 2, 6].findRev? (· < 1) = none`
 -/
+@[specialize]
 def findRev? (p : α → Bool) : List α → Option α
   | []    => none
   | a::as => match findRev? p as with
@@ -1667,6 +1675,7 @@ Examples:
  * `[7, 6, 5, 8, 1, 2, 6].findSomeRev? (fun x => if x < 5 then some (10 * x) else none) = some 20`
  * `[7, 6, 5, 8, 1, 2, 6].findSomeRev? (fun x => if x < 1 then some (10 * x) else none) = none`
 -/
+@[specialize]
 def findSomeRev? (f : α → Option β) : List α → Option β
   | []    => none
   | a::as => match findSomeRev? f as with
@@ -1717,9 +1726,11 @@ Examples:
 * `[7, 6, 5, 8, 1, 2, 6].findIdx (· < 5) = some 4`
 * `[7, 6, 5, 8, 1, 2, 6].findIdx (· < 1) = none`
 -/
+@[inline]
 def findIdx? (p : α → Bool) (l : List α) : Option Nat :=
   go l 0
 where
+  @[specialize]
   go : List α → Nat → Option Nat
   | [], _ => none
   | a :: l, i => if p a then some i else go l (i + 1)
@@ -1750,6 +1761,7 @@ Examples:
 @[inline] def findFinIdx? (p : α → Bool) (l : List α) : Option (Fin l.length) :=
   go l 0 (by simp)
 where
+  @[specialize]
   go : (l' : List α) → (i : Nat) → (h : l'.length + i = l.length) → Option (Fin l.length)
   | [], _, _ => none
   | a :: l, i, h =>
@@ -1886,7 +1898,7 @@ Examples:
 * `[2, 4, 5, 6].any (· % 2 = 0) = true`
 * `[2, 4, 5, 6].any (· % 2 = 1) = true`
 -/
-@[suggest_for List.some]
+@[suggest_for List.some, specialize]
 def any : (l : List α) → (p : α → Bool) → Bool
   | [], _ => false
   | h :: t, p => p h || any t p
@@ -1906,7 +1918,7 @@ Examples:
 * `[2, 4, 6].all (· % 2 = 0) = true`
 * `[2, 4, 5, 6].all (· % 2 = 0) = false`
 -/
-@[suggest_for List.every]
+@[suggest_for List.every, specialize]
 def all : List α → (α → Bool) → Bool
   | [], _ => true
   | h :: t, p => p h && all t p
@@ -2007,6 +2019,7 @@ Examples:
 * `[1, 2, 3].zipWithAll Prod.mk [5, 6] = [(some 1, some 5), (some 2, some 6), (some 3, none)]`
 * `[x₁, x₂].zipWithAll f [y] = [f (some x₁) (some y), f (some x₂) none]`
 -/
+@[specialize]
 def zipWithAll (f : Option α → Option β → γ) : List α → List β → List γ
   | [], bs => bs.map fun b => f none (some b)
   | a :: as, [] => (a :: as).map fun a => f (some a) none
@@ -2055,6 +2068,20 @@ def sum {α} [Add α] [Zero α] : List α → α :=
 @[simp, grind =] theorem sum_nil [Add α] [Zero α] : ([] : List α).sum = 0 := rfl
 @[simp, grind =] theorem sum_cons [Add α] [Zero α] {a : α} {l : List α} : (a::l).sum = a + l.sum := rfl
 theorem sum_eq_foldr [Add α] [Zero α] {l : List α} : l.sum = l.foldr (· + ·) 0 := rfl
+
+/--
+Computes the product of the elements of a list.
+
+Examples:
+ * `[a, b, c].prod = a * (b * (c * 1))`
+ * `[1, 2, 5].prod = 10`
+-/
+def prod {α} [Mul α] [One α] : List α → α :=
+  foldr (· * ·) 1
+
+@[simp, grind =] theorem prod_nil [Mul α] [One α] : ([] : List α).prod = 1 := rfl
+@[simp, grind =] theorem prod_cons [Mul α] [One α] {a : α} {l : List α} : (a::l).prod = a * l.prod := rfl
+theorem prod_eq_foldr [Mul α] [One α] {l : List α} : l.prod = l.foldr (· * ·) 1 := rfl
 
 /-! ### range -/
 

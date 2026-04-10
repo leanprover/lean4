@@ -881,9 +881,9 @@ return v___x_143_;
 v___jp_147_:
 {
 lean_object* v___x_152_; 
-v___x_152_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collect_spec__2___redArg(v___y_148_, v___y_150_, v___y_151_);
+v___x_152_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collect_spec__2___redArg(v___y_149_, v___y_148_, v___y_151_);
 lean_dec(v___y_151_);
-v___y_132_ = v___y_149_;
+v___y_132_ = v___y_150_;
 v___y_133_ = v___x_152_;
 goto v___jp_131_;
 }
@@ -895,17 +895,17 @@ if (v___x_158_ == 0)
 {
 lean_dec(v___y_154_);
 lean_inc(v___y_157_);
-v___y_148_ = v___y_155_;
-v___y_149_ = v___y_156_;
-v___y_150_ = v___y_157_;
+v___y_148_ = v___y_157_;
+v___y_149_ = v___y_155_;
+v___y_150_ = v___y_156_;
 v___y_151_ = v___y_157_;
 goto v___jp_147_;
 }
 else
 {
-v___y_148_ = v___y_155_;
-v___y_149_ = v___y_156_;
-v___y_150_ = v___y_157_;
+v___y_148_ = v___y_157_;
+v___y_149_ = v___y_155_;
+v___y_150_ = v___y_156_;
 v___y_151_ = v___y_154_;
 goto v___jp_147_;
 }

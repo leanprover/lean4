@@ -66,6 +66,8 @@ To rebuild individual stage 2 modules without a full `make stage2`, use Lake dir
 cd build/release/stage2 && lake build Init.Prelude
 ```
 
+To run tests in stage2, replace `-C build/release` from above with `-C build/release/stage2`.
+
 ## New features
 
 When asked to implement new features:

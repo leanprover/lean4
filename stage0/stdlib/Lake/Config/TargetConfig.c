@@ -16,7 +16,6 @@ extern "C" {
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 uint8_t l_Lean_Name_isAnonymous(lean_object*);
 extern lean_object* l_Lake_instInhabitedJobState_default;
-extern lean_object* l_Lake_Log_instInhabitedPos_default;
 lean_object* lean_task_pure(lean_object*);
 lean_object* l_Lake_formatQuery___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_once_cell_t l_Lake_instInhabitedTargetConfig_default___lam__0___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -77,7 +76,7 @@ _start:
 {
 lean_object* v___x_1_; lean_object* v___x_2_; lean_object* v___x_3_; 
 v___x_1_ = l_Lake_instInhabitedJobState_default;
-v___x_2_ = l_Lake_Log_instInhabitedPos_default;
+v___x_2_ = lean_unsigned_to_nat(0u);
 v___x_3_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_3_, 0, v___x_2_);
 lean_ctor_set(v___x_3_, 1, v___x_1_);
@@ -145,14 +144,14 @@ return v___x_33_;
 LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig_default___lam__1___boxed(lean_object* v_x_34_, lean_object* v___y_35_){
 _start:
 {
-uint8_t v_x_430__boxed_36_; lean_object* v_res_37_; 
-v_x_430__boxed_36_ = lean_unbox(v_x_34_);
-v_res_37_ = l_Lake_instInhabitedTargetConfig_default___lam__1(v_x_430__boxed_36_, v___y_35_);
+uint8_t v_x_429__boxed_36_; lean_object* v_res_37_; 
+v_x_429__boxed_36_ = lean_unbox(v_x_34_);
+v_res_37_ = l_Lake_instInhabitedTargetConfig_default___lam__1(v_x_429__boxed_36_, v___y_35_);
 lean_dec(v___y_35_);
 return v_res_37_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig_default(lean_object* v_a_43_, lean_object* v_a_44_){
+LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig_default(lean_object* v_pkgName_43_, lean_object* v_name_44_){
 _start:
 {
 lean_object* v___x_45_; 
@@ -160,13 +159,13 @@ v___x_45_ = ((lean_object*)(l_Lake_instInhabitedTargetConfig_default___closed__2
 return v___x_45_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig_default___boxed(lean_object* v_a_46_, lean_object* v_a_47_){
+LEAN_EXPORT lean_object* l_Lake_instInhabitedTargetConfig_default___boxed(lean_object* v_pkgName_46_, lean_object* v_name_47_){
 _start:
 {
 lean_object* v_res_48_; 
-v_res_48_ = l_Lake_instInhabitedTargetConfig_default(v_a_46_, v_a_47_);
-lean_dec(v_a_47_);
-lean_dec(v_a_46_);
+v_res_48_ = l_Lake_instInhabitedTargetConfig_default(v_pkgName_46_, v_name_47_);
+lean_dec(v_name_47_);
+lean_dec(v_pkgName_46_);
 return v_res_48_;
 }
 }

@@ -3382,10 +3382,10 @@ v_fvarId_1252_ = lean_ctor_get(v_localDecl_1246_, 1);
 lean_inc_ref(v_localDecl_1246_);
 lean_inc(v_fvarId_1252_);
 v___x_1253_ = l_Lean_PersistentHashMap_insert___at___00Lean_Meta_AbstractNestedProofs_visit_spec__4___redArg(v_fvarIdToDecl_1247_, v_fvarId_1252_, v_localDecl_1246_);
-v___y_1233_ = v___x_1253_;
-v___y_1234_ = v_decls_1248_;
-v___y_1235_ = v_auxDeclToFullName_1249_;
-v___y_1236_ = v_localDecl_1246_;
+v___y_1233_ = v_auxDeclToFullName_1249_;
+v___y_1234_ = v___x_1253_;
+v___y_1235_ = v_localDecl_1246_;
+v___y_1236_ = v_decls_1248_;
 v___y_1237_ = v_index_1251_;
 goto v___jp_1232_;
 }
@@ -3404,13 +3404,13 @@ v___jp_1232_:
 {
 lean_object* v___x_1238_; lean_object* v___x_1239_; lean_object* v___x_1240_; 
 v___x_1238_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_1238_, 0, v___y_1236_);
-v___x_1239_ = l_Lean_PersistentArray_set___redArg(v___y_1234_, v___y_1237_, v___x_1238_);
+lean_ctor_set(v___x_1238_, 0, v___y_1235_);
+v___x_1239_ = l_Lean_PersistentArray_set___redArg(v___y_1236_, v___y_1237_, v___x_1238_);
 lean_dec(v___y_1237_);
 v___x_1240_ = lean_alloc_ctor(0, 3, 0);
-lean_ctor_set(v___x_1240_, 0, v___y_1233_);
+lean_ctor_set(v___x_1240_, 0, v___y_1234_);
 lean_ctor_set(v___x_1240_, 1, v___x_1239_);
-lean_ctor_set(v___x_1240_, 2, v___y_1235_);
+lean_ctor_set(v___x_1240_, 2, v___y_1233_);
 v_a_1228_ = v___x_1240_;
 goto v___jp_1227_;
 }

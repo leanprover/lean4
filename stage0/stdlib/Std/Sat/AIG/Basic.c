@@ -1455,7 +1455,7 @@ v_r_347_ = lean_box(v_res_346_);
 return v_r_347_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Sat_AIG_instInhabitedDecl_default(lean_object* v_a_348_){
+LEAN_EXPORT lean_object* l_Std_Sat_AIG_instInhabitedDecl_default(lean_object* v_00_u03b1_348_){
 _start:
 {
 lean_object* v___x_349_; 

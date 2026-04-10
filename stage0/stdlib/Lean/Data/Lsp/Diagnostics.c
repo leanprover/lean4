@@ -2976,7 +2976,7 @@ lean_ctor_set(v___x_726_, 10, v___x_725_);
 return v___x_726_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Lsp_instInhabitedDiagnosticWith_default(lean_object* v_a_727_, lean_object* v_inst_728_){
+LEAN_EXPORT lean_object* l_Lean_Lsp_instInhabitedDiagnosticWith_default(lean_object* v_00_u03b1_727_, lean_object* v_inst_728_){
 _start:
 {
 lean_object* v___x_729_; 

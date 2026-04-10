@@ -789,22 +789,22 @@ goto v___jp_130_;
 v___jp_121_:
 {
 uint8_t v___x_126_; 
-lean_dec(v___y_124_);
-v___x_126_ = lean_nat_dec_le(v___y_125_, v___y_122_);
+lean_dec(v___y_123_);
+v___x_126_ = lean_nat_dec_le(v___y_125_, v___y_124_);
 if (v___x_126_ == 0)
 {
 lean_object* v___x_127_; 
-lean_dec(v___y_122_);
+lean_dec(v___y_124_);
 lean_inc(v___y_125_);
-v___x_127_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(v_fvarIdToPos_120_, v___y_123_, v___y_125_, v___y_125_);
+v___x_127_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(v_fvarIdToPos_120_, v___y_122_, v___y_125_, v___y_125_);
 lean_dec(v___y_125_);
 return v___x_127_;
 }
 else
 {
 lean_object* v___x_128_; 
-v___x_128_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(v_fvarIdToPos_120_, v___y_123_, v___y_125_, v___y_122_);
-lean_dec(v___y_122_);
+v___x_128_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00__private_Lean_Meta_Sym_Simp_Have_0__Lean_Meta_Sym_Simp_collectFVarIdsAt_spec__2___redArg(v_fvarIdToPos_120_, v___y_122_, v___y_125_, v___y_124_);
+lean_dec(v___y_124_);
 return v___x_128_;
 }
 }
@@ -822,17 +822,17 @@ v___x_136_ = lean_nat_dec_le(v___x_129_, v___x_135_);
 if (v___x_136_ == 0)
 {
 lean_inc(v___x_135_);
-v___y_122_ = v___x_135_;
-v___y_123_ = v___y_131_;
-v___y_124_ = v___x_132_;
+v___y_122_ = v___y_131_;
+v___y_123_ = v___x_132_;
+v___y_124_ = v___x_135_;
 v___y_125_ = v___x_135_;
 goto v___jp_121_;
 }
 else
 {
-v___y_122_ = v___x_135_;
-v___y_123_ = v___y_131_;
-v___y_124_ = v___x_132_;
+v___y_122_ = v___y_131_;
+v___y_123_ = v___x_132_;
+v___y_124_ = v___x_135_;
 v___y_125_ = v___x_129_;
 goto v___jp_121_;
 }

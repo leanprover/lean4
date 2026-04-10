@@ -233,7 +233,7 @@ def setImportAll : Parser := fun _ s =>
 
 def main : Parser :=
   keywordCore "module" (setIsModule false) (setIsModule true) >>
-  keywordCore "prelude" (fun _ s => s.pushImport `Init) skip >>
+  keywordCore "prelude" (fun _ s => (s.pushImport `Init).pushImport { module := `Init, isMeta := true }) skip >>
   manyImports (atomic (keywordCore "public" skip setExported >>
     keywordCore "meta" skip setMeta >>
     keyword "import") >>

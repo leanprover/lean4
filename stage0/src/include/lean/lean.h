@@ -3168,6 +3168,10 @@ static inline lean_obj_res lean_manual_get_root(lean_obj_arg _unit) {
     return lean_mk_string(LEAN_MANUAL_ROOT);
 }
 
+static inline lean_obj_res lean_runtime_hold(b_lean_obj_arg a) {
+    return lean_box(0);
+}
+
 #ifdef LEAN_EMSCRIPTEN
 #define LEAN_SCALAR_PTR_LITERAL(b1, b2, b3, b4, b5, b6, b7, b8) (lean_object*)((uint32_t)b1 | ((uint32_t)b2 << 8) | ((uint32_t)b3 << 16) | ((uint32_t)b4 << 24)), (lean_object*)((uint32_t)b5 | ((uint32_t)b6 << 8) | ((uint32_t)b7 << 16) | ((uint32_t)b8 << 24))
 #else

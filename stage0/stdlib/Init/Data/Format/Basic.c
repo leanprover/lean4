@@ -116,10 +116,10 @@ static const lean_object* l_Std_Format_join___closed__0 = (const lean_object*)&l
 LEAN_EXPORT lean_object* l_Std_Format_join(lean_object*);
 LEAN_EXPORT uint8_t l_Std_Format_isNil(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Format_isNil___boxed(lean_object*);
-static const lean_ctor_object l___private_Init_Data_Format_Basic_0__Std_Format_instInhabitedSpaceResult_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 8, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 0, 0, 0)}};
-static const lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instInhabitedSpaceResult_default___closed__0 = (const lean_object*)&l___private_Init_Data_Format_Basic_0__Std_Format_instInhabitedSpaceResult_default___closed__0_value;
-LEAN_EXPORT const lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instInhabitedSpaceResult_default = (const lean_object*)&l___private_Init_Data_Format_Basic_0__Std_Format_instInhabitedSpaceResult_default___closed__0_value;
-LEAN_EXPORT const lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instInhabitedSpaceResult = (const lean_object*)&l___private_Init_Data_Format_Basic_0__Std_Format_instInhabitedSpaceResult_default___closed__0_value;
+static const lean_ctor_object l_Std_Format_instInhabitedSpaceResult_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 8, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 0, 0, 0)}};
+static const lean_object* l_Std_Format_instInhabitedSpaceResult_default___closed__0 = (const lean_object*)&l_Std_Format_instInhabitedSpaceResult_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Std_Format_instInhabitedSpaceResult_default = (const lean_object*)&l_Std_Format_instInhabitedSpaceResult_default___closed__0_value;
+LEAN_EXPORT const lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_instInhabitedSpaceResult = (const lean_object*)&l_Std_Format_instInhabitedSpaceResult_default___closed__0_value;
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_merge(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Format_Basic_0__Std_Format_merge___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Nat_cast___at___00__private_Init_Data_Format_Basic_0__Std_Format_spaceUptoLine_spec__0(lean_object*);
@@ -1091,7 +1091,7 @@ case 0:
 lean_object* v___x_281_; 
 lean_dec(v_x_270_);
 lean_dec(v_x_269_);
-v___x_281_ = ((lean_object*)(l___private_Init_Data_Format_Basic_0__Std_Format_instInhabitedSpaceResult_default___closed__0));
+v___x_281_ = ((lean_object*)(l_Std_Format_instInhabitedSpaceResult_default___closed__0));
 return v___x_281_;
 }
 case 1:
@@ -1620,7 +1620,7 @@ if (lean_obj_tag(v_x_417_) == 0)
 lean_object* v___x_420_; 
 lean_dec(v_x_419_);
 lean_dec(v_x_418_);
-v___x_420_ = ((lean_object*)(l___private_Init_Data_Format_Basic_0__Std_Format_instInhabitedSpaceResult_default___closed__0));
+v___x_420_ = ((lean_object*)(l_Std_Format_instInhabitedSpaceResult_default___closed__0));
 return v___x_420_;
 }
 else

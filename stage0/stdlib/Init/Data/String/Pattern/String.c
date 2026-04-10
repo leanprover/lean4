@@ -499,7 +499,7 @@ lean_dec_ref(v_s_178_);
 return v_res_183_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instInhabited_default(lean_object* v_a_186_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instInhabited_default(lean_object* v_s_186_){
 _start:
 {
 lean_object* v___x_187_; 
@@ -507,12 +507,12 @@ v___x_187_ = ((lean_object*)(l_String_Slice_Pattern_ForwardSliceSearcher_instInh
 return v___x_187_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instInhabited_default___boxed(lean_object* v_a_188_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instInhabited_default___boxed(lean_object* v_s_188_){
 _start:
 {
 lean_object* v_res_189_; 
-v_res_189_ = l_String_Slice_Pattern_ForwardSliceSearcher_instInhabited_default(v_a_188_);
-lean_dec_ref(v_a_188_);
+v_res_189_ = l_String_Slice_Pattern_ForwardSliceSearcher_instInhabited_default(v_s_188_);
+lean_dec_ref(v_s_188_);
 return v_res_189_;
 }
 }

@@ -247,7 +247,7 @@ lean_dec_ref(v_s_55_);
 return v_res_60_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedSearchStep_default(lean_object* v_a_63_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedSearchStep_default(lean_object* v_s_63_){
 _start:
 {
 lean_object* v___x_64_; 
@@ -255,12 +255,12 @@ v___x_64_ = ((lean_object*)(l_String_Slice_Pattern_instInhabitedSearchStep_defau
 return v___x_64_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedSearchStep_default___boxed(lean_object* v_a_65_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_instInhabitedSearchStep_default___boxed(lean_object* v_s_65_){
 _start:
 {
 lean_object* v_res_66_; 
-v_res_66_ = l_String_Slice_Pattern_instInhabitedSearchStep_default(v_a_65_);
-lean_dec_ref(v_a_65_);
+v_res_66_ = l_String_Slice_Pattern_instInhabitedSearchStep_default(v_s_65_);
+lean_dec_ref(v_s_65_);
 return v_res_66_;
 }
 }
@@ -884,7 +884,7 @@ lean_dec(v_pat_244_);
 return v_res_247_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToForwardSearcher_instInhabitedDefaultForwardSearcher_default(lean_object* v_a_248_, lean_object* v_a_249_, lean_object* v_a_250_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToForwardSearcher_instInhabitedDefaultForwardSearcher_default(lean_object* v_00_u03c1_248_, lean_object* v_pat_249_, lean_object* v_s_250_){
 _start:
 {
 lean_object* v___x_251_; 
@@ -892,13 +892,13 @@ v___x_251_ = lean_unsigned_to_nat(0u);
 return v___x_251_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToForwardSearcher_instInhabitedDefaultForwardSearcher_default___boxed(lean_object* v_a_252_, lean_object* v_a_253_, lean_object* v_a_254_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToForwardSearcher_instInhabitedDefaultForwardSearcher_default___boxed(lean_object* v_00_u03c1_252_, lean_object* v_pat_253_, lean_object* v_s_254_){
 _start:
 {
 lean_object* v_res_255_; 
-v_res_255_ = l_String_Slice_Pattern_ToForwardSearcher_instInhabitedDefaultForwardSearcher_default(v_a_252_, v_a_253_, v_a_254_);
-lean_dec_ref(v_a_254_);
-lean_dec(v_a_253_);
+v_res_255_ = l_String_Slice_Pattern_ToForwardSearcher_instInhabitedDefaultForwardSearcher_default(v_00_u03c1_252_, v_pat_253_, v_s_254_);
+lean_dec_ref(v_s_254_);
+lean_dec(v_pat_253_);
 return v_res_255_;
 }
 }
@@ -1490,7 +1490,7 @@ v_r_505_ = lean_box(v_res_504_);
 return v_r_505_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_instInhabitedDefaultBackwardSearcher_default(lean_object* v_a_506_, lean_object* v_a_507_, lean_object* v_a_508_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_instInhabitedDefaultBackwardSearcher_default(lean_object* v_00_u03c1_506_, lean_object* v_pat_507_, lean_object* v_s_508_){
 _start:
 {
 lean_object* v___x_509_; 
@@ -1498,13 +1498,13 @@ v___x_509_ = lean_unsigned_to_nat(0u);
 return v___x_509_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_instInhabitedDefaultBackwardSearcher_default___boxed(lean_object* v_a_510_, lean_object* v_a_511_, lean_object* v_a_512_){
+LEAN_EXPORT lean_object* l_String_Slice_Pattern_ToBackwardSearcher_instInhabitedDefaultBackwardSearcher_default___boxed(lean_object* v_00_u03c1_510_, lean_object* v_pat_511_, lean_object* v_s_512_){
 _start:
 {
 lean_object* v_res_513_; 
-v_res_513_ = l_String_Slice_Pattern_ToBackwardSearcher_instInhabitedDefaultBackwardSearcher_default(v_a_510_, v_a_511_, v_a_512_);
-lean_dec_ref(v_a_512_);
-lean_dec(v_a_511_);
+v_res_513_ = l_String_Slice_Pattern_ToBackwardSearcher_instInhabitedDefaultBackwardSearcher_default(v_00_u03c1_510_, v_pat_511_, v_s_512_);
+lean_dec_ref(v_s_512_);
+lean_dec(v_pat_511_);
 return v_res_513_;
 }
 }

@@ -42,7 +42,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-extern lean_object* l_Lake_instImpl_00___x40_Lake_Config_Dependency_35947708____hygCtx___hyg_34_;
+extern lean_object* l_Lake_instImpl_00___x40_Lake_Config_Dependency_35947708____hygCtx___hyg_26_;
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Lake_packageAttr;
@@ -2268,7 +2268,7 @@ return v___x_875_;
 else
 {
 lean_object* v___x_876_; lean_object* v_v_877_; lean_object* v___x_878_; 
-v___x_876_ = l_Lake_instImpl_00___x40_Lake_Config_Dependency_35947708____hygCtx___hyg_34_;
+v___x_876_ = l_Lake_instImpl_00___x40_Lake_Config_Dependency_35947708____hygCtx___hyg_26_;
 v_v_877_ = lean_array_uget_borrowed(v_bs_873_, v_i_872_);
 lean_inc(v_v_877_);
 lean_inc_ref(v_env_869_);

@@ -178,7 +178,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_foldM___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_fold___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict_default(lean_object* v_a_6_, lean_object* v_a_7_, lean_object* v_a_8_){
+LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict_default(lean_object* v_00_u03b1_6_, lean_object* v_00_u03b2_7_, lean_object* v_cmp_8_){
 _start:
 {
 lean_object* v___x_9_; 
@@ -186,12 +186,12 @@ v___x_9_ = ((lean_object*)(l_Lake_Toml_instInhabitedRBDict_default___closed__1))
 return v___x_9_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict_default___boxed(lean_object* v_a_10_, lean_object* v_a_11_, lean_object* v_a_12_){
+LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict_default___boxed(lean_object* v_00_u03b1_10_, lean_object* v_00_u03b2_11_, lean_object* v_cmp_12_){
 _start:
 {
 lean_object* v_res_13_; 
-v_res_13_ = l_Lake_Toml_instInhabitedRBDict_default(v_a_10_, v_a_11_, v_a_12_);
-lean_dec_ref(v_a_12_);
+v_res_13_ = l_Lake_Toml_instInhabitedRBDict_default(v_00_u03b1_10_, v_00_u03b2_11_, v_cmp_12_);
+lean_dec_ref(v_cmp_12_);
 return v_res_13_;
 }
 }

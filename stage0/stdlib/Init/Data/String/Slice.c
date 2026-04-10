@@ -790,7 +790,7 @@ lean_dec(v_pat_182_);
 return v_res_189_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_instInhabitedSplitIterator_default(lean_object* v_a_190_, lean_object* v_a_191_, lean_object* v_a_192_, lean_object* v_a_193_, lean_object* v_a_194_){
+LEAN_EXPORT lean_object* l_String_Slice_instInhabitedSplitIterator_default(lean_object* v_00_u03c3_190_, lean_object* v_00_u03c1_191_, lean_object* v_pat_192_, lean_object* v_s_193_, lean_object* v_inst_194_){
 _start:
 {
 lean_object* v___x_195_; 
@@ -798,14 +798,14 @@ v___x_195_ = lean_box(1);
 return v___x_195_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_instInhabitedSplitIterator_default___boxed(lean_object* v_a_196_, lean_object* v_a_197_, lean_object* v_a_198_, lean_object* v_a_199_, lean_object* v_a_200_){
+LEAN_EXPORT lean_object* l_String_Slice_instInhabitedSplitIterator_default___boxed(lean_object* v_00_u03c3_196_, lean_object* v_00_u03c1_197_, lean_object* v_pat_198_, lean_object* v_s_199_, lean_object* v_inst_200_){
 _start:
 {
 lean_object* v_res_201_; 
-v_res_201_ = l_String_Slice_instInhabitedSplitIterator_default(v_a_196_, v_a_197_, v_a_198_, v_a_199_, v_a_200_);
-lean_dec(v_a_200_);
-lean_dec_ref(v_a_199_);
-lean_dec(v_a_198_);
+v_res_201_ = l_String_Slice_instInhabitedSplitIterator_default(v_00_u03c3_196_, v_00_u03c1_197_, v_pat_198_, v_s_199_, v_inst_200_);
+lean_dec(v_inst_200_);
+lean_dec_ref(v_s_199_);
+lean_dec(v_pat_198_);
 return v_res_201_;
 }
 }
@@ -2343,7 +2343,7 @@ lean_dec(v_pat_775_);
 return v_res_782_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_instInhabitedSplitInclusiveIterator_default(lean_object* v_a_783_, lean_object* v_a_784_, lean_object* v_a_785_, lean_object* v_a_786_, lean_object* v_a_787_){
+LEAN_EXPORT lean_object* l_String_Slice_instInhabitedSplitInclusiveIterator_default(lean_object* v_00_u03c3_783_, lean_object* v_00_u03c1_784_, lean_object* v_pat_785_, lean_object* v_s_786_, lean_object* v_inst_787_){
 _start:
 {
 lean_object* v___x_788_; 
@@ -2351,14 +2351,14 @@ v___x_788_ = lean_box(1);
 return v___x_788_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_instInhabitedSplitInclusiveIterator_default___boxed(lean_object* v_a_789_, lean_object* v_a_790_, lean_object* v_a_791_, lean_object* v_a_792_, lean_object* v_a_793_){
+LEAN_EXPORT lean_object* l_String_Slice_instInhabitedSplitInclusiveIterator_default___boxed(lean_object* v_00_u03c3_789_, lean_object* v_00_u03c1_790_, lean_object* v_pat_791_, lean_object* v_s_792_, lean_object* v_inst_793_){
 _start:
 {
 lean_object* v_res_794_; 
-v_res_794_ = l_String_Slice_instInhabitedSplitInclusiveIterator_default(v_a_789_, v_a_790_, v_a_791_, v_a_792_, v_a_793_);
-lean_dec(v_a_793_);
-lean_dec_ref(v_a_792_);
-lean_dec(v_a_791_);
+v_res_794_ = l_String_Slice_instInhabitedSplitInclusiveIterator_default(v_00_u03c3_789_, v_00_u03c1_790_, v_pat_791_, v_s_792_, v_inst_793_);
+lean_dec(v_inst_793_);
+lean_dec_ref(v_s_792_);
+lean_dec(v_pat_791_);
 return v_res_794_;
 }
 }
@@ -5454,7 +5454,7 @@ lean_dec(v_pat_1959_);
 return v_res_1966_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_instInhabitedRevSplitIterator_default(lean_object* v_a_1967_, lean_object* v_a_1968_, lean_object* v_a_1969_, lean_object* v_a_1970_, lean_object* v_a_1971_){
+LEAN_EXPORT lean_object* l_String_Slice_instInhabitedRevSplitIterator_default(lean_object* v_00_u03c3_1967_, lean_object* v_00_u03c1_1968_, lean_object* v_pat_1969_, lean_object* v_s_1970_, lean_object* v_inst_1971_){
 _start:
 {
 lean_object* v___x_1972_; 
@@ -5462,14 +5462,14 @@ v___x_1972_ = lean_box(1);
 return v___x_1972_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_instInhabitedRevSplitIterator_default___boxed(lean_object* v_a_1973_, lean_object* v_a_1974_, lean_object* v_a_1975_, lean_object* v_a_1976_, lean_object* v_a_1977_){
+LEAN_EXPORT lean_object* l_String_Slice_instInhabitedRevSplitIterator_default___boxed(lean_object* v_00_u03c3_1973_, lean_object* v_00_u03c1_1974_, lean_object* v_pat_1975_, lean_object* v_s_1976_, lean_object* v_inst_1977_){
 _start:
 {
 lean_object* v_res_1978_; 
-v_res_1978_ = l_String_Slice_instInhabitedRevSplitIterator_default(v_a_1973_, v_a_1974_, v_a_1975_, v_a_1976_, v_a_1977_);
-lean_dec(v_a_1977_);
-lean_dec_ref(v_a_1976_);
-lean_dec(v_a_1975_);
+v_res_1978_ = l_String_Slice_instInhabitedRevSplitIterator_default(v_00_u03c3_1973_, v_00_u03c1_1974_, v_pat_1975_, v_s_1976_, v_inst_1977_);
+lean_dec(v_inst_1977_);
+lean_dec_ref(v_s_1976_);
+lean_dec(v_pat_1975_);
 return v_res_1978_;
 }
 }
@@ -8400,8 +8400,8 @@ v___x_2971_ = 65;
 v___x_2972_ = lean_uint8_dec_le(v___x_2971_, v___x_2970_);
 if (v___x_2972_ == 0)
 {
-v___y_2948_ = v___y_2968_;
-v___y_2949_ = v___x_2970_;
+v___y_2948_ = v___x_2970_;
+v___y_2949_ = v___y_2968_;
 v___y_2950_ = v___x_2972_;
 goto v___jp_2947_;
 }
@@ -8410,8 +8410,8 @@ else
 uint8_t v___x_2973_; uint8_t v___x_2974_; 
 v___x_2973_ = 90;
 v___x_2974_ = lean_uint8_dec_le(v___x_2970_, v___x_2973_);
-v___y_2948_ = v___y_2968_;
-v___y_2949_ = v___x_2970_;
+v___y_2948_ = v___x_2970_;
+v___y_2949_ = v___y_2968_;
 v___y_2950_ = v___x_2974_;
 goto v___jp_2947_;
 }
@@ -8444,16 +8444,16 @@ v___jp_2947_:
 {
 if (v___y_2950_ == 0)
 {
-v___y_2940_ = v___y_2948_;
-v___y_2941_ = v___y_2949_;
+v___y_2940_ = v___y_2949_;
+v___y_2941_ = v___y_2948_;
 goto v___jp_2939_;
 }
 else
 {
 uint8_t v___x_2951_; uint8_t v___x_2952_; 
 v___x_2951_ = 32;
-v___x_2952_ = lean_uint8_add(v___y_2949_, v___x_2951_);
-v___y_2940_ = v___y_2948_;
+v___x_2952_ = lean_uint8_add(v___y_2948_, v___x_2951_);
+v___y_2940_ = v___y_2949_;
 v___y_2941_ = v___x_2952_;
 goto v___jp_2939_;
 }

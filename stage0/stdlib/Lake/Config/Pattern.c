@@ -720,7 +720,7 @@ v_r_205_ = lean_box(v_res_204_);
 return v_r_205_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedPattern_default__1(lean_object* v_a_211_, lean_object* v_a_212_){
+LEAN_EXPORT lean_object* l_Lake_instInhabitedPattern_default__1(lean_object* v_00_u03b1_211_, lean_object* v_00_u03b2_212_){
 _start:
 {
 lean_object* v___x_213_; 
@@ -754,7 +754,7 @@ lean_ctor_set(v___x_219_, 0, v___x_218_);
 return v___x_219_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_instInhabitedPatternDescr_default__1(lean_object* v_a_220_, lean_object* v_a_221_){
+LEAN_EXPORT lean_object* l_Lake_instInhabitedPatternDescr_default__1(lean_object* v_00_u03b1_220_, lean_object* v_00_u03b2_221_){
 _start:
 {
 lean_object* v___x_222_; 

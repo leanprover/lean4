@@ -114,7 +114,7 @@ lean_ctor_set(v___x_3_, 0, v___x_2_);
 return v___x_3_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedKExprMap_default(lean_object* v_a_4_){
+LEAN_EXPORT lean_object* l_Lean_Meta_instInhabitedKExprMap_default(lean_object* v_00_u03b1_4_){
 _start:
 {
 lean_object* v___x_5_; 

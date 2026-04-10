@@ -1961,8 +1961,8 @@ return v___x_641_;
 else
 {
 lean_del_object(v___x_634_);
-lean_dec_ref(v_fst_631_);
 lean_dec(v_snd_632_);
+lean_dec_ref(v_fst_631_);
 lean_del_object(v___x_629_);
 v___y_614_ = v_a_610_;
 v___y_615_ = v_a_611_;

@@ -94,7 +94,6 @@ lean_object* l_Lean_mkPtrSet___redArg(lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* l_Lean_MVarId_getType(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Lean_Meta_Basic_0__Lean_Meta_withMVarContextImp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 uint8_t l_Std_DHashMap_Internal_Raw_u2080_contains___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_array_object l_Lean_Meta_Try_Collector_instInhabitedOrdSet_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_array_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 246}, .m_size = 0, .m_capacity = 0, .m_data = {}};
@@ -377,7 +376,7 @@ lean_ctor_set(v___x_11_, 1, v___x_9_);
 return v___x_11_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_instInhabitedOrdSet_default(lean_object* v_a_12_, lean_object* v_a_13_, lean_object* v_a_14_){
+LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_instInhabitedOrdSet_default(lean_object* v_00_u03b1_12_, lean_object* v_inst_13_, lean_object* v_inst_14_){
 _start:
 {
 lean_object* v___x_15_; 
@@ -385,13 +384,13 @@ v___x_15_ = lean_obj_once(&l_Lean_Meta_Try_Collector_instInhabitedOrdSet_default
 return v___x_15_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_instInhabitedOrdSet_default___boxed(lean_object* v_a_16_, lean_object* v_a_17_, lean_object* v_a_18_){
+LEAN_EXPORT lean_object* l_Lean_Meta_Try_Collector_instInhabitedOrdSet_default___boxed(lean_object* v_00_u03b1_16_, lean_object* v_inst_17_, lean_object* v_inst_18_){
 _start:
 {
 lean_object* v_res_19_; 
-v_res_19_ = l_Lean_Meta_Try_Collector_instInhabitedOrdSet_default(v_a_16_, v_a_17_, v_a_18_);
-lean_dec_ref(v_a_18_);
-lean_dec_ref(v_a_17_);
+v_res_19_ = l_Lean_Meta_Try_Collector_instInhabitedOrdSet_default(v_00_u03b1_16_, v_inst_17_, v_inst_18_);
+lean_dec_ref(v_inst_18_);
+lean_dec_ref(v_inst_17_);
 return v_res_19_;
 }
 }

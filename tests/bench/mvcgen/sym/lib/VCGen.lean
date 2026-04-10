@@ -406,7 +406,8 @@ the splitter telescope.
 -/
 meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
-  let us := instWP.getAppFn.constLevels!
+  let wpType ← liftMetaM <| Meta.inferType instWP
+  let us := wpType.getAppFn.constLevels!
   let u := us[0]!
   let v := us[1]!
   let prf ←

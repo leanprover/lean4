@@ -471,6 +471,8 @@ public structure VCGen.Context where
   specThms : SpecTheoremsNew
   /-- The backward rule for `SPred.entails_cons_intro`. -/
   entailsConsIntroRule : BackwardRule
+  /-- The backward rule for `PostCond.entails.rfl`. Tried first to close by reflexivity. -/
+  postCondEntailsRflRule : BackwardRule
   /-- The backward rule for `PostCond.entails.mk`. -/
   postCondEntailsMkRule : BackwardRule
   /-- The backward rule for `ExceptConds.entails.rfl`. -/
@@ -564,12 +566,18 @@ meta def tripleOfWP (goal : MVarId) : _root_.VCGenM MVarId := goal.withContext d
     goal.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent σs P Q)
 
 open Lean.Elab.Tactic.Do in
-meta def decomposePostCondEntails (goal : MVarId) : _root_.VCGenM MVarId := goal.withContext do
+meta def solvePostCondEntails (goal : MVarId) : _root_.VCGenM (Option (List MVarId)) := goal.withContext do
   let target ← goal.getType
-  let_expr PostCond.entails _ _ _ _ := target | return goal
+  let_expr PostCond.entails _α _ps _P _Q := target | return none
+  -- Try closing the whole entailment by reflexivity first.
+  if let .goals [] ← (← read).postCondEntailsRflRule.apply goal then
+    return some []
+  -- Otherwise, decompose with `PostCond.entails.mk` into success + exception subgoals.
   let .goals [goal₁, goal₂] ← (← read).postCondEntailsMkRule.apply goal
     | throwError "Applying {.ofConstName ``PostCond.entails} to {target} failed. It should not."
-  goal₂.withContext do
+  -- Try to discharge the exception subgoal by reflexivity. If that fails, leave it
+  -- as a subgoal so it is emitted as a VC by the surrounding worklist loop.
+  let extraGoal₂? ← goal₂.withContext do
     let target ← goal₂.getType
     let_expr ent@ExceptConds.entails ps P Q := target | throwError "invalid: {target}"
     let P := (← reduceProjBeta? P).getD P
@@ -577,9 +585,11 @@ meta def decomposePostCondEntails (goal : MVarId) : _root_.VCGenM MVarId := goal
     let P ← shareCommonInc P
     let Q ← shareCommonInc Q
     let goal₂ ← goal₂.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent ps P Q)
-    let .goals [] ← (← read).exceptCondsEntailsRflRule.apply goal₂
-      | throwError "Could not discharge {goal₂} by rfl. TODO: Implement this case."
-  goal₁.withContext do
+    if let .goals [] ← (← read).exceptCondsEntailsRflRule.apply goal₂ then
+      return none
+    return some goal₂
+  -- Normalize the success goal `∀ a, P a ⊢ₛ Q a`
+  let goal₁ ← goal₁.withContext do
     let target ← goal₁.getType
     let .forallE x d b bi := target | throwError "Not a forall: {target}"
     let_expr ent@SPred.entails σs P Q := b | throwError "Not a SPred.entails: {target}"
@@ -588,6 +598,7 @@ meta def decomposePostCondEntails (goal : MVarId) : _root_.VCGenM MVarId := goal
     let b ← Sym.Internal.mkAppS₃ ent σs P Q
     let target ← Sym.Internal.MonadShareCommon.share1 <| .forallE x d b bi
     goal₁.replaceTargetDefEq target
+  return goal₁ :: extraGoal₂?.toList
 
 /--
 Reduces (1) Prod projection functions and (2) Projs in application heads,
@@ -769,9 +780,8 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     let goal ← tripleOfWP goal
     return .goals [goal]
 
-  if f.isConstOf ``PostCond.entails then
-    let goal ← decomposePostCondEntails goal
-    return .goals [goal]
+  if let some goals ← solvePostCondEntails goal then
+    return .goals goals
 
   let_expr ent@SPred.entails σs H T := target | return .noEntailment target
   -- The goal is of the form `H ⊢ₛ T`. Try some reductions to expose `wp⟦e⟧ Q s₁ ... sₙ` in `T`.
@@ -781,7 +791,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     -- Do what `mIntroForall` does, that is, eta-expand. Note that this introduces an
     -- extra state arg `s` to reduce away the lambda.
     let .goals [goal] ← (← read).entailsConsIntroRule.apply goal
-      | throwError "Applying {.ofConstName ``SPred.entails_cons_intro} to {target} failed. It should not."
+      | throwError "Applying {.ofConstName ``SPred.entails_cons_intro} to {← goal.getType} failed. It should not."
     return .goals [goal]
 
   /-
@@ -1026,6 +1036,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
           specThms := specThms.insert thm
         catch _ => continue
   let entailsConsIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_cons_intro
+  let postCondEntailsRflRule ← mkBackwardRuleFromDecl ``PostCond.entails.rfl
   let postCondEntailsMkRule ← mkBackwardRuleFromDecl ``PostCond.entails.mk
   let exceptCondsEntailsRflRule ← mkBackwardRuleFromDecl ``ExceptConds.entails.rfl
   let tripleOfEntailsWPRule ← mkBackwardRuleFromDecl ``Triple.of_entails_wp
@@ -1033,6 +1044,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
   return {
     specThms := specThmsNew,
     entailsConsIntroRule,
+    postCondEntailsRflRule,
     postCondEntailsMkRule,
     exceptCondsEntailsRflRule,
     tripleOfEntailsWPRule,

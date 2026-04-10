@@ -697,8 +697,8 @@ After leaving the loop, the cursor's prefix is `xs` and the suffix is empty.
 During the induction step, the invariant holds for a suffix with head element `x`.
 After running the loop body, the invariant then holds after shifting `x` to the prefix.
 -/
-@[spec_invariant_type]
-abbrev Invariant {α : Type u₁} (xs : List α) (β : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
+@[spec_invariant_type, simp]
+def Invariant {α : Type u₁} (xs : List α) (β : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
   PostCond (List.Cursor xs × β) ps
 
 /--
@@ -719,7 +719,8 @@ successfully proving the induction step, as it contradicts with the assumption t
 won't need to prove anything about the bogus case where the loop has returned early yet takes
 another iteration of the loop body.
 -/
-abbrev Invariant.withEarlyReturn {α} {xs : List α} {γ : Type (max u₁ u₂)}
+@[simp]
+def Invariant.withEarlyReturn {α} {xs : List α} {γ : Type (max u₁ u₂)}
   (onContinue : List.Cursor xs → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
@@ -731,7 +732,8 @@ abbrev Invariant.withEarlyReturn {α} {xs : List α} {γ : Type (max u₁ u₂)}
 
 /-- Like `Invariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
 instead of `MProd` for the state tuple. -/
-abbrev Invariant.withEarlyReturnNewDo {α} {xs : List α} {γ : Type (max u₁ u₂)}
+@[simp]
+def Invariant.withEarlyReturnNewDo {α} {xs : List α} {γ : Type (max u₁ u₂)}
   (onContinue : List.Cursor xs → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
@@ -2027,8 +2029,8 @@ A loop invariant is a `PostCond` that takes as parameters
 * A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
   `let mut` variables and early return.
 -/
-@[spec_invariant_type]
-abbrev StringInvariant (s : String) (β : Type u) (ps : PostShape.{u}) :=
+@[spec_invariant_type, simp]
+def StringInvariant (s : String) (β : Type u) (ps : PostShape.{u}) :=
   PostCond (s.Pos × β) ps
 
 /--
@@ -2049,7 +2051,8 @@ successfully proving the induction step, as it contradicts with the assumption t
 won't need to prove anything about the bogus case where the loop has returned early yet takes
 another iteration of the loop body.
 -/
-abbrev StringInvariant.withEarlyReturn {s : String}
+@[simp]
+def StringInvariant.withEarlyReturn {s : String}
   (onContinue : s.Pos → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
@@ -2062,7 +2065,8 @@ abbrev StringInvariant.withEarlyReturn {s : String}
 
 /-- Like `StringInvariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
 instead of `MProd` for the state tuple. -/
-abbrev StringInvariant.withEarlyReturnNewDo {s : String}
+@[simp]
+def StringInvariant.withEarlyReturnNewDo {s : String}
   (onContinue : s.Pos → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
@@ -2112,8 +2116,8 @@ A loop invariant is a `PostCond` that takes as parameters
 * A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
   `let mut` variables and early return.
 -/
-@[spec_invariant_type]
-abbrev StringSliceInvariant (s : String.Slice) (β : Type u) (ps : PostShape.{u}) :=
+@[spec_invariant_type, simp]
+def StringSliceInvariant (s : String.Slice) (β : Type u) (ps : PostShape.{u}) :=
   PostCond (s.Pos × β) ps
 
 /--
@@ -2134,7 +2138,8 @@ successfully proving the induction step, as it contradicts with the assumption t
 won't need to prove anything about the bogus case where the loop has returned early yet takes
 another iteration of the loop body.
 -/
-abbrev StringSliceInvariant.withEarlyReturn {s : String.Slice}
+@[simp]
+def StringSliceInvariant.withEarlyReturn {s : String.Slice}
   (onContinue : s.Pos → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
@@ -2147,7 +2152,8 @@ abbrev StringSliceInvariant.withEarlyReturn {s : String.Slice}
 
 /-- Like `StringSliceInvariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
 instead of `MProd` for the state tuple. -/
-abbrev StringSliceInvariant.withEarlyReturnNewDo {s : String.Slice}
+@[simp]
+def StringSliceInvariant.withEarlyReturnNewDo {s : String.Slice}
   (onContinue : s.Pos → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :

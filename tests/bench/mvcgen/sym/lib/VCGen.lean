@@ -916,7 +916,7 @@ Called when decomposing the goal further did not succeed; in this case we emit a
 -/
 meta def emitVC (goal : Grind.Goal) : VCGenM Unit := do
   let ty ← goal.mvarId.getType
-  if ty.isAppOf ``Std.Do.Invariant then
+  if isSpecInvariantType (← getEnv) ty then
     goal.mvarId.setKind .syntheticOpaque
     modify fun s => { s with invariants := s.invariants.push goal.mvarId }
     return

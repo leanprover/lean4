@@ -113,11 +113,13 @@ meta def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : SimpT
     SymM SpecTheoremsNew := do
   let mut specs : DiscrTree SpecTheoremNew := DiscrTree.empty
   for spec in database.specs.values do
+    if database.isErased spec.proof then continue
     let newSpec ← mkSpecTheoremNew spec.proof spec.priority
     specs := Sym.insertPattern specs newSpec.pattern newSpec
   -- Migrate simp spec theorems (equational lemmas registered via `@[spec]`)
   for simpThm in simpThms.post.values do
     if let .decl declName .. := simpThm.origin then
+      if simpThms.erased.contains simpThm.origin then continue
       try
         if let some newSpec ← mkSpecTheoremNewFromSimpDecl? declName simpThm.priority then
           specs := Sym.insertPattern specs newSpec.pattern newSpec
@@ -125,6 +127,7 @@ meta def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : SimpT
         trace[Elab.Tactic.Do.vcgen] "Failed to migrate simp spec {declName}: {e.toMessageData}"
   -- Migrate definitions to unfold (registered via `attribute [spec] foo`)
   for declName in simpThms.toUnfold.toList do
+    if simpThms.erased.contains (.decl declName) then continue
     let eqThms ← match simpThms.toUnfoldThms.find? declName with
       | some eqThms => pure eqThms
       | none =>
@@ -954,15 +957,19 @@ public meta partial def main (goal : MVarId) (ctx : Context) : Grind.GrindM Resu
   return { invariants, vcs }
 
 /--
-This function is best ignored; it's copied from `Lean.Elab.Tactic.Do.mkSpecContext`
-and is more complex than necessary ATM.
+Parse the optional `[...]` argument list for `mvcgen'`, partitioning entries into
+spec theorems and simp lemmas. Follows the same approach as
+`Lean.Elab.Tactic.Do.VCGen.mkSpecContext`: each entry is first tried as a spec theorem,
+and on failure falls back to a simp/unfold lemma processed via `mkSimpContext`.
 -/
 meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGen.Context := do
   let mut specThms ← getSpecTheorems
+  let mut simpStuff := #[]
   let mut starArg := false
   for arg in lemmas[1].getSepArgs do
     if arg.getKind == ``simpErase then
       try
+        -- Try to interpret as a spec theorem erasure; fall back to simp erasure.
         let specThm ←
           if let some fvar ← Term.isLocalIdent? arg[1] then
             mkSpecTheoremFromLocal fvar.fvarId!
@@ -973,10 +980,13 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
             else
               withRef id <| throwUnknownConstant id.getId.eraseMacroScopes
         specThms := specThms.erase specThm.proof
-      catch _ => pure () -- TODO: handle erasure of simp specs
+      catch _ =>
+        simpStuff := simpStuff.push ⟨arg⟩ -- simp tracks its own erase stuff
     else if arg.getKind == ``simpLemma then
       unless arg[0].isNone && arg[1].isNone do
-        throwError "← and ↑/↓ modifiers are not supported for spec lemmas"
+        -- When there is ←, →, ↑ or ↓ then this is for simp
+        simpStuff := simpStuff.push ⟨arg⟩
+        continue
       let term := arg[2]
       match ← Term.resolveId? term (withInfo := true) <|> Term.elabCDotFunctionAlias? ⟨term⟩ with
       | some (.const declName _) =>
@@ -984,20 +994,29 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
           let thm ← mkSpecTheoremFromConst declName
           specThms := specThms.insert thm
         catch _ =>
-          -- TODO: handle user-provided simp specs
-          throwError "Could not build spec theorem from {declName}"
+          simpStuff := simpStuff.push ⟨arg⟩
       | some (.fvar fvar) =>
         try
           let thm ← mkSpecTheoremFromLocal fvar
           specThms := specThms.insert thm
         catch _ =>
-          throwError "Could not build spec theorem from local {mkFVar fvar}"
-      | _ => withRef term <| throwError "Could not resolve {repr term}"
+          simpStuff := simpStuff.push ⟨arg⟩
+      | _ => withRef term <| throwError "Could not resolve spec theorem `{term}`"
     else if arg.getKind == ``simpStar then
       starArg := true
+      simpStuff := simpStuff.push ⟨arg⟩
     else
       throwUnsupportedSyntax
-  let simpThms ← getSpecSimpTheorems
+  -- Build a simp context from the collected simp/unfold arguments, seeded with the
+  -- spec simp theorems database (which contains `@[spec]`-registered simp equations
+  -- and definitions to unfold).
+  let stx ← `(tactic| simp +unfoldPartialApp -zeta [$(Syntax.TSepArray.ofElems simpStuff),*])
+  let res ← mkSimpContext stx.raw
+    (eraseLocal := false)
+    (simpTheorems := getSpecSimpTheorems)
+    (ignoreStarArg := ignoreStarArg)
+  let simpThms := res.ctx.simpTheorems[0]?.getD {}
+  -- Add local spec hypotheses when `*` is used.
   if starArg && !ignoreStarArg then
     let fvars ← getPropHyps
     for fvar in fvars do

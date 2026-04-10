@@ -19,7 +19,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 uint32_t lean_uint32_add(uint32_t, uint32_t);
@@ -31,7 +31,6 @@ uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object
 lean_object* lean_string_to_utf8(lean_object*);
 lean_object* lean_byte_array_size(lean_object*);
 extern lean_object* l_ByteArray_empty;
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
 lean_object* lean_byte_array_push(lean_object*, uint8_t);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
@@ -1701,7 +1700,7 @@ v___x_471_ = lean_nat_sub(v___x_470_, v___x_463_);
 lean_dec(v___x_463_);
 v___x_472_ = lean_nat_add(v_pos_459_, v___x_471_);
 lean_dec(v___x_471_);
-v___x_473_ = l_String_instDecidableLtRaw___aux__1(v_pos_459_, v___x_472_);
+v___x_473_ = lean_nat_dec_lt(v_pos_459_, v___x_472_);
 if (v___x_473_ == 0)
 {
 lean_dec(v___x_472_);

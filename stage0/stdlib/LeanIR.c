@@ -20,7 +20,7 @@ size_t lean_usize_add(size_t, size_t);
 lean_object* l_Lean_Message_toString(lean_object*, uint8_t);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* lean_get_stderr();
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_st_mk_ref(lean_object*);
 lean_object* l_Lean_importModulesCore(lean_object*, uint8_t, lean_object*, uint8_t, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
@@ -68,7 +68,6 @@ lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 uint64_t l_String_instHashableRaw_hash(lean_object*);
@@ -6761,7 +6760,7 @@ v_fst_1990_ = lean_ctor_get(v_x_1988_, 0);
 v_fst_1991_ = lean_ctor_get(v_x_1989_, 0);
 v_fst_1992_ = lean_ctor_get(v_fst_1990_, 0);
 v_fst_1993_ = lean_ctor_get(v_fst_1991_, 0);
-v___x_1994_ = l_String_instDecidableLtRaw___aux__1(v_fst_1992_, v_fst_1993_);
+v___x_1994_ = lean_nat_dec_lt(v_fst_1992_, v_fst_1993_);
 return v___x_1994_;
 }
 }

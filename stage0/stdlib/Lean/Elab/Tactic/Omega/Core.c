@@ -81,8 +81,6 @@ lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_buildTable(lean_object*
 lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
@@ -1943,7 +1941,7 @@ lean_dec(v_needlePos_473_);
 lean_dec(v_stackPos_472_);
 lean_dec_ref(v_table_471_);
 lean_dec_ref(v_needle_470_);
-v___x_488_ = l_String_instDecidableLtRaw___aux__1(v_basePos_483_, v___x_486_);
+v___x_488_ = lean_nat_dec_lt(v_basePos_483_, v___x_486_);
 if (v___x_488_ == 0)
 {
 lean_dec(v___x_486_);

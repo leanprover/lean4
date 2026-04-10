@@ -40,7 +40,6 @@ lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_pushSyntax(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_setPos(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_ParserState_mkUnexpectedError(lean_object*, lean_object*, lean_object*, uint8_t);
@@ -83,12 +82,11 @@ lean_object* l_Lean_Parser_ParserState_restore(lean_object*, lean_object*, lean_
 uint8_t l_Lean_Syntax_isAntiquots(lean_object*);
 lean_object* l_Lean_Syntax_getArgs(lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_Error_merge(lean_object*, lean_object*);
 lean_object* l_Lean_Parser_SyntaxStack_toSubarray(lean_object*);
 lean_object* l_Subarray_get___redArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isNone(lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
@@ -3245,11 +3243,11 @@ return v___x_677_;
 else
 {
 uint8_t v___x_678_; 
-v___x_678_ = l_String_instDecidableLtRaw___aux__1(v_pos_644_, v_pos_673_);
+v___x_678_ = lean_nat_dec_lt(v_pos_644_, v_pos_673_);
 if (v___x_678_ == 0)
 {
 uint8_t v___x_679_; 
-v___x_679_ = l_String_instDecidableLtRaw___aux__1(v_pos_673_, v_pos_644_);
+v___x_679_ = lean_nat_dec_lt(v_pos_673_, v_pos_644_);
 lean_dec(v_pos_673_);
 if (v___x_679_ == 0)
 {
@@ -4810,7 +4808,7 @@ uint8_t v___x_1247_;
 lean_dec_ref(v_c_1219_);
 lean_dec_ref(v_sep_1215_);
 lean_dec_ref(v_p_1214_);
-v___x_1247_ = l_String_instDecidableLtRaw___aux__1(v_pos_1240_, v_pos_1243_);
+v___x_1247_ = lean_nat_dec_lt(v_pos_1240_, v_pos_1243_);
 lean_dec(v_pos_1243_);
 if (v___x_1247_ == 0)
 {
@@ -10475,7 +10473,7 @@ lean_inc(v_startPos_3180_);
 v_stopPos_3181_ = lean_ctor_get(v_trailing_3179_, 2);
 lean_inc(v_stopPos_3181_);
 lean_dec_ref(v_trailing_3179_);
-v___x_3182_ = l_String_instDecidableLtRaw___aux__1(v_startPos_3180_, v_stopPos_3181_);
+v___x_3182_ = lean_nat_dec_lt(v_startPos_3180_, v_stopPos_3181_);
 lean_dec(v_stopPos_3181_);
 lean_dec(v_startPos_3180_);
 return v___x_3182_;

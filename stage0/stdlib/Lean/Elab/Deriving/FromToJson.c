@@ -111,7 +111,6 @@ lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Deriving_mkLocalInstanceLetDecls(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1646,7 +1645,7 @@ return v_pos_203_;
 else
 {
 uint8_t v___x_218_; 
-v___x_218_ = l_String_instDecidableLtRaw___aux__1(v___x_213_, v_pos_203_);
+v___x_218_ = lean_nat_dec_lt(v___x_213_, v_pos_203_);
 if (v___x_218_ == 0)
 {
 lean_dec(v___x_213_);

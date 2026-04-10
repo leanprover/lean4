@@ -49,7 +49,6 @@ lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* l_Lean_Lsp_instToJsonInlayHint_toJson(lean_object*);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 lean_object* l_Lean_FileMap_lspRangeToUtf8Range(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
@@ -1400,11 +1399,11 @@ lean_inc(v_start_283_);
 v_stop_284_ = lean_ctor_get(v_range_280_, 1);
 lean_inc(v_stop_284_);
 lean_dec_ref(v_range_280_);
-v___x_285_ = l_String_instDecidableLtRaw___aux__1(v_stop_284_, v_p_282_);
+v___x_285_ = lean_nat_dec_lt(v_stop_284_, v_p_282_);
 if (v___x_285_ == 0)
 {
 uint8_t v___x_286_; 
-v___x_286_ = l_String_instDecidableLtRaw___aux__1(v_p_282_, v_start_283_);
+v___x_286_ = lean_nat_dec_lt(v_p_282_, v_start_283_);
 if (v___x_286_ == 0)
 {
 lean_object* v___x_287_; lean_object* v___x_288_; lean_object* v___x_289_; lean_object* v___x_290_; lean_object* v___x_291_; lean_object* v___x_292_; lean_object* v___x_293_; lean_object* v___x_294_; lean_object* v___x_295_; lean_object* v___x_296_; lean_object* v___x_297_; lean_object* v___x_298_; lean_object* v___x_299_; lean_object* v___x_300_; lean_object* v___x_301_; lean_object* v___x_302_; lean_object* v___x_303_; 
@@ -2444,11 +2443,11 @@ v___x_619_ = lean_nat_to_int(v___x_618_);
 v_byteOffset_620_ = lean_int_sub(v___x_617_, v___x_619_);
 lean_dec(v___x_619_);
 lean_dec(v___x_617_);
-v___x_621_ = l_String_instDecidableLtRaw___aux__1(v_stop_615_, v_position_576_);
+v___x_621_ = lean_nat_dec_lt(v_stop_615_, v_position_576_);
 if (v___x_621_ == 0)
 {
 uint8_t v___x_622_; 
-v___x_622_ = l_String_instDecidableLtRaw___aux__1(v_position_576_, v_start_614_);
+v___x_622_ = lean_nat_dec_lt(v_position_576_, v_start_614_);
 if (v___x_622_ == 0)
 {
 lean_object* v___x_623_; lean_object* v___x_624_; lean_object* v___x_625_; lean_object* v___x_626_; lean_object* v___x_627_; lean_object* v___x_628_; lean_object* v___x_629_; lean_object* v___x_630_; lean_object* v___x_631_; lean_object* v___x_632_; lean_object* v___x_633_; lean_object* v___x_634_; lean_object* v___x_635_; lean_object* v___x_636_; lean_object* v___x_637_; lean_object* v___x_638_; lean_object* v___x_639_; 

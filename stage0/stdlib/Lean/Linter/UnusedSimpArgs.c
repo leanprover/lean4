@@ -87,7 +87,6 @@ lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_updateContext_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_toList___redArg(lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_Array_qpartition___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
@@ -1789,7 +1788,7 @@ v_fst_532_ = lean_ctor_get(v_x1_530_, 0);
 v_fst_533_ = lean_ctor_get(v_x2_531_, 0);
 v_start_534_ = lean_ctor_get(v_fst_532_, 0);
 v_start_535_ = lean_ctor_get(v_fst_533_, 0);
-v___x_536_ = l_String_instDecidableLtRaw___aux__1(v_start_534_, v_start_535_);
+v___x_536_ = lean_nat_dec_lt(v_start_534_, v_start_535_);
 return v___x_536_;
 }
 }

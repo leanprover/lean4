@@ -53,7 +53,6 @@ uint8_t l_Lean_Syntax_Range_contains(lean_object*, lean_object*, uint8_t);
 lean_object* l_Array_zipIdx___redArg(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isAtom(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTrailingTailPos_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Info_pos_x3f(lean_object*);
 lean_object* l_Lean_Elab_Info_tailPos_x3f(lean_object*);
@@ -80,7 +79,6 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
 lean_object* l_List_dropWhile___redArg(lean_object*, lean_object*);
 lean_object* l_List_head_x3f___redArg(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 uint8_t l_List_any___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_getId(lean_object*);
 LEAN_EXPORT uint8_t l___private_Lean_Server_Completion_SyntheticCompletion_0__Lean_Server_Completion_findBest_x3f_isBetter___redArg(lean_object*, lean_object*, lean_object*);
@@ -1352,7 +1350,7 @@ return v___x_352_;
 v___jp_354_:
 {
 uint8_t v___x_358_; 
-v___x_358_ = l_String_instDecidableLtRaw___aux__1(v_hoverPos_321_, v___y_357_);
+v___x_358_ = lean_nat_dec_lt(v_hoverPos_321_, v___y_357_);
 if (v___x_358_ == 0)
 {
 lean_object* v___x_359_; 

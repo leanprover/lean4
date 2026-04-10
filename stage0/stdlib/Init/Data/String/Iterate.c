@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -907,7 +907,7 @@ v_startInclusive_316_ = lean_ctor_get(v_s_310_, 1);
 lean_inc(v_startInclusive_316_);
 v_endExclusive_317_ = lean_ctor_get(v_s_310_, 2);
 v___x_318_ = lean_nat_sub(v_endExclusive_317_, v_startInclusive_316_);
-v___x_319_ = l_String_instDecidableLtRaw___aux__1(v_offset_311_, v___x_318_);
+v___x_319_ = lean_nat_dec_lt(v_offset_311_, v___x_318_);
 lean_dec(v___x_318_);
 if (v___x_319_ == 0)
 {
@@ -1103,7 +1103,7 @@ lean_closure_set(v___f_383_, 2, v___y_367_);
 lean_closure_set(v___f_383_, 3, v_acc_372_);
 lean_closure_set(v___f_383_, 4, v_toBind_368_);
 v___x_384_ = lean_nat_sub(v_endExclusive_382_, v_startInclusive_381_);
-v___x_385_ = l_String_instDecidableLtRaw___aux__1(v_offset_376_, v___x_384_);
+v___x_385_ = lean_nat_dec_lt(v_offset_376_, v___x_384_);
 lean_dec(v___x_384_);
 if (v___x_385_ == 0)
 {

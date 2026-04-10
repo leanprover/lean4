@@ -195,8 +195,6 @@ lean_object* l_Lean_MessageData_toString(lean_object*);
 lean_object* l_Lean_Kernel_enableDiag(lean_object*, uint8_t);
 uint8_t l_Lean_Kernel_isDiagnosticsEnabled(lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 lean_object* l_String_Slice_posGE___redArg(lean_object*, lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
@@ -9336,7 +9334,7 @@ lean_dec(v_needlePos_2256_);
 lean_dec(v_stackPos_2255_);
 lean_dec_ref(v_table_2254_);
 lean_dec_ref(v_needle_2253_);
-v___x_2267_ = l_String_instDecidableLtRaw___aux__1(v_basePos_2263_, v___x_2237_);
+v___x_2267_ = lean_nat_dec_lt(v_basePos_2263_, v___x_2237_);
 lean_dec(v_basePos_2263_);
 if (v___x_2267_ == 0)
 {

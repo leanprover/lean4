@@ -27,7 +27,7 @@ uint8_t l_List_isEmpty___redArg(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_String_Slice_positions(lean_object*);
 static const lean_string_object l_Std_Http_Internal_quoteCore___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 1, .m_capacity = 1, .m_length = 0, .m_data = ""};
@@ -1137,7 +1137,7 @@ v___x_238_ = lean_nat_sub(v___x_237_, v___x_235_);
 lean_dec(v___x_235_);
 v___x_239_ = lean_nat_add(v_pos_231_, v___x_238_);
 lean_dec(v___x_238_);
-v___x_240_ = l_String_instDecidableLtRaw___aux__1(v_pos_231_, v___x_239_);
+v___x_240_ = lean_nat_dec_lt(v_pos_231_, v___x_239_);
 if (v___x_240_ == 0)
 {
 lean_dec(v___x_239_);

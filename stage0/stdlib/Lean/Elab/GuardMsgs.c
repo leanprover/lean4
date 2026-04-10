@@ -30,7 +30,6 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
@@ -77,7 +76,6 @@ lean_object* l_String_Slice_Pos_get_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_toString(lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 uint8_t l_Lean_Message_isTrace(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
@@ -4610,7 +4608,7 @@ lean_dec(v_needlePos_1226_);
 lean_dec(v_stackPos_1225_);
 lean_dec_ref(v_table_1224_);
 lean_dec_ref(v_needle_1223_);
-v___x_1241_ = l_String_instDecidableLtRaw___aux__1(v_basePos_1236_, v___x_1239_);
+v___x_1241_ = lean_nat_dec_lt(v_basePos_1236_, v___x_1239_);
 if (v___x_1241_ == 0)
 {
 lean_dec(v___x_1239_);
@@ -7493,7 +7491,7 @@ lean_dec(v_needlePos_2133_);
 lean_dec(v_stackPos_2132_);
 lean_dec_ref(v_table_2131_);
 lean_dec_ref(v_needle_2130_);
-v___x_2148_ = l_String_instDecidableLtRaw___aux__1(v_basePos_2143_, v___x_2146_);
+v___x_2148_ = lean_nat_dec_lt(v_basePos_2143_, v___x_2146_);
 lean_dec(v___x_2146_);
 lean_dec(v_basePos_2143_);
 if (v___x_2148_ == 0)

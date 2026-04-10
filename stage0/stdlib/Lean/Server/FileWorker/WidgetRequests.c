@@ -89,7 +89,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
 lean_object* l_Lean_Widget_TaggedText_map___redArg(lean_object*, lean_object*);
@@ -11645,7 +11644,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Server_FileWorker_WidgetRequests_0__Le
 _start:
 {
 uint8_t v___x_3411_; 
-v___x_3411_ = l_String_instDecidableLtRaw___aux__1(v_p_3409_, v_matchPosition_3410_);
+v___x_3411_ = lean_nat_dec_lt(v_p_3409_, v_matchPosition_3410_);
 if (v___x_3411_ == 0)
 {
 lean_object* v___x_3412_; 

@@ -142,7 +142,6 @@ lean_object* lean_expr_dbg_to_string(lean_object*);
 lean_object* l_List_appendTR___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_Syntax_Range_bsize(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_List_mergeSort___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_extraMsgToMsg(lean_object*);
 lean_object* l_Lean_Elab_Term_getMVarDecl___redArg(lean_object*, lean_object*);

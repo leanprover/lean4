@@ -40,7 +40,6 @@ uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_registerPersistentEnvExtensionUnsafe___redArg(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_Array_push___boxed(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -1182,7 +1181,7 @@ v___x_396_ = lean_nat_sub(v___x_395_, v___x_393_);
 lean_dec(v___x_393_);
 v___x_397_ = lean_nat_add(v_pos_389_, v___x_396_);
 lean_dec(v___x_396_);
-v___x_398_ = l_String_instDecidableLtRaw___aux__1(v_pos_389_, v___x_397_);
+v___x_398_ = lean_nat_dec_lt(v_pos_389_, v___x_397_);
 if (v___x_398_ == 0)
 {
 lean_dec(v___x_397_);
@@ -1529,7 +1528,7 @@ goto v___jp_519_;
 v___jp_512_:
 {
 uint8_t v___x_513_; 
-v___x_513_ = l_String_instDecidableLtRaw___aux__1(v___x_511_, v_pos_501_);
+v___x_513_ = lean_nat_dec_lt(v___x_511_, v_pos_501_);
 if (v___x_513_ == 0)
 {
 lean_dec(v___x_511_);

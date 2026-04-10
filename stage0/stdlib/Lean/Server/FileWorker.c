@@ -116,7 +116,6 @@ lean_object* l_Lean_Widget_TaggedText_stripTags___redArg(lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t l_Lean_Name_isPrefixOf(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_Array_qpartition___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l___private_Lean_Data_Lsp_Communication_0__IO_FS_Stream_readLspHeader(lean_object*);
@@ -173,7 +172,6 @@ lean_object* l_Lean_Server_mkFileProgressNotification(lean_object*, lean_object*
 lean_object* l_Lean_Lsp_instToJsonLeanFileProgressParams_toJson(lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_io_get_task_state(lean_object*);
 lean_object* lean_io_wait(lean_object*);
 lean_object* l_Lean_Widget_msgToInteractiveDiagnostic(lean_object*, lean_object*, uint8_t);
@@ -202,7 +200,7 @@ lean_object* l_USize_fromJson_x3f(lean_object*);
 lean_object* l_Lean_Server_rpcReleaseRef(size_t, lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonCancelParams_fromJson(lean_object*);
 extern lean_object* l_Lean_Language_Snapshot_Diagnostics_empty;
-extern lean_object* l_Lean_Language_instInhabitedSnapshot_default;
+extern lean_object* l_Lean_Language_instInhabitedSnapshotLeaf;
 lean_object* l_Lean_Language_instInhabitedSnapshotTask_default___redArg(lean_object*);
 lean_object* l_Lean_Elab_HeaderSyntax_toModuleHeader(lean_object*);
 lean_object* l_Lean_Server_FileWorker_setupFile(lean_object*, lean_object*, lean_object*);
@@ -8012,7 +8010,7 @@ v_start_1737_ = lean_ctor_get(v___x_1736_, 0);
 v_stop_1738_ = lean_ctor_get(v___x_1736_, 1);
 v_start_1739_ = lean_ctor_get(v___x_1731_, 0);
 v_stop_1740_ = lean_ctor_get(v___x_1731_, 1);
-v___x_1741_ = l_String_instDecidableLtRaw___aux__1(v_stop_1738_, v_start_1739_);
+v___x_1741_ = lean_nat_dec_lt(v_stop_1738_, v_start_1739_);
 if (v___x_1741_ == 0)
 {
 lean_object* v___x_1743_; uint8_t v_isShared_1744_; uint8_t v_isSharedCheck_1753_; 
@@ -8208,7 +8206,7 @@ _start:
 lean_object* v_start_1807_; lean_object* v_start_1808_; uint8_t v___x_1809_; 
 v_start_1807_ = lean_ctor_get(v_x1_1805_, 0);
 v_start_1808_ = lean_ctor_get(v_x2_1806_, 0);
-v___x_1809_ = l_String_instDecidableLtRaw___aux__1(v_start_1807_, v_start_1808_);
+v___x_1809_ = lean_nat_dec_lt(v_start_1807_, v_start_1808_);
 return v___x_1809_;
 }
 }
@@ -10877,7 +10875,7 @@ static lean_object* _init_l_Lean_Server_FileWorker_setupImports___closed__6(void
 _start:
 {
 lean_object* v___x_2720_; lean_object* v___x_2721_; 
-v___x_2720_ = l_Lean_Language_instInhabitedSnapshot_default;
+v___x_2720_ = l_Lean_Language_instInhabitedSnapshotLeaf;
 v___x_2721_ = l_Lean_Language_instInhabitedSnapshotTask_default___redArg(v___x_2720_);
 return v___x_2721_;
 }
@@ -10885,7 +10883,7 @@ return v___x_2721_;
 LEAN_EXPORT lean_object* l_Lean_Server_FileWorker_setupImports(lean_object* v_doc_2726_, lean_object* v_cmdlineOpts_2727_, lean_object* v_chanOut_2728_, lean_object* v_stx_2729_, lean_object* v_a_2730_){
 _start:
 {
-lean_object* v___y_2733_; uint8_t v___y_2734_; lean_object* v___y_2735_; lean_object* v___y_2736_; lean_object* v___y_2737_; lean_object* v___y_2738_; lean_object* v___y_2739_; lean_object* v___x_2744_; lean_object* v___x_2745_; uint8_t v___x_2746_; lean_object* v___x_2758_; lean_object* v___x_2759_; uint8_t v___x_2760_; 
+uint8_t v___y_2733_; lean_object* v___y_2734_; lean_object* v___y_2735_; lean_object* v___y_2736_; lean_object* v___y_2737_; lean_object* v___y_2738_; lean_object* v___y_2739_; lean_object* v___x_2744_; lean_object* v___x_2745_; uint8_t v___x_2746_; lean_object* v___x_2758_; lean_object* v___x_2759_; uint8_t v___x_2760_; 
 v___x_2744_ = l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_importsLoadedRef;
 v___x_2745_ = lean_st_ref_take(v___x_2744_);
 v___x_2746_ = 1;
@@ -10969,11 +10967,11 @@ v___x_2784_ = l_Lean_Option_set___at___00Lean_Server_FileWorker_setupImports_spe
 v___x_2785_ = lean_strict_or(v_isModule_2771_, v_isModule_2778_);
 if (lean_obj_tag(v_imports_x3f_2772_) == 0)
 {
-v___y_2733_ = v_importArts_2773_;
-v___y_2734_ = v___x_2785_;
-v___y_2735_ = v_mod_2776_;
-v___y_2736_ = v___x_2784_;
-v___y_2737_ = v_package_x3f_2770_;
+v___y_2733_ = v___x_2785_;
+v___y_2734_ = v___x_2784_;
+v___y_2735_ = v_package_x3f_2770_;
+v___y_2736_ = v_importArts_2773_;
+v___y_2737_ = v_mod_2776_;
 v___y_2738_ = v_plugins_2774_;
 v___y_2739_ = v_imports_2777_;
 goto v___jp_2732_;
@@ -10985,11 +10983,11 @@ lean_dec_ref(v_imports_2777_);
 v_val_2786_ = lean_ctor_get(v_imports_x3f_2772_, 0);
 lean_inc(v_val_2786_);
 lean_dec_ref(v_imports_x3f_2772_);
-v___y_2733_ = v_importArts_2773_;
-v___y_2734_ = v___x_2785_;
-v___y_2735_ = v_mod_2776_;
-v___y_2736_ = v___x_2784_;
-v___y_2737_ = v_package_x3f_2770_;
+v___y_2733_ = v___x_2785_;
+v___y_2734_ = v___x_2784_;
+v___y_2735_ = v_package_x3f_2770_;
+v___y_2736_ = v_importArts_2773_;
+v___y_2737_ = v_mod_2776_;
 v___y_2738_ = v_plugins_2774_;
 v___y_2739_ = v_val_2786_;
 goto v___jp_2732_;
@@ -11463,13 +11461,13 @@ v___jp_2732_:
 uint32_t v___x_2740_; lean_object* v___x_2741_; lean_object* v___x_2742_; lean_object* v___x_2743_; 
 v___x_2740_ = 0;
 v___x_2741_ = lean_alloc_ctor(0, 6, 5);
-lean_ctor_set(v___x_2741_, 0, v___y_2735_);
-lean_ctor_set(v___x_2741_, 1, v___y_2737_);
+lean_ctor_set(v___x_2741_, 0, v___y_2737_);
+lean_ctor_set(v___x_2741_, 1, v___y_2735_);
 lean_ctor_set(v___x_2741_, 2, v___y_2739_);
-lean_ctor_set(v___x_2741_, 3, v___y_2736_);
-lean_ctor_set(v___x_2741_, 4, v___y_2733_);
+lean_ctor_set(v___x_2741_, 3, v___y_2734_);
+lean_ctor_set(v___x_2741_, 4, v___y_2736_);
 lean_ctor_set(v___x_2741_, 5, v___y_2738_);
-lean_ctor_set_uint8(v___x_2741_, sizeof(void*)*6 + 4, v___y_2734_);
+lean_ctor_set_uint8(v___x_2741_, sizeof(void*)*6 + 4, v___y_2733_);
 lean_ctor_set_uint32(v___x_2741_, sizeof(void*)*6, v___x_2740_);
 v___x_2742_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_2742_, 0, v___x_2741_);

@@ -28,8 +28,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_String_Slice_posGE___redArg(lean_object*, lean_object*);
 lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
@@ -785,7 +783,7 @@ lean_dec(v_needlePos_252_);
 lean_dec(v_stackPos_251_);
 lean_dec_ref(v_table_250_);
 lean_dec_ref(v_needle_249_);
-v___x_267_ = l_String_instDecidableLtRaw___aux__1(v_basePos_262_, v___x_265_);
+v___x_267_ = lean_nat_dec_lt(v_basePos_262_, v___x_265_);
 if (v___x_267_ == 0)
 {
 lean_object* v___x_268_; 
@@ -1698,7 +1696,7 @@ lean_dec(v_needlePos_506_);
 lean_dec(v_stackPos_505_);
 lean_dec_ref(v_table_504_);
 lean_dec_ref(v_needle_503_);
-v___x_521_ = l_String_instDecidableLtRaw___aux__1(v_basePos_516_, v___x_519_);
+v___x_521_ = lean_nat_dec_lt(v_basePos_516_, v___x_519_);
 if (v___x_521_ == 0)
 {
 lean_object* v___x_522_; lean_object* v___x_523_; 

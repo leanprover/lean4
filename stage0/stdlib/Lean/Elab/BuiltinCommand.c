@@ -289,7 +289,6 @@ lean_object* l_Lean_Doc_Parser_BlockCtxt_forDocString(lean_object*, lean_object*
 lean_object* l_Lean_Parser_mkParserState(lean_object*);
 lean_object* l_Lean_Doc_Parser_document(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Parser_getTokenTable(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_getMainVersoModuleDocs(lean_object*);
 uint8_t l_Lean_VersoModuleDocs_isEmpty(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);

@@ -103,7 +103,6 @@ uint8_t l_Lean_instBEqMessageSeverity_beq(uint8_t, uint8_t);
 extern lean_object* l_Lean_warningAsError;
 lean_object* l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(lean_object*, lean_object*);
 uint8_t l_Lean_MessageData_hasSyntheticSorry(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_Array_qpartition___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
@@ -608,7 +607,7 @@ v_fst_131_ = lean_ctor_get(v_x1_129_, 0);
 v_fst_132_ = lean_ctor_get(v_x2_130_, 0);
 v_start_133_ = lean_ctor_get(v_fst_131_, 0);
 v_start_134_ = lean_ctor_get(v_fst_132_, 0);
-v___x_135_ = l_String_instDecidableLtRaw___aux__1(v_start_133_, v_start_134_);
+v___x_135_ = lean_nat_dec_lt(v_start_133_, v_start_134_);
 return v___x_135_;
 }
 }

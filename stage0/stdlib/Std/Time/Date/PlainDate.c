@@ -41,7 +41,6 @@ uint8_t l_Std_Time_Year_Offset_era(lean_object*);
 lean_object* l_Std_Time_ValidDate_dayOfYear(uint8_t, lean_object*);
 lean_object* l_Std_Time_Weekday_toOrdinal(uint8_t);
 lean_object* l_Std_Time_Year_Offset_weeks(lean_object*);
-uint8_t l_Std_Time_Day_instDecidableLeOrdinal___aux__1(lean_object*, lean_object*);
 static const lean_string_object l_Std_Time_instReprPlainDate_repr___redArg___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 3, .m_capacity = 3, .m_length = 2, .m_data = "{ "};
 static const lean_object* l_Std_Time_instReprPlainDate_repr___redArg___closed__0 = (const lean_object*)&l_Std_Time_instReprPlainDate_repr___redArg___closed__0_value;
 static const lean_string_object l_Std_Time_instReprPlainDate_repr___redArg___closed__1_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "year"};
@@ -1040,7 +1039,7 @@ v___jp_273_:
 {
 lean_object* v___x_275_; uint8_t v___x_276_; 
 v___x_275_ = l_Std_Time_Month_Ordinal_days(v___y_274_, v_month_271_);
-v___x_276_ = l_Std_Time_Day_instDecidableLeOrdinal___aux__1(v_day_272_, v___x_275_);
+v___x_276_ = lean_int_dec_le(v_day_272_, v___x_275_);
 lean_dec(v___x_275_);
 if (v___x_276_ == 0)
 {

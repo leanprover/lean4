@@ -83,7 +83,6 @@ lean_object* lean_mk_thunk(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_findFinIdx_x3f_loop(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Std_Time_Month_Ordinal_days(uint8_t, lean_object*);
-uint8_t l_Std_Time_Day_instDecidableLeOrdinal___aux__1(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
 lean_object* l_Std_Time_Second_instOfNatOrdinal(uint8_t, lean_object*);
 lean_object* l_Std_Time_HourMarker_toAbsolute(uint8_t, lean_object*);
@@ -43890,7 +43889,7 @@ v___jp_11717_:
 {
 lean_object* v___x_11727_; uint8_t v___x_11728_; 
 v___x_11727_ = l_Std_Time_Month_Ordinal_days(v___y_11726_, v___y_11720_);
-v___x_11728_ = l_Std_Time_Day_instDecidableLeOrdinal___aux__1(v___y_11722_, v___x_11727_);
+v___x_11728_ = lean_int_dec_le(v___y_11722_, v___x_11727_);
 lean_dec(v___x_11727_);
 if (v___x_11728_ == 0)
 {

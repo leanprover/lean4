@@ -40,7 +40,7 @@ lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* l_Lean_Doc_Inline_empty(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_length(lean_object*);
 lean_object* l_String_Slice_Pos_nextn(lean_object*, lean_object*, lean_object*);
@@ -60,7 +60,6 @@ lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_instToForwardSearcher__
 lean_object* l_String_Slice_replace___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
@@ -1732,7 +1731,7 @@ v___x_476_ = lean_nat_sub(v___x_475_, v___x_473_);
 lean_dec(v___x_473_);
 v___x_477_ = lean_nat_add(v_pos_469_, v___x_476_);
 lean_dec(v___x_476_);
-v___x_478_ = l_String_instDecidableLtRaw___aux__1(v_pos_469_, v___x_477_);
+v___x_478_ = lean_nat_dec_lt(v_pos_469_, v___x_477_);
 if (v___x_478_ == 0)
 {
 lean_dec(v___x_477_);
@@ -2287,7 +2286,7 @@ goto v___jp_628_;
 v___jp_621_:
 {
 uint8_t v___x_622_; 
-v___x_622_ = l_String_instDecidableLtRaw___aux__1(v___x_620_, v_pos_610_);
+v___x_622_ = lean_nat_dec_lt(v___x_620_, v_pos_610_);
 if (v___x_622_ == 0)
 {
 lean_dec(v___x_620_);

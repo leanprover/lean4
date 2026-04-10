@@ -96,7 +96,6 @@ lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 uint8_t l_Lean_Expr_isFVar(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree(lean_object*);
 lean_object* l_Lean_Elab_InfoTree_foldInfo___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Language_SnapshotTask_map___redArg(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
@@ -332,19 +331,19 @@ v_start_3_ = lean_ctor_get(v_r1_1_, 0);
 v_stop_4_ = lean_ctor_get(v_r1_1_, 1);
 v_start_5_ = lean_ctor_get(v_r2_2_, 0);
 v_stop_6_ = lean_ctor_get(v_r2_2_, 1);
-v___x_7_ = l_String_instDecidableLtRaw___aux__1(v_start_3_, v_start_5_);
+v___x_7_ = lean_nat_dec_lt(v_start_3_, v_start_5_);
 if (v___x_7_ == 0)
 {
 uint8_t v___x_8_; 
-v___x_8_ = l_String_instDecidableLtRaw___aux__1(v_start_5_, v_start_3_);
+v___x_8_ = lean_nat_dec_lt(v_start_5_, v_start_3_);
 if (v___x_8_ == 0)
 {
 uint8_t v___x_9_; 
-v___x_9_ = l_String_instDecidableLtRaw___aux__1(v_stop_4_, v_stop_6_);
+v___x_9_ = lean_nat_dec_lt(v_stop_4_, v_stop_6_);
 if (v___x_9_ == 0)
 {
 uint8_t v___x_10_; 
-v___x_10_ = l_String_instDecidableLtRaw___aux__1(v_stop_6_, v_stop_4_);
+v___x_10_ = lean_nat_dec_lt(v_stop_6_, v_stop_4_);
 if (v___x_10_ == 0)
 {
 uint8_t v___x_11_; 

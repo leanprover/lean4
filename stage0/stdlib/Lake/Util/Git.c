@@ -35,7 +35,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_String_Slice_subslice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 lean_object* lean_string_length(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 uint8_t l_System_FilePath_isDir(lean_object*);
 lean_object* l_Lake_captureProc_x27(lean_object*, lean_object*);
@@ -424,7 +424,7 @@ v___x_42_ = lean_nat_sub(v___x_41_, v___x_39_);
 lean_dec(v___x_39_);
 v___x_43_ = lean_nat_add(v_pos_35_, v___x_42_);
 lean_dec(v___x_42_);
-v___x_44_ = l_String_instDecidableLtRaw___aux__1(v_pos_35_, v___x_43_);
+v___x_44_ = lean_nat_dec_lt(v_pos_35_, v___x_43_);
 if (v___x_44_ == 0)
 {
 lean_dec(v___x_43_);

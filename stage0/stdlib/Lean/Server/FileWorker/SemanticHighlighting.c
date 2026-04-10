@@ -46,7 +46,6 @@ uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget(lean_object*, size_t);
 lean_object* lean_array_uset(lean_object*, size_t, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Array_append___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isAtom(lean_object*);
@@ -55,7 +54,6 @@ uint8_t l_Lean_Syntax_matchesNull(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_ofRange(lean_object*, uint8_t);
 lean_object* l_Lean_Server_Snapshots_Snapshot_infoTree(lean_object*);
@@ -3194,7 +3192,7 @@ else
 {
 lean_object* v_val_673_; uint8_t v___x_674_; 
 v_val_673_ = lean_ctor_get(v_endPos_x3f_647_, 0);
-v___x_674_ = l_String_instDecidableLtRaw___aux__1(v_val_663_, v_val_673_);
+v___x_674_ = lean_nat_dec_lt(v_val_663_, v_val_673_);
 v___y_667_ = v___x_674_;
 goto v___jp_666_;
 }
@@ -4713,7 +4711,7 @@ v_resetjp_1142_:
 {
 lean_object* v_pos_1145_; uint8_t v___x_1146_; 
 v_pos_1145_ = lean_array_fget_borrowed(v___x_1131_, v_i_1136_);
-v___x_1146_ = l_String_instDecidableLtRaw___aux__1(v_stop_1132_, v_pos_1145_);
+v___x_1146_ = lean_nat_dec_lt(v_stop_1132_, v_pos_1145_);
 if (v___x_1146_ == 0)
 {
 lean_object* v_source_1147_; lean_object* v_l_x27_1148_; lean_object* v___x_1149_; lean_object* v___x_1150_; lean_object* v_stxs_1151_; lean_object* v___x_1153_; 

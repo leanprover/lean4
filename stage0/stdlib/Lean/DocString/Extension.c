@@ -49,8 +49,7 @@ lean_object* l_String_Slice_Pattern_ForwardSliceSearcher_buildTable(lean_object*
 lean_object* l_String_Slice_slice_x21(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
@@ -59,7 +58,6 @@ lean_object* l_String_Slice_posGE___redArg(lean_object*, lean_object*);
 lean_object* l___private_Lean_DocString_Markdown_0__Lean_Doc_MarkdownM_State_render(lean_object*);
 lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 size_t lean_usize_add(size_t, size_t);
@@ -6175,7 +6173,7 @@ lean_dec(v_needlePos_1597_);
 lean_dec(v_stackPos_1596_);
 lean_dec_ref(v_table_1595_);
 lean_dec_ref(v_needle_1594_);
-v___x_1612_ = l_String_instDecidableLtRaw___aux__1(v_basePos_1607_, v___x_1610_);
+v___x_1612_ = lean_nat_dec_lt(v_basePos_1607_, v___x_1610_);
 if (v___x_1612_ == 0)
 {
 lean_dec(v___x_1610_);

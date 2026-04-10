@@ -111,7 +111,6 @@ uint8_t l_Lean_Syntax_Range_contains(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isSyntheticSorry(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_List_foldl___at___00Array_appendList_spec__0___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentArray_foldlM___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -123,7 +122,6 @@ lean_object* l_List_mapM_loop___redArg(lean_object*, lean_object*, lean_object*,
 lean_object* lean_array_mk(lean_object*);
 lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_List_max_x3f___redArg(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTrailingSize(lean_object*);
 lean_object* l_Lean_FileMap_toPosition(lean_object*, lean_object*);
 uint8_t l_List_all___redArg(lean_object*, lean_object*);
@@ -3566,7 +3564,7 @@ lean_object* v_val_1234_; uint8_t v___x_1235_;
 v_val_1234_ = lean_ctor_get(v___x_1232_, 0);
 lean_inc(v_val_1234_);
 lean_dec_ref(v___x_1232_);
-v___x_1235_ = l_String_instDecidableLtRaw___aux__1(v_val_1231_, v_val_1234_);
+v___x_1235_ = lean_nat_dec_lt(v_val_1231_, v_val_1234_);
 lean_dec(v_val_1234_);
 lean_dec(v_val_1231_);
 return v___x_1235_;
@@ -3646,7 +3644,7 @@ goto v___jp_1248_;
 else
 {
 uint8_t v___x_1258_; 
-v___x_1258_ = l_String_instDecidableLtRaw___aux__1(v_hoverPos_1242_, v_val_1256_);
+v___x_1258_ = lean_nat_dec_lt(v_hoverPos_1242_, v_val_1256_);
 lean_dec(v_val_1256_);
 v___y_1249_ = v___x_1258_;
 goto v___jp_1248_;
@@ -9956,7 +9954,7 @@ lean_object* v_val_3127_; uint8_t v___x_3128_; uint8_t v___y_3130_;
 v_val_3127_ = lean_ctor_get(v___x_3126_, 0);
 lean_inc(v_val_3127_);
 lean_dec_ref(v___x_3126_);
-v___x_3128_ = l_String_instDecidableLtRaw___aux__1(v_hoverPos_3112_, v_val_3127_);
+v___x_3128_ = lean_nat_dec_lt(v_hoverPos_3112_, v_val_3127_);
 if (v___x_3128_ == 0)
 {
 lean_dec(v_val_3127_);
@@ -10333,7 +10331,7 @@ else
 {
 uint8_t v___x_3243_; 
 lean_dec(v_gs_3213_);
-v___x_3243_ = l_String_instDecidableLtRaw___aux__1(v_val_3223_, v_hoverPos_3208_);
+v___x_3243_ = lean_nat_dec_lt(v_val_3223_, v_hoverPos_3208_);
 if (v___x_3243_ == 0)
 {
 lean_dec(v_val_3225_);

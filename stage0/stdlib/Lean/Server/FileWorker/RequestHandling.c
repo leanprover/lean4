@@ -59,7 +59,6 @@ uint8_t l_Lean_Syntax_hasArgs(lean_object*);
 lean_object* l_Lean_Server_FileWorker_Hover_rewriteExamples(lean_object*);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
 lean_object* l_Lean_Server_Snapshots_Snapshot_endPos(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_Range_contains(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_Elab_Info_fmtHover_x3f(lean_object*, lean_object*);
 extern lean_object* l_Std_Format_defWidth;
@@ -154,7 +153,6 @@ lean_object* l_Lean_Server_RequestM_findCmdDataAtPos(lean_object*, lean_object*,
 lean_object* l_Lean_Server_Completion_resolveCompletionItem_x3f(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonWaitForDiagnosticsParams_fromJson(lean_object*);
 lean_object* l_Lean_Lsp_instFromJsonFoldingRangeParams_fromJson(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_IO_sleep(uint32_t);
 lean_object* l_Lean_Server_RequestM_asTask___redArg(lean_object*, lean_object*);
 lean_object* l_Lean_Server_RequestM_bindTaskCheap___redArg(lean_object*, lean_object*, lean_object*);
@@ -2177,7 +2175,7 @@ _start:
 {
 lean_object* v___x_328_; uint8_t v___x_329_; 
 v___x_328_ = l_Lean_Server_Snapshots_Snapshot_endPos(v_s_327_);
-v___x_329_ = l_String_instDecidableLtRaw___aux__1(v___x_326_, v___x_328_);
+v___x_329_ = lean_nat_dec_lt(v___x_326_, v___x_328_);
 lean_dec(v___x_328_);
 return v___x_329_;
 }

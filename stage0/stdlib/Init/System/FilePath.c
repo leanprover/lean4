@@ -47,8 +47,6 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 lean_object* lean_array_to_list(lean_object*);
 lean_object* l_String_Slice_toString(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -2054,7 +2052,7 @@ lean_dec(v_needlePos_566_);
 lean_dec(v_stackPos_565_);
 lean_dec_ref(v_table_564_);
 lean_dec_ref(v_needle_563_);
-v___x_577_ = l_String_instDecidableLtRaw___aux__1(v_basePos_573_, v___x_503_);
+v___x_577_ = lean_nat_dec_lt(v_basePos_573_, v___x_503_);
 lean_dec(v_basePos_573_);
 if (v___x_577_ == 0)
 {

@@ -26,7 +26,7 @@ lean_object* l_Lean_Attribute_Builtin_getId(lean_object*, lean_object*, lean_obj
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
@@ -269,7 +269,7 @@ v___x_12_ = lean_nat_sub(v___x_11_, v___x_9_);
 lean_dec(v___x_9_);
 v___x_13_ = lean_nat_add(v_pos_5_, v___x_12_);
 lean_dec(v___x_12_);
-v___x_14_ = l_String_instDecidableLtRaw___aux__1(v_pos_5_, v___x_13_);
+v___x_14_ = lean_nat_dec_lt(v_pos_5_, v___x_13_);
 if (v___x_14_ == 0)
 {
 lean_dec(v___x_13_);

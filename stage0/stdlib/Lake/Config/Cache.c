@@ -52,7 +52,6 @@ lean_object* l_Lake_Hash_ofJsonNumber_x3f(lean_object*);
 lean_object* l_Lean_JsonNumber_toString(lean_object*);
 lean_object* l_Lake_ArtifactDescr_ofFilePath_x3f(lean_object*);
 lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_String_Slice_toString(lean_object*);
 lean_object* l_Lake_removeFileIfExists(lean_object*);
 lean_object* lean_io_error_to_string(lean_object*);
@@ -10753,7 +10752,7 @@ goto v___jp_3410_;
 v___jp_3403_:
 {
 uint8_t v___x_3404_; 
-v___x_3404_ = l_String_instDecidableLtRaw___aux__1(v___x_3402_, v_pos_3392_);
+v___x_3404_ = lean_nat_dec_lt(v___x_3402_, v_pos_3392_);
 if (v___x_3404_ == 0)
 {
 lean_dec(v___x_3402_);

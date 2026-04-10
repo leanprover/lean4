@@ -66,8 +66,6 @@ lean_object* lean_array_push(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_hint(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* l_List_replicateTR___redArg(lean_object*, lean_object*);
 lean_object* lean_string_mk(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_String_instInhabitedSlice;
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
@@ -1718,7 +1716,7 @@ v___x_491_ = lean_nat_sub(v___x_490_, v___x_488_);
 lean_dec(v___x_488_);
 v___x_492_ = lean_nat_add(v_pos_484_, v___x_491_);
 lean_dec(v___x_491_);
-v___x_493_ = l_String_instDecidableLtRaw___aux__1(v_pos_484_, v___x_492_);
+v___x_493_ = lean_nat_dec_lt(v_pos_484_, v___x_492_);
 if (v___x_493_ == 0)
 {
 lean_dec(v___x_492_);

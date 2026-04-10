@@ -68,7 +68,6 @@ lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Lsp_instToJsonRange_toJson(lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofSyntax(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getRange_x3f(lean_object*, uint8_t);
 uint8_t l_Lean_Syntax_Range_includes(lean_object*, lean_object*, uint8_t, uint8_t);
@@ -5083,7 +5082,7 @@ LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00__private_Lean_Me
 _start:
 {
 uint8_t v___y_1613_; uint8_t v___x_1614_; 
-v___x_1614_ = l_String_instDecidableLtRaw___aux__1(v_i_1608_, v_stopPos_1607_);
+v___x_1614_ = lean_nat_dec_lt(v_i_1608_, v_stopPos_1607_);
 if (v___x_1614_ == 0)
 {
 return v_i_1608_;
@@ -10369,7 +10368,7 @@ goto v___jp_3446_;
 v___jp_3469_:
 {
 uint8_t v___x_3480_; 
-v___x_3480_ = l_String_instDecidableLtRaw___aux__1(v___y_3471_, v_stop_3476_);
+v___x_3480_ = lean_nat_dec_lt(v___y_3471_, v_stop_3476_);
 if (v___x_3480_ == 0)
 {
 lean_dec(v_stop_3476_);
@@ -10474,7 +10473,7 @@ goto v_resetjp_3506_;
 v_resetjp_3506_:
 {
 uint8_t v___x_3509_; 
-v___x_3509_ = l_String_instDecidableLtRaw___aux__1(v_start_3504_, v___y_3491_);
+v___x_3509_ = lean_nat_dec_lt(v_start_3504_, v___y_3491_);
 if (v___x_3509_ == 0)
 {
 lean_del_object(v___x_3507_);

@@ -48,7 +48,6 @@ lean_object* l_String_decidableLT___boxed(lean_object*, lean_object*);
 lean_object* l_Array_qpartition___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_PersistentHashMap_mkEmptyEntriesArray(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Lean_mkAtom(lean_object*);
@@ -73,7 +72,6 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* lean_array_pop(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -4399,7 +4397,7 @@ lean_object* v_stxStack_1311_; lean_object* v_tk_1312_; lean_object* v___y_1314_
 v_stxStack_1311_ = lean_ctor_get(v_s_1308_, 0);
 v_tk_1312_ = l_Lean_Parser_SyntaxStack_back(v_stxStack_1311_);
 v___x_1335_ = lean_unsigned_to_nat(0u);
-v___x_1336_ = l_String_instDecidableLtRaw___aux__1(v___x_1335_, v_iniPos_1310_);
+v___x_1336_ = lean_nat_dec_lt(v___x_1335_, v_iniPos_1310_);
 if (v___x_1336_ == 0)
 {
 lean_object* v___x_1337_; 

@@ -146,7 +146,6 @@ uint8_t l_Lean_PersistentArray_isEmpty___redArg(lean_object*);
 double lean_float_of_nat(lean_object*);
 extern lean_object* l_Lean_MessageData_nil;
 lean_object* l_Lean_Elab_mkMessageCore(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_Array_qpartition___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -57148,7 +57147,7 @@ v_fst_21377_ = lean_ctor_get(v_x_21375_, 0);
 v_fst_21378_ = lean_ctor_get(v_x_21376_, 0);
 v_fst_21379_ = lean_ctor_get(v_fst_21377_, 0);
 v_fst_21380_ = lean_ctor_get(v_fst_21378_, 0);
-v___x_21381_ = l_String_instDecidableLtRaw___aux__1(v_fst_21379_, v_fst_21380_);
+v___x_21381_ = lean_nat_dec_lt(v_fst_21379_, v_fst_21380_);
 return v___x_21381_;
 }
 }

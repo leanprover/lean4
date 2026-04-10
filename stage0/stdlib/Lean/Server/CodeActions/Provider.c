@@ -43,12 +43,10 @@ uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getTailInfo(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr4(lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getNumArgs(lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr3(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Server_addBuiltinCodeActionProvider(lean_object*, lean_object*);
@@ -1112,7 +1110,7 @@ v_resetjp_305_:
 {
 lean_object* v_stop_308_; uint8_t v___x_309_; 
 v_stop_308_ = lean_ctor_get(v_range_288_, 1);
-v___x_309_ = l_String_instDecidableLtRaw___aux__1(v_stop_308_, v_val_304_);
+v___x_309_ = lean_nat_dec_lt(v_stop_308_, v_val_304_);
 lean_dec(v_val_304_);
 if (v___x_309_ == 0)
 {

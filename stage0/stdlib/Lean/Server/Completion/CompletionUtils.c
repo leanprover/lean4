@@ -69,7 +69,6 @@ uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
 uint32_t lean_uint32_add(uint32_t, uint32_t);
 lean_object* lean_string_utf8_byte_size(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 uint8_t lean_uint8_land(uint8_t, uint8_t);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
@@ -387,7 +386,7 @@ _start:
 {
 lean_object* v___x_41_; uint8_t v___x_42_; 
 v___x_41_ = lean_string_utf8_byte_size(v_a_37_);
-v___x_42_ = l_String_instDecidableLtRaw___aux__1(v_aPos_39_, v___x_41_);
+v___x_42_ = lean_nat_dec_lt(v_aPos_39_, v___x_41_);
 if (v___x_42_ == 0)
 {
 uint8_t v___x_43_; 
@@ -400,7 +399,7 @@ else
 {
 lean_object* v___x_44_; uint8_t v___x_45_; 
 v___x_44_ = lean_string_utf8_byte_size(v_b_38_);
-v___x_45_ = l_String_instDecidableLtRaw___aux__1(v_bPos_40_, v___x_44_);
+v___x_45_ = lean_nat_dec_lt(v_bPos_40_, v___x_44_);
 if (v___x_45_ == 0)
 {
 lean_dec(v_bPos_40_);

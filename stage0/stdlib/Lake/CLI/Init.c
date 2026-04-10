@@ -81,7 +81,6 @@ lean_object* l_String_Slice_trimAscii(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_stringToLegalOrSimpleName(lean_object*);
 lean_object* l_instDecidableEqString___boxed(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* lean_io_realpath(lean_object*);
 lean_object* l_System_FilePath_fileName(lean_object*);
 static const lean_string_object l_Lake_defaultExeRoot___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 5, .m_capacity = 5, .m_length = 4, .m_data = "Main"};
@@ -4853,7 +4852,7 @@ v___x_1475_ = lean_nat_sub(v___x_1474_, v___x_1467_);
 lean_dec(v___x_1467_);
 v___x_1476_ = lean_nat_add(v_pos_1463_, v___x_1475_);
 lean_dec(v___x_1475_);
-v___x_1477_ = l_String_instDecidableLtRaw___aux__1(v_pos_1463_, v___x_1476_);
+v___x_1477_ = lean_nat_dec_lt(v_pos_1463_, v___x_1476_);
 if (v___x_1477_ == 0)
 {
 lean_dec(v___x_1476_);

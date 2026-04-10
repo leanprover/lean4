@@ -123,7 +123,6 @@ lean_object* l_List_drop___redArg(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_String_Slice_posLE(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
@@ -169,7 +168,6 @@ uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_int_neg(lean_object*);
 extern lean_object* l_String_instInhabitedSlice;
 uint8_t lean_string_is_valid_pos(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 uint8_t l_String_Slice_beq(lean_object*, lean_object*);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
@@ -8674,7 +8672,7 @@ LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lean_PrettyPrinte
 _start:
 {
 uint8_t v___y_2981_; uint8_t v___y_2983_; uint8_t v___x_2984_; 
-v___x_2984_ = l_String_instDecidableLtRaw___aux__1(v_i_2976_, v_stopPos_2975_);
+v___x_2984_ = lean_nat_dec_lt(v_i_2976_, v_stopPos_2975_);
 if (v___x_2984_ == 0)
 {
 return v_i_2976_;
@@ -9023,7 +9021,7 @@ v___x_3089_ = lean_nat_sub(v___x_3088_, v___x_3086_);
 lean_dec(v___x_3086_);
 v___x_3090_ = lean_nat_add(v_pos_3082_, v___x_3089_);
 lean_dec(v___x_3089_);
-v___x_3091_ = l_String_instDecidableLtRaw___aux__1(v_pos_3082_, v___x_3090_);
+v___x_3091_ = lean_nat_dec_lt(v_pos_3082_, v___x_3090_);
 if (v___x_3091_ == 0)
 {
 lean_dec(v___x_3090_);
@@ -9063,7 +9061,7 @@ LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux___at___00Lean_PrettyP
 _start:
 {
 uint8_t v___x_3115_; 
-v___x_3115_ = l_String_instDecidableLtRaw___aux__1(v_begPos_3113_, v_i_3114_);
+v___x_3115_ = lean_nat_dec_lt(v_begPos_3113_, v_i_3114_);
 if (v___x_3115_ == 0)
 {
 return v_i_3114_;
@@ -9147,7 +9145,7 @@ LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Lean_PrettyPrinte
 _start:
 {
 uint8_t v___y_3143_; uint8_t v___x_3144_; 
-v___x_3144_ = l_String_instDecidableLtRaw___aux__1(v_i_3138_, v_stopPos_3137_);
+v___x_3144_ = lean_nat_dec_lt(v_i_3138_, v_stopPos_3137_);
 if (v___x_3144_ == 0)
 {
 return v_i_3138_;
@@ -9274,7 +9272,7 @@ goto v___jp_3179_;
 v___jp_3172_:
 {
 uint8_t v___x_3173_; 
-v___x_3173_ = l_String_instDecidableLtRaw___aux__1(v___x_3171_, v_pos_3161_);
+v___x_3173_ = lean_nat_dec_lt(v___x_3171_, v_pos_3161_);
 if (v___x_3173_ == 0)
 {
 lean_dec(v___x_3171_);

@@ -331,14 +331,14 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
   let type ← instantiateMVars type
   -- Rebuild type with fresh synthetic mvars for instance-implicit args, so that
   -- synthesis is not influenced by the expected type's instance choices.
-  withNewMCtxDepth do
   let type ← abstractInstImplicitArgs type
   let inst ← synthInstance type
   let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
     -- Wrap instance so its type matches the expected type exactly.
     let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
     let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
-    wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
+    withNewMCtxDepth (allowLevelAssignments := true) <|
+      wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
   else
     pure inst
   ensureHasType expectedType? inst

@@ -337,7 +337,8 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     -- Wrap instance so its type matches the expected type exactly.
     let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
     let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
-    withNewMCtxDepth <| wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
+    withNewMCtxDepth (allowLevelAssignments := true) <|
+      wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
   else
     pure inst
   ensureHasType expectedType? inst

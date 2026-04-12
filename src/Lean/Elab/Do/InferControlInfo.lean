@@ -79,6 +79,7 @@ builtin_initialize controlInfoElemAttribute : KeyedDeclsAttribute ControlInfoHan
 
 namespace InferControlInfo
 
+open InternalSyntax in
 mutual
 
 partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
@@ -152,6 +153,7 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     let finInfo ← ofOptionSeq finSeq?
     return info.sequence finInfo
   -- Misc
+  | `(doElem| skip) => return .pure
   | `(doElem| dbg_trace $_) => return .pure
   | `(doElem| assert! $_) => return .pure
   | `(doElem| debug_assert! $_) => return .pure

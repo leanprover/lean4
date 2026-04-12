@@ -35,21 +35,23 @@ instance [Monad m] : ForIn m Loop Unit where
 syntax "repeat " doSeq : doElem
 
 macro_rules
-  | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
+  | `(doElem| repeat%$tk $seq) => `(doElem| for%$tk _ in Loop.mk do $seq)
 
 syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
 
 macro_rules
-  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h:ident : $cond then $seq else break)
+  | `(doElem| while%$tk $h : $cond do $seq) =>
+    `(doElem| repeat%$tk if $h:ident : $cond then $seq else break)
 
 syntax "while " termBeforeDo " do " doSeq : doElem
 
 macro_rules
-  | `(doElem| while $cond do $seq) => `(doElem| repeat if $cond then $seq else break)
+  | `(doElem| while%$tk $cond do $seq) => `(doElem| repeat%$tk if $cond then $seq else break)
 
 syntax "repeat " doSeq ppDedent(ppLine) "until " term : doElem
 
 macro_rules
-  | `(doElem| repeat $seq until $cond) => `(doElem| repeat do $seq:doSeq; if $cond then break)
+  | `(doElem| repeat%$tk $seq until $cond) =>
+    `(doElem| repeat%$tk do $seq:doSeq; if $cond then break)
 
 end Lean

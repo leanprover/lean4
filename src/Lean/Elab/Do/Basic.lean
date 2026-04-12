@@ -624,6 +624,7 @@ def enterFinally (resultType : Expr) (k : DoElabM Expr) : DoElabM Expr := do
 /-- Extracts `MonadInfo` and monadic result type `α` from the expected type of a `do` block `m α`. -/
 private partial def extractMonadInfo (expectedType? : Option Expr) : Term.TermElabM (MonadInfo × Expr) := do
   let some expectedType := expectedType? | mkUnknownMonadResult
+  let expectedType ← instantiateMVars expectedType
   let extractStep? (type : Expr) : Term.TermElabM (Option (MonadInfo × Expr)) := do
     let .app m resultType := type.consumeMData | return none
     unless ← isType resultType do return none

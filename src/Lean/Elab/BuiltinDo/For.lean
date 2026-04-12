@@ -119,9 +119,6 @@ open Lean.Meta
       defs := defs.push (mkConst ``Unit.unit)
     return defs
 
-  unless ← isDefEq dec.resultType (← mkPUnit) do
-    logError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
-
   let (preS, σ) ← mkProdMkN (← useLoopMutVars none) mi.u
 
   let (app, p?) ← match h? with

@@ -111,16 +111,12 @@ endif
 # without dllexport because of symbol limit;
 # on other platforms, no point in bothering
 ifeq (@CMAKE_SYSTEM_NAME@, Windows)
-ifdef LLVM
-$(TEMP_OUT)/%.o: $(BC_OUT)/%.bc
-else
-$(TEMP_OUT)/%.o: $(C_OUT)/%.c
-endif
+$(TEMP_OUT)/%.o: $(TEMP_OUT)/%.o.export
 ifdef CMAKE_LIKE_OUTPUT
 	@echo "[    ] Building $<"
 endif
 	@mkdir -p "$(@D)"
-	$(LEANC) -c -o $@ $< $(LEANC_OPTS)
+	llvm-objcopy --remove-section .drectve $< $@
 else
 $(TEMP_OUT)/%.o: $(TEMP_OUT)/%.o.export
 	ln -f $< $@

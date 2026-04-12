@@ -32,3 +32,14 @@ deriving DecidableEq
 def testDecEq (a b : Qux) : Bool := a == b
 
 end
+
+-- Outside any `meta section`: explicit `meta def` should also produce meta delta-derived instances.
+-- This exercises the `isMarkedMeta (← getEnv) declName` branch in `processDefDeriving`.
+public section
+
+@[expose] meta def Quux := Nat
+deriving BEq
+
+meta def testQuux (a b : Quux) : Bool := a == b
+
+end

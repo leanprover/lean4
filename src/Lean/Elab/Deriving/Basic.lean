@@ -258,8 +258,6 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
     let isMeta := (← read).isMetaSection || isMarkedMeta (← getEnv) declName
     if isNoncomputable || (← read).isNoncomputableSection then
       addDecl <| Declaration.defnDecl decl
-      if isMeta then
-        modifyEnv (markMeta · instName)
       modifyEnv (addNoncomputable · instName)
     else
       addAndCompile (Declaration.defnDecl decl) (markMeta := isMeta)

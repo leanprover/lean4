@@ -229,16 +229,18 @@ public def run (binary : String) (args : Array String)
       let token ← waitForServer samplyLog samplyProc port
       let serverUrl := s!"http://127.0.0.1:{port}/{token}"
 
-      -- Read raw profile by decompressing to temp file
+      -- Read raw profile by decompressing to temp file.
+      -- We use `gzip -dc` rather than `zcat` because macOS's Apple `zcat`
+      -- expects `.Z` files (it appends `.Z` to the path), not `.gz`.
       IO.eprintln "Symbolicating and demangling..."
       let rawJson := s!"{tmpDir}/raw.json"
       let gunzip ← IO.Process.output {
         cmd := "sh"
         args := #["-c",
-          s!"zcat {shellQuote rawProfile} > {shellQuote rawJson}"]
+          s!"gzip -dc {shellQuote rawProfile} > {shellQuote rawJson}"]
       }
       if gunzip.exitCode != 0 then
-        throw <| IO.userError "failed to decompress profile"
+        throw <| IO.userError s!"failed to decompress profile:\n{gunzip.stderr}"
       let rawJsonStr ← IO.FS.readFile rawJson
       let profile ← IO.ofExcept <| Json.parse rawJsonStr
 

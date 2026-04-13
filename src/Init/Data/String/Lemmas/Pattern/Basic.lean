@@ -913,6 +913,7 @@ class LawfulToForwardSearcherModel {ρ : Type} (pat : ρ) [PatternModel pat] {σ
     [∀ s, Std.Iterators.Finite (σ s) Id] : Prop where
   isValidSearchFrom_toList (s) : IsValidSearchFrom pat s.startPos (ToForwardSearcher.toSearcher pat s).toList
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem LawfulToForwardSearcherModel.defaultImplementation {pat : ρ} [ForwardPattern pat] [StrictForwardPattern pat]
     [PatternModel pat] [LawfulForwardPatternModel pat] :
     letI : ToForwardSearcher pat (ToForwardSearcher.DefaultForwardSearcher pat) := .defaultImplementation
@@ -1024,6 +1025,7 @@ class LawfulToBackwardSearcherModel {ρ : Type} (pat : ρ) [PatternModel pat] {�
     [∀ s, Std.Iterators.Finite (σ s) Id] : Prop where
   isValidRevSearchFrom_toList (s) : IsValidRevSearchFrom pat s.endPos (ToBackwardSearcher.toSearcher pat s).toList
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem LawfulToBackwardSearcherModel.defaultImplementation {pat : ρ} [BackwardPattern pat] [StrictBackwardPattern pat]
     [PatternModel pat] [LawfulBackwardPatternModel pat] :
     letI : ToBackwardSearcher pat (ToBackwardSearcher.DefaultBackwardSearcher pat) := .defaultImplementation

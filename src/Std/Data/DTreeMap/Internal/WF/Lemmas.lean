@@ -2032,6 +2032,7 @@ theorem WF.constAlter! {_ : Ord α} {β : Type v} {t : Impl α β} {a f} (h : t.
 ### mergeWith!
 -/
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem mergeWith_eq_mergeWith! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t₂ : Impl α β}
     (h : t₁.Balanced) :
     (mergeWith mergeFn t₁ t₂ h).impl = mergeWith! mergeFn t₁ t₂ := by
@@ -2048,11 +2049,13 @@ theorem mergeWith_eq_mergeWith! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t�
     congr
     exact ihl h
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem WF.mergeWith! {_ : Ord α} [LawfulEqOrd α] {mergeFn} {t₁ t₂ : Impl α β} (h : t₁.WF) :
     (Impl.mergeWith! mergeFn t₁ t₂).WF := by
   rw [← mergeWith_eq_mergeWith! h.balanced]
   exact h.mergeWith
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Const.mergeWith_eq_mergeWith! {β : Type v} {_ : Ord α} {mergeFn} {t₁ t₂ : Impl α β}
     (h : t₁.Balanced) :
     (mergeWith mergeFn t₁ t₂ h).impl = mergeWith! mergeFn t₁ t₂ := by

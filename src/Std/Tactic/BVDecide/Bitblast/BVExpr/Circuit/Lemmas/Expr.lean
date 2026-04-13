@@ -87,7 +87,7 @@ theorem Inv_insert (cache : Cache aig) (expr : BVExpr w) (refs : AIG.RefVec aig 
       · exact hk
       · simp [heq]
     have : ((cache.insert expr refs).map.get k hk) = cache.map.get k hmem := by
-      unfold Cache.insert
+      simp only [Cache.insert]
       rw [Std.DHashMap.get_insert]
       simp [heq]
     specialize hinv k hmem i hi

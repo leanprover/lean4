@@ -43,7 +43,7 @@ Try this: simp only [g, pure]
 [Meta.Tactic.simp.rewrite] unfold g, g x ==> (have x := x;
       pure x).run
 Try this: simp (config := { unfoldPartialApp := true }) only [f1, modify, modifyGet, MonadStateOf.modifyGet,
-  StateT.modifyGet, pure, f2, bind, StateT.bind, get, getThe, MonadStateOf.get, StateT.get, set, StateT.set]
+  StateT.modifyGet, pure, f2, bind, StateT.bind, set, StateT.set, StateT.get]
 [Meta.Tactic.simp.rewrite] unfold f1, f1 ==> modify fun x => g x
 [Meta.Tactic.simp.rewrite] unfold modify, modify fun x => g x ==> modifyGet fun s => (PUnit.unit, (fun x => g x) s)
 [Meta.Tactic.simp.rewrite] unfold StateT.modifyGet, StateT.modifyGet fun s =>
@@ -55,9 +55,9 @@ Try this: simp (config := { unfoldPartialApp := true }) only [f1, modify, modify
       let __x ← get s
       match __x with
         | (a, s) => (fun s => set (g s)) a s
-[Meta.Tactic.simp.rewrite] unfold getThe, getThe Nat s ==> MonadStateOf.get s
+[Meta.Tactic.simp.rewrite] unfold StateT.set, StateT.set (g (StateT.get s).fst)
+      (StateT.get s).snd ==> pure (PUnit.unit, g (StateT.get s).fst)
 [Meta.Tactic.simp.rewrite] unfold StateT.get, StateT.get s ==> pure (s, s)
-[Meta.Tactic.simp.rewrite] unfold StateT.set, StateT.set (g s) s ==> pure (PUnit.unit, g s)
 [Meta.Tactic.simp.rewrite] eq_self:1000:
       (fun s => (PUnit.unit, g s)) = fun s => (PUnit.unit, g s)
     ==>

@@ -1013,7 +1013,7 @@ For the induction:
 
 @[simp, grind =] theorem reverseInduction_last {n : Nat} {motive : Fin (n + 1) → Sort _} {zero succ} :
     (reverseInduction zero succ (Fin.last n) : motive (Fin.last n)) = zero := by
-  rw [reverseInduction, reverseInduction.go]; simp; rfl
+  rw [reverseInduction, reverseInduction.go]; simp
 
 private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) → Sort _} {succ}
     (i : Fin n) (j : Nat) (h) (h2 : i.1 < j) (zero : motive ⟨j, h⟩) :
@@ -1024,7 +1024,7 @@ private theorem reverseInduction_castSucc_aux {n : Nat} {motive : Fin (n + 1) �
   | succ j ih =>
     rw [reverseInduction.go, dif_neg (by exact Nat.ne_of_lt h2)]
     by_cases hij : i = j
-    · subst hij; simp [reverseInduction.go]; rfl
+    · subst hij; simp [reverseInduction.go]
     · dsimp only
       rw [ih _ _ (by omega), eq_comm, reverseInduction.go, dif_neg (by change i.1 + 1 ≠ _; omega)]
 

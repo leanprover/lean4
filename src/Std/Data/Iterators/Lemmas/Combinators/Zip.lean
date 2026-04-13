@@ -69,6 +69,7 @@ theorem Iter.zip_eq_intermediateZip [Iterator α₁ Id β₁]
     it₁.zip it₂ = Intermediate.zip it₁ none it₂ := by
   rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Iter.step_intermediateZip
     [Iterator α₁ Id β₁] [Iterator α₂ Id β₂]
     {it₁ : Iter (α := α₁) β₁}

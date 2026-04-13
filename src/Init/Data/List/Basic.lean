@@ -474,8 +474,8 @@ We define the basic functional programming operations on `List`:
 
 /-! ### map -/
 
-@[simp, grind =] theorem map_nil {f : α → β} : map f [] = [] := rfl
-@[simp, grind =] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := rfl
+@[simp, grind =] theorem map_nil {f : α → β} : map f [] = [] := id rfl
+@[simp, grind =] theorem map_cons {f : α → β} {a : α} {l : List α} : map f (a :: l) = f a :: map f l := id rfl
 
 /-! ### filter -/
 
@@ -937,8 +937,8 @@ def drop : (n : Nat) → (xs : List α) → List α
 
 @[simp, grind =] theorem drop_nil : ([] : List α).drop i = [] := by
   cases i <;> rfl
-@[simp, grind =] theorem drop_zero {l : List α} : l.drop 0 = l := rfl
-@[simp, grind =] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := rfl
+@[simp, grind =] theorem drop_zero {l : List α} : l.drop 0 = l := id rfl
+@[simp, grind =] theorem drop_succ_cons {a : α} {l : List α} {i : Nat} : (a :: l).drop (i + 1) = l.drop i := id rfl
 
 theorem drop_eq_nil_of_le {as : List α} {i : Nat} (h : as.length ≤ i) : as.drop i = [] := by
   match as, i with

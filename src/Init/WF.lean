@@ -519,7 +519,7 @@ The `wfParam` gadget is used internally during the construction of recursive fun
 wellfounded recursion, to keep track of the parameter for which the automatic introduction
 of `List.attach` (or similar) is plausible.
 -/
-def wfParam {α : Sort u} (a : α) : α := a
+@[expose, implicit_reducible] def wfParam {α : Sort u} (a : α) : α := a
 
 /--
 Reverse direction of `dite_eq_ite`. Used by the well-founded definition preprocessor to extend the

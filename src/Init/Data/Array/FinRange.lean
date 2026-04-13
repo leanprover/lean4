@@ -26,7 +26,7 @@ Examples:
  * `Array.finRange 0 = (#[] : Array (Fin 0))`
  * `Array.finRange 2 = (#[0, 1] : Array (Fin 2))`
 -/
-protected def finRange (n : Nat) : Array (Fin n) := ofFn fun i => i
+@[expose, implicit_reducible] protected def finRange (n : Nat) : Array (Fin n) := ofFn fun i => i
 
 @[simp, grind =] theorem size_finRange {n} : (Array.finRange n).size = n := by
   simp [Array.finRange]

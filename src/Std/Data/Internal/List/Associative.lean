@@ -6875,7 +6875,7 @@ theorem getValueCast?_filter [BEq α] [LawfulBEq α]
   congr; funext a h
   cases eq_of_beq (beq_of_getEntry?_eq_some h)
   simp only [cast_eq, Option.guard, Option.dmap_ite,
-    Option.dmap_some, Option.dmap_none, dite_eq_ite]
+    Option.dmap_some, Option.dmap_none, dite_eq_ite]; rfl
 
 theorem getValueCast!_filter [BEq α] [LawfulBEq α]
     {f : (a : α) → β a → Bool}
@@ -8491,6 +8491,7 @@ theorem containsKey_minKey? [Ord α] [TransOrd α] [BEq α] [LawfulBEqOrd α] {l
   obtain ⟨e, ⟨hm, _⟩, rfl⟩ := hkm
   exact containsKey_of_mem hm
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem min?_keys [Ord α] [TransOrd α]
     [LawfulEqOrd α] [LE α] [LawfulOrderOrd α] [Min α]
     [LawfulOrderLeftLeaningMin α] (l : List ((a : α) × β a)) :

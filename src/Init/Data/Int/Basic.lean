@@ -157,7 +157,7 @@ Examples:
  * `(7 : Int) + (6 : Int) = 13`
  * `(6 : Int) + (-6 : Int) = 0`
 -/
-@[extern "lean_int_add"]
+@[extern "lean_int_add", expose, implicit_reducible]
 protected def add (m n : @& Int) : Int :=
   match m, n with
   | ofNat m, ofNat n => ofNat (m + n)
@@ -323,7 +323,7 @@ Examples:
  * `(0 : Int).natAbs = 0`
  * `(-11 : Int).natAbs = 11`
 -/
-@[extern "lean_nat_abs", expose]
+@[extern "lean_nat_abs", expose, implicit_reducible]
 def natAbs (m : @& Int) : Nat :=
   match m with
   | ofNat m => m

@@ -14,7 +14,6 @@ theorem Exec.bind (k₁ : M α) (k₂ : α → M β) (post : β → S → Prop) 
     Exec s k₁ (fun a s₁ => Exec s₁ (k₂ a) post)
     → Exec s (k₁ >>= k₂) post := by
   simp [Exec, Bind.bind, StateT.bind]
-  cases k₁ s; simp
 
 def goal := ∀ a b, Exec b (set a >>= fun _ => get) fun v _ => v = a
 set_option pp.explicit true

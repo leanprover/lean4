@@ -384,6 +384,7 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
   let k := dec.k
   -- The .ofBinderName below is mainly to interpret `__do_lift` binders as implementation details.
   let declKind := .ofBinderName x
+  let kResultTy ← mkFreshResultType `kResultTy
   withLocalDecl x .default eResultTy (kind := declKind) fun xFVar => do
     let body ← k
     let body' := body.consumeMData
@@ -411,7 +412,6 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
         -- else -- would be too aggressive
         --   return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
 
-    let kResultTy ← mkFreshResultType `kResultTy
     let body ← Term.ensureHasType (← mkMonadicType kResultTy) body
     let k ← mkLambdaFVars #[xFVar] body
     mkBindApp eResultTy kResultTy e k

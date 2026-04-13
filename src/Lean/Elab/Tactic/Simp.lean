@@ -669,8 +669,8 @@ where
     let mvarId ← getMainGoal
     let (result?, stats) ← simpGoal mvarId ctx (simprocs := simprocs) (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
-    | none => replaceMainGoal []
-    | some (_, mvarId) => replaceMainGoal [mvarId]
+    | none => replaceMainGoal stats.pendingGoals.toList
+    | some (_, mvarId) => replaceMainGoal (mvarId :: stats.pendingGoals.toList)
     return stats
 
 def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
@@ -703,8 +703,8 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
     withLoopChecking r do
       simpAll (← getMainGoal) ctx (simprocs := simprocs)
   match result? with
-  | none => replaceMainGoal []
-  | some mvarId => replaceMainGoal [mvarId]
+  | none => replaceMainGoal stats.pendingGoals.toList
+  | some mvarId => replaceMainGoal (mvarId :: stats.pendingGoals.toList)
   if tactic.simp.trace.get (← getOptions) then
     traceSimpCall stx stats.usedTheorems
   else if Linter.getLinterValue linter.unusedSimpArgs (← Linter.getLinterOptions) then

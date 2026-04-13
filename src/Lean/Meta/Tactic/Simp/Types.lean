@@ -249,10 +249,14 @@ structure State where
   usedTheorems : UsedSimps := {}
   numSteps     : Nat := 0
   diag         : Diagnostics := {}
+  /-- Undischarged `@[expect_true]` hypotheses that become goals for the user. -/
+  pendingGoals : Array MVarId := #[]
 
 structure Stats where
   usedTheorems : UsedSimps := {}
   diag : Diagnostics := {}
+  /-- Undischarged `@[expect_true]` hypotheses that become goals for the user. -/
+  pendingGoals : Array MVarId := #[]
   deriving Inhabited
 
 private opaque MethodsRefPointed : NonemptyType.{0}
@@ -305,7 +309,7 @@ opaque dsimp (e : Expr) : SimpM Expr
 
 @[inline] def modifyDiag (f : Diagnostics → Diagnostics) : SimpM Unit := do
   if (← isDiagnosticsEnabled) then
-    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag } => { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag }
+    modify fun { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag, pendingGoals } => { cache, congrCache, dsimpCache, usedTheorems, numSteps, diag := f diag, pendingGoals }
 
 /--
 Result type for a simplification procedure. We have `pre` and `post` simplification procedures.

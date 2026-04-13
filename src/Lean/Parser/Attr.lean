@@ -47,6 +47,7 @@ namespace Attr
 @[builtin_attr_parser] def «instance»       := leading_parser "instance" >> optional (ppSpace >> priorityParser)
 @[builtin_attr_parser] def default_instance := leading_parser nonReservedSymbol "default_instance" >> optional (ppSpace >> priorityParser)
 @[builtin_attr_parser] def «specialize»     := leading_parser (nonReservedSymbol "specialize") >> many (ppSpace >> (ident <|> numLit))
+@[builtin_attr_parser] def «expect_true»    := leading_parser nonReservedSymbol "expect_true " >> many1 (ppSpace >> ident)
 
 def externEntry := leading_parser
   optional (ident >> ppSpace) >> optional (nonReservedSymbol "inline ") >> strLit

@@ -12,9 +12,37 @@ Author: Leonardo de Moura
 #include "kernel/instantiate.h"
 
 namespace lean {
+
+// Specialized path for the `s=0, n=1` case. Input-shape instrumentation across
+// a typical workload (e.g. `leanchecker --fresh Init.Data.List.Lemmas`) shows
+// `s=0` is the only value ever used (100%) and `n=1` is the plurality (~62%).
+// Collapsing the generic closure's overflow-guarded array-lookup machinery to
+// this one-branch form tightens the hot path substantially and the branch that
+// dispatches here is essentially free in the minority (`n>1`) case.
+static expr instantiate_one_core(expr const & a, expr const & v) {
+    return replace(a,
+        [](expr const & m, unsigned offset) {
+            return offset >= get_loose_bvar_range(m);
+        },
+        [&v](expr const & m, unsigned offset) -> optional<expr> {
+            if (is_bvar(m)) {
+                nat const & vidx = bvar_idx(m);
+                // `vidx >= offset` is guaranteed here: the skip predicate
+                // fires whenever `offset >= get_loose_bvar_range(m)`, and for
+                // a bvar `#k`, `get_loose_bvar_range(#k) = k + 1`.
+                if (vidx.is_small() && vidx.get_small_value() == offset)
+                    return some_expr(lift_loose_bvars(v, offset));
+                return some_expr(mk_bvar(vidx - nat(1)));
+            }
+            return none_expr();
+        });
+}
+
 expr instantiate(expr const & a, unsigned s, unsigned n, expr const * subst) {
     if (s >= get_loose_bvar_range(a) || n == 0)
         return a;
+    if (s == 0 && n == 1)
+        return instantiate_one_core(a, subst[0]);
     return replace(a,
         [=](expr const & m, unsigned offset) {
             unsigned s1 = s + offset;
@@ -59,6 +87,10 @@ static object * lean_expr_instantiate_core(b_obj_arg a0, size_t n, object** subs
         lean_inc(a0);
         return a0;
     }
+    if (n == 1) {
+        expr r = instantiate_one_core(a, TO_REF(expr, subst[0]));
+        return r.steal();
+    }
     expr r = replace(a,
         [=](expr const & m, unsigned offset) {
             return offset >= get_loose_bvar_range(m);
@@ -102,6 +134,11 @@ extern "C" LEAN_EXPORT object * lean_expr_instantiate_range(b_obj_arg a, b_obj_a
 expr instantiate_rev(expr const & a, unsigned n, expr const * subst) {
     if (!has_loose_bvars(a))
         return a;
+    // `instantiate_rev` with n=1 is identical to forward `instantiate` with
+    // n=1: the substitution array has a single slot, and the "reverse" index
+    // calculation `n - (i - offset) - 1` collapses to 0.
+    if (n == 1)
+        return instantiate_one_core(a, subst[0]);
     return replace(a,
         [=](expr const & m, unsigned offset) {
             return offset >= get_loose_bvar_range(m);
@@ -127,6 +164,10 @@ static object * lean_expr_instantiate_rev_core(object * a0, size_t n, object ** 
     if (!has_loose_bvars(a)) {
         lean_inc(a0);
         return a0;
+    }
+    if (n == 1) {
+        expr r = instantiate_one_core(a, TO_REF(expr, subst[0]));
+        return r.steal();
     }
     expr r = replace(a,
         [=](expr const & m, unsigned offset) {

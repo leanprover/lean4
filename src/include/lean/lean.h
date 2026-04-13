@@ -999,6 +999,16 @@ LEAN_EXPORT lean_object * lean_mk_array(lean_obj_arg n, lean_obj_arg v);
 
 /* Array of scalars */
 
+static inline bool lean_alloc_sarray_would_overflow(unsigned elem_size, size_t capacity) {
+    if (lean_usize_mul_would_overflow(elem_size, capacity)) {
+        return true;
+    }
+    if (lean_usize_add_would_overflow(sizeof(lean_sarray_object), elem_size * capacity)) {
+        return true;
+    }
+    return false;
+}
+
 static inline lean_obj_res lean_alloc_sarray(unsigned elem_size, size_t size, size_t capacity) {
     lean_sarray_object * o = (lean_sarray_object*)lean_alloc_object(lean_usize_add_checked(sizeof(lean_sarray_object), lean_usize_mul_checked(elem_size, capacity)));
     lean_set_st_header((lean_object*)o, LeanScalarArray, elem_size);

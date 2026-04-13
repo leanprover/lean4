@@ -153,6 +153,9 @@ open Lean.Meta
 
   let body ←
     withLocalDeclsD xh fun xh => do
+    Term.addLocalVarInfo x xh[0]!
+    if let some h := h? then
+      Term.addLocalVarInfo h xh[1]!
     withLocalDecl s .default σ (kind := .implDetail) fun loopS => do
     mkLambdaFVars (xh.push loopS) <| ← do
     bindMutVarsFromTuple loopMutVarNames loopS.fvarId! do

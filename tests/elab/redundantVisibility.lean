@@ -4,7 +4,7 @@ set_option linter.redundantVisibility true
 
 -- `private` outside `public section` should warn
 /--
-warning: `private` has no effect outside a `public section` in a `module` file; declarations are already `private` by default
+warning: `private` has no effect in a `module` file outside `public section`; declarations are already `private` by default
 
 Note: This linter can be disabled with `set_option linter.redundantVisibility false`
 -/
@@ -45,7 +45,7 @@ private def quux := 6
 
 -- `private` on a theorem should also warn
 /--
-warning: `private` has no effect outside a `public section` in a `module` file; declarations are already `private` by default
+warning: `private` has no effect in a `module` file outside `public section`; declarations are already `private` by default
 
 Note: This linter can be disabled with `set_option linter.redundantVisibility false`
 -/

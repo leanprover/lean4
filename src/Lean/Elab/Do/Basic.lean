@@ -545,7 +545,10 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     withDeadCode (if callerInfo.numRegularExits > 0 then .alive else .deadSemantically) do
     let e ← nondupDec.k
     mkLambdaFVars (#[r] ++ muts) e
-  discard <| joinRhsMVar.mvarId!.checkedAssign joinRhs
+  unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
+    joinRhsMVar.mvarId!.withContext do
+      throwError "Bug in a `do` elaborator. Failed to assign join point RHS{indentExpr joinRhs}\n\
+        to metavariable\n{joinRhsMVar.mvarId!}"
 
   let body ← body?.getDM do
     -- Here we unconditionally add a pending MVar.

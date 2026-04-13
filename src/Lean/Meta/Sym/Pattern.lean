@@ -331,7 +331,20 @@ def assignLevel (uidx : Nat) (u : Level) : UnifyM Bool := do
     modify fun s => { s with uAssignment := s.uAssignment.set! uidx (some u) }
     return true
 
-def processLevel (u : Level) (v : Level) : UnifyM Bool :=
+/-- Substitute already-assigned universe-level uvars. -/
+def substAssignedUVars (u : Level) : UnifyM Level := do
+  match u with
+  | .param name =>
+    if let some uidx := isUVar? name then
+      if let some v := (← get).uAssignment[uidx]! then
+        return v
+    return u
+  | .max u₁ u₂ => return .max (← substAssignedUVars u₁) (← substAssignedUVars u₂)
+  | .imax u₁ u₂ => return .imax (← substAssignedUVars u₁) (← substAssignedUVars u₂)
+  | .succ u₁ => return .succ (← substAssignedUVars u₁)
+  | _ => return u
+
+partial def processLevel (u : Level) (v : Level) : UnifyM Bool :=
   go u v.normalize
 where
   go (u : Level) (v : Level) : UnifyM Bool := do
@@ -366,7 +379,13 @@ where
         return true
       else
         return false
-    | _, _ => return false
+    | _, _ =>
+      -- Substitute already-assigned uvars in the pattern side and retry.
+      -- Example: pattern `max _uvar.0 _uvar.1` where `_uvar.0 := 0` becomes
+      -- `_uvar.1` after substitution + normalization, which then matches `u_1`.
+      let u' ← substAssignedUVars u
+      if u' != u then go u'.normalize v
+      else return false
 
 def processLevels (us : List Level) (vs : List Level) : UnifyM Bool := do
   match us, vs with

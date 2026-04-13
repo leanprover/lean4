@@ -91,3 +91,13 @@ instance (x y : BitVec w) : Decidable (LE.le x y) :=
 
 instance (x y : BitVec w) : Decidable (LE.le x y) :=
   inferInstanceAs (Decidable (LE.le x.toNat y.toNat))
+
+/-! Universes can be introduced by synth and need to be unified with the expected type properly. -/
+
+structure MyStruct where
+  x : PUnit.{u + 1} := ⟨⟩
+  y : PUnit.{v + 1} := ⟨⟩
+
+instance : Zero MyStruct.{u, max u v} := ⟨{}⟩
+
+instance : Zero MyStruct.{u, max u v} := inferInstanceAs <| Zero MyStruct.{u, max u v}

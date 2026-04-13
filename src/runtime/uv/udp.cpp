@@ -140,7 +140,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_udp_send(b_obj_arg socket, obj_arg d
         return lean_io_result_mk_ok(promise);
     }
 
-    uv_buf_t* bufs = (uv_buf_t*)malloc(array_len * sizeof(uv_buf_t));
+    uv_buf_t* bufs = (uv_buf_t*)malloc(lean_usize_mul_checked(array_len, sizeof(uv_buf_t)));
 
     for (size_t i = 0; i < array_len; i++) {
         lean_object* byte_array = lean_array_get_core(data_array, i);

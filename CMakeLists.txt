@@ -129,6 +129,7 @@ if(USE_MIMALLOC)
     # cadical, it might be worth reorganizing the directory structure.
     SOURCE_DIR
     "${CMAKE_BINARY_DIR}/mimalloc/src/mimalloc"
+    EXCLUDE_FROM_ALL
   )
   FetchContent_MakeAvailable(mimalloc)
 endif()

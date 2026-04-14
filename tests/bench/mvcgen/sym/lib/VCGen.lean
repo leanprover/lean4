@@ -42,8 +42,10 @@ public inductive SpecTheoremKind where
   A simp/equational spec: `lhs = rhs`.
   The pattern is the LHS.
   When matched, the VCGen rewrites the program from `lhs` to `rhs` and continues.
+  `etaArgs` is the number of extra arguments introduced by eta-expanding function-level equations
+  (e.g., class projection unfold lemmas). These args need `congrFun` at instantiation time.
   -/
-  | simp
+  | simp (etaArgs : Nat := 0)
   deriving Inhabited
 
 public structure SpecTheoremNew where
@@ -63,6 +65,28 @@ public structure SpecTheoremNew where
 
 meta instance : BEq SpecTheoremNew where
   beq thm₁ thm₂ := thm₁.proof == thm₂.proof
+
+/--
+Like `SpecProof.instantiate`, but for simp specs also eta-expands function-level equations.
+
+For unfold equations of class projections (e.g., `MonadState.modifyGet.eq_1`), the equation
+after `forallMetaTelescope` may be between functions rather than values:
+  `@modifyGet σ m self = self.3 : {α} → (σ → α × σ) → m α`
+This method applies `congrFun` for each leading forall to reduce the equation to one between
+values of type `m α`, introducing fresh metavariables for the extra arguments.
+The number of extra args is stored in `SpecTheoremKind.simp etaArgs`.
+-/
+meta def SpecTheoremNew.instantiate (specThm : SpecTheoremNew) :
+    MetaM (Array Expr × Array BinderInfo × Expr × Expr) := do
+  let (xs, bs, eqPrf, eqType) ← specThm.proof.instantiate
+  let .simp etaArgs := specThm.kind | return (xs, bs, eqPrf, eqType)
+  if etaArgs == 0 then return (xs, bs, eqPrf, eqType)
+  let_expr Eq eqα _lhs _rhs := eqType | return (xs, bs, eqPrf, eqType)
+  -- Eta-expand: introduce fresh metavars for leading foralls, then apply congrFun for each.
+  let (extraXs, extraBs, _) ← withReducible <| forallMetaBoundedTelescope eqα etaArgs
+  let eqPrf ← extraXs.foldlM (init := eqPrf) Meta.mkCongrFun
+  let eqType ← inferType eqPrf
+  return (xs ++ extraXs, bs ++ extraBs, eqPrf, eqType)
 
 public structure SpecTheoremsNew where
   specs : DiscrTree SpecTheoremNew := DiscrTree.empty
@@ -96,18 +120,63 @@ meta def mkSpecTheoremNew (proof : SpecProof) (prio : Nat) : SymM SpecTheoremNew
   return { pattern, proof, kind := .triple etaPotential, priority := prio }
 
 /--
+Eta-expand a pattern for a function-level equation.
+
+For unfold equations of class projections (e.g., `MonadState.modifyGet.eq_1`), the equation
+may be between functions: `@modifyGet σ m self = self.3` of type `{α} → (σ → α × σ) → m α`.
+The discrimination tree key includes the arg count, so lookup would fail if the pattern has
+fewer args than the actual fully-applied program.
+
+This function takes a pattern (keyed on the LHS), the equation type `eqTy`, and:
+1. Decomposes leading foralls of `eqTy` to find the extra argument domains
+2. Extends `varTypes` with those domains
+3. Applies the extra bvars to the pattern expression (lifting existing bvars accordingly)
+
+Returns the eta-expanded pattern and the number of extra args (0 if no expansion needed).
+-/
+private meta def etaExpandEqPattern (pattern : Sym.Pattern) (eqTy : Expr) : Sym.Pattern × Nat :=
+  if !eqTy.isForall then (pattern, 0)
+  else
+    -- Collect forall domains from eqTy
+    let rec collectDomains (ty : Expr) (acc : Array Expr) : Array Expr :=
+      if let .forallE _ d b _ := ty then collectDomains b (acc.push d) else acc
+    let extraDomains := collectDomains eqTy #[]
+    let k := extraDomains.size
+    -- Lift existing bvars in pattern by k, then apply new bvars #(k-1) ... #0
+    let liftedPattern := pattern.pattern.liftLooseBVars 0 k
+    let newBVars := Array.ofFn (n := k) fun i => mkBVar (k - 1 - i)
+    let newPatternExpr := mkAppN liftedPattern newBVars
+    -- Conservatively reset metadata (varInfos?, checkTypeMask?) since we can't
+    -- call the private helpers from here. fnInfos is unchanged (same constants).
+    let newPattern : Sym.Pattern :=
+      { pattern with
+        varTypes := pattern.varTypes ++ extraDomains
+        pattern := newPatternExpr
+        varInfos? := none
+        checkTypeMask? := none }
+    (newPattern, k)
+
+/--
 Create a `SpecTheoremNew` from a simp/equational declaration `declName : ∀ xs, lhs = rhs`.
 The pattern is keyed on `lhs`.
+
+For unfold equations of class projections (e.g., `MonadState.modifyGet.eq_1`), the equation
+may be between functions rather than values. In that case, the pattern is eta-expanded
+so the discrimination tree key includes all arguments.
 -/
 meta def mkSpecTheoremNewFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option SpecTheoremNew) := do
-  let (pattern, rhs) ← Sym.mkEqPatternFromDecl declName
+  let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey declName fun body => do
+    let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
+    return (lhs, (eqTy, rhs))
+  let (pattern, etaArgs) := etaExpandEqPattern pattern eqTy
   -- Skip no-op equations where LHS and RHS are the same after `unfoldReducible`.
   -- E.g., `getThe.eq_1 : getThe σ = MonadStateOf.get` becomes a no-op because
   -- `preprocessDeclPattern` unfolds `getThe` to `MonadStateOf.get`.
   -- We use `==` (structural equality) rather than `isSameExpr` (pointer equality)
   -- because the LHS and RHS are independently constructed.
-  if pattern.pattern == rhs then return none
-  return some { pattern, proof := .global declName, kind := .simp, priority := prio }
+  -- Compare the original (non-expanded) pattern with rhs, since both are in the same context.
+  if etaArgs == 0 && pattern.pattern == rhs then return none
+  return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio }
 
 meta def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : SimpTheorems) :
     SymM SpecTheoremsNew := do
@@ -344,7 +413,7 @@ meta def mkBackwardRuleFromSimpSpec (specThm : SpecTheoremNew) (m σs ps instWP 
   let us := wpType.getAppFn.constLevels!
   let u := us[0]!
   let v := us[1]!
-  let (xs, _, eqPrf, eqType) ← specThm.proof.instantiate
+  let (xs, _, eqPrf, eqType) ← specThm.instantiate
   let_expr Eq eqα lhs rhs := eqType
     | liftMetaM <| throwError "simp spec is not an equation: {eqType}"
   let α ← mkFreshExprMVar (mkSort u.succ)
@@ -472,6 +541,11 @@ public structure VCGen.Context where
   specThms : SpecTheoremsNew
   /-- The backward rule for `SPred.entails_cons_intro`. -/
   entailsConsIntroRule : BackwardRule
+  /-- The backward rule for `SPred.entails_nil_pure_intro`. Preferred over `entails_nil_intro`
+  when the LHS is `⌜φ⌝`, as it unwraps `.down` on the pure assertion. -/
+  entailsNilPureIntroRule : BackwardRule
+  /-- The backward rule for `SPred.entails_nil_intro`. Fallback when LHS is not `⌜φ⌝`. -/
+  entailsNilIntroRule : BackwardRule
   /-- The backward rule for `PostCond.entails.rfl`. Tried first to close by reflexivity. -/
   postCondEntailsRflRule : BackwardRule
   /-- The backward rule for `PostCond.entails.mk`. -/
@@ -535,8 +609,8 @@ meta def SpecTheoremNew.global? (specThm : SpecTheoremNew) : Option Name :=
 meta def mkBackwardRuleFromSpecCached (specThm : SpecTheoremNew) (m σs ps instWP : Expr)
     (excessArgs : Array Expr) : VCGenM BackwardRule := do
   let mkRuleSlow := match specThm.kind with
-    | .triple _ => mkBackwardRuleFromSpec specThm m σs ps instWP excessArgs
-    | .simp => mkBackwardRuleFromSimpSpec specThm m σs ps instWP excessArgs
+    | .triple _ => mkBackwardRuleFromSpec     specThm m σs ps instWP excessArgs
+    | .simp _   => mkBackwardRuleFromSimpSpec specThm m σs ps instWP excessArgs
   let s ← get
   let some decl := SpecTheoremNew.global? specThm | mkRuleSlow
   let (res, specBackwardRuleCache) ← s.specBackwardRuleCache.getDM (decl, m, excessArgs.size) mkRuleSlow

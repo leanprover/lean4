@@ -66,6 +66,8 @@ def entails {σs : List (Type u)} (P Q : SPred σs) : Prop := match σs with
   | [] => P.down → Q.down
   | σ :: _ => ∀ (s : σ), entails (P s) (Q s)
 @[simp, grind =] theorem entails_nil {P Q : SPred []} : entails P Q = (P.down → Q.down) := rfl
+theorem entails_nil_intro {P Q : SPred []} : (P.down → Q.down) → entails P Q := by simp only [entails_nil, imp_self]
+theorem entails_nil_pure_intro {φ : Prop} {Q : SPred []} : (φ → Q.down) → entails (SPred.pure φ) Q := by simp only [entails_nil, pure_nil, imp_self]
 -- We would like to make `entails_cons` @[simp], but that has no effect until we merge #9015.
 -- Until then, we have `entails_<n>` for n ∈ [1:5] in DerivedLaws.lean.
 theorem entails_cons {P Q : SPred (σ::σs)} : entails P Q = (∀ s, entails (P s) (Q s)) := rfl

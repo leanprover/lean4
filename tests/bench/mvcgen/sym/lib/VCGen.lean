@@ -986,6 +986,28 @@ meta def PreTac.run : PreTac →  Grind.Goal → VCGenM (List MVarId)
     catch _ =>
       pure [goal.mvarId]
 
+meta def introSPredEntails (goal : MVarId) : VCGenM MVarId := goal.withContext do
+  let_expr SPred.entails _ _ _ := (← goal.getType) | return goal
+  -- Apply `entails_cons_intro` + `introsSimp` for each state variable.
+  let mut g := goal
+  repeat do
+    let .goals [g'] ← (← read).entailsConsIntroRule.apply g
+      | break
+    let IntrosResult.goal _ g' ← introsSimp g'
+      | throwError "Failed to intro after applying {.ofConstName ``SPred.entails_cons_intro} on {g'}"
+    g := g'
+  -- Apply `entails_nil_pure_intro` to reduce `⌜φ⌝ ⊢ₛ Q` to `φ → Q.down`, then `introsSimp`,
+  -- fall back to `entails_nil_intro`.
+  if let .goals [g'] ← (← read).entailsNilPureIntroRule.apply g then
+    let IntrosResult.goal _ g' ← introsSimp g'
+      | throwError "Failed to intro after applying {.ofConstName ``SPred.entails_nil_pure_intro} on {g'}"
+    g := g'
+  else if let .goals [g'] ← (← read).entailsNilIntroRule.apply g then
+    let IntrosResult.goal _ g' ← introsSimp g'
+      | throwError "Failed to intro after applying {.ofConstName ``SPred.entails_nil_intro} on {g'}"
+    g := g'
+  return g
+
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 -/
@@ -995,7 +1017,8 @@ meta def emitVC (goal : Grind.Goal) : VCGenM Unit := do
     goal.mvarId.setKind .syntheticOpaque
     modify fun s => { s with invariants := s.invariants.push goal.mvarId }
     return
-  let goal ← (← read).preTac.processHypotheses goal
+  let mvarId ← introSPredEntails goal.mvarId
+  let goal ← (← read).preTac.processHypotheses { goal with mvarId }
   let goals ← (← read).preTac.run goal
   for g in goals do g.setKind .syntheticOpaque
   modify fun s => { s with vcs := s.vcs ++ goals.toArray }
@@ -1116,6 +1139,8 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
           specThms := specThms.insert thm
         catch _ => continue
   let entailsConsIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_cons_intro
+  let entailsNilPureIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_nil_pure_intro
+  let entailsNilIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_nil_intro
   let postCondEntailsRflRule ← mkBackwardRuleFromDecl ``PostCond.entails.rfl
   let postCondEntailsMkRule ← mkBackwardRuleFromDecl ``PostCond.entails.mk
   let exceptCondsEntailsRflRule ← mkBackwardRuleFromDecl ``ExceptConds.entails.rfl
@@ -1125,6 +1150,8 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
   return {
     specThms := specThmsNew,
     entailsConsIntroRule,
+    entailsNilPureIntroRule,
+    entailsNilIntroRule,
     postCondEntailsRflRule,
     postCondEntailsMkRule,
     exceptCondsEntailsRflRule,

@@ -416,14 +416,18 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
     let k ← mkLambdaFVars #[xFVar] body
     mkBindApp eResultTy kResultTy e k
 
+def checkMonadicResultTypeMatches (resultType : Expr) (expectedType : Expr) : DoElabM Unit := do
+  unless ← isDefEqGuarded resultType expectedType do
+    throwError "Type mismatch. The rest of the `do` block has monadic result type{indentExpr resultType}\n\
+      but is expected to have monadic result type{indentExpr expectedType}"
+
 /--
 Return `let $k.resultName : PUnit := PUnit.unit; $(← k.k)`, ensuring that the result type of `k.k`
 is `PUnit` and then immediately zeta-reduce the `let`.
 -/
 def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
-  let unit ← mkPUnitUnit
-  discard <| Term.ensureHasType dec.resultType unit
-  mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := .ofBinderName dec.resultName) fun _ =>
+  checkMonadicResultTypeMatches dec.resultType (← mkPUnit)
+  mapLetDeclZeta dec.resultName (← mkPUnit) (← mkPUnitUnit) (nondep := true) (kind := .ofBinderName dec.resultName) fun _ =>
     dec.k
 
 /-- Elaborate the `DoElemCont` with the `deadCode` flag set to `deadSyntactically` to emit warnings. -/

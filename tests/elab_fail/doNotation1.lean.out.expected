@@ -58,9 +58,7 @@ but is expected to have type
   List (Nat × Nat)
 in the application
   pure ()
-doNotation1.lean:82:0-83:9: error: Type mismatch
-  PUnit.unit
-has type
-  PUnit
-but is expected to have type
+doNotation1.lean:82:0-83:9: error: Type mismatch. The rest of the `do` block has monadic result type
   List (Nat × Nat)
+but is expected to have monadic result type
+  PUnit

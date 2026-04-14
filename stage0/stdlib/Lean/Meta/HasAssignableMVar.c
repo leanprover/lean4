@@ -95,6 +95,7 @@ lean_dec(v___x_4_);
 v_levelAssignDepth_6_ = lean_ctor_get(v_mctx_5_, 1);
 lean_inc(v_levelAssignDepth_6_);
 v_decl_7_ = l_Lean_MetavarContext_getLevelDecl(v_mctx_5_, v_mvarId_1_);
+lean_dec_ref(v_mctx_5_);
 v_depth_8_ = lean_ctor_get(v_decl_7_, 0);
 lean_inc(v_depth_8_);
 lean_dec_ref(v_decl_7_);
@@ -306,7 +307,7 @@ _start:
 lean_object* v___x_85_; lean_object* v_mctx_86_; lean_object* v_decl_87_; lean_object* v_depth_88_; lean_object* v_depth_89_; uint8_t v___x_90_; lean_object* v___x_91_; lean_object* v___x_92_; 
 v___x_85_ = lean_st_ref_get(v___y_83_);
 v_mctx_86_ = lean_ctor_get(v___x_85_, 0);
-lean_inc_ref_n(v_mctx_86_, 2);
+lean_inc_ref(v_mctx_86_);
 lean_dec(v___x_85_);
 v_decl_87_ = l_Lean_MetavarContext_getDecl(v_mctx_86_, v_mvarId_82_);
 v_depth_88_ = lean_ctor_get(v_decl_87_, 3);

@@ -1,6 +1,7 @@
 import Lean
 
 set_option linter.all true
+set_option linter.redundantVisibility false
 
 /-- A doc string -/
 def hasDoc (x : Nat) := x

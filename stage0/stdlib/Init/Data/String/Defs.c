@@ -18,7 +18,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* l_List_foldl___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern uint8_t l_instInhabitedUInt8;
@@ -706,7 +706,7 @@ LEAN_EXPORT uint8_t l_String_instDecidableLtPos___redArg(lean_object* v_l_201_, 
 _start:
 {
 uint8_t v___x_203_; 
-v___x_203_ = l_String_instDecidableLtRaw___aux__1(v_l_201_, v_r_202_);
+v___x_203_ = lean_nat_dec_lt(v_l_201_, v_r_202_);
 return v___x_203_;
 }
 }
@@ -725,7 +725,7 @@ LEAN_EXPORT uint8_t l_String_instDecidableLtPos(lean_object* v_s_208_, lean_obje
 _start:
 {
 uint8_t v___x_211_; 
-v___x_211_ = l_String_instDecidableLtRaw___aux__1(v_l_209_, v_r_210_);
+v___x_211_ = lean_nat_dec_lt(v_l_209_, v_r_210_);
 return v___x_211_;
 }
 }
@@ -945,7 +945,7 @@ v_str_313_ = lean_ctor_get(v_s_311_, 0);
 v_startInclusive_314_ = lean_ctor_get(v_s_311_, 1);
 v_endExclusive_315_ = lean_ctor_get(v_s_311_, 2);
 v___x_316_ = lean_nat_sub(v_endExclusive_315_, v_startInclusive_314_);
-v___x_317_ = l_String_instDecidableLtRaw___aux__1(v_p_312_, v___x_316_);
+v___x_317_ = lean_nat_dec_lt(v_p_312_, v___x_316_);
 lean_dec(v___x_316_);
 if (v___x_317_ == 0)
 {
@@ -1182,7 +1182,7 @@ LEAN_EXPORT uint8_t l_String_instDecidableLtPos__1___redArg(lean_object* v_l_396
 _start:
 {
 uint8_t v___x_398_; 
-v___x_398_ = l_String_instDecidableLtRaw___aux__1(v_l_396_, v_r_397_);
+v___x_398_ = lean_nat_dec_lt(v_l_396_, v_r_397_);
 return v___x_398_;
 }
 }
@@ -1201,7 +1201,7 @@ LEAN_EXPORT uint8_t l_String_instDecidableLtPos__1(lean_object* v_s_403_, lean_o
 _start:
 {
 uint8_t v___x_406_; 
-v___x_406_ = l_String_instDecidableLtRaw___aux__1(v_l_404_, v_r_405_);
+v___x_406_ = lean_nat_dec_lt(v_l_404_, v_r_405_);
 return v___x_406_;
 }
 }

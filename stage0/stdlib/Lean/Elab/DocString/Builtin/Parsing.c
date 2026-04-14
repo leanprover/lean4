@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_TSyntax_getString(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
@@ -551,7 +551,7 @@ v_resetjp_185_:
 {
 lean_object* v___x_188_; uint8_t v___x_189_; 
 v___x_188_ = lean_unsigned_to_nat(0u);
-v___x_189_ = l_String_instDecidableLtRaw___aux__1(v___x_188_, v_fst_183_);
+v___x_189_ = lean_nat_dec_lt(v___x_188_, v_fst_183_);
 if (v___x_189_ == 0)
 {
 lean_object* v___x_191_; 

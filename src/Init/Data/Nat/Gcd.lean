@@ -60,7 +60,7 @@ theorem gcd_def (x y : Nat) : gcd x y = if x = 0 then y else gcd (y % x) x := by
   cases n with
   | zero => simp
   | succ n =>
-    -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `id rfl` instead
+    -- `simp [gcd_succ]` produces an invalid term unless `gcd_succ` is proved with `(rfl)` instead
     rw [gcd_succ]
     exact gcd_zero_left _
 instance : Std.LawfulIdentity gcd 0 where

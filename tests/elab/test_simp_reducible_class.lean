@@ -29,13 +29,13 @@ example : (instX a).x = (instX b).x := by simp
 -- isDefEqProj bumps to .instances via withInstanceConfig.
 -- With backward.whnf.reducibleClassField = true: tryHeuristic in isDefEqDelta applies the
 -- argument-comparison heuristic, and isDefEqArgs bumps to .instances for instance-implicit params.
-set_option allowUnsafeReducibility true in
-attribute [reducible] X.x in
+set_option allowUnsafeReducibility true
+attribute [reducible] X.x
 example : (instX a).x = (instX b).x := by simp
 
 -- Test 2b: same as Test 2 with backward.whnf.reducibleClassField explicitly enabled
-set_option allowUnsafeReducibility true in
-attribute [reducible] X.x in
+set_option allowUnsafeReducibility true
+attribute [reducible] X.x
 set_option backward.whnf.reducibleClassField true in
 example : (instX a).x = (instX b).x := by simp
 

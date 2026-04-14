@@ -774,7 +774,7 @@ where
 
 mutual
 
-private partial def emitBasicBlock (code : Code .impure) : EmitM Unit := do
+partial def emitBasicBlock (code : Code .impure) : EmitM Unit := do
   match code with
   | .jp (k := k) .. => emitBasicBlock k
   | .let decl k =>
@@ -896,7 +896,7 @@ where
   emitUnreach : EmitM Unit := do
     emitLn "lean_internal_panic_unreachable();"
 
-private partial def emitJoinPoints (code : Code .impure) : EmitM Unit := do
+partial def emitJoinPoints (code : Code .impure) : EmitM Unit := do
   match code with
   | .jp decl k =>
     emit decl.binderName; emitLn ":"
@@ -906,7 +906,7 @@ private partial def emitJoinPoints (code : Code .impure) : EmitM Unit := do
   | .sset (k := k) .. | .uset (k := k) .. | .oset (k := k) .. => emitJoinPoints k
   | .cases .. | .return .. | .jmp .. | .unreach .. => return ()
 
-private partial def emitCode (code : Code .impure) : EmitM Unit := do
+partial def emitCode (code : Code .impure) : EmitM Unit := do
   withEmitBlock do
     let declared ← declareVars code
     if declared then emitLn ""

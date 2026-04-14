@@ -27,7 +27,6 @@ uint8_t lean_int_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_abs(lean_object*);
 lean_object* lean_int_neg(lean_object*);
 lean_object* lean_nat_gcd(lean_object*, lean_object*);
-uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_div(lean_object*, lean_object*);
 lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);

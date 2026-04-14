@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 lean_object* l_WellFounded_opaqueFix_u2083___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -166,7 +166,7 @@ LEAN_EXPORT lean_object* l_String_foldr___redArg___lam__0(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_String_foldr___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_foldr___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_String_foldr(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_String_Slice_instInhabitedPosIterator_default(lean_object* v_a_1_){
+LEAN_EXPORT lean_object* l_String_Slice_instInhabitedPosIterator_default(lean_object* v_s_1_){
 _start:
 {
 lean_object* v___x_2_; 
@@ -174,12 +174,12 @@ v___x_2_ = lean_unsigned_to_nat(0u);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_instInhabitedPosIterator_default___boxed(lean_object* v_a_3_){
+LEAN_EXPORT lean_object* l_String_Slice_instInhabitedPosIterator_default___boxed(lean_object* v_s_3_){
 _start:
 {
 lean_object* v_res_4_; 
-v_res_4_ = l_String_Slice_instInhabitedPosIterator_default(v_a_3_);
-lean_dec_ref(v_a_3_);
+v_res_4_ = l_String_Slice_instInhabitedPosIterator_default(v_s_3_);
+lean_dec_ref(v_s_3_);
 return v_res_4_;
 }
 }
@@ -592,7 +592,7 @@ lean_dec_ref(v_s_173_);
 return v_res_179_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_instInhabitedRevPosIterator_default(lean_object* v_a_180_){
+LEAN_EXPORT lean_object* l_String_Slice_instInhabitedRevPosIterator_default(lean_object* v_s_180_){
 _start:
 {
 lean_object* v___x_181_; 
@@ -600,12 +600,12 @@ v___x_181_ = lean_unsigned_to_nat(0u);
 return v___x_181_;
 }
 }
-LEAN_EXPORT lean_object* l_String_Slice_instInhabitedRevPosIterator_default___boxed(lean_object* v_a_182_){
+LEAN_EXPORT lean_object* l_String_Slice_instInhabitedRevPosIterator_default___boxed(lean_object* v_s_182_){
 _start:
 {
 lean_object* v_res_183_; 
-v_res_183_ = l_String_Slice_instInhabitedRevPosIterator_default(v_a_182_);
-lean_dec_ref(v_a_182_);
+v_res_183_ = l_String_Slice_instInhabitedRevPosIterator_default(v_s_182_);
+lean_dec_ref(v_s_182_);
 return v_res_183_;
 }
 }
@@ -907,7 +907,7 @@ v_startInclusive_316_ = lean_ctor_get(v_s_310_, 1);
 lean_inc(v_startInclusive_316_);
 v_endExclusive_317_ = lean_ctor_get(v_s_310_, 2);
 v___x_318_ = lean_nat_sub(v_endExclusive_317_, v_startInclusive_316_);
-v___x_319_ = l_String_instDecidableLtRaw___aux__1(v_offset_311_, v___x_318_);
+v___x_319_ = lean_nat_dec_lt(v_offset_311_, v___x_318_);
 lean_dec(v___x_318_);
 if (v___x_319_ == 0)
 {
@@ -1103,7 +1103,7 @@ lean_closure_set(v___f_383_, 2, v___y_367_);
 lean_closure_set(v___f_383_, 3, v_acc_372_);
 lean_closure_set(v___f_383_, 4, v_toBind_368_);
 v___x_384_ = lean_nat_sub(v_endExclusive_382_, v_startInclusive_381_);
-v___x_385_ = l_String_instDecidableLtRaw___aux__1(v_offset_376_, v___x_384_);
+v___x_385_ = lean_nat_dec_lt(v_offset_376_, v___x_384_);
 lean_dec(v___x_384_);
 if (v___x_385_ == 0)
 {

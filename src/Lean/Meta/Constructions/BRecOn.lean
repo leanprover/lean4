@@ -30,7 +30,7 @@ of type
 α → List α → Sort (max 1 u_1) → Sort (max 1 u_1)
 ```
 -/
-private def buildBelowMinorPremise (rlvl : Level) (motives : Array Expr) (minorType : Expr) : MetaM Expr :=
+def buildBelowMinorPremise (rlvl : Level) (motives : Array Expr) (minorType : Expr) : MetaM Expr :=
   forallTelescope minorType fun minor_args _ => do go #[] minor_args.toList
 where
   go (prods : Array Expr) : List Expr → MetaM Expr
@@ -56,7 +56,7 @@ For example for the `List` type, it constructs,
 fun {a} {motive} t => List.rec PUnit (fun a_1 a a_ih => motive a ×' a_ih) t
 ```
 -/
-private def mkBelowFromRec (recName : Name) (nParams : Nat)
+def mkBelowFromRec (recName : Name) (nParams : Nat)
   (belowName : Name) : MetaM Unit := do
   -- The construction follows the type of `ind.rec`
   let .recInfo recVal ← getConstInfo recName
@@ -146,7 +146,7 @@ of type
   PProd (motive (head :: tail)) (PProd (PProd (motive tail) (List.below tail)) PUnit)
 ```
 -/
-private def buildBRecOnMinorPremise (rlvl : Level) (motives : Array Expr)
+def buildBRecOnMinorPremise (rlvl : Level) (motives : Array Expr)
     (belows : Array Expr) (fs : Array Expr) (minorType : Expr) : MetaM Expr :=
   forallTelescope minorType fun minor_args minor_type => do
     let rec go (prods : Array Expr) : List Expr → MetaM Expr
@@ -188,7 +188,7 @@ protected theorem List.brecOn.eq.{u} : ∀ {a : Type} {motive : List a → Sort 
   (F_1 : (t : List a) → List.below t → motive t), List.brecOn t F_1 = F_1 t (List.brecOn.go t F_1).2
 ```
 -/
-private def mkBRecOnFromRec (recName : Name) (nParams : Nat)
+def mkBRecOnFromRec (recName : Name) (nParams : Nat)
     (all : Array Name) (brecOnName : Name) : MetaM Unit := do
   let brecOnGoName := brecOnName.str "go"
   let brecOnEqName := brecOnName.str "eq"

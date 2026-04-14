@@ -10,6 +10,7 @@ public import Lean.Parser.Module
 meta import Lean.Parser.Module
 import Lean.Compiler.ModPkgExt
 public import Lean.DeprecatedModule
+import Init.Data.String.Modify
 
 public section
 
@@ -28,7 +29,9 @@ def HeaderSyntax.isModule (header : HeaderSyntax) : Bool :=
 def HeaderSyntax.imports (stx : HeaderSyntax) (includeInit : Bool := true) : Array Import :=
   match stx with
   | `(Parser.Module.header| $[module%$moduleTk]? $[prelude%$preludeTk]? $importsStx*) =>
-    let imports := if preludeTk.isNone && includeInit then #[{ module := `Init : Import }] else #[]
+    let imports := if preludeTk.isNone && includeInit then
+        #[{ module := `Init : Import }, { module := `Init, isMeta := true : Import }]
+      else #[]
     imports ++ importsStx.map fun
       | `(Parser.Module.import| $[public%$publicTk]? $[meta%$metaTk]? import $[all%$allTk]? $n) =>
         { module := n.getId, importAll := allTk.isSome
@@ -95,6 +98,43 @@ def checkDeprecatedImports
       | none => messages
     | none => messages
 
+private def osForbiddenChars : Array Char :=
+  #['<', '>', '"', '|', '?', '*', '!']
+
+private def osForbiddenNames : Array String :=
+  #["CON", "PRN", "AUX", "NUL",
+    "COM1", "COM2", "COM3", "COM4", "COM5", "COM6", "COM7", "COM8", "COM9",
+    "COM¹", "COM²", "COM³",
+    "LPT1", "LPT2", "LPT3", "LPT4", "LPT5", "LPT6", "LPT7", "LPT8", "LPT9",
+    "LPT¹", "LPT²", "LPT³"]
+
+private def checkComponentPortability (comp : String) : Option String :=
+  if osForbiddenNames.contains comp.toUpper then
+    some s!"'{comp}' is a reserved file name on some operating systems"
+  else if let some c := osForbiddenChars.find? (comp.contains ·) then
+    some s!"contains character '{c}' which is forbidden on some operating systems"
+  else
+    none
+
+def checkModuleNamePortability
+    (mainModule : Name) (inputCtx : Parser.InputContext) (startPos : String.Pos.Raw)
+    (messages : MessageLog) : MessageLog :=
+  go mainModule messages
+where
+  go : Name → MessageLog → MessageLog
+    | .anonymous, messages => messages
+    | .str parent s, messages =>
+      let messages := match checkComponentPortability s with
+        | some reason => messages.add {
+            fileName := inputCtx.fileName
+            pos := inputCtx.fileMap.toPosition startPos
+            severity := .error
+            data := s!"module name '{mainModule}' is not portable: {reason}"
+          }
+        | none => messages
+      go parent messages
+    | .num parent _, messages => go parent messages
+
 def processHeaderCore
     (startPos : String.Pos.Raw) (imports : Array Import) (isModule : Bool)
     (opts : Options) (messages : MessageLog) (inputCtx : Parser.InputContext)
@@ -122,6 +162,7 @@ def processHeaderCore
     pure (env, messages.add { fileName := inputCtx.fileName, data := toString e, pos := pos })
   let env := env.setMainModule mainModule |>.setModulePackage package?
   let messages := checkDeprecatedImports env imports opts inputCtx startPos messages headerStx? origHeaderStx?
+  let messages := checkModuleNamePortability mainModule inputCtx startPos messages
   return (env, messages)
 
 /--

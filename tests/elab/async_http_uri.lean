@@ -925,3 +925,73 @@ info: Std.Http.RequestTarget.absoluteForm
 #eval show IO _ from do
   let result ← runParser parseRequestTarget "http://123abc.example.com/page"
   IO.println (repr result)
+
+-- parseScheme: first byte uses `satisfy isAlphaByte` (not `takeWhile1AtMost`).
+-- Schemes that start with a non-alpha byte must be rejected.
+#eval parseCheckFail "1http://example.com/path"
+#eval parseCheckFail "+http://example.com/path"
+#eval parseCheckFail "-http://example.com/path"
+#eval parseCheckFail ".http://example.com/path"
+
+-- Scheme body allows '+', '-', '.'.
+#eval parseCheck "coap+tcp://example.com/path"
+#eval parseCheck "svn+ssh://example.com/path"
+#eval parseCheck "my.scheme://example.com/path"
+#eval parseCheck "a-b://example.com/path"
+
+-- Single-letter scheme is valid.
+#eval parseCheck "a://example.com/path"
+
+-- parsePortNumber now uses `takeWhileAtMost` (succeeds at EOF) instead of
+-- `takeWhileUpTo1` (would fail with .eof). Verify a port at the very end of
+-- the input still parses correctly.
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "example.com:8080".toUTF8 with
+  | .ok (.authorityForm auth) => auth.port == .value 8080
+  | _ => false
+
+-- Port 0 is technically valid (toNat? succeeds).
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "example.com:0".toUTF8 with
+  | .ok (.authorityForm auth) => auth.port == .value 0
+  | _ => false
+
+-- Port > 65535 must be rejected. Use an unambiguous authority URL so the
+-- number is definitely parsed as a port, not as a path segment.
+#eval parseCheckFail "http://example.com:65536/path"
+#eval parseCheckFail "http://example.com:99999/path"
+
+-- parseQuery now uses `split '&'` instead of `splitOn "&"`.
+-- A trailing `&` is accepted and produces an empty-key entry; it is not a
+-- parse failure.
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "/path?key=val&".toUTF8 with
+  | .ok result => result.query.size == 2
+  | .error _ => false
+
+-- parseQuery uses `split '='` instead of `splitOn "="`.
+-- A pair containing more than one unencoded `=` must be rejected because the
+-- three-element split falls into the error branch.
+#eval parseCheckFail "/path?key=a=b"
+
+-- A percent-encoded `=` in the value is fine; `%3D` is preserved as-is in
+-- the EncodedQueryParam.
+/--
+info: some (some "a%3Db")
+-/
+#guard_msgs in
+#eval show IO _ from do
+  let result ← runParser parseRequestTarget "/path?key=a%3Db"
+  IO.println (repr (result.query.find? "key"))
+
+-- IPv4/IPv6 parsing now uses `takeWhile1AtMost` (still requires ≥1 byte).
+-- Both types continue to work at the very end of the input.
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "192.168.0.1:80".toUTF8 with
+  | .ok (.authorityForm auth) => toString auth.host == "192.168.0.1"
+  | _ => false
+
+#guard
+  match (parseRequestTarget <* Std.Internal.Parsec.eof).run "http://[::1]/".toUTF8 with
+  | .ok (.absoluteForm uri) => uri.authority.any fun a => match a.host with | .ipv6 _ => true | _ => false
+  | _ => false

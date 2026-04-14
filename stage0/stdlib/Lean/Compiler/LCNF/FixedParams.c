@@ -1119,9 +1119,9 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Compiler_LCNF_FixedParams_isEquivalentFunDecl_x3f_spec__0___redArg___boxed(lean_object* v_params_331_, lean_object* v_args_332_, lean_object* v___x_333_, lean_object* v_range_334_, lean_object* v_b_335_, lean_object* v_i_336_, lean_object* v___y_337_){
 _start:
 {
-uint8_t v___x_3932__boxed_338_; lean_object* v_res_339_; 
-v___x_3932__boxed_338_ = lean_unbox(v___x_333_);
-v_res_339_ = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Compiler_LCNF_FixedParams_isEquivalentFunDecl_x3f_spec__0___redArg(v_params_331_, v_args_332_, v___x_3932__boxed_338_, v_range_334_, v_b_335_, v_i_336_, v___y_337_);
+uint8_t v___x_3934__boxed_338_; lean_object* v_res_339_; 
+v___x_3934__boxed_338_ = lean_unbox(v___x_333_);
+v_res_339_ = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Compiler_LCNF_FixedParams_isEquivalentFunDecl_x3f_spec__0___redArg(v_params_331_, v_args_332_, v___x_3934__boxed_338_, v_range_334_, v_b_335_, v_i_336_, v___y_337_);
 lean_dec_ref(v_range_334_);
 lean_dec_ref(v_args_332_);
 lean_dec_ref(v_params_331_);
@@ -1472,8 +1472,8 @@ return v___x_414_;
 else
 {
 lean_dec(v_value_353_);
-lean_dec_ref(v_decl_352_);
 lean_dec_ref(v_value_351_);
+lean_dec_ref(v_decl_352_);
 lean_dec_ref(v_decl_340_);
 v___y_344_ = v_a_342_;
 goto v___jp_343_;
@@ -1526,9 +1526,9 @@ return v___x_431_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Compiler_LCNF_FixedParams_isEquivalentFunDecl_x3f_spec__0___boxed(lean_object* v_params_432_, lean_object* v_args_433_, lean_object* v___x_434_, lean_object* v_range_435_, lean_object* v_b_436_, lean_object* v_i_437_, lean_object* v_hs_438_, lean_object* v_hl_439_, lean_object* v___y_440_, lean_object* v___y_441_){
 _start:
 {
-uint8_t v___x_4136__boxed_442_; lean_object* v_res_443_; 
-v___x_4136__boxed_442_ = lean_unbox(v___x_434_);
-v_res_443_ = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Compiler_LCNF_FixedParams_isEquivalentFunDecl_x3f_spec__0(v_params_432_, v_args_433_, v___x_4136__boxed_442_, v_range_435_, v_b_436_, v_i_437_, v_hs_438_, v_hl_439_, v___y_440_, v___y_441_);
+uint8_t v___x_4138__boxed_442_; lean_object* v_res_443_; 
+v___x_4138__boxed_442_ = lean_unbox(v___x_434_);
+v_res_443_ = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Compiler_LCNF_FixedParams_isEquivalentFunDecl_x3f_spec__0(v_params_432_, v_args_433_, v___x_4138__boxed_442_, v_range_435_, v_b_436_, v_i_437_, v_hs_438_, v_hl_439_, v___y_440_, v___y_441_);
 lean_dec_ref(v___y_440_);
 lean_dec_ref(v_range_435_);
 lean_dec_ref(v_args_433_);

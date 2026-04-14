@@ -181,9 +181,11 @@ public:
 template<typename T> class unique_lock {
 public:
     unique_lock(T const &) {}
+    unique_lock(T const &, std::adopt_lock_t) {}
     ~unique_lock() {}
     void lock() {}
     void unlock() {}
+    T * release() { return nullptr; }
 };
 inline unsigned hardware_concurrency() { return 1; }
 }

@@ -126,7 +126,7 @@ public def BuildMetadata.parse (contents : String) : Except String BuildMetadata
 public def BuildMetadata.ofFetch (inputHash : Hash) (outputs : Json) : BuildMetadata :=
   {depHash := inputHash, outputs? := outputs, synthetic := true, inputs := #[], log := {}}
 
-private partial def serializeInputs (inputs : Array BuildTrace) : Array (String × Json) :=
+partial def serializeInputs (inputs : Array BuildTrace) : Array (String × Json) :=
   inputs.foldl (init := {}) fun r trace =>
     let val :=
       if trace.inputs.isEmpty then
@@ -135,7 +135,7 @@ private partial def serializeInputs (inputs : Array BuildTrace) : Array (String 
         toJson (serializeInputs trace.inputs)
     r.push (trace.caption, val)
 
-private def BuildMetadata.ofBuildCore
+def BuildMetadata.ofBuildCore
   (depTrace : BuildTrace) (outputs : Json) (log : Log)
 : BuildMetadata where
   inputs := serializeInputs depTrace.inputs
@@ -210,7 +210,7 @@ deriving DecidableEq
 @[inline] public def OutputStatus.isCacheable (status : OutputStatus) : Bool :=
   status != .mtimeUpToDate
 
-@[specialize] private def checkHashUpToDate'
+@[specialize] def checkHashUpToDate'
   [CheckExists ι] [GetMTime ι]
   (info : ι) (depTrace : BuildTrace) (depHash : Option Hash)
   (oldTrace := depTrace.mtime)
@@ -514,7 +514,7 @@ stored in the cached input-to-content mapping.
 
 **For internal use only.**
 -/
-@[specialize] private def getArtifactsUsingCache?
+@[specialize] def getArtifactsUsingCache?
   [ResolveOutputs α] (inputHash : Hash) (pkg : Package)
 : JobM (Option α) := do
   if let some out ← (← getLakeCache).readOutputs? pkg.cacheScope inputHash then
@@ -868,7 +868,7 @@ public def buildStaticLib
       compileStaticLib libFile oFiles (← getLeanAr) thin
     return art.path
 
-private def mkLinkObjArgs
+def mkLinkObjArgs
   (objs : Array FilePath) (libs : Array Dynlib) : Array String
 := Id.run do
   let mut args := #[]
@@ -884,7 +884,7 @@ private def mkLinkObjArgs
 Topologically sorts the library dependency tree by name.
 Libraries come *before* their dependencies.
 -/
-private partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := do
+partial def mkLinkOrder (libs : Array Dynlib) : JobM (Array Dynlib) := do
   let r := libs.foldlM (m := Except (Cycle String)) (init := ({}, #[])) fun (v, o) lib =>
     go lib [] v o
   match r with

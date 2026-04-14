@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.List.Nat
-// Imports: public import Init.Data.List.Nat.Basic public import Init.Data.List.Nat.Pairwise public import Init.Data.List.Nat.Range public import Init.Data.List.Nat.Sublist public import Init.Data.List.Nat.TakeDrop public import Init.Data.List.Nat.Count public import Init.Data.List.Nat.Sum public import Init.Data.List.Nat.Erase public import Init.Data.List.Nat.Find public import Init.Data.List.Nat.BEq public import Init.Data.List.Nat.Modify public import Init.Data.List.Nat.InsertIdx public import Init.Data.List.Nat.Perm
+// Imports: public import Init.Data.List.Nat.Basic public import Init.Data.List.Nat.Pairwise public import Init.Data.List.Nat.Range public import Init.Data.List.Nat.Sublist public import Init.Data.List.Nat.TakeDrop public import Init.Data.List.Nat.Count public import Init.Data.List.Nat.Sum public import Init.Data.List.Nat.Prod public import Init.Data.List.Nat.Erase public import Init.Data.List.Nat.Find public import Init.Data.List.Nat.BEq public import Init.Data.List.Nat.Modify public import Init.Data.List.Nat.InsertIdx public import Init.Data.List.Nat.Perm
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20,6 +20,7 @@ lean_object* runtime_initialize_Init_Data_List_Nat_Sublist(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Nat_Count(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Nat_Sum(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Nat_Prod(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Nat_Erase(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Nat_Find(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Nat_BEq(uint8_t builtin);
@@ -50,6 +51,9 @@ res = runtime_initialize_Init_Data_List_Nat_Count(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Nat_Sum(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Nat_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Nat_Erase(builtin);
@@ -86,6 +90,7 @@ lean_object* initialize_Init_Data_List_Nat_Sublist(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Nat_TakeDrop(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Nat_Count(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Nat_Sum(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_Prod(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Nat_Erase(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Nat_Find(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Nat_BEq(uint8_t builtin);
@@ -116,6 +121,9 @@ res = initialize_Init_Data_List_Nat_Count(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Nat_Sum(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Nat_Erase(builtin);

@@ -391,14 +391,14 @@ def serviceNotFound (service : String) (configuredServices : Array CacheServiceC
     let msg := s!"{msg}; configured services:\n"
     configuredServices.foldl (· ++ s!"  {·.name}") msg
 
-@[inline] private def cacheToolchain (pkg : Package) (toolchain : CacheToolchain) : CacheToolchain :=
+@[inline] def cacheToolchain (pkg : Package) (toolchain : CacheToolchain) : CacheToolchain :=
   if pkg.fixedToolchain || pkg.bootstrap then .none else toolchain
 
-@[inline] private def cachePlatform (pkg : Package) (platform : CachePlatform) : CachePlatform :=
+@[inline] def cachePlatform (pkg : Package) (platform : CachePlatform) : CachePlatform :=
   if pkg.isPlatformIndependent then .none else platform
 
 -- since 2026-02-19
-private def endpointDeprecation : String :=
+def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
 
 protected def get : CliM PUnit := do

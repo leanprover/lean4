@@ -4960,7 +4960,6 @@ lean_dec_ref(v___x_1272_);
 v_specs_1274_ = lean_ctor_get(v_database_1242_, 0);
 v___x_1275_ = l_Lean_Expr_headBeta(v_a_1273_);
 lean_inc_ref(v___x_1275_);
-lean_inc_ref(v_specs_1274_);
 v___x_1276_ = l_Lean_Meta_DiscrTree_getMatch___redArg(v_specs_1274_, v___x_1275_, v_a_1244_, v_a_1245_, v_a_1246_, v_a_1247_);
 if (lean_obj_tag(v___x_1276_) == 0)
 {
@@ -12945,7 +12944,6 @@ _start:
 {
 lean_object* v_decl_u2081_5174_; lean_object* v_index_5175_; lean_object* v_decl_u2082_5176_; lean_object* v_index_5177_; uint8_t v___x_5178_; 
 lean_inc(v_mvarId_u2081_5172_);
-lean_inc_ref(v___x_5171_);
 v_decl_u2081_5174_ = l_Lean_MetavarContext_getDecl(v___x_5171_, v_mvarId_u2081_5172_);
 v_index_5175_ = lean_ctor_get(v_decl_u2081_5174_, 6);
 lean_inc(v_index_5175_);
@@ -12983,6 +12981,7 @@ _start:
 {
 uint8_t v_res_5184_; lean_object* v_r_5185_; 
 v_res_5184_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00Lean_Elab_Tactic_sortMVarIdArrayByIndex___at___00Lean_Elab_Tactic_collectFreshMVars___at___00__private_Lean_Elab_Tactic_Do_Spec_0__Lean_Elab_Tactic_Do_elabMSpecNoBind_spec__2_spec__10_spec__18___redArg___lam__0(v___x_5181_, v_mvarId_u2081_5182_, v_mvarId_u2082_5183_);
+lean_dec_ref(v___x_5181_);
 v_r_5185_ = lean_box(v_res_5184_);
 return v_r_5185_;
 }

@@ -9,7 +9,7 @@ prelude
 public import Init.Prelude
 import Init.Tactics
 
-private opaque POpaque.nonemptyType.{u} : NonemptyType.{u}
+opaque POpaque.nonemptyType.{u} : NonemptyType.{u}
 
 /-- An value of unknown type in a specific universe. -/
 public def POpaque : Type u := POpaque.nonemptyType.type

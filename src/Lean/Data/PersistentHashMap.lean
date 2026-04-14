@@ -153,7 +153,7 @@ partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.s
     else findAtAux keys vals heq (i+1) k
   else none
 
-partial def findAux [BEq α] : Node α β → USize → α → Option β
+partial def findAux [BEq α] : @&Node α β → USize → α → Option β
   | Node.entries entries, h, k =>
     let j     := (mod2Shift h shift).toNat
     match entries[j]! with
@@ -162,7 +162,7 @@ partial def findAux [BEq α] : Node α β → USize → α → Option β
     | Entry.entry k' v => if k == k' then some v else none
   | Node.collision keys vals heq, _, k => findAtAux keys vals heq 0 k
 
-def find? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Option β
+def find? {_ : BEq α} {_ : Hashable α} : @&PersistentHashMap α β → α → Option β
   | { root }, k => findAux root (hash k |>.toUSize) k
 
 instance {_ : BEq α} {_ : Hashable α} : GetElem (PersistentHashMap α β) α (Option β) fun _ _ => True where
@@ -184,7 +184,7 @@ partial def findEntryAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : k
     else findEntryAtAux keys vals heq (i+1) k
   else none
 
-partial def findEntryAux [BEq α] : Node α β → USize → α → Option (α × β)
+partial def findEntryAux [BEq α] : @&Node α β → USize → α → Option (α × β)
   | Node.entries entries, h, k =>
     let j     := (mod2Shift h shift).toNat
     match entries[j]! with
@@ -193,7 +193,7 @@ partial def findEntryAux [BEq α] : Node α β → USize → α → Option (α �
     | Entry.entry k' v => if k == k' then some (k', v) else none
   | Node.collision keys vals heq, _, k => findEntryAtAux keys vals heq 0 k
 
-def findEntry? {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → Option (α × β)
+def findEntry? {_ : BEq α} {_ : Hashable α} : @&PersistentHashMap α β → α → Option (α × β)
   | { root }, k => findEntryAux root (hash k |>.toUSize) k
 
 partial def findKeyDAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) (k₀ : α) : α :=
@@ -320,7 +320,7 @@ def foldl {_ : BEq α} {_ : Hashable α} (map : PersistentHashMap α β) (f : σ
   Id.run <| map.foldlM (pure <| f · · ·) init
 
 protected def forIn {_ : BEq α} {_ : Hashable α} [Monad m]
-    (map : PersistentHashMap α β) (init : σ) (f : α × β → σ → m (ForInStep σ)) : m σ := do
+    (map : @&PersistentHashMap α β) (init : σ) (f : α × β → σ → m (ForInStep σ)) : m σ := do
   let intoError : ForInStep σ → Except σ σ
   | .done s => .error s
   | .yield s => .ok s

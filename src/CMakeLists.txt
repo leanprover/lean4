@@ -110,6 +110,7 @@ option(RUNTIME_STATS "RUNTIME_STATS" OFF)
 option(BSYMBOLIC "Link with -Bsymbolic to reduce call overhead in shared libraries (Linux)" ON)
 option(USE_GMP "USE_GMP" ON)
 option(USE_MIMALLOC "use mimalloc" ON)
+set(LEAN_MI_SECURE 0 CACHE STRING "Configure mimalloc memory safety mitigations (https://github.com/microsoft/mimalloc/blob/v2.2.7/include/mimalloc/types.h#L56-L60)")
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" OFF)
@@ -991,6 +992,13 @@ add_custom_target(
 )
 
 add_custom_target(clean-olean DEPENDS clean-stdlib)
+
+if(USE_LAKE_CACHE)
+  add_custom_target(
+    cache-get
+    COMMAND ${PREV_STAGE}/bin/lake${CMAKE_EXECUTABLE_SUFFIX} cache get --repo=leanprover/lean4
+  )
+endif()
 
 install(
   DIRECTORY "${CMAKE_BINARY_DIR}/lib/"

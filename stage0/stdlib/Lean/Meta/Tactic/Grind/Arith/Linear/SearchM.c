@@ -21,7 +21,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedStruct_default;
-extern lean_object* l_Lean_instInhabitedFVarId_default;
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -96,7 +95,7 @@ _start:
 {
 lean_object* v___x_13_; lean_object* v___x_14_; lean_object* v___x_15_; lean_object* v___x_16_; 
 v___x_13_ = l_Lean_Meta_Grind_Arith_Linear_instInhabitedStruct_default;
-v___x_14_ = l_Lean_instInhabitedFVarId_default;
+v___x_14_ = lean_box(0);
 v___x_15_ = lean_obj_once(&l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4, &l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4_once, _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4);
 v___x_16_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_16_, 0, v___x_15_);

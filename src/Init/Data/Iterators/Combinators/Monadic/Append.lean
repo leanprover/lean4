@@ -190,7 +190,7 @@ def Append.instFinitenessRelation [Monad m] [Iterator α₁ m β] [Iterator α�
       exact IterM.TerminationMeasures.Finite.rel_of_skip ‹_›
 
 @[no_expose]
-public instance Append.instFinite [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
+instance Append.instFinite [Monad m] [Iterator α₁ m β] [Iterator α₂ m β]
     [Finite α₁ m] [Finite α₂ m] : Finite (Append α₁ α₂ m β) m :=
   .of_finitenessRelation instFinitenessRelation
 

@@ -399,7 +399,6 @@ _start:
 lean_object* v___y_42_; lean_object* v_initialLocalTimeType_46_; lean_object* v_transitions_47_; lean_object* v___x_48_; 
 v_initialLocalTimeType_46_ = lean_ctor_get(v_rules_40_, 0);
 v_transitions_47_ = lean_ctor_get(v_rules_40_, 1);
-lean_inc_ref(v_tm_39_);
 v___x_48_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_47_, v_tm_39_);
 if (lean_obj_tag(v___x_48_) == 0)
 {
@@ -673,7 +672,6 @@ lean_inc_ref(v_ltt_144_);
 v___x_146_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_146_, 0, v_ltt_144_);
 lean_ctor_set(v___x_146_, 1, v___x_145_);
-lean_inc_ref(v_tm_136_);
 v___x_152_ = l_Std_Time_TimeZone_Transition_timezoneAt(v___x_145_, v_tm_136_);
 if (lean_obj_tag(v___x_152_) == 0)
 {
@@ -1007,7 +1005,6 @@ v_resetjp_254_:
 lean_object* v___y_258_; lean_object* v_initialLocalTimeType_264_; lean_object* v_transitions_265_; lean_object* v___x_266_; 
 v_initialLocalTimeType_264_ = lean_ctor_get(v_tz_u2081_252_, 0);
 v_transitions_265_ = lean_ctor_get(v_tz_u2081_252_, 1);
-lean_inc_ref(v_timestamp_253_);
 v___x_266_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_265_, v_timestamp_253_);
 if (lean_obj_tag(v___x_266_) == 0)
 {
@@ -1119,7 +1116,6 @@ lean_object* v_initialLocalTimeType_299_; lean_object* v_transitions_300_; lean_
 v_initialLocalTimeType_299_ = lean_ctor_get(v_tz_298_, 0);
 v_transitions_300_ = lean_ctor_get(v_tz_298_, 1);
 v___x_301_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v_date_297_);
-lean_inc_ref(v___x_301_);
 v___x_307_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_300_, v___x_301_);
 if (lean_obj_tag(v___x_307_) == 0)
 {
@@ -1828,7 +1824,6 @@ v_reusejp_508_:
 {
 lean_object* v___x_510_; lean_object* v___y_512_; lean_object* v___x_518_; 
 v___x_510_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_509_);
-lean_inc_ref(v___x_510_);
 v___x_518_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_504_, v___x_510_);
 if (lean_obj_tag(v___x_518_) == 0)
 {
@@ -1974,7 +1969,6 @@ v_reusejp_548_:
 {
 lean_object* v___x_550_; lean_object* v___y_552_; lean_object* v___x_558_; 
 v___x_550_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_549_);
-lean_inc_ref(v___x_550_);
 v___x_558_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_543_, v___x_550_);
 if (lean_obj_tag(v___x_558_) == 0)
 {
@@ -2130,7 +2124,6 @@ v_reusejp_591_:
 {
 lean_object* v___x_593_; lean_object* v___y_595_; lean_object* v___x_601_; 
 v___x_593_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_592_);
-lean_inc_ref(v___x_593_);
 v___x_601_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_585_, v___x_593_);
 if (lean_obj_tag(v___x_601_) == 0)
 {
@@ -2279,7 +2272,6 @@ v_reusejp_633_:
 {
 lean_object* v___x_635_; lean_object* v___y_637_; lean_object* v___x_643_; 
 v___x_635_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_634_);
-lean_inc_ref(v___x_635_);
 v___x_643_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_626_, v___x_635_);
 if (lean_obj_tag(v___x_643_) == 0)
 {
@@ -2380,7 +2372,6 @@ v_transitions_662_ = lean_ctor_get(v_rules_656_, 1);
 v_date_663_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v_timestamp_657_);
 v___x_664_ = l_Std_Time_PlainDateTime_addMonthsClip(v_date_663_, v_months_655_);
 v___x_665_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_664_);
-lean_inc_ref(v___x_665_);
 v___x_673_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_662_, v___x_665_);
 if (lean_obj_tag(v___x_673_) == 0)
 {
@@ -2520,7 +2511,6 @@ v_reusejp_699_:
 {
 lean_object* v___x_701_; lean_object* v___y_703_; lean_object* v___x_709_; 
 v___x_701_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_700_);
-lean_inc_ref(v___x_701_);
 v___x_709_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_696_, v___x_701_);
 if (lean_obj_tag(v___x_709_) == 0)
 {
@@ -2621,7 +2611,6 @@ v_transitions_728_ = lean_ctor_get(v_rules_722_, 1);
 v_date_729_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v_timestamp_723_);
 v___x_730_ = l_Std_Time_PlainDateTime_addMonthsRollOver(v_date_729_, v_months_721_);
 v___x_731_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_730_);
-lean_inc_ref(v___x_731_);
 v___x_739_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_728_, v___x_731_);
 if (lean_obj_tag(v___x_739_) == 0)
 {
@@ -2761,7 +2750,6 @@ v_reusejp_765_:
 {
 lean_object* v___x_767_; lean_object* v___y_769_; lean_object* v___x_775_; 
 v___x_767_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_766_);
-lean_inc_ref(v___x_767_);
 v___x_775_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_762_, v___x_767_);
 if (lean_obj_tag(v___x_775_) == 0)
 {
@@ -2913,7 +2901,6 @@ v_reusejp_806_:
 {
 lean_object* v___x_808_; lean_object* v___y_810_; lean_object* v___x_816_; 
 v___x_808_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_807_);
-lean_inc_ref(v___x_808_);
 v___x_816_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_802_, v___x_808_);
 if (lean_obj_tag(v___x_816_) == 0)
 {
@@ -3056,7 +3043,6 @@ v_reusejp_845_:
 {
 lean_object* v___x_847_; lean_object* v___y_849_; lean_object* v___x_855_; 
 v___x_847_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_846_);
-lean_inc_ref(v___x_847_);
 v___x_855_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_841_, v___x_847_);
 if (lean_obj_tag(v___x_855_) == 0)
 {
@@ -3201,7 +3187,6 @@ v_reusejp_885_:
 {
 lean_object* v___x_887_; lean_object* v___y_889_; lean_object* v___x_895_; 
 v___x_887_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_886_);
-lean_inc_ref(v___x_887_);
 v___x_895_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_880_, v___x_887_);
 if (lean_obj_tag(v___x_895_) == 0)
 {
@@ -3346,7 +3331,6 @@ v_reusejp_925_:
 {
 lean_object* v___x_927_; lean_object* v___y_929_; lean_object* v___x_935_; 
 v___x_927_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_926_);
-lean_inc_ref(v___x_927_);
 v___x_935_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_920_, v___x_927_);
 if (lean_obj_tag(v___x_935_) == 0)
 {
@@ -3537,7 +3521,6 @@ v___x_997_ = l_Std_Time_Duration_ofNanoseconds(v___x_996_);
 lean_dec(v___x_996_);
 v___x_998_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v___x_997_);
 v___x_999_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_998_);
-lean_inc_ref(v___x_999_);
 v___x_1007_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_990_, v___x_999_);
 if (lean_obj_tag(v___x_1007_) == 0)
 {
@@ -3670,7 +3653,6 @@ v___x_1041_ = l_Std_Time_Duration_ofNanoseconds(v___x_1040_);
 lean_dec(v___x_1040_);
 v___x_1042_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v___x_1041_);
 v___x_1043_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_1042_);
-lean_inc_ref(v___x_1043_);
 v___x_1051_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_1034_, v___x_1043_);
 if (lean_obj_tag(v___x_1051_) == 0)
 {
@@ -3810,7 +3792,6 @@ v___x_1086_ = l_Std_Time_Duration_ofNanoseconds(v___x_1085_);
 lean_dec(v___x_1085_);
 v___x_1087_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v___x_1086_);
 v___x_1088_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_1087_);
-lean_inc_ref(v___x_1088_);
 v___x_1096_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_1079_, v___x_1088_);
 if (lean_obj_tag(v___x_1096_) == 0)
 {
@@ -3943,7 +3924,6 @@ v___x_1130_ = l_Std_Time_Duration_ofNanoseconds(v___x_1129_);
 lean_dec(v___x_1129_);
 v___x_1131_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v___x_1130_);
 v___x_1132_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_1131_);
-lean_inc_ref(v___x_1132_);
 v___x_1140_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_1123_, v___x_1132_);
 if (lean_obj_tag(v___x_1140_) == 0)
 {
@@ -4074,7 +4054,6 @@ v___x_1173_ = l_Std_Time_Duration_ofNanoseconds(v___x_1172_);
 lean_dec(v___x_1172_);
 v___x_1174_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v___x_1173_);
 v___x_1175_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_1174_);
-lean_inc_ref(v___x_1175_);
 v___x_1183_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_1166_, v___x_1175_);
 if (lean_obj_tag(v___x_1183_) == 0)
 {
@@ -4207,7 +4186,6 @@ v___x_1217_ = l_Std_Time_Duration_ofNanoseconds(v___x_1216_);
 lean_dec(v___x_1216_);
 v___x_1218_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v___x_1217_);
 v___x_1219_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_1218_);
-lean_inc_ref(v___x_1219_);
 v___x_1227_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_1210_, v___x_1219_);
 if (lean_obj_tag(v___x_1227_) == 0)
 {
@@ -4337,7 +4315,6 @@ v___x_1259_ = l_Std_Time_Duration_ofNanoseconds(v___x_1258_);
 lean_dec(v___x_1258_);
 v___x_1260_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v___x_1259_);
 v___x_1261_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_1260_);
-lean_inc_ref(v___x_1261_);
 v___x_1269_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_1253_, v___x_1261_);
 if (lean_obj_tag(v___x_1269_) == 0)
 {
@@ -4469,7 +4446,6 @@ v___x_1302_ = l_Std_Time_Duration_ofNanoseconds(v___x_1301_);
 lean_dec(v___x_1301_);
 v___x_1303_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v___x_1302_);
 v___x_1304_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_1303_);
-lean_inc_ref(v___x_1304_);
 v___x_1312_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_1296_, v___x_1304_);
 if (lean_obj_tag(v___x_1312_) == 0)
 {
@@ -4597,7 +4573,6 @@ v___x_1343_ = l_Std_Time_Duration_ofNanoseconds(v___x_1342_);
 lean_dec(v___x_1342_);
 v___x_1344_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v___x_1343_);
 v___x_1345_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_1344_);
-lean_inc_ref(v___x_1345_);
 v___x_1353_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_1336_, v___x_1345_);
 if (lean_obj_tag(v___x_1353_) == 0)
 {
@@ -4727,7 +4702,6 @@ v___x_1385_ = l_Std_Time_Duration_ofNanoseconds(v___x_1384_);
 lean_dec(v___x_1384_);
 v___x_1386_ = l_Std_Time_PlainDateTime_ofTimestampAssumingUTC(v___x_1385_);
 v___x_1387_ = l_Std_Time_PlainDateTime_toTimestampAssumingUTC(v___x_1386_);
-lean_inc_ref(v___x_1387_);
 v___x_1395_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_1378_, v___x_1387_);
 if (lean_obj_tag(v___x_1395_) == 0)
 {

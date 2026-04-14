@@ -3883,6 +3883,7 @@ lean_dec(v___y_1141_);
 lean_dec_ref(v___y_1140_);
 lean_dec(v___y_1139_);
 lean_dec_ref(v___y_1138_);
+lean_dec(v_decls_1136_);
 return v_res_1143_;
 }
 }
@@ -3903,6 +3904,7 @@ lean_dec(v___y_1159_);
 lean_dec_ref(v___y_1158_);
 lean_dec(v___y_1157_);
 lean_dec_ref(v___y_1156_);
+lean_dec(v_decls_1154_);
 return v_res_1161_;
 }
 }

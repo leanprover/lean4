@@ -305,7 +305,8 @@ jobs:
                 "test": true,
                 "CMAKE_PRESET": "reldebug",
                 // * `elab_bench/big_do` crashes with exit code 134
-                "CTEST_OPTIONS": "-E 'elab_bench/big_do'",
+                // * `compile_bench/channel` randomly segfaults
+                "CTEST_OPTIONS": "-E 'elab_bench/big_do|compile_bench/channel'",
               },
               {
                 "name": "Linux fsanitize",

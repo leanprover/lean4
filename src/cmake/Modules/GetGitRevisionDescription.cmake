@@ -134,7 +134,16 @@ function(get_git_head_revision _refspecvar _hashvar)
       #
       string(REGEX REPLACE "gitdir: (.*)$" "\\1" git_worktree_dir ${worktree_ref})
       string(STRIP ${git_worktree_dir} git_worktree_dir)
-      _git_find_closest_git_dir("${git_worktree_dir}" GIT_DIR)
+      # Use the commondir file to find the shared git directory, rather than
+      # walking up the filesystem (which can find the wrong .git if the
+      # worktree gitdir is inside another git repository).
+      if(EXISTS "${git_worktree_dir}/commondir")
+        file(READ "${git_worktree_dir}/commondir" commondir_ref)
+        string(STRIP "${commondir_ref}" commondir_ref)
+        get_filename_component(GIT_DIR "${git_worktree_dir}/${commondir_ref}" ABSOLUTE)
+      else()
+        _git_find_closest_git_dir("${git_worktree_dir}" GIT_DIR)
+      endif()
       set(HEAD_SOURCE_FILE "${git_worktree_dir}/HEAD")
     endif()
   else()

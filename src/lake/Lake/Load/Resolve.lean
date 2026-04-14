@@ -94,7 +94,7 @@ abbrev ResolveT m := DepStackT <| StateT Workspace m
 : m (α × Workspace) := x.run stack |>.run ws
 
 /-- Recursively run a `ResolveT` monad starting from the workspace's root. -/
-@[specialize] private def Workspace.runResolveT
+@[specialize] def Workspace.runResolveT
   [Monad m] [MonadError m] (ws : Workspace)
   (go : RecFetchFn Package PUnit (ResolveT m))
   (root := ws.root) (stack : DepStack  := {})
@@ -113,7 +113,7 @@ resolved in reverse order before recursing to the dependencies' dependencies.
 
 See `Workspace.updateAndMaterializeCore` for more details.
 -/
-@[inline] private def Workspace.resolveDepsCore
+@[inline] def Workspace.resolveDepsCore
   [Monad m] [MonadError m] [MonadLiftT LogIO m] (ws : Workspace)
   (resolve : Package → Dependency → Workspace → m MaterializedDep)
   (root : Package := ws.root) (stack : DepStack := {})
@@ -148,7 +148,7 @@ abbrev UpdateT := StateT (NameMap PackageEntry)
 Reuse manifest versions of root packages that should not be updated.
 Also, move the packages directory if its location has changed.
 -/
-private def reuseManifest
+def reuseManifest
   (ws : Workspace) (toUpdate : NameSet)
 : UpdateT LoggerIO PUnit := do
   let rootName := ws.root.prettyName
@@ -178,7 +178,7 @@ private def reuseManifest
     logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
 
 /-- Add a package dependency's manifest entries to the update state. -/
-private def addDependencyEntries (dep : MaterializedDep) : UpdateT LoggerIO PUnit := do
+def addDependencyEntries (dep : MaterializedDep) : UpdateT LoggerIO PUnit := do
   match (← Manifest.load dep.manifestFile |>.toBaseIO) with
   | .ok manifest =>
     manifest.packages.forM fun entry => do
@@ -191,7 +191,7 @@ private def addDependencyEntries (dep : MaterializedDep) : UpdateT LoggerIO PUni
     logWarning s!"{dep.prettyName}: ignoring manifest because it failed to load: {e}"
 
 /-- Materialize a single dependency, updating it if desired. -/
-private def updateAndMaterializeDep
+def updateAndMaterializeDep
   (ws : Workspace) (pkg : Package) (dep : Dependency)
 : UpdateT LoggerIO MaterializedDep := do
   if let some entry ← fetch? dep.name then
@@ -218,7 +218,7 @@ Used, for instance, if the toolchain is updated and no Elan is detected.
 def restartCode : ExitCode := 4
 
 /-- The toolchain information of a package. -/
-private structure ToolchainCandidate where
+structure ToolchainCandidate where
   /-- The name of the package which provided the toolchain candidate. -/
   src : Name
   /-- The version of the toolchain candidate. -/
@@ -227,7 +227,7 @@ private structure ToolchainCandidate where
   fixed : Bool := false
 
 private structure ToolchainState where
-  /-- The name of dependency which provided the current candidate toolchain. -/
+  /-- The name of depedency which provided the current candidate toolchain. -/
   src : Name
   /-- The current candidate toolchain version (if any). -/
   tc? : Option ToolchainVer

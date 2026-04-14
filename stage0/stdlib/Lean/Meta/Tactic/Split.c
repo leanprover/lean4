@@ -335,12 +335,12 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_w
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_withEqs___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_withEqs(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_withEqs___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-static const lean_string_object l_Lean_Meta_Split_initFn___closed__0_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 27, .m_capacity = 27, .m_length = 26, .m_data = "discrGeneralizationFailure"};
-static const lean_object* l_Lean_Meta_Split_initFn___closed__0_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_ = (const lean_object*)&l_Lean_Meta_Split_initFn___closed__0_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2__value;
-static const lean_ctor_object l_Lean_Meta_Split_initFn___closed__1_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_Meta_Split_initFn___closed__0_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2__value),LEAN_SCALAR_PTR_LITERAL(124, 180, 151, 108, 9, 8, 104, 42)}};
-static const lean_object* l_Lean_Meta_Split_initFn___closed__1_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_ = (const lean_object*)&l_Lean_Meta_Split_initFn___closed__1_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2__value;
-LEAN_EXPORT lean_object* l_Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_();
-LEAN_EXPORT lean_object* l_Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2____boxed(lean_object*);
+static const lean_string_object l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn___closed__0_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 27, .m_capacity = 27, .m_length = 26, .m_data = "discrGeneralizationFailure"};
+static const lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn___closed__0_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_ = (const lean_object*)&l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn___closed__0_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2__value;
+static const lean_ctor_object l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn___closed__1_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn___closed__0_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2__value),LEAN_SCALAR_PTR_LITERAL(124, 180, 151, 108, 9, 8, 104, 42)}};
+static const lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn___closed__1_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_ = (const lean_object*)&l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn___closed__1_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2__value;
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_();
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Split_discrGenExId;
 LEAN_EXPORT uint8_t l_Lean_Meta_Split_isDiscrGenException(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Split_isDiscrGenException___boxed(lean_object*);
@@ -3701,20 +3701,20 @@ lean_dec_ref(v_a_1043_);
 return v_res_1048_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_(){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_(){
 _start:
 {
 lean_object* v___x_1053_; lean_object* v___x_1054_; 
-v___x_1053_ = ((lean_object*)(l_Lean_Meta_Split_initFn___closed__1_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_));
+v___x_1053_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn___closed__1_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_));
 v___x_1054_ = l_Lean_registerInternalExceptionId(v___x_1053_);
 return v___x_1054_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2____boxed(lean_object* v_a_1055_){
+LEAN_EXPORT lean_object* l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2____boxed(lean_object* v_a_1055_){
 _start:
 {
 lean_object* v_res_1056_; 
-v_res_1056_ = l_Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_();
+v_res_1056_ = l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_();
 return v_res_1056_;
 }
 }
@@ -21822,7 +21822,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_SplitIf(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l_Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_();
+res = l___private_Lean_Meta_Tactic_Split_0__Lean_Meta_Split_initFn_00___x40_Lean_Meta_Tactic_Split_806046213____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l_Lean_Meta_Split_discrGenExId = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_Meta_Split_discrGenExId);

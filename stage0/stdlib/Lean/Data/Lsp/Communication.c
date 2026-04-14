@@ -32,7 +32,7 @@ lean_object* lean_nat_sub(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
@@ -602,7 +602,7 @@ lean_dec(v_needlePos_95_);
 lean_dec(v_stackPos_94_);
 lean_dec_ref(v_table_93_);
 lean_dec_ref(v_needle_92_);
-v___x_106_ = l_String_instDecidableLtRaw___aux__1(v_basePos_102_, v___x_33_);
+v___x_106_ = lean_nat_dec_lt(v_basePos_102_, v___x_33_);
 lean_dec(v_basePos_102_);
 if (v___x_106_ == 0)
 {
@@ -3213,6 +3213,7 @@ v___x_825_ = l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__1(v___x
 lean_dec(v_data_x3f_811_);
 v___x_826_ = l_List_appendTR___redArg(v___x_823_, v___x_825_);
 v___x_827_ = l_Lean_Json_mkObj(v___x_826_);
+lean_dec(v___x_826_);
 lean_inc_ref(v___y_813_);
 v___x_828_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_828_, 0, v___y_813_);
@@ -3367,6 +3368,7 @@ v___x_723_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_723_, 0, v___x_720_);
 lean_ctor_set(v___x_723_, 1, v___y_722_);
 v___x_724_ = l_Lean_Json_mkObj(v___x_723_);
+lean_dec_ref(v___x_723_);
 v___x_725_ = l_Lean_Json_compress(v___x_724_);
 v___x_726_ = l_IO_FS_Stream_writeSerializedLspMessage(v_h_717_, v___x_725_);
 lean_dec_ref(v___x_725_);

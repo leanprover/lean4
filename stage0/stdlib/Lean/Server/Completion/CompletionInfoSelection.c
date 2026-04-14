@@ -43,7 +43,6 @@ lean_object* lean_array_fget(lean_object*, lean_object*);
 lean_object* lean_array_fset(lean_object*, lean_object*, lean_object*);
 uint64_t l_String_instHashableRaw_hash(lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
 lean_object* l_Array_qpartition___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Info_size_x3f(lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
@@ -859,7 +858,7 @@ goto v___jp_171_;
 v___jp_188_:
 {
 uint8_t v___x_191_; 
-v___x_191_ = l_String_instDecidableLtRaw___aux__1(v_hoverPos_165_, v___y_190_);
+v___x_191_ = lean_nat_dec_lt(v_hoverPos_165_, v___y_190_);
 if (v___x_191_ == 0)
 {
 lean_object* v___x_192_; 
@@ -1206,7 +1205,7 @@ if (lean_obj_tag(v_snd_305_) == 1)
 lean_object* v_val_307_; lean_object* v_val_308_; uint8_t v___x_309_; 
 v_val_307_ = lean_ctor_get(v_snd_303_, 0);
 v_val_308_ = lean_ctor_get(v_snd_305_, 0);
-v___x_309_ = l_String_instDecidableLtRaw___aux__1(v_val_307_, v_val_308_);
+v___x_309_ = lean_nat_dec_lt(v_val_307_, v_val_308_);
 return v___x_309_;
 }
 else

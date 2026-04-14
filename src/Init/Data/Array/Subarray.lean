@@ -80,7 +80,7 @@ instance : SliceSize (Internal.SubarrayData α) where
   size s := s.internalRepresentation.stop - s.internalRepresentation.start
 
 @[grind =, suggest_for Subarray.size]
-public theorem size_eq {xs : Subarray α} :
+theorem size_eq {xs : Subarray α} :
     xs.size = xs.stop - xs.start := by
   simp [Std.Slice.size, SliceSize.size, start, stop]
 

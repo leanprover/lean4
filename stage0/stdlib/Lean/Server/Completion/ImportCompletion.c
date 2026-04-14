@@ -75,7 +75,6 @@ uint8_t lean_string_memcmp(lean_object*, lean_object*, lean_object*, lean_object
 lean_object* l_Lean_NameTrie_insert___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(lean_object*, uint8_t);
 lean_object* l_Lean_FileMap_lspPosToUtf8Pos(lean_object*, lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Syntax_getPos_x3f(lean_object*, uint8_t);
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
 lean_object* l_Lean_NameTrie_toArray___redArg(lean_object*);
@@ -1115,13 +1114,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00ImportCompletion_computePartialImportCompletions_spec__1___boxed(lean_object* v___x_281_, lean_object* v_as_282_, lean_object* v_i_283_, lean_object* v_stop_284_, lean_object* v_b_285_){
 _start:
 {
-uint8_t v___x_5497__boxed_286_; size_t v_i_boxed_287_; size_t v_stop_boxed_288_; lean_object* v_res_289_; 
-v___x_5497__boxed_286_ = lean_unbox(v___x_281_);
+uint8_t v___x_5498__boxed_286_; size_t v_i_boxed_287_; size_t v_stop_boxed_288_; lean_object* v_res_289_; 
+v___x_5498__boxed_286_ = lean_unbox(v___x_281_);
 v_i_boxed_287_ = lean_unbox_usize(v_i_283_);
 lean_dec(v_i_283_);
 v_stop_boxed_288_ = lean_unbox_usize(v_stop_284_);
 lean_dec(v_stop_284_);
-v_res_289_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00ImportCompletion_computePartialImportCompletions_spec__1(v___x_5497__boxed_286_, v_as_282_, v_i_boxed_287_, v_stop_boxed_288_, v_b_285_);
+v_res_289_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00ImportCompletion_computePartialImportCompletions_spec__1(v___x_5498__boxed_286_, v_as_282_, v_i_boxed_287_, v_stop_boxed_288_, v_b_285_);
 lean_dec_ref(v_as_282_);
 return v_res_289_;
 }
@@ -1185,13 +1184,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00ImportCompletion_computePartialImportCompletions_spec__5___boxed(lean_object* v___x_310_, lean_object* v_snd_311_, lean_object* v_as_312_, lean_object* v_i_313_, lean_object* v_stop_314_, lean_object* v_b_315_){
 _start:
 {
-uint8_t v___x_5518__boxed_316_; size_t v_i_boxed_317_; size_t v_stop_boxed_318_; lean_object* v_res_319_; 
-v___x_5518__boxed_316_ = lean_unbox(v___x_310_);
+uint8_t v___x_5519__boxed_316_; size_t v_i_boxed_317_; size_t v_stop_boxed_318_; lean_object* v_res_319_; 
+v___x_5519__boxed_316_ = lean_unbox(v___x_310_);
 v_i_boxed_317_ = lean_unbox_usize(v_i_313_);
 lean_dec(v_i_313_);
 v_stop_boxed_318_ = lean_unbox_usize(v_stop_314_);
 lean_dec(v_stop_314_);
-v_res_319_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00ImportCompletion_computePartialImportCompletions_spec__5(v___x_5518__boxed_316_, v_snd_311_, v_as_312_, v_i_boxed_317_, v_stop_boxed_318_, v_b_315_);
+v_res_319_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00ImportCompletion_computePartialImportCompletions_spec__5(v___x_5519__boxed_316_, v_snd_311_, v_as_312_, v_i_boxed_317_, v_stop_boxed_318_, v_b_315_);
 lean_dec_ref(v_as_312_);
 lean_dec_ref(v_snd_311_);
 return v_res_319_;
@@ -1767,16 +1766,16 @@ if (v___x_525_ == 0)
 {
 lean_inc(v___x_524_);
 v___y_508_ = v___y_521_;
-v___y_509_ = v___x_524_;
-v___y_510_ = v___x_522_;
+v___y_509_ = v___x_522_;
+v___y_510_ = v___x_524_;
 v___y_511_ = v___x_524_;
 goto v___jp_507_;
 }
 else
 {
 v___y_508_ = v___y_521_;
-v___y_509_ = v___x_524_;
-v___y_510_ = v___x_522_;
+v___y_509_ = v___x_522_;
+v___y_510_ = v___x_524_;
 v___y_511_ = v___x_518_;
 goto v___jp_507_;
 }
@@ -1996,12 +1995,12 @@ return v___x_506_;
 v___jp_507_:
 {
 uint8_t v___x_512_; 
-lean_dec(v___y_510_);
-v___x_512_ = lean_nat_dec_le(v___y_511_, v___y_509_);
+lean_dec(v___y_509_);
+v___x_512_ = lean_nat_dec_le(v___y_511_, v___y_510_);
 if (v___x_512_ == 0)
 {
 lean_object* v___x_513_; 
-lean_dec(v___y_509_);
+lean_dec(v___y_510_);
 lean_inc(v___y_511_);
 v___x_513_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00ImportCompletion_computePartialImportCompletions_spec__0___redArg(v___y_508_, v___y_511_, v___y_511_);
 lean_dec(v___y_511_);
@@ -2010,8 +2009,8 @@ return v___x_513_;
 else
 {
 lean_object* v___x_514_; 
-v___x_514_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00ImportCompletion_computePartialImportCompletions_spec__0___redArg(v___y_508_, v___y_511_, v___y_509_);
-lean_dec(v___y_509_);
+v___x_514_ = l___private_Init_Data_Array_QSort_Basic_0__Array_qsort_sort___at___00ImportCompletion_computePartialImportCompletions_spec__0___redArg(v___y_508_, v___y_511_, v___y_510_);
+lean_dec(v___y_510_);
 return v___x_514_;
 }
 }

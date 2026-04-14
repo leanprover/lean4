@@ -150,6 +150,8 @@ structure SourcesView where
   explicit : Array ExplicitSourceView
   /-- The syntax for a trailing `..`. This is "ellipsis mode" for missing fields, similar to ellipsis mode for applications. -/
   implicit : Option Syntax
+  /-- Use `Inhabited` instances inherited from parent structures, and use `default` instances for missing fields. -/
+  useInhabited : Bool
   deriving Inhabited
 
 /--
@@ -179,7 +181,7 @@ private def getStructSources (structStx : Syntax) : TermElabM SourcesView :=
         let structName ← getStructureName srcType
         return { stx, fvar := src, structName }
     let implicit := if implicitSource[0].isNone then none else implicitSource
-    return { explicit, implicit }
+    return { explicit, implicit, useInhabited := false }
 
 /--
 We say a structure instance notation is a "modifyOp" if it contains only a single array update.
@@ -579,6 +581,9 @@ private structure StructInstContext where
   /-- If true, then try using default values or autoParams for missing fields.
   (Considered after `useParentInstanceFields`.) -/
   useDefaults : Bool
+  /-- If true, then tries `Inhabited` instances as an alternative to parent instances,
+  and when default values are missing. -/
+  useInhabited : Bool
   /-- If true, then missing fields after default value synthesis remain as metavariables rather than yielding an error.
   Only applies if `useDefaults` is true. -/
   unsynthesizedAsMVars : Bool
@@ -735,14 +740,27 @@ The arguments for the `_default` auxiliary function are provided by `fieldMap`.
 After default values are resolved, then the one that is added to the environment
 as an `_inherited_default` auxiliary function is normalized; we don't do those normalizations here.
 -/
-private partial def getFieldDefaultValue? (fieldName : Name) : StructInstM (NameSet × Option Expr) := do
+private def getFieldDefaultValue? (fieldName : Name) : StructInstM (Option (NameSet × Expr)) := do
   let some defFn := getEffectiveDefaultFnForField? (← getEnv) (← read).structName fieldName
-    | return ({}, none)
+    | return none
   let fieldMap := (← get).fieldMap
   let some (fields, val) ← instantiateStructDefaultValueFn? defFn (← read).levels (← read).params (pure ∘ fieldMap.find?)
     | logError m!"default value for field `{fieldName}` of structure `{.ofConstName (← read).structName}` could not be instantiated, ignoring"
-      return ({}, none)
-  return (fields, val)
+      return none
+  return some (fields, val)
+
+/--
+If `useInhabited` is enabled, tries synthesizing an `Inhabited` instance for the field.
+-/
+private def getFieldDefaultValueUsingInhabited (fieldType : Expr) : StructInstM (Option (NameSet × Expr)) := do
+  if (← read).useInhabited then
+    try
+      let val ← mkDefault fieldType
+      return some ({}, val)
+    catch _ =>
+      return none
+  else
+    return none
 
 /--
 Auxiliary type for `synthDefaultFields`
@@ -751,8 +769,16 @@ private structure PendingField where
   fieldName : Name
   fieldType : Expr
   required : Bool
-  deps : NameSet
-  val? : Option Expr
+  /-- If present, field dependencies and the default value. -/
+  val? : Option (NameSet × Expr)
+
+private def PendingField.isReady (pendingField : PendingField) (hasDep : Name → Bool) : Bool :=
+  pendingField.val?.any fun (deps, _) => deps.all hasDep
+
+private def PendingField.val! (pendingField : PendingField) : Expr :=
+  match pendingField.val? with
+  | some (_, val) => val
+  | none          => panic! "PendingField has no value"
 
 private def registerFieldMVarError (e : Expr) (ref : Syntax) (fieldName : Name) : StructInstM Unit :=
   registerCustomErrorIfMVar e ref m!"Cannot synthesize placeholder for field `{fieldName}`"
@@ -786,12 +812,15 @@ private def synthOptParamFields : StructInstM Unit := do
   -- Process default values for pending optParam fields.
   let mut pendingFields : Array PendingField ← optParamFields.filterMapM fun (fieldName, fieldType, required) => do
     if required || (← isFieldNotSolved? fieldName).isSome then
-      let (deps, val?) ← if (← read).useDefaults then getFieldDefaultValue? fieldName else pure ({}, none)
-      if let some val := val? then
-        trace[Elab.struct] "default value for {fieldName}:{indentExpr val}"
-      else
-        trace[Elab.struct] "no default value for {fieldName}"
-      pure <| some { fieldName, fieldType, required, deps, val? }
+      let val? ← if (← read).useDefaults then getFieldDefaultValue? fieldName else pure none
+      let val? ← pure val? <||> if (← read).useInhabited then getFieldDefaultValueUsingInhabited fieldType else pure none
+      trace[Elab.struct]
+        if let some (deps, val) := val? then
+          m!"default value for {fieldName}:{inlineExpr val}" ++
+          if deps.isEmpty then m!"" else m!"(depends on fields {deps.toArray})"
+        else
+          m!"no default value for {fieldName}"
+      pure <| some { fieldName, fieldType, required, val? }
     else
       pure none
   -- We then iteratively look for pending fields that do not depend on unsolved-for fields.
@@ -799,12 +828,11 @@ private def synthOptParamFields : StructInstM Unit := do
   -- so we need to keep trying until no more progress is made.
   let mut pendingSet : NameSet := pendingFields.foldl (init := {}) fun set pending => set.insert pending.fieldName
   while !pendingSet.isEmpty do
-    let selectedFields := pendingFields.filter fun pendingField =>
-      pendingField.val?.isSome && pendingField.deps.all (fun dep => !pendingSet.contains dep)
+    let selectedFields := pendingFields.filter (·.isReady (!pendingSet.contains ·))
     let mut toRemove : Array Name := #[]
     let mut assignErrors : Array MessageData := #[]
     for selected in selectedFields do
-      let some selectedVal := selected.val? | unreachable!
+      let selectedVal := selected.val!
       if let some mvarId ← isFieldNotSolved? selected.fieldName then
         let fieldType := selected.fieldType
         let selectedType ← inferType selectedVal
@@ -1084,6 +1112,7 @@ private def processNoField (loop : StructInstM α) (fieldName : Name) (binfo : B
         addStructFieldAux fieldName mvar
         return ← loop
   -- Default case: natural metavariable, register it for optParams
+  let fieldType := fieldType.consumeTypeAnnotations
   discard <| addStructFieldMVar fieldName fieldType
   modify fun s => { s with optParamFields := s.optParamFields.push (fieldName, fieldType, binfo.isExplicit) }
   loop
@@ -1111,29 +1140,44 @@ private partial def loop : StructInstM Expr := withViewRef do
 For each parent class, see if it can be used to synthesize the fields that haven't been provided.
 -/
 private partial def addParentInstanceFields : StructInstM Unit := do
-  let env ← getEnv
   let structName := (← read).structName
-  let fieldNames := getStructureFieldsFlattened env structName (includeSubobjectFields := false)
+  let fieldNames := getStructureFieldsFlattened (← getEnv) structName (includeSubobjectFields := false)
   let fieldViews := (← read).fieldViews
   if fieldNames.all fieldViews.contains then
     -- Every field is accounted for already
     return
 
-  -- We look at class parents in resolution order
+  -- We look at parents in resolution order
   let parents ← getAllParentStructures structName
-  let classParents := parents.filter (isClass env)
-  if classParents.isEmpty then return
+  let env ← getEnv
+  let parentsToVisit := if (← read).useInhabited then parents else parents.filter (isClass env)
+  if parentsToVisit.isEmpty then return
 
   let allowedFields := fieldNames.filter (!fieldViews.contains ·)
   let mut remainingFields := allowedFields
 
   -- Worklist of parent/fields pairs. If fields is empty, then it will be computed later.
-  let mut worklist : List (Name × Array Name) := classParents |>.map (·, #[]) |>.toList
+  let mut worklist : List (Name × Array Name) := parentsToVisit |>.map (·, #[]) |>.toList
   let mut deferred : List (Name × Array Name) := []
+
+  let trySynthParent (parentName : Name) (parentTy : Expr) : StructInstM (LOption Expr) := do
+    if isClass (← getEnv) parentName then
+      match ← trySynthInstance parentTy with
+      | .none => pure ()
+      | r     => return r
+    if (← read).useInhabited then
+      let u ← getLevel parentTy
+      let cls := Expr.app (Expr.const ``Inhabited [u]) parentTy
+      match ← trySynthInstance cls with
+      | .none      => pure ()
+      | .undef     => return .undef
+      | .some inst => return .some <| mkApp2 (Expr.const ``Inhabited.default [u]) parentTy inst
+    return .none
 
   while !worklist.isEmpty do
     let (parentName, parentFields) :: worklist' := worklist | unreachable!
     worklist := worklist'
+    let env ← getEnv
     let parentFields := if parentFields.isEmpty then getStructureFieldsFlattened env parentName (includeSubobjectFields := false) else parentFields
     -- We only try synthesizing if the parent contains one of the remaining fields
     -- and if every parent field is an allowed field.
@@ -1145,7 +1189,7 @@ private partial def addParentInstanceFields : StructInstM Unit := do
         trace[Elab.struct] "could not calculate type for parent `{.ofConstName parentName}`"
         deferred := (parentName, parentFields) :: deferred
       | some (parentTy, _) =>
-        match ← trySynthInstance parentTy with
+        match ← trySynthParent parentName parentTy with
         | .none => trace[Elab.struct] "failed to synthesize instance for parent {parentTy}"
         | .undef =>
           trace[Elab.struct] "instance synthesis stuck for parent {parentTy}"
@@ -1199,17 +1243,19 @@ private def elabStructInstView (s : StructInstView) (structName : Name) (structT
   let fields ← addSourceFields structName s.sources.explicit fields
   trace[Elab.struct] "expanded fields:\n{MessageData.joinSep (fields.toList.map (fun (_, field) => m!"- {MessageData.nestD (toMessageData field)}")) "\n"}"
   let ellipsis := s.sources.implicit.isSome
+  let useInhabited := s.sources.useInhabited
   let (val, _) ← main
     |>.run { view := s, structName, structType, levels, params, fieldViews := fields, val := ctorFn
              -- See the note in `ElabAppArgs.processExplicitArg`
              -- For structure instances though, there's a sense in which app-style ellipsis mode is always enabled,
              -- so we do not specifically check for it to disable defaults.
              -- An effect of this is that if a user forgets `..` they'll be reminded with a "Fields missing" error.
-             useDefaults := !(← readThe Term.Context).inPattern
+             useDefaults := !(← readThe Term.Context).inPattern || useInhabited
              -- Similarly, for patterns we disable using parent instances to fill in fields
-             useParentInstanceFields := !(← readThe Term.Context).inPattern
+             useParentInstanceFields := !(← readThe Term.Context).inPattern || useInhabited
              -- In ellipsis mode, unsynthesized missing fields become metavariables, rather than being an error
              unsynthesizedAsMVars := ellipsis
+             useInhabited := useInhabited
      }
     |>.run { type := ctorFnType }
   return val
@@ -1332,6 +1378,15 @@ where
       let r ← withSynthesize (postpone := .yes) <| elabStructInstView struct structName structType?
       trace[Elab.struct] "result:{indentExpr r}"
       return r
+
+@[builtin_term_elab structInstDefault] def elabStructInstDefault : TermElab := fun stx expectedType? => do
+  let sourcesView : SourcesView := { explicit := #[], implicit := none, useInhabited := true }
+  let (structName, structType?) ← getStructName expectedType? sourcesView
+  withTraceNode `Elab.struct (fun _ => return m!"elaborating default value for `{structName}`") do
+    let struct : StructInstView := { ref := stx, fields := #[], sources := sourcesView }
+    let r ← withSynthesize (postpone := .yes) <| elabStructInstView struct structName structType?
+    trace[Elab.struct] "result:{indentExpr r}"
+    return r
 
 builtin_initialize
   registerTraceClass `Elab.struct

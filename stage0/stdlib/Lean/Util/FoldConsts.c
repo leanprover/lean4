@@ -882,6 +882,7 @@ v_ctors_299_ = lean_ctor_get(v_val_298_, 4);
 lean_inc(v_ctors_299_);
 lean_dec_ref(v_val_298_);
 v___x_300_ = l_Lean_NameSet_ofList(v_ctors_299_);
+lean_dec(v_ctors_299_);
 v___x_301_ = l_Lean_NameSet_append(v___x_295_, v___x_300_);
 return v___x_301_;
 }
@@ -912,6 +913,7 @@ v_all_309_ = lean_ctor_get(v_val_308_, 1);
 lean_inc(v_all_309_);
 lean_dec_ref(v_val_308_);
 v___x_310_ = l_Lean_NameSet_ofList(v_all_309_);
+lean_dec(v_all_309_);
 v___x_311_ = l_Lean_NameSet_append(v___x_295_, v___x_310_);
 return v___x_311_;
 }

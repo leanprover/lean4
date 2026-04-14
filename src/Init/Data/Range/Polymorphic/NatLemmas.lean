@@ -1718,7 +1718,7 @@ theorem toArray_roc_append_toArray_roc {l m n : Nat} (h : l ≤ m) (h' : m ≤ n
 @[simp]
 theorem getElem_toArray_roc {m n i : Nat} (_h : i < (m<...=n).toArray.size) :
     (m<...=n).toArray[i]'_h = m + 1 + i := by
-simp [toArray_roc_eq_toArray_rco]
+  simp [toArray_roc_eq_toArray_rco]
 
 theorem getElem?_toArray_roc {m n i : Nat} :
     (m<...=n).toArray[i]? = if i < n - m then some (m + 1 + i) else none := by

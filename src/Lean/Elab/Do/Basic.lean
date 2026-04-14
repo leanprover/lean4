@@ -384,6 +384,7 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
   let k := dec.k
   -- The .ofBinderName below is mainly to interpret `__do_lift` binders as implementation details.
   let declKind := .ofBinderName x
+  let kResultTy ← mkFreshResultType `kResultTy
   withLocalDecl x .default eResultTy (kind := declKind) fun xFVar => do
     let body ← k
     let body' := body.consumeMData
@@ -411,7 +412,6 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
         -- else -- would be too aggressive
         --   return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
 
-    let kResultTy ← mkFreshResultType `kResultTy
     let body ← Term.ensureHasType (← mkMonadicType kResultTy) body
     let k ← mkLambdaFVars #[xFVar] body
     mkBindApp eResultTy kResultTy e k
@@ -545,7 +545,10 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     withDeadCode (if callerInfo.numRegularExits > 0 then .alive else .deadSemantically) do
     let e ← nondupDec.k
     mkLambdaFVars (#[r] ++ muts) e
-  discard <| joinRhsMVar.mvarId!.checkedAssign joinRhs
+  unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
+    joinRhsMVar.mvarId!.withContext do
+      throwError "Bug in a `do` elaborator. Failed to assign join point RHS{indentExpr joinRhs}\n\
+        to metavariable\n{joinRhsMVar.mvarId!}"
 
   let body ← body?.getDM do
     -- Here we unconditionally add a pending MVar.

@@ -52,13 +52,13 @@ private def parseScheme (config : URI.Config) : Parser URI.Scheme := do
   if config.maxSchemeLength = 0 then
     fail "scheme length limit is 0 (no scheme allowed)"
 
-  let first ← takeWhileUpTo1 isAlphaByte 1
-  let rest ← takeWhileUpTo
+  let first : UInt8 ← satisfy isAlphaByte
+  let rest ← takeWhileAtMost
     (fun c =>
       isAlphaNum c ∨
       c = '+'.toUInt8 ∨ c = '-'.toUInt8 ∨ c = '.'.toUInt8)
     (config.maxSchemeLength - 1)
-  let schemeBytes := first.toByteArray ++ rest.toByteArray
+  let schemeBytes := ByteArray.empty.push first ++ rest.toByteArray
   let str := String.fromUTF8! schemeBytes |>.toLower
 
   if h : URI.IsValidScheme str then
@@ -68,7 +68,7 @@ private def parseScheme (config : URI.Config) : Parser URI.Scheme := do
 
 -- port = 1*DIGIT
 private def parsePortNumber : Parser UInt16 := do
-  let portBytes ← takeWhileUpTo1 isDigitByte 5
+  let portBytes ← takeWhileAtMost isDigitByte 5
 
   let portStr := String.fromUTF8! portBytes.toByteArray
 
@@ -82,7 +82,7 @@ private def parsePortNumber : Parser UInt16 := do
 
 -- userinfo = *( unreserved / pct-encoded / sub-delims / ":" )
 private def parseUserInfo (config : URI.Config) : Parser URI.UserInfo := do
-  let userBytesName ← takeWhileUpTo
+  let userBytesName ← takeWhileAtMost
     (fun x =>
       x ≠ ':'.toUInt8 ∧
       (isUserInfoChar x ∨ x = '%'.toUInt8))
@@ -94,7 +94,7 @@ private def parseUserInfo (config : URI.Config) : Parser URI.UserInfo := do
   let userPassEncoded ← if ← peekIs (· == ':'.toUInt8) then
       skip
 
-      let userBytesPass ← takeWhileUpTo
+      let userBytesPass ← takeWhileAtMost
         (fun x => isUserInfoChar x ∨ x = '%'.toUInt8)
         config.maxUserInfoLength
 
@@ -113,7 +113,7 @@ private def parseUserInfo (config : URI.Config) : Parser URI.UserInfo := do
 private def parseIPv6 : Parser Net.IPv6Addr := do
   skipByte '['.toUInt8
 
-  let result ← takeWhileUpTo1
+  let result ← takeWhile1AtMost
     (fun x => x = ':'.toUInt8 ∨ x = '.'.toUInt8 ∨ isHexDigitByte x)
     256
 
@@ -127,7 +127,7 @@ private def parseIPv6 : Parser Net.IPv6Addr := do
 
 -- IPv4address = dec-octet "." dec-octet "." dec-octet "." dec-octet
 private def parseIPv4 : Parser Net.IPv4Addr := do
-  let result ← takeWhileUpTo1
+  let result ← takeWhile1AtMost
     (fun x => x = '.'.toUInt8 ∨ isDigitByte x)
     256
 
@@ -148,8 +148,8 @@ private def parseHost (config : URI.Config) : Parser URI.Host := do
       if let some ipv4 ← tryOpt parseIPv4 then
         return .ipv4 ipv4
 
-    -- We intentionally parse DNS names here (not full RFC 3986 reg-name).
-    let some str := String.fromUTF8? (← takeWhileUpTo1
+    -- It needs to be a legal DNS label, so it differs from reg-name.
+    let some str := String.fromUTF8? (← takeWhile1AtMost
       (fun x => isAlphaNum x ∨ x = '-'.toUInt8 ∨ x = '.'.toUInt8)
       config.maxHostLength).toByteArray
       | fail s!"invalid host"
@@ -187,7 +187,7 @@ private def parseAuthority (config : URI.Config) : Parser URI.Authority := do
 
 -- segment = *pchar
 private def parseSegment (config : URI.Config) : Parser ByteSlice := do
-  takeWhileUpTo (fun c => isPChar c ∨ c = '%'.toUInt8) config.maxSegmentLength
+  takeWhileAtMost (fun c => isPChar c ∨ c = '%'.toUInt8) config.maxSegmentLength
 
 /-
 path = path-abempty ; begins with "/" or is empty
@@ -272,7 +272,7 @@ def parsePath (config : URI.Config) (forceAbsolute : Bool) (allowEmpty : Bool) :
 -- query = *( pchar / "/" / "?" )
 private def parseQuery (config : URI.Config) : Parser URI.Query := do
   let queryBytes ←
-    takeWhileUpTo (fun c => isQueryChar c ∨ c = '%'.toUInt8) config.maxQueryLength
+    takeWhileAtMost (fun c => isQueryChar c ∨ c = '%'.toUInt8) config.maxQueryLength
 
   let some queryStr := String.fromUTF8? queryBytes.toByteArray
     | fail "invalid query string"
@@ -304,7 +304,7 @@ private def parseQuery (config : URI.Config) : Parser URI.Query := do
 --  fragment = *( pchar / "/" / "?" )
 private def parseFragment (config : URI.Config) : Parser URI.EncodedFragment := do
   let fragmentBytes ←
-    takeWhileUpTo (fun c => isFragmentChar c ∨ c = '%'.toUInt8) config.maxFragmentLength
+    takeWhileAtMost (fun c => isFragmentChar c ∨ c = '%'.toUInt8) config.maxFragmentLength
 
   let some fragmentStr := URI.EncodedFragment.ofByteArray? fragmentBytes.toByteArray
     | fail "invalid percent encoding in fragment"
@@ -328,7 +328,7 @@ Parses a URI (Uniform Resource Identifier).
 URI = scheme ":" hier-part [ "?" query ] [ "#" fragment ]
 hier-part = "//" authority path-abempty / path-absolute / path-rootless / path-empty
 -/
-public def parseURI (config : URI.Config := {}) : Parser URI := do
+def parseURI (config : URI.Config := {}) : Parser URI := do
   let scheme ← parseScheme config
   skipByte ':'.toUInt8
 
@@ -347,7 +347,7 @@ public def parseURI (config : URI.Config := {}) : Parser URI := do
 /--
 Parses a request target with combined parsing and validation.
 -/
-public def parseRequestTarget (config : URI.Config := {}) : Parser RequestTarget :=
+def parseRequestTarget (config : URI.Config := {}) : Parser RequestTarget :=
   asterisk <|> origin <|> absoluteHttp <|> authority <|> absolute
 where
   -- The asterisk form
@@ -406,7 +406,7 @@ where
 /--
 Parses an HTTP `Host` header value.
 -/
-public def parseHostHeader (config : URI.Config := {}) : Parser (URI.Host × URI.Port) := do
+def parseHostHeader (config : URI.Config := {}) : Parser (URI.Host × URI.Port) := do
   let host ← parseHost config
 
   let port : URI.Port ←

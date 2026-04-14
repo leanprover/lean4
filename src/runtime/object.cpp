@@ -106,6 +106,10 @@ extern "C" LEAN_EXPORT void lean_internal_panic_rc_overflow() {
     lean_internal_panic("reference counter overflowed");
 }
 
+extern "C" LEAN_EXPORT void lean_internal_panic_overflow() {
+    lean_internal_panic("integer overflow in runtime computation");
+}
+
 bool g_exit_on_panic = false;
 bool g_panic_messages = true;
 

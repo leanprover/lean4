@@ -108,7 +108,7 @@ Hint: Adding type annotations and supplying implicit arguments to functions can 
 example := do return 42
 /--
 error: typeclass instance problem is stuck
-  Bind ?m.23
+  Bind ?m.22
 
 Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Bind` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
 
@@ -211,8 +211,8 @@ trace: [Elab.do] let x := 42;
               else
                 let x := x + i;
                 pure (ForInStep.yield (none, x))
-    let __r : Option ?m.182 := __s.fst
-    let x : ?m.182 := __s.snd
+    let __r : Option ?m.185 := __s.fst
+    let x : ?m.185 := __s.snd
     match __r with
       | some r => pure r
       | none =>

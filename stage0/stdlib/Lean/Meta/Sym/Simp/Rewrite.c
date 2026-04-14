@@ -3625,6 +3625,7 @@ lean_dec_ref(v_a_1227_);
 lean_dec(v_a_1226_);
 lean_dec_ref(v_a_1225_);
 lean_dec(v_a_1224_);
+lean_dec_ref(v_thms_1221_);
 return v_res_1234_;
 }
 }

@@ -1,6 +1,6 @@
 /-! Mixing basic IO actions and heavy unboxed compute -/
 
-def N : Nat := 12500000 -- ~100 MB
+def N : Nat := 12500000 / 2 -- ~50 MB
 
 -- xorshift64* PRNG (same algorithm as Rust version)
 @[inline] def xorshift64 (state : UInt64) : UInt64 × UInt64 :=

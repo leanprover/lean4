@@ -43,7 +43,7 @@ structure RuntimeBytecodeDecl where
   arity : Nat
 
 @[extern "lean_eval_bytecode_decl"]
-unsafe axiom RuntimeBytecodeDecl.eval (α) (env : Environment) (decl : @& RuntimeBytecodeDecl) : α
+unsafe axiom RuntimeBytecodeDecl.eval (α) (env : @& Environment) (decl : @& RuntimeBytecodeDecl) : α
 
 builtin_initialize declMapExt :
     SimplePersistentEnvExtension BytecodeDecl (PHashMap Name RuntimeBytecodeDecl) ←

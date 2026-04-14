@@ -34,6 +34,9 @@ Interpreter for Lean bytecode.
 namespace lean {
 namespace interpreter {
 
+#define INTERPRETER_STACK_SIZE (1 << 18)
+#define INTERPRETER_FRAME_COUNT (1 << 12)
+
 typedef lean_interpreter_value value;
 
 static_assert(sizeof(size_t) <= sizeof(uint64), "uint64 should be the largest unboxed type"); // NOLINT
@@ -100,24 +103,15 @@ extern "C" object * lean_bytecode_mk_initial_cache(b_obj_arg symbols) {
 // reuse the compiler's name mangling to compute native symbol names
 /* getSymbolStem (env : Environment) (fn : Name) :  String */
 extern "C" obj_res lean_get_symbol_stem(obj_arg env, obj_arg fn);
-string_ref get_symbol_stem(elab_environment const & env, name const & fn) {
-    return string_ref(lean_get_symbol_stem(env.to_obj_arg(), fn.to_obj_arg()));
-}
 
+// Environment -> Name -> Option Name
 extern "C" obj_res lean_get_export_name_for(object* env, object* fn);
-optional<name> get_export_name_for(elab_environment const & env, name const & n) {
-    return to_optional<name>(lean_get_export_name_for(env.to_obj_arg(), n.to_obj_arg()));
-}
 
+// Environment -> Name -> USize
 extern "C" size_t lean_ir_decl_arity(object* env, object* fn);
-size_t ir_decl_arity(elab_environment const & env, name const & n) {
-    return lean_ir_decl_arity(env.to_obj_arg(), n.to_obj_arg());
-}
 
+// Environment -> Name -> Option RuntimeBytecodeDecl
 extern "C" obj_res lean_find_bytecode_decl(object* env, object* fn);
-optional<object_ref> find_bytecode_decl(elab_environment const & env, name const & n) {
-    return to_optional<object_ref>(lean_find_bytecode_decl(env.to_obj_arg(), n.to_obj_arg()));
-}
 
 void * lookup_symbol_in_cur_exe(char const * sym) {
 #ifdef LEAN_WINDOWS
@@ -143,29 +137,46 @@ void * lookup_symbol_in_cur_exe(char const * sym) {
 #endif
 }
 
-decl_cache_entry fill_cache_entry(elab_environment const & env, name const & decl_name) {
+// env : Environment, decl_name : Name
+decl_cache_entry fill_cache_entry(b_obj_arg env, b_obj_arg decl_name) {
     decl_cache_entry result = { .m_arity = 0, .m_native = nullptr, .m_object = box(0) };
-    size_t arity = ir_decl_arity(env, decl_name);
+    // For lean_ir_decl_arity, lean_find_bytecode_decl, lean_get_symbol_stem
+    lean_inc_n(env, 3); lean_inc_n(decl_name, 3);
+    size_t arity = lean_ir_decl_arity(env, decl_name);
     lean_assert(arity < UINT32_MAX);
-    optional<object_ref> decl = find_bytecode_decl(env, decl_name);
-    if (decl) {
-        result.m_object = decl->steal();
+    object * decl = lean_find_bytecode_decl(env, decl_name); // Option Name
+    if (!lean_is_scalar(decl)) {
+        result.m_object = lean_ctor_get(decl, 0);
         arity = lean_unbox(lean_ctor_get(result.m_object, 6));
+        dec(decl);
     }
-    string_ref mangled = get_symbol_stem(env, decl_name);
+    object * mangled = lean_get_symbol_stem(env, decl_name); // String
+    inc(mangled);
     result.m_arity = static_cast<unsigned>(arity);
-    string_ref mangled_interp = string_ref(string_append(mangled.to_obj_arg(), mk_string("_0interp")));
-    if (void * p = lookup_symbol_in_cur_exe(mangled_interp.data())) {
+    object * suffix = mk_string("_0interp"); // String
+    object * mangled_interp = string_append(mangled, suffix); // String
+    dec(suffix);
+    if (void * p = lookup_symbol_in_cur_exe(lean_string_cstr(mangled_interp))) {
         result.m_native = p;
         result.m_arity = UINT32_MAX;
+        dec(mangled);
     } else {
-        if (optional<name> n = get_export_name_for(env, decl_name)) {
-            mangled = n->get_string();
+        object * res = lean_get_export_name_for(env, decl_name); // Option Name
+        if (!lean_is_scalar(res)) {
+            object * export_name = lean_ctor_get(res, 0); // Name
+            if (lean_obj_tag(export_name) == 2) {
+                dec(mangled);
+                mangled = lean_ctor_get(export_name, 1); // String
+            }
+            dec(export_name);
+            dec(res);
         }
-        if (void * p = lookup_symbol_in_cur_exe(mangled.data())) {
+        if (void * p = lookup_symbol_in_cur_exe(lean_string_cstr(mangled))) {
             result.m_native = p;
         }
+        dec(mangled);
     }
+    dec(mangled_interp);
     return result;
 }
 
@@ -186,7 +197,7 @@ void unlock_simple_atomic(std::atomic<int>& lock) {
 
 // Fills the cache if not already done before. If this function returns true, the cache has
 // been filled already. Otherwise, the cache is locked and needs to be unlocked by the caller.
-bool fill_cache(elab_environment const & env, b_obj_arg symbols, decl_cache * cache) {
+bool fill_cache(b_obj_arg env, b_obj_arg symbols, decl_cache * cache) {
     if (LEAN_LIKELY(cache->m_once_cell.state != 0)) {
         return true;
     }
@@ -198,7 +209,7 @@ bool fill_cache(elab_environment const & env, b_obj_arg symbols, decl_cache * ca
     // Lock acquired
     size_t count = lean_array_size(symbols);
     for (size_t i = 0; i < count; i++) {
-        cache->m_entries[i] = fill_cache_entry(env, name(lean_array_get_core(symbols, i), true));
+        cache->m_entries[i] = fill_cache_entry(env, lean_array_get_core(symbols, i));
     }
     cache->m_count = count;
     // Keep lock upon return
@@ -213,7 +224,7 @@ struct frame {
 };
 
 struct interpreter {
-    elab_environment m_env;
+    object * m_env;
     value * m_stack_start;
     value * m_stack_end;
     value * m_stack_top;
@@ -225,6 +236,16 @@ struct interpreter {
 };
 
 LEAN_THREAD_PTR(interpreter, g_interpreter);
+
+static void init_interpreter(interpreter * interp, value * value_stack, frame * frame_stack) {
+    interp->m_stack_start = value_stack;
+    interp->m_stack_top = value_stack;
+    interp->m_stack_end = value_stack + INTERPRETER_STACK_SIZE;
+    interp->m_frame_start = frame_stack;
+    interp->m_frame_top = frame_stack;
+    interp->m_frame_end = frame_stack + INTERPRETER_FRAME_COUNT;
+    g_interpreter = interp;
+}
 
 enum instruction_type {
     UCONST,
@@ -271,10 +292,11 @@ enum instruction_type {
     PAP,
     RESET,
     REUSE,
-    RET_AND_STORE
+    STORE_CACHE,
+    SKIP_WHEN_CACHED,
 };
 
-bool call_init(interpreter * interp, b_obj_arg decl, bool is_constant, frame * f) {
+frame call_init(interpreter * interp, b_obj_arg decl, bool is_constant) {
     object * bytecode_obj = lean_ctor_get(decl, 1); // ByteArray
     object * stack_reserved_obj = lean_ctor_get(decl, 2); // Nat
     object * stack_space_obj = lean_ctor_get(decl, 3); // Nat
@@ -284,25 +306,27 @@ bool call_init(interpreter * interp, b_obj_arg decl, bool is_constant, frame * f
     uint32 * bytecode = reinterpret_cast<uint32 *>(sarray_cptr(bytecode_obj));
     size_t stack_reserved = lean_unbox(stack_reserved_obj);
     if (interp->m_stack_top + stack_reserved >= interp->m_stack_end || interp->m_frame_top >= interp->m_frame_end) {
-        lean_internal_panic("stack overflow");
+        lean_internal_panic("interpreter stack overflow");
     }
 
     decl_cache * cache = reinterpret_cast<decl_cache *>(lean_get_external_data(cache_obj.raw()));
     bool already_done = fill_cache(interp->m_env, symbols_array, cache);
     if (already_done && is_constant) {
         interp->m_stack_top->m_obj = cache->m_value;
-        return false;
-    } else if (!is_constant) {
+    } else if (is_constant) {
+        interp->m_stack_top->m_obj = nullptr;
+    } else {
         cache->m_once_cell.state = 1;
         unlock_simple_atomic(cache->m_once_cell.lock);
     }
 
-    f->m_code = bytecode;
-    f->m_decl = decl;
-    f->m_stack_base = interp->m_stack_top;
-    f->m_cache = cache->m_entries;
+    frame f;
+    f.m_code = bytecode;
+    f.m_decl = decl;
+    f.m_stack_base = interp->m_stack_top;
+    f.m_cache = cache->m_entries;
     interp->m_stack_top += lean_unbox(stack_space_obj);
-    return true;
+    return f;
 }
 
 void store_value_and_unlock(object * decl, object * value) {
@@ -313,6 +337,7 @@ void store_value_and_unlock(object * decl, object * value) {
     unlock_simple_atomic(cache->m_once_cell.lock);
 }
 
+// Panic with an unknown declaration error. Note: this is not recoverable
 void report_unknown_declaration(object_ref const & decl, unsigned symbol_idx) {
     array_ref<object_ref> const & symbols_array = cnstr_get_ref_t<array_ref<object_ref>>(decl, 4);
     object_ref const & symbol = symbols_array[symbol_idx];
@@ -327,17 +352,30 @@ value eval_loop(interpreter * interp, frame start_frame);
 
 // static closure stub
 static object * stub_m_aux(object ** args) {
+    interpreter interp;
+    bool need_cleanup = false;
+    if (g_interpreter == nullptr) {
+        value * value_stack = reinterpret_cast<value *>(alloca(sizeof(value) * INTERPRETER_STACK_SIZE));
+        frame * frame_stack = reinterpret_cast<frame *>(alloca(sizeof(frame) * INTERPRETER_FRAME_COUNT));
+        init_interpreter(&interp, value_stack, frame_stack);
+        need_cleanup = true;
+    }
+    object * old_env = g_interpreter->m_env;
+
     object * env = args[0];
     object * decl = args[1];
-    flet<elab_environment> env_flet(g_interpreter->m_env, elab_environment(env));
+    g_interpreter->m_env = env;
     object * arity_obj = lean_ctor_get(decl, 6); // Nat
     size_t arity = lean_unbox(arity_obj);
-    frame f;
-    call_init(g_interpreter, decl, false, &f);
+    frame f = call_init(g_interpreter, decl, false);
     for (size_t i = 0; i < arity; i++) {
         f.m_stack_base[i].m_obj = args[i + 2];
     }
     value res = eval_loop(g_interpreter, f);
+    dec(env); dec(decl);
+
+    g_interpreter->m_env = old_env;
+    if (need_cleanup) g_interpreter = nullptr;
     return res.m_obj;
 }
 
@@ -392,8 +430,8 @@ value eval_loop(interpreter * interp, frame start_frame) {
     while (1) {
         uint32 instr = *pc;
 
-        //char buf[8192];
-        /*object_ref const & bytecode_obj = cnstr_get_ref(decl, 1);
+        /*char buf[8192];
+        object_ref const & bytecode_obj = cnstr_get_ref(decl, 1);
         uint32 * bytecode = reinterpret_cast<uint32 *>(sarray_cptr(bytecode_obj.raw()));
         fprintf(stderr, "Running instruction %x with base: %lu and top: %lu. Cache: %p, declaration: %p, relative: %lx, frame: %lu, original frame: %lu\n",
             instr, (base - interp->m_stack_start),
@@ -438,21 +476,17 @@ value eval_loop(interpreter * interp, frame start_frame) {
                 decl = new_frame->m_decl;
                 break;
             }
-            case instruction_type::RET_AND_STORE: {
+            case instruction_type::SKIP_WHEN_CACHED: {
+                if (base->m_obj != nullptr) {
+                    pc += instr & 0x3FF'FFFF;
+                }
+                break;
+            }
+            case instruction_type::STORE_CACHE: {
                 uint32 source = instr & 0xFF;
                 value val = base[source];
                 *base = val;
                 store_value_and_unlock(decl, val.m_obj);
-                interp->m_stack_top = base;
-                if (interp->m_frame_top <= orig_frame) {
-                    return val;
-                }
-                interp->m_frame_top--;
-                frame * new_frame = interp->m_frame_top;
-                base = new_frame->m_stack_base;
-                pc = new_frame->m_code;
-                cache = new_frame->m_cache;
-                decl = new_frame->m_decl;
                 break;
             }
             case instruction_type::CALL: {
@@ -472,8 +506,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
                     interp->m_frame_top->m_decl = decl;
                     interp->m_frame_top++;
 
-                    frame new_frame;
-                    call_init(interp, fn.m_object, false, &new_frame);
+                    frame new_frame = call_init(interp, fn.m_object, false);
                     base = new_frame.m_stack_base;
                     pc = new_frame.m_code;
                     cache = new_frame.m_cache;
@@ -501,8 +534,7 @@ value eval_loop(interpreter * interp, frame start_frame) {
                     cache = new_frame->m_cache;
                     decl = new_frame->m_decl;
                 } else if (!lean_is_scalar(fn.m_object)) {
-                    frame new_frame;
-                    call_init(interp, fn.m_object, false, &new_frame);
+                    frame new_frame = call_init(interp, fn.m_object, false);
                     base = new_frame.m_stack_base;
                     pc = new_frame.m_code;
                     cache = new_frame.m_cache;
@@ -520,21 +552,20 @@ value eval_loop(interpreter * interp, frame start_frame) {
                         ((stack_function) fn.m_native)(base);
                     } else {
                         object ** res = static_cast<object **>(fn.m_native);
-                        base[0].m_obj = *res;
+                        interp->m_stack_top[0].m_obj = *res;
                     }
                 } else if (!lean_is_scalar(fn.m_object)) {
-                    frame new_frame;
-                    if (LEAN_UNLIKELY(call_init(interp, fn.m_object, true, &new_frame))) {
-                        interp->m_frame_top->m_stack_base = base;
-                        interp->m_frame_top->m_cache = cache;
-                        interp->m_frame_top->m_code = pc;
-                        interp->m_frame_top->m_decl = decl;
-                        interp->m_frame_top++;
-                        base = new_frame.m_stack_base;
-                        pc = new_frame.m_code;
-                        cache = new_frame.m_cache;
-                        decl = new_frame.m_decl;
-                    }
+                    interp->m_frame_top->m_stack_base = base;
+                    interp->m_frame_top->m_cache = cache;
+                    interp->m_frame_top->m_code = pc;
+                    interp->m_frame_top->m_decl = decl;
+                    interp->m_frame_top++;
+
+                    frame new_frame = call_init(interp, fn.m_object, true);
+                    base = new_frame.m_stack_base;
+                    pc = new_frame.m_code;
+                    cache = new_frame.m_cache;
+                    decl = new_frame.m_decl;
                 } else {
                     report_unknown_declaration(object_ref(decl), fn_id);
                 }
@@ -786,9 +817,10 @@ value eval_loop(interpreter * interp, frame start_frame) {
                     }
                     interp->m_stack_top[0].m_obj = closure;
                 } else if (fn.m_object) {
-                    inc(fn.m_object);
                     object * closure = lean_alloc_closure(get_stub(fn.m_arity + 2), fn.m_arity + 2, n + 2);
-                    lean_closure_set(closure, 0, interp->m_env.to_obj_arg());
+                    inc(interp->m_env);
+                    inc(fn.m_object);
+                    lean_closure_set(closure, 0, interp->m_env);
                     lean_closure_set(closure, 1, fn.m_object);
                     for (size_t i = 0; i < n; i++) {
                         lean_closure_set(closure, i + 2, interp->m_stack_top[i].m_obj);
@@ -832,33 +864,25 @@ value eval_loop(interpreter * interp, frame start_frame) {
     }
 }
 
-#define INTERPRETER_STACK_SIZE (1 << 18)
-#define INTERPRETER_FRAME_COUNT (1 << 12)
-
-extern "C" obj_res lean_eval_bytecode_decl(obj_arg env, b_obj_arg decl) {
+extern "C" obj_res lean_eval_bytecode_decl(b_obj_arg env, b_obj_arg decl) {
+    interpreter interp;
+    bool need_cleanup = false;
     if (g_interpreter == nullptr) {
-        interpreter * interp = new interpreter;
-        value * value_stack = reinterpret_cast<value *>(malloc(sizeof(value) * INTERPRETER_STACK_SIZE));
-        frame * frame_stack = reinterpret_cast<frame *>(malloc(sizeof(frame) * INTERPRETER_FRAME_COUNT));
-        interp->m_stack_start = value_stack;
-        interp->m_stack_top = value_stack;
-        interp->m_stack_end = value_stack + INTERPRETER_STACK_SIZE;
-        interp->m_frame_start = frame_stack;
-        interp->m_frame_top = frame_stack;
-        interp->m_frame_end = frame_stack + INTERPRETER_FRAME_COUNT;
-        g_interpreter = interp;
+        value * value_stack = reinterpret_cast<value *>(alloca(sizeof(value) * INTERPRETER_STACK_SIZE));
+        frame * frame_stack = reinterpret_cast<frame *>(alloca(sizeof(frame) * INTERPRETER_FRAME_COUNT));
+        init_interpreter(&interp, value_stack, frame_stack);
+        need_cleanup = true;
     }
-    flet<elab_environment> env_flet(g_interpreter->m_env, elab_environment(env));
-    frame f;
-    if (call_init(g_interpreter, decl, true, &f)) {
-        value res = eval_loop(g_interpreter, f);
-        inc(res.m_obj);
-        return res.m_obj;
-    } else {
-        object * val = g_interpreter->m_stack_top->m_obj;
-        inc(val);
-        return val;
-    }
+    object * old_env = g_interpreter->m_env;
+
+    g_interpreter->m_env = env;
+    frame f = call_init(g_interpreter, decl, true);
+    value res = eval_loop(g_interpreter, f);
+    inc(res.m_obj);
+
+    g_interpreter->m_env = old_env;
+    if (need_cleanup) g_interpreter = nullptr;
+    return res.m_obj;
 }
 
 }

@@ -31,7 +31,7 @@ def N : Nat := 12500000 -- ~100 MB
   ((ba.get! (off + 6)).toUInt64 <<< 48) +
   ((ba.get! (off + 7)).toUInt64 <<< 56)
 
-def timeMs {α : Type} (act : IO α) : IO (α × Float) := do
+def timeS {α : Type} (act : IO α) : IO (α × Float) := do
   let t0 ← IO.monoMsNow
   let r ← act
   let t1 ← IO.monoMsNow
@@ -39,7 +39,7 @@ def timeMs {α : Type} (act : IO α) : IO (α × Float) := do
 
 def main : IO Unit := do
   -- Phase 1: Generate & Sort
-  let (data, elapsed) ← timeMs do
+  let (data, elapsed) ← timeS do
     let mut state : UInt64 := 42
     let mut arr : Array UInt64 := Array.mkEmpty N
     for _ in [:N] do
@@ -47,28 +47,28 @@ def main : IO Unit := do
       state := s
       arr := arr.push v
     return arr.qsortOrd
-  IO.println s!"measurement: generate_sort {elapsed} ms"
+  IO.println s!"measurement: generate_sort {elapsed} s"
 
   let (_, file) ← IO.FS.createTempFile
   -- Phase 2: Write
-  let (_, elapsed) ← timeMs do
+  let (_, elapsed) ← timeS do
     let mut ba := ByteArray.emptyWithCapacity (N * 8)
     for i in [:data.size] do
       ba := pushLE ba data[i]!
     IO.FS.writeBinFile file ba
-  IO.println s!"measurement: write {elapsed} ms"
+  IO.println s!"measurement: write {elapsed} s"
 
   -- Phase 3: Read
-  let (data, elapsed) ← timeMs do
+  let (data, elapsed) ← timeS do
     let ba ← IO.FS.readBinFile file
     let mut arr : Array UInt64 := Array.mkEmpty N
     for i in [:N] do
       arr := arr.push (readLE ba (i * 8))
     return arr
-  IO.println s!"measurement: read {elapsed} ms"
+  IO.println s!"measurement: read {elapsed} s"
 
   -- Phase 4: Fisher-Yates shuffle
-  let (_, elapsed) ← timeMs do
+  let (_, elapsed) ← timeS do
     let mut arr := data
     let mut state : UInt64 := 42
     for i' in [:N - 1] do
@@ -78,5 +78,5 @@ def main : IO Unit := do
       let j := (v % (i + 1).toUInt64).toNat
       arr := arr.swapIfInBounds i j
     return arr
-  IO.println s!"measurement: shuffle {elapsed} ms"
+  IO.println s!"measurement: shuffle {elapsed} s"
 

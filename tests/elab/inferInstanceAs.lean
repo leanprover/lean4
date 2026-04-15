@@ -76,6 +76,13 @@ deriving Foo, Bar, FooBar
 theorem zou : instFooBarMyNat.toBar = instBarMyNat := by
   with_reducible_and_instances rfl
 
+/-! `inferInstanceAs` works when the result type depends on a let declaration (see #13408) -/
+
+example : True := by
+  let E : Type := id Nat
+  let hE : Inhabited E := inferInstanceAs (Inhabited Nat)
+  trivial
+
 /-! Non-constructor instances should be used as is. -/
 
 @[macro_inline, implicit_reducible]
@@ -91,10 +98,3 @@ instance (x y : BitVec w) : Decidable (LE.le x y) :=
 
 instance (x y : BitVec w) : Decidable (LE.le x y) :=
   inferInstanceAs (Decidable (LE.le x.toNat y.toNat))
-
-/-! `inferInstanceAs` works when the result type depends on a let declaration (see #13408) -/
-
-example : True := by
-  let E : Type := id Nat
-  let hE : Inhabited E := inferInstanceAs (Inhabited Nat)
-  trivial

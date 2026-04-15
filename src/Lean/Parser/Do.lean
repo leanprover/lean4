@@ -66,6 +66,14 @@ def notFollowedByRedefinedTermToken :=
       "do" <|> "dbg_trace" <|> "idbg" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
     "token at 'do' element"
 
+namespace InternalSyntax
+/--
+Internal syntax used in the `if` and `unless` elaborators. Behaves like `pure PUnit.unit` but
+uses `()` if possible and gives better error messages.
+-/
+scoped syntax (name := doSkip) "skip" : doElem
+end InternalSyntax
+
 @[builtin_doElem_parser] def doLet      := leading_parser
   "let " >> optional "mut " >> letConfig >> letDecl
 @[builtin_doElem_parser] def doLetElse  := leading_parser withPosition <|

@@ -16,6 +16,12 @@ namespace Lean.Elab.Do
 open Lean.Parser.Term
 open Lean.Meta
 
+open InternalSyntax in
+@[builtin_doElem_elab Lean.Parser.Term.InternalSyntax.doSkip] def elabDoSkip : DoElab := fun stx dec => do
+  let `(doSkip| skip%$tk) := stx | throwUnsupportedSyntax
+  let dec ← dec.ensureUnitAt tk
+  dec.continueWithUnit
+
 @[builtin_doElem_elab Lean.Parser.Term.doExpr] def elabDoExpr : DoElab := fun stx dec => do
   let `(doExpr| $e:term) := stx | throwUnsupportedSyntax
   let mα ← mkMonadicType dec.resultType
@@ -26,9 +32,10 @@ open Lean.Meta
   let `(doNested| do $doSeq) := stx | throwUnsupportedSyntax
   elabDoSeq ⟨doSeq.raw⟩ dec
 
+open InternalSyntax in
 @[builtin_doElem_elab Lean.Parser.Term.doUnless] def elabDoUnless : DoElab := fun stx dec => do
   let `(doUnless| unless%$tk $cond do $body) := stx | throwUnsupportedSyntax
-  elabDoElem (← `(doElem| if $cond then (pure PUnit.unit)%$tk else $body)) dec
+  elabDoElem (← `(doElem| if $cond then skip%$tk else $body)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doDbgTrace] def elabDoDbgTrace : DoElab := fun stx dec => do
   let `(doDbgTrace| dbg_trace%$tk $msg:term) := stx | throwUnsupportedSyntax

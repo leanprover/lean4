@@ -20,7 +20,7 @@ options get_default_options() {
     // changes to builtin parsers may also require toggling the following option if macros/syntax
     // with custom precheck hooks were affected
     opts = opts.update({"quotPrecheck"}, true);
-
+    // trigger stage0 update for doSkip parser addition
     opts = opts.update({"pp", "rawOnError"}, true);
 
     // Temporary, core-only flags for editing (i.e. must be part of stage0/bin/lean). Must be synced

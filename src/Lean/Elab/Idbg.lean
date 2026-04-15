@@ -364,8 +364,9 @@ def elabIdbgTerm : TermElab := fun stx expectedType? => do
 
 @[builtin_doElem_elab Lean.Parser.Term.doIdbg]
 def elabDoIdbg : DoElab := fun stx dec => do
-  let `(Lean.Parser.Term.doIdbg| idbg $e) := stx | throwUnsupportedSyntax
+  let `(Lean.Parser.Term.doIdbg| idbg%$tk $e) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
+  let dec ← dec.ensureUnitAt tk
   doElabToSyntax "idbg body" dec.continueWithUnit fun body => do
     elabIdbgCore (e := e) (body := body) (ref := stx) mγ
 

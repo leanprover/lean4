@@ -26,11 +26,7 @@ Many of these are extracted from our code base.
     x := x + 1
   return ⟨3, by decide⟩
 
--- Regression test cases of what's broken in the legacy do elaborator:
-example : Unit := (Id.run do  let n ← if true then pure 3 else pure 42)
 example : Unit := (Id.run do let n ← if true then pure 3 else pure 42)
-example := (Id.run do  let mut x := 0; x ← return 10)
-example := (Id.run do let mut x := 0; x ← return 10)
 
 -- Another complicated `match` that would need to generalize the join point type if it was dependent
 example (x : Nat) : Id (Fin (x + 2)) := do

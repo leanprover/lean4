@@ -546,6 +546,10 @@ public structure VCGen.Context where
   entailsNilPureIntroRule : BackwardRule
   /-- The backward rule for `SPred.entails_nil_intro`. Fallback when LHS is not `⌜φ⌝`. -/
   entailsNilIntroRule : BackwardRule
+  /-- The backward rule for `SPred.pure_elim'`. -/
+  pureElimRule : BackwardRule
+  /-- The backward rule for `SPred.pure_intro`. -/
+  pureIntroRule : BackwardRule
   /-- The backward rule for `PostCond.entails.rfl`. Tried first to close by reflexivity. -/
   postCondEntailsRflRule : BackwardRule
   /-- The backward rule for `PostCond.entails.mk`. -/
@@ -1002,26 +1006,44 @@ meta def PreTac.run : PreTac →  Grind.Goal → VCGenM (List MVarId)
       pure [goal.mvarId]
 
 meta def introSPredEntails (goal : MVarId) : VCGenM MVarId := goal.withContext do
-  let_expr SPred.entails _ _ _ := (← goal.getType) | return goal
-  -- Apply `entails_cons_intro` + `introsSimp` for each state variable.
-  let mut g := goal
+  let_expr SPred.entails _σs H T := (← goal.getType) | return goal
+  let mut goal := goal
+
+  -- First try to turn `⌜φ₁⌝ ⊢ₛ ⌜φ₂⌝` into `φ₁ → φ₂`.
+  -- Do so in two steps:
+  --   1. Move non-`True` `φ₁` to the local context, yielding `⌜True⌝ ⊢ₛ ⌜φ₂⌝` (which is `⊢ₛ ⌜φ₂⌝`).
+  --   2. Eliminate `⊢ₛ ⌜φ₂⌝` to `φ₂`.
+  -- If both succeed, we return `φ₁ → φ₂`. If 1. fails, we fall back to eta-expansion below.
+  -- If 1. succeeds and 2. fails, we still continue with `φ₁` in the local context and eta-expand.
+  let pureH : Option Expr := Prod.snd <$> H.app2? ``SPred.pure
+  let pureT : Option Expr := Prod.snd <$> T.app2? ``SPred.pure
+
+  let pureHNonTrue : Bool ←
+    match pureH with
+    | none => pure false
+    | some h => not <$> isDefEqS h (mkConst ``True)
+      if pureHNonTrue then
+    let .goals [g'] ← (← read).pureElimRule.apply goal
+      | throwError "Failed to apply {.ofConstName ``SPred.pure_elim'} to {← goal.getType}"
+    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.pure_elim'}"
+
+  if pureH.isSome && pureT.isSome then
+    let .goals [g'] ← (← read).pureIntroRule.apply goal
+      | throwError "Failed to apply {.ofConstName ``SPred.pure_intro} to {← goal.getType}"
+    return g'
+
+  -- Now eta-expand. Apply `entails_cons_intro` + `introsSimp` for each state variable.
   repeat do
-    let .goals [g'] ← (← read).entailsConsIntroRule.apply g
-      | break
-    let IntrosResult.goal _ g' ← introsSimp g'
-      | throwError "Failed to intro after applying {.ofConstName ``SPred.entails_cons_intro} on {g'}"
-    g := g'
+    let .goals [g'] ← (← read).entailsConsIntroRule.apply goal | break
+    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_cons_intro}"
   -- Apply `entails_nil_pure_intro` to reduce `⌜φ⌝ ⊢ₛ Q` to `φ → Q.down`, then `introsSimp`,
   -- fall back to `entails_nil_intro`.
-  if let .goals [g'] ← (← read).entailsNilPureIntroRule.apply g then
-    let IntrosResult.goal _ g' ← introsSimp g'
-      | throwError "Failed to intro after applying {.ofConstName ``SPred.entails_nil_pure_intro} on {g'}"
-    g := g'
-  else if let .goals [g'] ← (← read).entailsNilIntroRule.apply g then
-    let IntrosResult.goal _ g' ← introsSimp g'
-      | throwError "Failed to intro after applying {.ofConstName ``SPred.entails_nil_intro} on {g'}"
-    g := g'
-  return g
+  if let .goals [g'] ← (← read).entailsNilPureIntroRule.apply goal then
+    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_nil_pure_intro}. Before: {goal}"
+  else if let .goals [g'] ← (← read).entailsNilIntroRule.apply goal then
+    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_nil_intro}"
+
+  return goal
 
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
@@ -1156,6 +1178,8 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
   let entailsConsIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_cons_intro
   let entailsNilPureIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_nil_pure_intro
   let entailsNilIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_nil_intro
+  let pureElimRule ← mkBackwardRuleFromDecl ``SPred.pure_elim'
+  let pureIntroRule ← mkBackwardRuleFromDecl ``SPred.pure_intro
   let postCondEntailsRflRule ← mkBackwardRuleFromDecl ``PostCond.entails.rfl
   let postCondEntailsMkRule ← mkBackwardRuleFromDecl ``PostCond.entails.mk
   let exceptCondsEntailsRflRule ← mkBackwardRuleFromDecl ``ExceptConds.entails.rfl
@@ -1169,6 +1193,8 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
     entailsConsIntroRule,
     entailsNilPureIntroRule,
     entailsNilIntroRule,
+    pureElimRule,
+    pureIntroRule,
     postCondEntailsRflRule,
     postCondEntailsMkRule,
     exceptCondsEntailsRflRule,

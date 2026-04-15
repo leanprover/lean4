@@ -555,6 +555,10 @@ public structure VCGen.Context where
   /-- The backward rule for `ExceptConds.entails.pure`. Closes the exception side for
   pure PostShapes, where `ExceptConds.entails` reduces to `True`. -/
   exceptCondsEntailsPureRule : BackwardRule
+  /-- The backward rule for `ExceptConds.entails_false`. -/
+  exceptCondsEntailsFalseRule : BackwardRule
+  /-- The backward rule for `ExceptConds.entails_true`. -/
+  exceptCondsEntailsTrueRule : BackwardRule
   /-- The backward rule for `Triple.of_entails_wp`. -/
   tripleOfEntailsWPRule : BackwardRule
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
@@ -644,6 +648,25 @@ meta def tripleOfWP (goal : MVarId) : _root_.VCGenM MVarId := goal.withContext d
     goal.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent σs P Q)
 
 open Lean.Elab.Tactic.Do in
+meta def solveExceptCondsEntails (goal : MVarId) : _root_.VCGenM (Option MVarId) := goal.withContext do
+  let target ← goal.getType
+  let_expr ent@ExceptConds.entails ps P Q := target | return none
+  let P := (← reduceProjBeta? P).getD P
+  let Q := (← reduceProjBeta? Q).getD Q
+  let P ← shareCommonInc P
+  let Q ← shareCommonInc Q
+  let goal ← goal.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent ps P Q)
+  if let .goals [] ← (← read).exceptCondsEntailsPureRule.apply goal then
+    return none
+  if let .goals [] ← (← read).exceptCondsEntailsFalseRule.apply goal then
+    return none
+  if let .goals [] ← (← read).exceptCondsEntailsTrueRule.apply goal then
+    return none
+  if let .goals [] ← (← read).exceptCondsEntailsRflRule.apply goal then
+    return none
+  return some goal
+
+open Lean.Elab.Tactic.Do in
 meta def solvePostCondEntails (goal : MVarId) : _root_.VCGenM (Option (List MVarId)) := goal.withContext do
   let target ← goal.getType
   let_expr PostCond.entails _α _ps _P _Q := target | return none
@@ -655,19 +678,7 @@ meta def solvePostCondEntails (goal : MVarId) : _root_.VCGenM (Option (List MVar
     | throwError "Applying {.ofConstName ``PostCond.entails} to {target} failed. It should not."
   -- Try to discharge the exception subgoal by reflexivity. If that fails, leave it
   -- as a subgoal so it is emitted as a VC by the surrounding worklist loop.
-  let extraGoal₂? ← goal₂.withContext do
-    let target ← goal₂.getType
-    let_expr ent@ExceptConds.entails ps P Q := target | throwError "invalid: {target}"
-    let P := (← reduceProjBeta? P).getD P
-    let Q := (← reduceProjBeta? Q).getD Q
-    let P ← shareCommonInc P
-    let Q ← shareCommonInc Q
-    let goal₂ ← goal₂.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent ps P Q)
-    if let .goals [] ← (← read).exceptCondsEntailsPureRule.apply goal₂ then
-      return none
-    if let .goals [] ← (← read).exceptCondsEntailsRflRule.apply goal₂ then
-      return none
-    return some goal₂
+  let extraGoal₂? ← goal₂.withContext (solveExceptCondsEntails goal₂)
   -- Normalize the success goal `∀ a, P a ⊢ₛ Q a`
   let goal₁ ← goal₁.withContext do
     let target ← goal₁.getType
@@ -1149,6 +1160,8 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
   let postCondEntailsMkRule ← mkBackwardRuleFromDecl ``PostCond.entails.mk
   let exceptCondsEntailsRflRule ← mkBackwardRuleFromDecl ``ExceptConds.entails.rfl
   let exceptCondsEntailsPureRule ← mkBackwardRuleFromDecl ``ExceptConds.entails.pure
+  let exceptCondsEntailsFalseRule ← mkBackwardRuleFromDecl ``ExceptConds.entails_false
+  let exceptCondsEntailsTrueRule ← mkBackwardRuleFromDecl ``ExceptConds.entails_true
   let tripleOfEntailsWPRule ← mkBackwardRuleFromDecl ``Triple.of_entails_wp
   let specThmsNew ← SymM.run <| migrateSpecTheoremsDatabase specThms simpThms
   return {
@@ -1160,6 +1173,8 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
     postCondEntailsMkRule,
     exceptCondsEntailsRflRule,
     exceptCondsEntailsPureRule,
+    exceptCondsEntailsFalseRule,
+    exceptCondsEntailsTrueRule,
     tripleOfEntailsWPRule,
   }
 

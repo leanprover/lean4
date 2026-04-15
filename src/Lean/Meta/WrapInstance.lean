@@ -159,7 +159,7 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
             return inst
           else
             let name ← mkAuxDeclName
-            let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
+            let wrapped ← mkAuxDefinition name expectedType inst (zetaDelta := true) (compile := false)
             setReducibilityStatus name .implicitReducible
             if isMeta then modifyEnv (markMeta · name)
             if compile then
@@ -232,7 +232,7 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
             mvarId.assign arg
           else
             let name ← mkAuxDeclName
-            mvarId.assign (← mkAuxDefinition name argExpectedType arg (compile := false))
+            mvarId.assign (← mkAuxDefinition name argExpectedType arg (zetaDelta := true) (compile := false))
             setInlineAttribute name
             if isMeta then modifyEnv (markMeta · name)
             if compile then

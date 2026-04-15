@@ -345,6 +345,11 @@ structure MkValueTypeClosureResult where
 
 def mkValueTypeClosureAux (type : Expr) (value : Expr) : ClosureM (Expr × Expr) := do
   withTrackingZetaDelta do
+    if !(← read).zetaDelta then
+      withTransparency .all do
+        let inferred ← inferType value
+        unless ← isDefEq type inferred do
+          throwError m!"{value} {← mkHasTypeButIsExpectedMsg inferred type}"
     let type  ← collectExpr type
     let value ← collectExpr value
     process

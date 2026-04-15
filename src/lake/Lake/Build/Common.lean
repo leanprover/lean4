@@ -235,7 +235,7 @@ public def checkHashUpToDate
 : JobM Bool := (·.isUpToDate) <$> checkHashUpToDate' info depTrace depHash oldTrace
 
 /--
-**Ror internal use only.**
+**For internal use only.**
 Checks whether `info` is up-to-date with the trace.
 If so, replays the log of the trace if available.
 -/
@@ -271,19 +271,23 @@ Returns `true` if the saved trace exists and its hash matches `inputHash`.
 
 If up-to-date, replays the saved log from the trace and sets the current
 build action to `replay`. Otherwise, if the log is empty and trace is synthetic,
-or if the trace is not up-to-date, the build action will be set to `fetch`.
+or if the trace is not up-to-date, the build action will be set to `reuse`.
 -/
-public def SavedTrace.replayOrFetchIfUpToDate (inputHash : Hash) (self : SavedTrace) : JobM Bool := do
+public def SavedTrace.replayCachedIfUpToDate (inputHash : Hash) (self : SavedTrace) : JobM Bool := do
   if let .ok data := self then
     if data.depHash == inputHash then
       if data.synthetic && data.log.isEmpty then
-        updateAction .fetch
+        updateAction .reuse
       else
         updateAction .replay
         data.log.replay
       return true
-  updateAction .fetch
+  updateAction .reuse
   return false
+
+@[deprecated replayCachedIfUpToDate (since := "2026-04-15")]
+public abbrev SavedTrace.replayOrFetchIfUpToDate (inputHash : Hash) (self : SavedTrace) : JobM Bool := do
+  self.replayCachedIfUpToDate inputHash
 
 /-- **For internal use only.** -/
 public class ToOutputJson (α : Type u) where
@@ -684,7 +688,7 @@ public def buildArtifactUnlessUpToDate
     let fetchArt? restore := do
       let some (art : XArtifact exe) ← getArtifacts? inputHash savedTrace pkg
         | return none
-      unless (← savedTrace.replayOrFetchIfUpToDate inputHash) do
+      unless (← savedTrace.replayCachedIfUpToDate inputHash) do
         removeFileIfExists file
         writeFetchTrace traceFile inputHash (toJson art.descr)
       if restore then

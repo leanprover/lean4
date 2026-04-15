@@ -153,7 +153,7 @@ private def Package.fetchBuildArchive
   let upToDate ← buildUnlessUpToDate? (action := .fetch) archiveFile depTrace traceFile do
     download url archiveFile headers
   unless upToDate && (← self.buildDir.pathExists) do
-    updateAction .fetch
+    updateAction .unpack
     untar archiveFile self.buildDir
 
 @[inline]

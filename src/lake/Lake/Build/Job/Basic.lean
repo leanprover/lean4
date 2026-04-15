@@ -29,11 +29,18 @@ namespace Lake
 public inductive JobAction
 /-- No information about this job's action is available. -/
 | unknown
-/-- Tried to replay a cached build action (set by `buildFileUnlessUpToDate`) -/
+/-- Tried to reuse a cached build (e.g., can be set by `replayCachedIfUpToDate`). -/
+| reuse
+/-- Tried to replay a completed build action (e.g., can be set by `replayIfUpToDate`). -/
 | replay
-/-- Tried to fetch a build from a store (can be set by `buildUnlessUpToDate?`) -/
+/-- Tried to unpack a build from an archive (e.g., unpacking a module `ltar`). -/
+| unpack
+/--
+Tried to fetch a build from a remote store (e.g., set when downloading an artifact
+on-demand from a cache service in `buildArtifactUnlessUpToDate`).
+-/
 | fetch
-/-- Tried to perform a build action (set by `buildUnlessUpToDate?`) -/
+/-- Tried to perform a build action (e.g., set by `buildAction`). -/
 | build
 deriving Inhabited, Repr, DecidableEq, Ord
 
@@ -45,11 +52,13 @@ public instance : Min JobAction := minOfLe
 public instance : Max JobAction := maxOfLe
 
 public def merge (a b : JobAction) : JobAction :=
-  max a b
+  max a b -- inlines `max`
 
-public def verb (failed : Bool) : JobAction → String
+public def verb (failed : Bool) : (self : JobAction) → String
 | .unknown => if failed then "Running" else "Ran"
+| .reuse => if failed then "Reusing" else "Reused"
 | .replay => if failed then "Replaying" else "Replayed"
+| .unpack => if failed then "Unpacking" else "Unpacked"
 | .fetch => if failed then "Fetching" else "Fetched"
 | .build => if failed then "Building" else "Built"
 

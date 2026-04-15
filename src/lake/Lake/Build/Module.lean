@@ -900,8 +900,9 @@ where
     let inputHash := (← getTrace).hash
     let some ltarOrArts ← getArtifacts? inputHash savedTrace mod.pkg
       | return .inr savedTrace
-    match (ltarOrArts : ModuleOutputs)  with
+    match (ltarOrArts : ModuleOutputs) with
     | .ltar ltar =>
+      updateAction .unpack
       mod.clearOutputArtifacts
       mod.unpackLtar ltar.path
       -- Note: This branch implies that only the ltar output is (validly) cached.
@@ -919,7 +920,7 @@ where
       else
         return .inr savedTrace
     | .arts arts =>
-      unless (← savedTrace.replayOrFetchIfUpToDate inputHash) do
+      unless (← savedTrace.replayCachedIfUpToDate inputHash) do
         mod.clearOutputArtifacts
         writeFetchTrace mod.traceFile inputHash (toJson arts.descrs)
       let arts ←

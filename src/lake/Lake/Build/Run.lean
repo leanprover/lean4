@@ -210,7 +210,7 @@ def mkMonitorContext (cfg : BuildConfig) (jobs : JobQueue) : BaseIO MonitorConte
   let failLv := cfg.failLv
   let isVerbose := cfg.verbosity = .verbose
   let showProgress := cfg.showProgress
-  let minAction := if isVerbose then .unknown else .fetch
+  let minAction := if isVerbose then .unknown else .unpack
   let showOptional := isVerbose
   let showTime := isVerbose || !useAnsi
   let updateFrequency := 100

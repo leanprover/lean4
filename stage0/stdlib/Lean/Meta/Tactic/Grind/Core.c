@@ -10628,6 +10628,7 @@ uint8_t v___x_3560_; lean_object* v___x_3561_; lean_object* v___x_3562_;
 lean_dec_ref(v___x_3559_);
 v___x_3560_ = 0;
 v___x_3561_ = l_Lean_Meta_Grind_Goal_getEqc(v___x_3517_, v_lhs_3322_, v___x_3560_);
+lean_dec(v___x_3517_);
 v___x_3562_ = lean_nat_add(v_size_3547_, v___y_3499_);
 lean_dec(v___y_3499_);
 if (v_hasLambdas_3550_ == 0)
@@ -12143,6 +12144,7 @@ lean_object* v___x_3958_; lean_object* v___x_3959_;
 lean_dec_ref(v___x_3957_);
 v___x_3958_ = lean_st_ref_get(v___y_3939_);
 v___x_3959_ = l_Lean_Meta_Grind_Goal_ppState(v___x_3958_, v___y_3945_, v___y_3946_, v___y_3947_, v___y_3948_);
+lean_dec(v___x_3958_);
 if (lean_obj_tag(v___x_3959_) == 0)
 {
 lean_object* v_a_3960_; lean_object* v___x_3961_; lean_object* v___x_3962_; lean_object* v___x_3963_; 

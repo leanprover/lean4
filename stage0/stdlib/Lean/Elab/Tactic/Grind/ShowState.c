@@ -2272,6 +2272,7 @@ lean_object* v___x_812_; uint8_t v___x_813_; lean_object* v___x_814_; lean_objec
 v___x_812_ = lean_st_ref_get(v___y_795_);
 v___x_813_ = 0;
 v___x_814_ = l_Lean_Meta_Grind_Goal_getEqc(v___x_812_, v_a_808_, v___x_813_);
+lean_dec(v___x_812_);
 v___x_815_ = lean_array_mk(v___x_814_);
 v___x_816_ = lean_unsigned_to_nat(0u);
 v___x_817_ = lean_array_get_size(v___x_815_);
@@ -4021,6 +4022,7 @@ lean_object* v_regularEqcs_1490_; lean_object* v___x_1504_; uint8_t v___x_1505_;
 v___x_1504_ = lean_st_ref_get(v___y_1478_);
 v___x_1505_ = 1;
 v___x_1506_ = l_Lean_Meta_Grind_Goal_getEqcs(v___x_1504_, v___x_1505_);
+lean_dec(v___x_1504_);
 lean_inc_ref(v_regularEqcs_1474_);
 v___x_1507_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1507_, 0, v_regularEqcs_1474_);

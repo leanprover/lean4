@@ -117,39 +117,46 @@ def update (doc : EditableDocumentCore) (newMeta : DocumentMeta)
   return { «meta» := newMeta, initSnap := newInitSnap, diagnosticsMutex }
 
 /--
-Collects diagnostics for a `textDocument/publishDiagnostics` notification and updates
-the incremental tracking fields.
+Collects diagnostics for a `textDocument/publishDiagnostics` notification, updates
+the incremental tracking fields and writes the notification to the client.
 
-When `incrementalDiagnosticSupport` is `true` and the state allows it, returns only
-the newly added diagnostics with `isIncremental? := some true`. Otherwise, returns
+When `incrementalDiagnosticSupport` is `true` and the state allows it, sends only
+the newly added diagnostics with `isIncremental? := some true`. Otherwise, sends
 all sticky and non-sticky diagnostics non-incrementally.
+
+The state update and the write are performed atomically under the diagnostics mutex
+to prevent reordering between concurrent publishers (the reporter task and the main thread).
 -/
 def publishDiagnostics (doc : EditableDocumentCore) (incrementalDiagnosticSupport : Bool)
     (writeDiagnostics : JsonRpc.Notification Lsp.PublishDiagnosticsParams → BaseIO Unit) :
     BaseIO Unit := do
-  let (diags, isIncremental) ← doc.diagnosticsMutex.atomically do
+  -- The mutex must be held across both the state update and the write to ensure that concurrent
+  -- publishers (e.g. the reporter task and the main thread) cannot interleave their state reads
+  -- and writes, which would reorder incremental/non-incremental messages and corrupt client state.
+  doc.diagnosticsMutex.atomically do
     let ds ← get
     let useIncremental := incrementalDiagnosticSupport && ds.isIncremental
     let stickyDiags ← ds.stickyDiagsRef.get
     let diags := ds.diags
     let publishedDiagsAmount := ds.publishedDiagsAmount
     set <| { ds with publishedDiagsAmount := diags.size, isIncremental := true }
-    if useIncremental then
-      let newDiags := diags.foldl (init := #[]) (start := publishedDiagsAmount) fun acc d =>
-        acc.push d.toDiagnostic
-      return (newDiags, true)
-    else
-      let allDiags := stickyDiags.foldl (init := #[]) fun acc d =>
-        acc.push d.toDiagnostic
-      let allDiags := diags.foldl (init := allDiags) fun acc d =>
-        acc.push d.toDiagnostic
-      return (allDiags, false)
-  let isIncremental? :=
-    if incrementalDiagnosticSupport then
-      some isIncremental
-    else
-      none
-  writeDiagnostics <| mkPublishDiagnosticsNotification doc.meta diags isIncremental?
+    let (diagsToSend, isIncremental) :=
+      if useIncremental then
+        let newDiags := diags.foldl (init := #[]) (start := publishedDiagsAmount) fun acc d =>
+          acc.push d.toDiagnostic
+        (newDiags, true)
+      else
+        let allDiags := stickyDiags.foldl (init := #[]) fun acc d =>
+          acc.push d.toDiagnostic
+        let allDiags := diags.foldl (init := allDiags) fun acc d =>
+          acc.push d.toDiagnostic
+        (allDiags, false)
+    let isIncremental? :=
+      if incrementalDiagnosticSupport then
+        some isIncremental
+      else
+        none
+    writeDiagnostics <| mkPublishDiagnosticsNotification doc.meta diagsToSend isIncremental?
 
 end EditableDocumentCore
 

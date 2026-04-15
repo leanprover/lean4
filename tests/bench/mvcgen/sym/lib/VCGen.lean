@@ -768,24 +768,31 @@ open Sym Sym.Internal
 meta def mkAppNS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (args : Array Expr) : m Expr :=
   mkAppRangeS f 0 args.size args
 
-meta def simpTargetTelescope (mvarId : MVarId) : VCGenM MVarId := do
-  let some methods := (← read).hypSimpMethods | return mvarId
+meta def simpTargetTelescope (mvarId : MVarId) : VCGenM (MVarId × Bool) := do
+  let some methods := (← read).hypSimpMethods | return (mvarId, false)
   let target ← mvarId.getType
   let simpState := (← get).simpState
   let methods := { methods with pre := Sym.Simp.simpTelescope }
   let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} simpState
   modify fun s => { s with simpState := simpState' }
   let mvarId ← match result with
-    | .rfl .. => pure mvarId
-    | .step newTarget proof .. => mvarId.replaceTargetEq newTarget proof
+    | .rfl .. => pure (mvarId, false)
+    | .step newTarget proof .. => pure (← mvarId.replaceTargetEq newTarget proof, true)
 
 /--
 Simplify the forall telescope of the target using `Sym.Simp.simpTelescope`,
 then introduce all binders via `Sym.intros`.
 -/
-meta def introsSimp (mvarId : MVarId) : VCGenM IntrosResult := do
-  let mvarId ← simpTargetTelescope mvarId
-  Sym.intros mvarId
+meta def introsSimp (mvarId : MVarId) (errorMsg : MessageData) : VCGenM MVarId := do
+  let (mvarId, progress) ← simpTargetTelescope mvarId
+  match ← Sym.intros mvarId with
+  | .failed =>
+    if progress then
+      return mvarId
+    else
+      throwError m!"Failed to intro on {mvarId}\nContext: {errorMsg}."
+  | .goal _ mvarId' =>
+    return mvarId'
 
 /-- Internalize pending hypotheses into the E-graph for sharing before forking to multiple subgoals.
 If `processHypotheses` discovers a contradiction (`inconsistent = true`), the E-graph state
@@ -839,8 +846,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   -- and `T` is of the form `wp⟦e⟧ Q s₁ ... sₙ`.
 
   if target.isForall then
-    let IntrosResult.goal _ goal ← introsSimp goal | throwError "Failed to introduce binders for {target}"
-    return .goals [goal]
+    return .goals [← introsSimp goal m!"foralls in `solve`"]
 
   if target.isLet then
     if isDuplicable target.letValue! then
@@ -851,9 +857,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     else
       trace[Elab.Tactic.Do.vcgen] "let-intro: {target.letName!}"
       -- Introduce let binding into the local context with proper sharing
-      let IntrosResult.goal _ goal ← introsSimp goal
-        | throwError "Failed to introduce let binding"
-      return .goals [goal]
+      return .goals [← introsSimp goal m!"let-intro: {target.letName!}"]
 
   let f := target.getAppFn
   if f.isConstOf ``Triple then

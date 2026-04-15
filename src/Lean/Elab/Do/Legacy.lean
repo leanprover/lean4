@@ -1815,6 +1815,13 @@ mutual
               return mkTerminalAction term
             else
               return mkSeq term (← doSeqToCode doElems)
+          else if k == ``Parser.Term.InternalSyntax.doSkip then
+            -- In the legacy elaborator, `skip` is treated as `pure PUnit.unit`.
+            let term ← withRef doElem `(pure PUnit.unit)
+            if doElems.isEmpty then
+              return mkTerminalAction term
+            else
+              return mkSeq term (← doSeqToCode doElems)
           else
             throwError "unexpected do-element of kind {doElem.getKind}:\n{doElem}"
 end

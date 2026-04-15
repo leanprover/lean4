@@ -207,8 +207,8 @@ trace: [Elab.do] let x := 42;
               else
                 let x := x + i;
                 pure (ForInStep.yield (none, x))
-    let __r : Option ?m.185 := __s.fst
-    let x : ?m.185 := __s.snd
+    let __r : Option ?m.170 := __s.fst
+    let x : ?m.170 := __s.snd
     match __r with
       | some r => pure r
       | none =>

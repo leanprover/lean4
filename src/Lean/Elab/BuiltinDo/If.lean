@@ -27,8 +27,7 @@ If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` 
   | `(doElem|if $_:doIfProp then $_ else $_) =>
     Macro.throwUnsupported
   | `(doElem|if%$tk $cond:doIfCond then $t $[else if%$tks $conds:doIfCond then $ts]* $[else $e?]?) => do
-    -- let mut e : Syntax ← e?.getDM `(doSeq| skip%$tk)
-    let mut e : Syntax ← e?.getDM `(doSeq| (pure PUnit.unit)%$tk)
+    let mut e : Syntax ← e?.getDM `(doSeq| skip%$tk)
     let mut eIsSeq := true
     for (cond, t) in Array.zip (conds.reverse.push cond) (ts.reverse.push t) do
       e ← if eIsSeq then pure e else `(doSeq|$(⟨e⟩):doElem)

@@ -81,8 +81,7 @@ but the rest of the `do` block has monadic result type
 def test_assert : IO Bool := do
   assert! true
 
--- `if` without else as last element: the implicit else branch is `pure PUnit.unit`,
--- so errors are still confusing (mentions PUnit.unit the user never wrote).
+-- `if` without else as last element
 /--
 error: Application type mismatch: The argument
   ()
@@ -93,14 +92,10 @@ but is expected to have type
 in the application
   pure ()
 ---
-error: Application type mismatch: The argument
-  PUnit.unit
-has type
-  PUnit
-but is expected to have type
+error: Type mismatch. The `do` element has monadic result type
+  Unit
+but the rest of the `do` block has monadic result type
   Bool
-in the application
-  pure PUnit.unit
 -/
 #guard_msgs in
 def test_if_no_else : IO Bool := do

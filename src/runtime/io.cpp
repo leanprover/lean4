@@ -752,6 +752,7 @@ extern "C" LEAN_EXPORT obj_res lean_windows_get_next_transition(b_obj_arg timezo
     u_strToUTF8(dst_name, sizeof(dst_name), &dst_name_len, tzID, tzIDLength, &status);
 
     if (U_FAILURE(status)) {
+        ucal_close(cal);
         return lean_io_result_mk_error(lean_mk_io_error_invalid_argument(EINVAL, mk_string("failed to convert DST name to UTF-8")));
     }
 
@@ -1397,7 +1398,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_app_path() {
     memset(dest, 0, PATH_MAX);
     pid_t pid = getpid();
     snprintf(path, PATH_MAX, "/proc/%d/exe", pid);
-    if (readlink(path, dest, PATH_MAX) == -1) {
+    if (readlink(path, dest, PATH_MAX - 1) == -1) {
         return io_result_mk_error("failed to locate application");
     } else {
         return io_result_mk_ok(mk_string(dest));

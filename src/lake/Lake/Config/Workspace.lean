@@ -208,6 +208,11 @@ This is configured through {lit}`cache.service` entries in the system Lake confi
       | inr i_eq => simpa [i_eq] using h
   }
 
+/-- **For internal use only.** -/
+public theorem packages_addPackage' :
+  (addPackage' pkg ws h).packages = ws.packages.push pkg
+:= by rfl
+
 /-- Add a package to the workspace. -/
 @[inline] public def addPackage (pkg : Package) (self : Workspace) : Workspace :=
   self.addPackage' {pkg with wsIdx := self.packages.size} rfl
@@ -286,6 +291,11 @@ public def findTargetDecl? (name : Name) (self : Workspace) : Option ((pkg : Pac
 /-- Add a facet to the workspace. -/
 @[inline] public def addFacetConfig {name} (cfg : FacetConfig name) (self : Workspace) : Workspace :=
   {self with facetConfigs := self.facetConfigs.insert cfg}
+
+/-- **For internal use only.** -/
+public theorem packages_addFacetConfig :
+  (addFacetConfig cfg ws).packages = ws.packages
+:= by rfl
 
 /-- Try to find a facet configuration in the workspace with the given name. -/
 @[inline] public def findFacetConfig? (name : Name) (self : Workspace) : Option (FacetConfig name) :=

@@ -30,7 +30,7 @@ pushd "$BUILD_NEXT"
 lakeprof record -- \
   "$TEST_DIR/measure.py" -d -a -o "$OUT" -t build -- \
   "$TEST_DIR/measure.py" -d -a -o "$OUT" -t build/lake -i -- \
-  lake build +Init:olean +Std:olean +Lean:olean +Lake:olean +LakeMain:olean +LeanIR:olean +Leanc:olean +LeanChecker:olean
+  "$BUILD_THIS/bin/lake" build +Init:olean +Std:olean +Lean:olean +Lake:olean +LakeMain:olean +LeanIR:olean +Leanc:olean +LeanChecker:olean
 popd
 
 

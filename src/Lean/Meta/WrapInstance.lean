@@ -145,7 +145,6 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
           else
             let name ← mkAuxDeclName
             let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
-            setReducibilityStatus name .implicitReducible
             if isMeta then modifyEnv (markMeta · name)
             if compile then
               compileDecls (logErrors := logCompileErrors) #[name]

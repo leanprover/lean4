@@ -54,7 +54,7 @@ ifeq "${USE_LAKE}" "ON"
 
 # build in parallel
 Init:
-	${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml $(LAKE_EXTRA_ARGS)
+	${PREV_STAGE}/bin/lake build -f ${CMAKE_BINARY_DIR}/lakefile.toml ${LEAN_EXTRA_LAKE_OPTS} $(LAKE_EXTRA_ARGS)
 
 Std Lean Lake Leanc LeanChecker LeanIR: Init
 

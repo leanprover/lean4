@@ -88,17 +88,18 @@ private def checkLetConfigInDo (config : Term.LetConfig) : DoElabM Unit := do
     throwError "`+generalize` is not supported in `do` blocks"
 
 partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOrReassign) (decl : TSyntax ``letDecl)
-    (dec : DoElemCont) : DoElabM Expr := do
+    (tk : Syntax) (dec : DoElemCont) : DoElabM Expr := do
   checkLetConfigInDo config
   let vars ← getLetDeclVars decl
   letOrReassign.checkMutVars vars
+  let dec ← dec.ensureUnitAt tk
   -- Some decl preprocessing on the patterns and expected types:
   let decl ← pushTypeIntoReassignment letOrReassign decl
   let mγ ← mkMonadicType (← read).doBlockResultType
   match decl with
   | `(letDecl| $decl:letEqnsDecl) =>
     let declNew ← `(letDecl| $(⟨← liftMacroM <| Term.expandLetEqnsDecl decl⟩):letIdDecl)
-    return ← Term.withMacroExpansion decl declNew <| elabDoLetOrReassign config letOrReassign declNew dec
+    return ← Term.withMacroExpansion decl declNew <| elabDoLetOrReassign config letOrReassign declNew tk dec
   | `(letDecl| $pattern:term $[: $xType?]? := $rhs) =>
     let rhs ← match xType? with | some xType => `(($rhs : $xType)) | none => pure rhs
     let contElab : DoElabM Expr := elabWithReassignments letOrReassign vars dec.continueWithUnit
@@ -162,10 +163,11 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
             mkLetFVars #[x, h'] body (usedLetOnly := config.usedOnly) (generalizeNondepLet := false)
   | _ => throwUnsupportedSyntax
 
-def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (dec : DoElemCont) : DoElabM Expr := do
+def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``doPatDecl]) (tk : Syntax) (dec : DoElemCont) : DoElabM Expr := do
   match stx with
   | `(doIdDecl| $x:ident $[: $xType?]? ← $rhs) =>
     letOrReassign.checkMutVars #[x]
+    let dec ← dec.ensureUnitAt tk
     -- For plain variable reassignment, we know the expected type of the reassigned variable and
     -- propagate it eagerly via type ascription if the user hasn't provided one themselves:
     let xType? ← match letOrReassign, xType? with
@@ -177,6 +179,7 @@ def elabDoArrow (letOrReassign : LetOrReassign) (stx : TSyntax [``doIdDecl, ``do
       (kind := dec.kind)
   | `(doPatDecl| _%$pattern $[: $patType?]? ← $rhs) =>
     let x := mkIdentFrom pattern (← mkFreshUserName `__x)
+    let dec ← dec.ensureUnitAt tk
     elabDoIdDecl x patType? rhs dec.continueWithUnit (kind := dec.kind)
   | `(doPatDecl| $pattern:term $[: $patType?]? ← $rhs $[| $otherwise? $(rest?)?]?) =>
     let rest? := rest?.join
@@ -205,17 +208,18 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   Term.mkLetConfig letConfigStx initConfig
 
 @[builtin_doElem_elab Lean.Parser.Term.doLet] def elabDoLet : DoElab := fun stx dec => do
-  let `(doLet| let $[mut%$mutTk?]? $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax
+  let `(doLet| let%$tk $[mut%$mutTk?]? $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax
   let config ← getLetConfigAndCheckMut config mutTk?
-  elabDoLetOrReassign config (.let mutTk?) decl dec
+  elabDoLetOrReassign config (.let mutTk?) decl tk dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doHave] def elabDoHave : DoElab := fun stx dec => do
-  let `(doHave| have $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax
+  let `(doHave| have%$tk $config:letConfig $decl:letDecl) := stx | throwUnsupportedSyntax
   let config ← Term.mkLetConfig config { nondep := true }
-  elabDoLetOrReassign config .have decl dec
+  elabDoLetOrReassign config .have decl tk dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetRec] def elabDoLetRec : DoElab := fun stx dec => do
-  let `(doLetRec| let rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
+  let `(doLetRec| let%$tk rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
+  let dec ← dec.ensureUnitAt tk
   let vars ← getLetRecDeclsVars decls
   let mγ ← mkMonadicType (← read).doBlockResultType
   doElabToSyntax m!"let rec body of group {vars}" dec.continueWithUnit fun body => do
@@ -227,13 +231,13 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
 @[builtin_doElem_elab Lean.Parser.Term.doReassign] def elabDoReassign : DoElab := fun stx dec => do
   -- def doReassign := letIdDeclNoBinders <|> letPatDecl
   match stx with
-  | `(doReassign| $x:ident $[: $xType?]? := $rhs) =>
+  | `(doReassign| $x:ident $[: $xType?]? :=%$tk $rhs) =>
     let decl : TSyntax ``letIdDecl ← `(letIdDecl| $x:ident $[: $xType?]? := $rhs)
     let decl : TSyntax ``letDecl := ⟨mkNode ``letDecl #[decl]⟩
-    elabDoLetOrReassign {} .reassign decl dec
+    elabDoLetOrReassign {} .reassign decl tk dec
   | `(doReassign| $decl:letPatDecl) =>
     let decl : TSyntax ``letDecl := ⟨mkNode ``letDecl #[decl]⟩
-    elabDoLetOrReassign {} .reassign decl dec
+    elabDoLetOrReassign {} .reassign decl decl dec
   | _ => throwUnsupportedSyntax
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetElse] def elabDoLetElse : DoElab := fun stx dec => do
@@ -255,17 +259,17 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
     elabDoElem (← `(doElem| match $rhs:term with | $pattern => $body:doSeqIndent | _ => $otherwise:doSeqIndent)) dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doLetArrow] def elabDoLetArrow : DoElab := fun stx dec => do
-  let `(doLetArrow| let $[mut%$mutTk?]? $cfg:letConfig $decl) := stx | throwUnsupportedSyntax
+  let `(doLetArrow| let%$tk $[mut%$mutTk?]? $cfg:letConfig $decl) := stx | throwUnsupportedSyntax
   let config ← getLetConfigAndCheckMut cfg mutTk?
   checkLetConfigInDo config
   if config.nondep || config.usedOnly || config.zeta || config.eq?.isSome then
     throwErrorAt cfg "configuration options are not supported with `←`"
-  elabDoArrow (.let mutTk?) decl dec
+  elabDoArrow (.let mutTk?) decl tk dec
 
 @[builtin_doElem_elab Lean.Parser.Term.doReassignArrow] def elabDoReassignArrow : DoElab := fun stx dec => do
   match stx with
   | `(doReassignArrow| $decl:doIdDecl) =>
-    elabDoArrow .reassign decl dec
+    elabDoArrow .reassign decl decl dec
   | `(doReassignArrow| $decl:doPatDecl) =>
-    elabDoArrow .reassign decl dec
+    elabDoArrow .reassign decl decl dec
   | _ => throwUnsupportedSyntax

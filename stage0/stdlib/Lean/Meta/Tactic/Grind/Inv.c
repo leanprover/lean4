@@ -5188,6 +5188,7 @@ lean_object* v___x_1813_; uint8_t v___x_1814_; lean_object* v___x_1815_; lean_ob
 v___x_1813_ = lean_st_ref_get(v_a_1802_);
 v___x_1814_ = 0;
 v___x_1815_ = l_Lean_Meta_Grind_Goal_getEqcs(v___x_1813_, v___x_1814_);
+lean_dec(v___x_1813_);
 v___x_1816_ = lean_box(0);
 v___x_1817_ = l_List_forIn_x27_loop___at___00__private_Lean_Meta_Tactic_Grind_Inv_0__Lean_Meta_Grind_checkProofs_spec__3___redArg(v___x_1815_, v___x_1816_, v_a_1802_, v_a_1803_, v_a_1804_, v_a_1805_, v_a_1806_, v_a_1807_, v_a_1808_, v_a_1809_, v_a_1810_, v_a_1811_);
 lean_dec(v___x_1815_);

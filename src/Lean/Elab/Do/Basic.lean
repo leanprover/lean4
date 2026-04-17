@@ -374,14 +374,60 @@ def withLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldCtx : Context) (resul
     mutVarDefs := oldMutVarDefs
   }) k
 
+def mkMonadicResultTypeMismatchError (contType : Expr) (elementType : Expr) : MessageData :=
+  m!"Type mismatch. The `do` element has monadic result type{indentExpr elementType}\n\
+    but the rest of the `do` block has monadic result type{indentExpr contType}"
+
+/--
+Given a continuation `dec`, a reference `ref`, and an element result type `elementType`, returns a
+continuation derived from `dec` with result type `elementType`.
+If `dec` already has result type `elementType`, simply returns `dec`.
+Otherwise, an error is logged and a new continuation is returned that calls `dec` with `sorry` as a
+result. The error is reported at `ref`.
+-/
+def DoElemCont.ensureHasTypeAt (dec : DoElemCont) (ref : Syntax) (elementType : Expr) : DoElabM DoElemCont := do
+  if ← isDefEqGuarded dec.resultType elementType then
+    return dec
+  let errMessage := mkMonadicResultTypeMismatchError dec.resultType elementType
+  unless (← readThe Term.Context).errToSorry do
+    throwErrorAt ref errMessage
+  logErrorAt ref errMessage
+  return {
+    resultName := ← mkFreshUserName `__r
+    resultType := elementType
+    k := do
+      mapLetDecl dec.resultName dec.resultType (← mkSorry dec.resultType true)
+          (nondep := true) (kind := .implDetail) fun _ => dec.k
+    kind := dec.kind
+  }
+
+/--
+Given a continuation `dec` and a reference `ref`, returns a continuation derived from `dec` with result type `PUnit`.
+If `dec` already has result type `PUnit`, simply returns `dec`. Otherwise, an error is logged and a
+new continuation is returned that calls `dec` with `sorry` as a result. The error is reported at `ref`.
+-/
+def DoElemCont.ensureUnitAt (dec : DoElemCont) (ref : Syntax) : DoElabM DoElemCont := do
+  dec.ensureHasTypeAt ref (← mkPUnit)
+
+/--
+Given a continuation `dec`, returns a continuation derived from `dec` with result type `PUnit`.
+If `dec` already has result type `PUnit`, simply returns `dec`. Otherwise, an error is logged and a
+new continuation is returned that calls `dec` with `sorry` as a result.
+-/
+def DoElemCont.ensureUnit (dec : DoElemCont) : DoElabM DoElemCont := do
+  dec.ensureUnitAt (← getRef)
+
 /--
 Return `$e >>= fun ($dec.resultName : $dec.resultType) => $(← dec.k)`, cancelling
 the bind if `$(← dec.k)` is `pure $dec.resultName` or `e` is some `pure` computation.
 -/
 def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
+  -- let eResultTy ← mkFreshResultType
+  -- let e ← Term.ensureHasType (← mkMonadicType eResultTy) e
+  -- let dec ← dec.ensureHasType eResultTy
   let x := dec.resultName
-  let eResultTy := dec.resultType
   let k := dec.k
+  let eResultTy := dec.resultType
   -- The .ofBinderName below is mainly to interpret `__do_lift` binders as implementation details.
   let declKind := .ofBinderName x
   let kResultTy ← mkFreshResultType `kResultTy
@@ -421,9 +467,8 @@ Return `let $k.resultName : PUnit := PUnit.unit; $(← k.k)`, ensuring that the 
 is `PUnit` and then immediately zeta-reduce the `let`.
 -/
 def DoElemCont.continueWithUnit (dec : DoElemCont) : DoElabM Expr := do
-  let unit ← mkPUnitUnit
-  discard <| Term.ensureHasType dec.resultType unit
-  mapLetDeclZeta dec.resultName (← mkPUnit) unit (nondep := true) (kind := .ofBinderName dec.resultName) fun _ =>
+  let dec ← dec.ensureUnit
+  mapLetDeclZeta dec.resultName (← mkPUnit) (← mkPUnitUnit) (nondep := true) (kind := .ofBinderName dec.resultName) fun _ =>
     dec.k
 
 /-- Elaborate the `DoElemCont` with the `deadCode` flag set to `deadSyntactically` to emit warnings. -/
@@ -604,6 +649,7 @@ def enterFinally (resultType : Expr) (k : DoElabM Expr) : DoElabM Expr := do
 /-- Extracts `MonadInfo` and monadic result type `α` from the expected type of a `do` block `m α`. -/
 private partial def extractMonadInfo (expectedType? : Option Expr) : Term.TermElabM (MonadInfo × Expr) := do
   let some expectedType := expectedType? | mkUnknownMonadResult
+  let expectedType ← instantiateMVars expectedType
   let extractStep? (type : Expr) : Term.TermElabM (Option (MonadInfo × Expr)) := do
     let .app m resultType := type.consumeMData | return none
     unless ← isType resultType do return none

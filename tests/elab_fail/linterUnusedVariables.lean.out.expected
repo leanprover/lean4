@@ -52,7 +52,7 @@ Note: This linter can be disabled with `set_option linter.unusedVariables false`
 linterUnusedVariables.lean:154:8-154:9: warning: unused variable `y`
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
-linterUnusedVariables.lean:157:20-157:21: warning: unused variable `β`
+linterUnusedVariables.lean:157:28-157:29: warning: unused variable `β`
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
 linterUnusedVariables.lean:158:7-158:8: warning: unused variable `x`

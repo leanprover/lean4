@@ -51,7 +51,7 @@ register_builtin_option debug.tactic.simp.checkDefEqAttr : Bool := {
 }
 
 register_builtin_option warning.simp.varHead : Bool := {
-  defValue := false
+  defValue := true
   descr := "If true, warns when the head symbol of the left-hand side of a `@[simp]` theorem \
     is a variable. Such lemmas are tried on every simp step, which can be slow."
 }

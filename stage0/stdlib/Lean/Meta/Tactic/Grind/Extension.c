@@ -6961,8 +6961,8 @@ return v___x_2148_;
 }
 else
 {
-lean_dec(v_head_2103_);
 lean_dec_ref(v_symbols_2102_);
+lean_dec(v_head_2103_);
 lean_dec_ref(v_thm_2098_);
 lean_dec_ref(v_s_2097_);
 goto v___jp_2099_;
@@ -7272,8 +7272,8 @@ return v___x_2224_;
 }
 else
 {
-lean_dec(v_head_2184_);
 lean_dec_ref(v_symbols_2183_);
+lean_dec(v_head_2184_);
 lean_dec_ref(v_thm_2179_);
 lean_dec_ref(v_s_2178_);
 goto v___jp_2180_;

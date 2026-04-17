@@ -109,15 +109,13 @@ private def Workspace.setDepPkgs
   (self : Workspace) (wsIdx : Nat) (depPkgs : Array Package)
 : Workspace := {self with
   packages := self.packages.modify wsIdx ({· with depPkgs})
+  size_packages_pos := by simp [self.size_packages_pos]
   packages_wsIdx {i} := by
     if h : wsIdx = i then
       simp [h, Array.getElem_modify_self, self.packages_wsIdx]
     else
       simp [Array.getElem_modify_of_ne h, self.packages_wsIdx]
 }
-
-@[inline] private def Workspace.resetRoot (ws : Workspace) : Workspace :=
-  {ws with root := ws.packages[ws.root.wsIdx]!}
 
 /-
 Recursively visits each node in a package's dependency graph, starting from
@@ -395,11 +393,9 @@ def Workspace.updateAndMaterializeCore
     let stop := ws.packages.size
     let ws ← ws.packages.foldlM (init := ws) (start := start) fun ws pkg =>
       ws.resolveDepsCore updateAndAddDep pkg [ws.root.baseName] leanOpts true
-    let ws := ws.setDepPkgs ws.root.wsIdx <| (start...<stop).toArray.map (ws.packages[·]!)
-    return ws.resetRoot
+    return ws.setDepPkgs ws.root.wsIdx <| (start...<stop).toArray.map (ws.packages[·]!)
   else
-    let ws ← ws.resolveDepsCore updateAndAddDep (leanOpts := leanOpts) (reconfigure := true)
-    return ws.resetRoot
+    ws.resolveDepsCore updateAndAddDep (leanOpts := leanOpts) (reconfigure := true)
 where
   @[inline] updateAndAddDep pkg dep ws := do
     let matDep ← updateAndMaterializeDep ws pkg dep
@@ -496,7 +492,7 @@ public def Workspace.materializeDeps
   if pkgEntries.isEmpty && !ws.root.depConfigs.isEmpty then
     error "missing manifest; use `lake update` to generate one"
   -- Materialize all dependencies
-  let ws ← ws.resolveDepsCore (leanOpts := leanOpts) (reconfigure := reconfigure) fun pkg dep ws => do
+  ws.resolveDepsCore (leanOpts := leanOpts) (reconfigure := reconfigure) fun pkg dep ws => do
     if let some entry := pkgEntries.find? dep.name then
       entry.materialize ws.lakeEnv ws.dir relPkgsDir
     else
@@ -510,4 +506,3 @@ public def Workspace.materializeDeps
           this suggests that the manifest is corrupt; \
           use `lake update` to generate a new, complete file \
           (warning: this will update ALL workspace dependencies)"
-  return ws.resetRoot

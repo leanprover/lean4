@@ -33,14 +33,12 @@ public def computeLakeCache (pkg : Package) (lakeEnv : Lake.Env) : Cache :=
     lakeEnv.lakeCache?.getD ⟨pkg.lakeDir / "cache"⟩
 
 public structure Workspace.Raw : Type where
-  /-- The root package of the workspace. -/
-  root : Package
   /-- The detected {lean}`Lake.Env` of the workspace. -/
   lakeEnv : Lake.Env
   /-- The Lake configuration from the system configuration file. -/
   lakeConfig : LoadedLakeConfig
   /-- The Lake cache. -/
-  lakeCache : Cache := private_decl% computeLakeCache root lakeEnv
+  lakeCache : Cache
   /--
   The CLI arguments Lake was run with.
   Used by {lit}`lake update` to perform a restart of Lake on a toolchain update.
@@ -59,6 +57,7 @@ public structure Workspace.Raw : Type where
   deriving Nonempty
 
 public structure Workspace.Raw.WF (ws : Workspace.Raw) : Prop where
+  size_packages_pos : 0 < ws.packages.size
   packages_wsIdx : ∀ (h : i < ws.packages.size), (ws.packages[i]'h).wsIdx = i
 
 /-- A Lake workspace -- the top-level package directory. -/
@@ -67,8 +66,13 @@ public structure Workspace extends raw : Workspace.Raw, wf : raw.WF
 public instance : Nonempty Workspace := .intro {
   lakeEnv := default
   lakeConfig := Classical.ofNonempty
-  root := Classical.ofNonempty
-  packages_wsIdx h := by simp at h
+  lakeCache := Classical.ofNonempty
+  packages := #[{(Classical.ofNonempty : Package) with wsIdx := 0}]
+  size_packages_pos := by simp
+  packages_wsIdx {i} h := by
+    cases i with
+    | zero => simp
+    | succ => simp at h
 }
 
 public hydrate_opaque_type OpaqueWorkspace Workspace
@@ -85,9 +89,13 @@ public def Package.defaultTargetRoots (self : Package) : Array Lean.Name :=
 
 namespace Workspace
 
+/-- The root package of the workspace. -/
+@[inline] public def root (self : Workspace) : Package :=
+  self.packages[0]'self.size_packages_pos
+
 /-- **For internal use.** Whether this workspace is Lean itself.  -/
-@[inline] def bootstrap (ws : Workspace) : Bool :=
-  ws.root.bootstrap
+@[inline] def bootstrap (self : Workspace) : Bool :=
+  self.root.bootstrap
 
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 @[inline] public def dir (self : Workspace) : FilePath :=
@@ -193,6 +201,7 @@ This is configured through {lit}`cache.service` entries in the system Lake confi
   {self with
     packages := self.packages.push pkg
     packageMap := self.packageMap.insert pkg.keyName pkg
+    size_packages_pos := by simp
     packages_wsIdx {i} i_lt := by
       cases Nat.lt_add_one_iff_lt_or_eq.mp <| Array.size_push .. ▸ i_lt with
       | inl i_lt => simpa [Array.getElem_push_lt i_lt] using self.packages_wsIdx i_lt

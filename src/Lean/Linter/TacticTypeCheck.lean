@@ -29,7 +29,8 @@ register_builtin_option linter.tacticCheckInstances : Bool := {
 /-- A linter that runs `Meta.check _ .instances` on every tactic goal. -/
 def tacticCheckInstances : Linter where
   run _cmdStx := do
-    unless getLinterValue linter.tacticCheckInstances (← getLinterOptions) do
+    -- Do *not* check `linter.all` here, this linter is purely for debugging
+    unless (← linter.tacticCheckInstances.getM) do
       return
     let infoTrees := (← get).infoState.trees.toArray
     -- Once any tactic step in this command has produced a warning, suppress

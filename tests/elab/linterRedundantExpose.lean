@@ -23,7 +23,7 @@ public section
 @[expose] instance : Inhabited Nat := ⟨0⟩
 
 -- `@[expose]` on a Prop instance should not warn
-@[expose] instance : 0 < 1 := Nat.zero_lt_succ 0
+@[expose] instance : Nonempty Nat := ⟨0⟩
 
 -- `@[no_expose]` on abbrev should not warn (it overrides auto-expose)
 @[no_expose] abbrev myAbbrev2 := 5

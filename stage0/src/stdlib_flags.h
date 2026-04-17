@@ -20,7 +20,8 @@ options get_default_options() {
     // changes to builtin parsers may also require toggling the following option if macros/syntax
     // with custom precheck hooks were affected
     opts = opts.update({"quotPrecheck"}, true);
-
+    // trigger stage0 update so a follow-up PR can drop the `Init.While` fallback
+    // macro and let the new `Lean.doRepeat` elaborators take over
     opts = opts.update({"pp", "rawOnError"}, true);
 
     // Temporary, core-only flags for editing (i.e. must be part of stage0/bin/lean). Must be synced

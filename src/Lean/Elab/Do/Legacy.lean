@@ -1782,6 +1782,10 @@ mutual
             doIfToCode doElem doElems
           else if k == ``Parser.Term.doUnless then
             doUnlessToCode doElem doElems
+          else if k == `Lean.doRepeat then
+            let seq := doElem[1]
+            let expanded ← `(doElem| for _ in Loop.mk do $seq)
+            doSeqToCode (expanded :: doElems)
           else if k == ``Parser.Term.doFor then withFreshMacroScope do
             doForToCode doElem doElems
           else if k == ``Parser.Term.doMatch then

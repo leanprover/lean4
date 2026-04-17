@@ -32,7 +32,7 @@ partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop
 instance [Monad m] : ForIn m Loop Unit where
   forIn := Loop.forIn
 
-syntax "repeat " doSeq : doElem
+syntax (name := doRepeat) "repeat " doSeq : doElem
 
 macro_rules
   | `(doElem| repeat%$tk $seq) => `(doElem| for%$tk _ in Loop.mk do $seq)

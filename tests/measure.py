@@ -4,6 +4,7 @@ import argparse
 import json
 import os
 import resource
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -102,13 +103,14 @@ def measure_perf(cmd: list[str], events: set[str], capture: bool, inherit: bool 
 
         # On NixOS, perf effectively prepends /usr/bin to the PATH, but in this
         # test suite, we often use the PATH to specify the binaries under test.
-        # Hence, we reset the PATH inside of perf using env.
+        # Hence, we resolve the command to an absolute path before passing it to perf.
+        cmd[0] = shutil.which(cmd[0]) or cmd[0]
+
         cmd = [
             *("perf", "stat", "-j", "-o", tmp.name),
             *([] if inherit else ["-i"]),
             *(arg for event in sorted(events) for arg in ["-e", event]),
             "--",
-            *("env", f"PATH={env['PATH']}"),
             *cmd,
         ]
 

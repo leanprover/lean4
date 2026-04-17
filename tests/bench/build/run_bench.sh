@@ -23,11 +23,15 @@ echo ">"
 echo "> Building $STAGE_NEXT..."
 echo ">"
 
-LAKE_OVERRIDE_LEAN=true LEAN="$(realpath fake_root/bin/lean)" \
-WRAPPER_PREFIX="$(realpath fake_root)" WRAPPER_OUT="$OUT" \
-  lakeprof record -- \
-  "$TEST_DIR/measure.py" -t build -d -a -- \
-  make -C "$BUILD_NEXT" -j"$(nproc)" make_stdlib LAKE_EXTRA_ARGS="+Init:olean +Std:olean +Lean:olean +Lake:olean +LakeMain:olean +LeanIR:olean +Leanc:olean +LeanChecker:olean"
+export LAKE_OVERRIDE_LEAN=true LEAN="$(realpath fake_root/bin/lean)" \
+  WRAPPER_PREFIX="$(realpath fake_root)" WRAPPER_OUT="$OUT"
+
+pushd "$BUILD_NEXT"
+lakeprof record -- \
+  "$TEST_DIR/measure.py" -d -a -o "$OUT" -t build -- \
+  "$TEST_DIR/measure.py" -d -a -o "$OUT" -t build/lake -i -- \
+  lake build +Init:olean +Std:olean +Lean:olean +Lake:olean +LakeMain:olean +LeanIR:olean +Leanc:olean +LeanChecker:olean
+popd
 
 
 
@@ -38,7 +42,7 @@ echo ">"
 
 # Lakeprof must be executed in the src dir because it obtains some metadata by
 # calling lake in its current working directory.
-mv lakeprof.log "$SRC_DIR"
+mv "$BUILD_NEXT/lakeprof.log" "$SRC_DIR"
 pushd "$SRC_DIR"
 lakeprof report -prc > lakeprof_report.txt
 lakeprof report -pj | jq '{metric: "build/lakeprof/longest build path//wall-clock", value: .[-1][2], unit: "s"}' -c >> "$OUT"

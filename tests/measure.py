@@ -95,7 +95,7 @@ class MeasureResult:
     stderr: str
 
 
-def measure_perf(cmd: list[str], events: set[str], capture: bool) -> MeasureResult:
+def measure_perf(cmd: list[str], events: set[str], capture: bool, inherit: bool = True) -> MeasureResult:
     with tempfile.NamedTemporaryFile() as tmp:
         env = os.environ.copy()
         env["LC_ALL"] = "C"  # or perf may output syntactically invalid JSON
@@ -105,6 +105,7 @@ def measure_perf(cmd: list[str], events: set[str], capture: bool) -> MeasureResu
         # Hence, we reset the PATH inside of perf using env.
         cmd = [
             *("perf", "stat", "-j", "-o", tmp.name),
+            *([] if inherit else ["-i"]),
             *(arg for event in sorted(events) for arg in ["-e", event]),
             "--",
             *("env", f"PATH={env['PATH']}"),
@@ -162,11 +163,12 @@ def main(
     metrics: set[str],
     append: bool = True,
     capture: bool = False,
+    inherit: bool = True,
 ) -> tuple[str, str]:
     perf_metrics, rusage_metrics = resolve_metrics(metrics)
     perf_events = {PERF_METRICS[metric].event for metric in perf_metrics}
 
-    measured = measure_perf(cmd, perf_events, capture=capture)
+    measured = measure_perf(cmd, perf_events, capture=capture, inherit=inherit)
     perf = measured.perf
     rusage = resource.getrusage(resource.RUSAGE_CHILDREN)
 
@@ -189,6 +191,7 @@ class Args(Namespace):
     topic: list[str]
     metric: list[str]
     default_metrics: bool
+    no_inherit: bool
     output: Path
     append: bool
     cmd: str
@@ -219,6 +222,12 @@ if __name__ == "__main__":
         "-d",
         action="store_true",
         help=f"measure a default set of metrics: {', '.join(sorted(DEFAULT_METRICS))}",
+    )
+    parser.add_argument(
+        "--no-inherit",
+        "-i",
+        action="store_true",
+        help="pass -i (no-inherit) to perf, counting only the main process",
     )
     parser.add_argument(
         "--output",
@@ -255,4 +264,5 @@ if __name__ == "__main__":
         topics=args.topic,
         metrics=metrics,
         append=args.append,
+        inherit=not args.no_inherit,
     )

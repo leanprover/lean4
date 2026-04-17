@@ -5351,6 +5351,7 @@ v_resetjp_1364_:
 uint8_t v_a_1368_; lean_object* v___y_1376_; lean_object* v___x_1397_; 
 lean_inc(v_snd_1363_);
 v___x_1397_ = l_Lean_Meta_Grind_Goal_getENode(v___x_1362_, v_snd_1363_, v___y_1357_, v___y_1358_, v___y_1359_, v___y_1360_);
+lean_dec(v___x_1362_);
 if (lean_obj_tag(v___x_1397_) == 0)
 {
 lean_object* v_a_1398_; lean_object* v___x_1400_; uint8_t v_isShared_1401_; uint8_t v_isSharedCheck_1439_; 
@@ -5846,6 +5847,7 @@ v_resetjp_1491_:
 uint8_t v_a_1495_; lean_object* v___y_1503_; lean_object* v___x_1524_; 
 lean_inc(v_snd_1490_);
 v___x_1524_ = l_Lean_Meta_Grind_Goal_getENode(v___x_1489_, v_snd_1490_, v___y_1484_, v___y_1485_, v___y_1486_, v___y_1487_);
+lean_dec(v___x_1489_);
 if (lean_obj_tag(v___x_1524_) == 0)
 {
 lean_object* v_a_1525_; lean_object* v___x_1527_; uint8_t v_isShared_1528_; uint8_t v_isSharedCheck_1566_; 
@@ -6341,6 +6343,7 @@ v_resetjp_1617_:
 lean_object* v___x_1620_; 
 lean_inc(v_snd_1616_);
 v___x_1620_ = l_Lean_Meta_Grind_Goal_getENode(v___x_1615_, v_snd_1616_, v___y_1610_, v___y_1611_, v___y_1612_, v___y_1613_);
+lean_dec(v___x_1615_);
 if (lean_obj_tag(v___x_1620_) == 0)
 {
 lean_object* v_a_1621_; lean_object* v___x_1623_; uint8_t v_isShared_1624_; uint8_t v_isSharedCheck_1661_; 
@@ -6814,6 +6817,7 @@ lean_object* v___x_1975_; lean_object* v___x_1976_;
 v___x_1975_ = lean_st_ref_get(v_a_1716_);
 lean_inc_ref(v_e_1715_);
 v___x_1976_ = l_Lean_Meta_Grind_Goal_getRoot(v___x_1975_, v_e_1715_, v_a_1722_, v_a_1723_, v_a_1724_, v_a_1725_);
+lean_dec(v___x_1975_);
 if (lean_obj_tag(v___x_1976_) == 0)
 {
 lean_object* v_a_1977_; uint8_t v___x_1978_; 
@@ -6994,6 +6998,7 @@ lean_object* v___x_1999_; lean_object* v___x_2000_;
 v___x_1999_ = lean_st_ref_get(v_a_1716_);
 lean_inc_ref(v_e_1715_);
 v___x_2000_ = l_Lean_Meta_Grind_Goal_getRoot(v___x_1999_, v_e_1715_, v_a_1722_, v_a_1723_, v_a_1724_, v_a_1725_);
+lean_dec(v___x_1999_);
 if (lean_obj_tag(v___x_2000_) == 0)
 {
 lean_object* v_a_2001_; uint8_t v___x_2002_; 
@@ -7175,6 +7180,7 @@ lean_object* v___x_2024_; lean_object* v___x_2025_;
 v___x_2024_ = lean_st_ref_get(v_a_1716_);
 lean_inc_ref(v_e_1715_);
 v___x_2025_ = l_Lean_Meta_Grind_Goal_getRoot(v___x_2024_, v_e_1715_, v_a_1722_, v_a_1723_, v_a_1724_, v_a_1725_);
+lean_dec(v___x_2024_);
 if (lean_obj_tag(v___x_2025_) == 0)
 {
 lean_object* v_a_2026_; uint8_t v___x_2027_; 

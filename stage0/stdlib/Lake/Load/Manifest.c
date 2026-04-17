@@ -3827,6 +3827,7 @@ v___x_875_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_875_, 0, v___x_860_);
 lean_ctor_set(v___x_875_, 1, v___x_874_);
 v___x_876_ = l_Lean_Json_mkObj(v___x_875_);
+lean_dec_ref(v___x_875_);
 v___x_877_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_877_, 0, v___x_855_);
 lean_ctor_set(v___x_877_, 1, v___x_876_);
@@ -3834,6 +3835,7 @@ v___x_878_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_878_, 0, v___x_877_);
 lean_ctor_set(v___x_878_, 1, v___x_871_);
 v___x_879_ = l_Lean_Json_mkObj(v___x_878_);
+lean_dec_ref(v___x_878_);
 return v___x_879_;
 }
 else
@@ -3918,6 +3920,7 @@ v___x_918_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_918_, 0, v___x_892_);
 lean_ctor_set(v___x_918_, 1, v___x_917_);
 v___x_919_ = l_Lean_Json_mkObj(v___x_918_);
+lean_dec_ref(v___x_918_);
 v___x_920_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_920_, 0, v___x_887_);
 lean_ctor_set(v___x_920_, 1, v___x_919_);
@@ -3925,6 +3928,7 @@ v___x_921_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_921_, 0, v___x_920_);
 lean_ctor_set(v___x_921_, 1, v___x_911_);
 v___x_922_ = l_Lean_Json_mkObj(v___x_921_);
+lean_dec_ref(v___x_921_);
 return v___x_922_;
 }
 }
@@ -4223,6 +4227,7 @@ v___x_1061_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1061_, 0, v___x_1053_);
 lean_ctor_set(v___x_1061_, 1, v___x_1060_);
 v___x_1062_ = l_Lean_Json_mkObj(v___x_1061_);
+lean_dec_ref(v___x_1061_);
 return v___x_1062_;
 }
 }
@@ -4279,6 +4284,7 @@ v___x_1087_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1087_, 0, v___x_1069_);
 lean_ctor_set(v___x_1087_, 1, v___x_1086_);
 v___x_1088_ = l_Lean_Json_mkObj(v___x_1087_);
+lean_dec_ref(v___x_1087_);
 return v___x_1088_;
 }
 }
@@ -6058,6 +6064,7 @@ v___x_1537_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1537_, 0, v___x_1512_);
 lean_ctor_set(v___x_1537_, 1, v___x_1536_);
 v___x_1538_ = l_Lean_Json_mkObj(v___x_1537_);
+lean_dec_ref(v___x_1537_);
 return v___x_1538_;
 }
 }
@@ -9074,6 +9081,7 @@ v___x_2313_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_2313_, 0, v___x_2307_);
 lean_ctor_set(v___x_2313_, 1, v___x_2312_);
 v___x_2314_ = l_Lean_Json_mkObj(v___x_2313_);
+lean_dec_ref(v___x_2313_);
 v___x_2315_ = lean_unsigned_to_nat(80u);
 v_contents_2316_ = l_Lean_Json_pretty(v___x_2314_, v___x_2315_);
 v___x_2317_ = 10;

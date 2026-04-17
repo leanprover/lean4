@@ -3302,6 +3302,7 @@ v_mctx_891_ = lean_ctor_get(v___x_890_, 0);
 lean_inc_ref(v_mctx_891_);
 lean_dec(v___x_890_);
 v___x_892_ = l_Lean_MetavarContext_getDelayedMVarAssignmentCore_x3f(v_mctx_891_, v_mvarId_887_);
+lean_dec_ref(v_mctx_891_);
 v___x_893_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_893_, 0, v___x_892_);
 return v___x_893_;

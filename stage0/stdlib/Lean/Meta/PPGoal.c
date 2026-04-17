@@ -3384,6 +3384,7 @@ v_mctx_1145_ = lean_ctor_get(v___x_1144_, 0);
 lean_inc_ref(v_mctx_1145_);
 lean_dec(v___x_1144_);
 v___x_1146_ = l_Lean_MetavarContext_findDecl_x3f(v_mctx_1145_, v_mvarId_1138_);
+lean_dec_ref(v_mctx_1145_);
 if (lean_obj_tag(v___x_1146_) == 0)
 {
 lean_object* v___x_1147_; lean_object* v___x_1148_; 

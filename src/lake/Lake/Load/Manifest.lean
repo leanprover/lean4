@@ -55,7 +55,7 @@ That is, Lake ignores the `-` suffix.
 @[inline] public def Manifest.version : StdVer := {major := 1, minor := 2}
 
 /-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
-private inductive PackageEntryV6
+inductive PackageEntryV6
 | path (name : Name) (opts : NameMap String) (inherited : Bool) (dir : FilePath)
 | git (name : Name) (opts : NameMap String) (inherited : Bool) (url : String) (rev : String)
     (inputRev? : Option String) (subDir? : Option FilePath)
@@ -166,7 +166,7 @@ public instance : FromJson PackageEntry := ⟨PackageEntry.fromJson?⟩
 @[inline] public def inDirectory (pkgDir : FilePath) (entry : PackageEntry) : PackageEntry :=
   {entry with src := match entry.src with | .path dir => .path (pkgDir / dir) | s => s}
 
-private def ofV6 : PackageEntryV6 → PackageEntry
+def ofV6 : PackageEntryV6 → PackageEntry
 | .path name _opts inherited dir =>
   {name, inherited, src := .path dir}
 | .git name _opts inherited url rev inputRev? subDir? =>
@@ -200,7 +200,7 @@ public protected def toJson (self : Manifest) : Json :=
 
 public instance : ToJson Manifest := ⟨Manifest.toJson⟩
 
-private def getVersion (obj : JsonObject) : Except String SemVerCore := do
+def getVersion (obj : JsonObject) : Except String SemVerCore := do
   let ver : Json ← obj.get "version" <|> obj.get "schemaVersion"
   let ver : SemVerCore ←
     match ver with
@@ -216,7 +216,7 @@ private def getVersion (obj : JsonObject) : Except String SemVerCore := do
   else
     return ver
 
-private def getPackages (ver : StdVer) (obj : JsonObject) : Except String (Array PackageEntry) := do
+def getPackages (ver : StdVer) (obj : JsonObject) : Except String (Array PackageEntry) := do
   if ver < {minor := 7} then
     (·.map PackageEntry.ofV6) <$> obj.getD "packages" #[]
   else

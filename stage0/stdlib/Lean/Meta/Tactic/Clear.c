@@ -4283,7 +4283,6 @@ _start:
 {
 lean_object* v_lctx_1342_; lean_object* v___x_1343_; lean_object* v___x_1344_; lean_object* v___x_1345_; lean_object* v___x_1346_; lean_object* v___x_1347_; uint8_t v___x_1348_; 
 v_lctx_1342_ = lean_ctor_get(v___y_1337_, 2);
-lean_inc_ref(v_lctx_1342_);
 v___x_1343_ = l_Lean_LocalContext_sortFVarsByContextOrder(v_lctx_1342_, v_fvarIds_1335_);
 v___x_1344_ = lean_array_get_size(v___x_1343_);
 v___x_1345_ = lean_mk_empty_array_with_capacity(v___x_1344_);
@@ -4296,7 +4295,6 @@ if (v___x_1348_ == 0)
 {
 lean_object* v___x_1349_; 
 lean_dec_ref(v___x_1343_);
-lean_dec_ref(v___y_1337_);
 v___x_1349_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1349_, 0, v___x_1346_);
 return v___x_1349_;
@@ -4307,7 +4305,6 @@ size_t v___x_1350_; size_t v___x_1351_; lean_object* v___x_1352_;
 v___x_1350_ = lean_usize_of_nat(v___x_1344_);
 v___x_1351_ = ((size_t)0ULL);
 v___x_1352_ = l___private_Init_Data_Array_Basic_0__Array_foldrMUnsafe_fold___at___00Lean_MVarId_tryClearMany_x27_spec__0(v___x_1343_, v___x_1350_, v___x_1351_, v___x_1346_, v___y_1337_, v___y_1338_, v___y_1339_, v___y_1340_);
-lean_dec_ref(v___y_1337_);
 lean_dec_ref(v___x_1343_);
 return v___x_1352_;
 }
@@ -4321,6 +4318,7 @@ v_res_1360_ = l_Lean_MVarId_tryClearMany_x27___lam__0(v_fvarIds_1353_, v_goal_13
 lean_dec(v___y_1358_);
 lean_dec_ref(v___y_1357_);
 lean_dec(v___y_1356_);
+lean_dec_ref(v___y_1355_);
 return v_res_1360_;
 }
 }

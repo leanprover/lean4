@@ -2446,6 +2446,7 @@ v_a_736_ = lean_ctor_get(v___x_735_, 0);
 lean_inc(v_a_736_);
 lean_dec_ref(v___x_735_);
 v___x_737_ = l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Pass_fixpointPipeline(v_a_736_, v___y_728_, v___y_729_, v___y_730_, v___y_731_, v___y_732_, v___y_733_, v___y_734_);
+lean_dec(v_a_736_);
 if (lean_obj_tag(v___x_737_) == 0)
 {
 lean_object* v_a_738_; 

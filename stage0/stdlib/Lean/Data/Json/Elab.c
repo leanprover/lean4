@@ -1040,14 +1040,14 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5___boxed(lean_object* v___x_481_, lean_object* v___x_482_, lean_object* v_as_483_, lean_object* v_i_484_, lean_object* v_stop_485_, lean_object* v_b_486_){
 _start:
 {
-uint8_t v___x_67868__boxed_487_; uint8_t v___x_67869__boxed_488_; size_t v_i_boxed_489_; size_t v_stop_boxed_490_; lean_object* v_res_491_; 
-v___x_67868__boxed_487_ = lean_unbox(v___x_481_);
-v___x_67869__boxed_488_ = lean_unbox(v___x_482_);
+uint8_t v___x_67873__boxed_487_; uint8_t v___x_67874__boxed_488_; size_t v_i_boxed_489_; size_t v_stop_boxed_490_; lean_object* v_res_491_; 
+v___x_67873__boxed_487_ = lean_unbox(v___x_481_);
+v___x_67874__boxed_488_ = lean_unbox(v___x_482_);
 v_i_boxed_489_ = lean_unbox_usize(v_i_484_);
 lean_dec(v_i_484_);
 v_stop_boxed_490_ = lean_unbox_usize(v_stop_485_);
 lean_dec(v_stop_485_);
-v_res_491_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5(v___x_67868__boxed_487_, v___x_67869__boxed_488_, v_as_483_, v_i_boxed_489_, v_stop_boxed_490_, v_b_486_);
+v_res_491_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lean_Json___aux__Lean__Data__Json__Elab______macroRules__Lean__Json__termJson_x25____1_spec__5(v___x_67873__boxed_487_, v___x_67874__boxed_488_, v_as_483_, v_i_boxed_489_, v_stop_boxed_490_, v_b_486_);
 lean_dec_ref(v_as_483_);
 return v_res_491_;
 }

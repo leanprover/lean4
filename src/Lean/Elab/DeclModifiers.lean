@@ -7,11 +7,19 @@ module
 
 prelude
 public import Lean.DocString.Add
+public import Lean.Linter.Basic
 meta import Lean.Parser.Command
 
 public section
 
-namespace Lean.Elab
+namespace Lean
+
+register_builtin_option linter.redundantVisibility : Bool := {
+  defValue := false
+  descr := "warn on redundant `private`/`public` visibility modifiers"
+}
+
+namespace Elab
 
 /--
 Ensure the environment does not contain a declaration with name `declName`.
@@ -77,14 +85,30 @@ def Visibility.isInferredPublic (env : Environment) (v : Visibility) : Bool :=
   if env.isExporting || !env.header.isModule then !v.isPrivate else v.isPublic
 
 /-- Converts optional visibility syntax to a `Visibility` value. -/
-def elabVisibility [Monad m] [MonadError m] (vis? : Option (TSyntax ``Parser.Command.visibility)) :
-    m Visibility :=
+def elabVisibility [Monad m] [MonadError m] [MonadEnv m] [MonadOptions m] [MonadLog m]
+    [AddMessageContext m]
+    (vis? : Option (TSyntax ``Parser.Command.visibility)) :
+    m Visibility := do
+  let env ← getEnv
   match vis? with
   | none   => pure .regular
   | some v =>
     match v with
-    | `(Parser.Command.visibility| private) => pure .private
-    | `(Parser.Command.visibility| public) => pure .public
+    | `(Parser.Command.visibility| private) =>
+      if v.raw.getHeadInfo matches .original .. then  -- skip macro output
+        if env.header.isModule && !env.isExporting then
+          Linter.logLintIf linter.redundantVisibility v
+            m!"`private` has no effect in a `module` file outside `public section`; \
+            declarations are already `private` by default"
+      pure .private
+    | `(Parser.Command.visibility| public) =>
+      if v.raw.getHeadInfo matches .original .. then  -- skip macro output
+        if env.isExporting || !env.header.isModule then
+          Linter.logLintIf linter.redundantVisibility v
+            m!"`public` is the default visibility{
+              if env.header.isModule then " inside a `public section`" else ""
+            }; the modifier has no effect"
+      pure .public
     | _ => throwErrorAt v "unexpected visibility modifier"
 
 /-- Whether a declaration is default, partial or nonrec. -/

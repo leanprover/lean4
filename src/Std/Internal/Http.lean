@@ -7,3 +7,4 @@ module
 
 prelude
 public import Std.Internal.Http.Data
+public import Std.Internal.Http.Protocol.H1

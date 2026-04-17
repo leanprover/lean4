@@ -6,6 +6,7 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+public import Std.Internal.Http.Data.URI
 public import Std.Internal.Http.Data.Headers.Name
 public import Std.Internal.Http.Data.Headers.Value
 public import Std.Internal.Parsec.Basic
@@ -215,4 +216,89 @@ def serialize (connection : Connection) : Header.Name × Header.Value :=
 
 instance : Header Connection := ⟨parse, serialize⟩
 
-end Std.Http.Header.Connection
+end Connection
+
+/--
+The `Host` header.
+
+Represents the authority component of a URI:
+  host [ ":" port ]
+
+Reference: https://www.rfc-editor.org/rfc/rfc9110.html#name-host-and-authority
+-/
+structure Host where
+  /--
+  Host name (reg-name, IPv4, or IPv6 literal).
+  -/
+  host : URI.Host
+
+  /--
+  Optional port.
+  -/
+  port : URI.Port
+deriving Repr, BEq
+
+namespace Host
+
+/--
+Parses a `Host` header value.
+-/
+def parse (v : Value) : Option Host :=
+  let parsed := (Std.Http.URI.Parser.parseHostHeader <* Std.Internal.Parsec.eof).run v.value.toUTF8
+  match parsed with
+  | .ok ⟨host, port⟩ => some ⟨host, port⟩
+  | .error _ => none
+
+/--
+Serializes a `Host` header back to a name and a value.
+-/
+def serialize (host : Host) : Header.Name × Header.Value :=
+  let value := match host.port with
+    | .value port => Header.Value.ofString! s!"{host.host}:{port}"
+    | .empty => Header.Value.ofString! s!"{host.host}:"
+    | .omitted => Header.Value.ofString! <| toString host.host
+
+  (.mk "host", value)
+
+instance : Header Host := ⟨parse, serialize⟩
+
+end Host
+
+/--
+The `Expect` header.
+
+Represents an expectation token.
+The only standardized expectation is `100-continue`.
+
+Reference: https://www.rfc-editor.org/rfc/rfc9110.html#name-expect
+-/
+structure Expect where
+deriving Repr, BEq
+
+namespace Expect
+
+/--
+Parses an `Expect` header.
+
+Succeeds only if the value is exactly `100-continue`
+(case-insensitive, trimmed).
+-/
+def parse (v : Value) : Option Expect :=
+  let normalized := v.value.trimAscii.toString.toLower
+
+  if normalized == "100-continue" then
+    some ⟨⟩
+  else
+    none
+
+/--
+Serializes an `Expect` header.
+-/
+def serialize (_ : Expect) : Header.Name × Header.Value :=
+  (Header.Name.expect, Value.ofString! "100-continue")
+
+instance : Header Expect := ⟨parse, serialize⟩
+
+end Expect
+
+end Std.Http.Header

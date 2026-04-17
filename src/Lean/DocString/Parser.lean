@@ -18,7 +18,7 @@ open Lean.Doc.Syntax
 local instance : Coe Char ParserFn where
   coe := chFn
 
-private partial def atLeastAux (n : Nat) (p : ParserFn) : ParserFn := fun c s => Id.run do
+partial def atLeastAux (n : Nat) (p : ParserFn) : ParserFn := fun c s => Id.run do
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let mut s  := p c s
@@ -30,7 +30,7 @@ private partial def atLeastAux (n : Nat) (p : ParserFn) : ParserFn := fun c s =>
     s := s.mkNode nullKind iniSz
   atLeastAux (n - 1) p c s
 
-private def atLeastFn (n : Nat) (p : ParserFn) : ParserFn := fun c s =>
+def atLeastFn (n : Nat) (p : ParserFn) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
   let s := atLeastAux n p c s
   s.mkNode nullKind iniSz
@@ -40,9 +40,9 @@ A parser that does nothing.
 -/
 public def skipFn : ParserFn := fun _ s => s
 
-private def eatSpaces := takeWhileFn (· == ' ')
+def eatSpaces := takeWhileFn (· == ' ')
 
-private def repFn : Nat → ParserFn → ParserFn
+def repFn : Nat → ParserFn → ParserFn
   | 0, _ => skipFn
   | n+1, p => p >> repFn n p
 
@@ -55,7 +55,7 @@ partial def satisfyFn' (p : Char → Bool)
   else if p (c.get' i h) then s.next' c i h
   else s.mkUnexpectedError errorMsg
 
-private partial def atMostAux (n : Nat) (p : ParserFn) (msg : String) : ParserFn :=
+partial def atMostAux (n : Nat) (p : ParserFn) (msg : String) : ParserFn :=
   fun c s => Id.run do
     let iniSz  := s.stackSize
     let iniPos := s.pos
@@ -70,13 +70,13 @@ private partial def atMostAux (n : Nat) (p : ParserFn) (msg : String) : ParserFn
       s := s.mkNode nullKind iniSz
     atMostAux (n - 1) p msg c s
 
-private def atMostFn (n : Nat) (p : ParserFn) (msg : String) : ParserFn := fun c s =>
+def atMostFn (n : Nat) (p : ParserFn) (msg : String) : ParserFn := fun c s =>
   let iniSz  := s.stackSize
   let s := atMostAux n p msg c s
   s.mkNode nullKind iniSz
 
 /-- Like `satisfyFn`, but allows any escape sequence through -/
-private partial def satisfyEscFn (p : Char → Bool)
+partial def satisfyEscFn (p : Char → Bool)
     (errorMsg : String := "unexpected character") :
     ParserFn := fun c s =>
   let i := s.pos
@@ -89,7 +89,7 @@ private partial def satisfyEscFn (p : Char → Bool)
   else if p (c.get' i h) then s.next' c i h
   else s.mkUnexpectedError errorMsg
 
-private partial def takeUntilEscFn (p : Char → Bool) : ParserFn := fun c s =>
+partial def takeUntilEscFn (p : Char → Bool) : ParserFn := fun c s =>
   let i := s.pos
   if h : c.atEnd i then s
   else if c.get' i h == '\\' then
@@ -100,7 +100,7 @@ private partial def takeUntilEscFn (p : Char → Bool) : ParserFn := fun c s =>
   else if p (c.get' i h) then s
   else takeUntilEscFn p c (s.next' c i h)
 
-private partial def takeWhileEscFn (p : Char → Bool) : ParserFn := takeUntilEscFn (not ∘ p)
+partial def takeWhileEscFn (p : Char → Bool) : ParserFn := takeUntilEscFn (not ∘ p)
 
 /--
 Parses as `p`, but discards the result.
@@ -111,7 +111,7 @@ public def ignoreFn (p : ParserFn) : ParserFn := fun c s =>
   s'.shrinkStack iniSz
 
 
-private def withInfoSyntaxFn (p : ParserFn) (infoP : SourceInfo → ParserFn) : ParserFn := fun c s =>
+def withInfoSyntaxFn (p : ParserFn) (infoP : SourceInfo → ParserFn) : ParserFn := fun c s =>
   let iniSz := s.stxStack.size
   let startPos := s.pos
   let s := p c s
@@ -121,7 +121,7 @@ private def withInfoSyntaxFn (p : ParserFn) (infoP : SourceInfo → ParserFn) : 
   let info     := SourceInfo.original leading startPos trailing stopPos
   infoP info c (s.shrinkStack iniSz)
 
-private def unescapeStr (str : String) : String := Id.run do
+def unescapeStr (str : String) : String := Id.run do
   let mut out := ""
   let mut iter := str.startPos
   while h : ¬iter.IsAtEnd do
@@ -135,7 +135,7 @@ private def unescapeStr (str : String) : String := Id.run do
       out := out.push c
   out
 
-private def asStringAux (quoted : Bool) (startPos : String.Pos.Raw) (transform : String → String) :
+def asStringAux (quoted : Bool) (startPos : String.Pos.Raw) (transform : String → String) :
     ParserFn := fun c s =>
   let stopPos  := s.pos
   let leading  := c.mkEmptySubstringAt startPos
@@ -156,26 +156,26 @@ public def asStringFn (p : ParserFn) (quoted := false) (transform : String → S
   if s.hasError then s
   else asStringAux quoted startPos transform c (s.shrinkStack iniSz)
 
-private def checkCol0Fn (errorMsg : String) : ParserFn := fun c s =>
+def checkCol0Fn (errorMsg : String) : ParserFn := fun c s =>
   let pos      := c.fileMap.toPosition s.pos
   if pos.column = 1 then s
   else s.mkError errorMsg
 
-private def _root_.Lean.Parser.ParserContext.currentColumn
+def _root_.Lean.Parser.ParserContext.currentColumn
     (c : ParserContext) (s : ParserState) : Nat :=
   c.fileMap.toPosition s.pos |>.column
 
-private def pushColumn : ParserFn := fun c s =>
+def pushColumn : ParserFn := fun c s =>
   let col := c.fileMap.toPosition s.pos |>.column
   s.pushSyntax <| Syntax.mkLit `column (toString col) (SourceInfo.synthetic s.pos s.pos)
 
-private def guardColumn (p : Nat → Bool) (message : String) : ParserFn := fun c s =>
+def guardColumn (p : Nat → Bool) (message : String) : ParserFn := fun c s =>
   if p (c.currentColumn s) then s else s.mkErrorAt message s.pos
 
-private def guardMinColumn (min : Nat) (description : String := s!"expected column at least {min}") : ParserFn :=
+def guardMinColumn (min : Nat) (description : String := s!"expected column at least {min}") : ParserFn :=
   guardColumn (· ≥ min) description
 
-private def withCurrentColumn (p : Nat → ParserFn) : ParserFn := fun c s =>
+def withCurrentColumn (p : Nat → ParserFn) : ParserFn := fun c s =>
   p (c.currentColumn s) c s
 
 
@@ -183,7 +183,7 @@ private def withCurrentColumn (p : Nat → ParserFn) : ParserFn := fun c s =>
 We can only start a nestable block if we're immediately after a newline followed by a sequence of
 nestable block openers
 -/
-private def onlyBlockOpeners : ParserFn := fun c s =>
+def onlyBlockOpeners : ParserFn := fun c s =>
   let position := c.fileMap.toPosition s.pos
   let lineStart := c.fileMap.lineStart position.line
   let ok : Bool := Id.run do
@@ -206,7 +206,7 @@ private def onlyBlockOpeners : ParserFn := fun c s =>
   if ok then s
   else s.mkErrorAt "beginning of line or sequence of nestable block openers" s.pos
 
-private def nl := satisfyFn (· == '\n') "newline"
+def nl := satisfyFn (· == '\n') "newline"
 
 /--
 Construct a “fake” atom with the given string content and source information.
@@ -225,13 +225,13 @@ current position.
 Normally, atoms are always substrings of the original input; however, Verso's concrete syntax is
 different enough from Lean's that this isn't always a good match.
 -/
-private def fakeAtomHere (str : String) : ParserFn :=
+def fakeAtomHere (str : String) : ParserFn :=
   withInfoSyntaxFn skip.fn (fun info => fakeAtom str (info := info))
 
-private def pushMissing : ParserFn := fun _c s =>
+def pushMissing : ParserFn := fun _c s =>
   s.pushSyntax .missing
 
-private def strFn (str : String) : ParserFn := asStringFn <| fun c s =>
+def strFn (str : String) : ParserFn := asStringFn <| fun c s =>
   let rec go (iter : str.Pos) (s : ParserState) :=
     if h : iter.IsAtEnd then s
     else
@@ -260,10 +260,10 @@ public instance : Ord OrderedListType where
     | .parenAfter, .numDot => .gt
     | .parenAfter, .parenAfter => .eq
 
-private def OrderedListType.all : List OrderedListType :=
+def OrderedListType.all : List OrderedListType :=
   [.numDot, .parenAfter]
 
-private theorem OrderedListType.all_complete : ∀ x : OrderedListType, x ∈ all := by
+theorem OrderedListType.all_complete : ∀ x : OrderedListType, x ∈ all := by
   unfold all; intro x; cases x <;> repeat constructor
 
 /--
@@ -288,40 +288,40 @@ public instance : Ord UnorderedListType where
     | .plus, .plus => .eq
     | .plus, _ => .gt
 
-private def UnorderedListType.all : List UnorderedListType :=
+def UnorderedListType.all : List UnorderedListType :=
   [.asterisk, .dash, .plus]
 
-private theorem UnorderedListType.all_complete : ∀ x : UnorderedListType, x ∈ all := by
+theorem UnorderedListType.all_complete : ∀ x : UnorderedListType, x ∈ all := by
   unfold all; intro x; cases x <;> repeat constructor
 
-private def unorderedListIndicator (type : UnorderedListType) : ParserFn :=
+def unorderedListIndicator (type : UnorderedListType) : ParserFn :=
   asStringFn <|
     match type with
     | .asterisk => chFn '*'
     | .dash => chFn '-'
     | .plus => chFn '+'
 
-private def orderedListIndicator (type : OrderedListType) : ParserFn :=
+def orderedListIndicator (type : OrderedListType) : ParserFn :=
   asStringFn <|
     takeWhile1Fn (·.isDigit) "digits" >>
     match type with
     | .numDot => chFn '.'
     | .parenAfter => chFn ')'
 
-private def blankLine : ParserFn :=
+def blankLine : ParserFn :=
   nodeFn `blankLine <| atomicFn <| asStringFn <| takeWhileFn (· == ' ') >> nl
 
-private def endLine : ParserFn :=
+def endLine : ParserFn :=
   ignoreFn <| atomicFn <| asStringFn <| takeWhileFn (· == ' ') >> eoiFn
 
-private def bullet := atomicFn (go UnorderedListType.all)
+def bullet := atomicFn (go UnorderedListType.all)
 where
   go
     | [] => fun _ s => s.mkError "no list type"
     | [x] => atomicFn (unorderedListIndicator x)
     | x :: xs => atomicFn (unorderedListIndicator x) <|> go xs
 
-private def numbering := atomicFn (go OrderedListType.all)
+def numbering := atomicFn (go OrderedListType.all)
 where
   go
     | [] => fun _ s => s.mkError "no list type"
@@ -374,7 +374,7 @@ public def inlineTextChar : ParserFn := fun c s =>
 /-- Return some inline text up to the next inline opener or the end of
 the line, whichever is first. Always consumes at least one
 logical character on success, taking escaping into account. -/
-private def inlineText : ParserFn :=
+def inlineText : ParserFn :=
   asStringFn (transform := unescapeStr) <| atomicFn inlineTextChar >> manyFn inlineTextChar
 
 /--
@@ -410,23 +410,23 @@ public def val : ParserFn := fun c s =>
     else
       s.mkError "expected identifier, string, or number"
 
-private def withCurrentStackSize (p : Nat → ParserFn) : ParserFn := fun c s =>
+def withCurrentStackSize (p : Nat → ParserFn) : ParserFn := fun c s =>
   p s.stxStack.size c s
 
 /-- Match the character indicated, pushing nothing to the stack in case of success -/
-private def skipChFn (c : Char) : ParserFn :=
+def skipChFn (c : Char) : ParserFn :=
   satisfyFn (· == c) c.toString
 
-private def skipToNewline : ParserFn :=
+def skipToNewline : ParserFn :=
     takeUntilFn (· == '\n')
 
-private def skipToSpace : ParserFn :=
+def skipToSpace : ParserFn :=
     takeUntilFn (· == ' ')
 
-private def skipRestOfLine : ParserFn :=
+def skipRestOfLine : ParserFn :=
     skipToNewline >> (eoiFn <|> nl)
 
-private def skipBlock : ParserFn :=
+def skipBlock : ParserFn :=
   skipToNewline >> manyFn nonEmptyLine >> takeWhileFn (· == '\n')
 where
   nonEmptyLine : ParserFn :=
@@ -444,7 +444,7 @@ public def recoverBlock (p : ParserFn) (final : ParserFn := skipFn) : ParserFn :
     ignoreFn skipBlock >> final
 
 -- Like `recoverBlock` but stores recovered errors at the original error position.
-private def recoverBlockAtErrPos (p : ParserFn) : ParserFn := fun c s =>
+def recoverBlockAtErrPos (p : ParserFn) : ParserFn := fun c s =>
   let s := p c s
   if let some msg := s.errorMsg then
     let errPos := s.pos
@@ -457,36 +457,36 @@ private def recoverBlockAtErrPos (p : ParserFn) : ParserFn := fun c s =>
       recoveredErrors := s.recoveredErrors.push (errPos, s'.stxStack, msg)}
   else s
 
-private def recoverBlockWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
+def recoverBlockWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
   recoverFn p fun rctx =>
     ignoreFn skipBlock >>
     show ParserFn from
       fun _ s => stxs.foldl (init := s.shrinkStack rctx.initialSize) (·.pushSyntax ·)
 
-private def recoverLine (p : ParserFn) : ParserFn :=
+def recoverLine (p : ParserFn) : ParserFn :=
   recoverFn p fun _ =>
     ignoreFn skipRestOfLine
 
-private def recoverWs (p : ParserFn) : ParserFn :=
+def recoverWs (p : ParserFn) : ParserFn :=
   recoverFn p fun _ =>
     ignoreFn <| takeUntilFn (fun c =>  c == ' ' || c == '\n')
 
-private def recoverNonSpace (p : ParserFn) : ParserFn :=
+def recoverNonSpace (p : ParserFn) : ParserFn :=
   recoverFn p fun rctx =>
     ignoreFn (takeUntilFn (fun c => c != ' ')) >>
     show ParserFn from
       fun _ s => s.shrinkStack rctx.initialSize
 
-private def recoverWsWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
+def recoverWsWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
   recoverFn p fun rctx =>
     ignoreFn <| takeUntilFn (fun c =>  c == ' ' || c == '\n') >>
     show ParserFn from
       fun _ s => stxs.foldl (init := s.shrinkStack rctx.initialSize) (·.pushSyntax ·)
 
-private def recoverEol (p : ParserFn) : ParserFn :=
+def recoverEol (p : ParserFn) : ParserFn :=
   recoverFn p fun _ => ignoreFn <| skipToNewline
 
-private def recoverEolWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
+def recoverEolWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
   recoverFn p fun rctx =>
     ignoreFn skipToNewline >>
     show ParserFn from
@@ -494,7 +494,7 @@ private def recoverEolWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
 
 -- Like `recoverEol` but stores recovered errors at the original error position
 -- rather than the post-recovery position.
-private def recoverEolAtErrPos (p : ParserFn) : ParserFn := fun c s =>
+def recoverEolAtErrPos (p : ParserFn) : ParserFn := fun c s =>
   let s := p c s
   if let some msg := s.errorMsg then
     let errPos := s.pos
@@ -509,7 +509,7 @@ private def recoverEolAtErrPos (p : ParserFn) : ParserFn := fun c s =>
 
 -- Like `recoverEolWith` but stores recovered errors at the original error position
 -- rather than the post-recovery position.
-private def recoverEolWithAtErrPos (stxs : Array Syntax) (p : ParserFn) : ParserFn := fun c s =>
+def recoverEolWithAtErrPos (stxs : Array Syntax) (p : ParserFn) : ParserFn := fun c s =>
   let iniSz := s.stxStack.size
   let s := p c s
   if let some msg := s.errorMsg then
@@ -521,10 +521,10 @@ private def recoverEolWithAtErrPos (stxs : Array Syntax) (p : ParserFn) : Parser
       {s' with recoveredErrors := s.recoveredErrors.push (errPos, s'.stxStack, msg)}
   else s
 
-private def recoverSkip (p : ParserFn) : ParserFn :=
+def recoverSkip (p : ParserFn) : ParserFn :=
   recoverFn p fun _ => skipFn
 
-private def recoverSkipWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
+def recoverSkipWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
   recoverFn p fun rctx =>
     show ParserFn from
       fun _ s => stxs.foldl (init := s.shrinkStack rctx.initialSize) (·.pushSyntax ·)
@@ -535,7 +535,7 @@ def recoverHereWith (stxs : Array Syntax) (p : ParserFn) : ParserFn :=
     show ParserFn from
       fun _ s => stxs.foldl (init := s.restore rctx.initialSize rctx.initialPos) (·.pushSyntax ·)
 
-private def recoverHereWithKeeping (stxs : Array Syntax) (keep : Nat) (p : ParserFn) : ParserFn :=
+def recoverHereWithKeeping (stxs : Array Syntax) (keep : Nat) (p : ParserFn) : ParserFn :=
   recoverFn p fun rctx =>
     show ParserFn from
       fun _ s => stxs.foldl (init := s.restore (rctx.initialSize + keep) rctx.initialPos) (·.pushSyntax ·)
@@ -584,7 +584,7 @@ it's in a single-line context and whitespace may only be the space
 character. If it's `some N`, then newlines are allowed, but `N` is the
 minimum indentation column.
 -/
-private def nameArgWhitespace : (multiline : Option Nat) → ParserFn
+def nameArgWhitespace : (multiline : Option Nat) → ParserFn
   | none => eatSpaces
   | some n => takeWhileFn (fun c => c == ' ' || c == '\n') >> guardMinColumn n
 
@@ -598,7 +598,7 @@ each sub-parser of `delimitedInline` contributes a clear expected-token name, an
 unhelpful generic "unexpected" messages from inner parsers so that the more informative message
 from `inlineTextChar` survives error merging via `<|>`.
 -/
-private def expectedFn (msg : String) (p : ParserFn) : ParserFn := fun c s =>
+def expectedFn (msg : String) (p : ParserFn) : ParserFn := fun c s =>
   let iniPos := s.pos
   let s := p c s
   if s.hasError && s.pos == iniPos then
@@ -649,18 +649,18 @@ def linebreak (ctxt : InlineCtxt) : ParserFn :=
   else
     errorFn "Newlines not allowed here"
 
-private partial def notInLink (ctxt : InlineCtxt) : ParserFn := fun _ s =>
+partial def notInLink (ctxt : InlineCtxt) : ParserFn := fun _ s =>
   if ctxt.inLink then s.mkError "Already in a link" else s
 
 -- Like `satisfyFn (· == '\n')` but with a better error message that mentions what was expected.
-private def newlineOrUnexpected (msg : String) : ParserFn := fun c s =>
+def newlineOrUnexpected (msg : String) : ParserFn := fun c s =>
   let i := s.pos
   if h : c.atEnd i then s.mkEOIError
   else if c.get' i h == '\n' then s.next' c i h
   else s.mkUnexpectedError s!"unexpected '{c.get' i h}'" [msg]
 
 mutual
-  private partial def emphLike
+  partial def emphLike
     (name : SyntaxNodeKind) (char : Char) (what plural : String)
     (getter : InlineCtxt → Option Nat) (setter : InlineCtxt → Option Nat → InlineCtxt)
     (ctxt : InlineCtxt) : ParserFn :=
@@ -799,7 +799,7 @@ mutual
         nodeFn `str (asStringFn (quoted := true) (many1Fn (satisfyEscFn (fun c => c != ']' && c != '\n') "other than ']' or newline"))) >>
         strFn "]")
 
-  private partial def linkTarget : ParserFn := fun c s =>
+  partial def linkTarget : ParserFn := fun c s =>
     let s := (ref <|> url) c s
     if s.hasError then
       match s.errorMsg with
@@ -922,7 +922,7 @@ deriving Inhabited, Repr
 Finds the minimum column of the first non-whitespace character on each non-empty content line
 between `startPos` and `endPos`, returning `init` if no such line exists.
 -/
-private def minContentIndent (text : FileMap) (startPos endPos : String.Pos.Raw)
+def minContentIndent (text : FileMap) (startPos endPos : String.Pos.Raw)
     (init : Nat) : Nat := Id.run do
   let mut result := init
   let mut thisLineCol := 0
@@ -980,13 +980,13 @@ public def BlockCtxt.forDocString (text : FileMap)
       else text.source.rawEndPos
     { docStartPosition := text.toPosition pos, baseColumn }
 
-private def bol (ctxt : BlockCtxt) : ParserFn := fun c s =>
+def bol (ctxt : BlockCtxt) : ParserFn := fun c s =>
   let pos := c.fileMap.toPosition s.pos
   if pos.column ≤ ctxt.baseColumn then s
   else if pos.line == ctxt.docStartPosition.line && pos.column ≤ ctxt.docStartPosition.column then s
   else s.mkErrorAt s!"beginning of line at {pos}" s.pos
 
-private def bolThen (ctxt : BlockCtxt) (p : ParserFn) (description : String) : ParserFn := fun c s =>
+def bolThen (ctxt : BlockCtxt) (p : ParserFn) (description : String) : ParserFn := fun c s =>
   let position := c.fileMap.toPosition s.pos
   let positionOk :=
     position.column ≤ ctxt.baseColumn ||
@@ -1075,16 +1075,16 @@ public def lookaheadUnorderedListIndicator (ctxt : BlockCtxt) (p : UnorderedList
     if s.hasError then s.setPos iniPos
     else p type c (s.shrinkStack iniSz |>.setPos bulletPos)
 
-private def skipUntilDedent (indent : Nat) : ParserFn :=
+def skipUntilDedent (indent : Nat) : ParserFn :=
   skipRestOfLine >>
   manyFn (chFn ' ' >> takeWhileFn (· == ' ') >> guardColumn (· ≥ indent) s!"indentation at {indent}" >> skipRestOfLine)
 
-private def recoverUnindent (indent : Nat) (p : ParserFn) (finish : ParserFn := skipFn) :
+def recoverUnindent (indent : Nat) (p : ParserFn) (finish : ParserFn := skipFn) :
     ParserFn :=
   recoverFn p (fun _ => ignoreFn (skipUntilDedent indent) >> finish)
 
 
-private def blockSep := ignoreFn (manyFn blankLine >> optionalFn endLine)
+def blockSep := ignoreFn (manyFn blankLine >> optionalFn endLine)
 
 mutual
   /-- Parses a list item according to the current nesting context. -/

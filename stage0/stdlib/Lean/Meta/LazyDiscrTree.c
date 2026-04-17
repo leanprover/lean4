@@ -16349,15 +16349,13 @@ else
 {
 lean_object* v_head_5764_; lean_object* v_tail_5765_; lean_object* v_fst_5766_; lean_object* v_snd_5767_; lean_object* v___x_5768_; 
 v_head_5764_ = lean_ctor_get(v_as_x27_5756_, 0);
-lean_inc(v_head_5764_);
 v_tail_5765_ = lean_ctor_get(v_as_x27_5756_, 1);
-lean_inc(v_tail_5765_);
-lean_dec_ref(v_as_x27_5756_);
 v_fst_5766_ = lean_ctor_get(v_b_5757_, 0);
 lean_inc(v_fst_5766_);
 v_snd_5767_ = lean_ctor_get(v_b_5757_, 1);
 lean_inc(v_snd_5767_);
 lean_dec_ref(v_b_5757_);
+lean_inc(v_head_5764_);
 v___x_5768_ = l_Lean_Meta_LazyDiscrTree_extractKey___redArg(v_snd_5767_, v_head_5764_, v___y_5758_, v___y_5759_, v___y_5760_, v___y_5761_);
 if (lean_obj_tag(v___x_5768_) == 0)
 {
@@ -16414,7 +16412,6 @@ goto _start;
 else
 {
 lean_dec(v_fst_5766_);
-lean_dec(v_tail_5765_);
 return v___x_5768_;
 }
 }
@@ -16429,6 +16426,7 @@ lean_dec(v___y_5786_);
 lean_dec_ref(v___y_5785_);
 lean_dec(v___y_5784_);
 lean_dec_ref(v___y_5783_);
+lean_dec(v_as_x27_5781_);
 return v_res_5788_;
 }
 }
@@ -16538,6 +16536,7 @@ lean_dec(v_a_5821_);
 lean_dec_ref(v_a_5820_);
 lean_dec(v_a_5819_);
 lean_dec_ref(v_a_5818_);
+lean_dec(v_keys_5817_);
 return v_res_5823_;
 }
 }
@@ -16558,6 +16557,7 @@ lean_dec(v_a_5839_);
 lean_dec_ref(v_a_5838_);
 lean_dec(v_a_5837_);
 lean_dec_ref(v_a_5836_);
+lean_dec(v_keys_5835_);
 return v_res_5841_;
 }
 }
@@ -16578,6 +16578,7 @@ lean_dec(v___y_5861_);
 lean_dec_ref(v___y_5860_);
 lean_dec(v___y_5859_);
 lean_dec_ref(v___y_5858_);
+lean_dec(v_as_x27_5855_);
 lean_dec(v_as_5854_);
 return v_res_5863_;
 }
@@ -18504,6 +18505,7 @@ v_resetjp_6643_:
 {
 lean_object* v___x_6646_; 
 v___x_6646_ = l_Lean_Meta_LazyDiscrTree_extractKeys___redArg(v_a_6641_, v_droppedKeys_6631_, v___y_6632_, v___y_6633_, v___y_6634_, v___y_6635_);
+lean_dec(v_droppedKeys_6631_);
 if (lean_obj_tag(v___x_6646_) == 0)
 {
 lean_object* v_a_6647_; lean_object* v___x_6649_; uint8_t v_isShared_6650_; uint8_t v_isSharedCheck_6666_; 
@@ -20059,6 +20061,7 @@ v_resetjp_7254_:
 {
 lean_object* v___x_7257_; 
 v___x_7257_ = l_Lean_Meta_LazyDiscrTree_extractKeys___redArg(v_a_7252_, v_droppedKeys_7241_, v___y_7242_, v___y_7243_, v___y_7244_, v___y_7245_);
+lean_dec(v_droppedKeys_7241_);
 if (lean_obj_tag(v___x_7257_) == 0)
 {
 lean_object* v_a_7258_; lean_object* v_fst_7259_; lean_object* v_snd_7260_; lean_object* v___x_7261_; lean_object* v___y_7263_; 

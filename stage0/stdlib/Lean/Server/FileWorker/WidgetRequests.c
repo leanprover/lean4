@@ -1100,6 +1100,7 @@ lean_ctor_set(v___x_58_, 1, v___x_57_);
 v___x_59_ = ((lean_object*)(l_Lean_Widget_instToJsonRpcEncodablePacket_toJson___closed__0_00___x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_30_));
 v___x_60_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Widget_instToJsonRpcEncodablePacket_toJson_00___x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_30__spec__0(v___x_58_, v___x_59_);
 v___x_61_ = l_Lean_Json_mkObj(v___x_60_);
+lean_dec(v___x_60_);
 return v___x_61_;
 }
 }
@@ -2014,6 +2015,7 @@ v___x_316_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_316_, 0, v___x_314_);
 lean_ctor_set(v___x_316_, 1, v___x_315_);
 v___x_317_ = l_Lean_Json_mkObj(v___x_316_);
+lean_dec_ref(v___x_316_);
 return v___x_317_;
 }
 }
@@ -2034,6 +2036,7 @@ v___x_325_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_325_, 0, v___x_323_);
 lean_ctor_set(v___x_325_, 1, v___x_324_);
 v___x_326_ = l_Lean_Json_mkObj(v___x_325_);
+lean_dec_ref(v___x_325_);
 return v___x_326_;
 }
 default: 
@@ -2093,6 +2096,7 @@ v___x_342_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_342_, 0, v___x_340_);
 lean_ctor_set(v___x_342_, 1, v___x_341_);
 v___x_343_ = l_Lean_Json_mkObj(v___x_342_);
+lean_dec_ref(v___x_342_);
 return v___x_343_;
 }
 }
@@ -3687,6 +3691,7 @@ lean_ctor_set(v___x_938_, 1, v___x_937_);
 v___x_939_ = ((lean_object*)(l_Lean_Widget_instToJsonRpcEncodablePacket_toJson___closed__0_00___x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_30_));
 v___x_940_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Widget_instToJsonRpcEncodablePacket_toJson_00___x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_30__spec__0(v___x_938_, v___x_939_);
 v___x_941_ = l_Lean_Json_mkObj(v___x_940_);
+lean_dec(v___x_940_);
 return v___x_941_;
 }
 }
@@ -5627,6 +5632,7 @@ v_mctx_1442_ = lean_ctor_get(v___x_1441_, 0);
 lean_inc_ref(v_mctx_1442_);
 lean_dec(v___x_1441_);
 v___x_1443_ = l_Lean_MetavarContext_getExprAssignmentCore_x3f(v_mctx_1442_, v_mvarId_1438_);
+lean_dec_ref(v_mctx_1442_);
 v___x_1444_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1444_, 0, v___x_1443_);
 return v___x_1444_;
@@ -8533,6 +8539,7 @@ lean_ctor_set(v___x_2325_, 1, v___x_2324_);
 v___x_2326_ = ((lean_object*)(l_Lean_Widget_instToJsonRpcEncodablePacket_toJson___closed__0_00___x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_30_));
 v___x_2327_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Widget_instToJsonRpcEncodablePacket_toJson_00___x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_30__spec__0(v___x_2325_, v___x_2326_);
 v___x_2328_ = l_Lean_Json_mkObj(v___x_2327_);
+lean_dec(v___x_2327_);
 return v___x_2328_;
 }
 }
@@ -8656,6 +8663,7 @@ lean_ctor_set(v___x_2365_, 1, v___x_2364_);
 v___x_2366_ = ((lean_object*)(l_Lean_Widget_instToJsonRpcEncodablePacket_toJson___closed__0_00___x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_30_));
 v___x_2367_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Widget_instToJsonRpcEncodablePacket_toJson_00___x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_30__spec__0(v___x_2365_, v___x_2366_);
 v___x_2368_ = l_Lean_Json_mkObj(v___x_2367_);
+lean_dec(v___x_2367_);
 return v___x_2368_;
 }
 }
@@ -14660,6 +14668,7 @@ v___x_4530_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_4530_, 0, v___x_4528_);
 lean_ctor_set(v___x_4530_, 1, v___x_4529_);
 v___x_4531_ = l_Lean_Json_mkObj(v___x_4530_);
+lean_dec_ref(v___x_4530_);
 return v___x_4531_;
 }
 case 1:
@@ -14677,6 +14686,7 @@ v___x_4536_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_4536_, 0, v___x_4534_);
 lean_ctor_set(v___x_4536_, 1, v___x_4535_);
 v___x_4537_ = l_Lean_Json_mkObj(v___x_4536_);
+lean_dec_ref(v___x_4536_);
 return v___x_4537_;
 }
 case 2:
@@ -14737,6 +14747,7 @@ v___x_4551_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_4551_, 0, v___x_4546_);
 lean_ctor_set(v___x_4551_, 1, v___x_4550_);
 v___x_4552_ = l_Lean_Json_mkObj(v___x_4551_);
+lean_dec_ref(v___x_4551_);
 v___x_4553_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_4553_, 0, v___x_4543_);
 lean_ctor_set(v___x_4553_, 1, v___x_4552_);
@@ -14744,6 +14755,7 @@ v___x_4554_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_4554_, 0, v___x_4553_);
 lean_ctor_set(v___x_4554_, 1, v___x_4549_);
 v___x_4555_ = l_Lean_Json_mkObj(v___x_4554_);
+lean_dec_ref(v___x_4554_);
 return v___x_4555_;
 }
 }
@@ -14800,6 +14812,7 @@ v___x_4579_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_4579_, 0, v___x_4565_);
 lean_ctor_set(v___x_4579_, 1, v___x_4578_);
 v___x_4580_ = l_Lean_Json_mkObj(v___x_4579_);
+lean_dec_ref(v___x_4579_);
 v___x_4581_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_4581_, 0, v___x_4563_);
 lean_ctor_set(v___x_4581_, 1, v___x_4580_);
@@ -14807,6 +14820,7 @@ v___x_4582_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_4582_, 0, v___x_4581_);
 lean_ctor_set(v___x_4582_, 1, v___x_4574_);
 v___x_4583_ = l_Lean_Json_mkObj(v___x_4582_);
+lean_dec_ref(v___x_4582_);
 return v___x_4583_;
 }
 default: 
@@ -19825,6 +19839,7 @@ lean_ctor_set(v___x_5926_, 1, v___x_5925_);
 v___x_5927_ = ((lean_object*)(l_Lean_Widget_instToJsonRpcEncodablePacket_toJson___closed__0_00___x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_30_));
 v___x_5928_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Widget_instToJsonRpcEncodablePacket_toJson_00___x40_Lean_Server_FileWorker_WidgetRequests_433270988____hygCtx___hyg_30__spec__0(v___x_5926_, v___x_5927_);
 v___x_5929_ = l_Lean_Json_mkObj(v___x_5928_);
+lean_dec(v___x_5928_);
 return v___x_5929_;
 }
 }

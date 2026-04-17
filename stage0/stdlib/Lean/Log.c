@@ -628,6 +628,7 @@ v___x_184_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_184_, 0, v___x_178_);
 lean_ctor_set(v___x_184_, 1, v___x_183_);
 v___x_185_ = l_Lean_Json_mkObj(v___x_184_);
+lean_dec_ref(v___x_184_);
 v___f_186_ = lean_alloc_closure((void*)(l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed___lam__0), 2, 1);
 lean_closure_set(v___f_186_, 0, v___x_185_);
 v_inst_187_ = lean_alloc_ctor(0, 2, 8);

@@ -10768,6 +10768,7 @@ lean_inc(v_a_3318_);
 lean_dec_ref(v___x_3317_);
 v___x_3319_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Cbv_ControlFlow_0__Lean_Meta_Tactic_Cbv_tryMatchEquations___closed__0));
 v___x_3320_ = l_Lean_Meta_Sym_Simp_Theorems_rewrite(v_a_3318_, v___x_3319_, v_e_3306_, v_a_3307_, v_a_3308_, v_a_3309_, v_a_3310_, v_a_3311_, v_a_3312_, v_a_3313_, v_a_3314_, v_a_3315_);
+lean_dec(v_a_3318_);
 return v___x_3320_;
 }
 else

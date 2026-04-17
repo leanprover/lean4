@@ -3213,6 +3213,7 @@ v___x_825_ = l_Lean_Json_opt___at___00IO_FS_Stream_writeLspMessage_spec__1(v___x
 lean_dec(v_data_x3f_811_);
 v___x_826_ = l_List_appendTR___redArg(v___x_823_, v___x_825_);
 v___x_827_ = l_Lean_Json_mkObj(v___x_826_);
+lean_dec(v___x_826_);
 lean_inc_ref(v___y_813_);
 v___x_828_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_828_, 0, v___y_813_);
@@ -3367,6 +3368,7 @@ v___x_723_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_723_, 0, v___x_720_);
 lean_ctor_set(v___x_723_, 1, v___y_722_);
 v___x_724_ = l_Lean_Json_mkObj(v___x_723_);
+lean_dec_ref(v___x_723_);
 v___x_725_ = l_Lean_Json_compress(v___x_724_);
 v___x_726_ = l_IO_FS_Stream_writeSerializedLspMessage(v_h_717_, v___x_725_);
 lean_dec_ref(v___x_725_);

@@ -769,9 +769,9 @@ return v___x_697_;
 LEAN_EXPORT lean_object* l_Std_Time_TimeZone_fromTimeZone___lam__0___boxed(lean_object* v___x_698_, lean_object* v_id_699_, lean_object* v_off_700_){
 _start:
 {
-uint8_t v___x_28__boxed_701_; lean_object* v_res_702_; 
-v___x_28__boxed_701_ = lean_unbox(v___x_698_);
-v_res_702_ = l_Std_Time_TimeZone_fromTimeZone___lam__0(v___x_28__boxed_701_, v_id_699_, v_off_700_);
+uint8_t v___x_29__boxed_701_; lean_object* v_res_702_; 
+v___x_29__boxed_701_ = lean_unbox(v___x_698_);
+v_res_702_ = l_Std_Time_TimeZone_fromTimeZone___lam__0(v___x_29__boxed_701_, v_id_699_, v_off_700_);
 return v_res_702_;
 }
 }

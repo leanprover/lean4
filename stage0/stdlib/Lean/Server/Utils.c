@@ -2000,6 +2000,7 @@ v_a_544_ = lean_ctor_get(v___x_543_, 0);
 lean_inc(v_a_544_);
 lean_dec_ref(v___x_543_);
 v___x_545_ = l_Lean_searchModuleNameOfFileName(v_val_532_, v_a_544_);
+lean_dec(v_a_544_);
 if (lean_obj_tag(v___x_545_) == 0)
 {
 lean_object* v_a_546_; lean_object* v___x_548_; uint8_t v_isShared_549_; uint8_t v_isSharedCheck_558_; 

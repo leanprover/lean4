@@ -123,3 +123,34 @@ structure MyNS.MyStruct where
 #guard_msgs in #check MyNS.instInhabitedMyStruct.default
 /-- info: MyNS.instInhabitedMyStruct : Inhabited MyNS.MyStruct -/
 #guard_msgs in #check MyNS.instInhabitedMyStruct
+
+/-!
+Fix for https://github.com/leanprover/lean4/issues/13372
+Should inherit parent structures' Inhabited instances.
+-/
+
+structure Foo where
+  n : Nat
+  m : Nat
+  h : n ≤ m
+
+instance : Inhabited Foo where
+  default := ⟨5, 5, Nat.le.refl⟩
+
+-- Was: "failed to generate Inhabited instance for Bar"
+structure Bar extends Foo where
+  extra : Bool := true
+  a : Nat
+  deriving Inhabited
+
+/-- info: 5 -/
+#guard_msgs in #eval (default : Bar).n
+/-- info: true -/
+#guard_msgs in #eval (default : Bar).extra
+/-- info: 0 -/
+#guard_msgs in #eval (default : Bar).a
+
+/-- info: Bar.mk default true default : Bar -/
+#guard_msgs in
+set_option pp.structureInstances false in
+#check (struct_inst_default% : Bar)

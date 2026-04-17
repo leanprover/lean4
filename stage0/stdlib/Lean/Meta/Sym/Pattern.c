@@ -9734,6 +9734,7 @@ lean_dec(v___x_3277_);
 v_levelAssignDepth_3279_ = lean_ctor_get(v_mctx_3278_, 1);
 lean_inc(v_levelAssignDepth_3279_);
 v_decl_3280_ = l_Lean_MetavarContext_getLevelDecl(v_mctx_3278_, v_mvarId_3274_);
+lean_dec_ref(v_mctx_3278_);
 v_depth_3281_ = lean_ctor_get(v_decl_3280_, 0);
 lean_inc(v_depth_3281_);
 lean_dec_ref(v_decl_3280_);

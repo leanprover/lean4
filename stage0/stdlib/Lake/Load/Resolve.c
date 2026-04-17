@@ -16815,14 +16815,14 @@ lean_object* v_a_4872_; lean_object* v___y_4877_; uint8_t v___x_4882_;
 v___x_4882_ = lean_usize_dec_eq(v_i_4865_, v_stop_4866_);
 if (v___x_4882_ == 0)
 {
-lean_object* v___x_4883_; lean_object* v___x_4884_; lean_object* v___x_9315__overap_4885_; lean_object* v___x_4886_; 
+lean_object* v___x_4883_; lean_object* v___x_4884_; lean_object* v___x_9316__overap_4885_; lean_object* v___x_4886_; 
 v___x_4883_ = lean_unsigned_to_nat(0u);
 v___x_4884_ = ((lean_object*)(l___private_Lake_Load_Resolve_0__Lake_reuseManifest___closed__4));
-v___x_9315__overap_4885_ = lean_array_uget_borrowed(v_as_4864_, v_i_4865_);
-lean_inc(v___x_9315__overap_4885_);
+v___x_9316__overap_4885_ = lean_array_uget_borrowed(v_as_4864_, v_i_4865_);
+lean_inc(v___x_9316__overap_4885_);
 lean_inc(v___y_4868_);
 lean_inc_ref(v_pkg_4863_);
-v___x_4886_ = lean_apply_4(v___x_9315__overap_4885_, v_pkg_4863_, v___y_4868_, v___x_4884_, lean_box(0));
+v___x_4886_ = lean_apply_4(v___x_9316__overap_4885_, v_pkg_4863_, v___y_4868_, v___x_4884_, lean_box(0));
 if (lean_obj_tag(v___x_4886_) == 0)
 {
 lean_object* v_a_4887_; lean_object* v_a_4888_; lean_object* v___x_4889_; uint8_t v___x_4890_; 

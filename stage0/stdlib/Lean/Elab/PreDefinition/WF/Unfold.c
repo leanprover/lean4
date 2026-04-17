@@ -4355,11 +4355,9 @@ else
 {
 lean_object* v_head_1432_; lean_object* v_tail_1433_; uint8_t v___x_1434_; lean_object* v___x_1435_; 
 v_head_1432_ = lean_ctor_get(v_as_x27_1424_, 0);
-lean_inc(v_head_1432_);
 v_tail_1433_ = lean_ctor_get(v_as_x27_1424_, 1);
-lean_inc(v_tail_1433_);
-lean_dec_ref(v_as_x27_1424_);
 v___x_1434_ = 1;
+lean_inc(v_head_1432_);
 v___x_1435_ = l_Lean_MVarId_refl(v_head_1432_, v___x_1434_, v___y_1426_, v___y_1427_, v___y_1428_, v___y_1429_);
 if (lean_obj_tag(v___x_1435_) == 0)
 {
@@ -4372,7 +4370,6 @@ goto _start;
 }
 else
 {
-lean_dec(v_tail_1433_);
 return v___x_1435_;
 }
 }
@@ -4387,6 +4384,7 @@ lean_dec(v___y_1443_);
 lean_dec_ref(v___y_1442_);
 lean_dec(v___y_1441_);
 lean_dec_ref(v___y_1440_);
+lean_dec(v_as_x27_1438_);
 return v_res_1445_;
 }
 }
@@ -4475,6 +4473,7 @@ lean_inc(v_a_1500_);
 lean_dec_ref(v___x_1499_);
 v___x_1501_ = lean_box(0);
 v___x_1502_ = l_List_forIn_x27_loop___at___00__private_Lean_Elab_PreDefinition_WF_Unfold_0__Lean_Elab_WF_mkMatchArgPusher_spec__5___redArg(v_a_1500_, v___x_1501_, v___y_1466_, v___y_1467_, v___y_1468_, v___y_1469_);
+lean_dec(v_a_1500_);
 if (lean_obj_tag(v___x_1502_) == 0)
 {
 lean_object* v___x_1503_; lean_object* v_a_1504_; lean_object* v___x_1506_; uint8_t v_isShared_1507_; uint8_t v_isSharedCheck_1549_; 
@@ -7407,6 +7406,7 @@ lean_dec(v___y_2580_);
 lean_dec_ref(v___y_2579_);
 lean_dec(v___y_2578_);
 lean_dec_ref(v___y_2577_);
+lean_dec(v_as_x27_2574_);
 lean_dec(v_as_2573_);
 return v_res_2582_;
 }

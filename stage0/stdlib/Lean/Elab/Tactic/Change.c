@@ -1803,9 +1803,9 @@ return v___x_586_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalChange___lam__3___boxed(lean_object* v_h_589_, lean_object* v_fst_590_, lean_object* v___x_591_, lean_object* v_snd_592_, lean_object* v___y_593_, lean_object* v___y_594_, lean_object* v___y_595_, lean_object* v___y_596_, lean_object* v___y_597_, lean_object* v___y_598_, lean_object* v___y_599_, lean_object* v___y_600_, lean_object* v___y_601_){
 _start:
 {
-uint8_t v___x_3890__boxed_602_; lean_object* v_res_603_; 
-v___x_3890__boxed_602_ = lean_unbox(v___x_591_);
-v_res_603_ = l_Lean_Elab_Tactic_evalChange___lam__3(v_h_589_, v_fst_590_, v___x_3890__boxed_602_, v_snd_592_, v___y_593_, v___y_594_, v___y_595_, v___y_596_, v___y_597_, v___y_598_, v___y_599_, v___y_600_);
+uint8_t v___x_3893__boxed_602_; lean_object* v_res_603_; 
+v___x_3893__boxed_602_ = lean_unbox(v___x_591_);
+v_res_603_ = l_Lean_Elab_Tactic_evalChange___lam__3(v_h_589_, v_fst_590_, v___x_3893__boxed_602_, v_snd_592_, v___y_593_, v___y_594_, v___y_595_, v___y_596_, v___y_597_, v___y_598_, v___y_599_, v___y_600_);
 lean_dec(v___y_600_);
 lean_dec_ref(v___y_599_);
 lean_dec(v___y_598_);
@@ -2002,9 +2002,9 @@ return v___x_653_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_evalChange___lam__4___boxed(lean_object* v_newType_656_, lean_object* v___x_657_, lean_object* v___x_658_, lean_object* v_h_659_, lean_object* v___y_660_, lean_object* v___y_661_, lean_object* v___y_662_, lean_object* v___y_663_, lean_object* v___y_664_, lean_object* v___y_665_, lean_object* v___y_666_, lean_object* v___y_667_, lean_object* v___y_668_){
 _start:
 {
-uint8_t v___x_3991__boxed_669_; lean_object* v_res_670_; 
-v___x_3991__boxed_669_ = lean_unbox(v___x_658_);
-v_res_670_ = l_Lean_Elab_Tactic_evalChange___lam__4(v_newType_656_, v___x_657_, v___x_3991__boxed_669_, v_h_659_, v___y_660_, v___y_661_, v___y_662_, v___y_663_, v___y_664_, v___y_665_, v___y_666_, v___y_667_);
+uint8_t v___x_3994__boxed_669_; lean_object* v_res_670_; 
+v___x_3994__boxed_669_ = lean_unbox(v___x_658_);
+v_res_670_ = l_Lean_Elab_Tactic_evalChange___lam__4(v_newType_656_, v___x_657_, v___x_3994__boxed_669_, v_h_659_, v___y_660_, v___y_661_, v___y_662_, v___y_663_, v___y_664_, v___y_665_, v___y_666_, v___y_667_);
 lean_dec(v___y_667_);
 lean_dec_ref(v___y_666_);
 lean_dec(v___y_665_);
@@ -2087,16 +2087,16 @@ else
 lean_object* v___x_732_; 
 v___x_732_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_732_, 0, v_loc_728_);
-v___y_703_ = v_a_692_;
-v___y_704_ = v_a_693_;
-v___y_705_ = v_a_689_;
-v___y_706_ = v_a_695_;
-v___y_707_ = v___f_721_;
-v___y_708_ = v_a_690_;
-v___y_709_ = v___f_719_;
-v___y_710_ = v_a_691_;
-v___y_711_ = v_a_694_;
-v___y_712_ = v_a_688_;
+v___y_703_ = v_a_695_;
+v___y_704_ = v_a_689_;
+v___y_705_ = v___f_721_;
+v___y_706_ = v_a_693_;
+v___y_707_ = v_a_690_;
+v___y_708_ = v_a_694_;
+v___y_709_ = v_a_692_;
+v___y_710_ = v_a_688_;
+v___y_711_ = v_a_691_;
+v___y_712_ = v___f_719_;
 v___y_713_ = v___x_732_;
 goto v___jp_702_;
 }
@@ -2107,16 +2107,16 @@ else
 lean_object* v___x_733_; 
 lean_dec(v___x_723_);
 v___x_733_ = lean_box(0);
-v___y_703_ = v_a_692_;
-v___y_704_ = v_a_693_;
-v___y_705_ = v_a_689_;
-v___y_706_ = v_a_695_;
-v___y_707_ = v___f_721_;
-v___y_708_ = v_a_690_;
-v___y_709_ = v___f_719_;
-v___y_710_ = v_a_691_;
-v___y_711_ = v_a_694_;
-v___y_712_ = v_a_688_;
+v___y_703_ = v_a_695_;
+v___y_704_ = v_a_689_;
+v___y_705_ = v___f_721_;
+v___y_706_ = v_a_693_;
+v___y_707_ = v_a_690_;
+v___y_708_ = v_a_694_;
+v___y_709_ = v_a_692_;
+v___y_710_ = v_a_688_;
+v___y_711_ = v_a_691_;
+v___y_712_ = v___f_719_;
 v___y_713_ = v___x_733_;
 goto v___jp_702_;
 }
@@ -2126,7 +2126,7 @@ lean_object* v___x_714_; lean_object* v___x_715_; lean_object* v___x_716_;
 v___x_714_ = l_Lean_mkOptionalNode(v___y_713_);
 v___x_715_ = l_Lean_Elab_Tactic_expandOptLocation(v___x_714_);
 lean_dec(v___x_714_);
-v___x_716_ = l_Lean_Elab_Tactic_withLocation(v___x_715_, v___y_707_, v___y_709_, v___f_701_, v___y_712_, v___y_705_, v___y_708_, v___y_710_, v___y_703_, v___y_704_, v___y_711_, v___y_706_);
+v___x_716_ = l_Lean_Elab_Tactic_withLocation(v___x_715_, v___y_705_, v___y_712_, v___f_701_, v___y_710_, v___y_704_, v___y_707_, v___y_711_, v___y_709_, v___y_706_, v___y_708_, v___y_703_);
 lean_dec(v___x_715_);
 return v___x_716_;
 }

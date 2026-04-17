@@ -487,6 +487,7 @@ v_resetjp_117_:
 lean_object* v___x_120_; 
 lean_inc(v_fst_115_);
 v___x_120_ = l_Lean_Meta_Grind_Goal_getENode(v___x_110_, v_fst_115_, v___y_105_, v___y_106_, v___y_107_, v___y_108_);
+lean_dec(v___x_110_);
 if (lean_obj_tag(v___x_120_) == 0)
 {
 lean_object* v_a_121_; lean_object* v___x_123_; uint8_t v_isShared_124_; uint8_t v_isSharedCheck_150_; 
@@ -1098,6 +1099,7 @@ v_resetjp_327_:
 lean_object* v___x_330_; 
 lean_inc(v_fst_325_);
 v___x_330_ = l_Lean_Meta_Grind_Goal_getENode(v___x_320_, v_fst_325_, v___y_315_, v___y_316_, v___y_317_, v___y_318_);
+lean_dec(v___x_320_);
 if (lean_obj_tag(v___x_330_) == 0)
 {
 lean_object* v_a_331_; lean_object* v___x_333_; uint8_t v_isShared_334_; uint8_t v_isSharedCheck_373_; 
@@ -1130,6 +1132,7 @@ v___x_338_ = lean_box(0);
 v_fn_370_ = l_Lean_Expr_getAppFn(v_self_336_);
 lean_dec_ref(v_self_336_);
 v___x_371_ = l_Lean_Meta_Grind_Goal_getRoot_x3f(v___x_335_, v_fn_370_);
+lean_dec(v___x_335_);
 if (lean_obj_tag(v___x_371_) == 0)
 {
 v___y_363_ = v_fn_370_;

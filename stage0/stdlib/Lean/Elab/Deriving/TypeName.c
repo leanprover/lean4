@@ -1659,9 +1659,9 @@ v___x_574_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00_
 v_a_575_ = lean_ctor_get(v___x_574_, 0);
 lean_inc(v_a_575_);
 lean_dec_ref(v___x_574_);
-lean_inc_n(v_macroStack_573_, 2);
 v___x_576_ = l_Lean_Elab_getBetterRef(v_a_572_, v_macroStack_573_);
 lean_dec(v_a_572_);
+lean_inc(v_macroStack_573_);
 v___x_577_ = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00__private_Lean_Elab_Deriving_TypeName_0__Lean_Elab_deriveTypeNameInstance_spec__3_spec__5___redArg(v_a_575_, v_macroStack_573_, v___y_569_);
 v_a_578_ = lean_ctor_get(v___x_577_, 0);
 v_isSharedCheck_586_ = !lean_is_exclusive(v___x_577_);

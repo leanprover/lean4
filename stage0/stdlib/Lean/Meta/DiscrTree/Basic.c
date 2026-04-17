@@ -4121,7 +4121,6 @@ v_k_1391_ = lean_array_get(v___x_1390_, v_keys_1385_, v___x_1388_);
 v___x_1392_ = ((lean_object*)(l_Lean_Meta_DiscrTree_insertKeyValue___redArg___closed__0));
 v___x_1393_ = ((lean_object*)(l_Lean_Meta_DiscrTree_insertKeyValue___redArg___closed__1));
 lean_inc(v_k_1391_);
-lean_inc_ref(v_d_1384_);
 v___x_1394_ = l_Lean_PersistentHashMap_find_x3f___redArg(v___x_1392_, v___x_1393_, v_d_1384_, v_k_1391_);
 if (lean_obj_tag(v___x_1394_) == 0)
 {

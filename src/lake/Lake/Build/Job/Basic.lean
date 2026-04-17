@@ -191,7 +191,7 @@ end Job
 /-- A Lake job task with an opaque value in `Type`. -/
 public abbrev OpaqueJobTask := JobTask Opaque
 
-@[inline] private unsafe def JobTask.toOpaqueImpl (self : JobTask α) : OpaqueJobTask :=
+@[inline] unsafe def JobTask.toOpaqueImpl (self : JobTask α) : OpaqueJobTask :=
   unsafeCast self
 
 /-- Forget the value of a job task. Implemented as a no-op cast. -/

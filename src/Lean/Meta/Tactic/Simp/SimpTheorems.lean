@@ -50,6 +50,18 @@ register_builtin_option debug.tactic.simp.checkDefEqAttr : Bool := {
     of the `defeq` attribute, and warn if it was. Note that this is a costly check."
 }
 
+register_builtin_option warning.simp.varHead : Bool := {
+  defValue := false
+  descr := "If true, warns when the head symbol of the left-hand side of a `@[simp]` theorem \
+    is a variable. Such lemmas are tried on every simp step, which can be slow."
+}
+
+register_builtin_option warning.simp.otherHead : Bool := {
+  defValue := true
+  descr := "If true, warns when the left-hand side of a `@[simp]` theorem is headed by a \
+    `.other` key in the discrimination tree (e.g. a lambda expression). Such lemmas can cause slowdowns."
+}
+
 /--
 An `Origin` is an identifier for simp theorems which indicates roughly
 what action the user took which lead to this theorem existing in the simp set.
@@ -359,12 +371,27 @@ private def checkTypeIsProp (type : Expr) : MetaM Unit :=
   unless (← isProp type) do
     throwError "Invalid simp theorem: Expected a proposition, but found{indentExpr type}"
 
-private def mkSimpTheoremKeys (type : Expr) (noIndexAtArgs : Bool) : MetaM (Array SimpTheoremKey × Bool) := do
+private def mkSimpTheoremKeys (type : Expr) (noIndexAtArgs : Bool) (checkLhs : Bool := false) : MetaM (Array SimpTheoremKey × Bool) := do
   withNewMCtxDepth do
     let (_, _, type) ← forallMetaTelescopeReducing type
     let type ← whnfR type
     match type.eq? with
-    | some (_, lhs, rhs) => pure (← DiscrTree.mkPath lhs noIndexAtArgs, ← isPerm lhs rhs)
+    | some (_, lhs, rhs) =>
+      let keys ← DiscrTree.mkPath lhs noIndexAtArgs
+      if checkLhs then
+        if warning.simp.varHead.get (← getOptions) && keys[0]? == some .star then
+          logWarning m!"Left-hand side of simp theorem has a variable as head symbol. \
+            This means the theorem will be tried on every simp step, which can be expensive. \
+            This may be acceptable for `local` or `scoped` simp lemmas.\n\
+            Use `set_option warning.simp.varHead false` to disable this warning."
+        if warning.simp.otherHead.get (← getOptions) && keys[0]? == some .other then
+          logWarning m!"Left-hand side of simp theorem is headed by a `.other` key in the \
+            discrimination tree (e.g. because it is a lambda expression). \
+            This theorem will be tried against all expressions that also have a `.other` key as head, \
+            which can cause slowdowns. \
+            This may be acceptable for `local` or `scoped` simp lemmas.\n\
+            Use `set_option warning.simp.otherHead false` to disable this warning."
+      pure (keys, ← isPerm lhs rhs)
     | none => throwError "Unexpected kind of simp theorem{indentExpr type}"
 
 register_builtin_option simp.rfl.checkTransparency: Bool := {
@@ -373,10 +400,10 @@ register_builtin_option simp.rfl.checkTransparency: Bool := {
 }
 
 private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array Name) (proof : Expr)
-    (post : Bool) (prio : Nat) (noIndexAtArgs : Bool) : MetaM SimpTheorem := do
+    (post : Bool) (prio : Nat) (noIndexAtArgs : Bool) (checkLhs : Bool := false): MetaM SimpTheorem := do
   assert! origin != .fvar ⟨.anonymous⟩
   let type ← instantiateMVars (← inferType e)
-  let (keys, perm) ← mkSimpTheoremKeys type noIndexAtArgs
+  let (keys, perm) ← mkSimpTheoremKeys type noIndexAtArgs checkLhs
   let rfl ← isRflProof proof
   if rfl && simp.rfl.checkTransparency.get (← getOptions) then
     forallTelescopeReducing type fun _ type => do
@@ -399,7 +426,7 @@ Creates a `SimpTheorem` from a global theorem.
 Because some theorems lead to multiple `SimpTheorems` (in particular conjunctions), returns an array.
 -/
 def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
-    (prio : Nat := eval_prio default) : MetaM (Array SimpTheorem) := do
+    (prio : Nat := eval_prio default) (checkLhs : Bool := false) : MetaM (Array SimpTheorem) := do
   let cinfo ← getConstVal declName
   let us := cinfo.levelParams.map mkLevelParam
   let origin := .decl declName post inv
@@ -413,10 +440,10 @@ def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
         let auxName ← mkAuxLemma (kind? := `_simp) cinfo.levelParams type val (inferRfl := true)
           (forceExpose := true)  -- These kinds of theorems are small and `to_additive` may need to
                                  -- unfold them.
-        r := r.push <| (← do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false))
+        r := r.push <| (← do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false) (checkLhs := checkLhs))
       return r
     else
-      return #[← withoutExporting do mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false)]
+      return #[← withoutExporting do mkSimpTheoremCore origin (mkConst declName us) #[] (mkConst declName) post prio (noIndexAtArgs := false) (checkLhs := checkLhs)]
 
 def SimpTheorem.getValue (simpThm : SimpTheorem) : MetaM Expr := do
   if simpThm.proof.isConst && simpThm.levelParams.isEmpty then
@@ -670,7 +697,7 @@ def SimpExtension.getTheorems (ext : SimpExtension) : CoreM SimpTheorems :=
 Adds a simp theorem to a simp extension
 -/
 def addSimpTheorem (ext : SimpExtension) (declName : Name) (post : Bool) (inv : Bool) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
-  let simpThms ← withExporting (isExporting := attrKind != .local && !isPrivateName declName) do mkSimpTheoremFromConst declName post inv prio
+  let simpThms ← withExporting (isExporting := attrKind != .local && !isPrivateName declName) do mkSimpTheoremFromConst declName post inv prio (checkLhs := true)
   for simpThm in simpThms do
     ext.add (SimpEntry.thm simpThm) attrKind
 

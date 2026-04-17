@@ -2034,6 +2034,7 @@ lean_ctor_set(v___x_283_, 1, v___x_282_);
 v___x_284_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_285_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_283_, v___x_284_);
 v___x_286_ = l_Lean_Json_mkObj(v___x_285_);
+lean_dec(v___x_285_);
 return v___x_286_;
 }
 }
@@ -2472,6 +2473,7 @@ lean_ctor_set(v___x_411_, 1, v___x_410_);
 v___x_412_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_413_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_411_, v___x_412_);
 v___x_414_ = l_Lean_Json_mkObj(v___x_413_);
+lean_dec(v___x_413_);
 return v___x_414_;
 }
 }
@@ -3266,6 +3268,7 @@ lean_ctor_set(v___x_623_, 1, v___x_622_);
 v___x_624_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_625_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_623_, v___x_624_);
 v___x_626_ = l_Lean_Json_mkObj(v___x_625_);
+lean_dec(v___x_625_);
 return v___x_626_;
 }
 }
@@ -4101,6 +4104,7 @@ lean_ctor_set(v___x_892_, 1, v___x_891_);
 v___x_893_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_894_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_892_, v___x_893_);
 v___x_895_ = l_Lean_Json_mkObj(v___x_894_);
+lean_dec(v___x_894_);
 return v___x_895_;
 }
 }
@@ -4694,6 +4698,7 @@ lean_ctor_set(v___x_1077_, 1, v___x_1076_);
 v___x_1078_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_1079_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_1077_, v___x_1078_);
 v___x_1080_ = l_Lean_Json_mkObj(v___x_1079_);
+lean_dec(v___x_1079_);
 return v___x_1080_;
 }
 }
@@ -5119,6 +5124,7 @@ lean_ctor_set(v___x_1198_, 1, v___x_1197_);
 v___x_1199_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_1200_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_1198_, v___x_1199_);
 v___x_1201_ = l_Lean_Json_mkObj(v___x_1200_);
+lean_dec(v___x_1200_);
 return v___x_1201_;
 }
 }
@@ -5707,6 +5713,7 @@ lean_ctor_set(v___x_1381_, 1, v___x_1380_);
 v___x_1382_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_1383_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_1381_, v___x_1382_);
 v___x_1384_ = l_Lean_Json_mkObj(v___x_1383_);
+lean_dec(v___x_1383_);
 return v___x_1384_;
 }
 }
@@ -6086,6 +6093,7 @@ lean_ctor_set(v___x_1482_, 1, v___x_1481_);
 v___x_1483_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_1484_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_1482_, v___x_1483_);
 v___x_1485_ = l_Lean_Json_mkObj(v___x_1484_);
+lean_dec(v___x_1484_);
 return v___x_1485_;
 }
 }
@@ -6476,6 +6484,7 @@ lean_ctor_set(v___x_1589_, 1, v___x_1588_);
 v___x_1590_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_1591_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_1589_, v___x_1590_);
 v___x_1592_ = l_Lean_Json_mkObj(v___x_1591_);
+lean_dec(v___x_1591_);
 return v___x_1592_;
 }
 }
@@ -7198,6 +7207,7 @@ lean_ctor_set(v___x_1800_, 1, v___x_1799_);
 v___x_1801_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_1802_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_1800_, v___x_1801_);
 v___x_1803_ = l_Lean_Json_mkObj(v___x_1802_);
+lean_dec(v___x_1802_);
 return v___x_1803_;
 }
 }
@@ -7644,6 +7654,7 @@ lean_ctor_set(v___x_1934_, 1, v___x_1933_);
 v___x_1935_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_1936_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_1934_, v___x_1935_);
 v___x_1937_ = l_Lean_Json_mkObj(v___x_1936_);
+lean_dec(v___x_1936_);
 return v___x_1937_;
 }
 }
@@ -7854,6 +7865,7 @@ lean_ctor_set(v___x_1996_, 1, v___x_1994_);
 v___x_1997_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_1998_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_1996_, v___x_1997_);
 v___x_1999_ = l_Lean_Json_mkObj(v___x_1998_);
+lean_dec(v___x_1998_);
 return v___x_1999_;
 }
 }
@@ -8707,6 +8719,7 @@ lean_ctor_set(v___x_2274_, 1, v___x_2273_);
 v___x_2275_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_2276_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_2274_, v___x_2275_);
 v___x_2277_ = l_Lean_Json_mkObj(v___x_2276_);
+lean_dec(v___x_2276_);
 return v___x_2277_;
 }
 }
@@ -9141,6 +9154,7 @@ lean_ctor_set(v___x_2395_, 1, v___x_2394_);
 v___x_2396_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_2397_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_2395_, v___x_2396_);
 v___x_2398_ = l_Lean_Json_mkObj(v___x_2397_);
+lean_dec(v___x_2397_);
 return v___x_2398_;
 }
 }
@@ -9344,6 +9358,7 @@ lean_ctor_set(v___x_2457_, 1, v___x_2455_);
 v___x_2458_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_2459_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_2457_, v___x_2458_);
 v___x_2460_ = l_Lean_Json_mkObj(v___x_2459_);
+lean_dec(v___x_2459_);
 return v___x_2460_;
 }
 }
@@ -9554,6 +9569,7 @@ lean_ctor_set(v___x_2519_, 1, v___x_2517_);
 v___x_2520_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_2521_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_2519_, v___x_2520_);
 v___x_2522_ = l_Lean_Json_mkObj(v___x_2521_);
+lean_dec(v___x_2521_);
 return v___x_2522_;
 }
 }
@@ -9765,6 +9781,7 @@ lean_ctor_set(v___x_2581_, 1, v___x_2579_);
 v___x_2582_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_2583_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_2581_, v___x_2582_);
 v___x_2584_ = l_Lean_Json_mkObj(v___x_2583_);
+lean_dec(v___x_2583_);
 return v___x_2584_;
 }
 }
@@ -9995,6 +10012,7 @@ lean_ctor_set(v___x_2655_, 1, v___x_2653_);
 v___x_2656_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_2657_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_2655_, v___x_2656_);
 v___x_2658_ = l_Lean_Json_mkObj(v___x_2657_);
+lean_dec(v___x_2657_);
 return v___x_2658_;
 }
 }
@@ -10742,6 +10760,7 @@ lean_ctor_set(v___x_2858_, 1, v___x_2857_);
 v___x_2859_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_2860_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_2858_, v___x_2859_);
 v___x_2861_ = l_Lean_Json_mkObj(v___x_2860_);
+lean_dec(v___x_2860_);
 return v___x_2861_;
 }
 }
@@ -11377,6 +11396,7 @@ lean_ctor_set(v___x_3055_, 1, v___x_3054_);
 v___x_3056_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_3057_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_3055_, v___x_3056_);
 v___x_3058_ = l_Lean_Json_mkObj(v___x_3057_);
+lean_dec(v___x_3057_);
 return v___x_3058_;
 }
 }
@@ -11724,6 +11744,7 @@ lean_ctor_set(v___x_3152_, 1, v___x_3151_);
 v___x_3153_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_3154_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_3152_, v___x_3153_);
 v___x_3155_ = l_Lean_Json_mkObj(v___x_3154_);
+lean_dec(v___x_3154_);
 return v___x_3155_;
 }
 }
@@ -12301,6 +12322,7 @@ lean_ctor_set(v___x_3349_, 1, v___x_3348_);
 v___x_3350_ = ((lean_object*)(l_Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson___closed__0));
 v___x_3351_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonLeanDidOpenTextDocumentParams_toJson_spec__1(v___x_3349_, v___x_3350_);
 v___x_3352_ = l_Lean_Json_mkObj(v___x_3351_);
+lean_dec(v___x_3351_);
 return v___x_3352_;
 }
 }

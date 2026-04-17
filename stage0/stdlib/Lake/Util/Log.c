@@ -3079,6 +3079,7 @@ lean_ctor_set(v___x_799_, 1, v___x_798_);
 v___x_800_ = ((lean_object*)(l_Lake_instToJsonLogEntry_toJson___closed__2));
 v___x_801_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lake_instToJsonLogEntry_toJson_spec__0(v___x_799_, v___x_800_);
 v___x_802_ = l_Lean_Json_mkObj(v___x_801_);
+lean_dec(v___x_801_);
 return v___x_802_;
 }
 }

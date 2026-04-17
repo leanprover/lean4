@@ -13337,6 +13337,7 @@ _start:
 lean_object* v_res_4696_; 
 v_res_4696_ = l_Lean_Compiler_LCNF_CacheExtension_register___redArg___lam__0(v_inst_4690_, v_inst_4691_, v_snd_4692_, v_inst_4693_, v_s_4694_, v_e_4695_);
 lean_dec(v_inst_4693_);
+lean_dec(v_snd_4692_);
 return v_res_4696_;
 }
 }
@@ -13758,6 +13759,7 @@ v_snd_4875_ = lean_ctor_get(v___x_4874_, 1);
 lean_inc(v_snd_4875_);
 lean_dec(v___x_4874_);
 v___x_4876_ = l_Lean_PersistentHashMap_find_x3f___redArg(v_inst_4861_, v_inst_4862_, v_snd_4875_, v_a_4864_);
+lean_dec(v_snd_4875_);
 v___x_4877_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_4877_, 0, v___x_4876_);
 return v___x_4877_;

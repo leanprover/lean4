@@ -939,9 +939,9 @@ v___x_307_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00_
 v_a_308_ = lean_ctor_get(v___x_307_, 0);
 lean_inc(v_a_308_);
 lean_dec_ref(v___x_307_);
-lean_inc_n(v_macroStack_306_, 2);
 v___x_309_ = l_Lean_Elab_getBetterRef(v_a_305_, v_macroStack_306_);
 lean_dec(v_a_305_);
+lean_inc(v_macroStack_306_);
 v___x_310_ = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1_spec__2___redArg(v_a_308_, v_macroStack_306_, v___y_302_);
 v_a_311_ = lean_ctor_get(v___x_310_, 0);
 v_isSharedCheck_319_ = !lean_is_exclusive(v___x_310_);

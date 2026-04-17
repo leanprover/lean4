@@ -535,7 +535,6 @@ v_resetjp_42_:
 lean_object* v_allowedMethods_x3f_46_; lean_object* v_disallowedMethods_x3f_47_; uint8_t v___y_48_; lean_object* v___y_49_; lean_object* v___y_55_; lean_object* v_initialLocalTimeType_80_; lean_object* v_transitions_81_; lean_object* v___x_82_; 
 v_initialLocalTimeType_80_ = lean_ctor_get(v_a_41_, 0);
 v_transitions_81_ = lean_ctor_get(v_a_41_, 1);
-lean_inc(v_a_36_);
 v___x_82_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_81_, v_a_36_);
 if (lean_obj_tag(v___x_82_) == 0)
 {
@@ -4525,6 +4524,7 @@ v___x_1184_ = l_Lean_Json_opt___at___00__private_Lean_Server_Logging_0__Lean_Ser
 lean_dec(v_data_x3f_1171_);
 v___x_1185_ = l_List_appendTR___redArg(v___x_1182_, v___x_1184_);
 v___x_1186_ = l_Lean_Json_mkObj(v___x_1185_);
+lean_dec(v___x_1185_);
 lean_inc_ref(v___y_1175_);
 v___x_1187_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1187_, 0, v___y_1175_);
@@ -4679,6 +4679,7 @@ v___x_1078_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1078_, 0, v___x_1075_);
 lean_ctor_set(v___x_1078_, 1, v___y_1077_);
 v___x_1079_ = l_Lean_Json_mkObj(v___x_1078_);
+lean_dec_ref(v___x_1078_);
 v___x_1080_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1080_, 0, v___x_1074_);
 lean_ctor_set(v___x_1080_, 1, v___x_1079_);
@@ -4700,6 +4701,7 @@ lean_ctor_set(v___x_1085_, 1, v___x_1084_);
 v___x_1086_ = ((lean_object*)(l___private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson___closed__2));
 v___x_1087_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lean_Server_Logging_0__Lean_Server_Logging_instToJsonLogEntry_toJson_spec__0(v___x_1085_, v___x_1086_);
 v___x_1088_ = l_Lean_Json_mkObj(v___x_1087_);
+lean_dec(v___x_1087_);
 return v___x_1088_;
 }
 }
@@ -4738,7 +4740,6 @@ lean_inc(v_a_1239_);
 lean_dec_ref(v___x_1238_);
 v_initialLocalTimeType_1251_ = lean_ctor_get(v_a_1239_, 0);
 v_transitions_1252_ = lean_ctor_get(v_a_1239_, 1);
-lean_inc(v_a_1237_);
 v___x_1253_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_1252_, v_a_1237_);
 if (lean_obj_tag(v___x_1253_) == 0)
 {

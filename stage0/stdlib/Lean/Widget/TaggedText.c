@@ -1595,6 +1595,7 @@ v___x_370_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_370_, 0, v___x_368_);
 lean_ctor_set(v___x_370_, 1, v___x_369_);
 v___x_371_ = l_Lean_Json_mkObj(v___x_370_);
+lean_dec_ref(v___x_370_);
 return v___x_371_;
 }
 }
@@ -1617,6 +1618,7 @@ v___x_380_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_380_, 0, v___x_378_);
 lean_ctor_set(v___x_380_, 1, v___x_379_);
 v___x_381_ = l_Lean_Json_mkObj(v___x_380_);
+lean_dec_ref(v___x_380_);
 return v___x_381_;
 }
 default: 
@@ -1678,6 +1680,7 @@ v___x_398_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_398_, 0, v___x_396_);
 lean_ctor_set(v___x_398_, 1, v___x_397_);
 v___x_399_ = l_Lean_Json_mkObj(v___x_398_);
+lean_dec_ref(v___x_398_);
 return v___x_399_;
 }
 }

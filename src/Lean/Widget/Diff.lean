@@ -22,7 +22,7 @@ open Server Std Lean SubExpr
 
 NOTE: in the future we may add other tags.
   -/
-private inductive ExprDiffTag where
+inductive ExprDiffTag where
   | change
   | delete
   | insert

@@ -1660,8 +1660,8 @@ v_a_396_ = lean_ctor_get(v___x_395_, 0);
 lean_inc(v_a_396_);
 lean_dec_ref(v___x_395_);
 v_macroStack_397_ = lean_ctor_get(v___y_387_, 1);
-lean_inc_n(v_macroStack_397_, 2);
 v___x_398_ = l_Lean_Elab_getBetterRef(v_ref_394_, v_macroStack_397_);
+lean_inc(v_macroStack_397_);
 v___x_399_ = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00Lean_Elab_Tactic_Do_elabConfig_spec__1_spec__5___redArg(v_a_396_, v_macroStack_397_, v___y_391_);
 v_a_400_ = lean_ctor_get(v___x_399_, 0);
 v_isSharedCheck_408_ = !lean_is_exclusive(v___x_399_);
@@ -4576,6 +4576,7 @@ v_mctx_1495_ = lean_ctor_get(v___x_1494_, 0);
 lean_inc_ref(v_mctx_1495_);
 lean_dec(v___x_1494_);
 v___x_1496_ = l_Lean_MetavarContext_findDecl_x3f(v_mctx_1495_, v_mvarId_1485_);
+lean_dec_ref(v_mctx_1495_);
 if (lean_obj_tag(v___x_1496_) == 1)
 {
 lean_object* v_val_1497_; lean_object* v_userName_1498_; lean_object* v_lctx_1499_; lean_object* v_type_1500_; lean_object* v_depth_1501_; lean_object* v_localInstances_1502_; uint8_t v_kind_1503_; lean_object* v_numScopeArgs_1504_; lean_object* v_index_1505_; lean_object* v___x_1507_; uint8_t v_isShared_1508_; uint8_t v_isSharedCheck_1562_; 

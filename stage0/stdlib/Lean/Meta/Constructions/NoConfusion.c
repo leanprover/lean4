@@ -13982,10 +13982,8 @@ else
 {
 lean_object* v_head_5490_; lean_object* v_tail_5491_; lean_object* v___x_5492_; 
 v_head_5490_ = lean_ctor_get(v_as_x27_5482_, 0);
-lean_inc_n(v_head_5490_, 2);
 v_tail_5491_ = lean_ctor_get(v_as_x27_5482_, 1);
-lean_inc(v_tail_5491_);
-lean_dec_ref(v_as_x27_5482_);
+lean_inc(v_head_5490_);
 v___x_5492_ = l_Lean_getConstInfoCtor___at___00__private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionCtorArg_spec__0(v_head_5490_, v___y_5484_, v___y_5485_, v___y_5486_, v___y_5487_);
 if (lean_obj_tag(v___x_5492_) == 0)
 {
@@ -14008,7 +14006,6 @@ if (v___x_5499_ == 0)
 lean_dec(v_numFields_5496_);
 lean_dec(v_numParams_5495_);
 lean_dec_ref(v_toConstantVal_5494_);
-lean_dec(v_head_5490_);
 v_as_x27_5482_ = v_tail_5491_;
 v_b_5483_ = v___x_5497_;
 goto _start;
@@ -14029,6 +14026,7 @@ lean_inc(v___x_5478_);
 lean_inc(v___x_5477_);
 lean_inc_ref(v_val_5476_);
 lean_inc(v_tail_5475_);
+lean_inc(v_head_5490_);
 v___f_5505_ = lean_alloc_closure((void*)(l_List_forIn_x27_loop___at___00__private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionCtors_spec__2___redArg___lam__6___boxed), 21, 14);
 lean_closure_set(v___f_5505_, 0, v_numFields_5496_);
 lean_closure_set(v___f_5505_, 1, v_head_5490_);
@@ -14056,7 +14054,6 @@ goto _start;
 }
 else
 {
-lean_dec(v_tail_5491_);
 lean_dec(v_head_5481_);
 lean_dec(v___x_5480_);
 lean_dec(v___x_5478_);
@@ -14070,8 +14067,6 @@ return v___x_5507_;
 else
 {
 lean_object* v_a_5509_; lean_object* v___x_5511_; uint8_t v_isShared_5512_; uint8_t v_isSharedCheck_5516_; 
-lean_dec(v_tail_5491_);
-lean_dec(v_head_5490_);
 lean_dec(v_head_5481_);
 lean_dec(v___x_5480_);
 lean_dec(v___x_5478_);
@@ -14129,6 +14124,7 @@ lean_dec(v___y_5529_);
 lean_dec_ref(v___y_5528_);
 lean_dec(v___y_5527_);
 lean_dec_ref(v___y_5526_);
+lean_dec(v_as_x27_5524_);
 return v_res_5532_;
 }
 }
@@ -14289,6 +14285,7 @@ v___x_5578_ = lean_box(0);
 v___x_5579_ = lean_unbox(v_a_5567_);
 lean_dec(v_a_5567_);
 v___x_5580_ = l_List_forIn_x27_loop___at___00__private_Lean_Meta_Constructions_NoConfusion_0__Lean_mkNoConfusionCtors_spec__2___redArg(v_tail_5575_, v_val_5547_, v___x_5577_, v___x_5573_, v___x_5579_, v___x_5559_, v_head_5574_, v_ctors_5555_, v___x_5578_, v_a_5537_, v_a_5538_, v_a_5539_, v_a_5540_);
+lean_dec(v_ctors_5555_);
 if (lean_obj_tag(v___x_5580_) == 0)
 {
 lean_object* v___x_5582_; uint8_t v_isShared_5583_; uint8_t v_isSharedCheck_5587_; 
@@ -14603,6 +14600,7 @@ lean_dec(v___y_5689_);
 lean_dec_ref(v___y_5688_);
 lean_dec(v___y_5687_);
 lean_dec_ref(v___y_5686_);
+lean_dec(v_as_x27_5683_);
 lean_dec(v_as_5682_);
 return v_res_5692_;
 }

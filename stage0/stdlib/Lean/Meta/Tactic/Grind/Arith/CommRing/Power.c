@@ -135,6 +135,7 @@ v_resetjp_63_:
 lean_object* v___x_66_; 
 lean_inc(v_snd_62_);
 v___x_66_ = l_Lean_Meta_Grind_Goal_getENode(v___x_61_, v_snd_62_, v___y_56_, v___y_57_, v___y_58_, v___y_59_);
+lean_dec(v___x_61_);
 if (lean_obj_tag(v___x_66_) == 0)
 {
 lean_object* v_a_67_; lean_object* v_self_68_; lean_object* v_next_69_; lean_object* v___x_70_; 

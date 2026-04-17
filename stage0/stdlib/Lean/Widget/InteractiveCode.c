@@ -887,6 +887,7 @@ lean_ctor_set(v___x_265_, 1, v___x_264_);
 v___x_266_ = ((lean_object*)(l_Lean_Widget_instToJsonRpcEncodablePacket_toJson___closed__0_00___x40_Lean_Widget_InteractiveCode_2818889736____hygCtx___hyg_33_));
 v___x_267_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Widget_instToJsonRpcEncodablePacket_toJson_00___x40_Lean_Widget_InteractiveCode_2818889736____hygCtx___hyg_33__spec__1(v___x_265_, v___x_266_);
 v___x_268_ = l_Lean_Json_mkObj(v___x_267_);
+lean_dec(v___x_267_);
 return v___x_268_;
 }
 }

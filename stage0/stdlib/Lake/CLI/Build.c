@@ -4950,10 +4950,8 @@ else
 {
 lean_object* v_head_1429_; lean_object* v_tail_1430_; lean_object* v___x_1431_; 
 v_head_1429_ = lean_ctor_get(v_as_x27_1425_, 0);
-lean_inc(v_head_1429_);
 v_tail_1430_ = lean_ctor_get(v_as_x27_1425_, 1);
-lean_inc(v_tail_1430_);
-lean_dec_ref(v_as_x27_1425_);
+lean_inc(v_head_1429_);
 lean_inc_ref(v_ws_1424_);
 v___x_1431_ = l_Lake_parseTargetSpec(v_ws_1424_, v_head_1429_);
 if (lean_obj_tag(v___x_1431_) == 0)
@@ -4970,7 +4968,6 @@ goto _start;
 }
 else
 {
-lean_dec(v_tail_1430_);
 lean_dec_ref(v_b_1426_);
 lean_dec_ref(v_ws_1424_);
 return v___x_1431_;
@@ -4983,6 +4980,7 @@ _start:
 {
 lean_object* v_res_1439_; 
 v_res_1439_ = l_List_forIn_x27_loop___at___00Lake_parseTargetSpecs_spec__0___redArg(v_ws_1435_, v_as_x27_1436_, v_b_1437_);
+lean_dec(v_as_x27_1436_);
 return v_res_1439_;
 }
 }
@@ -5100,6 +5098,7 @@ _start:
 {
 lean_object* v_res_1469_; 
 v_res_1469_ = l_Lake_parseTargetSpecs(v_ws_1466_, v_specs_1467_);
+lean_dec(v_specs_1467_);
 return v_res_1469_;
 }
 }
@@ -5116,6 +5115,7 @@ _start:
 {
 lean_object* v_res_1483_; 
 v_res_1483_ = l_List_forIn_x27_loop___at___00Lake_parseTargetSpecs_spec__0(v_ws_1477_, v_as_1478_, v_as_x27_1479_, v_b_1480_, v_a_1481_);
+lean_dec(v_as_x27_1479_);
 lean_dec(v_as_1478_);
 return v_res_1483_;
 }

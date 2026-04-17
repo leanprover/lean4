@@ -675,6 +675,7 @@ lean_ctor_set(v___x_41_, 1, v___x_40_);
 v___x_42_ = ((lean_object*)(l_Lean_Lsp_instToJsonClientInfo_toJson___closed__2));
 v___x_43_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonClientInfo_toJson_spec__1(v___x_41_, v___x_42_);
 v___x_44_ = l_Lean_Json_mkObj(v___x_43_);
+lean_dec(v___x_43_);
 return v___x_44_;
 }
 }
@@ -3207,6 +3208,7 @@ lean_ctor_set(v___x_903_, 1, v___x_902_);
 v___x_904_ = ((lean_object*)(l_Lean_Lsp_instToJsonClientInfo_toJson___closed__2));
 v___x_905_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonClientInfo_toJson_spec__1(v___x_903_, v___x_904_);
 v___x_906_ = l_Lean_Json_mkObj(v___x_905_);
+lean_dec(v___x_905_);
 return v___x_906_;
 }
 }
@@ -3332,6 +3334,7 @@ lean_ctor_set(v___x_944_, 1, v___x_943_);
 v___x_945_ = ((lean_object*)(l_Lean_Lsp_instToJsonClientInfo_toJson___closed__2));
 v___x_946_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonClientInfo_toJson_spec__1(v___x_944_, v___x_945_);
 v___x_947_ = l_Lean_Json_mkObj(v___x_946_);
+lean_dec(v___x_946_);
 return v___x_947_;
 }
 }
@@ -4205,6 +4208,7 @@ lean_ctor_set(v___x_1203_, 1, v___x_1202_);
 v___x_1204_ = ((lean_object*)(l_Lean_Lsp_instToJsonClientInfo_toJson___closed__2));
 v___x_1205_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonClientInfo_toJson_spec__1(v___x_1203_, v___x_1204_);
 v___x_1206_ = l_Lean_Json_mkObj(v___x_1205_);
+lean_dec(v___x_1205_);
 return v___x_1206_;
 }
 }
@@ -4751,6 +4755,7 @@ lean_ctor_set(v___x_1374_, 1, v___x_1373_);
 v___x_1375_ = ((lean_object*)(l_Lean_Lsp_instToJsonClientInfo_toJson___closed__2));
 v___x_1376_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonClientInfo_toJson_spec__1(v___x_1374_, v___x_1375_);
 v___x_1377_ = l_Lean_Json_mkObj(v___x_1376_);
+lean_dec(v___x_1376_);
 return v___x_1377_;
 }
 }
@@ -5152,6 +5157,7 @@ lean_ctor_set(v___x_1482_, 1, v___x_1481_);
 v___x_1483_ = ((lean_object*)(l_Lean_Lsp_instToJsonClientInfo_toJson___closed__2));
 v___x_1484_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonClientInfo_toJson_spec__1(v___x_1482_, v___x_1483_);
 v___x_1485_ = l_Lean_Json_mkObj(v___x_1484_);
+lean_dec(v___x_1484_);
 return v___x_1485_;
 }
 }

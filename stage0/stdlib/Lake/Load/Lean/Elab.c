@@ -5907,6 +5907,7 @@ lean_ctor_set(v___x_1651_, 1, v___x_1650_);
 v___x_1652_ = ((lean_object*)(l___private_Lake_Load_Lean_Elab_0__Lake_instToJsonConfigTrace_toJson___closed__6));
 v___x_1653_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00__private_Lake_Load_Lean_Elab_0__Lake_instToJsonConfigTrace_toJson_spec__1(v___x_1651_, v___x_1652_);
 v___x_1654_ = l_Lean_Json_mkObj(v___x_1653_);
+lean_dec(v___x_1653_);
 return v___x_1654_;
 }
 }

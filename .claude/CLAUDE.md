@@ -7,11 +7,6 @@ To build Lean you should use `make -j$(nproc) -C build/release`.
 The build uses `ccache`, and in a sandbox `ccache` may complain about read-only file systems.
 Use `CCACHE_READONLY` and `CCACHE_TEMPDIR` instead of disabling ccache completely.
 
-To rebuild individual modules without a full build, use Lake directly:
-```
-cd src && lake build Init.Prelude
-```
-
 ## Running Tests
 
 See `tests/README.md` for full documentation. Quick reference:

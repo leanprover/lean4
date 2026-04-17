@@ -1893,6 +1893,7 @@ v___jp_603_:
 {
 lean_object* v___x_605_; 
 v___x_605_ = l_List_forIn_x27_loop___redArg(v___x_577_, v___f_601_, v___y_604_, v___x_602_);
+lean_dec(v___y_604_);
 if (lean_obj_tag(v___x_605_) == 1)
 {
 lean_object* v_val_606_; lean_object* v_snd_607_; lean_object* v_snd_608_; lean_object* v_fst_609_; lean_object* v_fst_610_; lean_object* v_snd_611_; lean_object* v___x_612_; lean_object* v_fst_613_; lean_object* v_snd_614_; lean_object* v___x_615_; lean_object* v_fst_616_; lean_object* v_snd_617_; lean_object* v___x_618_; lean_object* v___x_619_; lean_object* v___x_620_; lean_object* v___x_621_; lean_object* v___x_622_; lean_object* v___x_623_; lean_object* v___x_624_; lean_object* v___x_625_; lean_object* v___x_626_; lean_object* v___x_627_; lean_object* v___x_628_; 

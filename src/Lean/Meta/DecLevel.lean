@@ -12,55 +12,38 @@ public section
 
 namespace Lean.Meta
 
-structure DecLevelContext where
-  /--
-   If `true`, then `decAux? ?m` returns a fresh metavariable `?n` s.t.
-   `?m := ?n+1`.
-   -/
-  canAssignMVars : Bool := true
+def decLevel? (u : Level) : MetaM (Option Level) := do
+  if let some u' := u.dec then
+    return u'
+  else
+    /-
+    Recall that `instantiateLevelMVars` effectively uses `mkLevelMax'`/`mkLevelIMax'`,
+    which means we do not need any special analysis for `max 0 (u+1)`, etc.
+    -/
+    let u ← instantiateLevelMVars u
+    /-
+    If `u` is a metavariable `?m`, then we can assign `?m := ?m'+1` where `?m'` is a fresh
+    metavariable to make it decrementable.
 
-private partial def decAux? : Level → ReaderT DecLevelContext MetaM (Option Level)
-  | Level.zero        => return none
-  | Level.param _     => return none
-  | Level.mvar mvarId => do
-    match (← getLevelMVarAssignment? mvarId) with
-    | some u => decAux? u
-    | none   =>
-      if (← mvarId.isReadOnly) || !(← read).canAssignMVars then
+    We do not decrement `max` expressions. Consider for example `max ?m (v+1)`.
+    There are two ways to make this decrementable: either `?m := 0` or `?m := ?m'+1`,
+    where `?m'` is a fresh metavariable. We cannot make this decision here.
+
+    On the other hand, `imax (u+1) ?m` is only decrementable by assigning `?m := ?m'+1`,
+    since assigning `?m := 0` would reduce the level to `0`.
+    We do not currently make the assignment however. Speculative uses of `decLevel?`
+    may prevent arrows from being inferred as propositions.
+    -/
+    if let Level.mvar mvarId := u then
+      if (← mvarId.isReadOnly) then
         return none
       else
-        let u ← mkFreshLevelMVar
-        trace[Meta.isLevelDefEq.step] "decAux?, {mkLevelMVar mvarId} := {mkLevelSucc u}"
-        assignLevelMVar mvarId (mkLevelSucc u)
-        return u
-  | Level.succ u  => return u
-  | u =>
-    let processMax (u v : Level) : ReaderT DecLevelContext MetaM (Option Level) := do
-      /- Remark: this code uses the fact that `max (u+1) (v+1) = (max u v)+1`.
-         `decAux? (max (u+1) (v+1)) := max (decAux? (u+1)) (decAux? (v+1))`
-         However, we must *not* assign metavariables in the recursive calls since
-         `max ?u 1` is not equivalent to `max ?v 0` where `?v` is a fresh metavariable, and `?u := ?v+1`
-       -/
-      withReader (fun _ => { canAssignMVars := false }) do
-        match (← decAux? u) with
-        | none   => return none
-        | some u => do
-          match (← decAux? v) with
-          | none   => return none
-          | some v => return mkLevelMax' u v
-    match u with
-    | Level.max u v  => processMax u v
-    /- Remark: If `decAux? v` returns `some ...`, then `imax u v` is equivalent to `max u v`. -/
-    | Level.imax u v => processMax u v
-    | _              => unreachable!
-
-def decLevel? (u : Level) : MetaM (Option Level) := do
-  let mctx ← getMCtx
-  match (← decAux? u |>.run {}) with
-  | some v => return some v
-  | none   => do
-    modify fun s => { s with mctx := mctx }
-    return none
+        let u' ← mkFreshLevelMVar
+        trace[Meta.isLevelDefEq.step] "decAux?, {u} := {Level.succ u'}"
+        assignLevelMVar mvarId (Level.succ u')
+        return u'
+    else
+      return u.dec
 
 def decLevel (u : Level) : MetaM Level := do
   match (← decLevel? u) with

@@ -1,7 +1,7 @@
 univInference.lean:25:48-25:54: warning: Inferred universe level for type may be unnecessarily high. The inferred resulting universe is
   Type (max u v)
 but it possibly could be
-  Sort (max (max 1 u) v)
+  Sort (max 1 u v)
 Explicitly providing a resulting universe with no metavariables will silence this warning.
 
 Note: The elaborated resulting universe after constructor elaboration is
@@ -18,7 +18,7 @@ Hint: A possible solution is to use levels of the form `max 1 _` or `_ + 1` to e
 univInference.lean:64:48-64:54: warning: Inferred universe level for type may be unnecessarily high. The inferred resulting universe is
   Type (max u v)
 but it possibly could be
-  Sort (max (max 1 u) v)
+  Sort (max 1 u v)
 Explicitly providing a resulting universe with no metavariables will silence this warning.
 
 Note: The elaborated resulting universe after constructor elaboration is

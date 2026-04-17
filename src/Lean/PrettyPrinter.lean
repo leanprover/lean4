@@ -71,6 +71,7 @@ def ppExprLegacy (env : Environment) (mctx : MetavarContext) (lctx : LocalContex
     { env := env }
 
 def ppLevel (l : Level) : MetaM Format := do
+  let l ← if getPPInstantiateMVars (← getOptions) then instantiateLevelMVars l else pure l
   ppCategory `level (← delabLevel l (prec := 0))
 
 def ppTactic (stx : TSyntax `tactic) : CoreM Format := ppCategory `tactic stx

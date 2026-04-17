@@ -307,42 +307,61 @@ def isAlreadyNormalizedCheap : Level → Bool
   | succ u  => isAlreadyNormalizedCheap u
   | _       => false
 
-/- Auxiliary function used at `normalize` -/
-private def mkIMaxAux : Level → Level → Level
-  | _,    zero   => zero
-  | zero, u      => u
-  | succ zero, u => u
-  | u₁,   u₂     => if u₁ == u₂ then u₁ else mkLevelIMax u₁ u₂
+/--
+Returns true if the level is in normal form.
+
+Specification: `l.isNormalized ↔ l.normalize == l`
+-/
+partial def isNormalized (l : Level) : Bool :=
+  match l.getLevelOffset with
+  | zero              => true
+  | succ _            => unreachable!
+  | param _           => true
+  | mvar _            => true
+  | imax u v          =>
+    match u, v with
+    | zero,      _    => false
+    | succ zero, _    => false
+    | _,         zero => false
+    | _,         _    => !v.isNeverZero && u != v && u.isNormalized && v.isNormalized
+  | max (max _ _) _   => false
+  | max u v           =>
+    l.getOffset == 0 &&
+      (if let some k := u.toNat then
+         k > 0 && isMaxNormalized k .zero v
+       else
+         u.isNormalized && isMaxNormalized 0 u.getLevelOffset v)
+where
+  checkMaxArg (k : Nat) (last : Level) (v : Level) : Bool :=
+    let v' := v.getLevelOffset
+    !v'.isZero && !v'.isMax && (k > 0 → v.getOffset < k) && Level.normLt last v' && v.isNormalized
+  isMaxNormalized (k : Nat) (last v : Level) : Bool :=
+    match v with
+    | max l₁ l₂ => checkMaxArg k last l₁ && isMaxNormalized k l₁.getLevelOffset l₂
+    | v         => checkMaxArg k last v
 
 /- Auxiliary function used at `normalize` -/
 @[specialize] private partial def getMaxArgsAux (normalize : Level → Level) : Level → Bool → Array Level → Array Level
   | max l₁ l₂, alreadyNormalized, lvls => getMaxArgsAux normalize l₂ alreadyNormalized (getMaxArgsAux normalize l₁ alreadyNormalized lvls)
-  | l,           false,             lvls => getMaxArgsAux normalize (normalize l) true lvls
-  | l,           true,              lvls => lvls.push l
-
-private def accMax (result : Level) (prev : Level) (offset : Nat) : Level :=
-  if result.isZero then prev.addOffset offset
-  else mkLevelMax result (prev.addOffset offset)
+  | l,         false,             lvls => getMaxArgsAux normalize (normalize l) true lvls
+  | l,         true,              lvls => lvls.push l
 
 /- Auxiliary function used at `normalize`.
    Remarks:
    - `lvls` are sorted using `normLt`
-   - `extraK` is the outer offset of the `max` term. We will push it inside.
-   - `i` is the current array index
-   - `prev + prevK` is the "previous" level that has not been added to `result` yet.
-   - `result` is the accumulator
+   - `start` is the starting index into `lvls`, to skip subsumed explicit levels
+   - `extraK` is the outer offset of the `max` term. We will distribute it inside.
  -/
-private partial def mkMaxAux (lvls : Array Level) (extraK : Nat) (i : Nat) (prev : Level) (prevK : Nat) (result : Level) : Level :=
-  if h : i < lvls.size then
-    let lvl   := lvls[i]
-    let curr  := lvl.getLevelOffset
-    let currK := lvl.getOffset
-    if curr == prev then
-      mkMaxAux lvls extraK (i+1) curr currK result
+private partial def mkMaxAux (lvls : Array Level) (start : Nat) (extraK : Nat) : Level :=
+  let last := lvls[lvls.size - 1]!
+  let curr := last.getLevelOffset
+  let result := last.addOffset extraK
+  Prod.snd <| lvls.foldr (start := lvls.size - 1) (stop := start) (init := (curr, result)) fun lvl (curr, result) =>
+    let u := lvl.getLevelOffset
+    if u == curr then
+      (curr, result)
     else
-      mkMaxAux lvls extraK (i+1) curr currK (accMax result prev (extraK + prevK))
-  else
-    accMax result prev (extraK + prevK)
+      (u, Level.max (lvl.addOffset extraK) result)
 
 /-
   Auxiliary function for `normalize`. It assumes `lvls` has been sorted using `normLt`.
@@ -376,29 +395,40 @@ private def isExplicitSubsumed (lvls : Array Level) (firstNonExplicit : Nat) : B
     let max := lvls[firstNonExplicit - 1]!.getOffset
     isExplicitSubsumedAux lvls max firstNonExplicit
 
+/- Auxiliary function for `normalize`. Adds an offset, distributing over `max` -/
+private def addOffset' : Level → Nat → Level
+  | max l₁ l₂, k => max (addOffset' l₁ k) (addOffset' l₂ k)
+  | l,         k => addOffset l k
+
 partial def normalize (l : Level) : Level :=
   if isAlreadyNormalizedCheap l then l
   else
     let k := l.getOffset
     let u := l.getLevelOffset
     match u with
-    | max l₁ l₂ =>
-      let lvls  := getMaxArgsAux normalize l₁ false #[]
-      let lvls  := getMaxArgsAux normalize l₂ false lvls
-      let lvls  := lvls.qsort normLt
-      let firstNonExplicit := skipExplicit lvls 0
-      let i := if isExplicitSubsumed lvls firstNonExplicit then firstNonExplicit else firstNonExplicit - 1
-      let lvl₁  := lvls[i]!
-      let prev  := lvl₁.getLevelOffset
-      let prevK := lvl₁.getOffset
-      mkMaxAux lvls k (i+1) prev prevK Level.zero
+    | max l₁ l₂ => normalizeMax l₁ l₂ k
     | imax l₁ l₂ =>
-      if l₂.isNeverZero then addOffset (normalize (mkLevelMax l₁ l₂)) k
+      if l₂.isAlwaysZero then
+        .ofNat k
+      else if l₁.isAlwaysZero || l₂.isNeverZero then
+        normalizeMax l₁ l₂ k
       else
         let l₁ := normalize l₁
         let l₂ := normalize l₂
-        addOffset (mkIMaxAux l₁ l₂) k
+        -- Invariant: neither `l₁` nor `l₂` is zero
+        if l₁ == l₂ || l₁ matches succ zero then
+          addOffset' l₂ k
+        else
+          addOffset (imax l₁ l₂) k
     | _ => unreachable!
+where
+  normalizeMax (l₁ l₂ : Level) (k : Nat) : Level :=
+    let lvls  := getMaxArgsAux normalize l₁ false #[]
+    let lvls  := getMaxArgsAux normalize l₂ false lvls
+    let lvls  := lvls.qsort normLt
+    let firstNonExplicit := skipExplicit lvls 0
+    let start := if isExplicitSubsumed lvls firstNonExplicit then firstNonExplicit else firstNonExplicit - 1
+    mkMaxAux lvls start k
 
 /--
 Return true if `u` and `v` denote the same level.
@@ -406,17 +436,6 @@ Check is currently incomplete.
 -/
 def isEquiv (u v : Level) : Bool :=
   u == v || u.normalize == v.normalize
-
-/-- Reduce (if possible) universe level by 1 -/
-def dec : Level → Option Level
-  | zero       => none
-  | param _    => none
-  | mvar _     => none
-  | succ l     => l
-  | max l₁ l₂  => return mkLevelMax (← dec l₁) (← dec l₂)
-  /- Remark: `mkLevelMax` in the following line is not a typo.
-     If `dec l₂` succeeds, then `imax l₁ l₂` is equivalent to `max l₁ l₂`. -/
-  | imax l₁ l₂ => return mkLevelMax (←  dec l₁) (← dec l₂)
 
 
 /- Level to Format/Syntax -/
@@ -551,6 +570,22 @@ def simpLevelIMax' (u v : Level) (d : Level) :=
   mkLevelIMaxCore u v fun _ => d
 
 namespace Level
+
+/--
+Reduces the universe level by 1, if possible.
+Assumes there are no obviously simplifiable `max`/`imax` expressions.
+
+Satisfies `l.dec.isSome → l.isNeverZero`. The converse does not hold.
+-/
+def dec : Level → Option Level
+  | zero       => none
+  | param _    => none
+  | mvar _     => none
+  | succ l     => l
+  | max l₁ l₂  => return mkLevelMax' (← dec l₁) (← dec l₂)
+  /- Remark: `mkLevelMax'` in the following line is not a typo.
+     If `dec l₂` succeeds, then `imax l₁ l₂` is equivalent to `max l₁ l₂`. -/
+  | imax l₁ l₂ => return mkLevelMax' (← dec l₁) (← dec l₂)
 
 /-!
 The update functions try to avoid allocating new values using pointer equality.

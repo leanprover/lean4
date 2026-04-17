@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Control.Do
 public import Lean.Data.LOption
+public import Lean.Data.LBool
 public import Lean.Class
 public import Lean.ReducibilityAttrs
 public import Lean.Util.MonadBacktrack
@@ -502,10 +503,15 @@ structure Context where
     Note that we do not cache results at `whnf` when `canUnfold?` is not `none`. -/
   canUnfold?        : Option (Config → ConstantInfo → CoreM Bool) := none
   /--
-  When `Config.univApprox := true`, this flag is set to `true` when there is no
-  progress processing universe constraints.
+  `univProcessingPostponed := true` when processing postponed universe constraints.
+  This enables rules that we want to try after all simpler unifications are made.
   -/
-  univApprox        : Bool := false
+  univProcessingPostponed : Bool := false
+  /--
+  When `Config.univApprox := true`, this flag is incremented while processing postponed
+  universe constraints when no progress is made, enabling more approximations.
+  -/
+  univApprox        : Nat := 0
   /--
   `inTypeClassResolution := true` when `isDefEq` is invoked at `tryResolve` in the type class
    resolution module. We don't use `isDefEqProjDelta` when performing TC resolution due to performance issues.
@@ -2370,45 +2376,63 @@ def mkLevelStuckErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
 def mkLevelErrorMessage (entry : PostponedEntry) : MetaM MessageData := do
   mkLevelErrorMessageCore "failed to solve universe constraint" entry
 
-private def processPostponedStep (exceptionOnFailure : Bool) : MetaM Bool := do
+private def processPostponedStep (exceptionOnFailure : Bool) : MetaM LBool := do
   let ps ← getResetPostponed
+  let mut ps' : PersistentArray PostponedEntry := {}
+  let mut seen : Std.HashSet (Level × Level) := {}
+  let mut progress := LBool.undef
   for p in ps do
     unless (← withReader (fun ctx => { ctx with defEqCtx? := p.ctx? }) <| isLevelDefEqAux p.lhs p.rhs) do
+      modifyPostponed fun ps => ps' ++ ps
       if exceptionOnFailure then
         withRef p.ref do
           throwError (← mkLevelErrorMessage p)
       else
-        return false
-  return true
+        return LBool.false
+    let ps ← getResetPostponed
+    if ps.isEmpty then
+      /-
+      `isLevelDefEqAux` may produce more than one postponed universe constraint, so to check
+      that progress is made we can't simply compare `getNumPostponed` to `ps.size` at the end
+      of the loop. (E.g. one constraint might be solved, and another might split into two.)
+      -/
+      progress := LBool.true
+    else
+      for p in ps do
+        let key := if Level.normLt p.lhs p.rhs then (p.lhs, p.rhs) else (p.rhs, p.lhs)
+        unless seen.contains key do
+          seen := seen.insert key
+          ps' := ps'.push p
+  setPostponed ps'
+  return progress
 
 partial def processPostponed (mayPostpone : Bool := true) (exceptionOnFailure := false) : MetaM Bool := do
   if (← getNumPostponed) == 0 then
     return true
   else
-    let numPostponedBegin ← getNumPostponed
-    withTraceNode `Meta.isLevelDefEq.postponed
-        (fun _ => return m!"processing #{numPostponedBegin} postponed is-def-eq level constraints") do
-      let rec loop : MetaM Bool := do
-        let numPostponed ← getNumPostponed
-        if numPostponed == 0 then
-          return true
-        else
-          if !(← processPostponedStep exceptionOnFailure) then
-            return false
-          else
-            let numPostponed' ← getNumPostponed
-            if numPostponed' == 0 then
-              return true
-            else if numPostponed' < numPostponed then
-              loop
-            -- If we cannot postpone anymore, `Config.univApprox := true`, but we haven't tried universe approximations yet,
-            -- then try approximations before failing.
-            else if !mayPostpone && (← getConfig).univApprox && !(← read).univApprox then
-              withReader (fun ctx => { ctx with univApprox := true }) loop
-            else
-              trace[Meta.isLevelDefEq.postponed] "no progress solving pending is-def-eq level constraints"
-              return mayPostpone
+    withTraceNodeBefore `Meta.isLevelDefEq.postponed
+        (fun _ => return m!"processing #{← getNumPostponed} postponed is-def-eq level constraints") do
+      withReader (fun ctx => { ctx with univProcessingPostponed := true }) do
+        loop
+where
+  loop : MetaM Bool := do
+    let progress ← processPostponedStep exceptionOnFailure
+    let numPostponed ← getNumPostponed
+    trace[Meta.isLevelDefEq.postponed] "#{numPostponed} after step, progress: {progress}"
+    let maxUnivApprox := if (← getConfig).univApprox then 2 else 1
+    if progress == LBool.false then
+      return false
+    else if numPostponed == 0 then
+      return true
+    else if progress == LBool.true then
       loop
+    else if !mayPostpone && (← read).univApprox < maxUnivApprox then
+      -- If further postponing is not allowed and `Config.univApprox := true`,
+      -- then we try enabling additional universe approximations before failing.
+      withReader (fun ctx => { ctx with univApprox := ctx.univApprox + 1 }) loop
+    else
+      trace[Meta.isLevelDefEq.postponed] "no progress solving pending is-def-eq level constraints"
+      return mayPostpone
 
 /--
   `checkpointDefEq x` executes `x` and process all postponed universe level constraints produced by `x`.

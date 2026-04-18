@@ -4715,15 +4715,6 @@ theorem getElem!_set!_ne [Inhabited α] (xs : Array α) (i j : Nat) (x : α) (hi
     (xs.set! i x).toList = xs.toList.set i x := by
   simp [set!_eq_setIfInBounds]
 
-theorem getElem!_le_set!_incr (xs : Array Nat) (k i : Nat) (hk : k < xs.size) :
-    xs[i]! ≤ (xs.set! k (xs[k]! + 1))[i]! := by
-  by_cases h : k = i
-  · subst h
-    rw [getElem!_set!_self xs _ _ hk]
-    omega
-  · rw [getElem!_set!_ne xs _ _ _ h]
-    omega
-
 end Array
 
 namespace List

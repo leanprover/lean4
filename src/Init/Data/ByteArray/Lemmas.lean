@@ -328,4 +328,58 @@ theorem extract_eq_extract_iff_getElem {as bs : ByteArray} {i j len : Nat}
     · exact h k hk'
     · exact (by omega : k = len) ▸ h'
 
+theorem getElem!_push_lt (data : ByteArray) (b : UInt8) (i : Nat) (hi : i < data.size) :
+    (data.push b)[i]! = data[i]! := by
+  have hi' : i < (data.push b).size := by
+    simp only [ByteArray.size_push]
+    omega
+  rw [getElem!_pos (data.push b) i hi', getElem!_pos data i hi]
+  exact Array.getElem_push_lt hi
+
+theorem getElem!_push_eq (data : ByteArray) (b : UInt8) :
+    (data.push b)[data.size]! = b := by
+  have h : data.size < (data.push b).size := by
+    simp only [ByteArray.size_push]
+    omega
+  rw [getElem!_pos (data.push b) data.size h]
+  exact Array.getElem_push_eq
+
+private theorem getElem!_eq_data_getElem! (data : ByteArray) (i : Nat) :
+    data[i]! = data.data[i]! := by
+  by_cases h : i < data.size
+  · rw [getElem!_pos data i h, getElem!_pos data.data i h]
+    rfl
+  · rw [getElem!_neg data i h, getElem!_neg data.data i h]
+
+theorem size_set! (data : ByteArray) (i : Nat) (v : UInt8) :
+    (data.set! i v).size = data.size := by
+  show (data.data.setIfInBounds i v).size = data.data.size
+  exact Array.size_setIfInBounds ..
+
+theorem getElem!_set!_self (data : ByteArray) (i : Nat) (v : UInt8) (h : i < data.size) :
+    (data.set! i v)[i]! = v := by
+  rw [getElem!_eq_data_getElem!]
+  show (data.data.set! i v)[i]! = v
+  simp only [Array.set!_eq_setIfInBounds, Array.getElem!_eq_getD, Array.getD_eq_getD_getElem?,
+    Array.getElem?_setIfInBounds_self_of_lt h, Option.getD_some]
+
+theorem getElem!_set!_ne (data : ByteArray) (i j : Nat) (v : UInt8) (hij : i ≠ j) :
+    (data.set! i v)[j]! = data[j]! := by
+  rw [getElem!_eq_data_getElem!, getElem!_eq_data_getElem!]
+  show (data.data.set! i v)[j]! = data.data[j]!
+  simp only [Array.set!_eq_setIfInBounds, Array.getElem!_eq_getD, Array.getD_eq_getD_getElem?,
+    Array.getElem?_setIfInBounds_ne hij]
+
+theorem getElem_set!_ne (data : ByteArray) (i j : Nat) (v : UInt8) (hij : i ≠ j)
+    (hj : j < data.size) :
+    (data.set! i v)[j]'(by rw [size_set!]; exact hj) = data[j] := by
+  rw [← getElem!_pos (data.set! i v) j (by rw [size_set!]; exact hj),
+    ← getElem!_pos data j hj,
+    getElem!_set!_ne _ _ _ _ hij]
+
+theorem getElem_set!_self (data : ByteArray) (i : Nat) (v : UInt8) (h : i < data.size) :
+    (data.set! i v)[i]'(by rw [size_set!]; exact h) = v := by
+  rw [← getElem!_pos (data.set! i v) i (by rw [size_set!]; exact h),
+    getElem!_set!_self _ _ _ h]
+
 end ByteArray

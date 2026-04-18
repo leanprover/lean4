@@ -3848,4 +3848,80 @@ theorem intercalate_cons_of_ne_nil {ys l : List α} {zs : List (List α)} (h : z
   match zs, h with
   | l'::zs, _ => by simp
 
+theorem foldl_add_init (f : Nat → Nat) (init : Nat) (xs : List Nat) :
+    xs.foldl (fun acc x => acc + f x) init =
+      init + xs.foldl (fun acc x => acc + f x) 0 := by
+  induction xs generalizing init with
+  | nil => simp
+  | cons x xs ih =>
+    simp only [foldl_cons, Nat.zero_add]
+    rw [ih, ih (f x)]
+    simp [Nat.add_assoc]
+
+theorem foldl_count_init (b : Nat) (init : Nat) (xs : List Nat) :
+    xs.foldl (fun acc x => if (x == b) = true then acc + 1 else acc) init =
+      init + xs.foldl (fun acc x => if (x == b) = true then acc + 1 else acc) 0 := by
+  induction xs generalizing init with
+  | nil => simp only [beq_iff_eq, foldl_nil, Nat.add_zero]
+  | cons x xs ih =>
+    simp only [foldl_cons, Nat.zero_add]
+    split
+    · rw [ih, ih 1]
+      simp [Nat.add_assoc]
+    · exact ih init
+
+theorem foldl_set_length (xs : List Nat) (f : Nat → α) (ys : List α) :
+    (xs.foldl (fun ys i => ys.set i (f i)) ys).length = ys.length := by
+  induction xs generalizing ys with
+  | nil => simp
+  | cons i xs ih =>
+    simp only [foldl_cons, ih, List.length_set]
+
+theorem getElem_foldl_set_not_mem (xs : List Nat) (f : Nat → α)
+    (ys : List α) (i : Nat) (hi : i ∉ xs) (hlt : i < ys.length) :
+    (xs.foldl (fun ys j => ys.set j (f j)) ys)[i]'(by
+      rw [foldl_set_length]
+      exact hlt) = ys[i] := by
+  induction xs generalizing ys with
+  | nil => simp
+  | cons j xs ih =>
+    simp only [List.mem_cons, not_or] at hi
+    simp only [List.foldl_cons]
+    have hlt' : i < (ys.set j (f j)).length := by
+      simp only [List.length_set]
+      exact hlt
+    rw [ih (ys.set j (f j)) hi.2 hlt']
+    exact List.getElem_set_ne (Ne.symm hi.1) _
+
+theorem getElem_foldl_set_mem (xs : List Nat) (f : Nat → α)
+    (ys : List α) (i : Nat) (hi : i ∈ xs) (hnodup : xs.Nodup)
+    (hlt : i < ys.length) (hbounds : ∀ j ∈ xs, j < ys.length) :
+    (xs.foldl (fun ys j => ys.set j (f j)) ys)[i]'(by
+      rw [foldl_set_length]
+      exact hlt) = f i := by
+  induction xs generalizing ys with
+  | nil => simp only [not_mem_nil] at hi
+  | cons j xs ih =>
+    simp only [List.mem_cons] at hi
+    simp only [List.foldl_cons]
+    cases hnodup with
+    | @cons _ _ hnotin hnodup =>
+      have hlt' : i < (ys.set j (f j)).length := by
+        simp only [List.length_set]
+        exact hlt
+      have hbounds' : ∀ k ∈ xs, k < (ys.set j (f j)).length := by
+        intro k hk
+        simp only [List.length_set]
+        exact hbounds k (List.mem_cons_of_mem _ hk)
+      cases hi with
+      | inl h =>
+        subst h
+        have hi_not_mem : i ∉ xs := by
+          intro hi_mem
+          exact hnotin i hi_mem rfl
+        rw [getElem_foldl_set_not_mem xs f _ i hi_not_mem hlt']
+        exact List.getElem_set_self _
+      | inr h =>
+        exact ih (ys.set j (f j)) h hnodup hlt' hbounds'
+
 end List

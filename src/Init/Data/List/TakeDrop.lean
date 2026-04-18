@@ -236,6 +236,17 @@ theorem take_add_one {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]
     · simp only [take, Option.toList, getElem?_cons_zero, nil_append]
     · simp only [take, hl, getElem?_cons_succ, cons_append]
 
+@[simp] theorem take_set_succ (l : List α) (i : Nat) (a : α) (h : i < l.length) :
+    (l.set i a).take (i + 1) = l.take i ++ [a] := by
+  induction l generalizing i with
+  | nil => cases Nat.not_lt_zero _ h
+  | cons x xs ih =>
+    cases i with
+    | zero => simp
+    | succ i =>
+      simp only [List.set_cons_succ, take_cons (Nat.succ_pos _)]
+      simpa using congrArg (List.cons x) (ih i (Nat.lt_of_succ_lt_succ h))
+
 @[deprecated take_add_one (since := "2025-10-26")]
 theorem take_succ {l : List α} {i : Nat} : l.take (i + 1) = l.take i ++ l[i]?.toList := take_add_one
 
@@ -244,6 +255,52 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
   | nil => simp [dropLast]
   | cons x l =>
     induction l generalizing x <;> simp_all [dropLast]
+
+theorem drop_cons_tail {xs : List α} {a : α} {ys : List α} {i : Nat}
+    (h : xs.drop i = a :: ys) : ys = xs.drop (i + 1) := by
+  have h' : xs.drop (i + 1) = (xs.drop i).drop 1 := by
+    rw [drop_drop, Nat.add_comm]
+  rw [h', h, drop_one, tail_cons]
+
+theorem flatMap_drop_mul (xs : List α) (f : α → List β)
+    (k i : Nat) (hk : ∀ a, (f a).length = k) :
+    (xs.flatMap f).drop (i * k) = (xs.drop i).flatMap f := by
+  induction i generalizing xs with
+  | zero => simp
+  | succ i ih =>
+    cases xs with
+    | nil => simp
+    | cons x xs =>
+      simp only [flatMap_cons, drop_succ_cons]
+      have hk_eq : (i + 1) * k = (f x).length + i * k := by
+        rw [Nat.succ_mul, hk x, Nat.add_comm]
+      rw [hk_eq, ← drop_drop, drop_left]
+      exact ih xs
+
+private theorem drop_append_left {xs ys : List α} {k : Nat}
+    (h : xs.length = k) (i : Nat) :
+    (xs ++ ys).drop (k + i) = ys.drop i := by
+  rw [← drop_drop, drop_left' h]
+
+theorem flatMap_uniform_drop {f : α → List β} (hf : ∀ a, (f a).length = k)
+    (xs : List α) (i : Nat) (hi : i < xs.length) :
+    (xs.flatMap f).drop (i * k) = f xs[i] ++ (xs.flatMap f).drop ((i + 1) * k) := by
+  induction xs generalizing i with
+  | nil => simp only [length_nil, Nat.not_lt_zero] at hi
+  | cons x xs ih =>
+    cases i with
+    | zero =>
+      simp only [flatMap_cons, Nat.zero_mul, drop_zero, getElem_cons_zero,
+        Nat.zero_add, Nat.one_mul]
+      rw [drop_left' (hf x)]
+    | succ i =>
+      simp only [flatMap_cons, getElem_cons_succ]
+      rw [show (i + 1) * k = k + i * k from by rw [Nat.succ_mul, Nat.add_comm],
+        drop_append_left (hf x) (i * k),
+        show (i + 2) * k = k + (i + 1) * k from by
+          rw [show i + 2 = (i + 1) + 1 from rfl, Nat.succ_mul, Nat.add_comm],
+        drop_append_left (hf x) ((i + 1) * k)]
+      exact ih i (Nat.lt_of_succ_lt_succ hi)
 
 @[simp] theorem map_take {f : α → β} :
     ∀ {l : List α} {i : Nat}, (l.take i).map f = (l.map f).take i

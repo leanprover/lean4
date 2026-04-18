@@ -757,6 +757,11 @@ theorem two_pow_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
                  _ ≤ 2 ^ j := Nat.pow_le_pow_right Nat.zero_lt_two i_le
     simp [i_le, j_lt, testBit_lt_two_pow, b_lt_j]
 
+theorem or_two_pow_eq_add_of_lt {a n : Nat} (h : a < 2 ^ n) : a ||| 2 ^ n = a + 2 ^ n := by
+  have h' := Nat.two_pow_add_eq_or_of_lt h 1
+  simp only [Nat.mul_one] at h'
+  rw [Nat.or_comm, ← h', Nat.add_comm]
+
 /-! ### shiftLeft and shiftRight -/
 
 @[simp, grind =] theorem testBit_shiftLeft (x : Nat) : testBit (x <<< i) j =

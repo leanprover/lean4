@@ -60,6 +60,8 @@ private structure MonitorState where
   totalJobs : Nat := 0
   wantsRebuild : Bool := false
   failures : Array String
+  succeededClean : Nat := 0
+  succeededWithWarnings : Nat := 0
   resetCtrl : String
   lastUpdate : Nat
   spinnerIdx : Fin Monitor.spinnerFrames.size := ⟨0, by decide⟩
@@ -125,6 +127,11 @@ private def reportJob (job : OpaqueJob) : MonitorM PUnit := do
     modify fun s => if s.wantsRebuild then s else {s with wantsRebuild := true}
   if failed && !optional then
     modify fun s => {s with failures := s.failures.push caption}
+  if !failed && !optional && action ≥ .fetch then
+    if log.entries.any (·.level ≥ .warning) then
+      modify fun s => {s with succeededWithWarnings := s.succeededWithWarnings + 1}
+    else
+      modify fun s => {s with succeededClean := s.succeededClean + 1}
   let hasOutput := failed || (log.hasEntries && maxLv ≥ outLv)
   let showJob :=
     (!optional || showOptional) &&
@@ -199,6 +206,8 @@ public structure MonitorResult where
   wantsRebuild : Bool
   failures : Array String
   numJobs : Nat
+  succeededClean : Nat := 0
+  succeededWithWarnings : Nat := 0
 
 @[inline] def MonitorResult.isOk (self : MonitorResult) : Bool :=
   self.failures.isEmpty
@@ -235,6 +244,8 @@ def monitorJobs'
     failures := s.failures
     numJobs := s.totalJobs
     wantsRebuild := s.wantsRebuild
+    succeededClean := s.succeededClean
+    succeededWithWarnings := s.succeededWithWarnings
   }
 
 /-- The job monitor function. An auxiliary definition for `runFetchM`. -/
@@ -335,10 +346,37 @@ def Workspace.startBuild
   let compute := Job.async build (caption := caption)
   compute.run.run'.run bctx |>.run nilTrace
 
+/-- Print a build summary table with ✔/⚠/✖ counts and a list of failed job captions. -/
+def reportSummary (cfg : BuildConfig) (out : IO.FS.Stream) (result : MonitorResult) : BaseIO Unit := do
+  let succeeded := result.succeededClean
+  let warned := result.succeededWithWarnings
+  let failed := result.failures.size
+  print! out "Build summary:\n"
+  if succeeded > 0 then
+    let label := if succeeded == 1 then "job" else "jobs"
+    print! out s!"  ✔ {succeeded} {label} succeeded\n"
+  if warned > 0 then
+    let label := if warned == 1 then "job" else "jobs"
+    print! out s!"  ⚠ {warned} {label} succeeded with warnings\n"
+  if failed > 0 then
+    let label := if failed == 1 then "job" else "jobs"
+    print! out s!"  ✖ {failed} {label} failed\n"
+    for caption in result.failures do
+      print! out s!"    {caption}\n"
+  if succeeded == 0 && warned == 0 && failed == 0 then
+    if cfg.noBuild then
+      print! out s!"  All targets up-to-date ({result.numJobs} jobs).\n"
+    else
+      print! out s!"  No jobs.\n"
+  flush out
+
 def finalizeBuild
   (cfg : BuildConfig) (bctx : BuildContext ) (mctx : MonitorContext) (result : BuildResult α)
 : IO α := do
-  reportResult cfg mctx.out result
+  if cfg.summary then
+    reportSummary cfg mctx.out result.toMonitorResult
+  else
+    reportResult cfg mctx.out result
   if let some outputsFile := cfg.outputsFile? then
     bctx.workspace.saveOutputs (logger := mctx.logger)
       bctx.outputsRef? mctx.out outputsFile (cfg.verbosity matches .verbose)

@@ -71,6 +71,7 @@ public structure LakeOptions where
   toolchain? : Option CacheToolchain := none
   rev? : Option String := none
   maxRevs : Nat := 100
+  summary : Bool := false
   shake : Shake.Args := {}
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
@@ -132,6 +133,7 @@ def LakeOptions.mkBuildConfig
   outLv := opts.outLv
   ansiMode := opts.ansiMode
   outputsFile? := opts.outputsFile?
+  summary := opts.summary
   out; showSuccess
 
 export LakeOptions (mkLoadConfig mkBuildConfig)
@@ -299,6 +301,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
   let configFile ← takeOptArg "--file" "path"
   modifyThe LakeOptions ({· with configFile})
 | "--help"        => modifyThe LakeOptions ({· with wantsHelp := true})
+| "--summary"     => modifyThe LakeOptions ({· with summary := true})
 | "--"            => do
   let subArgs ← takeArgs
   modifyThe LakeOptions ({· with subArgs})

@@ -111,7 +111,7 @@ abbrev ResolveT m := DepStackT <| StateT Workspace m
     recFetchAcyclic (·.baseName) go root
   return ws
 
-private def Workspace.setDepPkgs
+def Workspace.setDepPkgs
   (self : Workspace) (wsIdx : Nat) (depPkgs : Array Package)
 : Workspace := {self with
   packages := self.packages.modify wsIdx ({· with depPkgs})

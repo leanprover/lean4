@@ -44,6 +44,7 @@ public def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
     lakeArgs? := config.lakeArgs?
     facetConfigs
     packages := #[root]
+    packageMap := DNameMap.empty.insert root.keyName root
     size_packages_pos := by simp
     packages_wsIdx {i} h := by
       cases i with

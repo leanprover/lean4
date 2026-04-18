@@ -279,7 +279,8 @@ jobs:
                 "os": large ? "nscloud-ubuntu-24.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
-                "check-stage3": level >= 2,
+                // Done as part of test-bench
+                //"check-stage3": level >= 2,
                 "test": true,
                 // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
                 "test-bench": large && level >= 2,
@@ -291,7 +292,8 @@ jobs:
                 "os": large ? "nscloud-ubuntu-24.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
-                "check-stage3": level >= 2,
+                // Done as part of test-bench
+                //"check-stage3": level >= 2,
                 "test": true,
                 "secondary": true,
                 // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`

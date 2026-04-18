@@ -23,6 +23,8 @@ echo ">"
 echo "> Building $STAGE_NEXT..."
 echo ">"
 
+make -C "$BUILD_NEXT" clean-stdlib
+
 LAKE_OVERRIDE_LEAN=true LEAN="$(realpath fake_root/bin/lean)" \
 WRAPPER_PREFIX="$(realpath fake_root)" WRAPPER_OUT="$OUT" \
   lakeprof record -- \

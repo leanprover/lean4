@@ -489,4 +489,18 @@ example : IO Bool := do
   for (x, y) in ([] : List (Nat × Nat)) do count := count + 1
   return Float.abs count > 0
 
+-- A `repeat` (without `break`) followed by an early `return` inside an enclosing `for`. The for
+-- elaborator computes the loop body's `ControlInfo` via `inferControlInfoSeq`, which stops
+-- aggregating once it encounters an element with `numRegularExits := 0`. If `repeat` reported
+-- `numRegularExits := 0` for break-less bodies, the trailing `return 2` would be skipped during
+-- inference and the for elaborator would later throw "Early returning ... but the info said there
+-- is no early return". This test pins down that `repeat` reports `numRegularExits := 1`, matching
+-- `for ... in`.
+example : IO Nat := do
+  for _ in [1, 2] do
+    repeat
+      pure ()
+    return 2
+  return 1
+
 end Repros

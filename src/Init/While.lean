@@ -13,10 +13,11 @@ public section
 namespace Lean
 
 /-!
-# `while` and `repeat` loop support
+# `Loop` type backing `repeat`/`while`/`repeat ... until`
 
-The parsers for `repeat`, `while`, and `repeat ... until` are
-`@[builtin_doElem_parser]` definitions in `Lean.Parser.Do`.
+The parsers and elaborators for `repeat`, `while`, and `repeat ... until` live in
+`Lean.Parser.Do` and `Lean.Elab.BuiltinDo.Repeat`. This module only provides the
+`Loop` type (and `ForIn` instance) that those elaborators expand to.
 -/
 
 inductive Loop where
@@ -32,24 +33,5 @@ partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop
 
 instance [Monad m] : ForIn m Loop Unit where
   forIn := Loop.forIn
-
--- The canonical parsers for `repeat`/`while`/`repeat ... until` live in `Lean.Parser.Do`
--- as `@[builtin_doElem_parser]` definitions. We register the expansion macros here so
--- they are available to `prelude` files in `Init`, which do not import `Lean.Elab`.
-
-macro_rules
-  | `(doElem| repeat%$tk $seq) => `(doElem| for%$tk _ in Loop.mk do $seq)
-
-macro_rules
-  | `(doElem| while%$tk $h : $cond do $seq) =>
-    `(doElem| repeat%$tk if $h:ident : $cond then $seq else break)
-
-macro_rules
-  | `(doElem| while%$tk $cond do $seq) =>
-    `(doElem| repeat%$tk if $cond then $seq else break)
-
-macro_rules
-  | `(doElem| repeat%$tk $seq until $cond) =>
-    `(doElem| repeat%$tk do $seq:doSeq; if $cond then break)
 
 end Lean

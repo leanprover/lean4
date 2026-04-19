@@ -22,6 +22,7 @@ options get_default_options() {
     opts = opts.update({"quotPrecheck"}, true);
 
     opts = opts.update({"pp", "rawOnError"}, true);
+    // bump stage0 to pick up new builtin `repeat`/`while` elaborators
 
     // Temporary, core-only flags for editing (i.e. must be part of stage0/bin/lean). Must be synced
     // with `LEAN_EXTRA_MAKE_OPTS` build flags in src/CMakeLists.txt.

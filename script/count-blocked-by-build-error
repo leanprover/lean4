@@ -1,0 +1,278 @@
+#!/usr/bin/env python3
+"""count-blocked-by-build-error: wrap `lake build` and, for each failed module,
+report how many modules in the selected lean_libs transitively import it.
+
+The count is "modules in the given --lib libraries that transitively import this
+failure", NOT "targets blocked in the current build plan". If the build
+invocation only scheduled a subset of those modules, the reported count is an
+upper bound on what was actually blocked.
+
+Usage: count-blocked-by-build-error --lib LIB [--lib LIB ...] [--] [LAKE_BUILD_ARGS...]
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import re
+import subprocess
+import sys
+from collections import defaultdict, deque
+
+# Matches ANSI CSI escape sequences (colour and cursor control).
+_ANSI_RE = re.compile(r"\x1B\[[0-?]*[ -/]*[@-~]")
+
+
+def _strip_ansi(s: str) -> str:
+    return _ANSI_RE.sub("", s)
+
+
+def run_lake_build(build_args: list[str]) -> tuple[int, str]:
+    """Run `lake build` with the given args, streaming output live and capturing it.
+
+    Returns (exit_code, captured_output).
+    """
+    try:
+        proc = subprocess.Popen(
+            ["lake", "build", *build_args],
+            stdout=subprocess.PIPE,
+            stderr=subprocess.STDOUT,
+            text=True,
+            bufsize=1,
+        )
+    except OSError as e:
+        sys.stderr.write(f"error: could not exec `lake build`: {e}\n")
+        return 127, ""
+    chunks: list[str] = []
+    assert proc.stdout is not None
+    for line in proc.stdout:
+        sys.stdout.write(line)
+        sys.stdout.flush()
+        chunks.append(line)
+    rc = proc.wait()
+    return rc, "".join(chunks)
+
+
+_FAILURE_HEADER_RE = re.compile(r"^\s*Some required targets logged failures:\s*$")
+_FAILURE_ITEM_RE = re.compile(r"^\s*-\s+(.+?)\s*$")
+
+
+def parse_failed_captions(output: str) -> list[str]:
+    """Extract the list of failed job captions from `lake build` output.
+
+    Tolerates ANSI colour sequences and leading whitespace (the header and
+    bullet list aren't strictly column-zero in every Lake output mode).
+    """
+    failures: list[str] = []
+    lines = [_strip_ansi(line) for line in output.splitlines()]
+    start = None
+    for i, line in enumerate(lines):
+        if _FAILURE_HEADER_RE.match(line):
+            start = i
+            break
+    if start is None:
+        return failures
+    for line in lines[start + 1 :]:
+        m = _FAILURE_ITEM_RE.match(line)
+        if not m:
+            break
+        failures.append(m.group(1))
+    return failures
+
+
+def lake_query(args: list[str]) -> tuple[int, list[str]]:
+    """Run `lake query ARGS`. Returns (exit_code, stdout_lines)."""
+    try:
+        proc = subprocess.run(
+            ["lake", "query", *args],
+            capture_output=True,
+            text=True,
+        )
+    except OSError as e:
+        sys.stderr.write(f"error: could not exec `lake query`: {e}\n")
+        return 127, []
+    out_lines = [line for line in proc.stdout.splitlines() if line != ""]
+    return proc.returncode, out_lines
+
+
+def enumerate_library_modules(libs: list[str]) -> list[str]:
+    """Return module names for each --lib, preserving order and deduplicating."""
+    seen: set[str] = set()
+    modules: list[str] = []
+    for lib in libs:
+        rc, lines = lake_query([f"{lib}:modules"])
+        if rc != 0:
+            sys.stderr.write(
+                f"warning: `lake query {lib}:modules` exited {rc}; skipping\n"
+            )
+            continue
+        for name in lines:
+            name = name.strip()
+            if name and name not in seen:
+                seen.add(name)
+                modules.append(name)
+    return modules
+
+
+def query_imports_chunk(
+    modules: list[str], unqueryable: set[str]
+) -> dict[str, list[str]]:
+    """Query `lake query +M:imports --json` for a batch of modules.
+
+    Returns a dict mapping module name -> list of direct imports.
+    If the whole batch fails (e.g. one module has a bad header), bisect down
+    to singletons, isolating the failing modules and recording them in
+    `unqueryable` so the caller can warn that the graph is incomplete.
+    Failing modules are returned with an empty import list to keep the map
+    shape consistent; the dependent counts for anything reachable only
+    through them will be understated.
+    """
+    if not modules:
+        return {}
+    targets = [f"+{m}:imports" for m in modules]
+    rc, lines = lake_query([*targets, "--json"])
+    if rc == 0 and len(lines) == len(modules):
+        out: dict[str, list[str]] = {}
+        for mod, line in zip(modules, lines):
+            try:
+                out[mod] = json.loads(line)
+            except json.JSONDecodeError:
+                sys.stderr.write(f"warning: could not parse imports JSON for {mod}\n")
+                unqueryable.add(mod)
+                out[mod] = []
+        return out
+    # Chunk failed. If we're at a single module, give up on it.
+    if len(modules) == 1:
+        sys.stderr.write(
+            f"warning: `lake query +{modules[0]}:imports` failed; "
+            "dependent counts reachable through it will be incomplete\n"
+        )
+        unqueryable.add(modules[0])
+        return {modules[0]: []}
+    # Bisect.
+    mid = len(modules) // 2
+    result = query_imports_chunk(modules[:mid], unqueryable)
+    result.update(query_imports_chunk(modules[mid:], unqueryable))
+    return result
+
+
+def build_forward_graph(
+    modules: list[str], chunk_size: int = 512
+) -> tuple[dict[str, list[str]], set[str]]:
+    """Build forward import graph, restricted to edges within `modules`.
+
+    Returns (graph, unqueryable) where `unqueryable` is the set of modules
+    for which `lake query ... :imports` failed, so the caller can surface
+    the incomplete-result warning and adjust the exit code.
+    """
+    modset = set(modules)
+    graph: dict[str, list[str]] = {}
+    unqueryable: set[str] = set()
+    for i in range(0, len(modules), chunk_size):
+        chunk = modules[i : i + chunk_size]
+        chunk_imports = query_imports_chunk(chunk, unqueryable)
+        for mod in chunk:
+            imports = chunk_imports.get(mod, [])
+            graph[mod] = [dep for dep in imports if dep in modset]
+    return graph, unqueryable
+
+
+def reverse_graph(forward: dict[str, list[str]]) -> dict[str, list[str]]:
+    rev: dict[str, list[str]] = defaultdict(list)
+    for src, deps in forward.items():
+        for dep in deps:
+            rev[dep].append(src)
+    return rev
+
+
+def count_transitive_dependents(rev: dict[str, list[str]], start: str) -> int:
+    visited: set[str] = set()
+    queue: deque[str] = deque(rev.get(start, []))
+    while queue:
+        n = queue.popleft()
+        if n in visited:
+            continue
+        visited.add(n)
+        for parent in rev.get(n, []):
+            if parent not in visited:
+                queue.append(parent)
+    return len(visited)
+
+
+def main() -> int:
+    parser = argparse.ArgumentParser(
+        prog="count-blocked-by-build-error",
+        description=(
+            "Wrap `lake build` and report, for each failed module, how many "
+            "modules in the given lean_libs transitively import it."
+        ),
+    )
+    parser.add_argument(
+        "--lib",
+        action="append",
+        required=True,
+        metavar="NAME",
+        help="lean_lib whose modules participate in the dependent graph (repeatable)",
+    )
+    parser.add_argument(
+        "build_args",
+        nargs=argparse.REMAINDER,
+        help="arguments to pass to `lake build` (prefix with `--` to disambiguate)",
+    )
+    args = parser.parse_args()
+
+    build_args = args.build_args
+    if build_args and build_args[0] == "--":
+        build_args = build_args[1:]
+
+    rc, output = run_lake_build(build_args)
+
+    failed_captions = parse_failed_captions(output)
+    if not failed_captions:
+        return rc
+
+    print()
+    print("Enumerating selected-library modules...")
+    modules = enumerate_library_modules(args.lib)
+    modset = set(modules)
+    if not modules:
+        sys.stderr.write("warning: no modules found in the selected libraries\n")
+        return rc
+
+    failed_modules = [cap for cap in failed_captions if cap in modset]
+    if not failed_modules:
+        print(
+            "No failures matched the selected libraries "
+            f"(failures were: {', '.join(failed_captions)})"
+        )
+        return rc
+
+    print(f"Building import graph for {len(modules)} modules...")
+    forward, unqueryable = build_forward_graph(modules)
+    rev = reverse_graph(forward)
+
+    print()
+    if unqueryable:
+        print(
+            f"WARNING: {len(unqueryable)} module(s) could not be queried "
+            "for imports; the counts below are a lower bound. "
+            "Re-run with --verbose after fixing the failing headers for an accurate count.",
+            file=sys.stderr,
+        )
+    print("Selected-library dependents:")
+    for mod in failed_modules:
+        count = count_transitive_dependents(rev, mod)
+        suffix = " (incomplete)" if unqueryable else ""
+        print(f"  {mod}: {count}{suffix}")
+    # If lake build itself succeeded but our graph is incomplete, surface a
+    # nonzero rc so callers (CI, scripts) don't trust exact-looking numbers.
+    if rc == 0 and unqueryable:
+        return 2
+    return rc
+
+
+if __name__ == "__main__":
+    try:
+        sys.exit(main())
+    except KeyboardInterrupt:
+        sys.exit(130)

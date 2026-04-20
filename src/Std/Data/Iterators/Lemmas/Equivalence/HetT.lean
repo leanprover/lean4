@@ -125,7 +125,7 @@ instance {α : Type v} {β : α → Type w} [Small.{u} α] [∀ a, Small.{u} (β
         ((a : USquash α) × (USquash (β a.inflate)))
         (fun x => ⟨x.1.inflate, x.2.inflate⟩)
         (fun b => ⟨⟨.deflate b.1, .deflate (USquash.inflate_deflate ▸ b.2)⟩,
-          (by rcases b with ⟨b₁, b₂⟩; simp [eqRec_heq])⟩)
+          (by rcases b with ⟨b₁, b₂⟩; simp)⟩)
 
 theorem Small.pbind {α : Type v} {β : Type w} (P : α → Prop) (Q : (a : α) → P a → β → Prop)
     (i₁ : Small.{u} { a // P a }) (i₂ : ∀ a h, Small.{u} { b // Q a h b }) :

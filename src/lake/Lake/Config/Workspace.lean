@@ -14,6 +14,8 @@ public import Lake.Config.TargetConfig
 public import Lake.Config.LakeConfig
 meta import Lake.Util.OpaqueType
 import Lean.DocString.Syntax
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Lemmas
 
 set_option doc.verso true
 
@@ -63,17 +65,24 @@ public structure Workspace.Raw.WF (ws : Workspace.Raw) : Prop where
 /-- A Lake workspace -- the top-level package directory. -/
 public structure Workspace extends raw : Workspace.Raw, wf : raw.WF
 
-public instance : Nonempty Workspace := .intro {
+/-- Constructs an arbitrary well-formed workspace with {lean}`n` packages. -/
+noncomputable def Workspace.ofSize (n : Nat) (h : 0 < n) : Workspace := {
   lakeEnv := default
   lakeConfig := Classical.ofNonempty
   lakeCache := Classical.ofNonempty
-  packages := #[{(Classical.ofNonempty : Package) with wsIdx := 0}]
-  size_packages_pos := by simp
+  packages := (0...<n).toArray.map fun i =>
+    {(Classical.ofNonempty : Package) with wsIdx := i}
+  size_packages_pos := by
+    simp [Std.Rco.size, Std.Rxo.HasSize.size, Std.Rxc.HasSize.size, h]
   packages_wsIdx {i} h := by
-    cases i with
-    | zero => simp
-    | succ => simp at h
+    simp [Std.Rco.getElem_toArray_eq, Std.PRange.succMany?]
 }
+
+theorem Workspace.size_packages_ofSize :
+  (ofSize n h).packages.size = n
+:= by simp [ofSize, Std.Rco.size, Std.Rxo.HasSize.size, Std.Rxc.HasSize.size]
+
+public instance : Nonempty Workspace := ⟨.ofSize 1 Nat.zero_lt_one⟩
 
 public hydrate_opaque_type OpaqueWorkspace Workspace
 
@@ -92,6 +101,11 @@ namespace Workspace
 /-- The root package of the workspace. -/
 @[inline] public def root (self : Workspace) : Package :=
   self.packages[0]'self.size_packages_pos
+
+/-- **For internal use only.** -/
+public theorem wsIdx_root_lt {ws : Workspace} :
+  ws.root.wsIdx < ws.packages.size
+:= ws.packages_wsIdx _ ▸ ws.size_packages_pos
 
 /-- **For internal use.** Whether this workspace is Lean itself.  -/
 @[inline] def bootstrap (self : Workspace) : Bool :=

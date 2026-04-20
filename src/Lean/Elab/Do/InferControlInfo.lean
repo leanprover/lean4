@@ -58,6 +58,12 @@ structure ControlInfo where
 
 def ControlInfo.pure : ControlInfo := {}
 
+/--
+The identity of `ControlInfo.alternative`: a `ControlInfo` describing a block with no branches
+at all (so no regular exits and the next element is trivially unreachable).
+-/
+def ControlInfo.empty : ControlInfo := { numRegularExits := 0, noFallthrough := true }
+
 def ControlInfo.sequence (a b : ControlInfo) : ControlInfo := {
     -- Syntactic fields aggregate unconditionally; the elaborator keeps visiting `b` unless `a` is
     -- a syntactically-terminal element (only top-level `return`/`break`/`continue` are, via
@@ -141,7 +147,7 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     ofLetOrReassignArrow true decl
   -- match
   | `(doElem| match $[(dependent := $_)]? $[(generalizing := $_)]? $(_)? $_,* with $alts:matchAlt*) =>
-    let mut info := {}
+    let mut info := ControlInfo.empty
     for alt in alts do
       let `(matchAltExpr| | $[$_,*]|* => $rhs) := alt | throwUnsupportedSyntax
       let rhsInfo ← ofSeq ⟨rhs⟩

@@ -203,7 +203,8 @@ private def compileMatch (discrs : Array Term.Discr) (matchType : Expr) (lhss : 
 
 private def elabDoMatchCore (discrs : TSyntaxArray ``matchDiscr) (alts : Array DoMatchAltView)
     (nondupDec : DoElemCont) : DoElabM Expr := do
-  let info ← alts.foldlM (fun info alt => info.alternative <$> inferControlInfoSeq alt.rhs) ControlInfo.pure
+  let info ← alts.foldlM (fun info alt => info.alternative <$> inferControlInfoSeq alt.rhs)
+    ControlInfo.empty
   nondupDec.withDuplicableCont info fun dec => do
   trace[Elab.do.match] "discrs: {discrs}, nondupDec.resultType: {nondupDec.resultType}, may postpone: {(← readThe Term.Context).mayPostpone}"
   tryPostponeIfDiscrTypeIsMVar discrs

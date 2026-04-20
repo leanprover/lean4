@@ -28,6 +28,9 @@ example (cond : Bool) : IO Nat := do
     return 42
   return 1
 
+/--
+warning: This `do` element and its control-flow region are dead code. Consider refactoring your code to remove it.
+-/
 #guard_msgs in
 example (i : Nat) : IO Nat := do
   for _ in [1, 2] do

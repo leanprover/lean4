@@ -90,7 +90,7 @@ def Workspace.setDepPkgs
       · rw [self.packages_wsIdx]
   }
 
-theorem Workspace.size_package_setDepPkgs :
+theorem Workspace.size_packages_setDepPkgs :
   (setDepPkgs ws pkg depPkgs h).packages.size = ws.packages.size
 := by simp [setDepPkgs]
 
@@ -200,7 +200,7 @@ where
       ws.packages[wsIdx]'(Nat.lt_of_lt_of_le (lt_of_mem wsIdx h_mem) stop_le)
     let ws := ws.setDepPkgs pkg depPkgs <| Nat.lt_of_lt_of_le lt_start start_le
     have start_le := Nat.le_trans start_le <| by
-      simp [ws, Workspace.size_package_setDepPkgs]
+      simp [ws, Workspace.size_packages_setDepPkgs]
     return ⟨ws, start_le⟩
   termination_by Lean.maxSmallNat - wsIdx
   decreasing_by

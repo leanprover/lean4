@@ -35,6 +35,8 @@ abbrev hugeExp : Nat := 4294967296
 -- even when the exponent exceeds `UINT_MAX`.
 #eval Nat.powMod 1 hugeExp 0 = 1
 #eval Nat.powMod 0 hugeExp 0 = 0
+example : Nat.powMod 1 hugeExp 0 = 1 := by native_decide
+example : Nat.powMod 0 hugeExp 0 = 0 := by native_decide
 
 /-!
 Cross-check the compiled extern against the kernel's unfolding for
@@ -74,3 +76,4 @@ abbrev g : Nat := 0xa4d1cbd5c3fd34126765a442efb99905f8104dd258ac507fd6406cff1426
 
 -- And via `Fin`, which is the main motivating use case.
 #fast #eval ((Fin.ofNat _ g : Fin M) ^ (M - 1) = 1 : Bool)
+example : ((Fin.ofNat _ g : Fin M) ^ (M - 1)) = 1 := by native_decide

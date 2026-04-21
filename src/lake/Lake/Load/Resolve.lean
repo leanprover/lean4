@@ -163,7 +163,7 @@ See `Workspace.updateAndMaterializeCore` for more details.
 @[inline] def Workspace.resolveDepsCore
   [Monad m] [MonadError m] [MonadLiftT LogIO m] (ws : Workspace)
   (resolve : Package → Dependency → Workspace → m MaterializedDep)
-  (root : Nat := 0) (h : root < ws.packages.size := by exact ws.size_packages_pos)
+  (root : Nat) (h : root < ws.packages.size)
   (leanOpts : Options := {}) (reconfigure := true)
 : m (MinWorkspace ws) := do
   go ws root h
@@ -473,7 +473,7 @@ def Workspace.updateAndMaterializeCore
     -- that the dependencies' dependencies are also properly set
     return ws.setDepPkgs ws.root ws.packages[start...<stop] ws.wsIdx_root_lt
   else
-    ws.resolveDepsCore updateAndAddDep (leanOpts := leanOpts) (reconfigure := true)
+    ws.resolveDepsCore updateAndAddDep ws.root.wsIdx ws.wsIdx_root_lt leanOpts (reconfigure := true)
 where
   @[inline] updateAndAddDep pkg dep ws := do
     let matDep ← updateAndMaterializeDep ws pkg dep
@@ -570,7 +570,7 @@ public def Workspace.materializeDeps
   if pkgEntries.isEmpty && !ws.root.depConfigs.isEmpty then
     error "missing manifest; use `lake update` to generate one"
   -- Materialize all dependencies
-  ws.resolveDepsCore (leanOpts := leanOpts) (reconfigure := reconfigure) fun pkg dep ws => do
+  let materialize pkg dep ws := do
     if let some entry := pkgEntries.find? dep.name then
       entry.materialize ws.lakeEnv ws.dir relPkgsDir
     else
@@ -584,3 +584,4 @@ public def Workspace.materializeDeps
           this suggests that the manifest is corrupt; \
           use `lake update` to generate a new, complete file \
           (warning: this will update ALL workspace dependencies)"
+  ws.resolveDepsCore materialize ws.root.wsIdx ws.wsIdx_root_lt leanOpts reconfigure

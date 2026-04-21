@@ -210,6 +210,10 @@ public:
     friend mpz rem(mpz const & a, mpz const & b) { mpz r(a); return r %= b; }
 
     mpz pow(unsigned int exp) const;
+    /** \brief Exponentiation with an arbitrary-size natural exponent. */
+    mpz pow(mpz const & exp) const;
+    /** \brief Modular exponentiation: returns `this^exp mod m`. Requires `m != 0`. */
+    mpz powm(mpz const & exp, mpz const & m) const;
 
     friend mpz operator+(mpz a, mpz const & b) { return a += b; }
     friend mpz operator+(mpz a, unsigned b)  { return a += b; }

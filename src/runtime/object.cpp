@@ -1558,6 +1558,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_a
         return mpz_to_nat(mpz_value(a1).pow(lean_unbox(a2)));
 }
 
+extern "C" LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m) {
+    mpz mb = lean_is_scalar(b) ? mpz::of_size_t(lean_unbox(b)) : mpz_value(b);
+    mpz me = lean_is_scalar(e) ? mpz::of_size_t(lean_unbox(e)) : mpz_value(e);
+    if (lean_is_scalar(m) && lean_unbox(m) == 0) {
+        // Lean convention: `_ % 0 = _`, so `Nat.powMod b e 0 = b ^ e`.
+        return mpz_to_nat(mb.pow(me));
+    }
+    mpz mm = lean_is_scalar(m) ? mpz::of_size_t(lean_unbox(m)) : mpz_value(m);
+    return mpz_to_nat(mb.powm(me, mm));
+}
+
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_gcd(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (lean_is_scalar(a1)) {
       if (lean_is_scalar(a2))

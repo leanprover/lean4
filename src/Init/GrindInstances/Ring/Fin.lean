@@ -13,6 +13,7 @@ public import Init.Data.Fin.Lemmas
 public import Init.Grind.Ring.Basic
 import Init.Data.Nat.Lemmas
 import Init.Data.Nat.MinMax
+public import Init.Data.Nat.PowMod
 
 public section
 
@@ -20,10 +21,14 @@ namespace Lean.Grind
 
 namespace Fin
 
--- TODO: we should replace this at runtime with either repeated squaring,
--- or a GMP accelerated function.
 @[expose]
-def npow [NeZero n] (x : Fin n) (y : Nat) : Fin n := npowRec y x
+def npow [NeZero n] (x : Fin n) (y : Nat) : Fin n :=
+  ⟨Nat.powMod x.val y n, by rw [Nat.powMod_def]; exact Nat.mod_lt _ (Nat.pos_of_neZero n)⟩
+
+@[simp] theorem val_npow [NeZero n] (a : Fin n) (k : Nat) :
+    (Fin.npow a k).val = a.val ^ k % n := by
+  show Nat.powMod a.val k n = a.val ^ k % n
+  exact Nat.powMod_def _ _ _
 
 instance [NeZero n] : HPow (Fin n) Nat (Fin n) where
   hPow := Fin.npow
@@ -31,8 +36,16 @@ instance [NeZero n] : HPow (Fin n) Nat (Fin n) where
 instance [NeZero n] : Pow (Fin n) Nat where
   pow := Fin.npow
 
-@[simp] theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := rfl
-@[simp] theorem pow_succ [NeZero n] (a : Fin n) (n : Nat) : a ^ (n+1) = a ^ n * a := rfl
+@[simp] theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := by
+  ext
+  show (Fin.npow a 0).val = (1 : Fin n).val
+  rw [val_npow, Nat.pow_zero]
+  rfl
+@[simp] theorem pow_succ [NeZero n] (a : Fin n) (k : Nat) : a ^ (k+1) = a ^ k * a := by
+  ext
+  show (Fin.npow a (k+1)).val = (Fin.npow a k * a).val
+  rw [val_npow, Fin.val_mul, val_npow, Nat.pow_succ]
+  simp [Nat.mul_mod]
 
 theorem add_assoc (a b c : Fin n) : a + b + c = a + (b + c) := by
   cases a; cases b; cases c; simp [Fin.add_def, Nat.add_assoc]
@@ -122,8 +135,8 @@ instance (n : Nat) [NeZero n] : CommRing (Fin n) where
   mul_one := Fin.mul_one
   left_distrib := Fin.left_distrib
   zero_mul := Fin.zero_mul
-  pow_zero _ := by rfl
-  pow_succ _ _ := by rfl
+  pow_zero a := Fin.pow_zero a
+  pow_succ a k := Fin.pow_succ a k
   ofNat_succ := Fin.ofNat_succ
   sub_eq_add_neg := Fin.sub_eq_add_neg
   intCast_neg := Fin.intCast_neg
@@ -158,6 +171,9 @@ instance [i : NeZero n] : ToInt.Pow (Fin n) (.co 0 n) where
 
 instance : PowIdentity (Fin 2) 2 where
   pow_eq x := by
+    ext
+    show (Fin.npow x 2).val = x.val
+    rw [val_npow]
     match x with
     | ⟨0, _⟩ => rfl
     | ⟨1, _⟩ => rfl

@@ -214,6 +214,28 @@ mpz mpz::pow(unsigned int exp) const {
     return r;
 }
 
+mpz mpz::pow(mpz const & exp) const {
+    lean_assert(exp >= 0);
+    mpz result(1);
+    mpz base(*this);
+    mpz e(exp);
+    while (!e.is_zero()) {
+        if (e.mod8() & 1) {
+            result *= base;
+        }
+        base *= base;
+        div2k(e, e, 1);
+    }
+    return result;
+}
+
+mpz mpz::powm(mpz const & exp, mpz const & m) const {
+    lean_assert(m != 0);
+    mpz r;
+    mpz_powm(r.m_val, m_val, exp.m_val, m.m_val);
+    return r;
+}
+
 size_t mpz::log2() const {
     if (is_nonpos())
         return 0;
@@ -823,6 +845,40 @@ mpz mpz::pow(unsigned int p) const {
             result *= power;
         power *= power;
         mask = mask << 1;
+    }
+    return result;
+}
+
+mpz mpz::pow(mpz const & exp) const {
+    lean_assert(!exp.is_neg());
+    mpz result(1);
+    mpz base(*this);
+    mpz e(exp);
+    while (!e.is_zero()) {
+        if (e.mod8() & 1) {
+            result *= base;
+        }
+        base *= base;
+        div2k(e, e, 1);
+    }
+    return result;
+}
+
+mpz mpz::powm(mpz const & exp, mpz const & m) const {
+    lean_assert(!m.is_zero());
+    if (m == 1) return mpz(0);
+    mpz result(1);
+    mpz base(*this);
+    base %= m;
+    mpz e(exp);
+    while (!e.is_zero()) {
+        if (e.mod8() & 1) {
+            result *= base;
+            result %= m;
+        }
+        base *= base;
+        base %= m;
+        div2k(e, e, 1);
     }
     return result;
 }

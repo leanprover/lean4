@@ -35,12 +35,14 @@ structure ControlInfo where
 
 def ControlInfo.pure : ControlInfo := {}
 
-def ControlInfo.sequence (a b : ControlInfo) : ControlInfo :=
-  if a.numRegularExits == 0 then a else {
+def ControlInfo.sequence (a b : ControlInfo) : ControlInfo := {
     breaks := a.breaks || b.breaks,
     continues := a.continues || b.continues,
     returnsEarly := a.returnsEarly || b.returnsEarly,
-    numRegularExits := b.numRegularExits,
+    -- Once `a` has no regular exits, `b` is statically unreachable, so no regular exit survives.
+    -- We still aggregate the other effects because the elaborator keeps visiting `b` unless it is
+    -- skipped via `elabAsSyntacticallyDeadCode`.
+    numRegularExits := if a.numRegularExits == 0 then 0 else b.numRegularExits,
     reassigns := a.reassigns ++ b.reassigns,
   }
 
@@ -139,14 +141,8 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     }
   | `(doRepeat| repeat $bodySeq) =>
     let info ← ofSeq bodySeq
-    -- Match `for ... in` and report `numRegularExits := 1` unconditionally. Reporting `0` when
-    -- the body has no `break` causes `ofSeq` (in any enclosing sequence whose `ControlInfo` is
-    -- inferred, e.g. a surrounding `for`/`if`/`match`/`try` body) to stop aggregating after this
-    -- element and miss any `return`/`break`/`continue` that follows. The corresponding elaborator
-    -- then sees the actual control flow disagree with the inferred info and throws errors like
-    -- "Early returning ... but the info said there is no early return". See #13437 for details.
     return { info with
-      numRegularExits := 1,
+      numRegularExits := if info.breaks then 1 else 0,
       continues := false,
       breaks := false
     }
@@ -218,17 +214,7 @@ partial def ofLetOrReassign (reassigned : Array Ident) (rhs? : Option (TSyntax `
 partial def ofSeq (stx : TSyntax ``doSeq) : TermElabM ControlInfo := do
   let mut info : ControlInfo := {}
   for elem in getDoElems stx do
-    if info.numRegularExits == 0 then
-      break
-    let elemInfo ← ofElem elem
-    info := {
-      info with
-      breaks := info.breaks || elemInfo.breaks
-      continues := info.continues || elemInfo.continues
-      returnsEarly := info.returnsEarly || elemInfo.returnsEarly
-      numRegularExits := elemInfo.numRegularExits
-      reassigns := info.reassigns ++ elemInfo.reassigns
-    }
+    info := info.sequence (← ofElem elem)
   return info
 
 partial def ofOptionSeq (stx? : Option (TSyntax ``doSeq)) : TermElabM ControlInfo := do

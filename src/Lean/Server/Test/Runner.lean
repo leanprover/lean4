@@ -723,6 +723,7 @@ partial def main (args : List String) : IO Unit := do
         }
       }
       lean? := some {
+        incrementalDiagnosticSupport? := some true
         silentDiagnosticSupport? := some true
         rpcWireFormat? := some .v1
       }

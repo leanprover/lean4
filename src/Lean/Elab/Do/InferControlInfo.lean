@@ -16,48 +16,75 @@ namespace Lean.Elab.Do
 
 open Lean Meta Parser.Term
 
-/-- Represents information about what control effects a `do` block has. -/
+/--
+Represents information about what control effects a `do` block has.
+
+The fields split by flavor:
+
+* `breaks`, `continues`, `returnsEarly`, and `reassigns` are **syntactic**: `true`/non-empty iff
+  the corresponding construct appears anywhere in the source text of the block, independent of
+  whether it is semantically reachable. Downstream elaborators must assume every such syntactic
+  effect may occur, because the elaborator visits every doElem (only top-level
+  `return`/`break`/`continue` short-circuit via `elabAsSyntacticallyDeadCode`).
+* `numRegularExits` is also **syntactic**: the number of times the block wires the enclosing
+  continuation into its elaborated expression. `withDuplicableCont` reads it as a join-point
+  duplication trigger (`> 1`).
+* `noFallthrough = true` asserts that the next doElem in the enclosing sequence is semantically
+  irrelevant (control never falls through to it). `noFallthrough = false` makes no such
+  assertion. The dead-code warning fires on the next element when this is `true`.
+
+Invariant: `numRegularExits = 0 → noFallthrough`. The converse does not hold.
+-/
 structure ControlInfo where
-  /-- The `do` block may `break`. -/
+  /-- The `do` block syntactically contains a `break`. -/
   breaks : Bool := false
-  /-- The `do` block may `continue`. -/
+  /-- The `do` block syntactically contains a `continue`. -/
   continues : Bool := false
-  /-- The `do` block may `return` early. -/
+  /-- The `do` block syntactically contains an early `return`. -/
   returnsEarly : Bool := false
   /--
-  The number of regular exit paths the `do` block has.
-  Corresponds to the number of jumps to an ambient join point.
+  The number of times the block wires the enclosing continuation into its elaborated expression.
+  Consumed by `withDuplicableCont` to decide whether to introduce a join point (`> 1`).
   -/
   numRegularExits : Nat := 1
-  /-- The variables that are reassigned in the `do` block. -/
+  /--
+  When `true`, asserts that the next doElem in the enclosing sequence is semantically irrelevant
+  (control never falls through to it). `false` asserts nothing.
+  -/
+  noFallthrough : Bool := false
+  /-- The variables that are syntactically reassigned somewhere in the `do` block. -/
   reassigns : NameSet := {}
   deriving Inhabited
 
 def ControlInfo.pure : ControlInfo := {}
 
 def ControlInfo.sequence (a b : ControlInfo) : ControlInfo := {
+    -- Syntactic fields aggregate unconditionally; the elaborator keeps visiting `b` unless `a` is
+    -- a syntactically-terminal element (only top-level `return`/`break`/`continue` are, via
+    -- `elabAsSyntacticallyDeadCode`).
     breaks := a.breaks || b.breaks,
     continues := a.continues || b.continues,
     returnsEarly := a.returnsEarly || b.returnsEarly,
-    -- Once `a` has no regular exits, `b` is statically unreachable, so no regular exit survives.
-    -- We still aggregate the other effects because the elaborator keeps visiting `b` unless it is
-    -- skipped via `elabAsSyntacticallyDeadCode`.
-    numRegularExits := if a.numRegularExits == 0 then 0 else b.numRegularExits,
     reassigns := a.reassigns ++ b.reassigns,
+    numRegularExits := b.numRegularExits,
+    -- Semantic: the sequence is dead if either part is dead.
+    noFallthrough := a.noFallthrough || b.noFallthrough,
   }
 
 def ControlInfo.alternative (a b : ControlInfo) : ControlInfo := {
     breaks := a.breaks || b.breaks,
     continues := a.continues || b.continues,
     returnsEarly := a.returnsEarly || b.returnsEarly,
-    numRegularExits := a.numRegularExits + b.numRegularExits,
     reassigns := a.reassigns ++ b.reassigns,
+    numRegularExits := a.numRegularExits + b.numRegularExits,
+    -- Semantic: alternatives are dead only if all branches are dead.
+    noFallthrough := a.noFallthrough && b.noFallthrough,
   }
 
 instance : ToMessageData ControlInfo where
   toMessageData info := m!"breaks: {info.breaks}, continues: {info.continues},
-    returnsEarly: {info.returnsEarly}, exitsRegularly: {info.numRegularExits},
-    reassigns: {info.reassigns.toList}"
+    returnsEarly: {info.returnsEarly}, numRegularExits: {info.numRegularExits},
+    noFallthrough: {info.noFallthrough}, reassigns: {info.reassigns.toList}"
 
 /-- A handler for inferring `ControlInfo` from a `doElem` syntax. Register with `@[doElem_control_info parserName]`. -/
 abbrev ControlInfoHandler := TSyntax `doElem → TermElabM ControlInfo
@@ -91,9 +118,9 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     return ← ofElem ⟨stxNew⟩
 
   match stx with
-  | `(doElem| break) => return { breaks := true, numRegularExits := 0 }
-  | `(doElem| continue) => return { continues := true, numRegularExits := 0 }
-  | `(doElem| return $[$_]?) => return { returnsEarly := true, numRegularExits := 0 }
+  | `(doElem| break) => return { breaks := true, numRegularExits := 0, noFallthrough := true }
+  | `(doElem| continue) => return { continues := true, numRegularExits := 0, noFallthrough := true }
+  | `(doElem| return $[$_]?) => return { returnsEarly := true, numRegularExits := 0, noFallthrough := true }
   | `(doExpr| $_:term) => return { numRegularExits := 1 }
   | `(doElem| do $doSeq) => ofSeq doSeq
   -- Let
@@ -134,17 +161,12 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
   -- For/Repeat
   | `(doElem| for $[$[$_ :]? $_ in $_],* do $bodySeq)
   | `(doRepeat| repeat $bodySeq) =>
-    -- `numRegularExits := 1` unconditionally, matching `for ... in`. For break-less `repeat` the
-    -- loop never terminates normally, so `0` looks more accurate semantically. But the loop
-    -- expression still has type `m Unit`, and the do block's continuation after the loop is what
-    -- carries that type. Reporting `0` makes the elaborator flag that continuation as dead code,
-    -- yet the user has no way to remove it without breaking the type of the enclosing do block
-    -- (unless its monadic result type happens to be `Unit`). So we pin at `1`; see #13437.
     let info ← ofSeq bodySeq
     return { info with  -- keep only reassigns and earlyReturn
       numRegularExits := 1,
       continues := false,
-      breaks := false
+      breaks := false,
+      noFallthrough := false,
     }
   -- Try
   | `(doElem| try $trySeq:doSeq $[$catches]* $[finally $finSeq?]?) =>

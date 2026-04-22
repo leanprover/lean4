@@ -298,7 +298,7 @@ structure SetupImportsResult where
   /-- Pre-resolved artifacts of transitively imported modules. -/
   importArts : NameMap ImportArtifacts := {}
   /-- Lean plugins to load as part of the environment setup. -/
-  plugins : Array System.FilePath := #[]
+  plugins : Array Plugin := #[]
 
 /--
 Parses an option value from a string and inserts it into `opts`.

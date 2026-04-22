@@ -45,10 +45,8 @@ def ContInfoRef : Type := ContInfoRefPointed.type
 instance : Nonempty ContInfoRef :=
   by exact ContInfoRefPointed.property
 
--- Opaque wrapper around `DoOps` (defined below). We need this indirection because
--- `DoOps`'s field types mention `DoElabM`, which is defined in terms of `Context`,
--- which would otherwise embed `DoOps` directly and create a cyclic definition.
--- Same pattern as `ContInfoRef` above.
+-- Same pattern as `ContInfoRef` above; used so `Context` can carry `DoOps` without
+-- depending on `DoElabM`.
 private opaque DoOpsRefPointed : NonemptyType.{0}
 
 def DoOpsRef : Type := DoOpsRefPointed.type
@@ -101,40 +99,21 @@ structure Context where
   Whether the current `do` element is dead code. `elabDoElem` will emit a warning if not `.alive`.
   -/
   deadCode : CodeLiveness := .alive
-  /--
-  Pluggable builders for `pure` and `bind` applications. The default operations
-  (`DoOps.default`) emit `Pure.pure` / `Bind.bind` as for ordinary `do`; external
-  surface syntaxes (e.g. an `ido` notation for indexed monads) can supply alternate
-  builders via `elabDoWith`.
-  -/
+  /-- Pluggable builders for `pure` and `bind` applications. -/
   ops : DoOpsRef
 
 abbrev DoElabM := ReaderT Context Term.TermElabM
 
-/--
-Pluggable operations used by the `do` elaborator to build `pure` / `bind` applications.
-
-The default value (`DoOps.default`, defined below) emits applications of `Pure.pure` and
-`Bind.bind`, reproducing today's behaviour for ordinary `do` blocks. External surface syntaxes
-that reuse the `do` elaboration machinery (for instance, an `ido` notation for indexed
-monads) can build their own `DoOps` emitting different constants and run the elaborator via
-`elabDoWith`.
-
-Note that control-flow features (`mut`, `return`, `break`, `continue`, `for`) and their
-accompanying transformer stack (`StateT`, `OptionT`, `ExceptT`, `EarlyReturnT`, `BreakT`,
-`ContinueT`) remain hard-coded to `Monad`. Users of non-`Monad` surface syntaxes therefore
-forfeit those features until the control stack is generalised in a follow-up.
--/
+/-- Pluggable builders for the `pure` / `bind` applications emitted by the `do` elaborator. -/
 structure DoOps where
-  /-- Build the expression `pure (α:=α) e : m α`. -/
+  /-- Build `pure (α:=α) e : m α`. -/
   mkPureApp : (α e : Expr) → DoElabM Expr
-  /-- Build the expression `bind (α:=α) (β:=β) e k : m β`. -/
+  /-- Build `bind (α:=α) (β:=β) e k : m β`. -/
   mkBindApp : (α β e k : Expr) → DoElabM Expr
   /--
   If `e` is syntactically a `pure …` application, return the pure value; otherwise `none`.
   Used by `DoElemCont.mkBindUnlessPure` to contract `e >>= pure` to `e` and
-  `pure e >>= k` to `let x := e; k x`. Returning the argument rather than a `Bool` avoids
-  committing to `Pure.pure`'s 4-argument layout.
+  `pure e >>= k` to `let x := e; k x`.
   -/
   isPureApp? : Expr → Option Expr
   deriving Inhabited
@@ -257,7 +236,7 @@ def mkPUnit : DoElabM Expr := do
 def mkPUnitUnit : DoElabM Expr := do
   return (← read).monadInfo.cachedPUnitUnit
 
-/-- The expression ``pure (α:=α) e``, dispatched through the pluggable `DoOps`. -/
+/-- The expression ``pure (α:=α) e``. -/
 def mkPureApp (α e : Expr) : DoElabM Expr := do
   (← read).ops.toDoOps.mkPureApp α e
 
@@ -276,14 +255,11 @@ def ReturnCont.mkPure (resultType : Expr) : TermElabM ReturnCont := do
   return { resultType, k x := do
     mkPureApp (← inferType x) x }
 
-/-- The expression ``Bind.bind (α:=α) (β:=β) e k``, dispatched through the pluggable `DoOps`. -/
+/-- The expression ``Bind.bind (α:=α) (β:=β) e k``. -/
 def mkBindApp (α β e k : Expr) : DoElabM Expr := do
   (← read).ops.toDoOps.mkBindApp α β e k
 
-/--
-The default `DoOps`, emitting applications of `Pure.pure` and `Bind.bind`. This reproduces
-the behaviour of ordinary `do` blocks.
--/
+/-- `DoOps` emitting `Pure.pure` / `Bind.bind`. -/
 def DoOps.default : DoOps where
   mkPureApp α e := do
     let info := (← read).monadInfo
@@ -753,12 +729,7 @@ where
     let resultType ← mkFreshExprMVar (mkSort (mkLevelSucc u)) (userName := `α)
     return ({ m, u, v }, resultType)
 
-/--
-Create the `Context` for `do` elaboration from the given expected type of a `do` block.
-
-`ops` selects the pure/bind builders. The default (`DoOps.default`) emits `Pure.pure` /
-`Bind.bind`; external DSLs (e.g. `ido` for indexed monads) can supply alternate builders.
--/
+/-- Create the `Context` for `do` elaboration from the given expected type of a `do` block. -/
 def mkContext (expectedType? : Option Expr) (ops : DoOps := .default) : TermElabM Context := do
   let (mi, resultType) ← extractMonadInfo expectedType?
   let returnCont ← ReturnCont.mkPure resultType
@@ -980,14 +951,7 @@ def elabNestedAction : Term.TermElab := fun stx _ty? => do
   let `(← $_rhs) := stx | throwUnsupportedSyntax
   throwErrorAt stx "Nested action `{stx}` must be nested inside a `do` expression."
 
-/--
-Elaborate the body `doSeq` of a `do` block (without the leading `do` keyword), using the
-given `ops` for pure/bind construction.
-
-External surface syntaxes — e.g. an `ido` notation for indexed monads — register their
-own term elaborator that matches on their surface syntax, extracts the `doSeq`, builds a
-custom `DoOps`, and calls this function.
--/
+/-- Elaborate `doSeq` using `ops` for pure/bind construction. -/
 def elabDoWith (ops : DoOps) (doSeq : TSyntax ``doSeq)
     (expectedType? : Option Expr) : TermElabM Expr := do
   Term.tryPostponeIfNoneOrMVar expectedType?

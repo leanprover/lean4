@@ -24,7 +24,13 @@ test_out_diff <(cat << 'EOF'
 Nothing to build.
 EOF
 ) -f $cfg_file build --allow-empty --wfail
-test_exp ! -f .lake/build/lib/lean/Lib.olean
+# Test the warning is not printed on a regular build.
+# The configurations use `globs = []` to minimize build variance,
+# and to verify that empty globs do not count as no jobs.
+test_out_diff <(cat << 'EOF'
+Build completed successfully (1 job).
+EOF
+) -f $cfg_file build Lib
 }
 
 # Test Lean configuration with no default targets

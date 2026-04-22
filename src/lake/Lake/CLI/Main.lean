@@ -55,6 +55,7 @@ public structure LakeOptions where
   reconfigure : Bool := false
   oldMode : Bool := false
   trustHash : Bool := true
+  allowEmpty : Bool := false
   noBuild : Bool := false
   noCache : Option Bool := none
   failLv : LogLevel := .error
@@ -241,6 +242,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
 | "--text"        => modifyThe LakeOptions ({· with outFormat := .text})
 | "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
+| "--allow-empty" => modifyThe LakeOptions ({· with allowEmpty := true})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
 | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
 | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
@@ -827,6 +829,12 @@ protected def build : CliM PUnit := do
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
+  if specs.isEmpty && !opts.allowEmpty then
+    logWarning "no targets specified and no default targets configured\
+      \n  Note: This will be an error in a future version of Lake.\
+      \n  Hint: This warning (or error) can be suppressed with '--allow-empty'."
+    if opts.failLv ≤ .warning then
+      exit 1
   specs.forM fun spec =>
     unless spec.buildable do
       throw <| .invalidBuildTarget spec.info.key.toSimpleString

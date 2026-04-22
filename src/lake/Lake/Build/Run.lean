@@ -284,11 +284,14 @@ def reportResult (cfg : BuildConfig) (out : IO.FS.Stream) (result : MonitorResul
   if result.failures.isEmpty then
     if cfg.showProgress && cfg.showSuccess then
       let numJobs := result.numJobs
-      let jobs := if numJobs == 1 then "1 job" else s!"{numJobs} jobs"
-      if cfg.noBuild then
-        print! out s!"All targets up-to-date ({jobs}).\n"
+      if numJobs == 0 then
+        print! out "Nothing to build.\n"
       else
-        print! out s!"Build completed successfully ({jobs}).\n"
+        let jobs := if numJobs == 1 then "1 job" else s!"{numJobs} jobs"
+        if cfg.noBuild then
+          print! out s!"All targets up-to-date ({jobs}).\n"
+        else
+          print! out s!"Build completed successfully ({jobs}).\n"
   else
     print! out "Some required targets logged failures:\n"
     result.failures.forM (print! out s!"- {·}\n")

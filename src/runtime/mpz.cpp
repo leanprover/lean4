@@ -61,7 +61,7 @@ mpz::mpz(mpz const & s) {
     mpz_init_set(m_val, s.m_val);
 }
 
-mpz::mpz(mpz && s):mpz() noexcept {
+mpz::mpz(mpz && s) noexcept : mpz() {
     mpz_swap(m_val, s.m_val);
 }
 

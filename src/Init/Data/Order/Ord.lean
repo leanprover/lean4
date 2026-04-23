@@ -483,6 +483,22 @@ section Instances
 
 open Std
 
+theorem Std.transCmp_compareOfLT
+    {α : Type u} [LT α] [DecidableLT α]
+    (asymm : Asymm (α := α) (· < ·) := by infer_instance)
+    (not_lt_trans : Trans (α := α) (¬ · < ·) (¬ · < ·) (¬ · < ·) := by infer_instance) :
+    TransCmp (fun x y : α => compareOfLT x y) where
+  eq_swap := compareOfLT_eq_swap
+  isLE_trans {x y z} h₁ h₂ := by
+    simp only [compareOfLT, apply_ite Ordering.isLE, Ordering.isLE_lt, Ordering.isLE_gt,
+      Ordering.isLE_eq] at h₁ h₂ ⊢
+    simp only [Bool.if_true_right, Bool.or_false, Bool.if_true_left, Bool.or_eq_true,
+      decide_eq_true_eq, Bool.not_eq_eq_eq_not, Bool.not_true, decide_eq_false_iff_not] at h₁ h₂ ⊢
+    rw [or_iff_right_of_imp (asymm.asymm _ _)] at h₁ h₂ ⊢
+    exact not_lt_trans.trans h₂ h₁
+
+set_option linter.deprecated false in
+@[deprecated "Use `Std.transCmp_compareOfLT` instead" (since := "2026-03-10")]
 theorem Std.TransOrd.compareOfLessAndEq_of_lt_trans_of_lt_iff
     {α : Type u} [LT α] [DecidableLT α] [DecidableEq α]
     (lt_trans : ∀ {a b c : α}, a < b → b < c → a < c)
@@ -499,6 +515,8 @@ theorem Std.TransOrd.compareOfLessAndEq_of_lt_trans_of_lt_iff
       · exact .inl h₁
     · exact h₂
 
+set_option linter.deprecated false in
+@[deprecated "Use `Std.transCmp_compareOfLT` instead" (since := "2026-03-10")]
 theorem Std.TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
     {α : Type u} [LT α] [LE α] [DecidableLT α] [DecidableLE α] [DecidableEq α]
     (antisymm : ∀ {x y : α}, x ≤ y → y ≤ x → x = y)
@@ -526,23 +544,22 @@ end Bool
 
 namespace Nat
 
-instance : TransOrd Nat :=
-  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
-    Nat.le_antisymm Nat.le_trans Nat.le_total Nat.not_le
+instance : TransOrd Nat := Std.transCmp_compareOfLT { asymm _ _ := Nat.lt_asymm }
+  { trans {_ _ _} := by simpa only [Nat.not_lt] using flip Nat.le_trans }
 
 instance : LawfulEqOrd Nat where
-  eq_of_compare := compareOfLessAndEq_eq_eq Nat.le_refl Nat.not_le |>.mp
+  eq_of_compare := compareOfLT_eq_eq { asymm _ _ := Nat.lt_asymm } |>.mp
 
 end Nat
 
 namespace Int
 
-instance : TransOrd Int :=
-  TransOrd.compareOfLessAndEq_of_antisymm_of_trans_of_total_of_not_le
-    Int.le_antisymm Int.le_trans Int.le_total Int.not_le
+instance : TransOrd Int := transCmp_compareOfLT { asymm _ _ := Int.lt_asymm }
+  { trans {_ _ _} := by simpa only [Int.not_lt] using flip Int.le_trans }
 
 instance : LawfulEqOrd Int where
-  eq_of_compare := compareOfLessAndEq_eq_eq Int.le_refl Int.not_le |>.mp
+  eq_of_compare := compareOfLT_eq_eq { asymm _ _ := Int.lt_asymm }
+    { trichotomous _ _ h₁ h₂ := Int.le_antisymm (Int.not_lt.mp h₂) (Int.not_lt.mp h₁) } |>.mp
 
 end Int
 

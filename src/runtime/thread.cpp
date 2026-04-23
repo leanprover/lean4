@@ -17,7 +17,6 @@ Author: Leonardo de Moura
 #include "runtime/thread.h"
 #include "runtime/interrupt.h"
 #include "runtime/exception.h"
-#include "runtime/alloc.h"
 #include "runtime/stack_overflow.h"
 
 #ifndef LEAN_DEFAULT_THREAD_STACK_SIZE

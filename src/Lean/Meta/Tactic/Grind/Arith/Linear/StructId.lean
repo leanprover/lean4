@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.Arith.Insts
 import Init.Grind.Module.Envelope
 public section
 namespace Lean.Meta.Grind.Arith.Linear
+open Sym Arith
 
 private def preprocess (e : Expr) : GoalM Expr := do
   shareCommon (← canon e)
@@ -66,7 +67,7 @@ private def isCutsatType (type : Expr) : GoalM Bool := do
 
 private def getCommRingInst? (ringId? : Option Nat) : GoalM (Option Expr) := do
   let some ringId := ringId? | return none
-  return some (← CommRing.RingM.run ringId do return (← CommRing.getCommRing).commRingInst)
+  return some (← CommRing.RingM.run ringId do return (← getCommRing).commRingInst)
 
 private def mkRingInst? (u : Level) (type : Expr) (commRingInst? : Option Expr) : GoalM (Option Expr) := do
   if let some commRingInst := commRingInst? then

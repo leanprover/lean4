@@ -12,7 +12,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 public import Lean.Meta.Tactic.Grind.PropagatorAttr
 public section
 namespace Lean.Meta.Grind.Arith
-
+open Sym Arith
 /-!
 This file defines propagators for `Nat` operators that have simprocs associated with them, but do not
 have support in satellite solvers. The goal is to workaround a nasty interaction between

@@ -8,21 +8,36 @@ prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
-open Sym.Arith (MonadCanon)
+open Sym.Arith
 
 structure NonCommSemiringM.Context where
   semiringId : Nat
+  symSemiringId : Nat
 
 abbrev NonCommSemiringM := ReaderT NonCommSemiringM.Context GoalM
 
-abbrev NonCommSemiringM.run (semiringId : Nat) (x : NonCommSemiringM α) : GoalM α :=
-  x { semiringId }
-
-instance : MonadCanon NonCommSemiringM where
-  canonExpr e := do shareCommon (← canon e)
-  synthInstance? e := Grind.synthInstance? e
+abbrev NonCommSemiringM.run (semiringId : Nat) (x : NonCommSemiringM α) : GoalM α := do
+  let s ← get'
+  let symSemiringId := s.ncSemirings[semiringId]!.symId
+  x { semiringId, symSemiringId }
 
 protected def NonCommSemiringM.getSemiring : NonCommSemiringM Semiring := do
+  let s ← getArithState
+  let semiringId := (← read).symSemiringId
+  if h : semiringId < s.ncSemirings.size then
+    return s.ncSemirings[semiringId]
+  else
+    throwError "`grind` internal error, invalid semiringId"
+
+protected def NonCommSemiringM.modifySemiring (f : Semiring → Semiring) : NonCommSemiringM Unit := do
+  let semiringId := (← read).symSemiringId
+  modifyArithState fun s => { s with ncSemirings := s.ncSemirings.modify semiringId f }
+
+instance : MonadSemiring NonCommSemiringM where
+  getSemiring := NonCommSemiringM.getSemiring
+  modifySemiring := NonCommSemiringM.modifySemiring
+
+def getSemiringEntry : NonCommSemiringM SemiringEntry := do
   let s ← get'
   let semiringId := (← read).semiringId
   if h : semiringId < s.ncSemirings.size then
@@ -30,13 +45,9 @@ protected def NonCommSemiringM.getSemiring : NonCommSemiringM Semiring := do
   else
     throwError "`grind` internal error, invalid semiringId"
 
-protected def NonCommSemiringM.modifySemiring (f : Semiring → Semiring) : NonCommSemiringM Unit := do
+def modifySemiringEntry (f : SemiringEntry → SemiringEntry) : NonCommSemiringM Unit := do
   let semiringId := (← read).semiringId
   modify' fun s => { s with ncSemirings := s.ncSemirings.modify semiringId f }
-
-instance : MonadSemiring NonCommSemiringM where
-  getSemiring := NonCommSemiringM.getSemiring
-  modifySemiring := NonCommSemiringM.modifySemiring
 
 def getTermNonCommSemiringId? (e : Expr) : GoalM (Option Nat) := do
     return (← get').exprToNCSemiringId.find? { expr := e }
@@ -49,7 +60,25 @@ def setTermNonCommSemiringId (e : Expr) : NonCommSemiringM Unit := do
     return ()
   modify' fun s => { s with exprToNCSemiringId := s.exprToNCSemiringId.insert { expr := e } semiringId }
 
-instance : MonadSetTermId NonCommSemiringM where
-  setTermId e := setTermNonCommSemiringId e
+def mkNonCommSVar (e : Expr) (gen : Nat) : NonCommSemiringM Var := do
+  unless (← alreadyInternalized e) do
+    internalize e gen
+  let s ← getSemiringEntry
+  if let some var := s.varMap.find? { expr := e } then
+    return var
+  let var : Var := s.vars.size
+  modifySemiringEntry fun s => { s with
+    vars       := s.vars.push e
+    varMap     := s.varMap.insert { expr := e } var
+  }
+  setTermNonCommSemiringId e
+  ringExt.markTerm e
+  return var
+
+instance : MonadMkVar NonCommSemiringM where
+  mkVar := mkNonCommSVar
+
+instance : MonadGetVar NonCommSemiringM where
+  getVar x := return (← getSemiringEntry).vars[x]!
 
 end Lean.Meta.Grind.Arith.CommRing

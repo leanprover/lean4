@@ -57,12 +57,12 @@ If `skipVar` is `true`, returns `none` if `e` is not an interpreted ring term
 (used for equalities/disequalities). If `false`, treats non-interpreted terms
 as variables (used for inequalities).
 -/
-partial def reifyRing? (e : Expr) (skipVar : Bool := true) : m (Option RingExpr) := do
+partial def reifyRing? (e : Expr) (skipVar : Bool := true) (gen : Nat) : m (Option RingExpr) := do
   let toVar (e : Expr) : m RingExpr := do
-    return .var (← mkVar e)
+    return .var (← mkVar e gen)
   let asVar (e : Expr) : m RingExpr := do
     reportRingAppIssue e
-    return .var (← mkVar e)
+    return .var (← mkVar e gen)
   let rec go (e : Expr) : m RingExpr := do
     match_expr e with
     | HAdd.hAdd _ _ _ i a b =>
@@ -151,12 +151,12 @@ private def reportSemiringAppIssue [MonadLiftT SymM m] (e : Expr) : m Unit := do
 Converts a Lean expression `e` into a `SemiringExpr`.
 Only recognizes `add`, `mul`, `pow`, `natCast`, and numerals (no `sub`, `neg`, `intCast`).
 -/
-partial def reifySemiring? (e : Expr) : m (Option SemiringExpr) := do
+partial def reifySemiring? (e : Expr) (gen : Nat) : m (Option SemiringExpr) := do
   let toVar (e : Expr) : m SemiringExpr := do
-    return .var (← mkVar e)
+    return .var (← mkVar e gen)
   let asVar (e : Expr) : m SemiringExpr := do
     reportSemiringAppIssue e
-    return .var (← mkVar e)
+    return .var (← mkVar e gen)
   let rec go (e : Expr) : m SemiringExpr := do
     match_expr e with
     | HAdd.hAdd _ _ _ i a b =>

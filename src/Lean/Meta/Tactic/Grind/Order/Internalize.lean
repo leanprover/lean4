@@ -10,8 +10,6 @@ import Init.Data.Int.OfNat
 import Init.Grind.Module.Envelope
 import Init.Grind.Order
 import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.Proof
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Order.StructId

@@ -71,6 +71,8 @@ structure CommRing extends Ring where
   noZeroDivInst?     : Option Expr
   /-- `Field` instance for `type` if available. -/
   fieldInst?         : Option Expr
+  /-- `PowIdentity` instance, the synthesized `CommSemiring` instance, and exponent `p` if available. -/
+  powIdentityInst? : Option (Expr × Expr × Nat) := none
   deriving Inhabited
 
 /--
@@ -79,12 +81,12 @@ Recall that `CommSemiring` types are normalized using the `OfSemiring.Q` envelop
 -/
 structure CommSemiring extends Semiring where
   /-- Id of the envelope ring `OfSemiring.Q type` -/
-  ringId             : Nat
+  ringId              : Nat
   /-- `CommSemiring` instance for `type` -/
-  commSemiringInst   : Expr
+  commSemiringInst    : Expr
   /-- `AddRightCancel` instance for `type` if available. -/
-  addRightCancelInst? : Option (Option Expr) := none
-  toQFn?             : Option Expr := none
+  addRightCancelInst? : Option Expr := none
+  toQFn?              : Option Expr := none
   deriving Inhabited
 
 /-- Result of classifying a type's algebraic structure. -/
@@ -95,6 +97,11 @@ inductive ClassifyResult where
   | nonCommSemiring (id : Nat)
   | /-- No algebraic structure found. -/ none
   deriving Inhabited
+
+def ClassifyResult.toOption : ClassifyResult → Option Nat
+ | .commRing id | .nonCommRing id
+ | .commSemiring id | .nonCommSemiring id => some id
+ | .none => .none
 
 /-- Arith type classification state, stored as a `SymExtension`. -/
 structure State where
@@ -133,5 +140,21 @@ def withExpThreshold (exp : Nat) (k : SymM α) : SymM α := do
   let oldExp := (← getArithState).exp
   setExpThreshold exp
   try k finally setExpThreshold oldExp
+
+def getCommRingOfId (id : Nat) : SymM CommRing := do
+  let s ← getArithState
+  return s.rings[id]!
+
+def getNonCommRingOfId (id : Nat) : SymM Ring := do
+  let s ← getArithState
+  return s.ncRings[id]!
+
+def getCommSemiringOfId (id : Nat) : SymM CommSemiring := do
+  let s ← getArithState
+  return s.semirings[id]!
+
+def getNonCommSemiringOfId (id : Nat) : SymM Semiring := do
+  let s ← getArithState
+  return s.ncSemirings[id]!
 
 end Lean.Meta.Sym.Arith

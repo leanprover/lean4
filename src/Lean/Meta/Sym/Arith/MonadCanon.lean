@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Sym.Arith.Types
+public import Lean.Meta.Sym.Canon
+public import Lean.Meta.Sym.SynthInstance
 public section
 namespace Lean.Meta.Sym.Arith
 
@@ -32,5 +34,9 @@ def MonadCanon.synthInstance [Monad m] [MonadError m] [MonadCanon m] (type : Exp
   let some inst ← synthInstance? type
     | throwError "failed to find instance{indentExpr type}"
   return inst
+
+instance : MonadCanon SymM where
+  canonExpr := canon
+  synthInstance? := Sym.synthInstance?
 
 end Lean.Meta.Sym.Arith

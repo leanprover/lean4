@@ -6,12 +6,13 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.Linear.Den
 import Lean.Meta.Tactic.Grind.Arith.Linear.StructId
 import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
 import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
+import Lean.Meta.Sym.Arith.Reify
 namespace Lean.Meta.Grind.Arith.Linear
+open Sym Arith
 
 def isInstOf (fn? : Option Expr) (inst : Expr) : Bool :=
   if let some fn := fn? then
@@ -39,8 +40,9 @@ public def IneqCnstr.assert (c : IneqCnstr) : LinearM Unit := do
       resetAssignmentFrom x
 
 def propagateCommRingIneq (e : Expr) (lhs rhs : Expr) (strict : Bool) (eqTrue : Bool) : LinearM Unit := do
-  let some lhs ← withRingM <| CommRing.reify? lhs (skipVar := false) | return ()
-  let some rhs ← withRingM <| CommRing.reify? rhs (skipVar := false) | return ()
+  let gen ← getGeneration e
+  let some lhs ← withRingM <| reifyRing? lhs (skipVar := false) (gen := gen) | return ()
+  let some rhs ← withRingM <| reifyRing? rhs (skipVar := false) (gen := gen) | return ()
   let generation ← getGeneration e
   if eqTrue then
     let p := (lhs.sub rhs).toPoly

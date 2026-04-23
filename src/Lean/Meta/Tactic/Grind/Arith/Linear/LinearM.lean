@@ -9,7 +9,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Linear.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public section
 namespace Lean.Meta.Grind.Arith.Linear
-open Sym.Arith (MonadCanon)
+open Sym.Arith (MonadCanon MonadRing)
 
 def get' : GoalM State := do
   linearExt.getState
@@ -52,8 +52,10 @@ instance : MonadGetStruct LinearM where
 open CommRing
 
 def getRingCore? (ringId? : Option Nat) : GoalM (Option Ring) := do
-  let some ringId := ringId? | return none
-  RingM.run ringId do return some (← getRing)
+  let some _ringId := ringId? | return none
+  -- TODO: FIX
+  -- RingM.run ringId do return some (← getRing)
+  return none
 
 def throwNotRing : LinearM α :=
   throwError "`grind linarith` internal error, structure is not a ring"
@@ -75,9 +77,10 @@ def LinearM.getRing : LinearM Ring := do
 
 instance : MonadRing LinearM where
   getRing := LinearM.getRing
-  modifyRing f := do
-    let some ringId := (← getStruct).ringId? | throwNotCommRing
-    RingM.run ringId do modifyRing f
+  modifyRing _f := do
+    let some _ringId := (← getStruct).ringId? | throwNotCommRing
+    -- RingM.run ringId do modifyRing f
+    -- TODO: FIX
 
 def withRingM (x : RingM α) : LinearM α := do
   let some ringId := (← getStruct).ringId?

@@ -10,11 +10,12 @@ public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Var
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 import Lean.Meta.Tactic.Grind.Arith.CommRing.SafePoly
+import Lean.Meta.Sym.Arith.Reify
+import Lean.Meta.Sym.Arith.DenoteExpr
 public section
 namespace Lean.Meta.Grind.Arith.Cutsat
+open Sym Arith
 /-!
 CommRing interface for cutsat. We use it to normalize nonlinear polynomials.
 -/
@@ -45,9 +46,9 @@ def _root_.Int.Linear.Poly.normCommRing? (p : Poly) : GoalM (Option (CommRing.Ri
     -- Internalized operators instead of `mkIntMul` and `mkIntAdd`
     let e ← shareCommon (← canon e)
     let gen ← p.getGeneration
-    let some re ← CommRing.reify? e (gen := gen) | return none
+    let some re ← reifyRing? e (gen := gen) | return none
     let some p' ← re.toPolyM? | return none
-    let e' ← p'.denoteExpr
+    let e' ← denotePoly p'
     let e' ← preprocessLight e'
     /-
     **Note**: We are reusing the `IntModule` virtual parent.

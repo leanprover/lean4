@@ -5,8 +5,11 @@ Authors: Leonardo de Moura
 -/
 module
 prelude
+public import Lean.Meta.Tactic.Grind.Types
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
 public import Lean.Meta.Tactic.Grind.SynthInstance
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadRing
+public import Lean.Meta.Sym.Arith.MonadRing
+public import Lean.Meta.Sym.Arith.MonadVar
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith
@@ -19,6 +22,7 @@ def incSteps (n : Nat := 1) : GoalM Unit := do
 
 structure RingM.Context where
   ringId : Nat
+  symRingId : Nat
   /--
   If `checkCoeffDvd` is `true`, then when using a polynomial `k*m - p`
   to simplify `.. + k'*m*m_2 + ...`, the substitution is performed IF
@@ -35,17 +39,34 @@ structure RingM.Context where
 /-- We don't want to keep carrying the `RingId` around. -/
 abbrev RingM := ReaderT RingM.Context GoalM
 
-abbrev RingM.run (ringId : Nat) (x : RingM α) : GoalM α :=
-  x { ringId }
+abbrev RingM.run (ringId : Nat) (x : RingM α) : GoalM α := do
+  let s ← get'
+  let symRingId := s.rings[ringId]!.symId
+  x { ringId, symRingId }
 
 abbrev getRingId : RingM Nat :=
   return (← read).ringId
 
-instance : MonadCanon RingM where
-  canonExpr e := do shareCommon (← canon e)
-  synthInstance? e := Grind.synthInstance? e
+abbrev getSymRingId : RingM Nat :=
+  return (← read).symRingId
 
 protected def RingM.getCommRing : RingM CommRing := do
+  let s ← getArithState
+  let symRingId ← getSymRingId
+  if h : symRingId < s.rings.size then
+    return s.rings[symRingId]
+  else
+    throwError "`grind` internal error, invalid ringId"
+
+protected def RingM.modifyCommRing (f : CommRing → CommRing) : RingM Unit := do
+  let symRingId ← getSymRingId
+  modifyArithState fun s => { s with rings := s.rings.modify symRingId f }
+
+instance : MonadCommRing RingM where
+  getCommRing := RingM.getCommRing
+  modifyCommRing := RingM.modifyCommRing
+
+def getCommRingEntry : RingM CommRingEntry := do
   let s ← get'
   let ringId ← getRingId
   if h : ringId < s.rings.size then
@@ -53,13 +74,9 @@ protected def RingM.getCommRing : RingM CommRing := do
   else
     throwError "`grind` internal error, invalid ringId"
 
-protected def RingM.modifyCommRing (f : CommRing → CommRing) : RingM Unit := do
+def modifyCommRingEntry (f : CommRingEntry → CommRingEntry) : RingM Unit := do
   let ringId ← getRingId
   modify' fun s => { s with rings := s.rings.modify ringId f }
-
-instance : MonadCommRing RingM where
-  getCommRing := RingM.getCommRing
-  modifyCommRing := RingM.modifyCommRing
 
 abbrev withCheckCoeffDvd (x : RingM α) : RingM α :=
   withReader (fun ctx => { ctx with checkCoeffDvd := true }) x
@@ -112,16 +129,13 @@ def isField : RingM Bool :=
   return (← getCommRing).fieldInst?.isSome
 
 def isQueueEmpty : RingM Bool :=
-  return (← getCommRing).queue.isEmpty
+  return (← getCommRingEntry).queue.isEmpty
 
 def getNext? : RingM (Option EqCnstr) := do
-  let some c := (← getCommRing).queue.min? | return none
-  modifyCommRing fun s => { s with queue := s.queue.erase c }
+  let some c := (← getCommRingEntry).queue.min? | return none
+  modifyCommRingEntry fun s => { s with queue := s.queue.erase c }
   incSteps
   return some c
-
-class MonadSetTermId (m : Type → Type) where
-  setTermId : Expr → m Unit
 
 def setTermRingId (e : Expr) : RingM Unit := do
   let ringId ← getRingId
@@ -131,23 +145,25 @@ def setTermRingId (e : Expr) : RingM Unit := do
     return ()
   modify' fun s => { s with exprToRingId := s.exprToRingId.insert { expr := e } ringId }
 
-def mkVarCore [MonadLiftT GoalM m] [Monad m] [MonadRing m] [MonadSetTermId m] (e : Expr) : m Var := do
-  let s ← getRing
+def mkVar (e : Expr) (gen : Nat) : RingM Var := do
+  unless (← alreadyInternalized e) do
+    internalize e gen
+  let s ← getCommRingEntry
   if let some var := s.varMap.find? { expr := e } then
     return var
   let var : Var := s.vars.size
-  modifyRing fun s => { s with
+  modifyCommRingEntry fun s => { s with
     vars       := s.vars.push e
     varMap     := s.varMap.insert { expr := e } var
   }
-  MonadSetTermId.setTermId e
+  setTermRingId e
   ringExt.markTerm e
   return var
 
-instance : MonadSetTermId RingM where
-  setTermId e := setTermRingId e
+instance : MonadMkVar RingM where
+  mkVar := CommRing.mkVar
 
-def mkVar (e : Expr) : RingM Var :=
-  mkVarCore e
+instance : MonadGetVar RingM where
+  getVar x := return (← getCommRingEntry).vars[x]!
 
 end Lean.Meta.Grind.Arith.CommRing

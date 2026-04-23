@@ -6,21 +6,26 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Types
+public import Lean.Meta.Tactic.Grind.Arith.CommRing.Denote
+import Lean.Meta.Sym.Arith.DenoteExpr
 import Init.Omega
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith
 
-private abbrev M := StateT CommRing MetaM
+private abbrev M := StateT (CommRing × CommRingEntry) MetaM
 
 private instance : MonadCanon M where
   canonExpr e := return e
   synthInstance? e := Meta.synthInstance? e none
 
 private instance : MonadCommRing M where
-  getCommRing := get
-  modifyCommRing := modify
+  getCommRing := return (← get).1
+  modifyCommRing f := modify fun (r, e) => (f r, e)
+
+private instance : MonadGetVar M where
+  getVar x := return (← get).2.vars[x]!
 
 private def toOption (cls : Name) (header : Thunk MessageData) (msgs : Array MessageData) : Option MessageData :=
   if msgs.isEmpty then
@@ -31,15 +36,18 @@ private def toOption (cls : Name) (header : Thunk MessageData) (msgs : Array Mes
 private def push (msgs : Array MessageData) (msg? : Option MessageData) : Array MessageData :=
   if let some msg := msg? then msgs.push msg else msgs
 
+private def getCommRingEntry : M CommRingEntry :=
+  return (← get).2
+
 private def ppBasis? : M (Option MessageData) := do
   let mut basis := #[]
-  for c in (← getCommRing).basis do
+  for c in (← getCommRingEntry).basis do
     basis := basis.push (toTraceElem (← c.denoteExpr))
   return toOption `basis "Basis" basis
 
 private def ppDiseqs? : M (Option MessageData) := do
   let mut diseqs := #[]
-  for d in (← getCommRing).diseqs do
+  for d in (← getCommRingEntry).diseqs do
     diseqs := diseqs.push (toTraceElem (← d.denoteExpr))
   return toOption `diseqs "Disequalities" diseqs
 
@@ -51,9 +59,12 @@ private def ppRing? : M (Option MessageData) := do
 
 def pp? (goal : Goal) : MetaM (Option MessageData) := do
   let mut msgs := #[]
-  for ring in (← ringExt.getStateCore goal).rings do
-    let some msg ← ppRing? |>.run' ring | pure ()
-    msgs := msgs.push msg
+  for ringEntry in (← ringExt.getStateCore goal).rings do
+    -- let ring ← getCommRingOfId ringEntry.symId
+    -- let some msg ← ppRing? |>.run' (_, ringEntry) | pure ()
+    -- msgs := msgs.push msg
+    -- TODO: fix
+    pure ()
   if msgs.isEmpty then
     return none
   else if h : msgs.size = 1 then

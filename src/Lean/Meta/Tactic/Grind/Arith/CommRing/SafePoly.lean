@@ -121,7 +121,7 @@ def _root_.Lean.Grind.CommRing.Mon.findInvNumeralVar? (m : Mon) : RingM (Option 
   match m with
   | .unit => return none
   | .mult pw m =>
-    let e := (← getRing).vars[pw.x]!
+    let e := (← getCommRingEntry).vars[pw.x]!
     let_expr Inv.inv _ _ a := e | m.findInvNumeralVar?
     let_expr OfNat.ofNat _ n _ := a | m.findInvNumeralVar?
     let some n ← getNatValue? n | m.findInvNumeralVar?

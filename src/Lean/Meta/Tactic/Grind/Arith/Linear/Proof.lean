@@ -123,6 +123,8 @@ private def mkContext (h : Expr) : ProofM Expr := do
 
 private def mkRingContext (h : Expr) : ProofM Expr := do
   unless (← isCommRing) do return h
+  throwError "NIY"
+/-
   let ring ← withRingM do CommRing.getRing
   let vars := ring.vars
   let ringVarDecls := (← get).ringVarDecls
@@ -144,6 +146,7 @@ private def mkRingContext (h : Expr) : ProofM Expr := do
     return .letE `rctx ctxType ctxVal h (nondep := false)
   else
     return h
+-/
 
 private abbrev withProofContext (x : ProofM Expr) : LinearM Expr := do
   let ctx := mkFVar (← mkFreshFVarId)

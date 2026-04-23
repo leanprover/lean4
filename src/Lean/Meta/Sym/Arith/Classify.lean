@@ -44,6 +44,26 @@ private def getNoZeroDivInst? (u : Level) (type : Expr) : SymM (Option Expr) := 
   let noZeroDivType := mkApp2 (mkConst ``Grind.NoNatZeroDivisors [u]) type natModuleInst
   Sym.synthInstance? noZeroDivType
 
+private def getPowIdentityInst? (u : Level) (type : Expr) : SymM (Option (Expr × Expr × Nat)) := do withNewMCtxDepth do
+  -- We use a fresh metavar for `CommSemiring` (unlike `getIsCharInst?` which pins the semiring)
+  -- because `PowIdentity` instances may be declared against a canonical `CommSemiring` instance
+  -- that is not definitionally equal to `CommRing.toCommSemiring`. The synthesized `csInst` is
+  -- stored and used in proof terms to ensure type-correctness.
+  let csInst ← mkFreshExprMVar (mkApp (mkConst ``Grind.CommSemiring [u]) type)
+  let p ← mkFreshExprMVar (mkConst ``Nat)
+  let powIdentityType := mkApp3 (mkConst ``Grind.PowIdentity [u]) type csInst p
+  let some inst ← synthInstance? powIdentityType | return none
+  let csInst ← instantiateMVars csInst
+  let p ← instantiateMVars p
+  let some pVal ← evalNat? p | return none
+  return some (inst, csInst, pVal)
+
+private def mkAddRightCancelInst? (u : Level) (type : Expr) : SymM (Option Expr) := do
+  let add := mkApp (mkConst ``Add [u]) type
+  let some addInst ← synthInstance? add | return none
+  let addRightCancel := mkApp2 (mkConst ``Grind.AddRightCancel [u]) type addInst
+  synthInstance? addRightCancel
+
 /-- Try to classify `type` as a `CommRing`. Returns the ring id on success. -/
 private def tryCommRing? (type : Expr) : SymM (Option Nat) := do
   let u ← getDecLevel type
@@ -55,11 +75,12 @@ private def tryCommRing? (type : Expr) : SymM (Option Nat) := do
   let charInst? ← getIsCharInst? u type semiringInst
   let noZeroDivInst? ← getNoZeroDivInst? u type
   let fieldInst? ← Sym.synthInstance? <| mkApp (mkConst ``Grind.Field [u]) type
+  let powIdentityInst? ← getPowIdentityInst? u type
   let semiringId? := none
   let id := (← getArithState).rings.size
   let ring : CommRing := {
     id, semiringId?, type, u, semiringInst, ringInst, commSemiringInst,
-    commRingInst, charInst?, noZeroDivInst?, fieldInst?,
+    commRingInst, charInst?, noZeroDivInst?, fieldInst?, powIdentityInst?
   }
   modifyArithState fun s => { s with rings := s.rings.push ring }
   return some id
@@ -96,13 +117,14 @@ private def tryCommSemiring? (type : Expr) : SymM (Option Nat) := do
   let commSemiring := mkApp (mkConst ``Grind.CommSemiring [u]) type
   let some commSemiringInst ← Sym.synthInstance? commSemiring | return none
   let semiringInst := mkApp2 (mkConst ``Grind.CommSemiring.toSemiring [u]) type commSemiringInst
+  let addRightCancelInst? ← mkAddRightCancelInst? u type
   let q ← shareCommon (← Sym.canon (mkApp2 (mkConst ``Grind.Ring.OfSemiring.Q [u]) type semiringInst))
   -- The envelope `Q` type must be classifiable as a CommRing.
   let some ringId ← tryCacheAndCommRing? q
     | reportIssue! "unexpected failure initializing ring{indentExpr q}"; return none
   let id := (← getArithState).semirings.size
   let semiring : CommSemiring := {
-    id, type, ringId, u, semiringInst, commSemiringInst
+    id, type, ringId, u, semiringInst, commSemiringInst, addRightCancelInst?
   }
   modifyArithState fun s => { s with semirings := s.semirings.push semiring }
   -- Link the envelope ring back to this semiring

@@ -8,7 +8,7 @@ prelude
 import Lean.Meta.Tactic.Grind.Arith.Util
 public import Lean.Meta.Tactic.Grind.Arith.Linear.Util
 import Lean.Meta.Tactic.Grind.Simp
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
+import Lean.Meta.Sym.Arith.DenoteExpr
 public section
 namespace Lean.Meta.Grind.Arith.Linear
 /-!
@@ -69,7 +69,9 @@ private def denoteNum (k : Int) : LinearM Expr := do
 def _root_.Lean.Grind.CommRing.Poly.denoteAsIntModuleExpr (p : Grind.CommRing.Poly) : LinearM Expr := do
   match p with
   | .num k => denoteNum k
-  | .add k m p => return mkApp2 (← getStruct).addFn (mkApp2 (← getStruct).zsmulFn (mkIntLit k) (← m.denoteExpr)) (← denoteAsIntModuleExpr p)
+  | .add _k _m _p =>
+    -- TODO: FIX
+    return default -- mkApp2 (← getStruct).addFn (mkApp2 (← getStruct).zsmulFn (mkIntLit k) (← m.denoteExpr)) (← denoteAsIntModuleExpr p)
 
 def _root_.Lean.Grind.CommRing.Poly.toIntModuleExpr (p : Grind.CommRing.Poly) (generation := 0) : LinearM Expr := do
   let e ← p.denoteAsIntModuleExpr

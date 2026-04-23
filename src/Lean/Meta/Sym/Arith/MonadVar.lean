@@ -21,12 +21,12 @@ instance (m n) [MonadLift m n] [MonadGetVar m] : MonadGetVar n where
 
 /-- Create or lookup a variable for a Lean expression. Used by reification. -/
 class MonadMkVar (m : Type → Type) where
-  mkVar : Expr → m Var
+  mkVar : Expr → (gen : Nat) → m Var
 
 export MonadMkVar (mkVar)
 
 @[always_inline]
 instance (m n) [MonadLift m n] [MonadMkVar m] : MonadMkVar n where
-  mkVar e := liftM (mkVar e : m Var)
+  mkVar e gen := liftM (mkVar e gen : m Var)
 
 end Lean.Meta.Sym.Arith

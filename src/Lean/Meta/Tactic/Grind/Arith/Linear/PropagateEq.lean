@@ -6,13 +6,14 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.Linear.LinearM
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
 import Lean.Meta.Tactic.Grind.Arith.Linear.Den
-import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
 import Lean.Meta.Tactic.Grind.Arith.Linear.IneqCnstr
 import Lean.Meta.Tactic.Grind.Arith.Linear.Proof
+import Lean.Meta.Tactic.Grind.Arith.Linear.Reify
+import Lean.Meta.Sym.Arith.Reify
 public section
 namespace Lean.Meta.Grind.Arith.Linear
+open Sym Arith
 
 private def _root_.Lean.Grind.Linarith.Poly.substVar (p : Poly) : LinearM (Option (Var × EqCnstr × Poly)) := do
   let some (a, x, c) ← p.findVarToSubst | return none
@@ -47,8 +48,8 @@ private def inSameStruct? (a b : Expr) : GoalM (Option Nat) := do
   return structId
 
 private def processNewCommRingEq' (a b : Expr) : LinearM Unit := do
-  let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
-  let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
+  let some lhs ← withRingM <| reifyRing? a (skipVar := false) (gen := (← getGeneration a)) | return ()
+  let some rhs ← withRingM <| reifyRing? b (skipVar := false) (gen := (← getGeneration a)) | return ()
   let generation := max (← getGeneration a) (← getGeneration b)
   let p := (lhs.sub rhs).toPoly
   let c : RingEqCnstr := { p, h := .core a b lhs rhs }
@@ -294,8 +295,8 @@ def processNewEq (a b : Expr) : GoalM Unit := do
       processNewNatModuleEq a b
 
 private def processNewCommRingDiseq (a b : Expr) : LinearM Unit := do
-  let some lhs ← withRingM <| CommRing.reify? a (skipVar := false) | return ()
-  let some rhs ← withRingM <| CommRing.reify? b (skipVar := false) | return ()
+  let some lhs ← withRingM <| reifyRing? a (skipVar := false) (← getGeneration a) | return ()
+  let some rhs ← withRingM <| reifyRing? b (skipVar := false) (← getGeneration b) | return ()
   let p := (lhs.sub rhs).toPoly
   let c : RingDiseqCnstr := { p, h := .core a b lhs rhs }
   let c ← c.cleanupDenominators

@@ -174,7 +174,7 @@ private def mkContext
 private def mkRingContext (h : Expr) : ProofM Expr := do
   unless (← get').usedCommRing do return h
   let some ringId ← getIntRingId? | return h
-  let vars ← CommRing.RingM.run ringId do return (← CommRing.getRing).vars
+  let vars ← CommRing.RingM.run ringId do return (← CommRing.getCommRingEntry).vars
   let usedVars     := collectMapVars (← get).ringPolyDecls (·.collectVars) >> collectMapVars (← get).ringExprDecls (·.collectVars) <| {}
   let vars'        := usedVars.toArray
   let varRename    := mkVarRename vars'

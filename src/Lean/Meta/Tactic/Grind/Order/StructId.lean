@@ -11,6 +11,7 @@ import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
 import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
 public section
 namespace Lean.Meta.Grind.Order
+open Sym Arith
 
 private def preprocess (e : Expr) : GoalM Expr := do
   shareCommon (← canon e)

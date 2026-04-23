@@ -6,12 +6,16 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingId
+import Lean.Meta.Sym.Arith.Reify
+import Lean.Meta.Sym.Arith.DenoteExpr
+import Lean.Meta.Tactic.Grind.Arith.CommRing.SemiringM
+import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommRingM
+import Lean.Meta.Tactic.Grind.Arith.CommRing.NonCommSemiringM
 import Lean.Meta.Tactic.Grind.Simp
 import Lean.Meta.Tactic.Grind.Arith.Util
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Reify
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
+open Sym Arith
 
 /-- If `e` is a function application supported by the `CommRing` module, return its type. -/
 private def getType? (e : Expr) : Option Expr :=
@@ -80,8 +84,8 @@ private def processInv (e inst a : Expr) : RingM Unit := do
   unless (← isInvInst inst) do return ()
   let ring ← getCommRing
   let some fieldInst := ring.fieldInst? | return ()
-  if (← getCommRing).invSet.contains a then return ()
-  modifyCommRing fun s => { s with invSet := s.invSet.insert a }
+  if (← getCommRingEntry).invSet.contains a then return ()
+  modifyCommRingEntry fun s => { s with invSet := s.invSet.insert a }
   if let some k ← toInt? a then
     if k == 0 then
       /-
@@ -119,8 +123,9 @@ push the equation `x ^ p = x` as a new fact into grind.
 private def processPowIdentityVars : RingM Unit := do
   let ring ← getCommRing
   let some (powIdentityInst, csInst, p) := ring.powIdentityInst? | return ()
-  let startIdx := ring.powIdentityVarCount
-  let vars := ring.toRing.vars
+  let ringEntry ← getCommRingEntry
+  let startIdx := ringEntry.powIdentityVarCount
+  let vars := ringEntry.vars
   if startIdx >= vars.size then return ()
   for i in [startIdx:vars.size] do
     let x := vars[i]!
@@ -129,7 +134,7 @@ private def processPowIdentityVars : RingM Unit := do
     let proof := mkApp5 (mkConst ``Grind.PowIdentity.pow_eq [ring.u])
       ring.type csInst (mkNatLit p) powIdentityInst x
     pushNewFact proof
-  modifyCommRing fun s => { s with powIdentityVarCount := vars.size }
+  modifyCommRingEntry fun s => { s with powIdentityVarCount := vars.size }
 
 /-- Returns `true` if `e` is a term `a⁻¹`. -/
 private def internalizeInv (e : Expr) : GoalM Bool := do
@@ -148,33 +153,34 @@ def internalize (e : Expr) (parent? : Option Expr) : GoalM Unit := do
   if (← internalizeInv e) then return ()
   let some type := getType? e | return ()
   if isForbiddenParent parent? then return ()
+  let gen ← getGeneration e
   if let some ringId ← getCommRingId? type then RingM.run ringId do
-    let some re ← reify? e | return ()
+    let some re ← reifyRing? e (gen := gen) | return ()
     trace_goal[grind.ring.internalize] "[{ringId}]: {e}"
     setTermRingId e
     ringExt.markTerm e
-    modifyCommRing fun s => { s with
+    modifyCommRingEntry fun s => { s with
       denote := s.denote.insert { expr := e } re
       denoteEntries := s.denoteEntries.push (e, re)
     }
     processPowIdentityVars
   else if let some semiringId ← getCommSemiringId? type then SemiringM.run semiringId do
-    let some re ← sreify? e | return ()
+    let some re ← reifySemiring? e (gen := gen) | return ()
     trace_goal[grind.ring.internalize] "semiring [{semiringId}]: {e}"
     setTermSemiringId e
     ringExt.markTerm e
-    modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
+    modifyCommSemiringEntry fun s => { s with denote := s.denote.insert { expr := e } re }
   else if let some ncRingId ← getNonCommRingId? type then NonCommRingM.run ncRingId do
-    let some re ← ncreify? e | return ()
+    let some re ← reifyRing? e (gen := gen) | return ()
     trace_goal[grind.ring.internalize] "(non-comm) ring [{ncRingId}]: {e}"
     setTermNonCommRingId e
     ringExt.markTerm e
-    modifyRing fun s => { s with denote := s.denote.insert { expr := e } re }
+    modifyRingEntry fun s => { s with denote := s.denote.insert { expr := e } re }
   else if let some ncSemiringId ← getNonCommSemiringId? type then NonCommSemiringM.run ncSemiringId do
-    let some re ← ncsreify? e | return ()
+    let some re ← reifySemiring? e (gen := gen) | return ()
     trace_goal[grind.ring.internalize] "(non-comm) semiring [{ncSemiringId}]: {e}"
     setTermNonCommSemiringId e
     ringExt.markTerm e
-    modifySemiring fun s => { s with denote := s.denote.insert { expr := e } re }
+    modifySemiringEntry fun s => { s with denote := s.denote.insert { expr := e } re }
 
 end Lean.Meta.Grind.Arith.CommRing

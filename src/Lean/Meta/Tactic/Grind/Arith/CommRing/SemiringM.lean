@@ -6,46 +6,44 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.MonadSemiring
-import Lean.Meta.Tactic.Grind.Arith.CommRing.DenoteExpr
-public import Lean.Meta.Tactic.Grind.Arith.CommRing.Functions
+public import Lean.Meta.Sym.Arith.MonadSemiring
+public import Lean.Meta.Sym.Arith.MonadVar
 public section
 namespace Lean.Meta.Grind.Arith.CommRing
 open Sym.Arith
 
 structure SemiringM.Context where
-  semiringId : Nat
+  semiringId    : Nat
+  symSemiringId : Nat
 
 abbrev SemiringM := ReaderT SemiringM.Context GoalM
 
-abbrev SemiringM.run (semiringId : Nat) (x : SemiringM α) : GoalM α :=
-  x { semiringId }
+abbrev SemiringM.run (semiringId : Nat) (x : SemiringM α) : GoalM α := do
+  let s ← get'
+  let symSemiringId := s.semirings[semiringId]!.symId
+  x { semiringId, symSemiringId }
 
 abbrev getSemiringId : SemiringM Nat :=
   return (← read).semiringId
 
-instance : MonadCanon SemiringM where
-  canonExpr e := do shareCommon (← canon e)
-  synthInstance? e := Grind.synthInstance? e
-
 protected def SemiringM.getCommSemiring : SemiringM CommSemiring := do
-  let s ← get'
-  let semiringId ← getSemiringId
+  let s ← getArithState
+  let semiringId := (← read).symSemiringId
   if h : semiringId < s.semirings.size then
     return s.semirings[semiringId]
   else
     throwError "`grind` internal error, invalid semiringId"
 
 @[inline] protected def SemiringM.modifyCommSemiring (f : CommSemiring → CommSemiring) : SemiringM Unit := do
-  let semiringId ← getSemiringId
-  modify' fun s => { s with semirings := s.semirings.modify semiringId f }
+  let semiringId := (← read).symSemiringId
+  modifyArithState fun s => { s with semirings := s.semirings.modify semiringId f }
 
 instance : MonadCommSemiring SemiringM where
   getCommSemiring := SemiringM.getCommSemiring
   modifyCommSemiring := SemiringM.modifyCommSemiring
 
 protected def SemiringM.getCommRing : SemiringM CommRing := do
-  let s ← get'
+  let s ← getArithState
   let ringId := (← getCommSemiring).ringId
   if h : ringId < s.rings.size then
     return s.rings[ringId]
@@ -54,12 +52,59 @@ protected def SemiringM.getCommRing : SemiringM CommRing := do
 
 protected def SemiringM.modifyCommRing (f : CommRing → CommRing) : SemiringM Unit := do
   let ringId := (← getCommSemiring).ringId
-  modify' fun s => { s with rings := s.rings.modify ringId f }
+  modifyArithState fun s => { s with rings := s.rings.modify ringId f }
 
 instance : MonadCommRing SemiringM where
  getCommRing := SemiringM.getCommRing
  modifyCommRing := SemiringM.modifyCommRing
 
+def getCommSemiringEntry : SemiringM CommSemiringEntry := do
+  let s ← get'
+  let semiringId := (← read).semiringId
+  if h : semiringId < s.semirings.size then
+    return s.semirings[semiringId]
+  else
+    throwError "`grind` internal error, invalid semiringId"
+
+def modifyCommSemiringEntry (f : CommSemiringEntry → CommSemiringEntry) : SemiringM Unit := do
+  let semiringId := (← read).semiringId
+  modify' fun s => { s with semirings := s.semirings.modify semiringId f }
+
+def getTermSemiringId? (e : Expr) : GoalM (Option Nat) := do
+  return (← get').exprToSemiringId.find? { expr := e }
+
+def setTermSemiringId (e : Expr) : SemiringM Unit := do
+  let semiringId ← getSemiringId
+  if let some semiringId' ← getTermSemiringId? e then
+    unless semiringId' == semiringId do
+      reportIssue! "expression in two different semirings{indentExpr e}"
+    return ()
+  modify' fun s => { s with exprToSemiringId := s.exprToSemiringId.insert { expr := e } semiringId }
+
+/-- Similar to `mkVarCore` but for `Semiring`s -/
+def mkSVar (e : Expr) (gen : Nat) : SemiringM Var := do
+  unless (← alreadyInternalized e) do
+    internalize e gen
+  let s ← getCommSemiringEntry
+  if let some var := s.varMap.find? { expr := e } then
+    return var
+  let var : Var := s.vars.size
+  modifyCommSemiringEntry fun s => { s with
+    vars       := s.vars.push e
+    varMap     := s.varMap.insert { expr := e } var
+  }
+  setTermSemiringId e
+  ringExt.markTerm e
+  return var
+
+instance : MonadMkVar SemiringM where
+  mkVar := mkSVar
+
+instance : MonadGetVar SemiringM where
+  getVar x := return (← getCommSemiringEntry).vars[x]!
+
+
+/-
 def getToQFn : SemiringM Expr := do
   let s ← getCommSemiring
   if let some toQFn := s.toQFn? then return toQFn
@@ -115,37 +160,6 @@ def getNatCastFn' : m Expr := do
 
 end
 
-def getTermSemiringId? (e : Expr) : GoalM (Option Nat) := do
-  return (← get').exprToSemiringId.find? { expr := e }
-
-def setTermSemiringId (e : Expr) : SemiringM Unit := do
-  let semiringId ← getSemiringId
-  if let some semiringId' ← getTermSemiringId? e then
-    unless semiringId' == semiringId do
-      reportIssue! "expression in two different semirings{indentExpr e}"
-    return ()
-  modify' fun s => { s with exprToSemiringId := s.exprToSemiringId.insert { expr := e } semiringId }
-
-instance : MonadSetTermId SemiringM where
-  setTermId e := setTermSemiringId e
-
-/-- Similar to `mkVarCore` but for `Semiring`s -/
-def mkSVarCore [MonadLiftT GoalM m] [Monad m] [MonadSemiring m] [MonadSetTermId m] (e : Expr) : m Var := do
-  let s ← getSemiring
-  if let some var := s.varMap.find? { expr := e } then
-    return var
-  let var : Var := s.vars.size
-  modifySemiring fun s => { s with
-    vars       := s.vars.push e
-    varMap     := s.varMap.insert { expr := e } var
-  }
-  MonadSetTermId.setTermId e
-  ringExt.markTerm e
-  return var
-
-def mkSVar (e : Expr) : SemiringM Var := do
-  mkSVarCore e
-
 def _root_.Lean.Grind.CommRing.Expr.denoteAsRingExpr (e : SemiringExpr) : SemiringM Expr := do
   shareCommon (← go e)
 where
@@ -157,5 +171,7 @@ where
   | .mul a b => return mkApp2 (← getMulFn) (← go a) (← go b)
   | .pow a k => return mkApp2 (← getPowFn) (← go a) (toExpr k)
   | .neg .. | .sub .. | .intCast .. => unreachable!
+
+-/
 
 end Lean.Meta.Grind.Arith.CommRing

@@ -319,7 +319,7 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
 
     // if *any* file failed to mmap, read all of them into a single big allocation so that offsets
     // between them are unchanged
-    if (!is_mmap) {
+    if (!is_mmap && !files.empty()) {
         for (auto & file : files) {
             if (file.m_free_data) {
                 file.m_free_data();

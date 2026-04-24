@@ -63,6 +63,17 @@ public:
         other.m_fd = -1;
     }
 
+    file_descriptor& operator=(file_descriptor&& other) noexcept {
+        if (this != &other) {
+            if (m_fd != -1) {
+                close(m_fd);
+            }
+            m_fd = other.m_fd;
+            other.m_fd = -1;
+        }
+        return *this;
+    }
+
     ~file_descriptor() {
         if (m_fd != -1) {
             close(m_fd);
@@ -319,7 +330,7 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
 
     // if *any* file failed to mmap, read all of them into a single big allocation so that offsets
     // between them are unchanged
-    if (!is_mmap) {
+    if (!is_mmap && !files.empty()) {
         for (auto & file : files) {
             if (file.m_free_data) {
                 file.m_free_data();
@@ -327,12 +338,31 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
             }
         }
 
-        size_t big_size = files[files.size()-1].m_base_addr + files[files.size()-1].m_size - files[0].m_base_addr;
+        // sort so that we can quickly check for overlapping address ranges.
+        std::sort(files.begin(), files.end(),
+                  [](const module_file & a, const module_file & b) {
+                      return a.m_base_addr < b.m_base_addr;
+                  });
+
+        // `.olean`s written at the same time should never overlap,
+        // but in theory a caller could pass oleans written at different times.
+        for (size_t i = 0; i + 1 < files.size(); i++) {
+            char * end_addr = files[i].m_base_addr + files[i].m_size;
+            if (end_addr > files[i + 1].m_base_addr) {
+                return io_result_mk_error((sstream()
+                    << "olean address collision: '" << files[i].m_fname
+                    << "' and '" << files[i + 1].m_fname
+                    << "' have overlapping address ranges").str());
+            }
+        }
+
+        char * min_base_addr = files.front().m_base_addr;
+        size_t big_size = files.back().m_base_addr + files.back().m_size - min_base_addr;
         char * big_buffer = static_cast<char *>(malloc(big_size));
         for (auto & file : files) {
             std::string const & olean_fn = file.m_fname;
             try {
-                file.m_buffer = big_buffer + (file.m_base_addr - files[0].m_base_addr);
+                file.m_buffer = big_buffer + (file.m_base_addr - min_base_addr);
                 if (read(file.m_fd.get(), file.m_buffer, file.m_size) != static_cast<ssize_t>(file.m_size)) {
                     return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
                 }

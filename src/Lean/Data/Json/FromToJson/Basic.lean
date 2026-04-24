@@ -33,6 +33,8 @@ instance : ToJson Json := ⟨id⟩
 instance : FromJson JsonNumber := ⟨Json.getNum?⟩
 instance : ToJson JsonNumber := ⟨Json.num⟩
 
+instance : FromJson Unit := ⟨fun _ => .ok ()⟩
+instance : ToJson Unit := ⟨fun _ => Json.null⟩
 instance : FromJson Empty where
   fromJson? j := throw (s!"type Empty has no constructor to match JSON value '{j}'. \
                            This occurs when deserializing a value for type Empty, \

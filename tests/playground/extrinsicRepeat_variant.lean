@@ -25,20 +25,14 @@ variable {α : Type u} {m : Type u → Type v} [Monad m]
 partial def opaqueRepeat (f : α → m (ForInStep α)) (a : α) : m α :=
   repeatF f (opaqueRepeat f) a
 
-/-- `n` iterations of `repeatF f` from `pure` stabilize at `a`. -/
-def IsRepeatFixAt (f : α → m (ForInStep α)) (a : α) (n : Nat) : Prop :=
-  Nat.repeat (repeatF f) n pure a = repeatF f (Nat.repeat (repeatF f) n pure) a
-
-/-- `a` is *total* for `f` if iteration stabilizes at `a` for some `n`. -/
-def Total (f : α → m (ForInStep α)) (a : α) : Prop :=
-  ∃ n, IsRepeatFixAt f a n
+def IsFix (f : α → m (ForInStep α)) (g : α → m α) : Prop :=
+  g = repeatF f g
 
 /--
-Classical witness of a function `g` that is a fixpoint of `repeatF f` at every total point.
-The predicate has no free `a`, so `extrinsicRepeat` gets the same `h.choose` at every input.
+`a` is *total* for `f` if every pair of fixpoints of `repeatF f` agrees at `a`.
 -/
-def HasTotalFixpoint (f : α → m (ForInStep α)) : Prop :=
-  ∃ g : α → m α, ∀ b, Total f b → g b = repeatF f g b
+def Total (f : α → m (ForInStep α)) (a : α) : Prop :=
+  ∀ g₁ g₂ : α → m α, IsFix f g₁ → IsFix f g₂ → g₁ a = g₂ a
 
 open Classical in
 /--
@@ -46,23 +40,22 @@ open Classical in
 -/
 @[cbv_opaque, implemented_by opaqueRepeat]
 def extrinsicRepeat (f : α → m (ForInStep α)) (a : α) : m α :=
-  if h : HasTotalFixpoint f then
+  if h : ∃ g, IsFix f g ∧ Total f a then
     h.choose a
   else
     opaqueRepeat f a
 
-/-- `extrinsicRepeat f` agrees with the classical witness function on its nose. -/
-theorem extrinsicRepeat_eq_choose {f : α → m (ForInStep α)} (h : HasTotalFixpoint f) :
-    extrinsicRepeat f = h.choose := by
-  funext a
-  simp only [extrinsicRepeat, dif_pos h]
-
-/-- Safe unfolding: at a total point, `extrinsicRepeat` unfolds one step of the loop body. -/
-theorem extrinsicRepeat_unfold {f : α → m (ForInStep α)}
-    (h : HasTotalFixpoint f) {a : α} (ha : Total f a) :
-    extrinsicRepeat f a = repeatF f (extrinsicRepeat f) a := by
-  rw [extrinsicRepeat_eq_choose h]
-  exact h.choose_spec a ha
+/--
+At a total point, `extrinsicRepeat f a` equals `g a` for any fixpoint `g`: `Total` forces all
+fixpoints to agree at `a`, so the classical choice is pinned.
+-/
+theorem extrinsicRepeat_eq_fix {f : α → m (ForInStep α)}
+    (g : α → m α) (hfix : IsFix f g) {a : α} (ha : Total f a) :
+    extrinsicRepeat f a = g a := by
+  have h : ∃ g, IsFix f g ∧ Total f a := ⟨g, hfix, ha⟩
+  have heq : extrinsicRepeat f a = h.choose a := by simp only [extrinsicRepeat, dif_pos h]
+  rw [heq]
+  exact ha _ _ h.choose_spec.1 hfix
 
 end Definition
 
@@ -140,29 +133,38 @@ theorem IsLoopVariant.bound_widen {μ : α → Nat} {f : α → m (ForInStep α)
         rw [← heq]
 
 /--
-Under a Nat-valued variant, `IsRepeatFixAt f a (μ a + 1)` holds.
+Under a variant, `a` is total: any two fixpoints of `repeatF f` agree at `a`. Proved by
+strong induction on `μ a`, using `bind_congr_canReturn` pointwise on yields.
 -/
-theorem IsLoopVariant.isRepeatFixAt {μ : α → Nat} {f : α → m (ForInStep α)}
-    (hvar : IsLoopVariant μ f) (a : α) : IsRepeatFixAt f a (μ a + 1) := by
-  show Nat.repeat (repeatF f) (μ a + 1) pure a =
-       repeatF f (Nat.repeat (repeatF f) (μ a + 1) pure) a
-  have : Nat.repeat (repeatF f) (μ a + 2) pure a =
-         Nat.repeat (repeatF f) (μ a + 1) pure a :=
-    hvar.bound_widen (μ a + 2) a (Nat.le_succ _)
-  exact this.symm
-
 theorem IsLoopVariant.total {μ : α → Nat} {f : α → m (ForInStep α)}
-    (hvar : IsLoopVariant μ f) (a : α) : Total f a :=
-  ⟨μ a + 1, hvar.isRepeatFixAt a⟩
+    (hvar : IsLoopVariant μ f) (a : α) : Total f a := by
+  intro g₁ g₂ h₁ h₂
+  suffices ∀ k, ∀ a, μ a = k → g₁ a = g₂ a by
+    exact this (μ a) a rfl
+  intro k
+  induction k using Nat.strongRecOn with
+  | _ k ih =>
+    intro a hka
+    rw [congrFun h₁ a, congrFun h₂ a]
+    simp only [repeatF]
+    apply bind_congr_canReturn
+    intro r hr
+    cases r with
+    | done b => rfl
+    | yield a' =>
+      have hlt : μ a' < k := hka ▸ hvar a a' hr
+      exact ih (μ a') hlt a' rfl
 
 /--
-Under a variant, the iterate function `g a := Nat.repeat (μ a + 1) pure a` is a pointwise
-fixpoint of `repeatF f` everywhere, giving `HasTotalFixpoint f`.
+Under a variant, the iterate function `g a := Nat.repeat (μ a + 1) pure a` is a global
+fixpoint of `repeatF f`.
 -/
-theorem IsLoopVariant.hasTotalFixpoint {μ : α → Nat} {f : α → m (ForInStep α)}
-    (hvar : IsLoopVariant μ f) : HasTotalFixpoint f := by
+theorem IsLoopVariant.hasFix {μ : α → Nat} {f : α → m (ForInStep α)}
+    (hvar : IsLoopVariant μ f) : ∃ g, IsFix f g := by
   refine ⟨fun a => Nat.repeat (repeatF f) (μ a + 1) pure a, ?_⟩
-  intro b _
+  show (fun a => Nat.repeat (repeatF f) (μ a + 1) pure a) =
+       repeatF f (fun a => Nat.repeat (repeatF f) (μ a + 1) pure a)
+  funext b
   show Nat.repeat (repeatF f) (μ b + 1) pure b =
        repeatF f (fun a => Nat.repeat (repeatF f) (μ a + 1) pure a) b
   show repeatF f (Nat.repeat (repeatF f) (μ b) pure) b =
@@ -176,5 +178,23 @@ theorem IsLoopVariant.hasTotalFixpoint {μ : α → Nat} {f : α → m (ForInSte
     show Nat.repeat (repeatF f) (μ b) pure b' =
          Nat.repeat (repeatF f) (μ b' + 1) pure b'
     exact hvar.bound_widen (μ b) b' (hvar b b' hr)
+
+/--
+Safe unfolding of `extrinsicRepeat f` under a variant: at every point, `extrinsicRepeat`
+unfolds one step of the loop body.
+-/
+theorem IsLoopVariant.extrinsicRepeat_unfold {μ : α → Nat} {f : α → m (ForInStep α)}
+    (hvar : IsLoopVariant μ f) (a : α) :
+    extrinsicRepeat f a = repeatF f (extrinsicRepeat f) a := by
+  obtain ⟨g, hfix⟩ := hvar.hasFix
+  rw [extrinsicRepeat_eq_fix g hfix (hvar.total a)]
+  rw [congrFun hfix a]
+  simp only [repeatF]
+  apply bind_congr_canReturn
+  intro r hr
+  cases r with
+  | done b => rfl
+  | yield a' =>
+    exact (extrinsicRepeat_eq_fix g hfix (hvar.total a')).symm
 
 end Termination

@@ -178,7 +178,7 @@ LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_foldM___boxed(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_fold___redArg(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lake_Toml_RBDict_fold___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict_default(lean_object* v_a_6_, lean_object* v_a_7_, lean_object* v_a_8_){
+LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict_default(lean_object* v_00_u03b1_6_, lean_object* v_00_u03b2_7_, lean_object* v_cmp_8_){
 _start:
 {
 lean_object* v___x_9_; 
@@ -186,12 +186,12 @@ v___x_9_ = ((lean_object*)(l_Lake_Toml_instInhabitedRBDict_default___closed__1))
 return v___x_9_;
 }
 }
-LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict_default___boxed(lean_object* v_a_10_, lean_object* v_a_11_, lean_object* v_a_12_){
+LEAN_EXPORT lean_object* l_Lake_Toml_instInhabitedRBDict_default___boxed(lean_object* v_00_u03b1_10_, lean_object* v_00_u03b2_11_, lean_object* v_cmp_12_){
 _start:
 {
 lean_object* v_res_13_; 
-v_res_13_ = l_Lake_Toml_instInhabitedRBDict_default(v_a_10_, v_a_11_, v_a_12_);
-lean_dec_ref(v_a_12_);
+v_res_13_ = l_Lake_Toml_instInhabitedRBDict_default(v_00_u03b1_10_, v_00_u03b2_11_, v_cmp_12_);
+lean_dec_ref(v_cmp_12_);
 return v_res_13_;
 }
 }
@@ -3271,12 +3271,10 @@ _start:
 {
 lean_object* v_fst_1017_; lean_object* v_snd_1018_; lean_object* v___x_1019_; uint8_t v___x_1020_; 
 v_fst_1017_ = lean_ctor_get(v_x2_1016_, 0);
-lean_inc(v_fst_1017_);
+lean_inc_n(v_fst_1017_, 2);
 v_snd_1018_ = lean_ctor_get(v_x2_1016_, 1);
-lean_inc(v_snd_1018_);
+lean_inc_n(v_snd_1018_, 2);
 lean_dec_ref(v_x2_1016_);
-lean_inc(v_snd_1018_);
-lean_inc(v_fst_1017_);
 v___x_1019_ = lean_apply_2(v_p_1013_, v_fst_1017_, v_snd_1018_);
 v___x_1020_ = lean_unbox(v___x_1019_);
 if (v___x_1020_ == 0)
@@ -3407,11 +3405,10 @@ _start:
 {
 lean_object* v_fst_1062_; lean_object* v_snd_1063_; lean_object* v___x_1064_; 
 v_fst_1062_ = lean_ctor_get(v_x2_1061_, 0);
-lean_inc(v_fst_1062_);
+lean_inc_n(v_fst_1062_, 2);
 v_snd_1063_ = lean_ctor_get(v_x2_1061_, 1);
 lean_inc(v_snd_1063_);
 lean_dec_ref(v_x2_1061_);
-lean_inc(v_fst_1062_);
 v___x_1064_ = lean_apply_2(v_f_1058_, v_fst_1062_, v_snd_1063_);
 if (lean_obj_tag(v___x_1064_) == 1)
 {

@@ -1,10 +1,5 @@
 nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
-nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
-nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
-nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
-nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
-nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
-nestedWF.lean:4:4-4:5: warning: declaration uses `sorry`
+nestedWF.lean:3:0-25:3: warning: declaration uses `sorry`
 Ex1.g.eq_1 (c a b n : Nat) :
   g c n.succ a b =
     match g c n a b with
@@ -25,7 +20,7 @@ Ex1.f.eq_1 (c x : Nat) :
     | 0 => 1
     | r => f c r
 nestedWF.lean:42:4-42:5: warning: declaration uses `sorry`
-nestedWF.lean:42:4-42:5: warning: declaration uses `sorry`
+nestedWF.lean:42:0-49:29: warning: declaration uses `sorry`
 Ex2.g.eq_1 (n : Nat) :
   g n.succ =
     match g n with

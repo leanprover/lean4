@@ -69,9 +69,24 @@ return v___x_17_;
 LEAN_EXPORT lean_object* l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Break_runK_match__1_splitter(lean_object* v_00_u03b1_18_, lean_object* v_motive_19_, lean_object* v_x_20_, lean_object* v_h__1_21_, lean_object* v_h__2_22_){
 _start:
 {
-lean_object* v___x_23_; 
-v___x_23_ = l___private_Std_Data_DTreeMap_Raw_Lemmas_0__Break_runK_match__1_splitter___redArg(v_x_20_, v_h__1_21_, v_h__2_22_);
-return v___x_23_;
+if (lean_obj_tag(v_x_20_) == 0)
+{
+lean_object* v___x_23_; lean_object* v___x_24_; 
+lean_dec(v_h__1_21_);
+v___x_23_ = lean_box(0);
+v___x_24_ = lean_apply_1(v_h__2_22_, v___x_23_);
+return v___x_24_;
+}
+else
+{
+lean_object* v_val_25_; lean_object* v___x_26_; 
+lean_dec(v_h__2_22_);
+v_val_25_ = lean_ctor_get(v_x_20_, 0);
+lean_inc(v_val_25_);
+lean_dec_ref(v_x_20_);
+v___x_26_ = lean_apply_1(v_h__1_21_, v_val_25_);
+return v___x_26_;
+}
 }
 }
 lean_object* runtime_initialize_Std_Data_DTreeMap_Internal_Lemmas(uint8_t builtin);

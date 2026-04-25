@@ -78,7 +78,7 @@ structure State where
 abbrev SimpM := ReaderT Context $ StateRefT State DiscrM
 
 @[always_inline]
-instance : Monad SimpM := let i := inferInstanceAs (Monad SimpM); { pure := i.pure, bind := i.bind }
+instance : Monad SimpM := let i : Monad SimpM := inferInstance; { pure := i.pure, bind := i.bind }
 
 instance : MonadFVarSubst SimpM .pure false where
   getSubst := return (← get).subst
@@ -146,7 +146,7 @@ Similar to the default `Lean.withIncRecDepth`, but include the `inlineStack` in 
 @[inline] def withIncRecDepth (x : SimpM α) : SimpM α := do
   let curr ← MonadRecDepth.getRecDepth
   let max  ← MonadRecDepth.getMaxRecDepth
-  if curr == max then
+  if max != 0 && curr == max then
     throwMaxRecDepth
   else
     MonadRecDepth.withRecDepth (curr+1) x

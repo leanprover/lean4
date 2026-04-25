@@ -325,21 +325,22 @@ where
     match e with
     | .app f a =>
       let (rf, fType) ← go f (i-1)
+      -- Propagate `cd` from both function and argument sub-results.
       let r ← match rf, (← simp a) with
-        | .rfl _, .rfl _ =>
-          pure .rfl
-        | .step f' hf _, .rfl _ =>
+        | .rfl _ cd₁, .rfl _ cd₂ =>
+          pure (mkRflResultCD (cd₁ || cd₂))
+        | .step f' hf _ cd₁, .rfl _ cd₂ =>
           let e' ← mkAppS f' a
           let h := mkApp4 (← mkCongrPrefix ``congrFun' fType i) f f' hf a
-          pure <| .step e' h
-        | .rfl _, .step a' ha _ =>
+          pure <| .step e' h (contextDependent := cd₁ || cd₂)
+        | .rfl _ cd₁, .step a' ha _ cd₂ =>
           let e' ← mkAppS f a'
           let h := mkApp4 (← mkCongrPrefix ``congrArg fType i) a a' f ha
-          pure <| .step e' h
-        | .step f' hf _, .step a' ha _ =>
+          pure <| .step e' h (contextDependent := cd₁ || cd₂)
+        | .step f' hf _ cd₁, .step a' ha _ cd₂ =>
           let e' ← mkAppS f' a'
           let h := mkApp6 (← mkCongrPrefix ``congr fType i) f f' a a' hf ha
-          pure <| .step e' h
+          pure <| .step e' h (contextDependent := cd₁ || cd₂)
       return (r, fType.bindingBody!)
     | .lam .. => return (← simpBody e, fType)
     | _ => unreachable!
@@ -383,15 +384,15 @@ def simpHaveCore (e : Expr) (simpBody : Simproc) : SimpM SimpHaveResult := do
   let e₂ := r.e
   let { fnUnivs, argUnivs } ← getUnivs r.fType
   match (← simpBetaApp e₂ r.fType fnUnivs argUnivs simpBody) with
-  | .rfl _ => return { result := .rfl, α := r.α, u := r.u }
-  | .step e₃ h _ =>
+  | .rfl _ cd => return { result := mkRflResultCD cd, α := r.α, u := r.u }
+  | .step e₃ h _ cd =>
     let h₁ := mkApp6 (mkConst ``Eq.trans [r.u]) r.α e₁ e₂ e₃ r.h h
     let e₄ ← toHave e₃ r.varDeps
     let eq := mkApp3 (mkConst ``Eq [r.u]) r.α e₃ e₄
     let h₂ := mkApp2 (mkConst ``Eq.refl [r.u]) r.α e₃
     let h₂ := mkExpectedPropHint h₂ eq
     let h  := mkApp6 (mkConst ``Eq.trans [r.u]) r.α e₁ e₃ e₄ h₁ h₂
-    return { result := .step e₄ h, α := r.α, u := r.u }
+    return { result := .step e₄ h (contextDependent := cd), α := r.α, u := r.u }
 
 /--
 Simplify a `have`-telescope.
@@ -411,21 +412,21 @@ avoiding quadratic behavior from multiple passes.
 public def simpHaveAndZetaUnused (e₁ : Expr) (simpBody : Simproc) : SimpM Result := do
   let r ← simpHaveCore e₁ simpBody
   match r.result with
-  | .rfl _ =>
+  | .rfl _ cd =>
     let e₂ ← zetaUnused e₁
     if isSameExpr e₁ e₂ then
-      return .rfl
+      return mkRflResultCD cd
     else
       let h := mkApp2 (mkConst ``Eq.refl [r.u]) r.α e₂
-      return .step e₂ h
-  | .step e₂ h _ =>
+      return .step e₂ h (contextDependent := cd)
+  | .step e₂ h _ cd =>
     let e₃ ← zetaUnused e₂
     if isSameExpr e₂ e₃ then
       return r.result
     else
       let h := mkApp6 (mkConst ``Eq.trans [r.u]) r.α e₁ e₂ e₃ h
         (mkApp2 (mkConst ``Eq.refl [r.u]) r.α e₃)
-      return .step e₃ h
+      return .step e₃ h (contextDependent := cd)
 
 public def simpLet' (simpBody : Simproc) (e : Expr) : SimpM Result := do
   if !e.letNondep! then

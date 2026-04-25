@@ -114,6 +114,7 @@ where
       false
 
 /-- Determine if tracing is available for a given class, checking ancestor classes if appropriate. -/
+@[inline]
 def isTracingEnabledFor (cls : Name) : m Bool := do
   return checkTraceOption (← MonadTrace.getInheritedTraceOptions) (← getOptions) cls
 

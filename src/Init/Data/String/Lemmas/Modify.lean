@@ -49,6 +49,14 @@ theorem toList_mapAux {f : Char → Char} {s : String} {p : s.Pos}
 theorem toList_map {f : Char → Char} {s : String} : (s.map f).toList = s.toList.map f := by
   simp [map, toList_mapAux s.splits_startPos]
 
+/-
+  Used internally by the `cbv` tactic.
+-/
+@[cbv_eval]
+theorem map_eq_internal {f : Char → Char} {s : String} : s.map f = .ofList (s.toList.map f) := by
+  apply String.toList_injective
+  simp only [toList_map, toList_ofList]
+
 @[simp]
 theorem length_map {f : Char → Char} {s : String} : (s.map f).length = s.length := by
   simp [← length_toList]
@@ -56,5 +64,15 @@ theorem length_map {f : Char → Char} {s : String} : (s.map f).length = s.lengt
 @[simp]
 theorem map_eq_empty {f : Char → Char} {s : String} : s.map f = "" ↔ s = "" := by
   simp [← toList_eq_nil_iff]
+
+@[simp]
+theorem map_map {f g : Char → Char} {s : String} : String.map g (String.map f s) = String.map (g ∘ f) s  := by
+  apply String.ext
+  simp [List.map_map]
+
+@[simp]
+theorem map_id {s : String} : String.map id s = s := by
+  apply String.ext
+  simp [List.map_id]
 
 end String

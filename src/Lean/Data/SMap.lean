@@ -8,6 +8,9 @@ module
 prelude
 public import Std.Data.HashMap.Basic
 public import Lean.Data.PersistentHashMap
+public import Std.Data.HashMap.Iterator
+public import Lean.Data.Iterators.Producers.PersistentHashMap
+public import Init.Data.Iterators.Combinators.Append
 
 public section
 universe u v w w'
@@ -85,6 +88,9 @@ instance [Monad m] : ForM m (SMap α β) (α × β) where
 
 instance [Monad m] : ForIn m (SMap α β) (α × β) where
   forIn := ForM.forIn
+
+def iter (s : SMap α β) :=
+  s.map₁.iter.append s.map₂.iter
 
 /-- Move from stage 1 into stage 2. -/
 def switch (m : SMap α β) : SMap α β :=

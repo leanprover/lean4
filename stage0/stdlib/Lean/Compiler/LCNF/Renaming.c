@@ -3014,6 +3014,10 @@ goto v_resetjp_771_;
 v_resetjp_771_:
 {
 lean_object* v___x_774_; 
+lean_inc(v___y_768_);
+lean_inc_ref(v___y_767_);
+lean_inc(v___y_766_);
+lean_inc_ref(v___y_765_);
 v___x_774_ = lean_apply_6(v_f_763_, v_code_770_, v___y_765_, v___y_766_, v___y_767_, v___y_768_, lean_box(0));
 if (lean_obj_tag(v___x_774_) == 0)
 {
@@ -3122,10 +3126,6 @@ return v___x_791_;
 else
 {
 lean_object* v___x_795_; 
-lean_dec(v___y_768_);
-lean_dec_ref(v___y_767_);
-lean_dec(v___y_766_);
-lean_dec_ref(v___y_765_);
 lean_dec_ref(v_f_763_);
 v___x_795_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_795_, 0, v_v_764_);
@@ -3138,6 +3138,10 @@ _start:
 {
 lean_object* v_res_803_; 
 v_res_803_ = l_Lean_Compiler_LCNF_DeclValue_mapCodeM___at___00Lean_Compiler_LCNF_Decl_applyRenaming_spec__0___redArg(v_f_796_, v_v_797_, v___y_798_, v___y_799_, v___y_800_, v___y_801_);
+lean_dec(v___y_801_);
+lean_dec_ref(v___y_800_);
+lean_dec(v___y_799_);
+lean_dec_ref(v___y_798_);
 return v_res_803_;
 }
 }
@@ -3155,6 +3159,10 @@ _start:
 uint8_t v_pu_boxed_821_; lean_object* v_res_822_; 
 v_pu_boxed_821_ = lean_unbox(v_pu_813_);
 v_res_822_ = l_Lean_Compiler_LCNF_DeclValue_mapCodeM___at___00Lean_Compiler_LCNF_Decl_applyRenaming_spec__0(v_pu_boxed_821_, v_f_814_, v_v_815_, v___y_816_, v___y_817_, v___y_818_, v___y_819_);
+lean_dec(v___y_819_);
+lean_dec_ref(v___y_818_);
+lean_dec(v___y_817_);
+lean_dec_ref(v___y_816_);
 return v_res_822_;
 }
 }
@@ -3395,10 +3403,6 @@ lean_del_object(v___x_855_);
 lean_dec(v_inlineAttr_x3f_853_);
 lean_dec_ref(v_value_851_);
 lean_dec_ref(v_r_844_);
-lean_dec(v_a_848_);
-lean_dec_ref(v_a_847_);
-lean_dec(v_a_846_);
-lean_dec_ref(v_a_845_);
 v_a_893_ = lean_ctor_get(v___x_866_, 0);
 v_isSharedCheck_900_ = !lean_is_exclusive(v___x_866_);
 if (v_isSharedCheck_900_ == 0)
@@ -3443,10 +3447,6 @@ return v___x_898_;
 else
 {
 lean_object* v___x_903_; 
-lean_dec(v_a_848_);
-lean_dec_ref(v_a_847_);
-lean_dec(v_a_846_);
-lean_dec_ref(v_a_845_);
 v___x_903_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_903_, 0, v_decl_843_);
 return v___x_903_;
@@ -3459,6 +3459,10 @@ _start:
 uint8_t v_pu_boxed_912_; lean_object* v_res_913_; 
 v_pu_boxed_912_ = lean_unbox(v_pu_904_);
 v_res_913_ = l_Lean_Compiler_LCNF_Decl_applyRenaming(v_pu_boxed_912_, v_decl_905_, v_r_906_, v_a_907_, v_a_908_, v_a_909_, v_a_910_);
+lean_dec(v_a_910_);
+lean_dec_ref(v_a_909_);
+lean_dec(v_a_908_);
+lean_dec_ref(v_a_907_);
 return v_res_913_;
 }
 }

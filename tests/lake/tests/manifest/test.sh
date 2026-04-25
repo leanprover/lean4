@@ -18,7 +18,7 @@ LOCKED_REV='0538596b94a0510f55dc820cabd3bde41ad93c3e'
 test_update() {
   test_run update
   sed_i "s/$GIT_REV/$LOCKED_REV/g" lake-manifest.json
-  diff --strip-trailing-cr lake-manifest-latest.json lake-manifest.json
+  test_cmd diff -u --strip-trailing-cr lake-manifest-latest.json lake-manifest.json
 }
 
 # ---
@@ -53,6 +53,7 @@ test_manifest v6
 test_manifest v7
 test_manifest v1.0.0
 test_manifest v1.1.0
+test_manifest v1.2.0
 
 # cleanup
 rm -rf bar/.git

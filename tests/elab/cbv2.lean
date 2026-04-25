@@ -1,5 +1,3 @@
-set_option cbv.warning false
-
 def popcount : Nat → Nat
 | 0 => 0
 | 1 => 1

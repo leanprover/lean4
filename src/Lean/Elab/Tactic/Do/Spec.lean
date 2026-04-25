@@ -75,7 +75,7 @@ def elabSpec (stx? : Option (TSyntax `term)) (wp : Expr) : TacticM SpecTheorem :
   | none => findSpec (← getSpecTheorems) wp
   | some stx => elabTermIntoSpecTheorem stx expectedTy
 
-variable {n} [Monad n] [MonadControlT MetaM n] [MonadLiftT MetaM n]
+variable {n} [Monad n] [MonadControlT MetaM n] [MonadLiftT MetaM n] [MonadEnv n]
 
 private def mkProj' (n : Name) (i : Nat) (Q : Expr) : MetaM Expr := do
   return (← projectCore? Q i).getD (mkProj n i Q)
@@ -181,11 +181,12 @@ public def mSpec (goal : MGoal) (elabSpecAtWP : Expr → n SpecTheorem) (goalTag
   -- Instantiation creates `.natural` MVars, which possibly get instantiated by the def eq checks
   -- below when they occur in `P` or `Q`.
   -- That's good for many such as MVars ("schematic variables"), but problematic for MVars
-  -- corresponding to `Invariant`s, which should end up as user goals.
-  -- To prevent accidental instantiation, we mark all `Invariant` MVars as synthetic opaque.
+  -- corresponding to invariant types, which should end up as user goals.
+  -- To prevent accidental instantiation, we mark all invariant MVars as synthetic opaque.
+  let env ← getEnv
   for mvar in mvars do
     let ty ← mvar.mvarId!.getType
-    if ty.isAppOf ``Invariant then mvar.mvarId!.setKind .syntheticOpaque
+    if isSpecInvariantType env ty then mvar.mvarId!.setKind .syntheticOpaque
 
   -- Apply the spec to the excess arguments of the `wp⟦e⟧ Q` application
   let T := goal.target.consumeMData

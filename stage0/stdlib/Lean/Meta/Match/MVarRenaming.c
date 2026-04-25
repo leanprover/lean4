@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 lean_object* l_Lean_mkMVar(lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_replace_expr(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_MVarIdSet_insert_spec__1___redArg(lean_object*, lean_object*, lean_object*);
@@ -163,7 +163,7 @@ _start:
 {
 lean_object* v___x_36_; lean_object* v___x_37_; 
 v___x_36_ = lean_box(0);
-v___x_37_ = lean_panic_fn(v___x_36_, v_msg_35_);
+v___x_37_ = lean_panic_fn_borrowed(v___x_36_, v_msg_35_);
 return v___x_37_;
 }
 }

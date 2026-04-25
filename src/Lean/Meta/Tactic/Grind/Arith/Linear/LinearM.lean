@@ -9,6 +9,7 @@ public import Lean.Meta.Tactic.Grind.Arith.Linear.Types
 public import Lean.Meta.Tactic.Grind.Arith.CommRing.RingM
 public section
 namespace Lean.Meta.Grind.Arith.Linear
+open Sym.Arith (MonadCanon)
 
 def get' : GoalM State := do
   linearExt.getState

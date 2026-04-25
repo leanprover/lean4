@@ -101,7 +101,7 @@ would also work here.
 error: Application type mismatch: The argument
   isDigitEven? n
 has type
-  ?m.2 Bool
+  ?m.3 Bool
 but is expected to have type
   Prop
 in the application

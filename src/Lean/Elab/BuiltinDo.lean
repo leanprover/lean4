@@ -15,3 +15,4 @@ public import Lean.Elab.BuiltinDo.Jump
 public import Lean.Elab.BuiltinDo.Misc
 public import Lean.Elab.BuiltinDo.For
 public import Lean.Elab.BuiltinDo.TryCatch
+public import Lean.Elab.BuiltinDo.Repeat

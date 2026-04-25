@@ -1,5 +1,3 @@
-set_option cbv.warning false
-
 def f (n : Nat) : Nat := match n with
 | 0 => 0
 | (n + 1) => (f n) + 1

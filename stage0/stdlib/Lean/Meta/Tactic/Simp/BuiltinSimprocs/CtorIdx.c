@@ -126,10 +126,6 @@ lean_dec(v___x_30_);
 if (v___x_31_ == 0)
 {
 lean_object* v___x_32_; lean_object* v___x_34_; 
-lean_dec(v___y_9_);
-lean_dec_ref(v___y_8_);
-lean_dec(v___y_7_);
-lean_dec_ref(v___y_6_);
 lean_dec_ref(v_x_4_);
 v___x_32_ = ((lean_object*)(l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__0___redArg___closed__0));
 if (v_isShared_23_ == 0)
@@ -320,10 +316,6 @@ else
 {
 lean_object* v___x_70_; lean_object* v___x_72_; 
 lean_dec(v_a_20_);
-lean_dec(v___y_9_);
-lean_dec_ref(v___y_8_);
-lean_dec(v___y_7_);
-lean_dec_ref(v___y_6_);
 lean_dec_ref(v_x_4_);
 v___x_70_ = ((lean_object*)(l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__0___redArg___closed__0));
 if (v_isShared_23_ == 0)
@@ -350,10 +342,6 @@ return v___x_72_;
 else
 {
 lean_object* v_a_75_; lean_object* v___x_77_; uint8_t v_isShared_78_; uint8_t v_isSharedCheck_82_; 
-lean_dec(v___y_9_);
-lean_dec_ref(v___y_8_);
-lean_dec(v___y_7_);
-lean_dec_ref(v___y_6_);
 lean_dec_ref(v_x_4_);
 v_a_75_ = lean_ctor_get(v___x_19_, 0);
 v_isSharedCheck_82_ = !lean_is_exclusive(v___x_19_);
@@ -398,10 +386,6 @@ else
 {
 lean_object* v___x_83_; lean_object* v___x_84_; 
 lean_dec(v___x_17_);
-lean_dec(v___y_9_);
-lean_dec_ref(v___y_8_);
-lean_dec(v___y_7_);
-lean_dec_ref(v___y_6_);
 lean_dec_ref(v_x_4_);
 v___x_83_ = ((lean_object*)(l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__0___redArg___closed__0));
 v___x_84_ = lean_alloc_ctor(0, 1, 0);
@@ -416,6 +400,10 @@ _start:
 {
 lean_object* v_res_93_; 
 v_res_93_ = l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__0___redArg(v_x_85_, v_x_86_, v_x_87_, v___y_88_, v___y_89_, v___y_90_, v___y_91_);
+lean_dec(v___y_91_);
+lean_dec_ref(v___y_90_);
+lean_dec(v___y_89_);
+lean_dec_ref(v___y_88_);
 return v_res_93_;
 }
 }
@@ -448,6 +436,10 @@ _start:
 {
 lean_object* v_res_120_; 
 v_res_120_ = l_reduceCtorIdx(v_e_111_, v_a_112_, v_a_113_, v_a_114_, v_a_115_, v_a_116_, v_a_117_, v_a_118_);
+lean_dec(v_a_118_);
+lean_dec_ref(v_a_117_);
+lean_dec(v_a_116_);
+lean_dec_ref(v_a_115_);
 lean_dec(v_a_114_);
 lean_dec_ref(v_a_113_);
 lean_dec(v_a_112_);
@@ -467,6 +459,10 @@ _start:
 {
 lean_object* v_res_144_; 
 v_res_144_ = l_Lean_Expr_withAppAux___at___00reduceCtorIdx_spec__0(v_x_133_, v_x_134_, v_x_135_, v___y_136_, v___y_137_, v___y_138_, v___y_139_, v___y_140_, v___y_141_, v___y_142_);
+lean_dec(v___y_142_);
+lean_dec_ref(v___y_141_);
+lean_dec(v___y_140_);
+lean_dec_ref(v___y_139_);
 lean_dec(v___y_138_);
 lean_dec_ref(v___y_137_);
 lean_dec(v___y_136_);

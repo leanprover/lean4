@@ -8,16 +8,26 @@
   "configurePresets": [
     {
       "name": "release",
-      "displayName": "Default development optimized build config",
+      "displayName": "Release build config",
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/release"
+    },
+    {
+      "name": "dev",
+      "displayName": "Default development optimized build config",
+      "cacheVariables": {
+        "STRIP_BINARIES": "OFF"
+      },
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/dev"
     },
     {
       "name": "debug",
       "displayName": "Debug build config",
       "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
         "LEAN_EXTRA_CXX_FLAGS": "-DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
-        "CMAKE_BUILD_TYPE": "Debug"
+        "STRIP_BINARIES": "OFF"
       },
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/debug"
@@ -26,7 +36,8 @@
       "name": "reldebug",
       "displayName": "Release with assertions enabled",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithAssert"
+        "CMAKE_BUILD_TYPE": "RelWithAssert",
+        "STRIP_BINARIES": "OFF"
       },
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/reldebug"
@@ -38,6 +49,7 @@
         "LEAN_EXTRA_CXX_FLAGS": "-fsanitize=address,undefined -DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
         "LEANC_EXTRA_CC_FLAGS": "-fsanitize=address,undefined",
         "LEAN_EXTRA_LINKER_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime",
+        "STRIP_BINARIES": "OFF",
         "SMALL_ALLOCATOR": "OFF",
         "USE_MIMALLOC": "OFF",
         "BSYMBOLIC": "OFF",
@@ -57,6 +69,10 @@
     {
       "name": "release",
       "configurePreset": "release"
+    },
+    {
+      "name": "dev",
+      "configurePreset": "dev"
     },
     {
       "name": "debug",
@@ -79,6 +95,11 @@
     {
       "name": "release",
       "configurePreset": "release",
+      "output": {"outputOnFailure": true, "shortProgress": true}
+    },
+    {
+      "name": "dev",
+      "configurePreset": "dev",
       "output": {"outputOnFailure": true, "shortProgress": true}
     },
     {

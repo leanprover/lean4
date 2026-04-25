@@ -53,7 +53,6 @@ return v___x_13_;
 else
 {
 lean_object* v_val_14_; 
-lean_dec(v_inst_10_);
 v_val_14_ = lean_ctor_get(v_x_11_, 0);
 lean_inc(v_val_14_);
 return v_val_14_;
@@ -66,6 +65,7 @@ _start:
 lean_object* v_res_17_; 
 v_res_17_ = l_Option_get_x21___redArg(v_inst_15_, v_x_16_);
 lean_dec(v_x_16_);
+lean_dec(v_inst_15_);
 return v_res_17_;
 }
 }
@@ -82,7 +82,6 @@ return v___x_22_;
 else
 {
 lean_object* v_val_23_; 
-lean_dec(v_inst_19_);
 v_val_23_ = lean_ctor_get(v_x_20_, 0);
 lean_inc(v_val_23_);
 return v_val_23_;
@@ -95,6 +94,7 @@ _start:
 lean_object* v_res_27_; 
 v_res_27_ = l_Option_get_x21(v_00_u03b1_24_, v_inst_25_, v_x_26_);
 lean_dec(v_x_26_);
+lean_dec(v_inst_25_);
 return v_res_27_;
 }
 }

@@ -7,8 +7,6 @@ The AES implementation is extracted from `LNSym` (https://github.com/leanprover/
 an ARMv8 symbolic simulator. Original code released under Apache 2.0 license.
 -/
 
-set_option cbv.warning false
-
 namespace BitVec
 
 open BitVec
@@ -318,7 +316,7 @@ def AES256KBR : KBR :=
 def KeySchedule : Type := List (BitVec WordSize)
 
 -- Declare KeySchedule to be an instance HAppend
--- so we can apply `++` to KeySchedules propertly
+-- so we can apply `++` to KeySchedules properly
 instance : HAppend KeySchedule KeySchedule KeySchedule where
   hAppend := List.append
 

@@ -72,11 +72,11 @@ public instance [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] 
 
 public instance [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] :
     WeaklyLawfulMonadAttach (StateRefT' ω σ m) :=
-  inferInstanceAs (WeaklyLawfulMonadAttach (ReaderT _ _))
+  inferInstanceAs (WeaklyLawfulMonadAttach (ReaderT (ST.Ref ω σ) m))
 
 public instance [Monad m] [MonadAttach m] [LawfulMonad m] [LawfulMonadAttach m] :
     LawfulMonadAttach (StateRefT' ω σ m) :=
-  inferInstanceAs (LawfulMonadAttach (ReaderT _ _))
+  inferInstanceAs (LawfulMonadAttach (ReaderT (ST.Ref ω σ) m))
 
 section
 

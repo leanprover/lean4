@@ -88,6 +88,7 @@ def elabConfigFile
   else
     return s.commandState.env
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 `Lean.Kernel.Environment.add` is now private, this is an exported helper wrapping it for
 `Lean.Environment`.

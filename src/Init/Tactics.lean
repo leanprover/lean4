@@ -524,9 +524,6 @@ syntax location := withPosition(ppGroup(" at" (locationWildcard <|> locationHyp)
 -/
 syntax (name := change) "change " term (location)? : tactic
 
-@[tactic_alt change]
-syntax (name := changeWith) "change " term " with " term (location)? : tactic
-
 /--
 `show t` finds the first goal whose target unifies with `t`. It makes that the main goal,
 performs the unification, and replaces the target with the unified version of `t`.
@@ -2262,42 +2259,6 @@ with grind
 ```
 This is more convenient than the equivalent `· by rename_i _ acc _; exact I1 acc`.
 
-### Witnesses
-
-When a specification has a parameter whose type is tagged with `@[mvcgen_witness_type]`, `mvcgen`
-classifies the corresponding goal as a *witness* rather than a verification condition.
-Witnesses are concrete values that the user must provide (inspired by zero-knowledge proofs),
-as opposed to invariants (predicates maintained across loop iterations) or verification conditions
-(propositions to prove).
-
-Witness goals are labelled `witness1`, `witness2`, etc. and can be provided in a `witnesses` section
-that appears before the `invariants` section:
-```
-mvcgen [...] witnesses
-· W1
-· W2
-invariants
-· I1
-with grind
-```
-Like invariants, witnesses support case label syntax:
-```
-mvcgen [...] witnesses
-| witness1 => W1
-```
-
-See the `@[mvcgen_witness_type]` attribute for how to register custom witness types.
-
-### Invariant and witness type attributes
-
-The `@[mvcgen_invariant_type]` and `@[mvcgen_witness_type]` tag attributes control how `mvcgen`
-classifies subgoals:
-* A goal whose type is an application of a type tagged with `@[mvcgen_invariant_type]` is classified
-  as an invariant (`inv<n>`).
-* A goal whose type is an application of a type tagged with `@[mvcgen_witness_type]` is classified
-  as a witness (`witness<n>`).
-* All other goals are classified as verification conditions (`vc<n>`).
-
 ### Invariant suggestions
 
 `mvcgen` will suggest invariants for you if you use the `invariants?` keyword.
@@ -2353,9 +2314,6 @@ after reduction to close the goal.
 The proofs produced by `cbv` only use the three standard axioms.
 In particular, they do not require trust in the correctness of the code
 generator.
-
-This tactic is experimental and its behavior is likely to change in upcoming
-releases of Lean.
 -/
 syntax (name := cbv) "cbv" (location)? : tactic
 
@@ -2373,9 +2331,6 @@ fails.
 The proofs produced by `decide_cbv` only use the three standard axioms.
 In particular, they do not require trust in the correctness of the code
 generator.
-
-This tactic is experimental and its behavior is likely to change in upcoming
-releases of Lean.
 -/
 syntax (name := decide_cbv) "decide_cbv" : tactic
 

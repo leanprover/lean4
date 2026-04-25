@@ -18,7 +18,7 @@ structure Iso (x y : C) where
 attribute [grind =] Iso.hom_inv_id Iso.inv_hom_id
 
 #guard_msgs in -- Should not produce any issues
-set_option trace.grind.issues true in
+set_option trace.sym.issues true in
 example (F G : Foo ℭ₁ ℭ₂) (e : ∀ (x : C), Iso (F.obj x) (G.obj x)) (x : C) :
     ℭ₂.comp (e x).hom (e x).inv = ℭ₂.id _ := by
   grind

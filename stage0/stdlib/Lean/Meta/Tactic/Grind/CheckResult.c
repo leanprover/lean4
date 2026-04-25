@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Meta.Tactic.Grind.CheckResult
-// Imports: public import Init.Data.Repr import Init.MetaTypes
+// Imports: public import Init.Data.Repr meta import Init.MetaTypes
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -451,6 +451,7 @@ v___jp_114_:
 {
 lean_object* v___x_116_; lean_object* v___x_117_; uint8_t v___x_118_; lean_object* v___x_119_; lean_object* v___x_120_; 
 v___x_116_ = ((lean_object*)(l_Lean_Meta_Grind_instReprCheckResult_repr___closed__1));
+lean_inc(v___y_115_);
 v___x_117_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_117_, 0, v___y_115_);
 lean_ctor_set(v___x_117_, 1, v___x_116_);
@@ -465,6 +466,7 @@ v___jp_121_:
 {
 lean_object* v___x_123_; lean_object* v___x_124_; uint8_t v___x_125_; lean_object* v___x_126_; lean_object* v___x_127_; 
 v___x_123_ = ((lean_object*)(l_Lean_Meta_Grind_instReprCheckResult_repr___closed__3));
+lean_inc(v___y_122_);
 v___x_124_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_124_, 0, v___y_122_);
 lean_ctor_set(v___x_124_, 1, v___x_123_);
@@ -479,6 +481,7 @@ v___jp_128_:
 {
 lean_object* v___x_130_; lean_object* v___x_131_; uint8_t v___x_132_; lean_object* v___x_133_; lean_object* v___x_134_; 
 v___x_130_ = ((lean_object*)(l_Lean_Meta_Grind_instReprCheckResult_repr___closed__5));
+lean_inc(v___y_129_);
 v___x_131_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_131_, 0, v___y_129_);
 lean_ctor_set(v___x_131_, 1, v___x_130_);
@@ -493,6 +496,7 @@ v___jp_135_:
 {
 lean_object* v___x_137_; lean_object* v___x_138_; uint8_t v___x_139_; lean_object* v___x_140_; lean_object* v___x_141_; 
 v___x_137_ = ((lean_object*)(l_Lean_Meta_Grind_instReprCheckResult_repr___closed__7));
+lean_inc(v___y_136_);
 v___x_138_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_138_, 0, v___y_136_);
 lean_ctor_set(v___x_138_, 1, v___x_137_);
@@ -722,7 +726,6 @@ return v_r_200_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Repr(uint8_t builtin);
-lean_object* runtime_initialize_Init_MetaTypes(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Meta_Tactic_Grind_CheckResult(uint8_t builtin) {
 lean_object * res;
@@ -731,18 +734,19 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Init_Data_Repr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Init_MetaTypes(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 l_Lean_Meta_Grind_instInhabitedCheckResult_default = _init_l_Lean_Meta_Grind_instInhabitedCheckResult_default();
 l_Lean_Meta_Grind_instInhabitedCheckResult = _init_l_Lean_Meta_Grind_instInhabitedCheckResult();
 return lean_io_result_mk_ok(lean_box(0));
 }
+lean_object* runtime_initialize_Init_MetaTypes(uint8_t builtin);
 static bool _G_meta_initialized = false;
 LEAN_EXPORT lean_object* meta_initialize_Lean_Meta_Tactic_Grind_CheckResult(uint8_t builtin) {
 lean_object * res;
 if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
+res = runtime_initialize_Init_MetaTypes(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Repr(uint8_t builtin);

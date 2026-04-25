@@ -507,6 +507,16 @@ Examples:
   xs.toArray.sum
 
 /--
+Computes the product of the elements of a vector.
+
+Examples:
+ * `#v[a, b, c].prod = a * (b * (c * 1))`
+ * `#v[1, 2, 5].prod = 10`
+-/
+@[inline, expose] def prod [Mul α] [One α] (xs : Vector α n) : α :=
+  xs.toArray.prod
+
+/--
 Pad a vector on the left with a given element.
 
 Note that we immediately simplify this to an `++` operation,

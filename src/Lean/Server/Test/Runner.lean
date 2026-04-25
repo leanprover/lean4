@@ -46,6 +46,12 @@ def normalizedRef (ref : RpcRef) : NormalizeM RpcRef := do
       })
   return ⟨ptr⟩
 
+-- Test-only instances using the most recent version of the RPC wire format.
+instance : ToJson RpcRef where
+  toJson r := Json.mkObj [("__rpcref", toJson r.p)]
+instance : FromJson RpcRef where
+  fromJson? j := return ⟨← j.getObjValAs? USize "__rpcref"⟩
+
 structure SubexprInfo where
   info : RpcRef
   subexprPos : String
@@ -635,13 +641,13 @@ def processGenericRequest : RunnerM Unit := do
   let params := params.setObjVal! "position" (toJson s.pos)
   logResponse s.method params
 
-def processDirective (ws directive : String) (directiveTargetLineNo : Nat) : RunnerM Unit := do
+def processDirective (_ws directive : String) (directiveTargetLineNo : Nat)
+    (directiveTargetColumn : Nat) : RunnerM Unit := do
   let directive := directive.drop 1
   let colon := directive.find ':'
   let method := directive.sliceTo colon |>.trimAscii |>.copy
   -- TODO: correctly compute in presence of Unicode
-  let directiveTargetColumn := ws.rawEndPos + "--"
-  let pos : Lsp.Position := { line := directiveTargetLineNo, character := directiveTargetColumn.byteIdx }
+  let pos : Lsp.Position := { line := directiveTargetLineNo, character := directiveTargetColumn }
   let params :=
     if h : ¬colon.IsAtEnd then
       directive.sliceFrom (colon.next h) |>.trimAscii.copy
@@ -680,10 +686,15 @@ def processLine (line : String) : RunnerM Unit := do
     match directive.front with
     | 'v' => pure <| (← get).lineNo + 1  -- TODO: support subsequent 'v'... or not
     | '^' => pure <| (← get).lastActualLineNo
+    -- `⬑` is like `^` but targets the column of the `--` marker itself (i.e. column 0 when the
+    -- marker is at the start of the line), rather than the column after `--`.
+    | '⬑' => pure <| (← get).lastActualLineNo
     | _ =>
       skipLineWithoutDirective
       return
-  processDirective ws directive directiveTargetLineNo
+  let directiveTargetColumn :=
+    if directive.front == '⬑' then ws.rawEndPos.byteIdx else (ws.rawEndPos + "--").byteIdx
+  processDirective ws directive directiveTargetLineNo (directiveTargetColumn := directiveTargetColumn)
   skipLineWithDirective
 
 
@@ -712,7 +723,9 @@ partial def main (args : List String) : IO Unit := do
         }
       }
       lean? := some {
+        incrementalDiagnosticSupport? := some true
         silentDiagnosticSupport? := some true
+        rpcWireFormat? := some .v1
       }
     }
     Ipc.writeRequest ⟨0, "initialize", { initializationOptions?, capabilities : InitializeParams }⟩

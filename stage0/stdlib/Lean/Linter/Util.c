@@ -277,10 +277,9 @@ _start:
 lean_object* v_toApplicative_81_; lean_object* v_toPure_82_; lean_object* v___f_83_; lean_object* v___f_84_; lean_object* v___x_85_; lean_object* v___x_86_; 
 v_toApplicative_81_ = lean_ctor_get(v_inst_78_, 0);
 v_toPure_82_ = lean_ctor_get(v_toApplicative_81_, 1);
-lean_inc(v_toPure_82_);
+lean_inc_n(v_toPure_82_, 2);
 v___f_83_ = lean_alloc_closure((void*)(l___private_Lean_Linter_Util_0__Lean_Linter_collectMacroExpansions_x3f_go___redArg___lam__0___boxed), 4, 1);
 lean_closure_set(v___f_83_, 0, v_toPure_82_);
-lean_inc(v_toPure_82_);
 v___f_84_ = lean_alloc_closure((void*)(l___private_Lean_Linter_Util_0__Lean_Linter_collectMacroExpansions_x3f_go___redArg___lam__1___boxed), 6, 2);
 lean_closure_set(v___f_84_, 0, v_toPure_82_);
 lean_closure_set(v___f_84_, 1, v_range_79_);

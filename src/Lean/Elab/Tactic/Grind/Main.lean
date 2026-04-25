@@ -242,15 +242,21 @@ def mkGrindParams
     params := { params with config.clean := false }
   return params
 
+def checkTerminalAsSorry (mvarId : MVarId) : TacticM Bool := do
+  if debug.terminalTacticsAsSorry.get (← getOptions) then
+    mvarId.admit
+    replaceMainGoal []
+    return true
+  else
+    return false
+
 def grind
     (mvarId : MVarId) (config : Grind.Config)
     (only : Bool)
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
     (seq? : Option (TSyntax `Lean.Parser.Tactic.Grind.grindSeq))
     : TacticM Unit := do
-  if debug.terminalTacticsAsSorry.get (← getOptions) then
-    mvarId.admit
-    return ()
+  if (← checkTerminalAsSorry mvarId) then return ()
   mvarId.withContext do
     let params ← mkGrindParams config only ps mvarId
     let params := if Grind.grind.unusedLemmaThreshold.get (← getOptions) > 0 then
@@ -260,7 +266,7 @@ def grind
       let finalize (result : Grind.Result) : TacticM Unit := do
         if result.hasFailed then
           throwError "`grind` failed\n{← result.toMessageData}"
-        return ()
+        replaceMainGoal []
       if let some seq := seq? then
         let (result, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
           Grind.evalGrindTactic seq
@@ -286,9 +292,7 @@ def evalGrindCore
   let params := if let some params := params? then params.getElems else #[]
   if Grind.grind.warning.get (← getOptions) then
     logWarningAt ref "The `grind` tactic is new and its behavior may change in the future. This project has used `set_option grind.warning true` to discourage its use."
-  withMainContext do
-    grind (← getMainGoal) config only params seq?
-    replaceMainGoal []
+  grind (← getMainGoal) config only params seq?
 
 /-- Position for the `[..]` child syntax in the `grind` tactic. -/
 def grindParamsPos := 3
@@ -342,6 +346,25 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
   let interactive := seq.isSome
   let config ← elabGrindConfig' config interactive
   evalGrindCore stx config only params seq
+
+@[builtin_tactic Lean.Parser.Tactic.sym] def evalSym : Tactic := fun stx => do
+  recordExtraModUse (isMeta := false) `Init.Grind.Tactics
+  let `(tactic| sym $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? => $seq:grindSeq) := stx
+    | throwUnsupportedSyntax
+  let config ← elabGrindConfig' config true
+  let only' := only.isSome
+  let params := if let some params := params then params.getElems else #[]
+  let mvarId ← getMainGoal
+  if (← checkTerminalAsSorry mvarId) then return ()
+  mvarId.withContext do
+    let params ← mkGrindParams config only' params mvarId
+    Grind.withProtectedMCtx config mvarId fun mvarId' => do
+      let (result, _) ← Grind.GrindTacticM.runAtGoal mvarId' params (sym := true) do
+        Grind.evalGrindTactic seq
+        let goal? := if let goal :: _ := (← get).goals then some goal else none
+        Grind.liftGrindM <| Grind.mkResult params goal?
+      if result.hasFailed then
+        throwError "`sym` failed\n{← result.toMessageData}"
 
 def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorry := true) : TacticM (Array (TSyntax `tactic)) := withMainContext do
   let `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params?:grindParam,*] ]?) := stx

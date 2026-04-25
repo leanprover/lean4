@@ -245,6 +245,7 @@ v___x_54_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_54_, 0, v___x_53_);
 v___x_55_ = lean_unsigned_to_nat(0u);
 v___x_56_ = 0;
+lean_inc_ref(v___y_51_);
 v___x_57_ = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_55_, v___x_56_, v___x_54_, v___y_51_);
 return v___x_57_;
 }

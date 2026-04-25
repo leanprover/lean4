@@ -12,6 +12,7 @@ import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Compiler.LCNF.EmitC
 import Init.System.Platform
+import Lean.Compiler.Options
 
 /-  Lean companion to  `shell.cpp` -/
 
@@ -31,7 +32,7 @@ abort on files with invalid UTF-8.
 opaque decodeLossyUTF8 (a : @& ByteArray) : String
 
 /- Runs the `main` function of the module with `args` using the Lean interpreter. -/
-@[extern "lean_run_main"]
+@[extern "lean_eval_main"]
 opaque runMain (env : @& Environment) (opts : @& Options) (args : @& List String) : BaseIO UInt32
 
 /--
@@ -47,10 +48,6 @@ Before calling this function, the LLVM subsystem must first be successfully init
 -/
 @[extern "lean_emit_llvm"]
 opaque emitLLVM (env : Environment) (modName : Name) (filepath : FilePath) : IO Unit
-
-/-- Print all profiling times (if any) to standard error. -/
-@[extern "lean_display_cumulative_profiling_times"]
-opaque displayCumulativeProfilingTimes : BaseIO Unit
 
 /-- Whether Lean was built with an address sanitizer enabled. -/
 @[extern "lean_internal_has_address_sanitizer"]
@@ -344,7 +341,10 @@ def ShellOptions.process (opts : ShellOptions)
   | 'I' => -- `-I, --stdin`
     return {opts with useStdin := true}
   | 'r' => -- `--run`
-    return {opts with run := true}
+    return {opts with
+      run := true
+      -- can't get IR if it's postponed
+      leanOpts := Compiler.compiler.postponeCompile.set opts.leanOpts false }
   | 'o' => -- `--o, olean=fname`
     return {opts with oleanFileName? := ← checkOptArg "o" optArg?}
   | 'i' => -- `--i, ilean=fname`

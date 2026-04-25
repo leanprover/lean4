@@ -11,8 +11,6 @@ def subspace := { x : space α // True }
 
 /--
 warning: declaration uses `sorry`
----
-warning: declaration uses `sorry`
 -/
 #guard_msgs in
 def foo : subspace α → subspace α :=
@@ -28,8 +26,6 @@ def space : Type :=
 def subspace := { x : space // True }
 
 /--
-warning: declaration uses `sorry`
----
 warning: declaration uses `sorry`
 -/
 #guard_msgs in

@@ -9,7 +9,4 @@
 6123_cat_adjunction.lean:443:4-443:41: warning: declaration uses `sorry`
 6123_cat_adjunction.lean:448:4-448:35: warning: declaration uses `sorry`
 6123_cat_adjunction.lean:472:4-472:23: warning: declaration uses `sorry`
-6123_cat_adjunction.lean:472:4-472:23: warning: declaration uses `sorry`
-6123_cat_adjunction.lean:472:4-472:23: warning: declaration uses `sorry`
-6123_cat_adjunction.lean:488:4-488:35: warning: declaration uses `sorry`
 6123_cat_adjunction.lean:488:4-488:35: warning: declaration uses `sorry`

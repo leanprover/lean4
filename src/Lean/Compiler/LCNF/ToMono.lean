@@ -279,13 +279,13 @@ partial def casesFloatArrayToMono (c : Cases .pure) (_ : c.typeName == ``FloatAr
   let k ← k.toMono
   return .let decl k
 
-/-- Eliminate `cases` for `String. -/
+/-- Eliminate `cases` for `String`. -/
 partial def casesStringToMono (c : Cases .pure) (_ : c.typeName == ``String) : ToMonoM (Code .pure) := do
   assert! c.alts.size == 1
   let .alt _ ps k := c.alts[0]! | unreachable!
   eraseParams ps
   let p := ps[0]!
-  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``String.toList [] #[.fvar c.discr] }
+  let decl := { fvarId := p.fvarId, binderName := p.binderName, type := anyExpr, value := .const ``String.toByteArray [] #[.fvar c.discr] }
   modifyLCtx fun lctx => lctx.addLetDecl decl
   let k ← k.toMono
   return .let decl k

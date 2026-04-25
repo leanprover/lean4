@@ -315,7 +315,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
             -- statement and the inferred alt types
             let dummyGoal := mkConst ``True []
             mkArrow eTypeAbst dummyGoal)
-          (onAlt := fun _altIdx altType _altParams alt => do
+          (onAlt := fun _altIdx altType _altFVars alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
               forallBoundedTelescope altType (some 1) fun newIH' _goal' => do
                 let #[newIH'] := newIH' | unreachable!
@@ -333,7 +333,7 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
           (onMotive := fun _motiveArgs motiveBody => do
             let some (_extra, body) := motiveBody.arrow? | throwError "motive not an arrow"
             M.eval (foldAndCollect oldIH newIH isRecCall body))
-          (onAlt := fun _altIdx altType _altParams alt => do
+          (onAlt := fun _altIdx altType _altFVars alt => do
             lambdaTelescope1 alt fun oldIH' alt => do
             -- We don't have suitable newIH around here, but we don't care since
             -- we just want to fold calls. So lets create a fake one.
@@ -347,11 +347,13 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
 
     if e.getAppArgs.any (·.isFVarOf oldIH) then
       -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
-      -- So beta-reduce that definition. We need to look through theorems here!
-      if let some e' ← withTransparency .all do unfoldDefinition? e then
-        return ← foldAndCollect oldIH newIH isRecCall e'
-      else
-        throwError "Internal error in `foldAndCollect`: Cannot reduce application of `{e.getAppFn}` in:{indentExpr e}"
+      -- So delta-beta-reduce that definition. We need to look through theorems here!
+      if let .const declName lvls := e.getAppFn then
+        if let some cinfo := (← getEnv).find? declName then
+          if let some val := cinfo.value? (allowOpaque := true) then
+            let e' := (val.instantiateLevelParams cinfo.levelParams lvls).betaRev e.getAppRevArgs
+            return ← foldAndCollect oldIH newIH isRecCall e'
+      throwError "Internal error in `foldAndCollect`: Cannot reduce application of `{e.getAppFn}` in:{indentExpr e}"
 
     match e with
     | .app e1 e2 =>
@@ -691,7 +693,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (Array.mask mask xs)))
-        (onAlt := fun altIdx expAltType _altParams alt => M2.branch do
+        (onAlt := fun altIdx expAltType _altFVars alt => M2.branch do
           lambdaTelescope1 alt fun oldIH' alt => do
             forallBoundedTelescope expAltType (some 1) fun newIH' goal' => do
               let #[newIH'] := newIH' | unreachable!
@@ -714,7 +716,7 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         (addEqualities := true)
         (onParams := (foldAndCollect oldIH newIH isRecCall ·))
         (onMotive := fun xs _body => pure (absMotiveBody.beta (Array.mask mask xs)))
-        (onAlt := fun altIdx expAltType _altParams alt => M2.branch do
+        (onAlt := fun altIdx expAltType _altFVars alt => M2.branch do
           withRewrittenMotiveArg expAltType (rwMatcher altIdx) fun expAltType' =>
             buildInductionBody toErase toClear expAltType' oldIH newIH isRecCall alt)
       return matcherApp'.toExpr
@@ -741,6 +743,13 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         let goal' ← instantiateForall goal #[x]
         let b' ← buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
         mkLambdaFVars #[x] b'
+
+  -- Unfold constant applications that take `oldIH` as an argument (e.g. `_f` auxiliary
+  -- definitions from structural recursion), so that we can see their body structure.
+  -- Similar to the case in `foldAndCollect`.
+  if e.getAppFn.isConst && e.getAppArgs.any (·.isFVarOf oldIH) then
+    if let some e' ← withTransparency .all (unfoldDefinition? e) then
+      return ← buildInductionBody toErase toClear goal oldIH newIH isRecCall e'
 
   liftM <| buildInductionCase oldIH newIH isRecCall toErase toClear goal e
 

@@ -20,7 +20,7 @@ public def foo : String := "bar"
 EOF
 
 # Test cross-package `import all`
-# previosuly prevented by default
+# previously prevented by default
 # test_err 'cannot `import all` the module' build ErrorTest.CrossPackageImportAll
 # currently allowed
 test_run build ErrorTest.CrossPackageImportAll

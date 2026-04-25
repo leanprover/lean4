@@ -172,7 +172,7 @@ private partial def addEqStep (lhs rhs proof : Expr) (isHEq : Bool) : GoalM Unit
       trueEqFalse := true
     else
       let hasHEq := isHEq || lhsRoot.heqProofs || rhsRoot.heqProofs
-      -- **Note**: We only have to check the types if there are heterogenous equalities.
+      -- **Note**: We only have to check the types if there are heterogeneous equalities.
       if (← pure !hasHEq <||> hasSameType lhsRoot.self rhsRoot.self) then
         valueInconsistency := true
   if    (lhsRoot.interpreted && !rhsRoot.interpreted)
@@ -348,6 +348,7 @@ where
       internalize rhs generation p
       addEqCore lhs rhs proof isHEq
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_process_new_facts]
 private def processNewFactsImpl : GoalM Unit := do
   repeat

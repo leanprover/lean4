@@ -59,7 +59,7 @@ partial def markDeclPublicRec (phase : Phase) (decl : Decl pu) : CompilerM Unit 
 
 /-- Checks whether references in the given declaration adhere to phase distinction. -/
 partial def checkMeta (origDecl : Decl pu) : CompilerM Unit := do
-  if !(← getEnv).header.isModule || !compiler.checkMeta.get (← getOptions) then
+  if !(← getEnv).header.isModule || (← compiler.inLeanIR.getM) || !(← compiler.checkMeta.getM) then
     return
   let irPhases := getIRPhases (← getEnv) origDecl.name
   if irPhases == .all then
@@ -148,9 +148,10 @@ where go (origDecl decl : Decl .pure) : StateT NameSet CompilerM Unit := do
           go origDecl localDecl
       else if let some modIdx := (← getEnv).getModuleIdxFor? ref then
         if (← getEnv).header.modules[modIdx]?.any (!·.isExported) then
-          throwError "Cannot compile inline/specializing declaration `{.ofConstName origDecl.name}` as \
-            it uses `{.ofConstName ref}` of module `{(← getEnv).header.moduleNames[modIdx]!}` \
-            which must be imported publicly. This limitation may be lifted in the future."
+          if !(← compiler.inLeanIR.getM) then
+            throwError "Cannot compile inline/specializing declaration `{.ofConstName origDecl.name}` as \
+              it uses `{.ofConstName ref}` of module `{(← getEnv).header.moduleNames[modIdx]!}` \
+              which must be imported publicly. This limitation may be lifted in the future."
         else
           -- record as public meta use
           withExporting <| recordExtraModUseFromDecl (isMeta := getIRPhases (← getEnv) ref == .comptime) ref

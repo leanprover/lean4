@@ -45,30 +45,52 @@ return v___x_8_;
 LEAN_EXPORT lean_object* l___private_Init_Data_List_MinMax_0__List_getLast_x3f_match__1_splitter(lean_object* v_00_u03b1_9_, lean_object* v_motive_10_, lean_object* v_x_11_, lean_object* v_h__1_12_, lean_object* v_h__2_13_){
 _start:
 {
-lean_object* v___x_14_; 
-v___x_14_ = l___private_Init_Data_List_MinMax_0__List_getLast_x3f_match__1_splitter___redArg(v_x_11_, v_h__1_12_, v_h__2_13_);
-return v___x_14_;
+if (lean_obj_tag(v_x_11_) == 0)
+{
+lean_object* v___x_14_; lean_object* v___x_15_; 
+lean_dec(v_h__2_13_);
+v___x_14_ = lean_box(0);
+v___x_15_ = lean_apply_1(v_h__1_12_, v___x_14_);
+return v___x_15_;
+}
+else
+{
+lean_object* v_head_16_; lean_object* v_tail_17_; lean_object* v___x_18_; 
+lean_dec(v_h__1_12_);
+v_head_16_ = lean_ctor_get(v_x_11_, 0);
+lean_inc(v_head_16_);
+v_tail_17_ = lean_ctor_get(v_x_11_, 1);
+lean_inc(v_tail_17_);
+lean_dec_ref(v_x_11_);
+v___x_18_ = lean_apply_2(v_h__2_13_, v_head_16_, v_tail_17_);
+return v___x_18_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_MinMax_0__List_head_match__1_splitter___redArg(lean_object* v_x_15_, lean_object* v_h__1_16_){
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_List_MinMax_0__List_head_match__1_splitter___redArg(lean_object* v_x_19_, lean_object* v_h__1_20_){
 _start:
 {
-lean_object* v_head_17_; lean_object* v_tail_18_; lean_object* v___x_19_; 
-v_head_17_ = lean_ctor_get(v_x_15_, 0);
-lean_inc(v_head_17_);
-v_tail_18_ = lean_ctor_get(v_x_15_, 1);
-lean_inc(v_tail_18_);
-lean_dec(v_x_15_);
-v___x_19_ = lean_apply_3(v_h__1_16_, v_head_17_, v_tail_18_, lean_box(0));
-return v___x_19_;
+lean_object* v_head_21_; lean_object* v_tail_22_; lean_object* v___x_23_; 
+v_head_21_ = lean_ctor_get(v_x_19_, 0);
+lean_inc(v_head_21_);
+v_tail_22_ = lean_ctor_get(v_x_19_, 1);
+lean_inc(v_tail_22_);
+lean_dec(v_x_19_);
+v___x_23_ = lean_apply_3(v_h__1_20_, v_head_21_, v_tail_22_, lean_box(0));
+return v___x_23_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_List_MinMax_0__List_head_match__1_splitter(lean_object* v_00_u03b1_20_, lean_object* v_motive_21_, lean_object* v_x_22_, lean_object* v_x_23_, lean_object* v_h__1_24_){
+LEAN_EXPORT lean_object* l___private_Init_Data_List_MinMax_0__List_head_match__1_splitter(lean_object* v_00_u03b1_24_, lean_object* v_motive_25_, lean_object* v_x_26_, lean_object* v_x_27_, lean_object* v_h__1_28_){
 _start:
 {
-lean_object* v___x_25_; 
-v___x_25_ = l___private_Init_Data_List_MinMax_0__List_head_match__1_splitter___redArg(v_x_22_, v_h__1_24_);
-return v___x_25_;
+lean_object* v_head_29_; lean_object* v_tail_30_; lean_object* v___x_31_; 
+v_head_29_ = lean_ctor_get(v_x_26_, 0);
+lean_inc(v_head_29_);
+v_tail_30_ = lean_ctor_get(v_x_26_, 1);
+lean_inc(v_tail_30_);
+lean_dec(v_x_26_);
+v___x_31_ = lean_apply_3(v_h__1_28_, v_head_29_, v_tail_30_, lean_box(0));
+return v___x_31_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Subtype_Order(uint8_t builtin);

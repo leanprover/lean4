@@ -1,4 +1,4 @@
-import Lean.Compiler.IR
+import Lean.Compiler.LCNF
 
 open Lean
 open Lean.IR

@@ -34,11 +34,11 @@ public def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO Build
   }
 
 /-- Unicode icons that make up the spinner in animation order. -/
-private def Monitor.spinnerFrames :=
+def Monitor.spinnerFrames :=
   #['⣾','⣷','⣯','⣟','⡿','⢿','⣻','⣽']
 
 /-- Context of the Lake build monitor. -/
-private structure MonitorContext where
+structure MonitorContext where
   jobs : JobQueue
   out : IO.FS.Stream
   outLv : LogLevel
@@ -55,7 +55,7 @@ private structure MonitorContext where
   .stream ctx.out ctx.outLv ctx.useAnsi
 
 /-- State of the Lake build monitor. -/
-private structure MonitorState where
+structure MonitorState where
   jobNo : Nat := 0
   totalJobs : Nat := 0
   wantsRebuild : Bool := false
@@ -65,9 +65,9 @@ private structure MonitorState where
   spinnerIdx : Fin Monitor.spinnerFrames.size := ⟨0, by decide⟩
 
 /-- Monad of the Lake build monitor. -/
-private abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState BaseIO
+abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState BaseIO
 
-@[inline] private def MonitorM.run
+@[inline] def MonitorM.run
   (ctx : MonitorContext) (s : MonitorState) (self : MonitorM α)
 : BaseIO (α × MonitorState) :=
   StateT.run (ReaderT.run self ctx) s
@@ -80,23 +80,23 @@ def Ansi.resetLine : String :=
   "\x1B[2K\r"
 
 /-- Like `IO.FS.Stream.flush`, but ignores errors. -/
-@[inline] private def flush (out : IO.FS.Stream) : BaseIO PUnit :=
+@[inline] def flush (out : IO.FS.Stream) : BaseIO PUnit :=
   out.flush |>.catchExceptions fun _ => pure ()
 
 /-- Like `IO.FS.Stream.putStr`, but panics on errors. -/
-@[inline] private def print! (out : IO.FS.Stream) (s : String) : BaseIO PUnit :=
+@[inline] def print! (out : IO.FS.Stream) (s : String) : BaseIO PUnit :=
   out.putStr s |>.catchExceptions fun e =>
     panic! s!"[{decl_name%} failed: {e}] {repr s}"
 
 namespace Monitor
 
-@[inline] private def print (s : String) : MonitorM PUnit := do
+@[inline] def print (s : String) : MonitorM PUnit := do
   print! (← read).out s
 
-@[inline] private nonrec def flush : MonitorM PUnit := do
+@[inline] nonrec def flush : MonitorM PUnit := do
   flush (← read).out
 
-private def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.size) : MonitorM PUnit := do
+def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.size) : MonitorM PUnit := do
   let {jobNo, totalJobs, ..} ← get
   let {useAnsi, showProgress, ..} ← read
   if showProgress ∧ useAnsi then
@@ -114,7 +114,7 @@ private def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfin
     print s!"{resetCtrl}{spinnerIcon} [{jobNo}/{totalJobs}] {caption}"
     flush
 
-private def reportJob (job : OpaqueJob) : MonitorM PUnit := do
+def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {jobNo, totalJobs, ..} ← get
   let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, showTime, ..} ← read
   let {task, caption, optional, ..} := job
@@ -153,7 +153,7 @@ where
     else if ms > 1000 then s!"{(ms) / 1000}.{(ms+50) / 100 % 10}s"
     else s!"{ms}ms"
 
-private def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array OpaqueJob) := do
+def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array OpaqueJob) := do
   let newJobs ← (← read).jobs.modifyGet ((·, #[]))
   modify fun s => {s with totalJobs := s.totalJobs + newJobs.size}
   let pollJobs := fun (running, unfinished) job => do
@@ -169,7 +169,7 @@ private def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × A
   let r ← unfinished.foldlM pollJobs (#[], #[])
   newJobs.foldlM pollJobs r
 
-private def sleep : MonitorM PUnit := do
+def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
   let lastUpdate := (← get).lastUpdate
   let sleepTime : Nat := (← read).updateFrequency - (now - lastUpdate)
@@ -178,14 +178,14 @@ private def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
   modify fun s => {s with lastUpdate := now}
 
-private  partial def loop (unfinished : Array OpaqueJob) : MonitorM PUnit := do
+ partial def loop (unfinished : Array OpaqueJob) : MonitorM PUnit := do
   let (running, unfinished) ← poll unfinished
   if h : 0 < unfinished.size then
     renderProgress running unfinished h
     sleep
     loop unfinished
 
-private def main (init : Array OpaqueJob) : MonitorM PUnit := do
+def main (init : Array OpaqueJob) : MonitorM PUnit := do
   loop init
   let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := ""})
   unless resetCtrl.isEmpty do
@@ -210,7 +210,7 @@ def mkMonitorContext (cfg : BuildConfig) (jobs : JobQueue) : BaseIO MonitorConte
   let failLv := cfg.failLv
   let isVerbose := cfg.verbosity = .verbose
   let showProgress := cfg.showProgress
-  let minAction := if isVerbose then .unknown else .fetch
+  let minAction := if isVerbose then .unknown else .unpack
   let showOptional := isVerbose
   let showTime := isVerbose || !useAnsi
   let updateFrequency := 100
@@ -260,15 +260,15 @@ public def monitorJobs
 public def noBuildCode : ExitCode := 3
 
 def Workspace.saveOutputs
-  [logger : MonadLog BaseIO] (ws : Workspace)
+  [logger : MonadLog BaseIO] (ws : Workspace) (outputsRef? : Option CacheRef)
   (out : IO.FS.Stream) (outputsFile : FilePath) (isVerbose : Bool)
 : BaseIO Unit := do
   unless ws.isRootArtifactCacheWritable do
     logWarning s!"{ws.root.prettyName}: \
       the artifact cache is not enabled for this package, so the artifacts described \
       by the mappings produced by `-o` will not necessarily be available in the cache."
-  if let some ref := ws.root.outputsRef? then
-    match (← (← ref.get).writeFile outputsFile {}) with
+  if let some ref := outputsRef? then
+    match (← (← ref.get).writeFile outputsFile ws.root.isPlatformIndependent ∅) with
     | .ok _ log =>
       if !log.isEmpty && isVerbose then
         print! out "There were issues saving input-to-output mappings from the build:\n"
@@ -284,11 +284,14 @@ def reportResult (cfg : BuildConfig) (out : IO.FS.Stream) (result : MonitorResul
   if result.failures.isEmpty then
     if cfg.showProgress && cfg.showSuccess then
       let numJobs := result.numJobs
-      let jobs := if numJobs == 1 then "1 job" else s!"{numJobs} jobs"
-      if cfg.noBuild then
-        print! out s!"All targets up-to-date ({jobs}).\n"
+      if numJobs == 0 then
+        print! out "Nothing to build.\n"
       else
-        print! out s!"Build completed successfully ({jobs}).\n"
+        let jobs := if numJobs == 1 then "1 job" else s!"{numJobs} jobs"
+        if cfg.noBuild then
+          print! out s!"All targets up-to-date ({jobs}).\n"
+        else
+          print! out s!"Build completed successfully ({jobs}).\n"
   else
     print! out "Some required targets logged failures:\n"
     result.failures.forM (print! out s!"- {·}\n")
@@ -314,27 +317,34 @@ def monitorJob (ctx : MonitorContext) (job : Job α) : BaseIO (BuildResult α) :
   else
     return {toMonitorResult := result, out := .error "build failed"}
 
-def mkBuildContext' (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue) : BuildContext where
+def mkBuildContext'
+  (ws : Workspace) (cfg : BuildConfig) (jobs : JobQueue)
+: BaseIO BuildContext := return {
   opaqueWs := ws
   toBuildConfig := cfg
+  outputsRef? := ← id do
+    if cfg.outputsFile?.isSome then
+      some <$> CacheRef.mk
+    else
+      return none
   registeredJobs := jobs
   leanTrace := .ofHash (pureHash ws.lakeEnv.leanGithash)
     s!"Lean {Lean.versionStringCore}, commit {ws.lakeEnv.leanGithash}"
+}
 
 def Workspace.startBuild
-  (ws : Workspace)  (cfg : BuildConfig) (jobs : JobQueue) (build : FetchM α)
-  (caption := "job computation")
+  (bctx : BuildContext) (build : FetchM α) (caption := "job computation")
 : BaseIO (Job α) := do
-  let bctx := mkBuildContext' ws cfg jobs
   let compute := Job.async build (caption := caption)
   compute.run.run'.run bctx |>.run nilTrace
 
-def Workspace.finalizeBuild
-  (ws : Workspace) (cfg : BuildConfig) (ctx : MonitorContext) (result : BuildResult α)
+def finalizeBuild
+  (cfg : BuildConfig) (bctx : BuildContext ) (mctx : MonitorContext) (result : BuildResult α)
 : IO α := do
-  reportResult cfg ctx.out result
+  reportResult cfg mctx.out result
   if let some outputsFile := cfg.outputsFile? then
-    ws.saveOutputs (logger := ctx.logger) ctx.out outputsFile (cfg.verbosity matches .verbose)
+    bctx.workspace.saveOutputs (logger := mctx.logger)
+      bctx.outputsRef? mctx.out outputsFile (cfg.verbosity matches .verbose)
   match result.out with
   | .ok a =>
     return a
@@ -354,9 +364,10 @@ public def Workspace.runFetchM
 : IO α := do
   let jobs ← mkJobQueue
   let mctx ← mkMonitorContext cfg jobs
-  let job ← ws.startBuild cfg jobs build caption
+  let bctx ← mkBuildContext' ws cfg jobs
+  let job ← startBuild bctx build caption
   let result ← monitorJob mctx job
-  ws.finalizeBuild cfg mctx result
+  finalizeBuild cfg bctx mctx result
 
 def monitorBuild (mctx : MonitorContext) (job : Job (Job α)) : BaseIO (BuildResult α) := do
   let result ← monitorJob mctx job
@@ -382,7 +393,8 @@ public def Workspace.checkNoBuild
   let jobs ← mkJobQueue
   let cfg := {noBuild := true}
   let mctx ← mkMonitorContext cfg jobs
-  let job ← ws.startBuild cfg jobs build
+  let bctx ← mkBuildContext' ws cfg jobs
+  let job ← startBuild bctx build
   let result ← monitorBuild mctx job
   return result.isOk -- `isOk` means no failures, and thus no `--no-build` failures
 
@@ -392,9 +404,10 @@ public def Workspace.runBuild
 : IO α := do
   let jobs ← mkJobQueue
   let mctx ← mkMonitorContext cfg jobs
-  let job ← ws.startBuild cfg jobs build
+  let bctx ← mkBuildContext' ws cfg jobs
+  let job ← startBuild bctx build
   let result ← monitorBuild mctx job
-  ws.finalizeBuild cfg mctx result
+  finalizeBuild cfg bctx mctx result
 
 /-- Produce a build job in the Lake monad's workspace and await the result. -/
 @[inline] public def runBuild

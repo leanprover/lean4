@@ -664,3 +664,6 @@ but may be used locally.
 
 @[simp] theorem Bool.not'_eq_not (a : Bool) : a.not' = a.not := by
   cases a <;> simp [Bool.not']
+
+theorem Bool.rec_eq {α : Sort _} (b : Bool) {x y : α} : Bool.rec y x b = if b then x else y := by
+  cases b <;> simp

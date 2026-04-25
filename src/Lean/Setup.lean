@@ -35,7 +35,7 @@ structure Import where
 
 -- TODO: move further up into `Init` by using simpler representation for `imports`
 @[extern "lean_idbg_client_loop"]
-public opaque Idbg.idbgClientLoop {α : Type} [Nonempty α]
+opaque Idbg.idbgClientLoop {α : Type} [Nonempty α]
   (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit
 
 instance : Coe Name Import := ⟨({module := ·})⟩
@@ -130,7 +130,7 @@ The type of module package identifiers.
 This is a {name}`String` that is used to disambiguate native symbol prefixes between
 different packages (and different versions of the same package).
 -/
-public abbrev PkgId := String
+abbrev PkgId := String
 
 /-- A module's setup information as described by a JSON file. -/
 structure ModuleSetup where

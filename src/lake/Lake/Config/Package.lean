@@ -45,13 +45,15 @@ public structure Package where
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
-  relManifestFile : FilePath := config.manifestFile.getD defaultManifestFile |>.normalize
+  relManifestFile : FilePath
   /-- The package's scope (e.g., in Reservoir). -/
   scope : String
   /-- The URL to this package's Git remote. -/
   remoteUrl : String
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
+  /-- **For internal use only.** Resolved direct dependences of the package. -/
+  depPkgs : Array Package := #[]
   /-- Target configurations in the order declared by the package. -/
   targetDecls : Array (PConfigDecl keyName) := #[]
   /-- Name-declaration map of target configurations in the package. -/
@@ -78,16 +80,6 @@ public structure Package where
   testDriver : String := config.testDriver
   /-- The driver used for `lake lint` when this package is the workspace root. -/
   lintDriver : String := config.lintDriver
-  /--
-  Input-to-output(s) map for hashes of package artifacts.
-  If `none`, the artifact cache is disabled for the package.
-  -/
-  inputsRef? : Option CacheRef := none
-  /--
-  Input-to-output(s) map for hashes of package artifacts.
-  If `none`, the artifact cache is disabled for the package.
-  -/
-  outputsRef? : Option CacheRef := none
 
 deriving Inhabited
 
@@ -253,6 +245,10 @@ public def id? (self : Package) : Option PkgId :=
 /-- Whether the package's  has been configured with `platformIndependent = true`. -/
 @[inline] public def isPlatformIndependent (self : Package) : Bool :=
   self.config.platformIndependent == some true
+
+/-- The package's `fixedToolchain` configuration. -/
+@[inline] public def fixedToolchain (self : Package) : Bool :=
+  self.config.fixedToolchain
 
 /-- The package's `releaseRepo`/`releaseRepo?` configuration. -/
 @[inline] public def releaseRepo? (self : Package) : Option String :=

@@ -81,8 +81,8 @@ set_option pp.all true in
 #check @instMyHigherMyAlias
 
 /--
-info: @[implicit_reducible] def instMyHigherMyAlias : @MyHigher MyAlias instBaseMyAlias :=
-instHigherNat
+info: theorem instMyHigherMyAlias : @MyHigher MyAlias instBaseMyAlias :=
+instMyHigherMyAlias._proof_1
 -/
 #guard_msgs in
 set_option pp.all true in

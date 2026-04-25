@@ -154,16 +154,18 @@ mutual
       return f!"oset {← ppFVar fvarId} [{i}] := {← ppArg y};" ++ .line ++ (← ppCode k)
     | .setTag fvarId cidx k _ =>
       return f!"setTag {← ppFVar fvarId} := {cidx};" ++ .line ++ (← ppCode k)
-    | .inc fvarId n _ _ k _ =>
+    | .inc fvarId n check persistent k _ =>
+      let ann := (if persistent then "[persistent]" else "") ++ (if !check then "[ref]" else "")
       if n != 1 then
-        return f!"inc[{n}] {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+        return f!"inc[{n}]{ann} {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
       else
-        return f!"inc {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
-    | .dec fvarId n _ _ k _ =>
+        return f!"inc{ann} {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+    | .dec fvarId n check persistent k _ =>
+      let ann := (if persistent then "[persistent]" else "") ++ (if !check then "[ref]" else "")
       if n != 1 then
-        return f!"dec[{n}] {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+        return f!"dec[{n}]{ann} {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
       else
-        return f!"dec {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
+        return f!"dec{ann} {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
     | .del fvarId k _ =>
       return f!"del {← ppFVar fvarId};" ++ .line ++ (← ppCode k)
 

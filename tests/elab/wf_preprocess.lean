@@ -148,6 +148,8 @@ structure MTree (α : Type u) where
 /--
 warning: declaration uses `sorry`
 ---
+warning: declaration uses `sorry`
+---
 trace: α : Type u_1
 t : MTree α
 x✝¹ : List (MTree α)
@@ -174,6 +176,8 @@ theorem MTree.map.eq_1.{u_1, u_2} : ∀ {α : Type u_1} {β : Type u_2} (f : α 
 info: MTree.map.induct.{u_1} {α : Type u_1} (motive : MTree α → Prop)
   (case1 : ∀ (x : MTree α), (∀ (x_1 : List (MTree α)), x_1 ∈ x.cs → ∀ (x : MTree α), x ∈ x_1 → motive x) → motive x)
   (t : MTree α) : motive t
+---
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #check MTree.map.induct
@@ -243,6 +247,8 @@ inductive Expression where
 /--
 warning: declaration uses `sorry`
 ---
+warning: declaration uses `sorry`
+---
 trace: L : List (String × Expression)
 x : String × Expression
 h✝ : x ∈ L
@@ -270,6 +276,8 @@ info: Ex1.t.induct (motive : Expression → Prop) (case1 : ∀ (s : String), mot
   (case2 :
     ∀ (L : List (String × Expression)), (∀ (x : String × Expression), motive x.snd) → motive (Expression.object L))
   (exp : Expression) : motive exp
+---
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #check t.induct
@@ -282,6 +290,8 @@ inductive Expression where
 | object: List (String × Expression) → Expression
 
 /--
+warning: declaration uses `sorry`
+---
 warning: declaration uses `sorry`
 ---
 trace: L : List (String × Expression)

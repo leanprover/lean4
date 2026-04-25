@@ -5,10 +5,10 @@ is not known; cannot resolve projection `1`
 ---
 error: unsolved goals
 case refine'_1
-⊢ Sort ?u.8
+⊢ Sort ?u.4
 
 case refine'_2
-⊢ Sort ?u.7
+⊢ Sort ?u.3
 
 case refine'_3
 ⊢ ?refine'_1

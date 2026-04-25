@@ -43,14 +43,14 @@ public structure State where
   /-- Footnotes -/
   footnotes : Array (String × String) := #[]
 
-private def combineBlocks (prior current : String) :=
+def combineBlocks (prior current : String) :=
   if prior.isEmpty then current
   else if current.isEmpty then prior
   else if prior.endsWith "\n\n" then prior ++ current
   else if prior.endsWith "\n" then prior ++ "\n" ++ current
   else prior ++ "\n\n" ++ current
 
-private def State.endBlock (state : State) : State :=
+def State.endBlock (state : State) : State :=
   { state with
     priorBlocks :=
       combineBlocks state.priorBlocks state.currentBlock ++
@@ -60,13 +60,13 @@ private def State.endBlock (state : State) : State :=
     footnotes := #[]
   }
 
-private def State.render (state : State) : String :=
+def State.render (state : State) : String :=
   state.endBlock.priorBlocks
 
-private def State.push (state : State) (txt : String) : State :=
+def State.push (state : State) (txt : String) : State :=
   { state with currentBlock := state.currentBlock ++ txt }
 
-private def State.endsWith (state : State) (txt : String) : Bool :=
+def State.endsWith (state : State) (txt : String) : Bool :=
   state.currentBlock.endsWith txt || (state.currentBlock.isEmpty && state.priorBlocks.endsWith txt)
 
 end MarkdownM
@@ -150,7 +150,7 @@ public class MarkdownBlock (i : Type u) (b : Type v) where
 public instance : MarkdownBlock i Empty where
   toMarkdown := nofun
 
-private def escape (s : String) : String := Id.run do
+def escape (s : String) : String := Id.run do
   let mut s' := ""
   let mut iter := s.startPos
   while h : ¬iter.IsAtEnd do
@@ -163,7 +163,7 @@ private def escape (s : String) : String := Id.run do
 where
   isSpecial c := "*_`-+.!<>[]{}()#".any (· == c)
 
-private def quoteCode (str : String) : String := Id.run do
+def quoteCode (str : String) : String := Id.run do
   let mut longest := 0
   let mut current := 0
   let mut iter := str.startPos
@@ -179,7 +179,7 @@ private def quoteCode (str : String) : String := Id.run do
   let str := if str.startsWith "`" || str.endsWith "`" then " " ++ str ++ " " else str
   backticks ++ str ++ backticks
 
-private partial def trimLeft (inline : Inline i) : (String × Inline i) := go [inline]
+partial def trimLeft (inline : Inline i) : (String × Inline i) := go [inline]
 where
   go : List (Inline i) → String × Inline i
     | [] => ("", .empty)
@@ -194,7 +194,7 @@ where
     | .concat xs :: more => go (xs.toList ++ more)
     | here :: more => ("", here ++ .concat more.toArray)
 
-private partial def trimRight (inline : Inline i) : (Inline i × String) := go [inline]
+partial def trimRight (inline : Inline i) : (Inline i × String) := go [inline]
 where
   go : List (Inline i) → Inline i × String
     | [] => (.empty, "")
@@ -209,13 +209,13 @@ where
     | .concat xs :: more => go (xs.reverse.toList ++ more)
     | here :: more => (.concat more.toArray.reverse ++ here, "")
 
-private def trim (inline : Inline i) : (String × Inline i × String) :=
+def trim (inline : Inline i) : (String × Inline i × String) :=
   let (pre, more) := trimLeft inline
   let (mid, post) := trimRight more
   (pre, mid, post)
 
 open MarkdownM in
-private partial def inlineMarkdown [MarkdownInline i] : Inline i → MarkdownM Unit
+partial def inlineMarkdown [MarkdownInline i] : Inline i → MarkdownM Unit
   | .text s =>
     push (escape s)
   | .linebreak s => do
@@ -271,7 +271,7 @@ private partial def inlineMarkdown [MarkdownInline i] : Inline i → MarkdownM U
 public instance [MarkdownInline i] : ToMarkdown (Inline i) where
   toMarkdown inline := private inlineMarkdown inline
 
-private def quoteCodeBlock (indent : Nat) (str : String) : String := Id.run do
+def quoteCodeBlock (indent : Nat) (str : String) : String := Id.run do
   let mut longest := 2
   let mut current := 0
   let mut iter := str.startPos
@@ -292,7 +292,7 @@ private def quoteCodeBlock (indent : Nat) (str : String) : String := Id.run do
   backticks ++ "\n" ++ out ++ backticks ++ "\n"
 
 open MarkdownM in
-private partial def blockMarkdown [MarkdownInline i] [MarkdownBlock i b] : Block i b → MarkdownM Unit
+partial def blockMarkdown [MarkdownInline i] [MarkdownBlock i b] : Block i b → MarkdownM Unit
   | .para xs => do
     for i in xs do
       ToMarkdown.toMarkdown i
@@ -345,7 +345,7 @@ public instance [MarkdownInline i] [MarkdownBlock i b] : ToMarkdown (Block i b) 
 
 open MarkdownM in
 open ToMarkdown in
-private partial def partMarkdown [MarkdownInline i] [MarkdownBlock i b] (level : Nat) (part : Part i b p) : MarkdownM Unit := do
+partial def partMarkdown [MarkdownInline i] [MarkdownBlock i b] (level : Nat) (part : Part i b p) : MarkdownM Unit := do
   push ("".pushn '#' (level + 1))
   push " "
   for i in part.title do

@@ -404,18 +404,35 @@ return v___x_122_;
 LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_conjunction_match__1_splitter(lean_object* v_00_u03c3s_123_, lean_object* v_motive_124_, lean_object* v_env_125_, lean_object* v_h__1_126_, lean_object* v_h__2_127_){
 _start:
 {
-lean_object* v___x_128_; 
-v___x_128_ = l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_conjunction_match__1_splitter___redArg(v_env_125_, v_h__1_126_, v_h__2_127_);
-return v___x_128_;
+if (lean_obj_tag(v_env_125_) == 0)
+{
+lean_object* v___x_128_; lean_object* v___x_129_; 
+lean_dec(v_h__2_127_);
+v___x_128_ = lean_box(0);
+v___x_129_ = lean_apply_1(v_h__1_126_, v___x_128_);
+return v___x_129_;
+}
+else
+{
+lean_object* v_head_130_; lean_object* v_tail_131_; lean_object* v___x_132_; 
+lean_dec(v_h__1_126_);
+v_head_130_ = lean_ctor_get(v_env_125_, 0);
+lean_inc(v_head_130_);
+v_tail_131_ = lean_ctor_get(v_env_125_, 1);
+lean_inc(v_tail_131_);
+lean_dec_ref(v_env_125_);
+v___x_132_ = lean_apply_2(v_h__2_127_, v_head_130_, v_tail_131_);
+return v___x_132_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_conjunction_match__1_splitter___boxed(lean_object* v_00_u03c3s_129_, lean_object* v_motive_130_, lean_object* v_env_131_, lean_object* v_h__1_132_, lean_object* v_h__2_133_){
+}
+LEAN_EXPORT lean_object* l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_conjunction_match__1_splitter___boxed(lean_object* v_00_u03c3s_133_, lean_object* v_motive_134_, lean_object* v_env_135_, lean_object* v_h__1_136_, lean_object* v_h__2_137_){
 _start:
 {
-lean_object* v_res_134_; 
-v_res_134_ = l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_conjunction_match__1_splitter(v_00_u03c3s_129_, v_motive_130_, v_env_131_, v_h__1_132_, v_h__2_133_);
-lean_dec(v_00_u03c3s_129_);
-return v_res_134_;
+lean_object* v_res_138_; 
+v_res_138_ = l___private_Std_Do_SPred_SPred_0__Std_Do_SPred_conjunction_match__1_splitter(v_00_u03c3s_133_, v_motive_134_, v_env_135_, v_h__1_136_, v_h__2_137_);
+lean_dec(v_00_u03c3s_133_);
+return v_res_138_;
 }
 }
 lean_object* runtime_initialize_Init_Ext(uint8_t builtin);

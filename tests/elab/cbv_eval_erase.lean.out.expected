@@ -1,5 +1,0 @@
-cbv_eval_erase.lean:7:20-7:30: warning: declaration uses `sorry`
-cbv_eval_erase.lean:29:20-29:31: warning: declaration uses `sorry`
-cbv_eval_erase.lean:52:22-52:33: warning: declaration uses `sorry`
-cbv_eval_erase.lean:76:20-76:29: warning: declaration uses `sorry`
-cbv_eval_erase.lean:77:20-77:28: warning: declaration uses `sorry`

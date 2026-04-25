@@ -47,91 +47,158 @@ return v___x_8_;
 LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Types_ListIterator_stepAsHetT__iterM_match__1_splitter(lean_object* v_00_u03b2_9_, lean_object* v_motive_10_, lean_object* v_l_11_, lean_object* v_h__1_12_, lean_object* v_h__2_13_){
 _start:
 {
-lean_object* v___x_14_; 
-v___x_14_ = l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Types_ListIterator_stepAsHetT__iterM_match__1_splitter___redArg(v_l_11_, v_h__1_12_, v_h__2_13_);
-return v___x_14_;
-}
-}
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instIterator_match__3_splitter___redArg(lean_object* v_it_15_, lean_object* v_h__1_16_, lean_object* v_h__2_17_){
-_start:
+if (lean_obj_tag(v_l_11_) == 0)
 {
-if (lean_obj_tag(v_it_15_) == 0)
-{
-lean_object* v___x_18_; lean_object* v___x_19_; 
-lean_dec(v_h__2_17_);
-v___x_18_ = lean_box(0);
-v___x_19_ = lean_apply_1(v_h__1_16_, v___x_18_);
-return v___x_19_;
+lean_object* v___x_14_; lean_object* v___x_15_; 
+lean_dec(v_h__2_13_);
+v___x_14_ = lean_box(0);
+v___x_15_ = lean_apply_1(v_h__1_12_, v___x_14_);
+return v___x_15_;
 }
 else
 {
-lean_object* v_head_20_; lean_object* v_tail_21_; lean_object* v___x_22_; 
-lean_dec(v_h__1_16_);
-v_head_20_ = lean_ctor_get(v_it_15_, 0);
-lean_inc(v_head_20_);
-v_tail_21_ = lean_ctor_get(v_it_15_, 1);
-lean_inc(v_tail_21_);
-lean_dec_ref(v_it_15_);
-v___x_22_ = lean_apply_2(v_h__2_17_, v_head_20_, v_tail_21_);
-return v___x_22_;
+lean_object* v_head_16_; lean_object* v_tail_17_; lean_object* v___x_18_; 
+lean_dec(v_h__1_12_);
+v_head_16_ = lean_ctor_get(v_l_11_, 0);
+lean_inc(v_head_16_);
+v_tail_17_ = lean_ctor_get(v_l_11_, 1);
+lean_inc(v_tail_17_);
+lean_dec_ref(v_l_11_);
+v___x_18_ = lean_apply_2(v_h__2_13_, v_head_16_, v_tail_17_);
+return v___x_18_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instIterator_match__3_splitter(lean_object* v_m_23_, lean_object* v_00_u03b1_24_, lean_object* v_motive_25_, lean_object* v_it_26_, lean_object* v_h__1_27_, lean_object* v_h__2_28_){
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instIterator_match__3_splitter___redArg(lean_object* v_it_19_, lean_object* v_h__1_20_, lean_object* v_h__2_21_){
 _start:
 {
-lean_object* v___x_29_; 
-v___x_29_ = l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instIterator_match__3_splitter___redArg(v_it_26_, v_h__1_27_, v_h__2_28_);
-return v___x_29_;
+if (lean_obj_tag(v_it_19_) == 0)
+{
+lean_object* v___x_22_; lean_object* v___x_23_; 
+lean_dec(v_h__2_21_);
+v___x_22_ = lean_box(0);
+v___x_23_ = lean_apply_1(v_h__1_20_, v___x_22_);
+return v___x_23_;
+}
+else
+{
+lean_object* v_head_24_; lean_object* v_tail_25_; lean_object* v___x_26_; 
+lean_dec(v_h__1_20_);
+v_head_24_ = lean_ctor_get(v_it_19_, 0);
+lean_inc(v_head_24_);
+v_tail_25_ = lean_ctor_get(v_it_19_, 1);
+lean_inc(v_tail_25_);
+lean_dec_ref(v_it_19_);
+v___x_26_ = lean_apply_2(v_h__2_21_, v_head_24_, v_tail_25_);
+return v___x_26_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instIterator_match__1_splitter___redArg(lean_object* v_x_30_, lean_object* v_h__1_31_, lean_object* v_h__2_32_, lean_object* v_h__3_33_){
+}
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instIterator_match__3_splitter(lean_object* v_m_27_, lean_object* v_00_u03b1_28_, lean_object* v_motive_29_, lean_object* v_it_30_, lean_object* v_h__1_31_, lean_object* v_h__2_32_){
 _start:
 {
-switch(lean_obj_tag(v_x_30_))
+if (lean_obj_tag(v_it_30_) == 0)
+{
+lean_object* v___x_33_; lean_object* v___x_34_; 
+lean_dec(v_h__2_32_);
+v___x_33_ = lean_box(0);
+v___x_34_ = lean_apply_1(v_h__1_31_, v___x_33_);
+return v___x_34_;
+}
+else
+{
+lean_object* v_head_35_; lean_object* v_tail_36_; lean_object* v___x_37_; 
+lean_dec(v_h__1_31_);
+v_head_35_ = lean_ctor_get(v_it_30_, 0);
+lean_inc(v_head_35_);
+v_tail_36_ = lean_ctor_get(v_it_30_, 1);
+lean_inc(v_tail_36_);
+lean_dec_ref(v_it_30_);
+v___x_37_ = lean_apply_2(v_h__2_32_, v_head_35_, v_tail_36_);
+return v___x_37_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instIterator_match__1_splitter___redArg(lean_object* v_x_38_, lean_object* v_h__1_39_, lean_object* v_h__2_40_, lean_object* v_h__3_41_){
+_start:
+{
+switch(lean_obj_tag(v_x_38_))
 {
 case 0:
 {
-lean_object* v_it_34_; lean_object* v_out_35_; lean_object* v___x_36_; 
-lean_dec(v_h__3_33_);
-lean_dec(v_h__2_32_);
-v_it_34_ = lean_ctor_get(v_x_30_, 0);
-lean_inc(v_it_34_);
-v_out_35_ = lean_ctor_get(v_x_30_, 1);
-lean_inc(v_out_35_);
-lean_dec_ref(v_x_30_);
-v___x_36_ = lean_apply_2(v_h__1_31_, v_it_34_, v_out_35_);
-return v___x_36_;
+lean_object* v_it_42_; lean_object* v_out_43_; lean_object* v___x_44_; 
+lean_dec(v_h__3_41_);
+lean_dec(v_h__2_40_);
+v_it_42_ = lean_ctor_get(v_x_38_, 0);
+lean_inc(v_it_42_);
+v_out_43_ = lean_ctor_get(v_x_38_, 1);
+lean_inc(v_out_43_);
+lean_dec_ref(v_x_38_);
+v___x_44_ = lean_apply_2(v_h__1_39_, v_it_42_, v_out_43_);
+return v___x_44_;
 }
 case 1:
 {
-lean_object* v_it_37_; lean_object* v___x_38_; 
-lean_dec(v_h__3_33_);
-lean_dec(v_h__1_31_);
-v_it_37_ = lean_ctor_get(v_x_30_, 0);
-lean_inc(v_it_37_);
-lean_dec_ref(v_x_30_);
-v___x_38_ = lean_apply_1(v_h__2_32_, v_it_37_);
-return v___x_38_;
+lean_object* v_it_45_; lean_object* v___x_46_; 
+lean_dec(v_h__3_41_);
+lean_dec(v_h__1_39_);
+v_it_45_ = lean_ctor_get(v_x_38_, 0);
+lean_inc(v_it_45_);
+lean_dec_ref(v_x_38_);
+v___x_46_ = lean_apply_1(v_h__2_40_, v_it_45_);
+return v___x_46_;
 }
 default: 
 {
-lean_object* v___x_39_; lean_object* v___x_40_; 
-lean_dec(v_h__2_32_);
-lean_dec(v_h__1_31_);
-v___x_39_ = lean_box(0);
-v___x_40_ = lean_apply_1(v_h__3_33_, v___x_39_);
-return v___x_40_;
+lean_object* v___x_47_; lean_object* v___x_48_; 
+lean_dec(v_h__2_40_);
+lean_dec(v_h__1_39_);
+v___x_47_ = lean_box(0);
+v___x_48_ = lean_apply_1(v_h__3_41_, v___x_47_);
+return v___x_48_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instIterator_match__1_splitter(lean_object* v_m_41_, lean_object* v_00_u03b1_42_, lean_object* v_motive_43_, lean_object* v_x_44_, lean_object* v_h__1_45_, lean_object* v_h__2_46_, lean_object* v_h__3_47_){
+LEAN_EXPORT lean_object* l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instIterator_match__1_splitter(lean_object* v_m_49_, lean_object* v_00_u03b1_50_, lean_object* v_motive_51_, lean_object* v_x_52_, lean_object* v_h__1_53_, lean_object* v_h__2_54_, lean_object* v_h__3_55_){
 _start:
 {
-lean_object* v___x_48_; 
-v___x_48_ = l___private_Std_Data_Iterators_Lemmas_Producers_Monadic_List_0__Std_Iterators_Types_ListIterator_instIterator_match__1_splitter___redArg(v_x_44_, v_h__1_45_, v_h__2_46_, v_h__3_47_);
-return v___x_48_;
+switch(lean_obj_tag(v_x_52_))
+{
+case 0:
+{
+lean_object* v_it_56_; lean_object* v_out_57_; lean_object* v___x_58_; 
+lean_dec(v_h__3_55_);
+lean_dec(v_h__2_54_);
+v_it_56_ = lean_ctor_get(v_x_52_, 0);
+lean_inc(v_it_56_);
+v_out_57_ = lean_ctor_get(v_x_52_, 1);
+lean_inc(v_out_57_);
+lean_dec_ref(v_x_52_);
+v___x_58_ = lean_apply_2(v_h__1_53_, v_it_56_, v_out_57_);
+return v___x_58_;
+}
+case 1:
+{
+lean_object* v_it_59_; lean_object* v___x_60_; 
+lean_dec(v_h__3_55_);
+lean_dec(v_h__1_53_);
+v_it_59_ = lean_ctor_get(v_x_52_, 0);
+lean_inc(v_it_59_);
+lean_dec_ref(v_x_52_);
+v___x_60_ = lean_apply_1(v_h__2_54_, v_it_59_);
+return v___x_60_;
+}
+default: 
+{
+lean_object* v___x_61_; lean_object* v___x_62_; 
+lean_dec(v_h__2_54_);
+lean_dec(v_h__1_53_);
+v___x_61_ = lean_box(0);
+v___x_62_ = lean_apply_1(v_h__3_55_, v___x_61_);
+return v___x_62_;
+}
+}
 }
 }
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Producers_Monadic_List(uint8_t builtin);

@@ -1,11 +1,16 @@
+def myAdd : Nat → Nat → Nat
+  | 0, m => m
+  | n+1, m => (myAdd n m).succ
+
 set_option pp.motives.pi false
 
-#print Nat.add
+#print myAdd._f
 
 set_option pp.motives.pi true
 
-#print Nat.add
+#print myAdd._f
 
+set_option linter.unusedVariables false in
 theorem ex : ∀ {α β : Sort u} (h : α = β) (a : α), cast h a ≍ a
   | α, _, rfl, a => HEq.refl a
 

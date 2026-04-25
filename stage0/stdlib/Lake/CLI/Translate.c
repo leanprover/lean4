@@ -635,6 +635,15 @@ v___jp_190_:
 {
 lean_object* v___x_205_; lean_object* v___x_206_; lean_object* v___x_207_; 
 v___x_205_ = lean_obj_once(&l_Lake_Package_mkConfigString___closed__22, &l_Lake_Package_mkConfigString___closed__22_once, _init_l_Lake_Package_mkConfigString___closed__22);
+lean_inc(v_cancelTk_x3f_201_);
+lean_inc(v_currMacroScope_200_);
+lean_inc(v_quotContext_199_);
+lean_inc(v_maxHeartbeats_198_);
+lean_inc(v_openDecls_196_);
+lean_inc(v_currNamespace_195_);
+lean_inc(v_ref_194_);
+lean_inc_ref(v_fileMap_192_);
+lean_inc_ref(v_fileName_191_);
 v___x_206_ = lean_alloc_ctor(0, 14, 2);
 lean_ctor_set(v___x_206_, 0, v_fileName_191_);
 lean_ctor_set(v___x_206_, 1, v_fileMap_192_);
@@ -653,6 +662,8 @@ lean_ctor_set(v___x_206_, 13, v_inheritedTraceOptions_203_);
 lean_ctor_set_uint8(v___x_206_, sizeof(void*)*14, v___x_189_);
 lean_ctor_set_uint8(v___x_206_, sizeof(void*)*14 + 1, v_suppressElabErrors_202_);
 v___x_207_ = l_Lean_PrettyPrinter_ppModule(v___x_188_, v___x_206_, v___y_204_);
+lean_dec(v___y_204_);
+lean_dec_ref(v___x_206_);
 if (lean_obj_tag(v___x_207_) == 0)
 {
 lean_object* v_a_208_; lean_object* v___x_209_; lean_object* v___x_210_; lean_object* v___x_211_; lean_object* v___x_212_; lean_object* v___x_213_; lean_object* v___x_214_; lean_object* v_str_215_; lean_object* v_startInclusive_216_; lean_object* v_endExclusive_217_; lean_object* v___x_218_; lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; 
@@ -670,7 +681,6 @@ lean_ctor_set(v___x_213_, 0, v___x_211_);
 lean_ctor_set(v___x_213_, 1, v___x_163_);
 lean_ctor_set(v___x_213_, 2, v___x_212_);
 v___x_214_ = l_String_Slice_trimAscii(v___x_213_);
-lean_dec_ref(v___x_213_);
 v_str_215_ = lean_ctor_get(v___x_214_, 0);
 lean_inc_ref(v_str_215_);
 v_startInclusive_216_ = lean_ctor_get(v___x_214_, 1);

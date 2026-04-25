@@ -34,7 +34,7 @@ Author: Leonardo de Moura
 // Lean-exported demangler from Lean.Compiler.NameDemangling.
 // Declared as a weak symbol so leanrt doesn't require libLean at link time.
 // When the Lean demangler is linked in, it overrides this stub.
-extern "C" __attribute__((weak)) lean_object * lean_demangle_bt_line_cstr(lean_object * s) {
+extern "C" __attribute__((weak)) lean_obj_res lean_demangle_bt_line_cstr(lean_obj_arg s) {
     lean_dec(s);
     return lean_mk_string("");
 }
@@ -106,6 +106,10 @@ extern "C" LEAN_EXPORT void lean_internal_panic_rc_overflow() {
     lean_internal_panic("reference counter overflowed");
 }
 
+extern "C" LEAN_EXPORT void lean_internal_panic_overflow() {
+    lean_internal_panic("integer overflow in runtime computation");
+}
+
 bool g_exit_on_panic = false;
 bool g_panic_messages = true;
 
@@ -150,11 +154,9 @@ static void print_backtrace(bool force_stderr) {
                 if (result_str[0] != '\0') {
                     panic_eprintln(result_str, force_stderr);
                     lean_dec(result);
-                    lean_dec(line_obj);
                     continue;
                 }
                 lean_dec(result);
-                lean_dec(line_obj);
             }
             panic_eprintln(symbols[i], force_stderr);
         }
@@ -196,6 +198,11 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
     lean_panic_impl(lean_string_cstr(msg), lean_string_size(msg) - 1);  // remove the null terminator
     lean_dec(msg);
     return default_val;
+}
+
+extern "C" LEAN_EXPORT object * lean_panic_fn_borrowed(b_obj_arg default_val, object * msg) {
+    lean_inc(default_val);
+    return lean_panic_fn(default_val, msg);
 }
 
 extern "C" LEAN_EXPORT object * lean_sorry(uint8) {
@@ -791,7 +798,7 @@ class task_manager {
                 // idle before picking up new work.
                 // But during shutdown, we skip this throttling:
                 // because the finalizer might have called m_queue_cv.notify_all() for the last
-                // time, we don't want to get stuck behind the wait(). 
+                // time, we don't want to get stuck behind the wait().
                 if (!m_shutting_down &&
                     m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
                     m_queue_cv.wait(lock);
@@ -2073,6 +2080,11 @@ extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {
 
 extern "C" LEAN_EXPORT bool lean_string_eq_cold(b_lean_obj_arg s1, b_lean_obj_arg s2) {
     return std::memcmp(lean_string_cstr(s1), lean_string_cstr(s2), lean_string_size(s1)) == 0;
+}
+
+extern "C" LEAN_EXPORT bool lean_sarray_eq_cold(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    size_t len = lean_sarray_elem_size(a1) * lean_sarray_size(a1);
+    return std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), len) == 0;
 }
 
 bool string_eq(object * s1, char const * s2) {

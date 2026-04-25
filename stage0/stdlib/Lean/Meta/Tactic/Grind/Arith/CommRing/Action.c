@@ -93,6 +93,15 @@ _start:
 {
 lean_object* v_res_72_; 
 v_res_72_ = l_Lean_Meta_Grind_Action_ring(v_a_59_, v_kna_60_, v_kp_61_, v_a_62_, v_a_63_, v_a_64_, v_a_65_, v_a_66_, v_a_67_, v_a_68_, v_a_69_, v_a_70_);
+lean_dec(v_a_70_);
+lean_dec_ref(v_a_69_);
+lean_dec(v_a_68_);
+lean_dec_ref(v_a_67_);
+lean_dec(v_a_66_);
+lean_dec_ref(v_a_65_);
+lean_dec(v_a_64_);
+lean_dec_ref(v_a_63_);
+lean_dec(v_a_62_);
 return v_res_72_;
 }
 }

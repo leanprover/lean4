@@ -1,4 +1,4 @@
-import Lean
+import Lean.Widget.Commands
 open Lean
 
 @[widget_module]

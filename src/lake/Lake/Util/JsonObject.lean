@@ -63,10 +63,16 @@ public def getJson? (obj : JsonObject) (prop : String) : Option Json :=
   | none => throw s!"property not found: {prop}"
   | some val => fromJson? val |>.mapError (s!"{prop}: {·}")
 
+@[inline] public def getAs (α) [FromJson α] (obj : JsonObject) (prop : String) : Except String α :=
+  obj.get prop
+
 @[inline] public def get? [FromJson α] (obj : JsonObject) (prop : String) : Except String (Option α) :=
   match obj.getJson? prop with
   | none => pure none
   | some val => fromJson? val |>.mapError (s!"{prop}: {·}")
+
+@[inline] public def getAs? (α) [FromJson α] (obj : JsonObject) (prop : String) : Except String (Option α) :=
+  obj.get? prop
 
 @[macro_inline, expose] public def getD [FromJson α] (obj : JsonObject) (prop : String) (default : α) : Except String α := do
   return (← obj.get? prop).getD default

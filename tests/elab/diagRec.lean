@@ -8,11 +8,11 @@ termination_by structural n
 info: 573147844013817084101
 ---
 trace: [diag] Diagnostics
-  [reduction] unfolded declarations (max: 596, num: 2):
-    [reduction] Nat.rec ↦ 596
-    [reduction] HAdd.hAdd ↦ 196
-  [reduction] unfolded reducible declarations (max: 397, num: 1):
-    [reduction] Nat.casesOn ↦ 397
+  [reduction] unfolded declarations (max: 400, num: 1):
+    [reduction] Nat.rec ↦ 400
+  [reduction] unfolded reducible declarations (max: 201, num: 2):
+    [reduction] Nat.casesOn ↦ 201
+    [reduction] fib._f ↦ 199
   use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
 -/
 #guard_msgs in

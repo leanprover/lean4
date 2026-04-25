@@ -24,6 +24,6 @@ protected def Path.unmap : {t : Tree α} → Path (t.map f) → Path t
 | Tree.branch tl tr, Path.left _ _ p => Path.left tl tr (Path.unmap p)
 | Tree.branch tl tr, Path.right _ _ p => Path.right tl tr (Path.unmap p)
 
-#print Path.unmap
+#check @Path.unmap
 
 end map

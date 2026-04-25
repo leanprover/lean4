@@ -1,5 +1,4 @@
 import Std
-set_option cbv.warning false
 
 def dedup (l : List Nat) : List Nat := Id.run do
   let mut S : Std.TreeSet Nat := ∅

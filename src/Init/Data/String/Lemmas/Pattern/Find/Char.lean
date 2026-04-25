@@ -183,7 +183,7 @@ theorem find?_char_eq_some_iff_splits {c : Char} {s : String} {pos : s.Pos} :
   · rintro ⟨t, u, hsplit, hnotin⟩
     exact ⟨pos.toSlice, ⟨t, u, Pos.splits_toSlice_iff.mpr hsplit, hnotin⟩, by simp⟩
 
-@[simp]
+@[cbv_eval, simp]
 theorem contains_char_eq {c : Char} {s : String} : s.contains c = decide (c ∈ s.toList) := by
   simp [contains_eq_contains_toSlice, Slice.contains_char_eq, copy_toSlice]
 

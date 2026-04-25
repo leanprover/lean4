@@ -69,7 +69,7 @@ did not reduce to `isTrue` or `isFalse`.
 After unfolding the instances `baz` and `instDecidableNice`, reduction got stuck at the `Decidable` instance
   ⋯ ▸ inferInstance
 
-Hint: Reduction got stuck on `▸` (Eq.rec), which suggests that one of the `Decidable` instances is defined using tactics such as `rw` or `simp`. To avoid tactics, make use of functions such as `inferInstanceAs` or `decidable_of_decidable_of_iff` to alter a proposition.
+Hint: Reduction got stuck on `▸` (Eq.rec), which suggests that one of the `Decidable` instances is defined using tactics such as `rw` or `simp`. To avoid tactics, make use of functions such as `«inferInstanceAs»` or `decidable_of_decidable_of_iff` to alter a proposition.
 -/
 #guard_msgs in
 example : Nice 102 := by decide
@@ -89,7 +89,7 @@ did not reduce to `isTrue` or `isFalse`.
 After unfolding the instances `baz`, `instDecidableNice`, and `instDecidableNot`, reduction got stuck at the `Decidable` instance
   ⋯ ▸ inferInstance
 
-Hint: Reduction got stuck on `▸` (Eq.rec), which suggests that one of the `Decidable` instances is defined using tactics such as `rw` or `simp`. To avoid tactics, make use of functions such as `inferInstanceAs` or `decidable_of_decidable_of_iff` to alter a proposition.
+Hint: Reduction got stuck on `▸` (Eq.rec), which suggests that one of the `Decidable` instances is defined using tactics such as `rw` or `simp`. To avoid tactics, make use of functions such as `«inferInstanceAs»` or `decidable_of_decidable_of_iff` to alter a proposition.
 -/
 #guard_msgs in
 example : ¬ Nice 102 := by decide

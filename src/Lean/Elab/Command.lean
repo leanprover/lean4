@@ -10,6 +10,7 @@ public import Lean.Meta.Diagnostics
 public import Lean.Elab.Binders
 public import Lean.Elab.Command.Scope
 public import Lean.Elab.SetOption
+import Lean.Elab.DeprecatedSyntax
 public meta import Lean.Parser.Command
 
 public section
@@ -71,7 +72,7 @@ whole monad stack at every use site. May eventually be covered by `deriving`.
 Remark: see comment at TermElabM
 -/
 @[always_inline]
-instance : Monad CommandElabM := let i := inferInstanceAs (Monad CommandElabM); { pure := i.pure, bind := i.bind }
+instance : Monad CommandElabM := let i : Monad CommandElabM := inferInstance; { pure := i.pure, bind := i.bind }
 
 /--
 Like `Core.tryCatchRuntimeEx`; runtime errors are generally used to abort term elaboration, so we do
@@ -468,6 +469,7 @@ where go := do
       else withTraceNode `Elab.command (fun _ => return stx) (tag :=
         -- special case: show actual declaration kind for `declaration` commands
         (if stx.isOfKind ``Parser.Command.declaration then stx[1] else stx).getKind.toString) do
+        checkDeprecatedSyntax stx (← read).macroStack
         let s ← get
         match (← liftMacroM <| expandMacroImpl? s.env stx) with
         | some (decl, stxNew?) =>
@@ -666,7 +668,8 @@ private def mkTermContext (ctx : Context) (s : State) : CommandElabM Term.Contex
   return {
     macroStack             := ctx.macroStack
     sectionVars            := sectionVars
-    isNoncomputableSection := scope.isNoncomputable }
+    isNoncomputableSection := scope.isNoncomputable
+    isMetaSection          := scope.isMeta }
 
 /--
 Lift the `TermElabM` monadic action `x` into a `CommandElabM` monadic action.
@@ -872,7 +875,7 @@ first evaluates any local `set_option ... in ...` clauses and then invokes `cmd`
 partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
   if stx.getKind == ``Lean.Parser.Command.in &&
      stx[0].getKind == ``Lean.Parser.Command.set_option then
-      let opts ← Elab.elabSetOption stx[0][1] stx[0][3]
+      let (opts, _) ← Elab.elabSetOption stx[0][1] stx[0][3]
       Command.withScope (fun scope => { scope with opts }) do
         withSetOptionIn cmd stx[2]
   else

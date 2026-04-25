@@ -1,5 +1,3 @@
-set_option cbv.warning false
-
 example : (if (true = false) then 5 else 7) = 7 := by
   conv =>
     lhs

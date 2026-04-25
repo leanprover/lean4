@@ -130,7 +130,7 @@ def foldProjs (e : Expr) : MetaM Expr := do
   let post (e : Expr) := do
     let .proj structName idx s := e | return .done e
     let some info := getStructureInfo? (← getEnv) structName |
-      trace[grind.issues] "found `Expr.proj` but `{structName}` is not marked as structure{indentExpr e}"
+      trace[sym.issues] "found `Expr.proj` but `{structName}` is not marked as structure{indentExpr e}"
       return .done e
     if h : idx < info.fieldNames.size then
       let fieldName := info.fieldNames[idx]
@@ -149,29 +149,11 @@ def foldProjs (e : Expr) : MetaM Expr := do
       -/
       return .visit (← withDefault <| mkProjection s fieldName)
     else
-      trace[grind.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
+      trace[sym.issues] "found `Expr.proj` with invalid field index `{idx}`{indentExpr e}"
       return .done e
   Meta.transform e (post := post)
 
-/-- Quick filter for checking whether we can skip `normalizeLevels`. -/
-private def levelsAlreadyNormalized (e : Expr) : Bool :=
-  Option.isNone <| e.find? fun
-    | .const _ us => us.any (! ·.isAlreadyNormalizedCheap)
-    | .sort u => !u.isAlreadyNormalizedCheap
-    | _ => false
-
-/--
-Normalizes universe levels in constants and sorts.
--/
-def normalizeLevels (e : Expr) : CoreM Expr := do
-  if levelsAlreadyNormalized e then return e
-  let pre (e : Expr) := do
-    match e with
-    | .sort u => return .done <| e.updateSort! u.normalize
-    | .const _ us => return .done <| e.updateConst! (us.map Level.normalize)
-    | _ => return .continue
-  Core.transform e (pre := pre)
-
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Normalizes the given expression using the `grind` simplification theorems and simprocs.
 This function is used for normalizing E-matching patterns. Note that it does not return a proof.

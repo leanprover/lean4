@@ -44,15 +44,10 @@ WellFounded.Nat.fix
                         Nat)
                   n, m, fuel, h with
                 | 0, m, x, x_1 => fun x => m + 1
-                | n.succ, 0, f, h => fun x =>
-                  x ⟨n, ⟨1, ⟨f - 1, ackermann_fuel''._unary._proof_1 n f⟩⟩⟩ (ackermann_fuel''._unary._proof_2 n f h)
+                | n.succ, 0, f, h => fun x => x ⟨n, ⟨1, ⟨f - 1, sorry⟩⟩⟩ (id ((fun f => sorry) f))
                 | n.succ, m.succ, f, h => fun x =>
-                  x
-                    ⟨n,
-                      ⟨x ⟨n + 1, ⟨m, ⟨f - 1, ackermann_fuel''._unary._proof_3 n m f⟩⟩⟩
-                          (ackermann_fuel''._unary._proof_4 n m f h),
-                        ⟨f - 1, ackermann_fuel''._unary._proof_6 n m f h x⟩⟩⟩
-                    (ackermann_fuel''._unary._proof_8 n m f h x))
+                  x ⟨n, ⟨x ⟨n + 1, ⟨m, ⟨f - 1, sorry⟩⟩⟩ (id ((fun f => sorry) f)), ⟨f - 1, sorry⟩⟩⟩
+                    (id ((fun f => sorry) f)))
                 a)
             a)
         a)

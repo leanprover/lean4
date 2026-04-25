@@ -78,27 +78,21 @@ private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mk
 builtin_initialize docStringExt : MapDeclarationExtension String ←
   mkMapDeclarationExtension
     (asyncMode := .async .asyncEnv)
-    (exportEntriesFn := fun _ s level =>
-      if level < .server then
-        {}
-      else
-        s.toArray)
+    (exportEntriesFn := fun _ s =>
+      let ents := s.toArray
+      { exported := #[], server := ents, «private» := ents })
 private builtin_initialize inheritDocStringExt : MapDeclarationExtension Name ←
-  mkMapDeclarationExtension (exportEntriesFn := fun _ s level =>
-    if level < .server then
-      {}
-    else
-      s.toArray)
+  mkMapDeclarationExtension (exportEntriesFn := fun _ s =>
+    let ents := s.toArray
+    { exported := #[], server := ents, «private» := ents })
 
 private builtin_initialize builtinVersoDocStrings : IO.Ref (NameMap VersoDocString) ← IO.mkRef {}
 builtin_initialize versoDocStringExt : MapDeclarationExtension VersoDocString ←
   mkMapDeclarationExtension
     (asyncMode := .async .asyncEnv)
-    (exportEntriesFn := fun _ s level =>
-      if level < .server then
-        {}
-      else
-        s.toArray)
+    (exportEntriesFn := fun _ s =>
+      let ents := s.toArray
+      { exported := #[], server := ents, «private» := ents })
 
 /--
 Adds a builtin docstring to the compiler.
@@ -196,11 +190,9 @@ private builtin_initialize moduleDocExt :
     SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
-  exportEntriesFnEx? := some fun _ _ es level =>
-    if level < .server then
-      #[]
-    else
-      es.toArray
+  exportEntriesFnEx? := some fun _ _ es =>
+    let ents := es.toArray
+    { exported := #[], server := ents, «private» := ents }
 }
 
 def addMainModuleDoc (env : Environment) (doc : ModuleDoc) : Environment :=
@@ -297,8 +289,10 @@ instance : ToMarkdown VersoModuleDocs.Snippet where
 
 structure VersoModuleDocs where
   snippets : PersistentArray VersoModuleDocs.Snippet := {}
-  terminalNesting : Option Nat := snippets.findSomeRev? (·.terminalNesting)
 deriving Inhabited
+
+def VersoModuleDocs.terminalNesting : VersoModuleDocs → Option Nat
+  | VersoModuleDocs.mk snippets => snippets.findSomeRev? (·.terminalNesting)
 
 instance : Repr VersoModuleDocs where
   reprPrec v _ :=
@@ -322,10 +316,7 @@ def add (docs : VersoModuleDocs) (snippet : Snippet) : Except String VersoModule
   unless docs.canAdd snippet do
     throw "Can't nest this snippet here"
 
-  return { docs with
-    snippets := docs.snippets.push snippet,
-    terminalNesting := snippet.terminalNesting
-  }
+  return { docs with snippets := docs.snippets.push snippet }
 
 def add! (docs : VersoModuleDocs) (snippet : Snippet) : VersoModuleDocs :=
   let ok :=
@@ -335,10 +326,7 @@ def add! (docs : VersoModuleDocs) (snippet : Snippet) : VersoModuleDocs :=
   if not ok then
     panic! "Can't nest this snippet here"
   else
-    { docs with
-      snippets := docs.snippets.push snippet,
-      terminalNesting := snippet.terminalNesting
-    }
+    { docs with snippets := docs.snippets.push snippet }
 
 
 private structure DocFrame where
@@ -407,11 +395,9 @@ private builtin_initialize versoModuleDocExt :
     SimplePersistentEnvExtension VersoModuleDocs.Snippet VersoModuleDocs ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.add! e
-  exportEntriesFnEx? := some fun _ _ es level =>
-    if level < .server then
-      #[]
-    else
-      es.toArray
+  exportEntriesFnEx? := some fun _ _ es =>
+    let ents := es.toArray
+    { exported := #[], server := ents, «private» := ents }
 }
 
 

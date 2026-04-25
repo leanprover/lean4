@@ -20,12 +20,20 @@ universe u
 
 namespace ByteArray
 
-deriving instance BEq for ByteArray
+@[extern "lean_sarray_dec_eq"]
+def beq (lhs rhs : @& ByteArray) : Bool :=
+  lhs.data == rhs.data
+
+instance : BEq ByteArray where
+  beq := beq
 
 attribute [ext] ByteArray
 
-instance : DecidableEq ByteArray :=
-  fun _ _ => decidable_of_decidable_of_iff ByteArray.ext_iff.symm
+@[extern "lean_sarray_dec_eq"]
+def decEq (lhs rhs : @& ByteArray) : Decidable (lhs = rhs) :=
+  decidable_of_decidable_of_iff ByteArray.ext_iff.symm
+
+instance : DecidableEq ByteArray := decEq
 
 instance : Inhabited ByteArray where
   default := empty

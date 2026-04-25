@@ -17,6 +17,9 @@ WRAPPER_PREFIX = Path(os.environ["WRAPPER_PREFIX"])
 # Other config
 BENCHMARK = "build"
 
+sys.path.append(str(TEST_DIR))
+import measure  # noqa: E402
+
 
 def save_measurement(metric: str, value: float, unit: str | None = None) -> None:
     data = {"metric": metric, "value": value}
@@ -61,17 +64,18 @@ def count_bytes(module: str, path: Path, suffix: str) -> None:
 
 
 def run_lean(module: str) -> None:
-    stdout, stderr = run_capture(
-        f"{TEST_DIR}/measure.py",
-        *("-t", f"{BENCHMARK}/module/{module}"),
-        *("-o", f"{WRAPPER_OUT}", "-a"),
-        *("-m", "instructions"),
-        *("-m", "cycles"),
-        "--",
-        "lean",
-        *("--profile", "-Dprofiler.threshold=9999999"),
-        "--stat",
-        *sys.argv[1:],
+    stdout, stderr = measure.main(
+        cmd=[
+            "lean",
+            *("--profile", "-Dprofiler.threshold=9999999"),
+            "--stat",
+            *sys.argv[1:],
+        ],
+        output=WRAPPER_OUT,
+        topics=[f"{BENCHMARK}/module/{module}"],
+        metrics={"instructions", "cycles"},
+        append=True,
+        capture=True,
     )
 
     # Output of `lean --profile`
@@ -113,6 +117,7 @@ def main() -> None:
     parser.add_argument("--setup", type=Path)
     parser.add_argument("--i", "-i", type=Path)
     parser.add_argument("--o", "-o", type=Path)
+    parser.add_argument("--plugin", type=Path)
     args, _ = parser.parse_known_args()
 
     lean: Path = args.lean

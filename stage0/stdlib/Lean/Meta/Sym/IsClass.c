@@ -25,9 +25,8 @@ case 4:
 {
 lean_object* v_declName_3_; uint8_t v___x_4_; 
 v_declName_3_ = lean_ctor_get(v_a_2_, 0);
-lean_inc(v_declName_3_);
+lean_inc_n(v_declName_3_, 2);
 lean_dec_ref(v_a_2_);
-lean_inc(v_declName_3_);
 v___x_4_ = lean_is_class(v_env_1_, v_declName_3_);
 if (v___x_4_ == 0)
 {

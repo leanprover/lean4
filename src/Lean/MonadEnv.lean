@@ -174,6 +174,7 @@ See also `Lean.matchConstStructure` for a less restrictive version.
         | _ => failK ()
       | _ => failK ()
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[extern "lean_has_compile_error"]
 opaque hasCompileError (env : Environment) (constName : Name) : Bool
 

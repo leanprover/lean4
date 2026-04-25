@@ -66,6 +66,7 @@ lean_object* v_fn_32_; lean_object* v___x_33_;
 v_fn_32_ = lean_ctor_get(v_self_29_, 1);
 lean_inc_ref(v_fn_32_);
 lean_dec_ref(v_self_29_);
+lean_inc(v_a_30_);
 v___x_33_ = lean_apply_3(v_fn_32_, v_args_28_, v_a_30_, lean_box(0));
 return v___x_33_;
 }
@@ -75,6 +76,7 @@ _start:
 {
 lean_object* v_res_38_; 
 v_res_38_ = l_Lake_Script_run(v_args_34_, v_self_35_, v_a_36_);
+lean_dec(v_a_36_);
 return v_res_38_;
 }
 }

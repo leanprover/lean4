@@ -13,5 +13,5 @@ set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| sorry)
-  [100, 500, 1000]
+  [100, 350, 600]
   -- [1000]

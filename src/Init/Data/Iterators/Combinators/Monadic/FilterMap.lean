@@ -168,6 +168,13 @@ instance Map.instIterator {α β γ : Type w} {m : Type w → Type w'} {n : Type
     Iterator (Map α m n lift f) n γ :=
   inferInstanceAs <| Iterator (FilterMap α m n lift _) n γ
 
+theorem Map.instIterator_eq_filterMapInstIterator {α β γ : Type w} {m : Type w → Type w'}
+    {n : Type w → Type w''} [Monad n]
+    [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α} {f : β → PostconditionT n γ} :
+    Map.instIterator (α := α) (β := β) (γ := γ) (m := m) (n := n) (lift := lift) (f := f) =
+      FilterMap.instIterator :=
+  rfl
+
 private def FilterMap.instFinitenessRelation {α β γ : Type w} {m : Type w → Type w'}
     {n : Type w → Type w''} [Monad n] [Iterator α m β] {lift : ⦃α : Type w⦄ → m α → n α}
     {f : β → PostconditionT n (Option γ)} [Finite α m] :

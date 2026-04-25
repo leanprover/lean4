@@ -6,6 +6,7 @@ Authors: Mac Malone
 module
 
 prelude
+public import Lake.Config.Cache
 public import Lake.Config.Context
 public import Lake.Build.Job.Basic
 
@@ -48,6 +49,11 @@ public def JobQueue := IO.Ref (Array OpaqueJob)
 public structure BuildContext extends BuildConfig, Context where
   leanTrace : BuildTrace
   registeredJobs : JobQueue
+  /--
+  Input-to-output(s) map for hashes of the root package's artifacts.
+  If `none`, tracking outputs is disabled for this build.
+  -/
+  outputsRef? : Option CacheRef := none
 
 /-- A transformer to equip a monad with a `BuildContext`. -/
 public abbrev BuildT := ReaderT BuildContext

@@ -180,12 +180,14 @@ private def inferFVarType (fvarId : FVarId) : MetaM Expr := do
 
 @[inline] private def checkInferTypeCache (e : Expr) (inferType : MetaM Expr) : MetaM Expr := do
   if !(← read).cacheInferType || e.hasMVar then
+    Core.checkInterrupted
     inferType
   else
     let key ← mkExprConfigCacheKey e
     match (← get).cache.inferType.find? key with
     | some type => return type
     | none =>
+      Core.checkInterrupted
       let type ← inferType
       unless type.hasMVar do
         modifyInferTypeCache fun c => c.insert key type
@@ -206,6 +208,7 @@ because it overrides unrelated configurations.
     else
       withConfig (fun cfg => { cfg with beta := true, iota := true, zeta := true, zetaHave := true, zetaDelta := true, proj := .yesWithDelta, etaStruct := .all }) x
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_infer_type]
 def inferTypeImp (e : Expr) : MetaM Expr :=
   let rec infer (e : Expr) :  MetaM Expr := do

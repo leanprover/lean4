@@ -37,7 +37,7 @@ The standard library does not provide a `Productive` instance for this case.
 
 This combinator incurs an additional O(1) cost with each output of `it₁` and `it₂`.
 -/
-@[inline, expose]
+@[cbv_opaque, inline, expose]
 def Iter.append {α₁ : Type w} {α₂ : Type w} {β : Type w}
     [Iterator α₁ Id β] [Iterator α₂ Id β]
     (it₁ : Iter (α := α₁) β) (it₂ : Iter (α := α₂) β) :

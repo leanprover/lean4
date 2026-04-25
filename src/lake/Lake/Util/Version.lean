@@ -53,7 +53,7 @@ where
   termination_by p
 
 /-- Returns whether a version component is a wildcard. -/
-private def isWildVer (s : String.Slice) : Bool :=
+def isWildVer (s : String.Slice) : Bool :=
   let p := s.startPos
   if h : p ≠ s.endPos then
     if p.next h = s.endPos then
@@ -62,7 +62,7 @@ private def isWildVer (s : String.Slice) : Bool :=
     else false
   else false
 
-@[inline] private def parseVerNat (what : String) (s : String.Slice) : EStateM String σ Nat := do
+@[inline] def parseVerNat (what : String) (s : String.Slice) : EStateM String σ Nat := do
   let some v := s.toNat?
     | throw s!"invalid {what} version: expected numeral, got '{s.copy}'"
   return v
@@ -70,7 +70,7 @@ private def isWildVer (s : String.Slice) : Bool :=
 inductive VerComponent
 | none | wild | nat (n : Nat)
 
-private def parseVerComponent {σ} (what : String) (s? : Option String.Slice) : EStateM String σ VerComponent := do
+def parseVerComponent {σ} (what : String) (s? : Option String.Slice) : EStateM String σ VerComponent := do
     let some s := s?
       | return .none
     if isWildVer s then
@@ -103,14 +103,14 @@ where
       nextUntilWhitespace (p.next h)
   termination_by p
 
-private def parseSpecialDescr (s : String) : EStateM String s.Pos String := do
+def parseSpecialDescr (s : String) : EStateM String s.Pos String := do
   let some specialDescr ← parseSpecialDescr? s
     | return ""
   if specialDescr.isEmpty then
     throw "invalid version: '-' suffix cannot be empty"
   return specialDescr
 
-private def runVerParse
+def runVerParse
   (s : String) (x : (s : String) → EStateM String s.Pos α)
   (startPos := s.startPos) (endPos := s.endPos)
 : Except String α :=

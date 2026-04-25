@@ -11,19 +11,13 @@ import Lean.Meta.Sym.LitValues
 import Lean.Meta.Sym.InferType
 import Init.CbvSimproc
 import Lean.Meta.Tactic.Cbv.CbvSimproc
+import Lean.Meta.Tactic.Cbv.Util
 import Init.GetElem
 
 namespace Lean.Meta.Tactic.Cbv
 
-/-- Extract elements from a `List.cons`/`List.nil` chain. -/
-private partial def getListLitElems (e : Expr) (acc : Array Expr := #[]) : Option <| Array Expr :=
-  match_expr e with
-  | List.nil _ => some acc
-  | List.cons _ a as => getListLitElems as <| acc.push a
-  | _ => none
-
 /-- Extract elements from an array literal (`Array.mk` applied to a list literal). -/
-private def getArrayLitElems? (e : Expr) : Option <| Array Expr :=
+def getArrayLitElems? (e : Expr) : Option <| Array Expr :=
   match_expr e with
   | Array.mk _ as => getListLitElems as
   | _ => none

@@ -69,8 +69,8 @@ open ImpureType
 abbrev Mask := Array (Option FVarId)
 
 /--
-Try to erase `inc` instructions on projections of `targetId` occuring in the tail of `ds`.
-Return the updated `ds` and mask contianing the `FVarId`s whose `inc` was removed.
+Try to erase `inc` instructions on projections of `targetId` occurring in the tail of `ds`.
+Return the updated `ds` and mask containing the `FVarId`s whose `inc` was removed.
 -/
 partial def eraseProjIncFor (nFields : Nat) (targetId : FVarId) (ds : Array (CodeDecl .impure)) :
     CompilerM (Array (CodeDecl .impure) × Mask) := do
@@ -90,6 +90,22 @@ partial def eraseProjIncFor (nFields : Nat) (targetId : FVarId) (ds : Array (Cod
         | break
       if !(w == z && targetId == x) then
         break
+      if mask[i]!.isSome then
+        /-
+        Suppose we encounter a situation like
+        ```
+        let x.1 := proj[0] y
+        inc x.1
+        let x.2 := proj[0] y
+        inc x.2
+        ```
+        The `inc x.2` will already have been removed. If we don't perform this check we will also
+        remove `inc x.1` and have effectively removed two refcounts while only one was legal.
+        -/
+        keep := keep.push d
+        keep := keep.push d'
+        ds := ds.pop.pop
+        continue
       /-
       Found
       ```

@@ -877,6 +877,11 @@ theorem getLast_eq_iff_getLast?_eq_some {xs : List α} (h) :
 theorem getLast?_cons {a : α} : (a::l).getLast? = some (l.getLast?.getD a) := by
   cases l <;> simp [getLast?, getLast]
 
+theorem getLast?_cons_of_ne_nil {x : α} {xs : List α} (h : xs ≠ []) : (x::xs).getLast? = xs.getLast? := by
+  cases xs with
+  | nil => contradiction
+  | cons => simp [getLast?_cons]
+
 @[simp] theorem getLast?_cons_cons : (a :: b :: l).getLast? = (b :: l).getLast? := by
   simp [getLast?_cons]
 
@@ -1283,6 +1288,13 @@ theorem filter_eq_self {l} : filter p l = l ↔ ∀ a ∈ l, p a := by
     cases h : p a <;> simp [*]
     intro h; exact Nat.lt_irrefl _ (h ▸ length_filter_le p l)
 
+theorem filter_bne_eq_self_of_not_mem [BEq α] [LawfulBEq α] {a : α} {l : List α} (h : a ∉ l) :
+    l.filter (· != a) = l := by
+  rw [List.filter_eq_self]
+  intro c hc
+  simp only [bne_iff_ne, ne_eq]
+  exact fun heq => absurd (heq ▸ hc) h
+
 @[simp]
 theorem length_filter_eq_length_iff {l} : (filter p l).length = l.length ↔ ∀ a ∈ l, p a := by
   induction l with
@@ -1335,6 +1347,16 @@ theorem foldl_filter {p : α → Bool} {f : β → α → β} {l : List α} {ini
   | cons a l ih =>
     simp only [filter_cons, foldl_cons]
     split <;> simp [ih]
+
+theorem foldl_ite_left {P : α → Prop} [DecidablePred P] {l : List α} {f : β → α → β} {init : β} :
+    (l.foldl (init := init) fun sofar a => if P a then f sofar a else sofar) = (l.filter P).foldl (init := init) f := by
+  simp [List.foldl_filter]
+
+theorem foldl_ite_right {P : α → Prop} [DecidablePred P] {l : List α} {f : β → α → β} {init : β} :
+    (l.foldl (init := init) fun sofar a => if P a then sofar else f sofar a) =
+      (l.filter (fun a => ¬ P a)).foldl (init := init) f := by
+  simp +singlePass only [← ite_not]
+  rw [foldl_ite_left]
 
 theorem foldr_filter {p : α → Bool} {f : α → β → β} {l : List α} {init : β} :
     (l.filter p).foldr f init = l.foldr (fun x y => if p x then f x y else y) init := by
@@ -1854,6 +1876,24 @@ theorem sum_reverse [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.LawfulLeftIdentity (α := α) (· + ·) 0] (xs : List α) : xs.reverse.sum = xs.sum := by
   induction xs <;>
     simp_all [sum_append, Std.Commutative.comm (α := α) _ 0,
+      Std.LawfulLeftIdentity.left_id, Std.Commutative.comm]
+
+@[simp, grind =]
+theorem prod_append [Mul α] [One α] [Std.LawfulLeftIdentity (α := α) (· * ·) 1]
+    [Std.Associative (α := α) (· * ·)] {l₁ l₂ : List α} : (l₁ ++ l₂).prod = l₁.prod * l₂.prod := by
+  induction l₁ generalizing l₂ <;> simp_all [Std.Associative.assoc, Std.LawfulLeftIdentity.left_id]
+
+@[simp, grind =]
+theorem prod_singleton [Mul α] [One α] [Std.LawfulRightIdentity (· * ·) (1 : α)] {x : α} :
+    [x].prod = x := by
+  simp [List.prod_eq_foldr, Std.LawfulRightIdentity.right_id x]
+
+@[simp, grind =]
+theorem prod_reverse [One α] [Mul α] [Std.Associative (α := α) (· * ·)]
+    [Std.Commutative (α := α) (· * ·)]
+    [Std.LawfulLeftIdentity (α := α) (· * ·) 1] (xs : List α) : xs.reverse.prod = xs.prod := by
+  induction xs <;>
+    simp_all [prod_append, Std.Commutative.comm (α := α) _ 1,
       Std.LawfulLeftIdentity.left_id, Std.Commutative.comm]
 
 /-! ### concat
@@ -2761,6 +2801,11 @@ theorem sum_eq_foldl [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.LawfulIdentity (· + ·) (0 : α)] {xs : List α} :
     xs.sum = xs.foldl (init := 0) (· + ·) := by
   simp [sum_eq_foldr, foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
+
+theorem prod_eq_foldl [One α] [Mul α] [Std.Associative (α := α) (· * ·)]
+    [Std.LawfulIdentity (· * ·) (1 : α)] {xs : List α} :
+    xs.prod = xs.foldl (init := 1) (· * ·) := by
+  simp [prod_eq_foldr, foldl_eq_apply_foldr, Std.LawfulLeftIdentity.left_id]
 
 -- The argument `f : α₁ → α₂` is intentionally explicit, as it is sometimes not found by unification.
 theorem foldl_hom (f : α₁ → α₂) {g₁ : α₁ → β → α₁} {g₂ : α₂ → β → α₂} {l : List β} {init : α₁}

@@ -1,5 +1,5 @@
 nestedIssueMatch.lean:1:4-1:5: warning: declaration uses `sorry`
-nestedIssueMatch.lean:1:4-1:5: warning: declaration uses `sorry`
+nestedIssueMatch.lean:1:0-8:29: warning: declaration uses `sorry`
 g.eq_1 (n : Nat) :
   g n.succ =
     match g n with

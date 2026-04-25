@@ -1073,6 +1073,8 @@ def pushLetRecs (preDefs : Array PreDefinition) (letRecClosures : List LetRecClo
         return if (← inferType c.toLift.type).isProp then .theorem else .def
     else
       pure kind
+    if modifiers.isMeta then
+      modifyEnv (markMeta · c.toLift.declName)
     return preDefs.push {
       ref         := c.ref
       declName    := c.toLift.declName

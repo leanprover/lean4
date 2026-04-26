@@ -41,10 +41,29 @@ deriving BEq, Hashable, TypeName
 @[inline] private def whenHasVar {α} (e : Expr) (deps : α) (k : α → α) : α :=
   if e.hasFVar then k deps else deps
 
-private def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat :=
-  let rec visit (e : Expr) (deps : Array Nat) : Array Nat :=
+private def isHigherOrderApp (args : Array Expr) : Bool := Id.run do
+  let mut mask := 0
+  for e in args do
+    let .bvar i := e | return true
+    if mask.testBit i then return true
+    mask := mask ||| (1 <<< i)
+  return false
+
+/-- Given `fvars` and `e`, returns `(backDeps, hoBackDeps)` -/
+private partial def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat × Array Nat :=
+  let rec visit (e : Expr) (deps : Array Nat × Array Nat) : Array Nat × Array Nat :=
     match e with
-    | .app f a         => whenHasVar e deps (visit a ∘ visit f)
+    | .app _ _         => whenHasVar e deps fun deps =>
+      e.withApp fun fn args =>
+        let deps :=
+          if let .fvar f := fn then
+            if isHigherOrderApp args then
+              match fvars.idxOf? fn with
+              | none   => deps
+              | some i => if deps.2.contains i then deps else (deps.1, deps.2.push i)
+            else deps
+          else deps
+        args.foldl (fun acc x => visit x acc) (visit fn deps)
     | .forallE _ d b _ => whenHasVar e deps (visit b ∘ visit d)
     | .lam _ d b _     => whenHasVar e deps (visit b ∘ visit d)
     | .letE _ t v b _  => whenHasVar e deps (visit b ∘ visit v ∘ visit t)
@@ -53,10 +72,10 @@ private def collectDeps (fvars : Array Expr) (e : Expr) : Array Nat :=
     | .fvar ..         =>
       match fvars.idxOf? e with
       | none   => deps
-      | some i => if deps.contains i then deps else deps.push i
+      | some i => if deps.1.contains i then deps else (deps.1.push i, deps.2)
     | _ => deps
-  let deps := visit e #[]
-  deps.qsort (fun i j => i < j)
+  let deps := visit e (#[], #[])
+  (deps.1.qsort, deps.2.qsort)
 
 /-- Update `hasFwdDeps` fields using new `backDeps` -/
 private def updateHasFwdDeps (pinfo : Array ParamInfo) (backDeps : Array Nat) : Array ParamInfo :=
@@ -82,10 +101,7 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
         for h : i in *...fvars.size do
           let fvar := fvars[i]
           let decl ← getFVarLocalDecl fvar
-          let backDeps := collectDeps fvars decl.type
-          let dependsOnHigherOrderOutParam :=
-            !higherOrderOutParams.isEmpty
-            && Option.isSome (decl.type.find? fun e => e.isFVar && higherOrderOutParams.contains e.fvarId!)
+          let (backDeps, hoBackDeps) := collectDeps fvars decl.type
           let className? ← isClass? decl.type
           /-
           **Note**: We use `isClass? decl.type` instead of relying solely on binder annotations
@@ -109,11 +125,18 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
 
           -/
           let isInstance := className?.isSome && !decl.binderInfo.isExplicit
+          let isProp ← isProp decl.type
           paramInfo := updateHasFwdDeps paramInfo backDeps
+          let mut hasHOBackDep := false
+          for dep in hoBackDeps do
+            let info := paramInfo[dep]!
+            if info.isImplicit && !info.isProp then
+              paramInfo := paramInfo.modify dep fun info => { info with higherOrderImplicit := true }
+              hasHOBackDep := true
           paramInfo := paramInfo.push {
-            backDeps, dependsOnHigherOrderOutParam, isInstance
+            backDeps, isInstance, isProp,
+            dependsOnHigherOrderImplicit := hasHOBackDep
             binderInfo := decl.binderInfo
-            isProp     := (← isProp decl.type)
             isDecInst  := (← forallTelescopeReducing decl.type fun _ type => return type.isAppOf ``Decidable)
           }
           if isInstance then
@@ -128,9 +151,10 @@ private def getFunInfoAux (fn : Expr) (maxArgs? : Option Nat) : MetaM FunInfo :=
                     let arg := args[i]
                     if let some idx := fvars.idxOf? arg then
                       if (← whnf (← inferType arg)).isForall then
-                        paramInfo := paramInfo.modify idx fun info => { info with higherOrderOutParam := true }
-                        higherOrderOutParams := higherOrderOutParams.insert arg.fvarId!
-        let resultDeps := collectDeps fvars type
+                        let info := paramInfo[idx]!
+                        if info.isImplicit && !info.isProp then
+                          paramInfo := paramInfo.modify idx fun info => { info with higherOrderImplicit := true }
+        let (resultDeps, _) := collectDeps fvars type
         paramInfo := updateHasFwdDeps paramInfo resultDeps
         return { resultDeps, paramInfo }
 

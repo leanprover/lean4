@@ -246,34 +246,8 @@ structure ParamInfo where
   isDecInst      : Bool       := false
   /-- `isInstance` is true if the parameter type is a class instance. -/
   isInstance     : Bool       := false
-  /--
-    `higherOrderOutParam` is true if this parameter is a higher-order output parameter
-    of local instance.
-    Example:
-    ```
-    getElem :
-      {cont : Type u_1} → {idx : Type u_2} → {elem : Type u_3} →
-      {dom : cont → idx → Prop} → [self : GetElem cont idx elem dom] →
-      (xs : cont) → (i : idx) → dom xs i → elem
-    ```
-    This flag is true for the parameter `dom` because it is output parameter of
-    `[self : GetElem cont idx elem dom]`
-   -/
-  higherOrderOutParam : Bool  := false
-  /--
-    `dependsOnHigherOrderOutParam` is true if the type of this parameter depends on
-    the higher-order output parameter of a previous local instance.
-    Example:
-    ```
-    getElem :
-      {cont : Type u_1} → {idx : Type u_2} → {elem : Type u_3} →
-      {dom : cont → idx → Prop} → [self : GetElem cont idx elem dom] →
-      (xs : cont) → (i : idx) → dom xs i → elem
-    ```
-    This flag is true for the parameter with type `dom xs i` since `dom` is an output parameter
-    of the instance `[self : GetElem cont idx elem dom]`
-  -/
-  dependsOnHigherOrderOutParam : Bool := false
+  higherOrderImplicit : Bool  := false
+  dependsOnHigherOrderImplicit : Bool := false
   deriving Inhabited
 
 def ParamInfo.isImplicit (p : ParamInfo) : Bool :=

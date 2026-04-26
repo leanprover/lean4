@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Idbg
-// Imports: public import Lean.Elab.Do.Basic meta import Lean.Parser.Do import Std.Internal.Async.TCP
+// Imports: public import Lean.Elab.Do.Basic meta import Lean.Parser.Do import Std.Async.TCP
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -90,8 +90,8 @@ lean_object* l_IO_CancelToken_new();
 lean_object* l_Lean_JsonNumber_fromNat(lean_object*);
 lean_object* l_Lean_Json_mkObj(lean_object*);
 lean_object* lean_array_uget(lean_object*, size_t);
-lean_object* l_Std_Internal_IO_Async_AsyncTask_block___redArg(lean_object*);
-lean_object* l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
+lean_object* l_Std_Async_AsyncTask_block___redArg(lean_object*);
+lean_object* l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_object*, lean_object*, lean_object*, uint8_t, lean_object*, lean_object*);
 lean_object* lean_task_pure(lean_object*);
 lean_object* l_Lean_Json_compress(lean_object*);
 lean_object* lean_string_to_utf8(lean_object*);
@@ -6233,7 +6233,7 @@ v___x_1381_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1381_, 0, v___x_1380_);
 v___x_1382_ = lean_unsigned_to_nat(0u);
 v___x_1383_ = 0;
-v___x_1384_ = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_1382_, v___x_1383_, v___x_1381_, v___f_1377_);
+v___x_1384_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_1382_, v___x_1383_, v___x_1381_, v___f_1377_);
 if (lean_obj_tag(v___x_1384_) == 0)
 {
 lean_object* v_a_1385_; lean_object* v___x_1386_; lean_object* v___x_1387_; 
@@ -6241,7 +6241,7 @@ v_a_1385_ = lean_ctor_get(v___x_1384_, 0);
 lean_inc(v_a_1385_);
 lean_dec_ref(v___x_1384_);
 v___x_1386_ = lean_task_pure(v_a_1385_);
-v___x_1387_ = l_Std_Internal_IO_Async_AsyncTask_block___redArg(v___x_1386_);
+v___x_1387_ = l_Std_Async_AsyncTask_block___redArg(v___x_1386_);
 return v___x_1387_;
 }
 else
@@ -6250,7 +6250,7 @@ lean_object* v_a_1388_; lean_object* v___x_1389_;
 v_a_1388_ = lean_ctor_get(v___x_1384_, 0);
 lean_inc_ref(v_a_1388_);
 lean_dec_ref(v___x_1384_);
-v___x_1389_ = l_Std_Internal_IO_Async_AsyncTask_block___redArg(v_a_1388_);
+v___x_1389_ = l_Std_Async_AsyncTask_block___redArg(v_a_1388_);
 return v___x_1389_;
 }
 }
@@ -6552,7 +6552,7 @@ return v___x_1473_;
 v___jp_1475_:
 {
 lean_object* v___x_1477_; 
-v___x_1477_ = l_Std_Internal_IO_Async_AsyncTask_block___redArg(v_a_1476_);
+v___x_1477_ = l_Std_Async_AsyncTask_block___redArg(v_a_1476_);
 if (lean_obj_tag(v___x_1477_) == 0)
 {
 lean_object* v_a_1478_; lean_object* v___x_1480_; uint8_t v_isShared_1481_; uint8_t v_isSharedCheck_1494_; 
@@ -6685,7 +6685,7 @@ v___x_1508_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1508_, 0, v___x_1507_);
 v___x_1509_ = lean_unsigned_to_nat(0u);
 v___x_1510_ = 0;
-v___x_1511_ = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_1509_, v___x_1510_, v___x_1508_, v___f_1504_);
+v___x_1511_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_1509_, v___x_1510_, v___x_1508_, v___f_1504_);
 if (lean_obj_tag(v___x_1511_) == 0)
 {
 lean_object* v_a_1512_; lean_object* v___x_1513_; 
@@ -6833,7 +6833,7 @@ v___x_1576_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1576_, 0, v___x_1575_);
 v___x_1577_ = lean_unsigned_to_nat(0u);
 v___x_1578_ = 0;
-v___x_1579_ = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_1577_, v___x_1578_, v___x_1576_, v___f_1572_);
+v___x_1579_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_1577_, v___x_1578_, v___x_1576_, v___f_1572_);
 if (lean_obj_tag(v___x_1579_) == 0)
 {
 lean_object* v_a_1580_; lean_object* v___x_1581_; 
@@ -6858,7 +6858,7 @@ goto v___jp_1540_;
 v___jp_1540_:
 {
 lean_object* v___x_1542_; 
-v___x_1542_ = l_Std_Internal_IO_Async_AsyncTask_block___redArg(v_a_1541_);
+v___x_1542_ = l_Std_Async_AsyncTask_block___redArg(v_a_1541_);
 if (lean_obj_tag(v___x_1542_) == 0)
 {
 lean_object* v_a_1543_; lean_object* v___x_1545_; uint8_t v_isShared_1546_; uint8_t v_isSharedCheck_1558_; 
@@ -7732,7 +7732,7 @@ goto v_resetjp_1879_;
 v___jp_1786_:
 {
 lean_object* v___x_1789_; 
-v___x_1789_ = l_Std_Internal_IO_Async_AsyncTask_block___redArg(v_a_1788_);
+v___x_1789_ = l_Std_Async_AsyncTask_block___redArg(v_a_1788_);
 if (lean_obj_tag(v___x_1789_) == 0)
 {
 lean_object* v___x_1791_; uint8_t v_isShared_1792_; uint8_t v_isSharedCheck_1797_; 
@@ -7831,7 +7831,7 @@ lean_ctor_set(v___x_1812_, 0, v___x_1811_);
 v___x_1813_ = lean_unsigned_to_nat(0u);
 v___x_1814_ = 0;
 lean_inc_ref(v___y_1808_);
-v___x_1815_ = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_1813_, v___x_1814_, v___x_1812_, v___y_1808_);
+v___x_1815_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_1813_, v___x_1814_, v___x_1812_, v___y_1808_);
 if (lean_obj_tag(v___x_1815_) == 0)
 {
 lean_object* v_a_1816_; lean_object* v___x_1817_; 
@@ -7857,7 +7857,7 @@ goto v___jp_1786_;
 v___jp_1819_:
 {
 lean_object* v___x_1821_; 
-v___x_1821_ = l_Std_Internal_IO_Async_AsyncTask_block___redArg(v_a_1820_);
+v___x_1821_ = l_Std_Async_AsyncTask_block___redArg(v_a_1820_);
 if (lean_obj_tag(v___x_1821_) == 0)
 {
 lean_object* v_a_1822_; lean_object* v___x_1823_; lean_object* v___x_1824_; 
@@ -8247,7 +8247,7 @@ v___x_1892_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_1892_, 0, v___x_1891_);
 v___x_1893_ = lean_unsigned_to_nat(0u);
 v___x_1894_ = 0;
-v___x_1895_ = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_1893_, v___x_1894_, v___x_1892_, v___f_1887_);
+v___x_1895_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_1893_, v___x_1894_, v___x_1892_, v___f_1887_);
 if (lean_obj_tag(v___x_1895_) == 0)
 {
 lean_object* v_a_1896_; 
@@ -9833,7 +9833,7 @@ goto v_reusejp_2489_;
 v___jp_2438_:
 {
 lean_object* v___x_2440_; 
-v___x_2440_ = l_Std_Internal_IO_Async_AsyncTask_block___redArg(v_a_2439_);
+v___x_2440_ = l_Std_Async_AsyncTask_block___redArg(v_a_2439_);
 if (lean_obj_tag(v___x_2440_) == 0)
 {
 lean_object* v___x_2441_; 
@@ -10191,7 +10191,7 @@ v___x_2495_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_2495_, 0, v___x_2494_);
 v___x_2496_ = lean_unsigned_to_nat(0u);
 v___x_2497_ = 0;
-v___x_2498_ = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_2496_, v___x_2497_, v___x_2495_, v___f_2491_);
+v___x_2498_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_2496_, v___x_2497_, v___x_2495_, v___f_2491_);
 if (lean_obj_tag(v___x_2498_) == 0)
 {
 lean_object* v_a_2499_; lean_object* v___x_2500_; 
@@ -10333,7 +10333,7 @@ goto v___jp_2406_;
 v___jp_2419_:
 {
 lean_object* v___x_2421_; 
-v___x_2421_ = l_Std_Internal_IO_Async_AsyncTask_block___redArg(v_a_2420_);
+v___x_2421_ = l_Std_Async_AsyncTask_block___redArg(v_a_2420_);
 v___y_2416_ = v___x_2421_;
 goto v___jp_2415_;
 }
@@ -10347,7 +10347,7 @@ lean_ctor_set(v___x_2426_, 0, v___x_2425_);
 v___x_2427_ = lean_unsigned_to_nat(0u);
 v___x_2428_ = 0;
 lean_inc_ref(v___y_2423_);
-v___x_2429_ = l___private_Std_Internal_Async_Basic_0__Std_Internal_IO_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_2427_, v___x_2428_, v___x_2426_, v___y_2423_);
+v___x_2429_ = l___private_Std_Async_Basic_0__Std_Async_BaseAsync_bind_bindAsyncTask(lean_box(0), lean_box(0), v___x_2427_, v___x_2428_, v___x_2426_, v___y_2423_);
 if (lean_obj_tag(v___x_2429_) == 0)
 {
 lean_object* v_a_2430_; lean_object* v___x_2431_; 
@@ -16242,7 +16242,7 @@ return v_res_4851_;
 }
 }
 lean_object* runtime_initialize_Lean_Elab_Do_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Std_Internal_Async_TCP(uint8_t builtin);
+lean_object* runtime_initialize_Std_Async_TCP(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Idbg(uint8_t builtin) {
 lean_object * res;
@@ -16251,7 +16251,7 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Lean_Elab_Do_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Async_TCP(builtin);
+res = runtime_initialize_Std_Async_TCP(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = l___private_Lean_Elab_Idbg_0__Lean_Elab_Do_controlInfoIdbg___regBuiltin___private_Lean_Elab_Idbg_0__Lean_Elab_Do_controlInfoIdbg__1();
@@ -16278,7 +16278,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Elab_Do_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Do(uint8_t builtin);
-lean_object* initialize_Std_Internal_Async_TCP(uint8_t builtin);
+lean_object* initialize_Std_Async_TCP(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Idbg(uint8_t builtin) {
 lean_object * res;
@@ -16290,7 +16290,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Parser_Do(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Async_TCP(builtin);
+res = initialize_Std_Async_TCP(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Idbg(builtin);

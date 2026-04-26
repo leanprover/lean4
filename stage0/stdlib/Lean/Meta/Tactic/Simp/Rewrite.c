@@ -18533,7 +18533,6 @@ lean_ctor_set_uint8(v___x_5581_, sizeof(void*)*7, v_trackZetaDelta_5569_);
 lean_ctor_set_uint8(v___x_5581_, sizeof(void*)*7 + 1, v_univApprox_5576_);
 lean_ctor_set_uint8(v___x_5581_, sizeof(void*)*7 + 2, v_inTypeClassResolution_5577_);
 lean_ctor_set_uint8(v___x_5581_, sizeof(void*)*7 + 3, v_cacheInferType_5578_);
-lean_inc_ref(v_e_5500_);
 v___x_5582_ = l_Lean_Meta_reduceRecMatcher_x3f(v_e_5500_, v___x_5581_, v_a_5505_, v_a_5506_, v_a_5507_);
 lean_dec_ref(v___x_5581_);
 if (lean_obj_tag(v___x_5582_) == 0)

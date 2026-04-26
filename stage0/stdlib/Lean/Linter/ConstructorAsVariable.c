@@ -2916,8 +2916,8 @@ else
 {
 lean_object* v___x_935_; 
 lean_dec_ref(v_str_846_);
-lean_dec_ref(v___x_844_);
 lean_dec(v_pre_845_);
+lean_dec_ref(v___x_844_);
 lean_del_object(v___x_824_);
 lean_del_object(v___x_812_);
 lean_dec(v_val_810_);

@@ -316,7 +316,7 @@ _start:
 {
 lean_object* v_config_4_; uint8_t v_bootstrap_5_; 
 v_config_4_ = lean_ctor_get(v_pkg_2_, 6);
-v_bootstrap_5_ = lean_ctor_get_uint8(v_config_4_, sizeof(void*)*26);
+v_bootstrap_5_ = lean_ctor_get_uint8(v_config_4_, sizeof(void*)*27);
 if (v_bootstrap_5_ == 0)
 {
 lean_object* v_lakeCache_x3f_6_; 
@@ -632,7 +632,7 @@ v_packages_108_ = lean_ctor_get(v_self_107_, 4);
 v___x_109_ = lean_unsigned_to_nat(0u);
 v___x_110_ = lean_array_fget_borrowed(v_packages_108_, v___x_109_);
 v_config_111_ = lean_ctor_get(v___x_110_, 6);
-v_bootstrap_112_ = lean_ctor_get_uint8(v_config_111_, sizeof(void*)*26);
+v_bootstrap_112_ = lean_ctor_get_uint8(v_config_111_, sizeof(void*)*27);
 return v_bootstrap_112_;
 }
 }
@@ -4030,7 +4030,7 @@ lean_object* v___x_1380_; lean_object* v___x_1381_; lean_object* v_config_1382_;
 v___x_1380_ = lean_unsigned_to_nat(0u);
 v___x_1381_ = lean_array_fget_borrowed(v_packages_1343_, v___x_1380_);
 v_config_1382_ = lean_ctor_get(v___x_1381_, 6);
-v_bootstrap_1383_ = lean_ctor_get_uint8(v_config_1382_, sizeof(void*)*26);
+v_bootstrap_1383_ = lean_ctor_get_uint8(v_config_1382_, sizeof(void*)*27);
 lean_inc(v___y_1379_);
 v___x_1384_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1384_, 0, v___x_1377_);

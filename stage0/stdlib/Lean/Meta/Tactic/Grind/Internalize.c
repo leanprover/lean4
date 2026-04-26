@@ -6242,7 +6242,6 @@ goto v___jp_1881_;
 else
 {
 lean_object* v___x_1961_; 
-lean_inc_ref(v_e_1869_);
 v___x_1961_ = l_Lean_Meta_reduceMatcher_x3f(v_e_1869_, v_a_1876_, v_a_1877_, v_a_1878_, v_a_1879_);
 if (lean_obj_tag(v___x_1961_) == 0)
 {

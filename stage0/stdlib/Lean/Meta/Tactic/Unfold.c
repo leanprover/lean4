@@ -609,7 +609,6 @@ lean_object* v_expr_92_; lean_object* v_proof_x3f_93_; uint8_t v_cache_94_; lean
 v_expr_92_ = lean_ctor_get(v_val_88_, 0);
 v_proof_x3f_93_ = lean_ctor_get(v_val_88_, 1);
 v_cache_94_ = lean_ctor_get_uint8(v_val_88_, sizeof(void*)*2);
-lean_inc_ref(v_expr_92_);
 v___x_95_ = l_Lean_Meta_reduceMatcher_x3f(v_expr_92_, v_a_79_, v_a_80_, v_a_81_, v_a_82_);
 if (lean_obj_tag(v___x_95_) == 0)
 {

@@ -198,6 +198,21 @@ register_builtin_option trace.profiler.output : String := {
     "output `trace.profiler` data in Firefox Profiler-compatible format to given file path"
 }
 
+register_builtin_option trace.profiler.serve : Bool := {
+  defValue := false
+  descr    :=
+    "serve the `trace.profiler` data over HTTP and open it in `https://profiler.firefox.com`; \
+     blocks until interrupted with Ctrl+C"
+}
+
+/--
+True if the `trace.profiler` data should be retained for export - either to a file
+(`trace.profiler.output`) or via the local HTTP server (`trace.profiler.serve`). When true, code
+that would otherwise consume the trace state as messages must leave it intact.
+-/
+@[inline] def trace.profiler.isExporting (opts : Options) : Bool :=
+  (trace.profiler.output.get? opts).isSome || trace.profiler.serve.get opts
+
 register_builtin_option trace.profiler.output.pp : Bool := {
   defValue := false
   descr    :=
@@ -427,9 +442,10 @@ where
     MonadExcept.ofExcept res
 
 def addTraceAsMessages [Monad m] [MonadRef m] [MonadLog m] [MonadTrace m] : m Unit := do
-  if trace.profiler.output.get? (← getOptions) |>.isSome then
-    -- do not add trace messages if `trace.profiler.output` is set as it would be redundant and
-    -- pretty printing the trace messages is expensive
+  if trace.profiler.isExporting (← getOptions) then
+    -- do not add trace messages if the profile is being exported (`trace.profiler.output` or
+    -- `trace.profiler.serve`) as it would be redundant, pretty printing the trace messages is
+    -- expensive, and `getResetTraces` would consume the data we want to export
     return
   let traces ← getResetTraces
   if traces.isEmpty then

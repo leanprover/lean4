@@ -100,12 +100,19 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_signal_mk(uint32_t signum_obj, uint8
     }
 
     lean_uv_signal_object * signal = (lean_uv_signal_object*)malloc(sizeof(lean_uv_signal_object));
+    if (signal == nullptr) {
+        return lean_io_result_mk_error(decode_io_error(errno, nullptr));
+    }
     signal->m_signum = signum;
     signal->m_repeating = repeating;
     signal->m_state = SIGNAL_STATE_INITIAL;
     signal->m_promise = NULL;
 
     uv_signal_t * uv_signal = (uv_signal_t*)malloc(sizeof(uv_signal_t));
+    if (uv_signal == nullptr) {
+        free(signal);
+        return lean_io_result_mk_error(decode_io_error(errno, nullptr));
+    }
 
     event_loop_lock(&global_ev);
     int result = uv_signal_init(global_ev.loop, uv_signal);

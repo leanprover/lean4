@@ -316,10 +316,7 @@ private def isDefEqArgsFirstPass
     let info := paramInfo[i]
     let a₁ := args₁[i]!
     let a₂ := args₂[i]!
-    if info.dependsOnHigherOrderOutParam || info.higherOrderOutParam then
-      trace[Meta.isDefEq] "found messy {a₁} =?= {a₂}"
-      postponedHO := postponedHO.push i
-    else if info.isExplicit then
+    if info.isExplicit then
       if info.isProp then
         unless ← isAbstractedUnassignedMVar a₁ <||> isAbstractedUnassignedMVar a₂ do
           -- Skip expensive unification problem that is likely solved
@@ -327,6 +324,10 @@ private def isDefEqArgsFirstPass
           -- `a₂` have the same type, so they're defeq in any case.
           -- See comment at `isAbstractedUnassignedMVar`.
           continue
+      if info.dependsOnHigherOrderImplicit then
+        trace[Meta.isDefEq] "found messy {a₁} =?= {a₂}"
+        postponedHO := postponedHO.push i
+        continue
       unless (← Meta.isExprDefEqAux a₁ a₂) do
         return .failed
     else if (← isEtaUnassignedMVar a₁ <||> isEtaUnassignedMVar a₂) then
@@ -340,7 +341,10 @@ private def isDefEqArgsFirstPass
           -- `a₂` have the same type, so they're defeq in any case.
           -- See comment at `isAbstractedUnassignedMVar`.
           continue
-      postponedImplicit := postponedImplicit.push i
+      if info.higherOrderImplicit then
+        postponedHO := postponedHO.push i
+      else
+        postponedImplicit := postponedImplicit.push i
   return .ok postponedImplicit postponedHO
 
 /--
@@ -401,9 +405,11 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
   for i in postponedHO do
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
-    if respectTransparency && (implicitBump || finfo.paramInfo[i]!.isInstance) then
+    if finfo.paramInfo[i]!.isExplicit then
+      unless (← Meta.isExprDefEqAux a₁ a₂) do return false
+    else if respectTransparency && (implicitBump || finfo.paramInfo[i]!.isInstance) then
       unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
-    else if !respectTransparency && finfo.paramInfo[i]!.isInstance then
+    else if !respectTransparency then
       -- Old behavior
       unless (← withInferTypeConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else
@@ -2270,7 +2276,7 @@ private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
-  withTraceNodeBefore `Meta.isDefEq (fun _ => return m!"{t} =?= {s}") do
+  withTraceNodeBefore `Meta.isDefEq (fun _ => return m!"{t} =?= {s} ({repr <| ← getTransparency})") do
   checkSystem "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do

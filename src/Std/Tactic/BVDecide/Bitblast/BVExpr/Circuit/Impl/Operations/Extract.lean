@@ -56,7 +56,7 @@ instance : AIG.LawfulVecOperator α ExtractTarget blastExtract where
   decl_eq := by
     intros
     unfold blastExtract
-    simp; rfl
+    simp
 
 end bitblast
 end BVExpr

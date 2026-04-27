@@ -23623,6 +23623,7 @@ lean_dec_ref(v___y_8475_);
 lean_dec(v___y_8474_);
 lean_dec_ref(v___y_8473_);
 lean_dec(v___y_8472_);
+lean_dec_ref(v_arg_8471_);
 return v_res_8480_;
 }
 }

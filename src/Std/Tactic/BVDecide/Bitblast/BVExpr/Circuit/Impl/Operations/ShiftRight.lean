@@ -117,7 +117,7 @@ instance : AIG.LawfulVecOperator α AIG.ShiftTarget blastArithShiftRightConst wh
   decl_eq := by
     intros
     unfold blastArithShiftRightConst
-    simp; rfl
+    simp
 
 structure TwoPowShiftTarget (aig : AIG α) (w : Nat) where
   n : Nat

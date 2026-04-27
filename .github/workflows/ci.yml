@@ -2,31 +2,29 @@ name: CI
 on:
   push:
     branches:
-      - 'master'
+      - "master"
     tags:
-      - '*'
+      - "*"
   pull_request:
   merge_group:
   schedule:
-    - cron: '0 7 * * *'  # 8AM CET/11PM PT
+    - cron: "0 7 * * *" # 8AM CET/11PM PT
   # for manual re-release of a nightly
   workflow_dispatch:
     inputs:
       action:
-        description: 'Action'
+        description: "Action"
         required: true
-        default: 'release nightly'
+        default: "release nightly"
         type: choice
         options:
-        - release nightly
-
+          - release nightly
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
-
   # This job determines various settings for the following CI runs; see the `outputs` for details
   configure:
     runs-on: ubuntu-latest
@@ -466,23 +464,22 @@ jobs:
     # mark as merely cancelled not failed if builds are cancelled
     if: ${{ !cancelled() }}
     steps:
-    - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && github.ref_name == 'master' }}
-      uses: zulip/github-actions-zulip/send-message@v1
-      with:
-        api-key: ${{ secrets.ZULIP_BOT_KEY }}
-        email: "github-actions-bot@lean-fro.zulipchat.com"
-        organization-url: "https://lean-fro.zulipchat.com"
-        to: "infrastructure"
-        topic: "Github actions"
-        type: "stream"
-        content: |
-          A build of `${{ github.ref_name }}`, triggered by event `${{ github.event_name }}`, [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
-    - if: contains(needs.*.result, 'failure')
-      uses: actions/github-script@v8
-      with:
-        script: |
+      - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && github.ref_name == 'master' }}
+        uses: zulip/github-actions-zulip/send-message@v1
+        with:
+          api-key: ${{ secrets.ZULIP_BOT_KEY }}
+          email: "github-actions-bot@lean-fro.zulipchat.com"
+          organization-url: "https://lean-fro.zulipchat.com"
+          to: "infrastructure"
+          topic: "Github actions"
+          type: "stream"
+          content: |
+            A build of `${{ github.ref_name }}`, triggered by event `${{ github.event_name }}`, [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+      - if: contains(needs.*.result, 'failure')
+        uses: actions/github-script@v8
+        with:
+          script: |
             core.setFailed('Some jobs failed')
-
 
   # This job creates releases from tags
   # (whether they are "unofficial" releases for experiments, or official releases when the tag is "v" followed by a semver string.)

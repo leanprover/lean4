@@ -8,10 +8,57 @@ prelude
 public import Init.Data.Range.Polymorphic.Stream
 public import Lean.Meta.DiscrTree.Main
 public import Lean.Meta.CollectMVars
+import Lean.Meta.CollectFVars
 import Init.While
 import Lean.OriginalConstKind
 import Lean.ProjFns
 public section
+
+/-- Pretty-prints a local declaration and its type as a binder,
+using the appropriate brackets given its `BinderInfo`. Example output: `{α : Type}`.
+
+Returns `none` for let decls. -/
+protected def Lean.LocalDecl.ppAsBinder : LocalDecl → Option MessageData
+  | .ldecl .. => none
+  | .cdecl _ fvarId _ type binderInfo _ =>
+    let (lBracket, rBracket) : String × String := match binderInfo with
+      | .implicit       => ("{", "}")
+      | .strictImplicit => ("⦃", "⦄")
+      | .instImplicit   => ("[", "]")
+      | .default        => ("(", ")")
+    some <| .bracket lBracket m!"{mkFVar fvarId} : {type}" rBracket
+
+/-- Pretty-prints a free variable and its type as a binder,
+using the appropriate brackets given its `BinderInfo`. Example output: `{α : Type}`.
+
+Returns `none` for let decls. -/
+@[inline]
+protected def Lean.FVarId.ppAsBinder (fvarId : FVarId) : MetaM (Option MessageData) :=
+  return (← fvarId.getDecl).ppAsBinder
+
+
+
+/--
+Tests if any of the binders of `(x₀ : A₀) → (x₁ : A₁) → ⋯ → X` which satisfy `p Aᵢ bi` (with `bi`
+the `binderInfo`) are unused in the renainder of the type (i.e. in `(xᵢ₊₁ : Aᵢ₊₁) → ⋯ → X`).
+
+Note that the argument to `p` may have loose bvars. This is a performance optimization.
+
+This function runs `cleanupAnnotations` on each type suffix `(xᵢ₊₁ : Aᵢ₊₁) → ⋯ → X` before
+examining it.
+
+We see through `let`s, and do not report if any of them are unused.
+-/
+@[specialize p]
+partial def Lean.Expr.hasUnusedForallBindersWhere (p : BinderInfo → Expr → Bool) (e : Expr) : Bool :=
+  match e.cleanupAnnotations with
+  | .forallE _ type body bi =>
+    p bi type && !(body.hasLooseBVar 0) || body.hasUnusedForallBindersWhere p
+  /- See through `letE` -/
+  | .letE _ _ _ body _ => body.hasUnusedForallBindersWhere p
+  | _ => false
+
+
 namespace Lean.Meta
 
 register_builtin_option synthInstance.checkSynthOrder : Bool := {
@@ -230,33 +277,58 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
 
   return synthed
 
-def checkImpossibleInstance (c : Expr) : MetaM Unit := do
-  let cTy ← inferType c
-  forallTelescopeReducing cTy fun args ty => do
-    let argTys ← args.mapM inferType
-    let impossibleArgs ← args.zipIdx.filterMapM fun (arg, i) => do
-      let fv := arg.fvarId!
-      if (← fv.getDecl).binderInfo.isInstImplicit then return none
-      if ty.containsFVar fv then return none
-      if argTys[i+1:].any (·.containsFVar fv) then return none
-      return some m!"{arg} : {← inferType arg}"
-    if impossibleArgs.isEmpty then return
-    let impossibleArgs := MessageData.joinSep impossibleArgs.toList ", "
-    throwError m!"Instance {c} has arguments "
-      ++ impossibleArgs
-      ++ " that are impossible to infer. Those arguments are not instance-implicit and do not appear in another instance-implicit argument or the return type."
+def checkImpossibleInstance (declName : Name) : MetaM Unit := do
+  let cinfo ← getConstInfo declName
+  /- If there is a sorry, we skip the `NonClassInstance` and `ImpossibleInstance` checks
+      completely -/
+  if cinfo.type.hasSorry then return
+  -- Performantly check if any non-instance binder is unused.
+  if cinfo.type.hasUnusedForallBindersWhere fun bi _ => !bi.isInstImplicit then do
+    forallTelescope cinfo.type fun args ty => do
+      -- Find the fvars used in the type and any instance implicit argument, transitively.
+      let getInitialPossibleFVars := do
+        ty.collectFVars
+        for arg in args do
+          if (← arg.fvarId!.getBinderInfo).isInstImplicit then
+            /- The fvarIds in the `CollectFVars.State` should be our possible args. As such, we
+            start by adding the instance arguments to the state, rather than computing the
+            dependencies of their types. -/
+            modifyThe CollectFVars.State (·.add arg.fvarId!)
+      let possibleFVars ← (·.2) <$> getInitialPossibleFVars.run {}
+      -- Transitively include dependencies.
+      let possibleFVars ← possibleFVars.addDependencies
+      let mut impossibleArgMsgs := #[]
+      for arg in args, i in 1...* do
+        unless possibleFVars.fvarSet.contains arg.fvarId! do
+          let some binder ← arg.fvarId!.ppAsBinder | continue
+          impossibleArgMsgs := impossibleArgMsgs.push <|
+            indentD m!"argument {i}: `{binder}`"
+      if impossibleArgMsgs.isEmpty then return -- Should not be reachable.
+      let msg := m!"\
+        This instance has {impossibleArgMsgs.size} \
+        argument{if impossibleArgMsgs.size = 1 then "" else "s"} that cannot be \
+        inferred using typeclass synthesis. Specifically\n\
+        {.joinSep impossibleArgMsgs.toList .nil}\n\n\
+        These arguments are not instance-implicit and appear neither in another \
+        instance-implicit argument nor the return type, so they cannot be inferred using \
+        typeclass synthesis."
+      if cinfo.type.hasSorry then logWarning msg else throwError msg
 
-def checkNonClassInstance (declName : Name) (c : Expr) : MetaM Unit := do
+def checkNonClassInstance (c : Expr) : MetaM Unit := do
   let type ← inferType c
+  /- If there is a sorry, we skip the `NonClassInstance` and `ImpossibleInstance` checks
+     completely -/
+  if type.hasSorry then return
   forallTelescopeReducing type fun _ target => do
     unless (← isClass? target).isSome do
       unless target.isSorry do
-      throwError m!"instance `{declName}` target `{target}` is not a type class."
+      throwError m!"The declaration `{c}` should not be an instance as its return type `{target}` \
+      is not a type class."
 
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let c ← mkConstWithLevelParams declName
-  checkImpossibleInstance c
-  checkNonClassInstance declName c
+  checkNonClassInstance c
+  checkImpossibleInstance declName
   let keys ← mkInstanceKey c
   let status ← getReducibilityStatus declName
   unless status matches .reducible | .implicitReducible do

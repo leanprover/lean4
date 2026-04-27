@@ -329,6 +329,9 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
 
         size_t big_size = files[files.size()-1].m_base_addr + files[files.size()-1].m_size - files[0].m_base_addr;
         char * big_buffer = static_cast<char *>(malloc(big_size));
+        if (!big_buffer) {
+            return io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        }
         for (auto & file : files) {
             std::string const & olean_fn = file.m_fname;
             try {

@@ -2346,7 +2346,7 @@ Returns `a` modulo `n` as a `Fin n`.
 
 This function exists for bootstrapping purposes. Use `Fin.ofNat` instead.
 -/
-@[expose] protected def Fin.Internal.ofNat (n : Nat) (hn : LT.lt 0 n) (a : Nat) : Fin n :=
+protected def Fin.Internal.ofNat (n : Nat) (hn : LT.lt 0 n) (a : Nat) : Fin n :=
   ⟨HMod.hMod a n, Nat.mod_lt _ hn⟩
 
 /--
@@ -2388,7 +2388,7 @@ protected def BitVec.ofNatLT {w : Nat} (i : Nat) (p : LT.lt i (hPow 2 w)) : BitV
 /--
 The bitvector with value `i mod 2^n`.
 -/
-@[expose, match_pattern]
+@[match_pattern]
 protected def BitVec.ofNat (n : Nat) (i : Nat) : BitVec n where
   toFin := Fin.Internal.ofNat (HPow.hPow 2 n) (Nat.pow_pos (Nat.zero_lt_succ _)) i
 
@@ -2397,7 +2397,6 @@ Return the underlying `Nat` that represents a bitvector.
 
 This is O(1) because `BitVec` is a (zero-cost) wrapper around a `Nat`.
 -/
-@[expose]
 protected def BitVec.toNat (x : BitVec w) : Nat := x.toFin.val
 
 instance : LT (BitVec w) where lt := (LT.lt ·.toNat ·.toNat)
@@ -2924,7 +2923,7 @@ Examples:
  * `(some "hello").getD "goodbye" = "hello"`
  * `none.getD "goodbye" = "goodbye"`
 -/
-@[macro_inline, expose] def Option.getD (opt : Option α) (dflt : α) : α :=
+@[macro_inline] def Option.getD (opt : Option α) (dflt : α) : α :=
   match opt with
   | some x => x
   | none => dflt
@@ -3215,7 +3214,7 @@ def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α where
 /--
 Constructs a new empty array with initial capacity `c`.
 -/
-@[extern "lean_mk_empty_array_with_capacity", expose]
+@[extern "lean_mk_empty_array_with_capacity"]
 def Array.emptyWithCapacity {α : Type u} (c : @& Nat) : Array α where
   toList := List.nil
 
@@ -3224,7 +3223,7 @@ Constructs a new empty array with initial capacity `0`.
 
 Use `Array.emptyWithCapacity` to create an array with a greater initial capacity.
 -/
-@[expose, inline]
+@[inline]
 def Array.empty {α : Type u} : Array α := emptyWithCapacity 0
 
 /--
@@ -3303,7 +3302,7 @@ Examples:
 * `#[].push "apple" = #["apple"]`
 * `#["apple"].push "orange" = #["apple", "orange"]`
 -/
-@[extern "lean_array_push", expose]
+@[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α where
   toList := List.concat a.toList v
 
@@ -3593,7 +3592,7 @@ instance : Inhabited Substring.Raw where
 /--
 The number of bytes used by the string's UTF-8 encoding.
 -/
-@[inline, expose] def Substring.Raw.bsize : Substring.Raw → Nat
+@[inline] def Substring.Raw.bsize : Substring.Raw → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
 /--

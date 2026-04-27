@@ -295,7 +295,6 @@ abbrev flag (default : Bool) : Type := Bool
 Gadget that indicates that a function's parameter should be treated as a repeated (and thus
 optional) named argument when used in a docstring extension.
 -/
-@[expose]
 abbrev many (α : Type u) : Type u := Array α
 
 

@@ -183,6 +183,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     // Allocate buffer array for uv_write
     if (lean_usize_mul_would_overflow(array_len, sizeof(uv_buf_t))) {
+        lean_dec(data_array);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     uv_buf_t* bufs = (uv_buf_t*)malloc(array_len * sizeof(uv_buf_t));

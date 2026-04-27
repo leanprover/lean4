@@ -124,23 +124,21 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_new() {
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_connect(b_obj_arg socket, b_obj_arg addr) {
     lean_uv_tcp_socket_object* tcp_socket = lean_to_uv_tcp_socket(socket);
 
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
-
     sockaddr_storage addr_struct;
     lean_socket_address_to_sockaddr_storage(addr, &addr_struct);
 
     uv_connect_t* uv_connect = (uv_connect_t*)malloc(sizeof(uv_connect_t));
     if (uv_connect == nullptr) {
-        lean_dec(promise);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     tcp_connect_data* connect_data = (tcp_connect_data*)malloc(sizeof(tcp_connect_data));
     if (connect_data == nullptr) {
         free(uv_connect);
-        lean_dec(promise);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
+
+    lean_object* promise = lean_promise_new();
+    mark_mt(promise);
 
     connect_data->promise = promise;
     connect_data->socket = socket;
@@ -199,6 +197,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
 
     // Allocate buffer array for uv_write
     if (lean_usize_mul_would_overflow(array_len, sizeof(uv_buf_t))) {
+        lean_dec(data_array);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     uv_buf_t* bufs = (uv_buf_t*)malloc(array_len * sizeof(uv_buf_t));
@@ -214,24 +213,22 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_send(b_obj_arg socket, obj_arg d
         bufs[i] = uv_buf_init(data_str, data_len);
     }
 
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
-
     uv_write_t* write_uv = (uv_write_t*)malloc(sizeof(uv_write_t));
     if (write_uv == nullptr) {
         lean_dec(data_array);
-        lean_dec(promise);
         free(bufs);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     write_uv->data = (tcp_send_data*)malloc(sizeof(tcp_send_data));
     if (write_uv->data == nullptr) {
         lean_dec(data_array);
-        lean_dec(promise);
         free(bufs);
         free(write_uv);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
+
+    lean_object* promise = lean_promise_new();
+    mark_mt(promise);
 
     tcp_send_data* send_data = (tcp_send_data*)write_uv->data;
     send_data->promise = promise;
@@ -633,21 +630,17 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_tcp_shutdown(b_obj_arg socket) {
         return lean_io_result_mk_error(lean_decode_uv_error(UV_EALREADY, mk_string("shutdown already in progress")));
     }
 
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
-
-    tcp_socket->m_promise_shutdown = promise;
-    lean_inc(promise);
-
-
     uv_shutdown_t* shutdown_req = (uv_shutdown_t*)malloc(sizeof(uv_shutdown_t));
     if (shutdown_req == nullptr) {
-        lean_dec(tcp_socket->m_promise_shutdown);
-        tcp_socket->m_promise_shutdown = nullptr;
         event_loop_unlock(&global_ev);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     shutdown_req->data = (void*)socket;
+
+    lean_object* promise = lean_promise_new();
+    mark_mt(promise);
+    tcp_socket->m_promise_shutdown = promise;
+    lean_inc(promise);
 
     lean_inc(socket);
 

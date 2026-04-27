@@ -423,18 +423,16 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_hrtime() {
 
 // Std.Internal.UV.System.random : UInt64 → IO (IO.Promise (Except IO.Error (Array UInt8)))
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
-    lean_object* promise = lean_promise_new();
-    mark_mt(promise);
-
-    lean_object* byte_array = lean_alloc_sarray(1, 0, size);
-
     random_req_t* req = (random_req_t*)malloc(sizeof(random_req_t));
     if (req == nullptr) {
-        lean_dec(byte_array);
-        lean_dec(promise);
         return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
+
+    lean_object* promise = lean_promise_new();
+    mark_mt(promise);
     req->promise = promise;
+
+    lean_object* byte_array = lean_alloc_sarray(1, 0, size);
     req->byte_array = byte_array;
 
     req->req.data = req;

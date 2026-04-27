@@ -85,6 +85,25 @@ done
 #guard_msgs in
 #eval testWhileLetBind
 
+-- Pops entries from an `IO.Ref`-backed list to show that the bound expression
+-- in `while let pat ← e do ...` is re-evaluated each iteration.
+def testWhileLetBindRef : IO Unit := do
+  let r ← IO.mkRef [0, 1, 2, 3]
+  while let x :: rest ← r.get do
+    println! "{x}"
+    r.set rest
+  println! "done {(← r.get).length}"
+
+/--
+info: 0
+1
+2
+3
+done 0
+-/
+#guard_msgs in
+#eval testWhileLetBindRef
+
 -- Unified `while` keeps supporting the `while h : cond do ...` form.
 def testWhileH (xs : Array Nat) : Nat := Id.run do
   let mut i := 0

@@ -1,24 +1,25 @@
 import Lean.Meta
 
 /-!
-Regression tests for cryptic "unsupported pattern in syntax match" diagnostics
-in (and around) `do`-notation. The expected messages below capture the
-*current*, unhelpful behavior; tightening any of these is a positive change and
-the test should be updated accordingly.
+Regression tests that pattern errors inside the new `do` elaborator point at
+the offending pattern with the proper diagnostic from the regular pattern-var
+collector (e.g. "Invalid pattern: Expected a constructor or constant marked
+with `[match_pattern]`", "ambiguous pattern, use fully qualified name") instead
+of the catch-all "unsupported pattern in syntax match" used by syntax-quotation
+matches.
 
 * https://github.com/leanprover/lean4/issues/2215
 * https://github.com/leanprover/lean4/issues/8304
 * https://github.com/leanprover/lean4/issues/10393
 -/
 
+set_option backward.do.legacy false
+
 inductive A where | a
 inductive AA where | a
 
 -- #10393
-/--
-error: unsupported pattern in syntax match
-  some a
--/
+/-- error: ambiguous pattern, use fully qualified name, possible interpretations [AA.a, A.a] -/
 #guard_msgs in
 open A in
 open AA in
@@ -29,10 +30,7 @@ def f (x : Option Nat) : Id Nat := Id.run do
     33
 
 -- #2215
-/--
-error: unsupported pattern in syntax match
-  bar () edgeCount
--/
+/-- error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]` -/
 #guard_msgs in
 def foo (bar : Unit → Id Unit): Id Unit := do
   let mut edgeCount : Nat := 0
@@ -63,10 +61,16 @@ def test1 : Nat :=
   | .inr x , .inl y, inr z => return x+y+z
   | _,_,_ => return 37
 
--- #8304: inside `do`, the same mistake is swallowed by "unsupported pattern in syntax match"
+-- #8304: inside `do`, the same diagnostic now surfaces too
 /--
-error: unsupported pattern in syntax match
-  .inr x
+error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
+
+Hint: Using one of these would be valid:
+  [apply] `Or.inr`
+  [apply] `PSum.inr`
+  [apply] `Sum.inr`
+  [apply] `Sum.Lex.inr`
+  [apply] `Sum.LiftRel.inr`
 -/
 #guard_msgs in
 def test2 : MetaM Nat:= do
@@ -78,8 +82,14 @@ def test2 : MetaM Nat:= do
   | _,_,_ => return 37
 
 /--
-error: unsupported pattern in syntax match
-  .inr x
+error: Invalid pattern: Expected a constructor or constant marked with `[match_pattern]`
+
+Hint: Using one of these would be valid:
+  [apply] `Or.inr`
+  [apply] `PSum.inr`
+  [apply] `Sum.inr`
+  [apply] `Sum.Lex.inr`
+  [apply] `Sum.LiftRel.inr`
 -/
 #guard_msgs in
 def test3 : MetaM Nat:= do

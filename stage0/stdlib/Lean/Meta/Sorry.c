@@ -603,8 +603,8 @@ return v___x_187_;
 else
 {
 lean_object* v___x_188_; 
-lean_dec(v_pre_174_);
 lean_dec_ref(v_pre_173_);
+lean_dec(v_pre_174_);
 lean_dec_ref(v_pre_172_);
 lean_dec_ref(v_pre_171_);
 lean_dec_ref(v_pre_170_);
@@ -649,8 +649,8 @@ return v___x_191_;
 else
 {
 lean_object* v___x_192_; 
-lean_dec(v_pre_170_);
 lean_dec_ref(v_pre_165_);
+lean_dec(v_pre_170_);
 v___x_192_ = lean_box(0);
 return v___x_192_;
 }

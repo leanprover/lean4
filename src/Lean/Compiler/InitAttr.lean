@@ -54,7 +54,7 @@ unsafe def registerInitAttrUnsafe (attrName : Name) (runAfterImport : Bool) (ref
     descr := "initialization procedure for global references"
     -- We want to run `[init]` in declaration order
     preserveOrder := true
-    getParam := fun declName stx => do
+    getParam := fun declName stx => withoutExporting do
       let decl ← getConstInfo declName
       match (← Attribute.Builtin.getIdent? stx) with
       | some initFnName =>
@@ -149,8 +149,6 @@ def setBuiltinInitAttr (env : Environment) (declName : Name) (initFnName : Name 
 def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
   -- can always be private, not referenced directly except through emitted C code
   withoutExporting do
-  -- TODO: needs an update-stage0 + prefer_native=true for breaking symbol name
-  withExporting do
     let name ← mkAuxDeclName (kind := `_regBuiltin ++ forDecl)
     let type := mkApp (mkConst `IO) (mkConst `Unit)
     let decl := Declaration.defnDecl { name, levelParams := [], type, value, hints := ReducibilityHints.opaque,

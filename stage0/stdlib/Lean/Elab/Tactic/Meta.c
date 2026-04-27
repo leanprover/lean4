@@ -2312,6 +2312,7 @@ lean_inc_ref(v_mctx_719_);
 lean_dec(v___x_718_);
 lean_inc(v_mvarId_712_);
 v_mvarDecl_720_ = l_Lean_MetavarContext_getDecl(v_mctx_719_, v_mvarId_712_);
+lean_dec_ref(v_mctx_719_);
 v_userName_721_ = lean_ctor_get(v_mvarDecl_720_, 0);
 v_lctx_722_ = lean_ctor_get(v_mvarDecl_720_, 1);
 v_type_723_ = lean_ctor_get(v_mvarDecl_720_, 2);

@@ -40,27 +40,27 @@ lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Name_str___override(lean_object*, lean_object*);
 lean_object* l_Lean_Name_num___override(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
-lean_object* l_Lean_FVarIdSet_insert(lean_object*, lean_object*);
-size_t lean_ptr_addr(lean_object*);
-uint64_t lean_usize_to_uint64(size_t);
-lean_object* l_Lean_PersistentArray_pop___redArg(lean_object*);
-lean_object* lean_nat_to_int(lean_object*);
 lean_object* l_Id_instMonad___lam__6(lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Rat_ofInt(lean_object*);
-lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__5___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__4___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__3(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__2___boxed(lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* lean_nat_to_int(lean_object*);
+uint8_t lean_int_dec_eq(lean_object*, lean_object*);
+lean_object* lean_array_push(lean_object*, lean_object*);
+lean_object* l_Lean_PersistentArray_push___redArg(lean_object*, lean_object*);
+lean_object* lean_mk_empty_array_with_capacity(lean_object*);
+lean_object* l_Lean_PersistentArray_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_FVarIdSet_insert(lean_object*, lean_object*);
+size_t lean_ptr_addr(lean_object*);
+uint64_t lean_usize_to_uint64(size_t);
+lean_object* l_Lean_PersistentArray_pop___redArg(lean_object*);
+lean_object* l_Rat_ofInt(lean_object*);
 uint8_t lean_expr_eqv(lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofExpr(lean_object*);
 lean_object* l_Lean_aquote(lean_object*);
-uint8_t lean_int_dec_eq(lean_object*, lean_object*);
-lean_object* lean_array_push(lean_object*, lean_object*);
-lean_object* lean_mk_empty_array_with_capacity(lean_object*);
-lean_object* l_Lean_PersistentArray_forIn___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_emod(lean_object*, lean_object*);
 lean_object* lean_int_ediv(lean_object*, lean_object*);
 lean_object* lean_int_mul(lean_object*, lean_object*);
@@ -327,7 +327,9 @@ static const lean_object* l_Lean_Meta_Grind_Arith_split___redArg___closed__12 = 
 static lean_once_cell_t l_Lean_Meta_Grind_Arith_split___redArg___closed__13_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Meta_Grind_Arith_split___redArg___closed__13;
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_split___redArg(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_split___redArg___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_split(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_split___boxed(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Lean_Meta_Grind_Arith_isNatNum(lean_object* v_e_9_){
 _start:
 {
@@ -2526,12 +2528,30 @@ return v___x_777_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_split(lean_object* v_00_u03b1_780_, lean_object* v_cs_781_, lean_object* v_getCoeff_782_){
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_split___redArg___boxed(lean_object* v_cs_780_, lean_object* v_getCoeff_781_){
 _start:
 {
-lean_object* v___x_783_; 
-v___x_783_ = l_Lean_Meta_Grind_Arith_split___redArg(v_cs_781_, v_getCoeff_782_);
-return v___x_783_;
+lean_object* v_res_782_; 
+v_res_782_ = l_Lean_Meta_Grind_Arith_split___redArg(v_cs_780_, v_getCoeff_781_);
+lean_dec_ref(v_cs_780_);
+return v_res_782_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_split(lean_object* v_00_u03b1_783_, lean_object* v_cs_784_, lean_object* v_getCoeff_785_){
+_start:
+{
+lean_object* v___x_786_; 
+v___x_786_ = l_Lean_Meta_Grind_Arith_split___redArg(v_cs_784_, v_getCoeff_785_);
+return v___x_786_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_split___boxed(lean_object* v_00_u03b1_787_, lean_object* v_cs_788_, lean_object* v_getCoeff_789_){
+_start:
+{
+lean_object* v_res_790_; 
+v_res_790_ = l_Lean_Meta_Grind_Arith_split(v_00_u03b1_787_, v_cs_788_, v_getCoeff_789_);
+lean_dec_ref(v_cs_788_);
+return v_res_790_;
 }
 }
 lean_object* runtime_initialize_Init_Grind_Ring_Basic(uint8_t builtin);

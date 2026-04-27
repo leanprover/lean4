@@ -50,17 +50,17 @@ def versoCommentBodyFn : ParserFn := fun c s =>
     rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c s
   else s
 
-public def versoCommentBody : Parser where
+def versoCommentBody : Parser where
   fn := fun c s => nodeFn `Lean.Parser.Command.versoCommentBody versoCommentBodyFn c s
 
 
 @[combinator_parenthesizer versoCommentBody, expose]
-public def versoCommentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+def versoCommentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 
 open PrettyPrinter Formatter in
 open Syntax.MonadTraverser in
 @[combinator_formatter versoCommentBody, expose]
-public def versoCommentBody.formatter : PrettyPrinter.Formatter := do
+def versoCommentBody.formatter : PrettyPrinter.Formatter := do
   visitArgs $ do
     visitAtom `«-/»
     goLeft
@@ -353,6 +353,13 @@ def structInstFieldDef := leading_parser
 @[builtin_structInstFieldDecl_parser]
 def structInstFieldEqns := leading_parser
   optional "private" >> matchAlts
+
+/--
+Synthesizes a default value for a structure, making use of `Inhabited` instances for
+missing fields, as well as `Inhabited` instances for parent structures.
+-/
+@[builtin_term_parser] def structInstDefault := leading_parser
+  "struct_inst_default%"
 
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <|
   atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
@@ -889,14 +896,21 @@ def isIdent (stx : Syntax) : Bool :=
   -- antiquotations should also be allowed where an identifier is expected
   stx.isAntiquot || stx.isIdent
 
-def isIdentOrDotIdent (stx : Syntax) : Bool :=
-  isIdent stx || stx.isOfKind ``dotIdent
+/-- Predicate for what `explicitUniv` can follow. It is only meant to be used on an identifier
+that becomes the head constant of an application. -/
+def isIdentOrDotIdentOrProj (stx : Syntax) : Bool :=
+  isIdent stx || stx.isOfKind ``dotIdent || stx.isOfKind ``proj
 
-/-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
-@[builtin_term_parser] def explicitUniv : TrailingParser := trailing_parser
-  checkStackTop isIdentOrDotIdent "expected preceding identifier" >>
+/-- Syntax for `.{u, ...}` itself. Generally the `explicitUniv` trailing parser suffices.
+However, for `e |>.x.{u} a1 a2 a3` notation we need to be able to express explicit universes in the
+middle of the syntax. -/
+def explicitUnivSuffix : Parser :=
   checkNoWsBefore "no space before '.{'" >> ".{" >>
   sepBy1 levelParser ", " >> "}"
+/-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
+@[builtin_term_parser] def explicitUniv : TrailingParser := trailing_parser
+  checkStackTop isIdentOrDotIdentOrProj "expected preceding identifier" >>
+  explicitUnivSuffix
 /-- `x@e` or `x@h:e` matches the pattern `e` and binds its value to the identifier `x`.
 If present, the identifier `h` is bound to a proof of `x = e`. -/
 @[builtin_term_parser] def namedPattern : TrailingParser := trailing_parser
@@ -909,7 +923,7 @@ If present, the identifier `h` is bound to a proof of `x = e`. -/
 It is especially useful for avoiding parentheses with repeated applications.
 -/
 @[builtin_term_parser] def pipeProj   := trailing_parser:minPrec
-  " |>." >> checkNoWsBefore >> (fieldIdx <|> rawIdent) >> many argument
+  " |>." >> checkNoWsBefore >> (fieldIdx <|> rawIdent) >> optional explicitUnivSuffix >> many argument
 @[builtin_term_parser] def pipeCompletion := trailing_parser:minPrec
   " |>."
 

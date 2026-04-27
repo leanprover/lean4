@@ -7,11 +7,6 @@ To build Lean you should use `make -j$(nproc) -C build/release`.
 The build uses `ccache`, and in a sandbox `ccache` may complain about read-only file systems.
 Use `CCACHE_READONLY` and `CCACHE_TEMPDIR` instead of disabling ccache completely.
 
-To rebuild individual modules without a full build, use Lake directly:
-```
-cd src && lake build Init.Prelude
-```
-
 ## Running Tests
 
 See `tests/README.md` for full documentation. Quick reference:
@@ -36,6 +31,9 @@ make -C build/release -j "$(nproc)" test ARGS='--rerun-failed'
 # Run a test manually without ctest (test pile: pass filename relative to the pile dir)
 tests/with_stage1_test_env.sh tests/elab_bench/run_bench.sh cbv_decide.lean
 tests/with_stage1_test_env.sh tests/elab/run_test.sh grind_indexmap.lean
+
+# Build Lake and run a Lake test (pass directory name relative to `tests/lake`)
+tests/lake/run_test.sh tests/ltar
 ```
 
 ## Benchmark vs Test Problem Sizes
@@ -65,6 +63,8 @@ To rebuild individual stage 2 modules without a full `make stage2`, use Lake dir
 ```
 cd build/release/stage2 && lake build Init.Prelude
 ```
+
+To run tests in stage2, replace `-C build/release` from above with `-C build/release/stage2`.
 
 ## New features
 

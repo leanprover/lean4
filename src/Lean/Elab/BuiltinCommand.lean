@@ -116,8 +116,9 @@ private def checkEndHeader : Name → List Scope → Option Name
       addScope (isNewNamespace := false) (isNoncomputable := ncTk.isSome) (isPublic := publicTk.isSome) (isMeta := metaTk.isSome) (attrs := attrs) "" (← getCurrNamespace)
   | _                        => throwUnsupportedSyntax
 
-@[builtin_command_elab InternalSyntax.end_local_scope] def elabEndLocalScope : CommandElab := fun _ => do
-  setDelimitsLocal
+@[builtin_command_elab InternalSyntax.end_local_scope] def elabEndLocalScope : CommandElab := fun stx => do
+  let depth := stx[1].toNat
+  setDelimitsLocal depth
 
 /--
 Produces a `Name` composed of the names of at most the innermost `n` scopes in `ss`, truncating if an
@@ -528,7 +529,7 @@ open Lean.Parser.Command.InternalSyntax in
 @[builtin_macro Lean.Parser.Command.«in»] def expandInCmd : Macro
   | `($cmd₁ in%$tk $cmd₂) =>
     -- Limit ref variability for incrementality; see Note [Incremental Macros]
-    withRef tk `(section $cmd₁:command $endLocalScopeSyntax:command $cmd₂ end)
+    withRef tk `(section $cmd₁:command $(endLocalScopeSyntax 1):command $cmd₂ end)
   | _                 => Macro.throwUnsupported
 
 @[builtin_command_elab Parser.Command.addDocString] def elabAddDeclDoc : CommandElab := fun stx => do

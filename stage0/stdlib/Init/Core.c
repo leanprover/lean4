@@ -2341,7 +2341,7 @@ lean_ctor_set(v___x_730_, 0, v_inst_729_);
 return v___x_730_;
 }
 }
-LEAN_EXPORT lean_object* l_instInhabitedForInStep_default(lean_object* v_a_731_, lean_object* v_inst_732_){
+LEAN_EXPORT lean_object* l_instInhabitedForInStep_default(lean_object* v_00_u03b1_731_, lean_object* v_inst_732_){
 _start:
 {
 lean_object* v___x_733_; 
@@ -4416,7 +4416,7 @@ lean_ctor_set(v___x_1876_, 0, v_inst_1875_);
 return v___x_1876_;
 }
 }
-LEAN_EXPORT lean_object* l_instInhabitedTask_default(lean_object* v_a_1877_, lean_object* v_inst_1878_){
+LEAN_EXPORT lean_object* l_instInhabitedTask_default(lean_object* v_00_u03b1_1877_, lean_object* v_inst_1878_){
 _start:
 {
 lean_object* v___x_1879_; 

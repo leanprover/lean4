@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Control.Do
+public import Lake.Util.Git
 public import Lake.Util.Log
 public import Lake.Util.Version
 public import Lake.Config.Artifact
@@ -97,7 +98,7 @@ public partial def parse
   else
     loop 2 {} (lfPos.next h)
 
-@[inline] private partial def loadCore
+@[inline] partial def loadCore
   (h : IO.FS.Handle) (fileName : String) (platformIndependent : Bool)
 : LogIO CacheMap := do
   let rec loop (i : Nat) (cache : CacheMap) := do
@@ -469,7 +470,7 @@ public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : Lo
   cache.dir / "revisions"
 
 /-- Returns path to the input-to-output mappings of a downloaded package revision. -/
-@[inline] public def revisionPath (cache : Cache) (scope : String) (rev : String)   : FilePath :=
+@[inline] public def revisionPath (cache : Cache) (scope : String) (rev : GitRev) : FilePath :=
   cache.revisionDir / scope / s!"{rev}.jsonl"
 
 end Cache
@@ -575,7 +576,7 @@ def uploadS3
   | .error e =>
     error s!"curl produced invalid JSON output: {e}; received:\n{out.stderr}"
 
-private structure CacheServiceImpl where
+structure CacheServiceImpl where
   mk ::
     name? : Option CacheServiceName := none
     /- S3 Bucket -/
@@ -641,11 +642,11 @@ namespace CacheService
 /-- The MIME type of a Lake/Reservoir artifact. -/
 public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
-private def appendScope (endpoint : String) (scope : String) : String :=
+def appendScope (endpoint : String) (scope : String) : String :=
   scope.split '/' |>.fold (init := endpoint) fun s component =>
     uriEncode component.copy (s.push '/')
 
-private def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope) : String :=
+def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope) : String :=
   let endpoint :=
     match scope.impl with
     | .repo scope => appendScope service.impl.artifactEndpoint scope
@@ -687,27 +688,27 @@ public def uploadArtifact
 
 /-! ## Multi-Artifact Transfer -/
 
-private inductive TransferKind
+inductive TransferKind
   | get
   | put
   deriving DecidableEq
 
-private structure TransferInfo where
+structure TransferInfo where
   url : String
   path : FilePath
   descr : ArtifactDescr
 
-private structure TransferConfig where
+structure TransferConfig where
   kind : TransferKind
   scope : CacheServiceScope
   infos : Array TransferInfo
   key : String := ""
 
-private structure TransferState where
+structure TransferState where
   didError : Bool := false
   numSuccesses : Nat := 0
 
-private partial def monitorTransfer
+partial def monitorTransfer
   (cfg : TransferConfig) (h hOut : IO.FS.Handle) (s : TransferState)
 : LoggerIO TransferState := do
   let line ← h.getLine
@@ -781,7 +782,7 @@ where
     logError msg
     logVerbose s!"curl JSON: {line.trimAsciiEnd}"
 
-private def transferArtifacts
+def transferArtifacts
   (cfg : TransferConfig)
 : LoggerIO Unit := IO.FS.withTempFile fun h path => do
   let args ← id do
@@ -941,8 +942,8 @@ public def uploadArtifacts
 /-- The MIME type of a Lake/Reservoir input-to-output mappings for a Git revision. -/
 public def mapContentType : String := "application/vnd.reservoir.outputs+json-lines"
 
-private def s3RevisionUrl
-  (rev : String) (service : CacheService) (scope : CacheServiceScope)
+def s3RevisionUrl
+  (rev : GitRev) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : String :=
   match scope.impl with
@@ -956,7 +957,7 @@ private def s3RevisionUrl
     return s!"{url}/{rev}.jsonl"
 
 public def revisionUrl
-  (rev : String) (service : CacheService) (scope : CacheServiceScope)
+  (rev : GitRev) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : String :=
   if service.isReservoir then Id.run do
@@ -974,7 +975,7 @@ public def revisionUrl
     service.s3RevisionUrl rev scope platform toolchain
 
 public def downloadRevisionOutputs?
-  (rev : String) (cache : Cache) (service : CacheService)
+  (rev : GitRev) (cache : Cache) (service : CacheService)
   (localScope : String) (remoteScope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none) (force := false)
 : LoggerIO (Option CacheMap) := do
@@ -998,7 +999,7 @@ public def downloadRevisionOutputs?
   CacheMap.load path platform.isNone
 
 public def uploadRevisionOutputs
-  (rev : String) (outputs : FilePath) (service : CacheService) (scope : CacheServiceScope)
+  (rev : GitRev) (outputs : FilePath) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : LoggerIO Unit := do
   let url := service.s3RevisionUrl rev scope platform toolchain

@@ -10119,7 +10119,7 @@ return v___x_3503_;
 }
 else
 {
-lean_object* v___f_3505_; lean_object* v___x_3506_; lean_object* v___x_3507_; lean_object* v___x_3508_; lean_object* v___x_3509_; lean_object* v_toMonadRef_3510_; lean_object* v___f_3511_; lean_object* v___x_3512_; lean_object* v___x_3513_; lean_object* v___x_3514_; lean_object* v___x_3515_; lean_object* v___x_3516_; lean_object* v___x_3517_; lean_object* v___x_1076__overap_3518_; lean_object* v___x_3519_; 
+lean_object* v___f_3505_; lean_object* v___x_3506_; lean_object* v___x_3507_; lean_object* v___x_3508_; lean_object* v___x_3509_; lean_object* v_toMonadRef_3510_; lean_object* v___f_3511_; lean_object* v___x_3512_; lean_object* v___x_3513_; lean_object* v___x_3514_; lean_object* v___x_3515_; lean_object* v___x_3516_; lean_object* v___x_3517_; lean_object* v___x_1077__overap_3518_; lean_object* v___x_3519_; 
 lean_del_object(v___x_3494_);
 v___f_3505_ = ((lean_object*)(l_Lean_Compiler_LCNF_Probe_toPass___redArg___lam__0___closed__3));
 v___x_3506_ = ((lean_object*)(l_Lean_Compiler_LCNF_Probe_toPass___redArg___lam__0___closed__4));
@@ -10138,12 +10138,12 @@ lean_dec_ref(v___x_3514_);
 v___x_3516_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_3516_, 0, v___x_3515_);
 v___x_3517_ = l_Lean_MessageData_ofFormat(v___x_3516_);
-v___x_1076__overap_3518_ = l_Lean_addTrace___redArg(v___x_3473_, v___x_3474_, v_toMonadRef_3510_, v___f_3511_, v___x_3498_, v___x_3517_);
+v___x_1077__overap_3518_ = l_Lean_addTrace___redArg(v___x_3473_, v___x_3474_, v_toMonadRef_3510_, v___f_3511_, v___x_3498_, v___x_3517_);
 lean_inc(v___y_3479_);
 lean_inc_ref(v___y_3478_);
 lean_inc(v___y_3477_);
 lean_inc_ref(v___y_3476_);
-v___x_3519_ = lean_apply_5(v___x_1076__overap_3518_, v___y_3476_, v___y_3477_, v___y_3478_, v___y_3479_, lean_box(0));
+v___x_3519_ = lean_apply_5(v___x_1077__overap_3518_, v___y_3476_, v___y_3477_, v___y_3478_, v___y_3479_, lean_box(0));
 if (lean_obj_tag(v___x_3519_) == 0)
 {
 lean_object* v___x_3521_; uint8_t v_isShared_3522_; uint8_t v_isSharedCheck_3526_; 

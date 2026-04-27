@@ -1038,19 +1038,19 @@ builtin_initialize registerBuiltinAttribute {
 }
 end
 
-private unsafe def codeSuggestionsUnsafe : TermElabM (Array (StrLit → DocM (Array CodeSuggestion))) := do
+unsafe def codeSuggestionsUnsafe : TermElabM (Array (StrLit → DocM (Array CodeSuggestion))) := do
   let names := (codeSuggestionExt.getState (← getEnv)) |>.toArray
   return (← names.mapM (evalConst _)) ++ (← builtinCodeSuggestions.get).map (·.2)
 
 @[implemented_by codeSuggestionsUnsafe]
-private opaque codeSuggestions : TermElabM (Array (StrLit → DocM (Array CodeSuggestion)))
+opaque codeSuggestions : TermElabM (Array (StrLit → DocM (Array CodeSuggestion)))
 
-private unsafe def codeBlockSuggestionsUnsafe : TermElabM (Array (StrLit → DocM (Array CodeBlockSuggestion))) := do
+unsafe def codeBlockSuggestionsUnsafe : TermElabM (Array (StrLit → DocM (Array CodeBlockSuggestion))) := do
   let names := (codeBlockSuggestionExt.getState (← getEnv)) |>.toArray
   return (← names.mapM (evalConst _)) ++ (← builtinCodeBlockSuggestions.get).map (·.2)
 
 @[implemented_by codeBlockSuggestionsUnsafe]
-private opaque codeBlockSuggestions : TermElabM (Array (StrLit → DocM (Array CodeBlockSuggestion)))
+opaque codeBlockSuggestions : TermElabM (Array (StrLit → DocM (Array CodeBlockSuggestion)))
 
 /--
 Resolves a name against `NameMap` that contains a list of builtin expanders, taking into account
@@ -1060,7 +1060,7 @@ resolution (`realizeGlobalConstNoOverload`) won't find them.
 
 This is called as a fallback when the identifier can't be resolved.
 -/
-private def resolveBuiltinDocName {α : Type} (builtins : NameMap α) (x : Name) : TermElabM (Option α) := do
+def resolveBuiltinDocName {α : Type} (builtins : NameMap α) (x : Name) : TermElabM (Option α) := do
   if let some v := builtins.get? x then return some v
 
   -- Builtins shouldn't require a prefix, as they're part of the language.
@@ -1089,7 +1089,7 @@ private def resolveBuiltinDocName {α : Type} (builtins : NameMap α) (x : Name)
 
   return none
 
-private unsafe def roleExpandersForUnsafe (roleName : Ident) :
+unsafe def roleExpandersForUnsafe (roleName : Ident) :
     TermElabM (Array (Name × (TSyntaxArray `inline → StateT (Array (TSyntax `doc_arg)) DocM (Inline ElabInline)))) := do
   let x? ←
     try some <$> realizeGlobalConstNoOverload roleName
@@ -1105,10 +1105,10 @@ private unsafe def roleExpandersForUnsafe (roleName : Ident) :
 
 
 @[implemented_by roleExpandersForUnsafe]
-private opaque roleExpandersFor (roleName : Ident) :
+opaque roleExpandersFor (roleName : Ident) :
   TermElabM (Array (Name × (TSyntaxArray `inline → StateT (Array (TSyntax `doc_arg)) DocM (Inline ElabInline))))
 
-private unsafe def codeBlockExpandersForUnsafe (codeBlockName : Ident) :
+unsafe def codeBlockExpandersForUnsafe (codeBlockName : Ident) :
     TermElabM (Array (Name × (StrLit → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))) := do
   let x? ←
     try some <$> realizeGlobalConstNoOverload codeBlockName
@@ -1124,10 +1124,10 @@ private unsafe def codeBlockExpandersForUnsafe (codeBlockName : Ident) :
 
 
 @[implemented_by codeBlockExpandersForUnsafe]
-private opaque codeBlockExpandersFor (codeBlockName : Ident) :
+opaque codeBlockExpandersFor (codeBlockName : Ident) :
   TermElabM (Array (Name × (StrLit → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock))))
 
-private unsafe def directiveExpandersForUnsafe (directiveName : Ident) :
+unsafe def directiveExpandersForUnsafe (directiveName : Ident) :
     TermElabM (Array (Name × (TSyntaxArray `block → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))) := do
   let x? ←
     try some <$> realizeGlobalConstNoOverload directiveName
@@ -1142,10 +1142,10 @@ private unsafe def directiveExpandersForUnsafe (directiveName : Ident) :
     return hasBuiltin.toArray.flatten
 
 @[implemented_by directiveExpandersForUnsafe]
-private opaque directiveExpandersFor (directiveName : Ident) :
+opaque directiveExpandersFor (directiveName : Ident) :
   TermElabM (Array (Name × (TSyntaxArray `block → StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock))))
 
-private unsafe def commandExpandersForUnsafe (commandName : Ident) :
+unsafe def commandExpandersForUnsafe (commandName : Ident) :
     TermElabM (Array (Name × StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock))) := do
   let x? ←
     try some <$> realizeGlobalConstNoOverload commandName
@@ -1161,18 +1161,18 @@ private unsafe def commandExpandersForUnsafe (commandName : Ident) :
     return hasBuiltin.toArray.flatten
 
 @[implemented_by commandExpandersForUnsafe]
-private opaque commandExpandersFor (commandName : Ident) :
+opaque commandExpandersFor (commandName : Ident) :
   TermElabM (Array (Name × StateT (Array (TSyntax `doc_arg)) DocM (Block ElabInline ElabBlock)))
 
 
-private def mkArgVal (arg : TSyntax `arg_val) : DocM Term :=
+def mkArgVal (arg : TSyntax `arg_val) : DocM Term :=
   match arg with
   | `(arg_val|$n:ident) => pure n
   | `(arg_val|$n:num) => pure n
   | `(arg_val|$s:str) => pure s
   | _ => throwErrorAt arg "Didn't understand as argument value"
 
-private def mkArg (arg : TSyntax `doc_arg) : DocM (TSyntax ``Parser.Term.argument) := do
+def mkArg (arg : TSyntax `doc_arg) : DocM (TSyntax ``Parser.Term.argument) := do
   match arg with
   | `(doc_arg|$x:arg_val) =>
     let x ← mkArgVal x
@@ -1190,7 +1190,7 @@ private def mkArg (arg : TSyntax `doc_arg) : DocM (TSyntax ``Parser.Term.argumen
     `(Parser.Term.argument| ($x := $v))
   | _ => throwErrorAt arg "Didn't understand as argument"
 
-private def mkAppStx (name : Ident) (args : TSyntaxArray `doc_arg) : DocM Term := do
+def mkAppStx (name : Ident) (args : TSyntaxArray `doc_arg) : DocM Term := do
   return ⟨mkNode ``Parser.Term.app #[name, mkNullNode (← args.mapM mkArg)]⟩
 
 /--
@@ -1204,7 +1204,7 @@ register_builtin_option doc.verso.suggestions : Bool := {
 -- Normally, name suggestions should be provided relative to the current scope. But
 -- during bootstrapping, the names in question may not yet be defined, so builtin
 -- names need special handling.
-private def suggestionName (name : Name) : TermElabM Name := do
+def suggestionName (name : Name) : TermElabM Name := do
   let name' ←
     -- Builtin expander names never need namespacing
     if (← builtinDocRoles.get).contains name then pure (some name)
@@ -1241,7 +1241,7 @@ private def suggestionName (name : Name) : TermElabM Name := do
         -- Fall back to doing nothing
         pure name
 
-private def sortSuggestions (ss : Array Meta.Hint.Suggestion) : Array Meta.Hint.Suggestion :=
+def sortSuggestions (ss : Array Meta.Hint.Suggestion) : Array Meta.Hint.Suggestion :=
   let cmp : (x y : Meta.Tactic.TryThis.SuggestionText) → Bool
     | .string s1, .string s2 => s1 < s2
     | .string _, _ => true
@@ -1250,7 +1250,7 @@ private def sortSuggestions (ss : Array Meta.Hint.Suggestion) : Array Meta.Hint.
   ss.qsort (cmp ·.suggestion ·.suggestion)
 
 open Diff in
-private def mkSuggestion
+def mkSuggestion
     (ref : Syntax) (hintTitle : MessageData)
     (newStrings : Array (String × Option String × Option String)) :
     DocM MessageData := do
@@ -1281,7 +1281,7 @@ def nameOrBuiltinName [Monad m] [MonadEnv m] (x : Name) : m Name := do
 Finds registered expander names that `x` is a suffix of, for use in error message hints when the
 name is shadowed. Returns display names suitable for `mkSuggestion`.
 -/
-private def findShadowedNames {α : Type}
+def findShadowedNames {α : Type}
     (nonBuiltIns : NameMap (Array Name)) (builtins : NameMap α) (x : Name) :
     TermElabM (Array Name) := do
   if x.isAnonymous then return #[]
@@ -1303,7 +1303,7 @@ private def findShadowedNames {α : Type}
 /--
 Builds a hint for an "Unknown role/directive/..." error when the name might be shadowed.
 -/
-private def shadowedHint {α : Type}
+def shadowedHint {α : Type}
     (envEntries : NameMap (Array Name)) (builtins : NameMap α)
     (name : Ident) (kind : String) : DocM MessageData := do
   let candidates ← findShadowedNames envEntries builtins name.getId
@@ -1316,7 +1316,7 @@ Throws an appropriate error for an unknown doc element (role/directive/code bloc
 Distinguishes "name resolves but isn't registered" from "name doesn't resolve at all",
 and includes shadowed-name suggestions when applicable.
 -/
-private def throwUnknownDocElem {α β : Type}
+def throwUnknownDocElem {α β : Type}
     (envEntries : NameMap (Array Name)) (builtins : NameMap α)
     (name : Ident) (kind : String) : DocM β := do
   let hint ← shadowedHint envEntries builtins name kind
@@ -1545,12 +1545,12 @@ where
   withSpace (s : String) : String :=
     if s.endsWith " " then s else s ++ " "
 
-private def takeFirst? (xs : Array α) : Option (α × Array α) :=
+def takeFirst? (xs : Array α) : Option (α × Array α) :=
   if h : xs.size > 0 then
     some (xs[0], xs.extract 1)
   else none
 
-private partial def elabBlocks' (level : Nat) :
+partial def elabBlocks' (level : Nat) :
     StateT (TSyntaxArray `block) DocM (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty)) := do
   let mut pre := #[]
   let mut sub := #[]
@@ -1586,7 +1586,7 @@ private partial def elabBlocks' (level : Nat) :
       break
   return (pre, sub)
 
-private def elabModSnippet'
+def elabModSnippet'
     (range : DeclarationRange) (level : Nat) (blocks : TSyntaxArray `block) :
     DocM VersoModuleDocs.Snippet := do
   let mut snippet : VersoModuleDocs.Snippet := {
@@ -1616,7 +1616,7 @@ private def elabModSnippet'
         snippet := snippet.addBlock (← elabBlock b)
   return snippet
 
-private partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := do
+partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInline) := do
   match inl with
   | .concat xs => .concat <$> xs.mapM fixupInline
   | .emph xs => .emph <$> xs.mapM fixupInline
@@ -1663,7 +1663,7 @@ private partial def fixupInline (inl : Inline ElabInline) : DocM (Inline ElabInl
         return .empty
     | _ => .other i <$> xs.mapM fixupInline
 
-private partial def fixupBlock (block : Block ElabInline ElabBlock) : DocM (Block ElabInline ElabBlock) := do
+partial def fixupBlock (block : Block ElabInline ElabBlock) : DocM (Block ElabInline ElabBlock) := do
   match block with
   | .para xs => .para <$> xs.mapM fixupInline
   | .concat xs => .concat <$> xs.mapM fixupBlock
@@ -1677,7 +1677,7 @@ private partial def fixupBlock (block : Block ElabInline ElabBlock) : DocM (Bloc
   | .code s => pure (.code s)
   | .other i xs => .other i <$> xs.mapM fixupBlock
 
-private partial def fixupPart (part : Part ElabInline ElabBlock Empty) : DocM (Part ElabInline ElabBlock Empty) := do
+partial def fixupPart (part : Part ElabInline ElabBlock Empty) : DocM (Part ElabInline ElabBlock Empty) := do
   return { part with
     title := ← part.title.mapM fixupInline
     content := ← part.content.mapM fixupBlock,
@@ -1685,13 +1685,13 @@ private partial def fixupPart (part : Part ElabInline ElabBlock Empty) : DocM (P
   }
 
 
-private partial def fixupBlocks : (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty)) → DocM (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty))
+partial def fixupBlocks : (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty)) → DocM (Array (Block ElabInline ElabBlock) × Array (Part ElabInline ElabBlock Empty))
   | (bs, ps) => do
     let bs ← bs.mapM fixupBlock
     let ps ← ps.mapM fixupPart
     return (bs, ps)
 
-private partial def fixupSnippet (snippet : VersoModuleDocs.Snippet) : DocM VersoModuleDocs.Snippet := do
+partial def fixupSnippet (snippet : VersoModuleDocs.Snippet) : DocM VersoModuleDocs.Snippet := do
   return {snippet with
     text := ← snippet.text.mapM fixupBlock,
     sections := ← snippet.sections.mapM fun (level, range, content) => do
@@ -1700,7 +1700,7 @@ private partial def fixupSnippet (snippet : VersoModuleDocs.Snippet) : DocM Vers
 /--
 After fixing up the references, check to see which were not used and emit a suitable warning.
 -/
-private def warnUnusedRefs : DocM Unit := do
+def warnUnusedRefs : DocM Unit := do
   for (_, {location, seen, ..}) in (← getThe InternalState).urls do
     unless seen do
       logWarningAt location "Unused URL"

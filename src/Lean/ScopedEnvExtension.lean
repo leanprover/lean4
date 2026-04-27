@@ -144,13 +144,18 @@ def ScopedEnvExtension.popScope (ext : ScopedEnvExtension α β σ) (env : Envir
     | _      :: state₂ :: stack => { s with stateStack := state₂ :: stack }
     | _ => s
 
-/-- Modifies `delimitsLocal` flag to `false` to turn off delimiting of local entries.
+/-- Modifies `delimitsLocal` flag to `false` on the top `depth` entries of the state stack,
+to turn off delimiting of local entries across multiple implicit scope levels
+(e.g. those introduced by compound `namespace A.B.C` expansions).
 -/
-def ScopedEnvExtension.setDelimitsLocal (ext : ScopedEnvExtension α β σ) (env : Environment)  : Environment :=
+def ScopedEnvExtension.setDelimitsLocal (ext : ScopedEnvExtension α β σ) (env : Environment) (depth : Nat) : Environment :=
   ext.ext.modifyState (asyncMode := .local) env fun s =>
-    match s.stateStack with
-    | [] => s
-    | state :: stack => {s with stateStack := {state with delimitsLocal := false} :: stack}
+    {s with stateStack := go depth s.stateStack}
+where
+  go : Nat → List (State σ) → List (State σ)
+    | 0, stack => stack
+    | _, [] => []
+    | n + 1, state :: stack => {state with delimitsLocal := false} :: go n stack
 
 def ScopedEnvExtension.addEntry (ext : ScopedEnvExtension α β σ) (env : Environment) (b : β) : Environment :=
   ext.ext.addEntry env (Entry.global b)
@@ -226,11 +231,12 @@ def popScope [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit :=
   for ext in (← scopedEnvExtensionsRef.get) do
     modifyEnv ext.popScope
 
-/-- Used to implement `end_local_scope` command, that disables delimiting local entries of ScopedEnvExtension in a current scope.
+/-- Used to implement `end_local_scope` command, that disables delimiting local entries of ScopedEnvExtension
+across `depth` scope levels.
 -/
-def setDelimitsLocal [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] : m Unit := do
+def setDelimitsLocal [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (depth : Nat) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do
-    modifyEnv (ext.setDelimitsLocal ·)
+    modifyEnv (ext.setDelimitsLocal · depth)
 
 def activateScoped [Monad m] [MonadEnv m] [MonadLiftT (ST IO.RealWorld) m] (namespaceName : Name) : m Unit := do
   for ext in (← scopedEnvExtensionsRef.get) do

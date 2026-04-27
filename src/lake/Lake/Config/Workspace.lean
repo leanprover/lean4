@@ -14,6 +14,8 @@ public import Lake.Config.TargetConfig
 public import Lake.Config.LakeConfig
 meta import Lake.Util.OpaqueType
 import Lean.DocString.Syntax
+import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Lemmas
 
 set_option doc.verso true
 
@@ -33,14 +35,12 @@ public def computeLakeCache (pkg : Package) (lakeEnv : Lake.Env) : Cache :=
     lakeEnv.lakeCache?.getD ⟨pkg.lakeDir / "cache"⟩
 
 public structure Workspace.Raw : Type where
-  /-- The root package of the workspace. -/
-  root : Package
   /-- The detected {lean}`Lake.Env` of the workspace. -/
   lakeEnv : Lake.Env
   /-- The Lake configuration from the system configuration file. -/
   lakeConfig : LoadedLakeConfig
   /-- The Lake cache. -/
-  lakeCache : Cache := private_decl% computeLakeCache root lakeEnv
+  lakeCache : Cache
   /--
   The CLI arguments Lake was run with.
   Used by {lit}`lake update` to perform a restart of Lake on a toolchain update.
@@ -59,17 +59,30 @@ public structure Workspace.Raw : Type where
   deriving Nonempty
 
 public structure Workspace.Raw.WF (ws : Workspace.Raw) : Prop where
+  size_packages_pos : 0 < ws.packages.size
   packages_wsIdx : ∀ (h : i < ws.packages.size), (ws.packages[i]'h).wsIdx = i
 
 /-- A Lake workspace -- the top-level package directory. -/
 public structure Workspace extends raw : Workspace.Raw, wf : raw.WF
 
-public instance : Nonempty Workspace := .intro {
+/-- Constructs an arbitrary well-formed workspace with {lean}`n` packages. -/
+noncomputable def Workspace.ofSize (n : Nat) (h : 0 < n) : Workspace := {
   lakeEnv := default
   lakeConfig := Classical.ofNonempty
-  root := Classical.ofNonempty
-  packages_wsIdx h := by simp at h
+  lakeCache := Classical.ofNonempty
+  packages := (0...<n).toArray.map fun i =>
+    {(Classical.ofNonempty : Package) with wsIdx := i}
+  size_packages_pos := by
+    simp [Std.Rco.size, Std.Rxo.HasSize.size, Std.Rxc.HasSize.size, h]
+  packages_wsIdx {i} h := by
+    simp [Std.Rco.getElem_toArray_eq, Std.PRange.succMany?]
 }
+
+theorem Workspace.size_packages_ofSize :
+  (ofSize n h).packages.size = n
+:= by simp [ofSize, Std.Rco.size, Std.Rxo.HasSize.size, Std.Rxc.HasSize.size]
+
+public instance : Nonempty Workspace := ⟨.ofSize 1 Nat.zero_lt_one⟩
 
 public hydrate_opaque_type OpaqueWorkspace Workspace
 
@@ -85,9 +98,18 @@ public def Package.defaultTargetRoots (self : Package) : Array Lean.Name :=
 
 namespace Workspace
 
+/-- The root package of the workspace. -/
+@[inline] public def root (self : Workspace) : Package :=
+  self.packages[0]'self.size_packages_pos
+
+/-- **For internal use only.** -/
+public theorem wsIdx_root_lt {ws : Workspace} :
+  ws.root.wsIdx < ws.packages.size
+:= ws.packages_wsIdx _ ▸ ws.size_packages_pos
+
 /-- **For internal use.** Whether this workspace is Lean itself.  -/
-@[inline] def bootstrap (ws : Workspace) : Bool :=
-  ws.root.bootstrap
+@[inline] def bootstrap (self : Workspace) : Bool :=
+  self.root.bootstrap
 
 /-- The path to the workspace's directory (i.e., the directory of the root package). -/
 @[inline] public def dir (self : Workspace) : FilePath :=
@@ -193,11 +215,17 @@ This is configured through {lit}`cache.service` entries in the system Lake confi
   {self with
     packages := self.packages.push pkg
     packageMap := self.packageMap.insert pkg.keyName pkg
+    size_packages_pos := by simp
     packages_wsIdx {i} i_lt := by
       cases Nat.lt_add_one_iff_lt_or_eq.mp <| Array.size_push .. ▸ i_lt with
       | inl i_lt => simpa [Array.getElem_push_lt i_lt] using self.packages_wsIdx i_lt
       | inr i_eq => simpa [i_eq] using h
   }
+
+/-- **For internal use only.** -/
+public theorem packages_addPackage' :
+  (addPackage' pkg ws h).packages = ws.packages.push pkg
+:= by rfl
 
 /-- Add a package to the workspace. -/
 @[inline] public def addPackage (pkg : Package) (self : Workspace) : Workspace :=
@@ -277,6 +305,11 @@ public def findTargetDecl? (name : Name) (self : Workspace) : Option ((pkg : Pac
 /-- Add a facet to the workspace. -/
 @[inline] public def addFacetConfig {name} (cfg : FacetConfig name) (self : Workspace) : Workspace :=
   {self with facetConfigs := self.facetConfigs.insert cfg}
+
+/-- **For internal use only.** -/
+public theorem packages_addFacetConfig :
+  (addFacetConfig cfg ws).packages = ws.packages
+:= by rfl
 
 /-- Try to find a facet configuration in the workspace with the given name. -/
 @[inline] public def findFacetConfig? (name : Name) (self : Workspace) : Option (FacetConfig name) :=

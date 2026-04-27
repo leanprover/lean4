@@ -857,10 +857,10 @@ lean_object* v___y_361_ = _args[17];
 lean_object* v___y_362_ = _args[18];
 _start:
 {
-uint8_t v___x_7008__boxed_363_; uint8_t v___x_7012__boxed_364_; lean_object* v_res_365_; 
-v___x_7008__boxed_363_ = lean_unbox(v___x_344_);
-v___x_7012__boxed_364_ = lean_unbox(v___x_349_);
-v_res_365_ = l___private_Lean_Elab_BuiltinDo_MatchExpr_0__Lean_Elab_Do_elabDoMatchExpr_elabDoMatchExprNoMeta_elabMatch___lam__0(v___x_7008__boxed_363_, v___x_345_, v___x_346_, v___x_347_, v_discr_348_, v___x_7012__boxed_364_, v___x_350_, v___x_351_, v_alts_352_, v_altsArr_353_, v_rhs_354_, v___y_355_, v___y_356_, v___y_357_, v___y_358_, v___y_359_, v___y_360_, v___y_361_);
+uint8_t v___x_7024__boxed_363_; uint8_t v___x_7028__boxed_364_; lean_object* v_res_365_; 
+v___x_7024__boxed_363_ = lean_unbox(v___x_344_);
+v___x_7028__boxed_364_ = lean_unbox(v___x_349_);
+v_res_365_ = l___private_Lean_Elab_BuiltinDo_MatchExpr_0__Lean_Elab_Do_elabDoMatchExpr_elabDoMatchExprNoMeta_elabMatch___lam__0(v___x_7024__boxed_363_, v___x_345_, v___x_346_, v___x_347_, v_discr_348_, v___x_7028__boxed_364_, v___x_350_, v___x_351_, v_alts_352_, v_altsArr_353_, v_rhs_354_, v___y_355_, v___y_356_, v___y_357_, v___y_358_, v___y_359_, v___y_360_, v___y_361_);
 lean_dec(v___y_361_);
 lean_dec_ref(v___y_360_);
 lean_dec(v___y_359_);

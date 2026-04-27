@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-static const lean_ctor_object l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + 8, .m_other = 0, .m_tag = 0}, .m_objs = {LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 0, 0, 0, 0, 0)}};
+static const lean_ctor_object l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*0 + 8, .m_other = 0, .m_tag = 0}, .m_objs = {LEAN_SCALAR_PTR_LITERAL(0, 0, 0, 1, 0, 0, 0, 0)}};
 static const lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0 = (const lean_object*)&l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default = (const lean_object*)&l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_Compiler_LCNF_Simp_instInhabitedConfig = (const lean_object*)&l_Lean_Compiler_LCNF_Simp_instInhabitedConfig_default___closed__0_value;

@@ -18,7 +18,6 @@ uint8_t l_Lean_instBEqMVarId_beq(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 uint8_t l_Lean_instBEqLiteral_beq(lean_object*, lean_object*);
-extern lean_object* l_Lean_instInhabitedFVarId_default;
 uint64_t l_Lean_instHashableFVarId_hash(lean_object*);
 uint64_t lean_uint64_mix_hash(uint64_t, uint64_t);
 uint64_t l_Lean_instHashableMVarId_hash(lean_object*);
@@ -56,10 +55,10 @@ LEAN_EXPORT lean_object* l_Lean_HeadIndex_lam_elim___redArg(lean_object*, lean_o
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_lam_elim(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_forallE_elim___redArg(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_HeadIndex_forallE_elim(lean_object*, lean_object*, lean_object*, lean_object*);
-static lean_once_cell_t l_Lean_instInhabitedHeadIndex_default___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
-static lean_object* l_Lean_instInhabitedHeadIndex_default___closed__0;
-LEAN_EXPORT lean_object* l_Lean_instInhabitedHeadIndex_default;
-LEAN_EXPORT lean_object* l_Lean_instInhabitedHeadIndex;
+static const lean_ctor_object l_Lean_instInhabitedHeadIndex_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*1 + 0, .m_other = 1, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1))}};
+static const lean_object* l_Lean_instInhabitedHeadIndex_default___closed__0 = (const lean_object*)&l_Lean_instInhabitedHeadIndex_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_instInhabitedHeadIndex_default = (const lean_object*)&l_Lean_instInhabitedHeadIndex_default___closed__0_value;
+LEAN_EXPORT const lean_object* l_Lean_instInhabitedHeadIndex = (const lean_object*)&l_Lean_instInhabitedHeadIndex_default___closed__0_value;
 LEAN_EXPORT uint8_t l_Lean_instBEqHeadIndex_beq(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_instBEqHeadIndex_beq___boxed(lean_object*, lean_object*);
 static const lean_closure_object l_Lean_instBEqHeadIndex___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*0, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_Lean_instBEqHeadIndex_beq___boxed, .m_arity = 2, .m_num_fixed = 0, .m_objs = {} };
@@ -416,32 +415,6 @@ _start:
 lean_object* v___x_100_; 
 v___x_100_ = l_Lean_HeadIndex_ctorElim___redArg(v_t_97_, v_forallE_99_);
 return v___x_100_;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedHeadIndex_default___closed__0(void){
-_start:
-{
-lean_object* v___x_101_; lean_object* v___x_102_; 
-v___x_101_ = l_Lean_instInhabitedFVarId_default;
-v___x_102_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_102_, 0, v___x_101_);
-return v___x_102_;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedHeadIndex_default(void){
-_start:
-{
-lean_object* v___x_103_; 
-v___x_103_ = lean_obj_once(&l_Lean_instInhabitedHeadIndex_default___closed__0, &l_Lean_instInhabitedHeadIndex_default___closed__0_once, _init_l_Lean_instInhabitedHeadIndex_default___closed__0);
-return v___x_103_;
-}
-}
-static lean_object* _init_l_Lean_instInhabitedHeadIndex(void){
-_start:
-{
-lean_object* v___x_104_; 
-v___x_104_ = l_Lean_instInhabitedHeadIndex_default;
-return v___x_104_;
 }
 }
 LEAN_EXPORT uint8_t l_Lean_instBEqHeadIndex_beq(lean_object* v_x_105_, lean_object* v_x_106_){
@@ -1325,7 +1298,7 @@ LEAN_EXPORT lean_object* l_panic___at___00__private_Lean_HeadIndex_0__Lean_Expr_
 _start:
 {
 lean_object* v___x_407_; lean_object* v___x_408_; 
-v___x_407_ = l_Lean_instInhabitedHeadIndex_default;
+v___x_407_ = ((lean_object*)(l_Lean_instInhabitedHeadIndex_default));
 v___x_408_ = lean_panic_fn_borrowed(v___x_407_, v_msg_406_);
 return v___x_408_;
 }
@@ -1496,10 +1469,6 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Lean_Expr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-l_Lean_instInhabitedHeadIndex_default = _init_l_Lean_instInhabitedHeadIndex_default();
-lean_mark_persistent(l_Lean_instInhabitedHeadIndex_default);
-l_Lean_instInhabitedHeadIndex = _init_l_Lean_instInhabitedHeadIndex();
-lean_mark_persistent(l_Lean_instInhabitedHeadIndex);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;

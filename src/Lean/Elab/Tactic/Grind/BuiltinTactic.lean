@@ -111,7 +111,9 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
      This matches the behavior of these tactics in default tactic mode
      where `lia` can close `x > 1 → x + y + z > 0` directly. -/
   if (← read).sym then
-    liftAction <| Action.intros 0 >> Action.assertAll
+    match (← liftActionCore <| Action.intros 0 >> Action.assertAll) with
+    | .closed   => return () -- closed the goal
+    | .subgoals => pure () -- continue
   let recover := (← read).recover
   liftGoalM do
     let progress ← k

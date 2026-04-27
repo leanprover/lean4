@@ -3368,9 +3368,9 @@ return v___x_863_;
 LEAN_EXPORT lean_object* l_Lean_Compiler_LCNF_etaExpandCore___lam__0___boxed(lean_object* v___x_866_, lean_object* v___x_867_, lean_object* v_fvarId_868_, lean_object* v___y_869_, lean_object* v___y_870_, lean_object* v___y_871_, lean_object* v___y_872_, lean_object* v___y_873_){
 _start:
 {
-uint8_t v___x_901__boxed_874_; lean_object* v_res_875_; 
-v___x_901__boxed_874_ = lean_unbox(v___x_867_);
-v_res_875_ = l_Lean_Compiler_LCNF_etaExpandCore___lam__0(v___x_866_, v___x_901__boxed_874_, v_fvarId_868_, v___y_869_, v___y_870_, v___y_871_, v___y_872_);
+uint8_t v___x_903__boxed_874_; lean_object* v_res_875_; 
+v___x_903__boxed_874_ = lean_unbox(v___x_867_);
+v_res_875_ = l_Lean_Compiler_LCNF_etaExpandCore___lam__0(v___x_866_, v___x_903__boxed_874_, v_fvarId_868_, v___y_869_, v___y_870_, v___y_871_, v___y_872_);
 lean_dec(v___y_872_);
 lean_dec_ref(v___y_871_);
 lean_dec(v___y_870_);

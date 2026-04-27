@@ -8,15 +8,15 @@ module
 prelude
 public import Init.Data.Queue
 public import Std.Sync.Mutex
-public import Std.Internal.Async.IO
+public import Std.Async.IO
 import Init.Data.Vector.Basic
 import Init.Data.Option.BasicAux
 import Init.Omega
 
 public section
 
-open Std.Internal.Async.IO
-open Std.Internal.IO.Async
+open Std.Async.IO
+open Std.Async
 
 /-!
 This module contains the implementation of `Std.Channel`. `Std.Channel` is a multi-producer
@@ -53,7 +53,7 @@ instance : ToString Error where
 instance : MonadLift (EIO Error) IO where
   monadLift x := EIO.toIO (.userError <| toString ·) x
 
-open Internal.IO.Async in
+open Async in
 private inductive Consumer (α : Type) where
   | normal (promise : IO.Promise (Option α))
   | select (finished : Waiter (Option α))
@@ -174,7 +174,7 @@ private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
   let st ← get
   return !st.values.isEmpty || st.closed
 
-open Internal.IO.Async in
+open Async in
 private def recvSelector (ch : Unbounded α) : Selector (Option α) where
   tryFn := do
     ch.state.atomically do
@@ -324,7 +324,7 @@ private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
   let st ← get
   return !st.producers.isEmpty || st.closed
 
-open Internal.IO.Async in
+open Async in
 private def recvSelector (ch : Zero α) : Selector (Option α) where
   tryFn := do
     ch.state.atomically do
@@ -358,7 +358,7 @@ private def recvSelector (ch : Zero α) : Selector (Option α) where
 
 end Zero
 
-open Internal.IO.Async in
+open Async in
 private structure Bounded.Consumer (α : Type) where
   promise : IO.Promise Bool
   waiter : Option (Waiter (Option α))
@@ -560,7 +560,7 @@ private def recvReady' [Monad m] [MonadLiftT (ST IO.RealWorld) m] :
   let st ← get
   return st.bufCount != 0 || st.closed
 
-open Internal.IO.Async in
+open Async in
 private partial def recvSelector (ch : Bounded α) : Selector (Option α) where
   tryFn := do
     ch.state.atomically do
@@ -734,7 +734,7 @@ def recv (ch : CloseableChannel α) : BaseIO (Task (Option α)) :=
   | .zero ch => CloseableChannel.Zero.recv ch
   | .bounded ch => CloseableChannel.Bounded.recv ch
 
-open Internal.IO.Async in
+open Async in
 /--
 Creates a `Selector` that resolves once `ch` has data available and provides that data.
 In particular if `ch` is closed while waiting on this `Selector` and no data is available already
@@ -761,7 +761,7 @@ instance [Inhabited α] : AsyncStream (CloseableChannel α) (Option α) where
   next channel := channel.recvSelector
 
 instance [Inhabited α] : AsyncRead (CloseableChannel α) (Option α) where
-  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
+  read receiver := Async.ofIOTask receiver.recv
 
 instance [Inhabited α] : AsyncWrite (CloseableChannel α) α where
   write receiver x := do
@@ -879,7 +879,7 @@ def recv [Inhabited α] (ch : Channel α) : BaseIO (Task α) := do
       | some val => return .pure val
       | none => unreachable!
 
-open Internal.IO.Async in
+open Async in
 /--
 Creates a `Selector` that resolves once `ch` has data available and provides that data.
 -/
@@ -911,7 +911,7 @@ instance [Inhabited α] : AsyncStream (Channel α) α where
   next channel := channel.recvSelector
 
 instance [Inhabited α] : AsyncRead (Channel α) α where
-  read receiver := Internal.IO.Async.Async.ofIOTask receiver.recv
+  read receiver := Async.ofIOTask receiver.recv
 
 instance [Inhabited α] : AsyncWrite (Channel α) α where
   write receiver x := do

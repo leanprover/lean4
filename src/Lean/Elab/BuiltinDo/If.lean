@@ -17,6 +17,7 @@ namespace Lean.Elab.Do
 open Lean.Parser.Term
 open Lean.Meta
 
+open InternalSyntax in
 /--
 If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` but no `else if`s or
 `if let`s.
@@ -25,8 +26,8 @@ If the given syntax is a `doIf`, return an equivalent `doIf` that has an `else` 
   match stx with
   | `(doElem|if $_:doIfProp then $_ else $_) =>
     Macro.throwUnsupported
-  | `(doElem|if $cond:doIfCond then $t $[else if $conds:doIfCond then $ts]* $[else $e?]?) => do
-    let mut e : Syntax ← e?.getDM `(doSeq|pure PUnit.unit)
+  | `(doElem|if%$tk $cond:doIfCond then $t $[else if%$tks $conds:doIfCond then $ts]* $[else $e?]?) => do
+    let mut e : Syntax ← e?.getDM `(doSeq| skip%$tk)
     let mut eIsSeq := true
     for (cond, t) in Array.zip (conds.reverse.push cond) (ts.reverse.push t) do
       e ← if eIsSeq then pure e else `(doSeq|$(⟨e⟩):doElem)

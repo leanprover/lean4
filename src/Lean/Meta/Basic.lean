@@ -2223,10 +2223,14 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
     | _ => throwError "invalid `instantiateForallWithParams`, too many parameters{indentExpr e}"
   return (res, e)
 
+def getPPContext : MetaM PPContext := do
+  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
+           currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
+
 /-- Pretty-print the given expression. -/
 def ppExprWithInfos (e : Expr) : MetaM FormatWithInfos := do
-  let ctxCore  ← readThe Core.Context
-  Lean.ppExprWithInfos { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls } e
+  let ctx ← getPPContext
+  Lean.ppExprWithInfos ctx e
 
 /-- Pretty-print the given expression. -/
 def ppExpr (e : Expr) : MetaM Format := (·.fmt) <$> ppExprWithInfos e

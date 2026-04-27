@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.PrettyPrinter.Delaborator.Basic
+public import Lean.PrettyPrinter.Delaborator.Metavariable
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
 public import Lean.PrettyPrinter.Formatter
@@ -60,29 +61,14 @@ def delabBVar : Delab := do
   let Expr.bvar idx ← getExpr | unreachable!
   pure $ mkIdent $ Name.mkSimple $ "#" ++ toString idx
 
-def delabMVarAux (m : MVarId) : DelabM Term := do
-  let mkMVarPlaceholder : DelabM Term := `(?_)
-  let mkMVar (n : Name) : DelabM Term := `(?$(mkIdent n))
-  withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
-    if ← getPPOption getPPMVars then
-      if let some decl ← m.findDecl? then
-        match decl.userName with
-        | .anonymous =>
-          if ← getPPOption getPPMVarsAnonymous then
-            mkMVar <| Name.num `m (decl.index + 1)
-          else
-            mkMVarPlaceholder
-        | n => mkMVar n
-      else
-        -- Undefined mvar, use internal name
-        mkMVar <| m.name.replacePrefix `_uniq `_mvar
-    else
-      mkMVarPlaceholder
-
 @[builtin_delab mvar]
 def delabMVar : Delab := do
-  let Expr.mvar n ← getExpr | unreachable!
-  delabMVarAux n
+  let Expr.mvar mvarId ← getExpr | unreachable!
+  withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
+    let stx ← annotateCurPos =<< delabMVarAux mvarId
+    let descr ← mkDescribeMVar mvarId
+    addDelabTermInfo (← getPos) stx (← getExpr) (mkDocString? := some descr) (explicit := true)
+    return stx
 
 @[builtin_delab sort]
 def delabSort : Delab := do
@@ -593,10 +579,17 @@ def delabDelayedAssignedMVar : Delab := whenNotPPOption getPPMVarsDelayed do
   let .mvar mvarId := (← getExpr).getAppFn | failure
   let some decl ← getDelayedMVarAssignment? mvarId | failure
   withOverApp decl.fvars.size do
-    let args := (← getExpr).getAppArgs
-    -- Only delaborate using decl.mvarIdPending if the delayed mvar is applied to fvars
-    guard <| args.all Expr.isFVar
-    delabMVarAux decl.mvarIdPending
+    guard <| ← checkDelayedMVarAssignment (← getExpr) decl
+    let mvarIdPending ← getDelayedMVarIdPending decl.mvarIdPending
+    let descr ← mkDescribeMVar mvarIdPending (fromDelayed := true)
+    withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
+      -- Delaborate the whole application as if it were a single metavariable.
+      -- Hovering will show the underlying delayed assignment expression, and the type
+      -- will be the type of the application itself (which is valid in the current local context,
+      -- unlike the type of `mvarIdPending`).
+      let stx ← annotateCurPos =<< delabMVarAux mvarIdPending
+      addDelabTermInfo (← getPos) stx (← getExpr) (explicit := true) (mkDocString? := descr)
+      return stx
 
 private partial def collectStructFields
     (structName : Name) (levels : List Level) (params : Array Expr)

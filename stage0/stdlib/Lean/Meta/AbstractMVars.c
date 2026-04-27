@@ -1266,7 +1266,6 @@ lean_object* v_a_353_; lean_object* v_depth_354_; lean_object* v___x_355_; uint8
 v_a_353_ = lean_ctor_get(v_u_264_, 0);
 v_depth_354_ = lean_ctor_get(v_mctx_270_, 0);
 lean_inc(v_a_353_);
-lean_inc_ref(v_mctx_270_);
 v___x_355_ = l_Lean_MetavarContext_getLevelDepth(v_mctx_270_, v_a_353_);
 v___x_356_ = lean_nat_dec_eq(v___x_355_, v_depth_354_);
 lean_dec(v___x_355_);
@@ -2183,7 +2182,6 @@ v_mvarId_647_ = lean_ctor_get(v_e_643_, 0);
 v_mctx_648_ = lean_ctor_get(v_a_644_, 2);
 v_emap_649_ = lean_ctor_get(v_a_644_, 8);
 lean_inc(v_mvarId_647_);
-lean_inc_ref(v_mctx_648_);
 v___x_650_ = l_Lean_MetavarContext_getDecl(v_mctx_648_, v_mvarId_647_);
 v_userName_651_ = lean_ctor_get(v___x_650_, 0);
 lean_inc(v_userName_651_);

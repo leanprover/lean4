@@ -21,14 +21,12 @@ lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, 
 extern lean_object* l_String_instInhabitedSlice;
 lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 uint8_t l_UInt8_instDecidableIsUTF8FirstByte___aux__1(uint8_t);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* l_panic___redArg(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_byte_array_fget(lean_object*, lean_object*);
 uint8_t lean_uint8_land(uint8_t, uint8_t);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
@@ -1669,7 +1667,7 @@ v_str_431_ = lean_ctor_get(v_s_429_, 0);
 v_startInclusive_432_ = lean_ctor_get(v_s_429_, 1);
 v_endExclusive_433_ = lean_ctor_get(v_s_429_, 2);
 v___x_434_ = lean_nat_sub(v_endExclusive_433_, v_startInclusive_432_);
-v___x_435_ = l_String_instDecidableLtRaw___aux__1(v_p_430_, v___x_434_);
+v___x_435_ = lean_nat_dec_lt(v_p_430_, v___x_434_);
 if (v___x_435_ == 0)
 {
 uint8_t v___x_436_; 
@@ -5792,7 +5790,7 @@ LEAN_EXPORT lean_object* l_String_firstDiffPos_loop(lean_object* v_a_1974_, lean
 _start:
 {
 uint8_t v___x_1978_; 
-v___x_1978_ = l_String_instDecidableLtRaw___aux__1(v_i_1977_, v_stopPos_1976_);
+v___x_1978_ = lean_nat_dec_lt(v_i_1977_, v_stopPos_1976_);
 if (v___x_1978_ == 0)
 {
 return v_i_1977_;

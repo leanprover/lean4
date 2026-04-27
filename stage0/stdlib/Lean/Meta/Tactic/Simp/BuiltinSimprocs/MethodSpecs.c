@@ -29,7 +29,7 @@ size_t lean_array_size(lean_object*);
 size_t lean_usize_add(size_t, size_t);
 uint8_t lean_usize_dec_lt(size_t, size_t);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
-lean_object* l_Lean_Meta_mkSimpTheoremFromConst(lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkSimpTheoremFromConst(lean_object*, uint8_t, uint8_t, lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -171,7 +171,7 @@ v_a_57_ = lean_array_uget_borrowed(v_as_38_, v_i_40_);
 v___x_58_ = 0;
 v___x_59_ = lean_unsigned_to_nat(1000u);
 lean_inc(v_a_57_);
-v___x_60_ = l_Lean_Meta_mkSimpTheoremFromConst(v_a_57_, v___x_36_, v___x_58_, v___x_59_, v___y_45_, v___y_46_, v___y_47_, v___y_48_);
+v___x_60_ = l_Lean_Meta_mkSimpTheoremFromConst(v_a_57_, v___x_36_, v___x_58_, v___x_59_, v___x_58_, v___y_45_, v___y_46_, v___y_47_, v___y_48_);
 if (lean_obj_tag(v___x_60_) == 0)
 {
 lean_object* v_a_61_; lean_object* v___x_62_; lean_object* v___x_63_; uint8_t v___x_64_; 

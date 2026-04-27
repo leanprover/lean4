@@ -231,7 +231,7 @@ v___x_55_ = l_Lean_AssocList_ctorElim___redArg(v_t_52_, v_cons_54_);
 return v___x_55_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instInhabitedAssocList_default(lean_object* v_a_56_, lean_object* v_a_57_){
+LEAN_EXPORT lean_object* l_Lean_instInhabitedAssocList_default(lean_object* v_00_u03b1_56_, lean_object* v_00_u03b2_57_){
 _start:
 {
 lean_object* v___x_58_; 

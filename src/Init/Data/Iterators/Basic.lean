@@ -42,29 +42,29 @@ The conversion functions {name (scope := "Init.Data.Iterators.Basic")}`Shrink.de
 {name (scope := "Init.Data.Iterators.Basic")}`Shrink.inflate` form an equivalence between
 {name}`α` and {lean}`Shrink α`, but this equivalence is intentionally not definitional.
 -/
-public def Shrink (α : Type u) : Type u := Internal.idOpaque.1 α
+def Shrink (α : Type u) : Type u := Internal.idOpaque.1 α
 
 /-- Converts elements of {name}`α` into elements of {lean}`Shrink α`. -/
 @[always_inline]
-public def Shrink.deflate {α} (x : α) : Shrink α :=
+def Shrink.deflate {α} (x : α) : Shrink α :=
   cast (by simp [Shrink, Internal.idOpaque.property]) x
 
 /-- Converts elements of {lean}`Shrink α` into elements of {name}`α`. -/
 @[always_inline]
-public def Shrink.inflate {α} (x : Shrink α) : α :=
+def Shrink.inflate {α} (x : Shrink α) : α :=
   cast (by simp [Shrink, Internal.idOpaque.property]) x
 
 @[simp, grind =]
-public theorem Shrink.deflate_inflate {α} {x : Shrink α} :
+theorem Shrink.deflate_inflate {α} {x : Shrink α} :
     Shrink.deflate x.inflate = x := by
   simp [deflate, inflate]
 
 @[simp, grind =]
-public theorem Shrink.inflate_deflate {α} {x : α} :
+theorem Shrink.inflate_deflate {α} {x : α} :
     (Shrink.deflate x).inflate = x := by
   simp [deflate, inflate]
 
-public theorem Shrink.inflate_inj {α} {x y : Shrink α} :
+theorem Shrink.inflate_inj {α} {x y : Shrink α} :
     x.inflate = y.inflate ↔ x = y := by
   apply Iff.intro
   · intro h
@@ -72,7 +72,7 @@ public theorem Shrink.inflate_inj {α} {x y : Shrink α} :
   · rintro rfl
     rfl
 
-public theorem Shrink.deflate_inj {α} {x y : α} :
+theorem Shrink.deflate_inj {α} {x y : α} :
     Shrink.deflate x = Shrink.deflate y ↔ x = y := by
   apply Iff.intro
   · intro h

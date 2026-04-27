@@ -215,16 +215,16 @@ goto v_reusejp_32_;
 }
 v_reusejp_32_:
 {
-lean_object* v___x_34_; lean_object* v___x_35_; lean_object* v___x_36_; lean_object* v___x_5851__overap_37_; lean_object* v___x_38_; 
+lean_object* v___x_34_; lean_object* v___x_35_; lean_object* v___x_36_; lean_object* v___x_5853__overap_37_; lean_object* v___x_38_; 
 v___x_34_ = l_StateRefT_x27_instMonad___redArg(v___x_33_);
 v___x_35_ = lean_box(0);
 v___x_36_ = l_instInhabitedOfMonad___redArg(v___x_34_, v___x_35_);
-v___x_5851__overap_37_ = lean_panic_fn_borrowed(v___x_36_, v_msg_4_);
+v___x_5853__overap_37_ = lean_panic_fn_borrowed(v___x_36_, v_msg_4_);
 lean_dec(v___x_36_);
 lean_inc(v___y_7_);
 lean_inc_ref(v___y_6_);
 lean_inc(v___y_5_);
-v___x_38_ = lean_apply_4(v___x_5851__overap_37_, v___y_5_, v___y_6_, v___y_7_, lean_box(0));
+v___x_38_ = lean_apply_4(v___x_5853__overap_37_, v___y_5_, v___y_6_, v___y_7_, lean_box(0));
 return v___x_38_;
 }
 }
@@ -320,9 +320,9 @@ return v_res_74_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_EmitUtil_0__Lean_Compiler_LCNF_collectUsedDecls_go_spec__3___lam__0___boxed(lean_object* v___x_75_, lean_object* v_x_76_, lean_object* v___y_77_, lean_object* v___y_78_, lean_object* v___y_79_, lean_object* v___y_80_){
 _start:
 {
-uint8_t v___x_6655__boxed_81_; lean_object* v_res_82_; 
-v___x_6655__boxed_81_ = lean_unbox(v___x_75_);
-v_res_82_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_EmitUtil_0__Lean_Compiler_LCNF_collectUsedDecls_go_spec__3___lam__0(v___x_6655__boxed_81_, v_x_76_, v___y_77_, v___y_78_, v___y_79_);
+uint8_t v___x_6657__boxed_81_; lean_object* v_res_82_; 
+v___x_6657__boxed_81_ = lean_unbox(v___x_75_);
+v_res_82_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00__private_Lean_Compiler_LCNF_EmitUtil_0__Lean_Compiler_LCNF_collectUsedDecls_go_spec__3___lam__0(v___x_6657__boxed_81_, v_x_76_, v___y_77_, v___y_78_, v___y_79_);
 lean_dec(v___y_79_);
 lean_dec_ref(v___y_78_);
 lean_dec(v___y_77_);

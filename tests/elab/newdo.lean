@@ -26,11 +26,7 @@ Many of these are extracted from our code base.
     x := x + 1
   return ⟨3, by decide⟩
 
--- Regression test cases of what's broken in the legacy do elaborator:
-example : Unit := (Id.run do  let n ← if true then pure 3 else pure 42)
 example : Unit := (Id.run do let n ← if true then pure 3 else pure 42)
-example := (Id.run do  let mut x := 0; x ← return 10)
-example := (Id.run do let mut x := 0; x ← return 10)
 
 -- Another complicated `match` that would need to generalize the join point type if it was dependent
 example (x : Nat) : Id (Fin (x + 2)) := do
@@ -108,7 +104,7 @@ Hint: Adding type annotations and supplying implicit arguments to functions can 
 example := do return 42
 /--
 error: typeclass instance problem is stuck
-  Bind ?m.23
+  Bind ?m.22
 
 Note: Lean will not try to resolve this typeclass instance problem because the type argument to `Bind` is a metavariable. This argument must be fully determined before Lean will try to resolve the typeclass.
 
@@ -211,8 +207,8 @@ trace: [Elab.do] let x := 42;
               else
                 let x := x + i;
                 pure (ForInStep.yield (none, x))
-    let __r : Option ?m.182 := __s.fst
-    let x : ?m.182 := __s.snd
+    let __r : Option ?m.170 := __s.fst
+    let x : ?m.170 := __s.snd
     match __r with
       | some r => pure r
       | none =>
@@ -492,5 +488,19 @@ example : IO Bool := do
   let mut count := 0
   for (x, y) in ([] : List (Nat × Nat)) do count := count + 1
   return Float.abs count > 0
+
+-- A `repeat` (without `break`) followed by an early `return` inside an enclosing `for`. The for
+-- elaborator computes the loop body's `ControlInfo` via `inferControlInfoSeq`, which stops
+-- aggregating once it encounters an element with `numRegularExits := 0`. If `repeat` reported
+-- `numRegularExits := 0` for break-less bodies, the trailing `return 2` would be skipped during
+-- inference and the for elaborator would later throw "Early returning ... but the info said there
+-- is no early return". This test pins down that `repeat` reports `numRegularExits := 1`, matching
+-- `for ... in`.
+example : IO Nat := do
+  for _ in [1, 2] do
+    repeat
+      pure ()
+    return 2
+  return 1
 
 end Repros

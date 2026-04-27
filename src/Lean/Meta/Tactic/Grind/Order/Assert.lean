@@ -148,11 +148,14 @@ def propagatePending : OrderM Unit := do
         - `h₁ : ↑ue' = ue`
         - `h₂ : ↑ve' = ve`
         - `h : ue = ve`
-        **Note**: We currently only support `Nat`. Thus `↑a` is actually
-        `NatCast.natCast a`. If we decide to support arbitrary semirings
-        in this module, we must adjust this code.
+        **Note**: We currently only support `Nat` originals. Thus `↑a` is actually
+        `NatCast.natCast a`. The lemma `nat_eq` is specialized to `Int`, so we
+        only invoke it when the cast destination is `Int`. For other types (e.g.
+        `Rat`), `pushEq ue ve h` above is sufficient and `grind` core can derive
+        the `Nat` equality via `norm_cast`/cast injectivity if needed.
         -/
-        pushEq ue' ve' <| mkApp7 (mkConst ``Grind.Order.nat_eq) ue' ve' ue ve h₁ h₂ h
+        if (← inferType ue) == Int.mkType then
+          pushEq ue' ve' <| mkApp7 (mkConst ``Grind.Order.nat_eq) ue' ve' ue ve h₁ h₂ h
 where
   /--
   If `e` is an auxiliary term used to represent some term `a`, returns
@@ -343,7 +346,7 @@ def getStructIdOf? (e : Expr) : GoalM (Option Nat) := do
   return (← get').exprToStructId.find? { expr := e }
 
 def propagateIneq (e : Expr) : GoalM Unit := do
-  if let some (e', he) := (← get').termMap.find? { expr := e } then
+  if let some { e := e', h := he, .. } := (← get').termMap.find? { expr := e } then
     go e' (some he)
   else
     go e none
@@ -369,20 +372,27 @@ builtin_grind_propagator propagateLT ↓LT.lt := propagateIneq
 public def processNewEq (a b : Expr) : GoalM Unit := do
   unless isSameExpr a b do
     let h ← mkEqProof a b
-    if let some (a', h₁) ← getAuxTerm? a then
-      let some (b', h₂) ← getAuxTerm? b | return ()
+    if let some { e := a', h := h₁, α } ← getAuxTerm? a then
+      let some { e := b', h := h₂, .. } ← getAuxTerm? b | return ()
       /-
       We have
       - `h  : a = b`
       - `h₁ : ↑a = a'`
       - `h₂ : ↑b = b'`
+      where `a'` and `b'` are `NatCast.natCast α inst _` for some type `α`.
       -/
-      let h := mkApp7 (mkConst ``Grind.Order.of_nat_eq) a b a' b' h₁ h₂ h
-      go a' b' h
+      if α == Int.mkType then
+        let h := mkApp7 (mkConst ``Grind.Order.of_nat_eq) a b a' b' h₁ h₂ h
+        go a' b' h
+      else
+        let u ← getDecLevel α
+        let inst ← synthInstance (mkApp (mkConst ``NatCast [u]) α)
+        let h := mkApp9 (mkConst ``Grind.Order.of_natCast_eq [u]) α inst a b a' b' h₁ h₂ h
+        go a' b' h
     else
       go a b h
 where
-  getAuxTerm? (e : Expr) : GoalM (Option (Expr × Expr)) := do
+  getAuxTerm? (e : Expr) : GoalM (Option TermMapEntry) := do
     return (← get').termMap.find? { expr := e }
 
   go (a b h : Expr) : GoalM Unit := do

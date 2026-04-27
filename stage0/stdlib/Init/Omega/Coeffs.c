@@ -16,19 +16,19 @@ extern "C" {
 lean_object* l_Lean_Omega_IntList_smul(lean_object*, lean_object*);
 lean_object* l_Lean_Omega_IntList_sdiv(lean_object*, lean_object*);
 lean_object* l_Lean_Omega_IntList_dot(lean_object*, lean_object*);
-lean_object* l_Lean_Omega_IntList_combo(lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_zipWithAll___at___00Lean_Omega_IntList_combo_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Omega_IntList_get(lean_object*, lean_object*);
+lean_object* l_Lean_Omega_IntList_leading(lean_object*);
 lean_object* l_List_lengthTR___redArg(lean_object*);
 lean_object* l_Lean_Omega_IntList_set(lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Omega_IntList_add(lean_object*, lean_object*);
-lean_object* l_Lean_Omega_IntList_sub(lean_object*, lean_object*);
+lean_object* l_List_zipWithAll___at___00Lean_Omega_IntList_add_spec__0(lean_object*, lean_object*);
+lean_object* l_List_zipWithAll___at___00Lean_Omega_IntList_sub_spec__0(lean_object*, lean_object*);
 lean_object* l_Int_bmod(lean_object*, lean_object*);
 lean_object* l_List_mapTR_loop___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* lean_int_sub(lean_object*, lean_object*);
 lean_object* l_Lean_Omega_IntList_neg(lean_object*);
-lean_object* l_List_findIdx_x3f___redArg(lean_object*, lean_object*);
+lean_object* l_List_findIdx_x3f_go___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Omega_IntList_gcd(lean_object*);
-lean_object* l_Lean_Omega_IntList_leading(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_toList(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_toList___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_ofList(lean_object*);
@@ -49,9 +49,11 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_add(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_sub(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_neg(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_combo(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_combo___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_length(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_length___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_leading(lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_leading___boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_map(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_findIdx_x3f(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_bmod___lam__0(lean_object*, lean_object*);
@@ -196,7 +198,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_add(lean_object* v_xs_43_, lean_obj
 _start:
 {
 lean_object* v___x_45_; 
-v___x_45_ = l_Lean_Omega_IntList_add(v_xs_43_, v_ys_44_);
+v___x_45_ = l_List_zipWithAll___at___00Lean_Omega_IntList_add_spec__0(v_xs_43_, v_ys_44_);
 return v___x_45_;
 }
 }
@@ -204,7 +206,7 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_sub(lean_object* v_xs_46_, lean_obj
 _start:
 {
 lean_object* v___x_48_; 
-v___x_48_ = l_Lean_Omega_IntList_sub(v_xs_46_, v_ys_47_);
+v___x_48_ = l_List_zipWithAll___at___00Lean_Omega_IntList_sub_spec__0(v_xs_46_, v_ys_47_);
 return v___x_48_;
 }
 }
@@ -220,99 +222,119 @@ LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_combo(lean_object* v_a_51_, lean_ob
 _start:
 {
 lean_object* v___x_55_; 
-v___x_55_ = l_Lean_Omega_IntList_combo(v_a_51_, v_xs_52_, v_b_53_, v_ys_54_);
+v___x_55_ = l_List_zipWithAll___at___00Lean_Omega_IntList_combo_spec__0(v_a_51_, v_b_53_, v_xs_52_, v_ys_54_);
 return v___x_55_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_length(lean_object* v_xs_56_){
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_combo___boxed(lean_object* v_a_56_, lean_object* v_xs_57_, lean_object* v_b_58_, lean_object* v_ys_59_){
 _start:
 {
-lean_object* v___x_57_; 
-v___x_57_ = l_List_lengthTR___redArg(v_xs_56_);
-return v___x_57_;
+lean_object* v_res_60_; 
+v_res_60_ = l_Lean_Omega_Coeffs_combo(v_a_56_, v_xs_57_, v_b_58_, v_ys_59_);
+lean_dec(v_b_58_);
+lean_dec(v_a_56_);
+return v_res_60_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_length___boxed(lean_object* v_xs_58_){
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_length(lean_object* v_xs_61_){
 _start:
 {
-lean_object* v_res_59_; 
-v_res_59_ = l_Lean_Omega_Coeffs_length(v_xs_58_);
-lean_dec(v_xs_58_);
-return v_res_59_;
+lean_object* v___x_62_; 
+v___x_62_ = l_List_lengthTR___redArg(v_xs_61_);
+return v___x_62_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_leading(lean_object* v_xs_60_){
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_length___boxed(lean_object* v_xs_63_){
 _start:
 {
-lean_object* v___x_61_; 
-v___x_61_ = l_Lean_Omega_IntList_leading(v_xs_60_);
-return v___x_61_;
+lean_object* v_res_64_; 
+v_res_64_ = l_Lean_Omega_Coeffs_length(v_xs_63_);
+lean_dec(v_xs_63_);
+return v_res_64_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_map(lean_object* v_f_62_, lean_object* v_xs_63_){
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_leading(lean_object* v_xs_65_){
 _start:
 {
-lean_object* v___x_64_; lean_object* v___x_65_; 
-v___x_64_ = lean_box(0);
-v___x_65_ = l_List_mapTR_loop___redArg(v_f_62_, v_xs_63_, v___x_64_);
-return v___x_65_;
+lean_object* v___x_66_; 
+v___x_66_ = l_Lean_Omega_IntList_leading(v_xs_65_);
+return v___x_66_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_findIdx_x3f(lean_object* v_f_66_, lean_object* v_xs_67_){
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_leading___boxed(lean_object* v_xs_67_){
 _start:
 {
-lean_object* v___x_68_; 
-v___x_68_ = l_List_findIdx_x3f___redArg(v_f_66_, v_xs_67_);
-return v___x_68_;
+lean_object* v_res_68_; 
+v_res_68_ = l_Lean_Omega_Coeffs_leading(v_xs_67_);
+lean_dec(v_xs_67_);
+return v_res_68_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_bmod___lam__0(lean_object* v_m_69_, lean_object* v_x_70_){
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_map(lean_object* v_f_69_, lean_object* v_xs_70_){
 _start:
 {
-lean_object* v___x_71_; 
-v___x_71_ = l_Int_bmod(v_x_70_, v_m_69_);
-return v___x_71_;
+lean_object* v___x_71_; lean_object* v___x_72_; 
+v___x_71_ = lean_box(0);
+v___x_72_ = l_List_mapTR_loop___redArg(v_f_69_, v_xs_70_, v___x_71_);
+return v___x_72_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_bmod___lam__0___boxed(lean_object* v_m_72_, lean_object* v_x_73_){
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_findIdx_x3f(lean_object* v_f_73_, lean_object* v_xs_74_){
 _start:
 {
-lean_object* v_res_74_; 
-v_res_74_ = l_Lean_Omega_Coeffs_bmod___lam__0(v_m_72_, v_x_73_);
-lean_dec(v_x_73_);
-return v_res_74_;
+lean_object* v___x_75_; lean_object* v___x_76_; 
+v___x_75_ = lean_unsigned_to_nat(0u);
+v___x_76_ = l_List_findIdx_x3f_go___redArg(v_f_73_, v_xs_74_, v___x_75_);
+return v___x_76_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_bmod(lean_object* v_x_75_, lean_object* v_m_76_){
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_bmod___lam__0(lean_object* v_m_77_, lean_object* v_x_78_){
 _start:
 {
-lean_object* v___f_77_; lean_object* v___x_78_; lean_object* v___x_79_; 
-v___f_77_ = lean_alloc_closure((void*)(l_Lean_Omega_Coeffs_bmod___lam__0___boxed), 2, 1);
-lean_closure_set(v___f_77_, 0, v_m_76_);
-v___x_78_ = lean_box(0);
-v___x_79_ = l_List_mapTR_loop___redArg(v___f_77_, v_x_75_, v___x_78_);
+lean_object* v___x_79_; 
+v___x_79_ = l_Int_bmod(v_x_78_, v_m_77_);
 return v___x_79_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_bmod__dot__sub__dot__bmod(lean_object* v_m_80_, lean_object* v_a_81_, lean_object* v_b_82_){
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_bmod___lam__0___boxed(lean_object* v_m_80_, lean_object* v_x_81_){
 _start:
 {
-lean_object* v___f_83_; lean_object* v___x_84_; lean_object* v___x_85_; lean_object* v___x_86_; lean_object* v___x_87_; lean_object* v___x_88_; lean_object* v___x_89_; 
-lean_inc(v_m_80_);
-v___f_83_ = lean_alloc_closure((void*)(l_Lean_Omega_Coeffs_bmod___lam__0___boxed), 2, 1);
-lean_closure_set(v___f_83_, 0, v_m_80_);
-lean_inc(v_b_82_);
-v___x_84_ = l_Lean_Omega_IntList_dot(v_a_81_, v_b_82_);
-v___x_85_ = l_Int_bmod(v___x_84_, v_m_80_);
-lean_dec(v___x_84_);
+lean_object* v_res_82_; 
+v_res_82_ = l_Lean_Omega_Coeffs_bmod___lam__0(v_m_80_, v_x_81_);
+lean_dec(v_x_81_);
+return v_res_82_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_bmod(lean_object* v_x_83_, lean_object* v_m_84_){
+_start:
+{
+lean_object* v___f_85_; lean_object* v___x_86_; lean_object* v___x_87_; 
+v___f_85_ = lean_alloc_closure((void*)(l_Lean_Omega_Coeffs_bmod___lam__0___boxed), 2, 1);
+lean_closure_set(v___f_85_, 0, v_m_84_);
 v___x_86_ = lean_box(0);
-v___x_87_ = l_List_mapTR_loop___redArg(v___f_83_, v_a_81_, v___x_86_);
-v___x_88_ = l_Lean_Omega_IntList_dot(v___x_87_, v_b_82_);
-lean_dec(v___x_87_);
-v___x_89_ = lean_int_sub(v___x_85_, v___x_88_);
-lean_dec(v___x_88_);
-lean_dec(v___x_85_);
-return v___x_89_;
+v___x_87_ = l_List_mapTR_loop___redArg(v___f_85_, v_x_83_, v___x_86_);
+return v___x_87_;
+}
+}
+LEAN_EXPORT lean_object* l_Lean_Omega_Coeffs_bmod__dot__sub__dot__bmod(lean_object* v_m_88_, lean_object* v_a_89_, lean_object* v_b_90_){
+_start:
+{
+lean_object* v___f_91_; lean_object* v___x_92_; lean_object* v___x_93_; lean_object* v___x_94_; lean_object* v___x_95_; lean_object* v___x_96_; lean_object* v___x_97_; 
+lean_inc(v_m_88_);
+v___f_91_ = lean_alloc_closure((void*)(l_Lean_Omega_Coeffs_bmod___lam__0___boxed), 2, 1);
+lean_closure_set(v___f_91_, 0, v_m_88_);
+lean_inc(v_b_90_);
+v___x_92_ = l_Lean_Omega_IntList_dot(v_a_89_, v_b_90_);
+v___x_93_ = l_Int_bmod(v___x_92_, v_m_88_);
+lean_dec(v___x_92_);
+v___x_94_ = lean_box(0);
+v___x_95_ = l_List_mapTR_loop___redArg(v___f_91_, v_a_89_, v___x_94_);
+v___x_96_ = l_Lean_Omega_IntList_dot(v___x_95_, v_b_90_);
+lean_dec(v___x_95_);
+v___x_97_ = lean_int_sub(v___x_93_, v___x_96_);
+lean_dec(v___x_96_);
+lean_dec(v___x_93_);
+return v___x_97_;
 }
 }
 lean_object* runtime_initialize_Init_Omega_IntList(uint8_t builtin);

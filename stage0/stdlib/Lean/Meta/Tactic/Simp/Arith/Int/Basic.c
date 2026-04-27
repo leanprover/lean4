@@ -3390,6 +3390,7 @@ lean_inc_ref(v_varMap_1047_);
 lean_dec(v___x_1046_);
 lean_inc_ref(v_e_1039_);
 v___x_1048_ = l_Lean_Meta_KExprMap_find_x3f___redArg(v_varMap_1047_, v_e_1039_, v_a_1041_, v_a_1042_, v_a_1043_, v_a_1044_);
+lean_dec_ref(v_varMap_1047_);
 if (lean_obj_tag(v___x_1048_) == 0)
 {
 lean_object* v_a_1049_; lean_object* v___x_1051_; uint8_t v_isShared_1052_; uint8_t v_isSharedCheck_1097_; 

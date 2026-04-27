@@ -954,7 +954,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findModule_x3f(lean_object* v_mod_230_, 
 _start:
 {
 lean_object* v___y_233_; lean_object* v_targetDecls_236_; lean_object* v___x_237_; lean_object* v___x_238_; lean_object* v___x_239_; uint8_t v___x_240_; 
-v_targetDecls_236_ = lean_ctor_get(v_self_231_, 13);
+v_targetDecls_236_ = lean_ctor_get(v_self_231_, 14);
 lean_inc_ref(v_targetDecls_236_);
 v___x_237_ = lean_unsigned_to_nat(0u);
 v___x_238_ = ((lean_object*)(l_Lake_Package_findModule_x3f___closed__0));

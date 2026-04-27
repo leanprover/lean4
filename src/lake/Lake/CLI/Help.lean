@@ -26,7 +26,7 @@ COMMANDS:
   check-build           check if any default build targets are configured
   test                  test the package using the configured test driver
   check-test            check if there is a properly configured test driver
-  lint                  lint the package using the configured lint driver
+  lint                  lint the package
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
   shake                 minimize imports in source files
@@ -55,6 +55,7 @@ BASIC OPTIONS:
   --packages=file       JSON file of package entries that override the manifest
   --reconfigure, -R     elaborate configuration files instead of using OLeans
   --keep-toolchain      do not update toolchain on workspace update
+  --allow-empty         accept bare builds with no default targets configured
   --no-build            exit immediately if a build target is not up-to-date
   --no-cache            build packages locally; do not download build caches
   --try-cache           attempt to download build caches for supported packages
@@ -242,17 +243,33 @@ package or its dependencies. It merely verifies that one is specified.
 "
 
 def helpLint :=
-"Lint the workspace's root package using its configured lint driver
+"Lint the workspace's root package
 
 USAGE:
-  lake lint [-- <args>...]
+  lake lint [OPTIONS] [<MODULE>...] [-- <args>...]
+
+By default, runs the package's configured lint driver. If `builtinLint` is
+set to `true` in the package configuration, builtin lints also run.
+
+Positional `MODULE` arguments narrow only the builtin lints; if omitted,
+the workspace's default target roots are used. The lint driver is invoked
+with `lintDriverArgs` from the package config plus any arguments after
+`--`; the `MODULE` list is not passed to it.
+
+OPTIONS:
+  --builtin-lint        run builtin environment linters
+  --builtin-only        run only builtin linters, skip the lint driver
+  --clippy              run only non-default (clippy) builtin linters
+  --lint-all            run all builtin linters (default + clippy)
+  --lint-only <name>    run only the specified builtin linter (repeatable)
+  --force               skip the up-to-date build check
 
 A lint driver can be configured by either setting the `lintDriver` package
-configuration option by tagging a script or executable `@[lint_driver]`.
-A definition in dependency can be used as a test driver by using the
-`<pkg>/<name>` syntax for the 'testDriver' configuration option.
+configuration option or by tagging a script or executable `@[lint_driver]`.
+A definition in a dependency can be used as a lint driver by using the
+`<pkg>/<name>` syntax for the 'lintDriver' configuration option.
 
-A script lint driver will be run with the  package configuration's
+A script lint driver will be run with the package configuration's
 `lintDriverArgs` plus the CLI `args`. An executable lint driver will be
 built and then run like a script.
 "

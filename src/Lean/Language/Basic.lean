@@ -67,7 +67,9 @@ structure Snapshot where
   `diagnostics`) occurred that prevents processing of the remainder of the file.
   -/
   isFatal := false
-deriving Inhabited
+
+instance : Inhabited Snapshot where
+  default := { desc := "", diagnostics := default }
 
 /-- Range that is marked as being processed by the server while a task is running. -/
 inductive SnapshotTask.ReportingRange where
@@ -236,7 +238,10 @@ partial def SnapshotTask.cancelRec [ToSnapshotTree α] (t : SnapshotTask α) : B
 
 /-- Snapshot type without child nodes. -/
 structure SnapshotLeaf extends Snapshot
-deriving Inhabited, TypeName
+deriving TypeName
+
+instance : Inhabited SnapshotLeaf where
+  default := { toSnapshot := default }
 
 instance : ToSnapshotTree SnapshotLeaf where
   toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]

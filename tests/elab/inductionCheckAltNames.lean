@@ -10,7 +10,7 @@ axiom elimEx (motive : Nat → Nat → Sort u) (x y : Nat)
 error: Invalid alternative name `lower2`: Expected `lower`
 ---
 error: unsolved goals
-case upper.h
+case upper
 q d : Nat
 ⊢ q + d.succ > q
 ---
@@ -62,7 +62,7 @@ theorem invalidWildCard (p: Nat) : p ≤ q ∨ p > q := by
 error: Invalid alternative name `lower2`: There are no unhandled alternatives
 ---
 error: unsolved goals
-case lower.h
+case lower
 p delta✝ : Nat
 ⊢ p > p + delta✝.succ
 -/

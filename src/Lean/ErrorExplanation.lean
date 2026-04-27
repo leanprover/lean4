@@ -73,19 +73,19 @@ def hasErrorExplanation [Monad m] [MonadEnv m] (name : Name) : m Bool :=
   return errorExplanationExt.getState (← getEnv) |>.contains name
 
 /-- Returns all error explanations with their names, sorted by name. -/
-public def getErrorExplanations [Monad m] [MonadEnv m] : m (Array (Name × ErrorExplanation)) := do
+def getErrorExplanations [Monad m] [MonadEnv m] : m (Array (Name × ErrorExplanation)) := do
   return errorExplanationExt.getState (← getEnv)
     |>.toArray
     |>.qsort fun e e' => e.1.toString < e'.1.toString
 
 @[deprecated getErrorExplanations (since := "2026-12-20")]
-public def getErrorExplanationsRaw (env : Environment) : Array (Name × ErrorExplanation) :=
+def getErrorExplanationsRaw (env : Environment) : Array (Name × ErrorExplanation) :=
   errorExplanationExt.getState env
     |>.toArray
     |>.qsort fun e e' => e.1.toString < e'.1.toString
 
 @[deprecated getErrorExplanations (since := "2026-12-20")]
-public def getErrorExplanationsSorted [Monad m] [MonadEnv m] : m (Array (Name × ErrorExplanation)) := do
+def getErrorExplanationsSorted [Monad m] [MonadEnv m] : m (Array (Name × ErrorExplanation)) := do
   getErrorExplanations
 
 end Lean

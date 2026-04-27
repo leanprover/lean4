@@ -26,6 +26,7 @@ options get_default_options() {
     // Temporary, core-only flags for editing (i.e. must be part of stage0/bin/lean). Must be synced
     // with `LEAN_EXTRA_MAKE_OPTS` build flags in src/CMakeLists.txt.
     opts = opts.update({"backward", "do", "legacy"}, false);
+    // trigger stage0 update: unify `while` parser via `doIfCond`
 #endif
     return opts;
 }

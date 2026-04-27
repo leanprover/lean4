@@ -47,7 +47,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 
     uv_getaddrinfo_t* resolver = (uv_getaddrinfo_t*)malloc(sizeof(uv_getaddrinfo_t));
     if (resolver == nullptr) {
-        return lean_io_result_mk_error(decode_io_error(errno, nullptr));
+        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
 
     lean_object* promise = lean_promise_new();
@@ -128,7 +128,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_info(b_obj_arg name, b_obj_a
 extern "C" LEAN_EXPORT lean_obj_res lean_uv_dns_get_name(b_obj_arg addr) {
     uv_getnameinfo_t* req = (uv_getnameinfo_t*)malloc(sizeof(uv_getnameinfo_t));
     if (req == nullptr) {
-        return lean_io_result_mk_error(decode_io_error(errno, nullptr));
+        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
 
     lean_object* promise = lean_promise_new();

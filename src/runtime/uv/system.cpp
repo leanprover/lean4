@@ -287,7 +287,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_os_getenv(b_obj_arg name) {
     } else if (result == UV_ENOBUFS) {
         char* heap_buffer = static_cast<char*>(malloc(size));
         if (heap_buffer == nullptr) {
-            return lean_io_result_mk_error(decode_io_error(errno, nullptr));
+            return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
         }
 
         result = uv_os_getenv(name_str, heap_buffer, &size);
@@ -432,7 +432,7 @@ extern "C" LEAN_EXPORT lean_obj_res lean_uv_random(uint64_t size) {
     if (req == nullptr) {
         lean_dec(byte_array);
         lean_dec(promise);
-        return lean_io_result_mk_error(decode_io_error(errno, nullptr));
+        return lean_io_result_mk_error(decode_io_error(ENOMEM, nullptr));
     }
     req->promise = promise;
     req->byte_array = byte_array;

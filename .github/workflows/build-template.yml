@@ -33,7 +33,7 @@ jobs:
         include: ${{fromJson(inputs.config)}}
       # complete all jobs
       fail-fast: false
-    runs-on: ${{ endsWith(matrix.os, '-with-cache') && fromJSON(format('["{0}", "nscloud-git-mirror-5gb"]', matrix.os)) || matrix.os }}
+    runs-on: ${{ matrix.os }}
     defaults:
       run:
         shell: ${{ matrix.shell || 'nix develop -c bash -euxo pipefail {0}' }}

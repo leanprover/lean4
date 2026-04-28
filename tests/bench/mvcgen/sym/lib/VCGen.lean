@@ -602,6 +602,51 @@ abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 
 namespace VCGen
 
+/--
+Repeatedly reduces head redexes in `e`, cycling through the following reductions until
+no further progress is made:
+
+1. **Beta**: `(fun x₁ ... xₘ => b) a₁ ... aₙ` → `b[a₁/x₁, aₘ/xₘ] aₘ₊₁ ... aₙ`
+2. **Iota**: `MyType.casesOn (MyType.ctor args) alts` → `altᵢ args`
+   (matcher/recursor applied to a constructor, at reducible transparency)
+3. **Proj-reduction**: `⟨a, b, c⟩.1` → `a` (kernel `.proj` nodes)
+4. **Projection delta**: `Struct.field x` → `x.5` (unfolds projection *functions*,
+   progress only if followed by proj-reduction)
+
+Returns `none` when no reduction was possible. Maintains maximal sharing via `shareCommonInc`.
+-/
+meta partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
+  go none e.getAppFn e.getAppRevArgs
+  where
+    go lastReduction f rargs := do
+      match f with
+      | .mdata _ f => go lastReduction f rargs
+      | .app f a => go lastReduction f (rargs.push a)
+      | .lam .. =>
+        if rargs.size = 0 then return lastReduction
+        let e' := f.betaRev rargs
+        let e' ← Sym.shareCommonInc e'
+        go (some e') e'.getAppFn e'.getAppRevArgs
+      | .const name .. =>
+        -- projections
+        if ← isProjectionFn name then
+          let some e' ← Meta.unfoldDefinition? (mkAppRev f rargs) | return lastReduction
+          let e' ← Sym.shareCommonInc e'
+          go lastReduction e'.getAppFn e'.getAppRevArgs  -- intentional lastReduction! see docstring
+        -- iota reduction: match/recursor with concrete discriminant
+        else if let some e' ← liftMetaM <| withReducible <| reduceRecMatcher? (mkAppRev f rargs) then
+          let e' ← Sym.shareCommonInc e'
+          go (some e') e'.getAppFn e'.getAppRevArgs
+        else
+          pure lastReduction
+      | .proj .. => match ← reduceProj? f with
+        | some f' =>
+          let e' := mkAppRev f' rargs
+          let e' ← Sym.shareCommonInc e'
+          go (some e') e'.getAppFn e'.getAppRevArgs
+        | none    => pure lastReduction
+      | _ => pure lastReduction
+
 @[inline]
 meta def _root_.Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
     (cache : Std.HashMap α β) (key : α) (fallback : m β) : m (β × Std.HashMap α β) := do
@@ -655,10 +700,8 @@ open Lean.Elab.Tactic.Do in
 meta def solveExceptCondsEntails (goal : MVarId) : _root_.VCGenM (Option MVarId) := goal.withContext do
   let target ← goal.getType
   let_expr ent@ExceptConds.entails ps P Q := target | return none
-  let P := (← reduceProjBeta? P).getD P
-  let Q := (← reduceProjBeta? Q).getD Q
-  let P ← shareCommonInc P
-  let Q ← shareCommonInc Q
+  let P := (← reduceHead? P).getD P
+  let Q := (← reduceHead? Q).getD Q
   let goal ← goal.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent ps P Q)
   if let .goals [] ← (← read).exceptCondsEntailsPureRule.apply goal then
     return none
@@ -694,48 +737,6 @@ meta def solvePostCondEntails (goal : MVarId) : _root_.VCGenM (Option (List MVar
     let target ← Sym.Internal.MonadShareCommon.share1 <| .forallE x d b bi
     goal₁.replaceTargetDefEq target
   return goal₁ :: extraGoal₂?.toList
-
-/--
-Reduces (1) Prod projection functions and (2) Projs in application heads,
-and (3) beta reduces. Will not unfold projection functions unless further beta reduction happens.
-
-It is a copy of `Lean.Elab.Tactic.Do.reduceProjBeta?` but for `SymM` that maintains maximal sharing.
--/
-meta partial def reduceProjBeta? (e : Expr) : SymM (Option Expr) :=
-  go none e.getAppFn e.getAppRevArgs
-  where
-    go lastReduction f rargs := do
-      match f with
-      | .mdata _ f => go lastReduction f rargs
-      | .app f a => go lastReduction f (rargs.push a)
-      | .lam .. =>
-        if rargs.size = 0 then return lastReduction
-        let e' := f.betaRev rargs
-        let e' ← Sym.shareCommonInc e'
-        go (some e') e'.getAppFn e'.getAppRevArgs
-      | .const name .. =>
-        let env ← getEnv
-        match env.getProjectionStructureName? name with
-        | some ``Prod => -- only reduce fst and snd for now
-          match ← Meta.unfoldDefinition? (mkAppRev f rargs) with
-          | some e' =>
-            let e' ← Sym.shareCommonInc e'
-            go lastReduction e'.getAppFn e'.getAppRevArgs
-          | none => pure lastReduction
-        | _ => pure lastReduction
-      | .proj .. => match ← reduceProj? f with
-        | some f' =>
-          let e' := mkAppRev f' rargs
-          let e' ← Sym.shareCommonInc e'
-          go (some e') e'.getAppFn e'.getAppRevArgs
-        | none    => pure lastReduction
-      | .letE x ty val body nondep =>
-        match ← go none body rargs with
-        | none => pure lastReduction
-        | some body' =>
-          let body' ← Sym.shareCommonInc body'
-          pure (some (.letE x ty val body' nondep))
-      | _ => pure lastReduction
 
 inductive SolveResult where
   /-- `target` was not of the form `H ⊢ₛ T`. -/
@@ -908,8 +909,8 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   ```
   Furthermore, redexes in `H` occur in postcondition VCs.
   -/
-  let H? ← reduceProjBeta? H
-  let T? ← reduceProjBeta? T
+  let H? ← reduceHead? H
+  let T? ← reduceHead? T
   if H?.isSome || T?.isSome then
     let goal ← goal.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent σs (H?.getD H) (T?.getD T))
     return .goals [goal]
@@ -955,7 +956,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   -- Split ite/dite/match
   if let some info ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? e then
     -- Try iota reduction first (reduces matcher/recursor with concrete discriminant)
-    if let some e' ← liftMetaM <| reduceRecMatcher? e then
+    if let some e' ← liftMetaM <| withReducible <| reduceRecMatcher? e then
       return .goals [← replaceProgDefEq (← shareCommonInc e')]
     let rule ← mkBackwardRuleFromSplitInfoCached info m σs ps instWP excessArgs
     let ApplyResult.goals goals ← rule.apply goal

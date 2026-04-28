@@ -49,7 +49,7 @@ instance bad3 {α β : Type} (b : Array β) (a : Array α) [Inhabited α]
     (usedA : Array α) (i : Fin usedA.size) (j : Fin i.val) :
     Nonempty { ar : Array α // ar.size = j.val } := sorry
 
--- The following checks that the error shows up at line containing `attibute`
+-- The following checks that the error shows up at line containing `attribute`
 -- (and not at line where the decl is defined).
 /-- warning: declaration uses `sorry` -/
 #guard_msgs in
@@ -65,3 +65,7 @@ These arguments are not instance-implicit and appear neither in another instance
 -/
 #guard_msgs in
 attribute [instance] bad4
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
+instance bad5 : sorry := sorry

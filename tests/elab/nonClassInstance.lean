@@ -41,3 +41,7 @@ error: The declaration `instQux` should not be an instance as its return type `Q
 -/
 #guard_msgs in
 instance instQux : Qux Nat := ⟨0⟩
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
+instance bad : ∀ n : Nat, sorry := by sorry

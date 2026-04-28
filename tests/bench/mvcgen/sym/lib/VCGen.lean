@@ -822,6 +822,61 @@ meta def PreTac.processHypotheses (preTac : PreTac) (goal : Grind.Goal) : VCGenM
   else
     return goal
 
+meta def solveSPredEntails (goal : MVarId) : VCGenM (Option MVarId) := goal.withContext do
+  let_expr SPred.entails _σs H T := (← goal.getType) | return none
+  let mut progress := false
+  let mut goal := goal
+
+  -- First try to turn `⌜φ₁⌝ ⊢ₛ ⌜φ₂⌝` into `φ₁ → φ₂`.
+  -- Do so in two steps:
+  --   1. Move non-`True` `φ₁` to the local context, yielding `⌜True⌝ ⊢ₛ ⌜φ₂⌝` (which is `⊢ₛ ⌜φ₂⌝`).
+  --   2. Eliminate `⊢ₛ ⌜φ₂⌝` to `φ₂`.
+  -- If both succeed, we return `φ₁ → φ₂`. If 1. fails, we fall back to eta-expansion below.
+  -- If 1. succeeds and 2. fails, we still continue with `φ₁` in the local context and eta-expand.
+  let pureH : Option Expr := Prod.snd <$> H.app2? ``SPred.pure
+  let pureT : Option Expr := Prod.snd <$> T.app2? ``SPred.pure
+
+  let pureHNonTrue : Bool ←
+    match pureH with
+    | none => pure false
+    | some h => not <$> isDefEqS h (mkConst ``True)
+      if pureHNonTrue then
+    let .goals [g'] ← (← read).pureElimRule.apply goal
+      | throwError "Failed to apply {.ofConstName ``SPred.pure_elim'} to {← goal.getType}"
+    progress := true
+    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.pure_elim'}"
+
+  if pureH.isSome && pureT.isSome then
+    let .goals [g'] ← (← read).pureIntroRule.apply goal
+      | throwError "Failed to apply {.ofConstName ``SPred.pure_intro} to {← goal.getType}"
+    progress := true
+    return some g'
+
+  -- Now eta-expand. Apply `entails_cons_intro` + `introsSimp` for each state variable.
+  repeat do
+    let .goals [g'] ← (← read).entailsConsIntroRule.apply goal | break
+    progress := true
+    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_cons_intro}"
+  -- Apply `entails_nil_pure_intro` to reduce `⌜φ⌝ ⊢ₛ Q` to `φ → Q.down`, then `introsSimp`,
+  -- fall back to `entails_nil_intro`.
+  if let .goals [g'] ← (← read).entailsNilPureIntroRule.apply goal then
+    progress := true
+    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_nil_pure_intro}. Before: {goal}"
+  else if let .goals [g'] ← (← read).entailsNilIntroRule.apply goal then
+    progress := true
+    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_nil_intro}"
+
+  if progress then
+    return some goal
+  else
+    return none
+
+private meta def isDuplicable (e : Expr) : Bool := match e with
+  | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
+  | .mdata _ e | .proj _ _ e => isDuplicable e
+  | .lam .. | .forallE .. | .letE .. => false
+  | .app .. => e.isAppOf ``OfNat.ofNat
+
 /--
 The main VC generation step. Operates on a plain `MVarId` with no knowledge of grind.
 Returns `.goals subgoals` when the goal was decomposed, or a classification result
@@ -846,13 +901,6 @@ The function performs the following steps in order:
 10. **Spec application**: Look up a registered `@[spec]` theorem (triple or simp) and apply
     its cached backward rule.
 -/
-
-private meta def isDuplicable (e : Expr) : Bool := match e with
-  | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
-  | .mdata _ e | .proj _ _ e => isDuplicable e
-  | .lam .. | .forallE .. | .letE .. => false
-  | .app .. => e.isAppOf ``OfNat.ofNat
-
 meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   let target ← goal.getType
   trace[Elab.Tactic.Do.vcgen] "target: {target}"
@@ -925,6 +973,8 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
       trace[Elab.Tactic.Do.vcgen] "Solved by rfl {goal}"
       goal.assign (mkApp2 (mkConst ``SPred.entails.refl ent.constLevels!) σs H)
       return .goals []
+    if let some goal ← solveSPredEntails goal then
+      return .goals [goal]
     return .noProgramFoundInTarget T
 
   let wp := args[2]!
@@ -1006,46 +1056,6 @@ meta def PreTac.run : PreTac →  Grind.Goal → VCGenM (List MVarId)
     catch _ =>
       pure [goal.mvarId]
 
-meta def introSPredEntails (goal : MVarId) : VCGenM MVarId := goal.withContext do
-  let_expr SPred.entails _σs H T := (← goal.getType) | return goal
-  let mut goal := goal
-
-  -- First try to turn `⌜φ₁⌝ ⊢ₛ ⌜φ₂⌝` into `φ₁ → φ₂`.
-  -- Do so in two steps:
-  --   1. Move non-`True` `φ₁` to the local context, yielding `⌜True⌝ ⊢ₛ ⌜φ₂⌝` (which is `⊢ₛ ⌜φ₂⌝`).
-  --   2. Eliminate `⊢ₛ ⌜φ₂⌝` to `φ₂`.
-  -- If both succeed, we return `φ₁ → φ₂`. If 1. fails, we fall back to eta-expansion below.
-  -- If 1. succeeds and 2. fails, we still continue with `φ₁` in the local context and eta-expand.
-  let pureH : Option Expr := Prod.snd <$> H.app2? ``SPred.pure
-  let pureT : Option Expr := Prod.snd <$> T.app2? ``SPred.pure
-
-  let pureHNonTrue : Bool ←
-    match pureH with
-    | none => pure false
-    | some h => not <$> isDefEqS h (mkConst ``True)
-      if pureHNonTrue then
-    let .goals [g'] ← (← read).pureElimRule.apply goal
-      | throwError "Failed to apply {.ofConstName ``SPred.pure_elim'} to {← goal.getType}"
-    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.pure_elim'}"
-
-  if pureH.isSome && pureT.isSome then
-    let .goals [g'] ← (← read).pureIntroRule.apply goal
-      | throwError "Failed to apply {.ofConstName ``SPred.pure_intro} to {← goal.getType}"
-    return g'
-
-  -- Now eta-expand. Apply `entails_cons_intro` + `introsSimp` for each state variable.
-  repeat do
-    let .goals [g'] ← (← read).entailsConsIntroRule.apply goal | break
-    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_cons_intro}"
-  -- Apply `entails_nil_pure_intro` to reduce `⌜φ⌝ ⊢ₛ Q` to `φ → Q.down`, then `introsSimp`,
-  -- fall back to `entails_nil_intro`.
-  if let .goals [g'] ← (← read).entailsNilPureIntroRule.apply goal then
-    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_nil_pure_intro}. Before: {goal}"
-  else if let .goals [g'] ← (← read).entailsNilIntroRule.apply goal then
-    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_nil_intro}"
-
-  return goal
-
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
 -/
@@ -1055,8 +1065,7 @@ meta def emitVC (goal : Grind.Goal) : VCGenM Unit := do
     goal.mvarId.setKind .syntheticOpaque
     modify fun s => { s with invariants := s.invariants.push goal.mvarId }
     return
-  let mvarId ← introSPredEntails goal.mvarId
-  let goal ← (← read).preTac.processHypotheses { goal with mvarId }
+  let goal ← (← read).preTac.processHypotheses goal
   let goals ← (← read).preTac.run goal
   for g in goals do g.setKind .syntheticOpaque
   modify fun s => { s with vcs := s.vcs ++ goals.toArray }

@@ -90,7 +90,7 @@ abbrev Int8.size : Nat := 256
 /--
 Obtain the `BitVec` that contains the 2's complement representation of the `Int8`.
 -/
-@[inline] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec --
+@[inline, implicit_reducible] def Int8.toBitVec (x : Int8) : BitVec 8 := x.toUInt8.toBitVec --
 
 theorem Int8.toBitVec.inj : {x y : Int8} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
@@ -122,7 +122,7 @@ Examples:
  * `Int8.ofNat 128 = -128`
  * `Int8.ofNat 255 = -1`
 -/
-@[extern "lean_int8_of_nat"]
+@[extern "lean_int8_of_nat", implicit_reducible]
 def Int8.ofNat (n : @& Nat) : Int8 := ⟨⟨BitVec.ofNat 8 n⟩⟩
 /--
 Converts an arbitrary-precision integer to an 8-bit integer, wrapping on overflow or underflow.
@@ -151,7 +151,7 @@ Converts an 8-bit signed integer to an arbitrary-precision integer that denotes 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_to_int", tagged_return]
+@[extern "lean_int8_to_int", tagged_return, implicit_reducible]
 def Int8.toInt (i : Int8) : Int := i.toBitVec.toInt
 /--
 Converts an 8-bit signed integer to a natural number, mapping all negative numbers to `0`.
@@ -167,7 +167,7 @@ Negates 8-bit signed integers. Usually accessed via the `-` prefix operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int8_neg"]
+@[extern "lean_int8_neg", implicit_reducible]
 def Int8.neg (i : Int8) : Int8 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int8 where
@@ -441,7 +441,7 @@ abbrev Int16.size : Nat := 65536
 /--
 Obtain the `BitVec` that contains the 2's complement representation of the `Int16`.
 -/
-@[inline] def Int16.toBitVec (x : Int16) : BitVec 16 := x.toUInt16.toBitVec
+@[inline, implicit_reducible] def Int16.toBitVec (x : Int16) : BitVec 16 := x.toUInt16.toBitVec
 
 theorem Int16.toBitVec.inj : {x y : Int16} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
@@ -474,7 +474,7 @@ Examples:
  * `Int16.ofNat 32768 = -32768`
  * `Int16.ofNat 32770 = -32766`
 -/
-@[extern "lean_int16_of_nat"]
+@[extern "lean_int16_of_nat", implicit_reducible]
 def Int16.ofNat (n : @& Nat) : Int16 := ⟨⟨BitVec.ofNat 16 n⟩⟩
 /--
 Converts an arbitrary-precision integer to a 16-bit integer, wrapping on overflow or underflow.
@@ -504,7 +504,7 @@ Converts a 16-bit signed integer to an arbitrary-precision integer that denotes 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_to_int", tagged_return]
+@[extern "lean_int16_to_int", tagged_return, implicit_reducible]
 def Int16.toInt (i : Int16) : Int := i.toBitVec.toInt
 /--
 Converts a 16-bit signed integer to a natural number, mapping all negative numbers to `0`.
@@ -535,7 +535,7 @@ Negates 16-bit signed integers. Usually accessed via the `-` prefix operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int16_neg"]
+@[extern "lean_int16_neg", implicit_reducible]
 def Int16.neg (i : Int16) : Int16 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int16 where
@@ -810,7 +810,7 @@ abbrev Int32.size : Nat := 4294967296
 /--
 Obtain the `BitVec` that contains the 2's complement representation of the `Int32`.
 -/
-@[inline] def Int32.toBitVec (x : Int32) : BitVec 32 := x.toUInt32.toBitVec
+@[inline, implicit_reducible] def Int32.toBitVec (x : Int32) : BitVec 32 := x.toUInt32.toBitVec
 
 theorem Int32.toBitVec.inj : {x y : Int32} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
@@ -844,7 +844,7 @@ Examples:
  * `Int32.ofNat 2_147_483_647 = 2_147_483_647`
  * `Int32.ofNat 2_147_483_648 = -2_147_483_648`
 -/
-@[extern "lean_int32_of_nat"]
+@[extern "lean_int32_of_nat", implicit_reducible]
 def Int32.ofNat (n : @& Nat) : Int32 := ⟨⟨BitVec.ofNat 32 n⟩⟩
 /--
 Converts an arbitrary-precision integer to a 32-bit integer, wrapping on overflow or underflow.
@@ -874,7 +874,7 @@ Converts a 32-bit signed integer to an arbitrary-precision integer that denotes 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_to_int"]
+@[extern "lean_int32_to_int", implicit_reducible]
 def Int32.toInt (i : Int32) : Int := i.toBitVec.toInt
 /--
 Converts a 32-bit signed integer to a natural number, mapping all negative numbers to `0`.
@@ -920,7 +920,7 @@ Negates 32-bit signed integers. Usually accessed via the `-` prefix operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int32_neg"]
+@[extern "lean_int32_neg", implicit_reducible]
 def Int32.neg (i : Int32) : Int32 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int32 where
@@ -1195,7 +1195,7 @@ abbrev Int64.size : Nat := 18446744073709551616
 /--
 Obtain the `BitVec` that contains the 2's complement representation of the `Int64`.
 -/
-@[inline] def Int64.toBitVec (x : Int64) : BitVec 64 := x.toUInt64.toBitVec
+@[inline, implicit_reducible] def Int64.toBitVec (x : Int64) : BitVec 64 := x.toUInt64.toBitVec
 
 theorem Int64.toBitVec.inj : {x y : Int64} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
@@ -1231,7 +1231,7 @@ Examples:
  * `Int64.ofNat 9_223_372_036_854_775_808 = -9_223_372_036_854_775_808`
  * `Int64.ofNat 18_446_744_073_709_551_618 = 0`
 -/
-@[extern "lean_int64_of_nat"]
+@[extern "lean_int64_of_nat", implicit_reducible]
 def Int64.ofNat (n : @& Nat) : Int64 := ⟨⟨BitVec.ofNat 64 n⟩⟩
 /--
 Converts an arbitrary-precision integer to a 64-bit integer, wrapping on overflow or underflow.
@@ -1264,7 +1264,7 @@ Converts a 64-bit signed integer to an arbitrary-precision integer that denotes 
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_to_int_sint"]
+@[extern "lean_int64_to_int_sint", implicit_reducible]
 def Int64.toInt (i : Int64) : Int := i.toBitVec.toInt
 /--
 Converts a 64-bit signed integer to a natural number, mapping all negative numbers to `0`.
@@ -1325,7 +1325,7 @@ Negates 64-bit signed integers. Usually accessed via the `-` prefix operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_int64_neg"]
+@[extern "lean_int64_neg", implicit_reducible]
 def Int64.neg (i : Int64) : Int64 := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString Int64 where
@@ -1599,7 +1599,7 @@ abbrev ISize.size : Nat := 2^System.Platform.numBits
 /--
 Obtain the `BitVec` that contains the 2's complement representation of the `ISize`.
 -/
-@[inline] def ISize.toBitVec (x : ISize) : BitVec System.Platform.numBits := x.toUSize.toBitVec
+@[inline, implicit_reducible] def ISize.toBitVec (x : ISize) : BitVec System.Platform.numBits := x.toUSize.toBitVec
 
 theorem ISize.toBitVec.inj : {x y : ISize} → x.toBitVec = y.toBitVec → x = y
   | ⟨⟨_⟩⟩, ⟨⟨_⟩⟩, rfl => rfl
@@ -1621,7 +1621,7 @@ overflow.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_of_nat"]
+@[extern "lean_isize_of_nat", implicit_reducible]
 def ISize.ofNat (n : @& Nat) : ISize := ⟨⟨BitVec.ofNat System.Platform.numBits n⟩⟩
 @[inherit_doc ISize.ofInt]
 abbrev Int.toISize := ISize.ofInt
@@ -1631,7 +1631,7 @@ Converts a word-sized signed integer to an arbitrary-precision integer that deno
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_to_int"]
+@[extern "lean_isize_to_int", implicit_reducible]
 def ISize.toInt (i : ISize) : Int := i.toBitVec.toInt
 /--
 Converts a word-sized signed integer to a natural number, mapping all negative numbers to `0`.
@@ -1712,7 +1712,7 @@ Negates word-sized signed integers. Usually accessed via the `-` prefix operator
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_isize_neg"]
+@[extern "lean_isize_neg", implicit_reducible]
 protected def ISize.neg (i : ISize) : ISize := ⟨⟨-i.toBitVec⟩⟩
 
 instance : ToString ISize where

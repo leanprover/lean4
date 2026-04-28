@@ -198,7 +198,7 @@ end MutualNotNat1
 namespace MutualNotNat2
 -- A type that is defeq to Nat, but with a different `sizeOf`, checking that the
 -- inferred argument uses `sizeOf` so that the types of the termination measure aligns.
-def OddNat3 := Nat
+@[implicit_reducible] def OddNat3 := Nat
 instance : SizeOf OddNat3 := ⟨fun n => 42 - @id Nat n⟩
 @[simp] theorem  OddNat3.sizeOf_eq (n : OddNat3) : sizeOf n = 42 - @id Nat n := rfl
 mutual
@@ -219,7 +219,7 @@ namespace MutualNotNat3
 -- Previously `GuessLex` was inferring the `SizeOf` instance based on the type of the
 -- *concrete* parameter or argument, which was wrong.
 -- The inference needs to be based on the parameter type in the function's signature.
-def OddNat3 := Nat
+@[implicit_reducible] def OddNat3 := Nat
 instance : SizeOf OddNat3 := ⟨fun n => 42 - @id Nat n⟩
 @[simp] theorem  OddNat3.sizeOf_eq (n : OddNat3) : sizeOf n = 42 - @id Nat n := rfl
 mutual

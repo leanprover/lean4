@@ -249,7 +249,7 @@ def Cache.get? (cache : Cache α decls) (decl : Decl α) : Option (CacheHit decl
 An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only points to nodes with index lower than `i`.
 -/
 def IsDAG (α : Type) (decls : Array (Decl α)) : Prop :=
-  ∀ {i lhs rhs} (h : i < decls.size),
+  ∀ ⦃i lhs rhs⦄ (h : i < decls.size),
       decls[i] = .gate lhs rhs → lhs.gate < i ∧ rhs.gate < i
 
 /--
@@ -321,7 +321,7 @@ structure Ref (aig : AIG α) where
 /--
 A `Ref` into `aig1` is also valid for `aig2` if `aig1` is smaller than `aig2`.
 -/
-@[inline]
+@[inline, implicit_reducible]
 def Ref.cast {aig1 aig2 : AIG α} (ref : Ref aig1) (h : aig1.decls.size ≤ aig2.decls.size) :
     Ref aig2 :=
   { ref with hgate := by have := ref.hgate; omega }
@@ -534,7 +534,7 @@ def mkGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have hdag := by
     intro i lhs' rhs' h1 h2
-    simp only [Array.getElem_push] at h2
+    simp only [decls, Array.getElem_push] at h2
     split at h2
     · apply aig.hdag <;> assumption
     · injection h2 with hl hr
@@ -556,7 +556,7 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have hdag := by
     intro i lhs rhs h1 h2
-    simp only [Array.getElem_push] at h2
+    simp only [decls, Array.getElem_push] at h2
     split at h2
     · apply aig.hdag <;> assumption
     · contradiction
@@ -574,7 +574,7 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have hdag := by
     intro i lhs rhs h1 h2
-    simp only [Array.getElem_push] at h2
+    simp only [decls, Array.getElem_push] at h2
     split at h2
     · apply aig.hdag <;> assumption
     · contradiction

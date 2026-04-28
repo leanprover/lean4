@@ -6875,7 +6875,7 @@ theorem getValueCast?_filter [BEq α] [LawfulBEq α]
   congr; funext a h
   cases eq_of_beq (beq_of_getEntry?_eq_some h)
   simp only [cast_eq, Option.guard, Option.dmap_ite,
-    Option.dmap_some, Option.dmap_none, dite_eq_ite]
+    Option.dmap_some, Option.dmap_none, dite_eq_ite]; rfl
 
 theorem getValueCast!_filter [BEq α] [LawfulBEq α]
     {f : (a : α) → β a → Bool}

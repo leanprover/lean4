@@ -128,7 +128,7 @@ difference for typeclass inference, since `T` and `T'` may have different
 typeclass instances on them. `show T' from e` is sugar for an `@id T' e`
 expression.
 -/
-@[inline] def id {α : Sort u} (a : α) : α := a
+@[inline, implicit_reducible, expose] def id {α : Sort u} (a : α) : α := a
 
 /--
 Function composition, usually written with the infix operator `∘`. A new function is created from
@@ -138,7 +138,7 @@ Examples:
  * `Function.comp List.reverse (List.drop 2) [3, 2, 4, 1] = [1, 4]`
  * `(List.reverse ∘ List.drop 2) [3, 2, 4, 1] = [1, 4]`
 -/
-@[inline] def Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (g : α → β) : α → δ :=
+@[inline, implicit_reducible] def Function.comp {α : Sort u} {β : Sort v} {δ : Sort w} (f : β → δ) (g : α → β) : α → δ :=
   fun x => f (g x)
 
 /--
@@ -314,7 +314,7 @@ so if your goal is `¬p` you can use `intro h` to turn the goal into
 and `(hn h).elim` will prove anything.
 For more information: [Propositional Logic](https://lean-lang.org/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
-def Not (a : Prop) : Prop := a → False
+@[expose, implicit_reducible] def Not (a : Prop) : Prop := a → False
 
 /--
 `False.elim : False → C` says that from `False`, any desired proposition
@@ -1046,7 +1046,7 @@ Decides whether two Booleans are equal.
 This function should normally be called via the `DecidableEq Bool` instance that it exists to
 support.
 -/
-@[inline] def Bool.decEq (a b : Bool) : Decidable (Eq a b) :=
+@[inline, implicit_reducible] def Bool.decEq (a b : Bool) : Decidable (Eq a b) :=
    match a, b with
    | false, false => isTrue rfl
    | false, true  => isFalse (fun h => Bool.noConfusion h)
@@ -1116,7 +1116,8 @@ the definition of the function uses `fun _ => t` and `fun _ => e` so this recove
 the expected "lazy" behavior of `if`: the `t` and `e` arguments delay evaluation
 until `c` is known.
 -/
-@[macro_inline] def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
+@[macro_inline, implicit_reducible]
+def ite {α : Sort u} (c : Prop) [h : Decidable c] (t e : α) : α :=
   h.casesOn (fun _ => e) (fun _ => t)
 
 @[macro_inline] instance {p q} [dp : Decidable p] [dq : Decidable q] : Decidable (And p q) :=
@@ -1157,7 +1158,7 @@ Just like `ite`, `cond` is declared `@[macro_inline]`, which causes applications
 unfolded. As a result, `x` and `y` are not evaluated at runtime until one of them is selected, and
 only the selected branch is evaluated.
 -/
-@[macro_inline] def cond {α : Sort u} (c : Bool) (x y : α) : α :=
+@[macro_inline, implicit_reducible] def cond {α : Sort u} (c : Bool) (x y : α) : α :=
   match c with
   | true  => x
   | false => y
@@ -1895,7 +1896,7 @@ Strict inequality of natural numbers, usually accessed via the `<` operator.
 
 It is defined as `n < m = n + 1 ≤ m`.
 -/
-protected def Nat.lt (n m : Nat) : Prop :=
+@[implicit_reducible] protected def Nat.lt (n m : Nat) : Prop :=
   Nat.le (succ n) m
 
 instance instLTNat : LT Nat where
@@ -1954,7 +1955,7 @@ The predecessor of a natural number is one less than it. The predecessor of `0` 
 This definition is overridden in the compiler with an efficient implementation. This definition is
 the logical model.
 -/
-@[extern "lean_nat_pred"]
+@[extern "lean_nat_pred", implicit_reducible]
 def Nat.pred : (@& Nat) → Nat
   | 0      => 0
   | succ a => a
@@ -2346,7 +2347,7 @@ Returns `a` modulo `n` as a `Fin n`.
 
 This function exists for bootstrapping purposes. Use `Fin.ofNat` instead.
 -/
-@[expose] protected def Fin.Internal.ofNat (n : Nat) (hn : LT.lt 0 n) (a : Nat) : Fin n :=
+@[expose, implicit_reducible] protected def Fin.Internal.ofNat (n : Nat) (hn : LT.lt 0 n) (a : Nat) : Fin n :=
   ⟨HMod.hMod a n, Nat.mod_lt _ hn⟩
 
 /--
@@ -2397,7 +2398,7 @@ Return the underlying `Nat` that represents a bitvector.
 
 This is O(1) because `BitVec` is a (zero-cost) wrapper around a `Nat`.
 -/
-@[expose]
+@[expose, implicit_reducible]
 protected def BitVec.toNat (x : BitVec w) : Nat := x.toFin.val
 
 instance : LT (BitVec w) where lt := (LT.lt ·.toNat ·.toNat)
@@ -2924,7 +2925,7 @@ Examples:
  * `(some "hello").getD "goodbye" = "hello"`
  * `none.getD "goodbye" = "goodbye"`
 -/
-@[macro_inline, expose] def Option.getD (opt : Option α) (dflt : α) : α :=
+@[macro_inline, expose, implicit_reducible] def Option.getD (opt : Option α) (dflt : α) : α :=
   match opt with
   | some x => x
   | none => dflt
@@ -2939,7 +2940,7 @@ Examples:
  * `(none : Option Nat).map (· + 1) = none`
  * `(some 3).map (· + 1) = some 4`
 -/
-@[inline] protected def Option.map (f : α → β) : Option α → Option β
+@[inline, implicit_reducible] protected def Option.map (f : α → β) : Option α → Option β
   | some x => some (f x)
   | none   => none
 
@@ -3442,7 +3443,7 @@ Returns the number of bytes in the byte array.
 This is the number of bytes actually in the array, as distinct from its capacity, which is the
 amount of memory presently allocated for the array.
 -/
-@[extern "lean_byte_array_size", tagged_return]
+@[extern "lean_byte_array_size", tagged_return, implicit_reducible]
 def ByteArray.size : (@& ByteArray) → Nat
   | ⟨bs⟩ => bs.size
 
@@ -3601,7 +3602,7 @@ The number of bytes used by the string's UTF-8 encoding.
 
 At runtime, this function takes constant time because the byte length of strings is cached.
 -/
-@[extern "lean_string_utf8_byte_size", tagged_return]
+@[extern "lean_string_utf8_byte_size", tagged_return, implicit_reducible]
 def String.utf8ByteSize (s : @& String) : Nat :=
   s.toByteArray.size
 
@@ -3611,7 +3612,7 @@ A UTF-8 byte position that points at the end of a string, just after the last ch
 * `"abc".rawEndPos = ⟨3⟩`
 * `"L∃∀N".rawEndPos = ⟨8⟩`
 -/
-@[inline] def String.rawEndPos (s : String) : String.Pos.Raw where
+@[inline, expose, implicit_reducible] def String.rawEndPos (s : String) : String.Pos.Raw where
   byteIdx := utf8ByteSize s
 
 /--
@@ -4102,7 +4103,7 @@ overridden by `withReader`, but it cannot be mutated.
 Actions in the resulting monad are functions that take the local value as a parameter, returning
 ordinary actions in `m`.
 -/
-def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+@[expose, implicit_reducible] def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   (a : @&ρ) → m α
 
 /--
@@ -5026,7 +5027,7 @@ def Syntax.node8 (info : SourceInfo) (kind : SyntaxNodeKind) (a₁ a₂ a₃ a�
 Singleton `SyntaxNodeKinds` are extremely common. They are written as name literals, rather than as
 lists; list syntax is required only for empty or non-singleton sets of kinds.
 -/
-@[expose] def SyntaxNodeKinds := List SyntaxNodeKind
+@[expose, implicit_reducible] def SyntaxNodeKinds := List SyntaxNodeKind
 
 /--
 Typed syntax, which tracks the potential kinds of the `Syntax` it contains.

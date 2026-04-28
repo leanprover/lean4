@@ -2063,7 +2063,7 @@ theorem shiftLeft_ofNat_eq {x : BitVec w} {k : Nat} : x <<< (BitVec.ofNat w k) =
 /-! ### ushiftRight -/
 
 @[simp, bitvec_to_nat, grind =] theorem toNat_ushiftRight (x : BitVec n) (i : Nat) :
-    (x >>> i).toNat = x.toNat >>> i := rfl
+    (x >>> i).toNat = x.toNat >>> i := (rfl)
 
 @[simp, grind =] theorem getLsbD_ushiftRight (x : BitVec n) (i j : Nat) :
     getLsbD (x >>> i) j = getLsbD x (i+j) := by
@@ -2114,7 +2114,6 @@ theorem ushiftRight_eq_zero {x : BitVec w} {n : Nat} (hn : w ≤ n) :
   simp only [toNat_eq, toNat_ushiftRight, toNat_ofNat, Nat.zero_mod]
   have : 2^w ≤ 2^n := Nat.pow_le_pow_of_le Nat.one_lt_two hn
   rw [Nat.shiftRight_eq_div_pow, Nat.div_eq_of_lt (by omega)]
-
 
 /--
 Unsigned shift right by at least one bit makes the interpretations of the bitvector as an `Int` or `Nat` agree,
@@ -4715,7 +4714,7 @@ theorem smod_eq (x y : BitVec w) : x.smod y =
     let u := umod (- x) y
     (if u = 0#w then u else y - u)
   | true, true => - ((- x).umod (- y)) := by
-  rw [BitVec.smod]
+  rw [BitVec.smod, BitVec.zero_eq]
   rcases x.msb <;> rcases y.msb <;> simp
 
 @[bitvec_to_nat]

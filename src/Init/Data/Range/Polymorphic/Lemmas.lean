@@ -881,7 +881,7 @@ theorem toList_eq_if_rco [UpwardEnumerable α] [LT α] [DecidableLT α]
       else
         [] := by
   rw [Internal.toList_eq_toList_iter, Rxo.Iterator.toList_eq_match]
-  simp only [Internal.iter]
+  simp -implicitDefEqProofs only [Internal.iter.eq_1]
   split
   · split
     · simp [Rxo.Iterator.toList_eq_match, *]
@@ -898,7 +898,7 @@ theorem toArray_eq_if_rco [UpwardEnumerable α] [LT α] [DecidableLT α]
       else
         #[] := by
   rw [Internal.toArray_eq_toArray_iter, Rxo.Iterator.toArray_eq_match]
-  simp only [Internal.iter]
+  simp -implicitDefEqProofs only [Internal.iter.eq_1]
   split
   · split
     · simp [Rxo.Iterator.toArray_eq_match, *]
@@ -1327,7 +1327,7 @@ theorem toList_eq_match [LE α] [DecidableLE α] [UpwardEnumerable α]
         else
           [] := by
   rw [Internal.toList_eq_toList_iter, Rxc.Iterator.toList_eq_match (it := Internal.iter r)]
-  simp [Internal.iter, Internal.toList_eq_toList_iter]
+  simp -implicitDefEqProofs [Internal.iter.eq_1, Internal.toList_eq_toList_iter]
 
 theorem toArray_eq_match [LE α] [DecidableLE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [Rxc.IsAlwaysFinite α] :
@@ -1339,7 +1339,7 @@ theorem toArray_eq_match [LE α] [DecidableLE α] [UpwardEnumerable α]
         else
           #[] := by
   rw [Internal.toArray_eq_toArray_iter, Rxc.Iterator.toArray_eq_match (it := Internal.iter r)]
-  simp [Internal.iter, Internal.toArray_eq_toArray_iter]
+  simp -implicitDefEqProofs [Internal.iter.eq_1, Internal.toArray_eq_toArray_iter]
 
 @[cbv_eval]
 theorem toList_eq_match_rcc [LE α] [DecidableLE α] [UpwardEnumerable α]
@@ -1592,7 +1592,7 @@ theorem toList_eq_match_rco [UpwardEnumerable α] [LT α] [DecidableLT α]
       | none => []
       | some next => (next...r.upper).toList := by
   rw [Internal.toList_eq_toList_iter, Rxo.Iterator.toList_eq_match]
-  simp only [Internal.iter]
+  simp -implicitDefEqProofs only [Internal.iter.eq_1]
   split
   · rfl
   · simp [Rco.toList_eq_if_roo, Roo.toList, Internal.iter]
@@ -1603,7 +1603,7 @@ theorem toArray_eq_match_rco [UpwardEnumerable α] [LT α] [DecidableLT α]
       | none => #[]
       | some next => (next...r.upper).toArray := by
   rw [Internal.toArray_eq_toArray_iter, Rxo.Iterator.toArray_eq_match]
-  simp only [Internal.iter]
+  simp -implicitDefEqProofs only [Internal.iter.eq_1]
   split
   · rfl
   · simp [Rco.toArray_eq_if_roo, Roo.toArray, Internal.iter]
@@ -2065,7 +2065,7 @@ theorem toList_eq_match_rcc [LE α] [DecidableLE α] [Least? α] [UpwardEnumerab
   simp only [Internal.toList_eq_toList_iter, Rcc.Internal.toList_eq_toList_iter,
     Rxc.Iterator.toList_eq_match (it := Internal.iter r),
     Rxc.Iterator.toList_eq_match (it := Rcc.Internal.iter _)]
-  simp [Internal.iter, Rcc.Internal.iter]
+  simp -implicitDefEqProofs [Internal.iter.eq_1, Rcc.Internal.iter.eq_1]
 
 theorem toList_eq_toList_rcc [LE α] [DecidableLE α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLE α] [LawfulUpwardEnumerableLeast? α]
@@ -2368,7 +2368,7 @@ theorem toList_eq_match_rco [LT α] [DecidableLT α] [Least? α] [UpwardEnumerab
   simp only [Internal.toList_eq_toList_iter, Rco.Internal.toList_eq_toList_iter,
     Rxo.Iterator.toList_eq_match (it := Internal.iter r),
     Rxo.Iterator.toList_eq_match (it := Rco.Internal.iter _)]
-  simp [Internal.iter, Rco.Internal.iter]
+  simp -implicitDefEqProofs [Internal.iter.eq_1, Rco.Internal.iter.eq_1]
 
 theorem toArray_eq_match_rco [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
@@ -2379,7 +2379,7 @@ theorem toArray_eq_match_rco [LT α] [DecidableLT α] [Least? α] [UpwardEnumera
   simp only [Internal.toArray_eq_toArray_iter, Rco.Internal.toArray_eq_toArray_iter,
     Rxo.Iterator.toArray_eq_match (it := Internal.iter r),
     Rxo.Iterator.toArray_eq_match (it := Rco.Internal.iter _)]
-  simp [Internal.iter, Rco.Internal.iter]
+  simp -implicitDefEqProofs [Internal.iter.eq_1, Rco.Internal.iter.eq_1]
 
 theorem toList_eq_toList_rco [LT α] [DecidableLT α] [Least? α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α] [LawfulUpwardEnumerableLeast? α]

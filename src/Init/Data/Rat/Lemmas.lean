@@ -183,6 +183,7 @@ abbrev divInt_self := @num_divInt_den
 
 @[simp] theorem divInt_zero (n) : n /. 0 = 0 := mkRat_zero n
 
+set_option linter.unusedSimpArgs false in
 theorem neg_divInt_neg (num den) : -num /. -den = num /. den := by
   match den with
   | Nat.succ n =>
@@ -1244,7 +1245,7 @@ theorem lt_floor {x : Rat} :
 
 theorem ceil_eq_neg_floor_neg (a : Rat) : a.ceil = -((-a).floor) := by
   rw [Rat.ceil, Rat.floor]
-  simp only [neg_den, neg_num]
+  simp -implicitDefEqProofs only [neg_den, neg_num]
   split
   · simp
   · rw [Int.neg_ediv, if_neg, Int.sign_eq_one_of_pos, Int.neg_sub, Int.sub_neg, Int.add_comm]

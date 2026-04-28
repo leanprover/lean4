@@ -408,7 +408,7 @@ theorem ofIntWithPrec_shiftLeft_add {n : Nat} :
 
 /-- The "precision" of a dyadic number, i.e. in `n * 2^(-p)` with `n` odd the precision is `p`. -/
 -- TODO: If `WithBot` is upstreamed, replace this with `WithBot Int`.
-def precision : Dyadic → Option Int
+@[expose, implicit_reducible] def precision : Dyadic → Option Int
   | .zero => none
   | .ofOdd _ p _ => some p
 
@@ -663,6 +663,7 @@ theorem blt_iff_toRat {x y : Dyadic} : blt x y ↔ x.toRat < y.toRat := by
       rw [Rat.zpow_neg, ← Rat.div_def, Rat.div_lt_iff (Rat.zpow_pos (by decide))]
       simp [← Rat.intCast_lt_intCast, ← Rat.zpow_natCast, *]
 
+set_option linter.unusedSimpArgs false in
 theorem blt_eq_false_iff : blt x y = false ↔ ble y x = true := by
   cases x <;> cases y
   · simp [ble, blt]

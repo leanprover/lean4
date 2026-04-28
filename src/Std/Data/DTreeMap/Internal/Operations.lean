@@ -668,6 +668,7 @@ structure BalancedTree where
 attribute [Std.Internal.tree_tac] BalancedTree.balanced_impl
 
 /-- Transforms an element of `SizedBalancedTree` into a `BalancedTree`. -/
+@[implicit_reducible]
 def SizedBalancedTree.toBalancedTree {lb ub} (t : SizedBalancedTree α β lb ub) : BalancedTree α β :=
   ⟨t.impl, t.balanced_impl⟩
 

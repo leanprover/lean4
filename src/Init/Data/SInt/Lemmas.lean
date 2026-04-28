@@ -1162,9 +1162,13 @@ theorem ISize.toInt8_ofIntLE {n} (h₁ h₂) : (ISize.ofIntLE n h₁ h₂).toInt
 @[simp] theorem Int64.toInt8_ofNat {n} : toInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toInt8_ofNat'
 @[simp] theorem ISize.toInt8_ofNat {n} : toInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toInt8_ofNat'
 
+set_option allowUnsafeReducibility true
+attribute [implicit_reducible] dite ite -- TODO: move as soon as `inferInstanceAs` has been fixed
+
 theorem Int16.toInt8_ofIntTruncate {n : Int} (h₁ : -2 ^ 15 ≤ n) (h₂ : n < 2 ^ 15) :
     (Int16.ofIntTruncate n).toInt8 = Int8.ofInt n := by
-  rw [← ofIntLE_eq_ofIntTruncate (h₁ := h₁) (h₂ := Int.le_of_lt_add_one h₂), toInt8_ofIntLE]
+  rw [← ofIntLE_eq_ofIntTruncate (h₁ := h₁) (h₂ := Int.le_of_lt_add_one h₂)] --, toInt8_ofIntLE]
+  rw [toInt8_ofIntLE]
 theorem Int32.toInt8_ofIntTruncate {n : Int} (h₁ : -2 ^ 31 ≤ n) (h₂ : n < 2 ^ 31) :
     (Int32.ofIntTruncate n).toInt8 = Int8.ofInt n := by
   rw [← ofIntLE_eq_ofIntTruncate (h₁ := h₁) (h₂ := Int.le_of_lt_add_one h₂), toInt8_ofIntLE]

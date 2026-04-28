@@ -268,6 +268,7 @@ theorem toList_alter [BEq α] [LawfulBEq α] {a : α} {f : Option (β a) → Opt
     rw [alter]
     split <;> (try split) <;> simp_all
 
+set_option linter.unusedSimpArgs false in
 theorem modify_eq_alter [BEq α] [LawfulBEq α] {a : α} {f : β a → β a} {l : AssocList α β} :
     modify a f l = alter a (·.map f) l := by
   induction l
@@ -288,6 +289,7 @@ theorem toList_alter [BEq α] [EquivBEq α] {a : α} {f : Option β → Option �
     rw [alter]
     split <;> (try split) <;> simp_all
 
+set_option linter.unusedSimpArgs false in
 theorem modify_eq_alter [BEq α] [EquivBEq α] {a : α} {f : β → β} {l : AssocList α (fun _ => β)} :
     modify a f l = alter a (·.map f) l := by
   induction l

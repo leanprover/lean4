@@ -40,10 +40,6 @@ on `yield`. Used to phrase the fixpoint equation `g = repeatF f g` for any candi
 def IsFix (f : α → m (ForInStep α)) (g : α → m α) : Prop :=
   g = repeatF f g
 
-/-- `Total f a` says all fixpoints of `repeatF f` agree at `a`. -/
-def Total (f : α → m (ForInStep α)) (a : α) : Prop :=
-  ∀ g₁ g₂ : α → m α, IsFix f g₁ → IsFix f g₂ → g₁ a = g₂ a
-
 /-- INTERNAL. Predicate pinning the loop value at `a` to `h.choose a` when a global
 fixpoint of `repeatF f` exists; otherwise vacuous. -/
 noncomputable def PredRepeat (f : α → m (ForInStep α)) : α → m α → Prop :=
@@ -105,15 +101,27 @@ variable {α : Type u} {m : Type u → Type v} [Monad m] [MonadAttach m]
 def IsPlausibleStep (f : α → m (ForInStep α)) : α → α → Prop :=
   fun a' a => MonadAttach.CanReturn (f a) (ForInStep.yield a')
 
-/-- A user-supplied variant: every plausible yield of `f` strictly decreases `μ`. -/
-def IsLoopVariant (μ : α → Nat) (f : α → m (ForInStep α)) : Prop :=
-  ∀ a a', IsPlausibleStep f a' a → μ a' < μ a
+/-- INTERNAL. Attach-exposing one-step unfolding of the loop body, used to construct the
+WF fixpoint via `WellFounded.fix`. -/
+@[inline] private def repeatFAttach (f : α → m (ForInStep α)) (a : α)
+    (cont : (a' : α) → MonadAttach.CanReturn (f a) (.yield a') → m α) : m α := do
+  match ← MonadAttach.attach (f a) with
+  | ⟨.done a', _⟩ => pure a'
+  | ⟨.yield a', h⟩ => cont a' h
+
+/-- A user-supplied variant: every plausible yield of `f` strictly decreases `μ a`
+according to a well-founded relation on `γ`. -/
+def IsLoopVariant {γ : Sort _} [WellFoundedRelation γ]
+    (μ : α → γ) (f : α → m (ForInStep α)) : Prop :=
+  ∀ a a', IsPlausibleStep f a' a → WellFoundedRelation.rel (μ a') (μ a)
 
 omit [Monad m] in
 /-- A valid variant gives accessibility of every point. -/
-theorem IsLoopVariant.acc {μ : α → Nat} {f : α → m (ForInStep α)}
+theorem IsLoopVariant.acc {γ : Sort _} [WellFoundedRelation γ]
+    {μ : α → γ} {f : α → m (ForInStep α)}
     (hvar : IsLoopVariant μ f) (a : α) : Acc (IsPlausibleStep f) a :=
-  Subrelation.accessible (fun h => hvar _ _ h) (InvImage.accessible μ (Nat.lt_wfRel.wf.apply (μ a)))
+  Subrelation.accessible (fun h => hvar _ _ h)
+    (InvImage.accessible μ (WellFoundedRelation.wf.apply (μ a)))
 
 variable [LawfulMonad m] [WeaklyLawfulMonadAttach m]
 
@@ -125,79 +133,29 @@ private theorem bind_congr_canReturn {x : m α} {k1 k2 : α → m β}
   exact bind_congr fun ⟨a, ha⟩ => h a ha
 
 /--
-INTERNAL. Under a variant, widening the iteration count past `μ a + 1` doesn't change the value:
-for all `N ≥ μ a + 1`, `Nat.repeat N pure a = Nat.repeat (μ a + 1) pure a`.
+INTERNAL. Under a variant, `WellFounded.fix` of `repeatFAttach` is a global fixpoint of
+`repeatF f`. Works for any `WellFoundedRelation γ`, not just `Nat`.
 -/
-private theorem IsLoopVariant.bound_widen {μ : α → Nat} {f : α → m (ForInStep α)}
-    (hvar : IsLoopVariant μ f) :
-    ∀ N a, μ a + 1 ≤ N →
-      Nat.repeat (repeatF f) N pure a = Nat.repeat (repeatF f) (μ a + 1) pure a := by
-  intro N
-  induction N using Nat.strongRecOn with
-  | _ N ih =>
-    intro a hmu
-    match N, hmu with
-    | N + 1, hmu =>
-      rcases Nat.lt_or_eq_of_le hmu with hlt | heq
-      · show repeatF f (Nat.repeat (repeatF f) N pure) a =
-             repeatF f (Nat.repeat (repeatF f) (μ a) pure) a
-        simp only [repeatF]
-        apply bind_congr_canReturn
-        intro r hr
-        cases r with
-        | done b => rfl
-        | yield a' =>
-          have hlta : μ a' < μ a := hvar a a' hr
-          show Nat.repeat (repeatF f) N pure a' = Nat.repeat (repeatF f) (μ a) pure a'
-          rw [ih N (Nat.lt_succ_self _) a' (by omega),
-              ih (μ a) (by omega) a' (by omega)]
-      · rw [← heq]
-
-/--
-Under a variant, `a` is total: any two fixpoints of `repeatF f` agree at `a`. Proved by
-strong induction on `μ a`, using `bind_congr_canReturn` pointwise on yields.
--/
-theorem IsLoopVariant.total {μ : α → Nat} {f : α → m (ForInStep α)}
-    (hvar : IsLoopVariant μ f) (a : α) : Total f a := by
-  intro g₁ g₂ h₁ h₂
-  suffices ∀ k, ∀ a, μ a = k → g₁ a = g₂ a by
-    exact this (μ a) a rfl
-  intro k
-  induction k using Nat.strongRecOn with
-  | _ k ih =>
-    intro a hka
-    rw [congrFun h₁ a, congrFun h₂ a]
-    simp only [repeatF]
-    apply bind_congr_canReturn
-    intro r hr
-    cases r with
-    | done b => rfl
-    | yield a' =>
-      have hlt : μ a' < k := hka ▸ hvar a a' hr
-      exact ih (μ a') hlt a' rfl
-
-/--
-INTERNAL. Under a variant, the iterate function `g a := Nat.repeat (μ a + 1) pure a` is a
-global fixpoint of `repeatF f`.
--/
-private theorem IsLoopVariant.hasFix {μ : α → Nat} {f : α → m (ForInStep α)}
+private theorem IsLoopVariant.hasFix {γ : Sort _} [WellFoundedRelation γ]
+    {μ : α → γ} {f : α → m (ForInStep α)}
     (hvar : IsLoopVariant μ f) : ∃ g, IsFix f g := by
-  refine ⟨fun a => Nat.repeat (repeatF f) (μ a + 1) pure a, funext fun b => ?_⟩
-  show repeatF f (Nat.repeat (repeatF f) (μ b) pure) b =
-       repeatF f (fun a => Nat.repeat (repeatF f) (μ a + 1) pure a) b
-  simp only [repeatF]
-  apply bind_congr_canReturn
-  intro r hr
-  cases r with
-  | done c => rfl
-  | yield b' => exact hvar.bound_widen (μ b) b' (hvar b b' hr)
+  let hwf : WellFounded (IsPlausibleStep f) :=
+    Subrelation.wf (fun h => hvar _ _ h) (InvImage.wf μ WellFoundedRelation.wf)
+  refine ⟨WellFounded.fix hwf (repeatFAttach f), funext fun a => ?_⟩
+  rw [WellFounded.fix_eq]
+  simp only [repeatFAttach, repeatF]
+  rw [← WeaklyLawfulMonadAttach.attach_bind_val (x := f a)]
+  apply bind_congr
+  rintro ⟨r, h⟩
+  cases r <;> rfl
 
 /--
 **Public unfolding API.** Under a variant, `extrinsicRepeat f a` unfolds to one step of the
 loop body. This is the *only* way downstream code should unfold `extrinsicRepeat` — the
-classical internals (`extrinsicRepeat_eq_fix`, `hasFix`, `bound_widen`) are `private`.
+classical internals (`extrinsicRepeat_eq_fix`, `hasFix`) are `private`.
 -/
-theorem IsLoopVariant.extrinsicRepeat_unfold {μ : α → Nat} {f : α → m (ForInStep α)}
+theorem IsLoopVariant.extrinsicRepeat_unfold {γ : Sort _} [WellFoundedRelation γ]
+    {μ : α → γ} {f : α → m (ForInStep α)}
     (hvar : IsLoopVariant μ f) (a : α) :
     extrinsicRepeat f a = repeatF f (extrinsicRepeat f) a := by
   obtain ⟨g, hfix⟩ := hvar.hasFix
@@ -207,8 +165,9 @@ theorem IsLoopVariant.extrinsicRepeat_unfold {μ : α → Nat} {f : α → m (Fo
 INTERNAL. `extrinsicRepeat f a` unfolded with the `MonadAttach.attach` structure exposed,
 so downstream `mvcgen` proofs can see `CanReturn (f a) r` when reasoning about yielded values.
 -/
-private theorem IsLoopVariant.extrinsicRepeat_unfold_attach {μ : α → Nat}
-    {f : α → m (ForInStep α)} (hvar : IsLoopVariant μ f) (a : α) :
+private theorem IsLoopVariant.extrinsicRepeat_unfold_attach {γ : Sort _} [WellFoundedRelation γ]
+    {μ : α → γ} {f : α → m (ForInStep α)}
+    (hvar : IsLoopVariant μ f) (a : α) :
     extrinsicRepeat f a = (MonadAttach.attach (f a) >>= fun x => match x.val with
       | .done b => pure b
       | .yield b => extrinsicRepeat f b) := by
@@ -295,6 +254,7 @@ theorem sqrt_correct :
     · cases hr
       rename_i h
       have : a ≤ n := Nat.le_trans (Nat.le_mul_self a) h
+      simp_wf
       grind
     · cases hr
   | vc5.isFalse.post.success res h =>
@@ -306,4 +266,3 @@ theorem sqrt_correct :
 #guard Id.run (sqrt 100) == 10
 
 end SqrtExample
-

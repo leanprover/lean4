@@ -220,10 +220,12 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
             -- semireducible transparency.
             try
               if let .some new ← trySynthInstance argExpectedType then
-                trace[Meta.wrapInstance] "using existing instance {new}"
-                mvarId.assign new
-                isEta := false
-                continue
+                -- ignore instances from non-defeq diamonds
+                if (← withDefault <| isDefEq new arg) then
+                  trace[Meta.wrapInstance] "using existing instance {new}"
+                  mvarId.assign new
+                  isEta := false
+                  continue
             catch _ => pure ()
 
           -- continue eta-expansion recursively so we know whether any sub-instance was found
@@ -248,9 +250,11 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
             if let some baseClassType ← getParentStructType? className baseClassName expectedType then
               try
                 if let .some existingBaseClassInst ← trySynthInstance baseClassType then
-                  trace[Meta.wrapInstance] "using projection of existing instance `{existingBaseClassInst}`"
-                  mvarId.assign (← mkProjection existingBaseClassInst fieldInfo.fieldName)
-                  continue
+                  -- ignore instances from non-defeq diamonds
+                  if (← withDefault <| isDefEq existingBaseClassInst inst) then
+                    trace[Meta.wrapInstance] "using projection of existing instance `{existingBaseClassInst}`"
+                    mvarId.assign (← mkProjection existingBaseClassInst fieldInfo.fieldName)
+                    continue
                 trace[Meta.wrapInstance] "did not find existing instance for `{baseClassName}`"
               catch e =>
                 trace[Meta.wrapInstance] "error when attempting to reuse existing instance for `{baseClassName}`: {e.toMessageData}"

@@ -642,6 +642,26 @@ partial def consumeUnusedLet (e : Expr) (consumeNondep : Bool := false) : Expr :
   | _ => e
 
 /--
+Tag attribute `@[reducible_proj]` for structure projection functions.
+
+When reducing a projection `s.field` whose projection function `field` is tagged
+`@[reducible_proj]`, `whnfCore` bumps transparency to `.default` for the structure
+argument `s`. This lets a `[semireducible]` definition that produces the structure
+unfold just enough for the projection to reduce, without making the whole definition
+behave as `[implicit_reducible]` everywhere.
+
+See the `.proj` arm of `whnfCore` for the implementation.
+-/
+builtin_initialize reducibleProjAttr : TagAttribute ←
+  registerTagAttribute `reducible_proj
+    "When reducing this structure projection, bump transparency to `.default` to expose the constructor."
+    (validate := fun declName => do
+      let env ← getEnv
+      unless (env.getProjectionFnInfo? declName).isSome do
+        throwError m!"`@[reducible_proj]` can only be applied to structure projection functions, but \
+          `{.ofConstName declName}` is not one")
+
+/--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
 expand let-expressions, expand assigned meta-variables, unfold aux declarations.
 -/
@@ -701,11 +721,30 @@ where
                 return e
             | .axiomInfo val => recordUnfoldAxiom val.name; return e
             | _ => return e
-      | .proj _ i c =>
+      | .proj structName i c =>
+        /- Per-projection opt-in: if the projection function is tagged
+           `@[reducible_proj]`, retry the structure-argument reduction
+           at `.default` transparency when the configured projection
+           reduction strategy fails to expose a constructor. This lets
+           a `[semireducible]` definition that produces the structure
+           unfold just enough for the projection to reduce. -/
         let k (c : Expr) := do
           match (← projectCore? c i) with
           | some e => go e
-          | none => return e
+          | none =>
+            let env ← getEnv
+            let isTagged := match getStructureInfo? env structName with
+              | some info => match info.getProjFn? i with
+                | some projFn => reducibleProjAttr.hasTag env projFn
+                | none => false
+              | none => false
+            if isTagged then
+              let c' ← withTransparency .default <| whnf c
+              match (← projectCore? c' i) with
+              | some e => go e
+              | none => return e
+            else
+              return e
         match (← getConfig).proj with
         | .no => return e
         | .yes => k (← go c)

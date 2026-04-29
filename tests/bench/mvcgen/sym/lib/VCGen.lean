@@ -268,7 +268,31 @@ Where `prf` is constructed by doing `SPred.entails.trans hpre spec` under the fo
 The conclusion of this rule applies to any situation where `bind` is the top-level symbol in the
 program.
 
-Similarly, a VC is generated for the postcondition if it isn't schematic.
+#### Postcondition VCs
+
+Similarly, a VC `hpost` is generated for the postcondition if it isn't schematic.
+The details here are more complicated because we need to make available the pure facts in `P`
+to prove `Q' ⊢ₚ Q`, so the `hpost` obligation becomes `P ⊢ₛ ⌜Q' ⊢ₚ Q⌝`.
+For example, a hypothetical restrictive spec for `pure` in `Id` would be:
+```
+myPure.spec (n : Nat) : ⦃fun x => ⌜True⌝⦄ myPure n ⦃⇓ r x => ⌜r = n⌝⦄
+```
+This yields the following backward rule:
+```
+prf : ∀ (n : Nat) (P : Assertion .pure) (hpre : P ⊢ₛ ⌜True⌝)
+  (Q : PostCond Nat .pure) (hpost : P ⊢ₛ ⌜(⇓ r => ⌜r = n⌝) ⊢ₚ Q⌝),
+  P ⊢ₛ wp⟦myPure n⟧ Q
+```
+
+The `prf` term in this (most general) case is
+```
+fun n P hpre Q hpost =>
+  SPred.pure_elim hpost fun h =>
+    SPred.entails.trans (SPred.entails.trans hpre (myPure.spec n))
+      (PredTrans.mono (wp (myPure n)) (⇓ r => ⌜r = n⌝) Q h)
+```
+
+#### Excess state arguments
 
 Furthermore, when there are excess state arguments `[s₁, ..., sₙ]` involved, we rather need to
 specialize the backward rule for that:
@@ -300,7 +324,7 @@ prf : ∀ (α : Type) (x : StateT Nat Id α) (β : Type) (f : α → StateT Nat 
         (P : ULift Prop) (hpre : P ⊢ₛ wp⟦x⟧ (fun a => wp⟦f a⟧ Q, Q.snd) s),
         P ⊢ₛ wp⟦x >>= f⟧ Q s
 ```
-We are still investigating how to get rid of more unfolding overhead, such as for `wp` and
+We are still investigating how to get rid of more kernel unfolding overhead, such as for `wp` and
 `List.rec`.
 -/
 meta def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
@@ -347,10 +371,18 @@ meta def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : Ex
     if needPostVC then
       let nmQ' ← mkFreshUserName `Q
       let nmHPost ← mkFreshUserName `hpost
-      let entailment Q' := preprocessExpr <| mkApp4 (mkConst ``PostCond.entails [u]) α ps Q Q'
+      -- Wrap PostCond.entails under the precondition frame: `P ⊢ₛ ⌜Q_spec ⊢ₚ Q'⌝`.
+      -- This preserves pure precondition facts (e.g., `s = 42`) in the postcondition VC,
+      -- which would otherwise be lost in a bare `PostCond.entails`.
+      let framedEntailment (xs : Array Expr) := do
+        let Q' := xs.back!
+        let bare ← preprocessExpr <| mkApp4 (mkConst ``PostCond.entails [u]) α ps Q Q'
+        let pureBare := mkApp2 (mkConst ``SPred.pure [u]) σs bare
+        let frame := if needPreVC then xs[0]! else Pss
+        preprocessExpr <| mkApp3 (mkConst ``SPred.entails [u]) σs frame pureBare
       declInfos := declInfos ++
                    #[(nmQ', .default, fun _ => pure typeQ),
-                     (nmHPost, .default, fun xs => entailment xs.back!)]
+                     (nmHPost, .default, framedEntailment)]
     withLocalDecls declInfos fun ys => liftMetaM ∘ mkLambdaFVars (ss ++ ys) =<< do
       if !needPreVC && !needPostVC && excessArgs.isEmpty then
         -- Still need to unfold the triple in the spec type
@@ -372,15 +404,19 @@ meta def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : Ex
         newP := P'
         -- check prf
       if needPostVC then
-        -- prf := prf.trans <| (wp x).mono _ _ hpost
+        -- prf := pure_elim hpost (fun h => prf.trans <| (wp x).mono _ _ h)
         let wp := mkApp5 (mkConst ``WP.wp f.constLevels!) m ps instWP α prog
         let Q' := ys[ys.size-2]!
         let hpost := ys[ys.size-1]!
         let wpApplyQ' := mkApp4 (mkConst ``PredTrans.apply [u]) ps α wp Q' -- wp⟦prog⟧ Q'
         let wpApplyQ' := mkAppN wpApplyQ' ss -- wp⟦prog⟧ Q' s₁ ... sₙ
-        let hmono := mkApp6 (mkConst ``PredTrans.mono [u]) ps α wp Q Q' hpost
+        -- Build `lambdaProof`: fun (h : Q ⊢ₚ Q') => entails.trans prf (mono wp Q Q' h ss)
+        let phi ← preprocessExpr <| mkApp4 (mkConst ``PostCond.entails [u]) α ps Q Q'
+        let hmono := mkApp6 (mkConst ``PredTrans.mono [u]) ps α wp Q Q' (mkBVar 0)
         let hmono := mkAppN hmono ss
-        prf := mkApp6 (mkConst ``SPred.entails.trans [u]) σs newP wpApplyQ wpApplyQ' prf hmono
+        let innerPrf := mkApp6 (mkConst ``SPred.entails.trans [u]) σs newP wpApplyQ wpApplyQ' prf hmono
+        let lambdaProof := mkLambda `h .default phi innerPrf
+        prf := mkApp6 (mkConst ``SPred.pure_elim [u]) σs newP wpApplyQ' phi hpost lambdaProof
         newQ := Q'
         -- check prf
       return prf
@@ -1029,7 +1065,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     trace[Elab.Tactic.Do.vcgen] "Spec for {e}: {thm.proof}"
     let rule ← mkBackwardRuleFromSpecCached thm m σs ps instWP excessArgs
     let ApplyResult.goals goals ← rule.apply goal
-      | throwError "Failed to apply rule {thm.proof} for {indentExpr e}"
+      | throwError "Failed to apply rule {rule.expr} for {indentExpr e}"
     return .goals goals
 
   return .noStrategyForProgram e

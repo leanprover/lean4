@@ -1138,8 +1138,8 @@ if (v___y_416_ == 0)
 lean_object* v___x_417_; lean_object* v___x_418_; 
 lean_dec_ref(v_code_399_);
 v___x_417_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v___x_417_, 0, v___y_415_);
-lean_ctor_set(v___x_417_, 1, v___y_414_);
+lean_ctor_set(v___x_417_, 0, v___y_414_);
+lean_ctor_set(v___x_417_, 1, v___y_415_);
 v___x_418_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_418_, 0, v___x_417_);
 return v___x_418_;
@@ -1161,8 +1161,8 @@ if (v___y_423_ == 0)
 lean_object* v___x_424_; lean_object* v___x_425_; 
 lean_dec_ref(v_code_399_);
 v___x_424_ = lean_alloc_ctor(2, 2, 0);
-lean_ctor_set(v___x_424_, 0, v___y_422_);
-lean_ctor_set(v___x_424_, 1, v___y_421_);
+lean_ctor_set(v___x_424_, 0, v___y_421_);
+lean_ctor_set(v___x_424_, 1, v___y_422_);
 v___x_425_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_425_, 0, v___x_424_);
 return v___x_425_;
@@ -1219,8 +1219,8 @@ v___x_442_ = lean_ptr_addr(v_a_438_);
 v___x_443_ = lean_usize_dec_eq(v___x_441_, v___x_442_);
 if (v___x_443_ == 0)
 {
-v___y_414_ = v_a_438_;
-v___y_415_ = v_a_433_;
+v___y_414_ = v_a_433_;
+v___y_415_ = v_a_438_;
 v___y_416_ = v___x_443_;
 goto v___jp_413_;
 }
@@ -1230,8 +1230,8 @@ size_t v___x_444_; size_t v___x_445_; uint8_t v___x_446_;
 v___x_444_ = lean_ptr_addr(v_decl_439_);
 v___x_445_ = lean_ptr_addr(v_a_433_);
 v___x_446_ = lean_usize_dec_eq(v___x_444_, v___x_445_);
-v___y_414_ = v_a_438_;
-v___y_415_ = v_a_433_;
+v___y_414_ = v_a_433_;
+v___y_415_ = v_a_438_;
 v___y_416_ = v___x_446_;
 goto v___jp_413_;
 }
@@ -1249,8 +1249,8 @@ v___x_451_ = lean_ptr_addr(v_a_447_);
 v___x_452_ = lean_usize_dec_eq(v___x_450_, v___x_451_);
 if (v___x_452_ == 0)
 {
-v___y_421_ = v_a_447_;
-v___y_422_ = v_a_433_;
+v___y_421_ = v_a_433_;
+v___y_422_ = v_a_447_;
 v___y_423_ = v___x_452_;
 goto v___jp_420_;
 }
@@ -1260,8 +1260,8 @@ size_t v___x_453_; size_t v___x_454_; uint8_t v___x_455_;
 v___x_453_ = lean_ptr_addr(v_decl_448_);
 v___x_454_ = lean_ptr_addr(v_a_433_);
 v___x_455_ = lean_usize_dec_eq(v___x_453_, v___x_454_);
-v___y_421_ = v_a_447_;
-v___y_422_ = v_a_433_;
+v___y_421_ = v_a_433_;
+v___y_422_ = v_a_447_;
 v___y_423_ = v___x_455_;
 goto v___jp_420_;
 }

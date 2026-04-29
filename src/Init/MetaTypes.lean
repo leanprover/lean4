@@ -73,6 +73,9 @@ became a performance bottleneck in Mathlib. The option `backward.isDefEq.respect
 See also: `ReducibilityStatus`, `backward.isDefEq.respectTransparency`,
 `backward.whnf.reducibleClassField`.
 -/
+-- Note: the constructors below are not in the `none < reducible < instances < default < all`
+-- order described in the docstring above. Reordering them induces a bootstrap problem that is
+-- non-trivial to repair.
 inductive TransparencyMode where
   /-- Unfolds all constants, even those tagged as `@[irreducible]`. -/
   | all

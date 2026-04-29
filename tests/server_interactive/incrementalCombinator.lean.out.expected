@@ -4,6 +4,7 @@ c 2
 c 2.5
 {"version": 2,
  "uri": "file:///incrementalCombinator.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 2,
@@ -27,6 +28,7 @@ h 3
 sh
 {"version": 1,
  "uri": "file:///incrementalCombinator.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,
@@ -49,6 +51,7 @@ sh
 sh
 {"version": 2,
  "uri": "file:///incrementalCombinator.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 1,
@@ -76,6 +79,7 @@ i 1
 i 1.5
 {"version": 2,
  "uri": "file:///incrementalCombinator.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 3,
@@ -89,6 +93,7 @@ i 1.5
     "end": {"line": 6, "character": 18}}}]}
 {"version": 2,
  "uri": "file:///incrementalCombinator.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 2,

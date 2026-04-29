@@ -82,7 +82,7 @@ private def propagateCtorHetero (a b : Expr) : GoalM Unit := do
       let _ ← executeReservedNameAction hinjDeclName
     let proof := mkConst hinjDeclName us₁
     let proof := mkAppN (mkAppN proof args₁) args₂
-    addNewRawFact proof (← inferType proof) gen (.inj (.decl hinjDeclName))
+    addNewRawFact proof (← inferType proof) gen (.inj (.decl hinjDeclName)) .other
   else
     let some indices₁ ← getCtorAppIndices? a | return ()
     let some indices₂ ← getCtorAppIndices? b | return ()
@@ -92,7 +92,7 @@ private def propagateCtorHetero (a b : Expr) : GoalM Unit := do
     let noConfusion := mkApp (mkAppN noConfusion (params₁ ++ indices₁)) a
     let noConfusion := mkApp (mkAppN noConfusion (params₂ ++ indices₂)) b
     let proof := noConfusion
-    addNewRawFact proof (← inferType proof) gen (.inj (.decl noConfusionName))
+    addNewRawFact proof (← inferType proof) gen (.inj (.decl noConfusionName)) .other
 
 /--
 Given constructors `a` and `b`, propagate equalities if they are the same,

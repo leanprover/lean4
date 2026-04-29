@@ -1782,6 +1782,10 @@ mutual
             doIfToCode doElem doElems
           else if k == ``Parser.Term.doUnless then
             doUnlessToCode doElem doElems
+          else if k == ``Parser.Term.doRepeat then
+            let seq := doElem[1]
+            let expanded ← `(doElem| for _ in Loop.mk do $seq)
+            doSeqToCode (expanded :: doElems)
           else if k == ``Parser.Term.doFor then withFreshMacroScope do
             doForToCode doElem doElems
           else if k == ``Parser.Term.doMatch then
@@ -1811,6 +1815,13 @@ mutual
             doSeqToCode (getDoSeqElems nestedDoSeq ++ doElems)
           else if k == ``Parser.Term.doExpr then
             let term := doElem[0]
+            if doElems.isEmpty then
+              return mkTerminalAction term
+            else
+              return mkSeq term (← doSeqToCode doElems)
+          else if k == ``Parser.Term.InternalSyntax.doSkip then
+            -- In the legacy elaborator, `skip` is treated as `pure PUnit.unit`.
+            let term ← withRef doElem `(pure PUnit.unit)
             if doElems.isEmpty then
               return mkTerminalAction term
             else

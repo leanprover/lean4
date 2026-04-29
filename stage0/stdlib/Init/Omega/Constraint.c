@@ -2614,7 +2614,6 @@ v_resetjp_717_:
 {
 lean_object* v___x_720_; lean_object* v___x_721_; uint8_t v___x_722_; 
 v___x_720_ = lean_obj_once(&l___private_Init_Omega_Constraint_0__Lean_Omega_instToStringInt___lam__0___closed__0, &l___private_Init_Omega_Constraint_0__Lean_Omega_instToStringInt___lam__0___closed__0_once, _init_l___private_Init_Omega_Constraint_0__Lean_Omega_instToStringInt___lam__0___closed__0);
-lean_inc(v_snd_716_);
 v___x_721_ = l_Lean_Omega_IntList_leading(v_snd_716_);
 v___x_722_ = lean_int_dec_le(v___x_720_, v___x_721_);
 lean_dec(v___x_721_);

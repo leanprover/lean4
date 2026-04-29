@@ -1,5 +1,6 @@
 {"version": 1,
  "uri": "file:///semanticTokens.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 3,

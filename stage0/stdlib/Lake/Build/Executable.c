@@ -2141,7 +2141,7 @@ else
 {
 lean_object* v_a_794_; lean_object* v_targetDecls_795_; lean_object* v___x_796_; lean_object* v___x_797_; lean_object* v___x_798_; uint8_t v___x_799_; 
 v_a_794_ = lean_array_uget_borrowed(v_as_771_, v_i_773_);
-v_targetDecls_795_ = lean_ctor_get(v_a_794_, 13);
+v_targetDecls_795_ = lean_ctor_get(v_a_794_, 14);
 v___x_796_ = lean_unsigned_to_nat(0u);
 v___x_797_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00__private_Lake_Build_Executable_0__Lake_LeanExe_recBuildExe_spec__12___closed__0));
 v___x_798_ = lean_array_get_size(v_targetDecls_795_);

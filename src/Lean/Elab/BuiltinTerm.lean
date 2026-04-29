@@ -314,6 +314,23 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     return val
   | _ => panic! "resolveId? returned an unexpected expression"
 
+/--
+Rebuild a type application with fresh synthetic metavariables for instance-implicit arguments.
+Non-instance-implicit arguments are assigned from the original application's arguments.
+If the function is over-applied, extra arguments are preserved.
+-/
+private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
+  let fn := type.getAppFn
+  let args := type.getAppArgs
+  let (mvars, bis, _) ← forallMetaTelescope (← inferType fn)
+  for i in [:mvars.size] do
+    if bis[i]!.isInstImplicit then
+      mvars[i]!.mvarId!.assign (← mkInstMVar (← inferType mvars[i]!))
+    else
+      mvars[i]!.mvarId!.assign args[i]!
+  let args := mvars ++ args.drop mvars.size
+  instantiateMVars (mkAppN fn args)
+
 @[builtin_term_elab Lean.Parser.Term.inferInstanceAs] def elabInferInstanceAs : TermElab := fun stx expectedType? => do
   -- The type argument is the last child (works for both `inferInstanceAs T` and `inferInstanceAs <| T`)
   let typeStx := stx[stx.getNumArgs - 1]!
@@ -325,19 +342,21 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
       .note "`inferInstanceAs` requires full knowledge of the expected (\"target\") type to do its \
         instance translation. If you do not intend to transport instances between two types, \
         consider using `inferInstance` or `(inferInstance : expectedType)` instead.")
-  let type ← withSynthesize (postpone := .yes) <| elabType typeStx
-  -- Unify with expected type to resolve metavariables (e.g., `_` placeholders)
-  discard <| isDefEq type expectedType
+  let type ← withSynthesize do
+    let type ← elabType typeStx
+    -- Unify with expected type to resolve metavariables (e.g., `_` placeholders)
+    discard <| isDefEq type expectedType
+    return type
+  -- Re-infer instance-implicit args, so that synthesis is not influenced by the expected type's
+  -- instance choices.
+  let type ← withSynthesize <| resynthInstImplicitArgs type
   let type ← instantiateMVars type
-  -- Rebuild type with fresh synthetic mvars for instance-implicit args, so that
-  -- synthesis is not influenced by the expected type's instance choices.
-  let type ← abstractInstImplicitArgs type
   let inst ← synthInstance type
   let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
     -- Wrap instance so its type matches the expected type exactly.
     let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
     let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
-    withNewMCtxDepth <| wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
+    wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
   else
     pure inst
   ensureHasType expectedType? inst

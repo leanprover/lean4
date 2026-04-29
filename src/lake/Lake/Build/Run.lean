@@ -34,11 +34,11 @@ public def mkBuildContext (ws : Workspace) (config : BuildConfig) : BaseIO Build
   }
 
 /-- Unicode icons that make up the spinner in animation order. -/
-private def Monitor.spinnerFrames :=
+def Monitor.spinnerFrames :=
   #['⣾','⣷','⣯','⣟','⡿','⢿','⣻','⣽']
 
 /-- Context of the Lake build monitor. -/
-private structure MonitorContext where
+structure MonitorContext where
   jobs : JobQueue
   out : IO.FS.Stream
   outLv : LogLevel
@@ -55,7 +55,7 @@ private structure MonitorContext where
   .stream ctx.out ctx.outLv ctx.useAnsi
 
 /-- State of the Lake build monitor. -/
-private structure MonitorState where
+structure MonitorState where
   jobNo : Nat := 0
   totalJobs : Nat := 0
   wantsRebuild : Bool := false
@@ -65,9 +65,9 @@ private structure MonitorState where
   spinnerIdx : Fin Monitor.spinnerFrames.size := ⟨0, by decide⟩
 
 /-- Monad of the Lake build monitor. -/
-private abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState BaseIO
+abbrev MonitorM := ReaderT MonitorContext <| StateT MonitorState BaseIO
 
-@[inline] private def MonitorM.run
+@[inline] def MonitorM.run
   (ctx : MonitorContext) (s : MonitorState) (self : MonitorM α)
 : BaseIO (α × MonitorState) :=
   StateT.run (ReaderT.run self ctx) s
@@ -80,23 +80,25 @@ def Ansi.resetLine : String :=
   "\x1B[2K\r"
 
 /-- Like `IO.FS.Stream.flush`, but ignores errors. -/
-@[inline] private def flush (out : IO.FS.Stream) : BaseIO PUnit :=
+@[inline] def flush (out : IO.FS.Stream) : BaseIO PUnit :=
   out.flush |>.catchExceptions fun _ => pure ()
 
 /-- Like `IO.FS.Stream.putStr`, but panics on errors. -/
-@[inline] private def print! (out : IO.FS.Stream) (s : String) : BaseIO PUnit :=
+@[inline] def print! (out : IO.FS.Stream) (s : String) : BaseIO PUnit :=
   out.putStr s |>.catchExceptions fun e =>
     panic! s!"[{decl_name%} failed: {e}] {repr s}"
 
 namespace Monitor
 
-@[inline] private def print (s : String) : MonitorM PUnit := do
+@[inline] def print (s : String) : MonitorM PUnit := do
   print! (← read).out s
 
-@[inline] private nonrec def flush : MonitorM PUnit := do
+@[inline] nonrec def flush : MonitorM PUnit := do
   flush (← read).out
 
-private def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.size) : MonitorM PUnit := do
+def renderProgress
+  (running unfinished : Array OpaqueJob) (h : 0 < unfinished.size)
+: MonitorM PUnit := do
   let {jobNo, totalJobs, ..} ← get
   let {useAnsi, showProgress, ..} ← read
   if showProgress ∧ useAnsi then
@@ -114,7 +116,7 @@ private def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfin
     print s!"{resetCtrl}{spinnerIcon} [{jobNo}/{totalJobs}] {caption}"
     flush
 
-private def reportJob (job : OpaqueJob) : MonitorM PUnit := do
+def reportJob (job : OpaqueJob) : MonitorM PUnit := do
   let {jobNo, totalJobs, ..} ← get
   let {failLv, outLv, showOptional, out, useAnsi, showProgress, minAction, showTime, ..} ← read
   let {task, caption, optional, ..} := job
@@ -153,9 +155,12 @@ where
     else if ms > 1000 then s!"{(ms) / 1000}.{(ms+50) / 100 % 10}s"
     else s!"{ms}ms"
 
-private def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array OpaqueJob) := do
+def drainQueue : MonitorM (Array OpaqueJob) := do
   let newJobs ← (← read).jobs.modifyGet ((·, #[]))
   modify fun s => {s with totalJobs := s.totalJobs + newJobs.size}
+  return newJobs
+
+def scanJobs (new unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array OpaqueJob) := do
   let pollJobs := fun (running, unfinished) job => do
     match (← IO.getTaskState job.task) with
     | .finished =>
@@ -167,9 +172,9 @@ private def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × A
     | .waiting =>
       return (running, unfinished.push job)
   let r ← unfinished.foldlM pollJobs (#[], #[])
-  newJobs.foldlM pollJobs r
+  new.foldlM pollJobs r
 
-private def sleep : MonitorM PUnit := do
+def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
   let lastUpdate := (← get).lastUpdate
   let sleepTime : Nat := (← read).updateFrequency - (now - lastUpdate)
@@ -178,15 +183,25 @@ private def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
   modify fun s => {s with lastUpdate := now}
 
-private  partial def loop (unfinished : Array OpaqueJob) : MonitorM PUnit := do
-  let (running, unfinished) ← poll unfinished
+ partial def loop
+  (new unfinished : Array OpaqueJob)
+: MonitorM PUnit := do
+  let (running, unfinished) ← scanJobs new unfinished
   if h : 0 < unfinished.size then
     renderProgress running unfinished h
     sleep
-    loop unfinished
+    let new ← drainQueue
+    loop new unfinished
+  else
+    -- Must recheck queue for new tasks before terminating the loop.
+    -- Finished tasks may have registered new tasks.
+    let new ← drainQueue
+    if 0 < new.size then
+      loop new unfinished
 
-private def main (init : Array OpaqueJob) : MonitorM PUnit := do
-  loop init
+def main (init : Array OpaqueJob) : MonitorM PUnit := do
+  let new ← drainQueue
+  loop new init
   let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := ""})
   unless resetCtrl.isEmpty do
     print resetCtrl
@@ -210,7 +225,7 @@ def mkMonitorContext (cfg : BuildConfig) (jobs : JobQueue) : BaseIO MonitorConte
   let failLv := cfg.failLv
   let isVerbose := cfg.verbosity = .verbose
   let showProgress := cfg.showProgress
-  let minAction := if isVerbose then .unknown else .fetch
+  let minAction := if isVerbose then .unknown else .unpack
   let showOptional := isVerbose
   let showTime := isVerbose || !useAnsi
   let updateFrequency := 100
@@ -284,11 +299,14 @@ def reportResult (cfg : BuildConfig) (out : IO.FS.Stream) (result : MonitorResul
   if result.failures.isEmpty then
     if cfg.showProgress && cfg.showSuccess then
       let numJobs := result.numJobs
-      let jobs := if numJobs == 1 then "1 job" else s!"{numJobs} jobs"
-      if cfg.noBuild then
-        print! out s!"All targets up-to-date ({jobs}).\n"
+      if numJobs == 0 then
+        print! out "Nothing to build.\n"
       else
-        print! out s!"Build completed successfully ({jobs}).\n"
+        let jobs := if numJobs == 1 then "1 job" else s!"{numJobs} jobs"
+        if cfg.noBuild then
+          print! out s!"All targets up-to-date ({jobs}).\n"
+        else
+          print! out s!"Build completed successfully ({jobs}).\n"
   else
     print! out "Some required targets logged failures:\n"
     result.failures.forM (print! out s!"- {·}\n")

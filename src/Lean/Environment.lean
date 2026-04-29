@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Array.BinSearch
 public import Init.Data.Stream
 public import Init.System.Promise
+public import Init.System.CancelToken
 public import Lean.Data.NameTrie
 public import Lean.Setup
 public import Lean.LocalContext
@@ -616,7 +617,13 @@ structure Environment where
   /--
   Indicates whether the environment is being used in an exported context, i.e. whether it should
   provide access to only the data to be imported by other modules participating in the module
-  system.
+  system. Apart from controlling access, some operations such as `mkAuxDeclName` may also change
+  their output based on this flag.
+
+  By default, `isExporting` is set to false when command elaborators are invoked such that they have
+  access to the full local environment. Use `with(out)Exporting` to modify based on context. For
+  example, `elabDeclaration` sets it based on `(← getScope).isPublic` on the top level, then
+  `elabMutualDef` may switch from public to private when e.g. entering the proof of a theorem.
   -/
   isExporting : Bool := false
 deriving Nonempty

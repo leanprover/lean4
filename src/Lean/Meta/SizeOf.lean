@@ -451,16 +451,18 @@ private def mkSizeOfSpecTheorem (indInfo : InductiveVal) (sizeOfFns : Array Name
       let thmType ← mkForallFVars thmParams target
       trace[Meta.sizeOf] "sizeOf spec theorem name: {thmName}"
       trace[Meta.sizeOf] "sizeOf spec theorem type: {thmType}"
-      let thmValue ← if indInfo.isNested then
-        SizeOfSpecNested.main lhs rhs |>.run {
-          indInfo, sizeOfFns, ctorName, params, localInsts, recMap
-        }
-      else
-        mkEqRefl rhs
-      let thmValue ← mkLambdaFVars thmParams thmValue
-      trace[Meta.sizeOf] "sizeOf spec theorem value: {thmValue}"
-      unless (← isDefEq (← inferType thmValue) thmType) do
-        throwError "type mismatch"
+      let thmValue ← withoutExporting do
+        let thmValue ← if indInfo.isNested then
+          SizeOfSpecNested.main lhs rhs |>.run {
+            indInfo, sizeOfFns, ctorName, params, localInsts, recMap
+          }
+        else
+          mkEqRefl rhs
+        let thmValue ← mkLambdaFVars thmParams thmValue
+        trace[Meta.sizeOf] "sizeOf spec theorem value: {thmValue}"
+        unless (← isDefEq (← inferType thmValue) thmType) do
+          throwError "type mismatch"
+        pure thmValue
       addDecl <| Declaration.thmDecl {
         name        := thmName
         levelParams := ctorInfo.levelParams

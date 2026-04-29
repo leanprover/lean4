@@ -160,7 +160,7 @@ v___x_57_ = l_Std_DTreeMap_Internal_Impl_ctorElim___redArg(v_t_54_, v_leaf_56_);
 return v___x_57_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instInhabitedImpl_default(lean_object* v_a_58_, lean_object* v_a_59_){
+LEAN_EXPORT lean_object* l_Std_DTreeMap_Internal_instInhabitedImpl_default(lean_object* v_00_u03b1_58_, lean_object* v_00_u03b2_59_){
 _start:
 {
 lean_object* v___x_60_; 

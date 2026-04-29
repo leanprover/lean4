@@ -143,7 +143,7 @@ object * object_compactor::copy_object(object * o) {
 void object_compactor::insert_sarray(object * o) {
     size_t sz        = lean_sarray_size(o);
     unsigned elem_sz = lean_sarray_elem_size(o);
-    size_t obj_sz = sizeof(lean_sarray_object) + elem_sz*sz;
+    size_t obj_sz = lean_usize_add_checked(sizeof(lean_sarray_object), lean_usize_mul_checked(elem_sz, sz));
     lean_sarray_object * new_o = (lean_sarray_object*)alloc(obj_sz);
     lean_set_non_heap_header_for_big((lean_object*)new_o, LeanScalarArray, elem_sz);
     new_o->m_size     = sz;
@@ -155,7 +155,7 @@ void object_compactor::insert_sarray(object * o) {
 void object_compactor::insert_string(object * o) {
     size_t sz        = lean_string_size(o);
     size_t len       = lean_string_len(o);
-    size_t obj_sz = sizeof(lean_string_object) + sz;
+    size_t obj_sz = lean_usize_add_checked(sizeof(lean_string_object), sz);
     lean_string_object * new_o = (lean_string_object*)alloc(obj_sz);
     lean_set_non_heap_header_for_big((lean_object*)new_o, LeanString, 0);
     new_o->m_size     = sz;
@@ -214,7 +214,7 @@ bool object_compactor::insert_array(object * o) {
     }
     if (missing_children)
         return false;
-    size_t obj_sz = sizeof(lean_array_object) + sizeof(void*)*sz;
+    size_t obj_sz = lean_usize_add_checked(sizeof(lean_array_object), lean_usize_mul_checked(sizeof(void*), sz));
     lean_array_object * new_o = (lean_array_object*)alloc(obj_sz);
     lean_set_non_heap_header_for_big((lean_object*)new_o, LeanArray, 0);
     new_o->m_size     = sz;
@@ -274,8 +274,8 @@ bool object_compactor::insert_promise(object * o) {
 void object_compactor::insert_mpz(object * o) {
 #ifdef LEAN_USE_GMP
     size_t nlimbs = mpz_size(to_mpz(o)->m_value.m_val);
-    size_t data_sz = sizeof(mp_limb_t) * nlimbs;
-    size_t sz = sizeof(mpz_object) + data_sz;
+    size_t data_sz = lean_usize_mul_checked(sizeof(mp_limb_t), nlimbs);
+    size_t sz = lean_usize_add_checked(sizeof(mpz_object), data_sz);
     mpz_object * new_o = (mpz_object *)alloc(sz);
     memcpy(new_o, to_mpz(o), sizeof(mpz_object));
     lean_set_non_heap_header((lean_object*)new_o, sz, LeanMPZ, 0);
@@ -287,8 +287,8 @@ void object_compactor::insert_mpz(object * o) {
     m._mp_alloc = nlimbs;
     save(o, (lean_object*)new_o);
 #else
-    size_t data_sz = sizeof(mpn_digit) * to_mpz(o)->m_value.m_size;
-    size_t sz      = sizeof(mpz_object) + data_sz;
+    size_t data_sz = lean_usize_mul_checked(sizeof(mpn_digit), to_mpz(o)->m_value.m_size);
+    size_t sz      = lean_usize_add_checked(sizeof(mpz_object), data_sz);
     mpz_object * new_o = (mpz_object *)alloc(sz);
     // Manually copy the `mpz_object` to ensure `mpz` struct padding is left as
     // zero as prepared by `object_compactor::alloc`. `memcpy` would copy the

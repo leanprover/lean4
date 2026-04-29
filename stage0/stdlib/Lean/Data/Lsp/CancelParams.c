@@ -252,6 +252,7 @@ lean_ctor_set(v___x_29_, 1, v___x_27_);
 v___x_30_ = ((lean_object*)(l_Lean_Lsp_instToJsonCancelParams_toJson___closed__1));
 v___x_31_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Lsp_instToJsonCancelParams_toJson_spec__0(v___x_29_, v___x_30_);
 v___x_32_ = l_Lean_Json_mkObj(v___x_31_);
+lean_dec(v___x_31_);
 return v___x_32_;
 }
 }

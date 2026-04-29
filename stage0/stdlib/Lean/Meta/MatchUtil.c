@@ -704,8 +704,8 @@ return v___x_209_;
 else
 {
 lean_object* v___x_211_; 
-lean_dec_ref(v___x_209_);
 lean_dec(v_a_210_);
+lean_dec_ref(v___x_209_);
 v___x_211_ = l_Lean_Meta_matchHEq_x3f(v_e_203_, v_a_204_, v_a_205_, v_a_206_, v_a_207_);
 if (lean_obj_tag(v___x_211_) == 0)
 {

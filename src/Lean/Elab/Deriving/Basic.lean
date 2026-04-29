@@ -220,7 +220,7 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
             instName ← liftMacroM <| mkUnusedBaseName instName
             if isPrivateName declName then
               instName := mkPrivateName env instName
-            let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
+            let isMeta := (← read).isMetaSection || isMarkedMeta (← getEnv) declName
             let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
               withDeclNameForAuxNaming instName <| withNewMCtxDepth <|
                 wrapInstance result.instVal result.instType
@@ -255,11 +255,12 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
             logInfoAt cmdRef m!"Try this: {newText}"
         throwError "failed to derive instance because it depends on \
           `{.ofConstName noncompRef}`, which is noncomputable"
+    let isMeta := (← read).isMetaSection || isMarkedMeta (← getEnv) declName
     if isNoncomputable || (← read).isNoncomputableSection then
       addDecl <| Declaration.defnDecl decl
       modifyEnv (addNoncomputable · instName)
     else
-      addAndCompile <| Declaration.defnDecl decl
+      addAndCompile (Declaration.defnDecl decl) (markMeta := isMeta)
   trace[Elab.Deriving] "Derived instance `{.ofConstName instName}`"
   -- For Prop-typed instances (theorems), skip `implicit_reducible` since reducibility hints are
   -- irrelevant for theorems. This matches the behavior of the handwritten `instance` command

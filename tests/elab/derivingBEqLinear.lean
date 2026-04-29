@@ -35,7 +35,7 @@ inductive L (α : Type u) : Type u
 /--
 info: instBEqL.beq_spec.{u_1} {α✝ : Type u_1} [BEq α✝] (x✝ x✝¹ : L α✝) :
   (x✝ == x✝¹) =
-    match decEq x✝.ctorIdx x✝¹.ctorIdx with
+    match x✝.ctorIdx.decEq x✝¹.ctorIdx with
     | isTrue h =>
       match x✝, x✝¹, h with
       | L.nil, L.nil, ⋯ => true
@@ -66,7 +66,7 @@ info: @[implicit_reducible, expose] def InNamespace.instBEqL'.{u_1} : {α : Type
 /--
 info: theorem InNamespace.instBEqL'.beq_spec.{u_1} : ∀ {α : Type u_1} [inst : BEq α] (x x_1 : InNamespace.L' α),
   (x == x_1) =
-    match decEq x.ctorIdx x_1.ctorIdx with
+    match x.ctorIdx.decEq x_1.ctorIdx with
     | isTrue h =>
       match x, x_1, h with
       | InNamespace.L'.nil, InNamespace.L'.nil, ⋯ => true
@@ -83,7 +83,7 @@ inductive Vec (α : Type u) : Nat → Type u
 /--
 info: instBEqVec.beq_spec.{u_1} {α✝ : Type u_1} {a✝ : Nat} [BEq α✝] (x✝ x✝¹ : Vec α✝ a✝) :
   (x✝ == x✝¹) =
-    match decEq x✝.ctorIdx x✝¹.ctorIdx with
+    match x✝.ctorIdx.decEq x✝¹.ctorIdx with
     | isTrue h =>
       match a✝, x✝, x✝¹ with
       | 0, Vec.nil, Vec.nil, ⋯ => true

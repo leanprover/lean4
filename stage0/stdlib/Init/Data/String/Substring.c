@@ -20,7 +20,7 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 lean_object* l_Char_isWhitespace___boxed(lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next(lean_object*, lean_object*);
 lean_object* lean_string_utf8_prev(lean_object*, lean_object*);
@@ -36,9 +36,7 @@ lean_object* lean_nat_mul(lean_object*, lean_object*);
 lean_object* lean_uint32_to_nat(uint32_t);
 uint8_t lean_string_dec_eq(lean_object*, lean_object*);
 lean_object* l_List_reverse___redArg(lean_object*);
-uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 uint8_t lean_string_utf8_at_end(lean_object*, lean_object*);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_String_Slice_Pattern_CharPred_instForwardPatternForallCharBool(lean_object*);
 lean_object* l_String_Slice_Pattern_ToForwardSearcher_DefaultForwardSearcher_instIteratorLoopIdSearchStep___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -2792,7 +2790,7 @@ v___x_754_ = lean_nat_sub(v___x_753_, v___x_745_);
 lean_dec(v___x_745_);
 v___x_755_ = lean_nat_add(v_pos_741_, v___x_754_);
 lean_dec(v___x_754_);
-v___x_756_ = l_String_instDecidableLtRaw___aux__1(v_pos_741_, v___x_755_);
+v___x_756_ = lean_nat_dec_lt(v_pos_741_, v___x_755_);
 if (v___x_756_ == 0)
 {
 lean_dec(v___x_755_);
@@ -3099,7 +3097,7 @@ LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux(lean_object* v_s_834_, lea
 _start:
 {
 uint8_t v___x_838_; 
-v___x_838_ = l_String_instDecidableLtRaw___aux__1(v_i_837_, v_stopPos_835_);
+v___x_838_ = lean_nat_dec_lt(v_i_837_, v_stopPos_835_);
 if (v___x_838_ == 0)
 {
 lean_dec_ref(v_p_836_);
@@ -3196,7 +3194,7 @@ LEAN_EXPORT lean_object* l_Substring_Raw_takeWhileAux___at___00Substring_Raw_Int
 _start:
 {
 uint8_t v___x_867_; 
-v___x_867_ = l_String_instDecidableLtRaw___aux__1(v_i_866_, v_stopPos_865_);
+v___x_867_ = lean_nat_dec_lt(v_i_866_, v_stopPos_865_);
 if (v___x_867_ == 0)
 {
 lean_dec_ref(v_a_863_);
@@ -3344,7 +3342,7 @@ LEAN_EXPORT lean_object* l_Substring_Raw_takeRightWhileAux(lean_object* v_s_905_
 _start:
 {
 uint8_t v___x_909_; 
-v___x_909_ = l_String_instDecidableLtRaw___aux__1(v_begPos_906_, v_i_908_);
+v___x_909_ = lean_nat_dec_lt(v_begPos_906_, v_i_908_);
 if (v___x_909_ == 0)
 {
 lean_dec_ref(v_p_907_);
@@ -4994,7 +4992,7 @@ _start:
 lean_object* v_str_1377_; lean_object* v_stopPos_1378_; uint8_t v___x_1379_; 
 v_str_1377_ = lean_ctor_get(v_s_1373_, 0);
 v_stopPos_1378_ = lean_ctor_get(v_s_1373_, 2);
-v___x_1379_ = l_String_instDecidableLtRaw___aux__1(v_spos_1375_, v_stopPos_1378_);
+v___x_1379_ = lean_nat_dec_lt(v_spos_1375_, v_stopPos_1378_);
 if (v___x_1379_ == 0)
 {
 lean_dec(v_tpos_1376_);
@@ -5005,7 +5003,7 @@ else
 lean_object* v_str_1380_; lean_object* v_stopPos_1381_; uint8_t v___x_1382_; 
 v_str_1380_ = lean_ctor_get(v_t_1374_, 0);
 v_stopPos_1381_ = lean_ctor_get(v_t_1374_, 2);
-v___x_1382_ = l_String_instDecidableLtRaw___aux__1(v_tpos_1376_, v_stopPos_1381_);
+v___x_1382_ = lean_nat_dec_lt(v_tpos_1376_, v_stopPos_1381_);
 if (v___x_1382_ == 0)
 {
 lean_dec(v_tpos_1376_);
@@ -5114,7 +5112,7 @@ _start:
 lean_object* v_str_1414_; lean_object* v_startPos_1415_; uint8_t v___x_1416_; 
 v_str_1414_ = lean_ctor_get(v_s_1410_, 0);
 v_startPos_1415_ = lean_ctor_get(v_s_1410_, 1);
-v___x_1416_ = l_String_instDecidableLtRaw___aux__1(v_startPos_1415_, v_spos_1412_);
+v___x_1416_ = lean_nat_dec_lt(v_startPos_1415_, v_spos_1412_);
 if (v___x_1416_ == 0)
 {
 lean_dec(v_tpos_1413_);
@@ -5125,7 +5123,7 @@ else
 lean_object* v_str_1417_; lean_object* v_startPos_1418_; uint8_t v___x_1419_; 
 v_str_1417_ = lean_ctor_get(v_t_1411_, 0);
 v_startPos_1418_ = lean_ctor_get(v_t_1411_, 1);
-v___x_1419_ = l_String_instDecidableLtRaw___aux__1(v_startPos_1418_, v_tpos_1413_);
+v___x_1419_ = lean_nat_dec_lt(v_startPos_1418_, v_tpos_1413_);
 if (v___x_1419_ == 0)
 {
 lean_dec(v_tpos_1413_);

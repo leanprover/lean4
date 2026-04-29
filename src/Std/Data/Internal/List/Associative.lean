@@ -3873,7 +3873,7 @@ theorem getValue_insertList_of_contains_eq_false_left [BEq α] [EquivBEq α] {l 
   suffices some (getValue k (insertList l toInsert) contains) = some (getValue k toInsert (contains_of_contains_insertList_of_contains_eq_false_left contains not_contains)) from by
     injection this
   simp only [← getValue?_eq_some_getValue]
-  simp only [ getValue?_eq_getEntry? ]
+  simp only [getValue?_eq_getEntry? ]
   congr 1
   exact getEntry?_insertList_of_contains_left_eq_false distinct_l (DistinctKeys_impl_Pairwise_distinct distinct_toInsert) not_contains
 
@@ -3885,7 +3885,7 @@ theorem getValue_insertList_of_contains_right [BEq α] [EquivBEq α] {l toInsert
   suffices some (getValue k (insertList l toInsert) h) = some (getValue k toInsert contains) from by
     injection this
   simp only [← getValue?_eq_some_getValue]
-  simp only [ getValue?_eq_getEntry? ]
+  simp only [getValue?_eq_getEntry? ]
   congr 1
   apply getEntry?_insertList_of_contains_eq_true
   . exact distinct_l

@@ -30,7 +30,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint32_t lean_string_utf8_get_fast(lean_object*, lean_object*);
 uint8_t lean_uint32_dec_eq(uint32_t, uint32_t);
 uint8_t lean_uint32_dec_le(uint32_t, uint32_t);
@@ -53,7 +53,6 @@ lean_object* lean_array_to_list(lean_object*);
 lean_object* l_String_intercalate(lean_object*, lean_object*);
 lean_object* lean_array_uget_borrowed(lean_object*, size_t);
 uint8_t lean_usize_dec_eq(size_t, size_t);
-uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 size_t lean_usize_of_nat(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1356,7 +1355,7 @@ v___x_372_ = lean_nat_sub(v___x_371_, v___x_369_);
 lean_dec(v___x_369_);
 v___x_373_ = lean_nat_add(v_pos_365_, v___x_372_);
 lean_dec(v___x_372_);
-v___x_374_ = l_String_instDecidableLtRaw___aux__1(v_pos_365_, v___x_373_);
+v___x_374_ = lean_nat_dec_lt(v_pos_365_, v___x_373_);
 if (v___x_374_ == 0)
 {
 lean_dec(v___x_373_);
@@ -2401,7 +2400,7 @@ goto v___jp_761_;
 v___jp_754_:
 {
 uint8_t v___x_755_; 
-v___x_755_ = l_String_instDecidableLtRaw___aux__1(v___x_753_, v_pos_743_);
+v___x_755_ = lean_nat_dec_lt(v___x_753_, v_pos_743_);
 if (v___x_755_ == 0)
 {
 lean_dec(v___x_753_);

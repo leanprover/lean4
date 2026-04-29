@@ -191,7 +191,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_leanExes(lean_object* v_self_37_){
 _start:
 {
 lean_object* v_targetDecls_38_; lean_object* v___x_39_; lean_object* v___x_40_; lean_object* v___x_41_; lean_object* v___x_42_; uint8_t v___x_43_; 
-v_targetDecls_38_ = lean_ctor_get(v_self_37_, 13);
+v_targetDecls_38_ = lean_ctor_get(v_self_37_, 14);
 lean_inc_ref(v_targetDecls_38_);
 v___x_39_ = lean_unsigned_to_nat(0u);
 v___x_40_ = ((lean_object*)(l_Lake_Package_leanExes___closed__0));
@@ -1099,7 +1099,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findTargetModule_x3f(lean_object* v_mod_
 _start:
 {
 lean_object* v___y_341_; lean_object* v_targetDecls_345_; lean_object* v___x_346_; lean_object* v___x_347_; lean_object* v___x_348_; uint8_t v___x_349_; 
-v_targetDecls_345_ = lean_ctor_get(v_self_339_, 13);
+v_targetDecls_345_ = lean_ctor_get(v_self_339_, 14);
 v___x_346_ = lean_unsigned_to_nat(0u);
 v___x_347_ = ((lean_object*)(l_Lake_Package_leanExes___closed__0));
 v___x_348_ = lean_array_get_size(v_targetDecls_345_);
@@ -1342,7 +1342,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findModuleBySrc_x3f(lean_object* v_path_
 _start:
 {
 lean_object* v___y_430_; lean_object* v_targetDecls_433_; lean_object* v___y_435_; lean_object* v___x_449_; lean_object* v___x_450_; lean_object* v___x_451_; uint8_t v___x_452_; 
-v_targetDecls_433_ = lean_ctor_get(v_self_428_, 13);
+v_targetDecls_433_ = lean_ctor_get(v_self_428_, 14);
 lean_inc_ref(v_targetDecls_433_);
 v___x_449_ = lean_unsigned_to_nat(0u);
 v___x_450_ = ((lean_object*)(l_Lake_Package_leanExes___closed__0));

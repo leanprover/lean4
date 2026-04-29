@@ -65,6 +65,15 @@ register_builtin_option linter.all : Bool := {
   descr := "enable all linters"
 }
 
+register_builtin_option linter.clippy : Bool := {
+  defValue := false
+  descr := "enables the set of clippy linters — linters that are turned off by default and \
+    only available via `lake lint`. A clippy linter early-returns unless this option is true."
+}
+
+def getLinterClippy (o : LinterOptions) : Bool :=
+  o.get linter.clippy.name linter.clippy.defValue
+
 def getLinterAll (o : LinterOptions) (defValue := linter.all.defValue) : Bool :=
     o.get linter.all.name defValue
 

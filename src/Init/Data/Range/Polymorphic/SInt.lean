@@ -248,11 +248,11 @@ instance : HasModel Int8 (BitVec 8) where
   le_iff_encode_le := by simp [LE.le, Int8.le]
   lt_iff_encode_lt := by simp [LT.lt, Int8.lt]
 
-private theorem succ?_eq_minValueSealed {x : Int8} :
+theorem succ?_eq_minValueSealed {x : Int8} :
     UpwardEnumerable.succ? x = if x + 1 = minValueSealed then none else some (x + 1) :=
   (rfl)
 
-private theorem succMany?_eq_maxValueSealed {i : Int8} :
+theorem succMany?_eq_maxValueSealed {i : Int8} :
     UpwardEnumerable.succMany? n i =
       have := i.minValue_le_toInt
       if h : i.toInt + n ≤ maxValueSealed.toInt then some (.ofIntLE _ (by omega) (maxValueSealed_def ▸ h)) else none :=
@@ -605,12 +605,12 @@ theorem minValueSealed_def : minValueSealed = ISize.minValue := (rfl)
 theorem maxValueSealed_def : maxValueSealed = ISize.maxValue := (rfl)
 seal minValueSealed maxValueSealed
 
-private theorem toBitVec_minValueSealed_eq_intMinSealed :
+theorem toBitVec_minValueSealed_eq_intMinSealed :
     minValueSealed.toBitVec = BitVec.Signed.intMinSealed System.Platform.numBits := by
   rw [minValueSealed_def, BitVec.Signed.intMinSealed_def, toBitVec_minValue]
   have := System.Platform.numBits_eq; generalize System.Platform.numBits = a at this ⊢
   rcases this with rfl | rfl <;> rfl
-private theorem toBitVec_maxValueSealed_eq_intMaxSealed :
+theorem toBitVec_maxValueSealed_eq_intMaxSealed :
     maxValueSealed.toBitVec = BitVec.Signed.intMaxSealed System.Platform.numBits := by
   rw [maxValueSealed_def, BitVec.Signed.intMaxSealed_def, toBitVec_maxValue]
   have := System.Platform.numBits_eq; generalize System.Platform.numBits = a at this ⊢

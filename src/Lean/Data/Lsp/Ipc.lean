@@ -103,8 +103,31 @@ def normalizePublishDiagnosticsParams (p : PublishDiagnosticsParams) :
 }
 
 /--
+Merges a new `textDocument/publishDiagnostics` notification into a previously accumulated one.
+
+- If there is no previous notification, the new one is used as-is.
+- If `isIncremental?` is `true`, the new diagnostics are appended.
+- Otherwise the new notification replaces the previous one.
+
+The returned params always have `isIncremental? := some false` since they represent the full
+accumulated set.
+-/
+def mergePublishDiagnosticsParams (prev? : Option PublishDiagnosticsParams)
+    (next : PublishDiagnosticsParams) : PublishDiagnosticsParams := Id.run do
+  let replace := { next with isIncremental? := some false }
+  let some prev := prev?
+    | return replace
+  if next.isIncremental?.getD false then
+    return { next with
+      diagnostics := prev.diagnostics ++ next.diagnostics
+      isIncremental? := some false }
+  return replace
+
+/--
 Waits for the worker to emit all diagnostic notifications for the current document version and
-returns the last notification, if any.
+returns the accumulated diagnostics, if any.
+
+Incoming notifications are merged using `mergePublishDiagnosticsParams`.
 
 We used to return all notifications but with debouncing in the server, this would not be
 deterministic anymore as what messages are dropped depends on wall-clock timing.
@@ -112,22 +135,25 @@ deterministic anymore as what messages are dropped depends on wall-clock timing.
 partial def collectDiagnostics (waitForDiagnosticsId : RequestID := 0) (target : DocumentUri) (version : Nat)
 : IpcM (Option (Notification PublishDiagnosticsParams)) := do
   writeRequest ⟨waitForDiagnosticsId, "textDocument/waitForDiagnostics", WaitForDiagnosticsParams.mk target version⟩
-  loop
+  loop none
 where
-  loop := do
+  loop (accumulated? : Option PublishDiagnosticsParams) := do
     match (←readMessage) with
     | Message.response id _ =>
-      if id == waitForDiagnosticsId then return none
-      else loop
-    | Message.responseError id _    msg _ =>
+      if id == waitForDiagnosticsId then
+        return accumulated?.map fun p =>
+          ⟨"textDocument/publishDiagnostics", normalizePublishDiagnosticsParams p⟩
+      else loop accumulated?
+    | Message.responseError id _ msg _ =>
       if id == waitForDiagnosticsId then
         throw $ userError s!"Waiting for diagnostics failed: {msg}"
-      else loop
+      else loop accumulated?
     | Message.notification "textDocument/publishDiagnostics" (some param) =>
       match fromJson? (toJson param) with
-      | Except.ok diagnosticParam => return (← loop).getD ⟨"textDocument/publishDiagnostics", normalizePublishDiagnosticsParams diagnosticParam⟩
+      | Except.ok (diagnosticParam : PublishDiagnosticsParams) =>
+        loop (some (mergePublishDiagnosticsParams accumulated? diagnosticParam))
       | Except.error inner => throw $ userError s!"Cannot decode publishDiagnostics parameters\n{inner}"
-    | _ => loop
+    | _ => loop accumulated?
 
 partial def waitForILeans (waitForILeansId : RequestID := 0) (target : DocumentUri) (version : Nat) : IpcM Unit := do
   writeRequest ⟨waitForILeansId, "$/lean/waitForILeans", WaitForILeansParams.mk target version⟩

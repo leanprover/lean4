@@ -1,3 +1,1 @@
-dep/*
-!dep/.gitignore
-!dep/lakefile.lean
+/work/

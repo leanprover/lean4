@@ -46,7 +46,7 @@ instCD2._aux_1
 #guard_msgs in
 #print instCD2
 /--
-info: @[implicit_reducible] private def instCD2._aux_1 : C D2 :=
+info: private def instCD2._aux_1 : C D2 :=
 instCI2
 -/
 #guard_msgs in
@@ -91,3 +91,13 @@ instance (x y : BitVec w) : Decidable (LE.le x y) :=
 
 instance (x y : BitVec w) : Decidable (LE.le x y) :=
   inferInstanceAs (Decidable (LE.le x.toNat y.toNat))
+
+/-! Universes can be introduced by synth and need to be unified with the expected type properly. -/
+
+structure MyStruct where
+  x : PUnit.{u + 1} := ⟨⟩
+  y : PUnit.{v + 1} := ⟨⟩
+
+instance : Zero MyStruct.{u, max u v} := ⟨{}⟩
+
+instance : Zero MyStruct.{u, max u v} := inferInstanceAs <| Zero MyStruct.{u, max u v}

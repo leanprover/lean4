@@ -2890,7 +2890,7 @@ lean_closure_set(v___x_794_, 1, v_inst_793_);
 return v___x_794_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedInline_default(lean_object* v_a_798_){
+LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedInline_default(lean_object* v_i_798_){
 _start:
 {
 lean_object* v___x_799_; 
@@ -3394,7 +3394,7 @@ lean_closure_set(v___x_977_, 1, v_inst_976_);
 return v___x_977_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedListItem_default(lean_object* v_a_980_){
+LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedListItem_default(lean_object* v_00_u03b1_980_){
 _start:
 {
 lean_object* v___x_981_; 
@@ -3753,7 +3753,7 @@ lean_closure_set(v___x_1144_, 3, v_inst_1143_);
 return v___x_1144_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedDescItem_default(lean_object* v_a_1147_, lean_object* v_a_1148_){
+LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedDescItem_default(lean_object* v_00_u03b1_1147_, lean_object* v_00_u03b2_1148_){
 _start:
 {
 lean_object* v___x_1149_; 
@@ -5913,7 +5913,7 @@ lean_closure_set(v___x_1746_, 3, v_inst_1745_);
 return v___x_1746_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedBlock_default(lean_object* v_a_1751_, lean_object* v_a_1752_){
+LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedBlock_default(lean_object* v_i_1751_, lean_object* v_b_1752_){
 _start:
 {
 lean_object* v___x_1753_; 
@@ -6714,7 +6714,7 @@ lean_closure_set(v___x_2054_, 5, v_inst_2053_);
 return v___x_2054_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedPart_default(lean_object* v_a_2059_, lean_object* v_a_2060_, lean_object* v_a_2061_){
+LEAN_EXPORT lean_object* l_Lean_Doc_instInhabitedPart_default(lean_object* v_i_2059_, lean_object* v_b_2060_, lean_object* v_p_2061_){
 _start:
 {
 lean_object* v___x_2062_; 

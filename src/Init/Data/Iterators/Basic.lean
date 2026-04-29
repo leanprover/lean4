@@ -42,29 +42,29 @@ The conversion functions {name (scope := "Init.Data.Iterators.Basic")}`Shrink.de
 {name (scope := "Init.Data.Iterators.Basic")}`Shrink.inflate` form an equivalence between
 {name}`α` and {lean}`Shrink α`, but this equivalence is intentionally not definitional.
 -/
-public def Shrink (α : Type u) : Type u := Internal.idOpaque.1 α
+def Shrink (α : Type u) : Type u := Internal.idOpaque.1 α
 
 /-- Converts elements of {name}`α` into elements of {lean}`Shrink α`. -/
 @[always_inline]
-public def Shrink.deflate {α} (x : α) : Shrink α :=
+def Shrink.deflate {α} (x : α) : Shrink α :=
   cast (by simp [Shrink, Internal.idOpaque.property]) x
 
 /-- Converts elements of {lean}`Shrink α` into elements of {name}`α`. -/
 @[always_inline]
-public def Shrink.inflate {α} (x : Shrink α) : α :=
+def Shrink.inflate {α} (x : Shrink α) : α :=
   cast (by simp [Shrink, Internal.idOpaque.property]) x
 
 @[simp, grind =]
-public theorem Shrink.deflate_inflate {α} {x : Shrink α} :
+theorem Shrink.deflate_inflate {α} {x : Shrink α} :
     Shrink.deflate x.inflate = x := by
   simp [deflate, inflate]
 
 @[simp, grind =]
-public theorem Shrink.inflate_deflate {α} {x : α} :
+theorem Shrink.inflate_deflate {α} {x : α} :
     (Shrink.deflate x).inflate = x := by
   simp [deflate, inflate]
 
-public theorem Shrink.inflate_inj {α} {x y : Shrink α} :
+theorem Shrink.inflate_inj {α} {x y : Shrink α} :
     x.inflate = y.inflate ↔ x = y := by
   apply Iff.intro
   · intro h
@@ -72,7 +72,7 @@ public theorem Shrink.inflate_inj {α} {x y : Shrink α} :
   · rintro rfl
     rfl
 
-public theorem Shrink.deflate_inj {α} {x y : α} :
+theorem Shrink.deflate_inj {α} {x y : α} :
     Shrink.deflate x = Shrink.deflate y ↔ x = y := by
   apply Iff.intro
   · intro h
@@ -314,7 +314,6 @@ of another state. Having this proof bundled up with the step is important for te
 
 See `IterM.Step` and `Iter.Step` for the concrete choice of the plausibility predicate.
 -/
-@[expose]
 abbrev PlausibleIterStep (IsPlausibleStep : IterStep α β → Prop) := Subtype IsPlausibleStep
 
 /--
@@ -384,7 +383,7 @@ attribute [reducible] Iterator.IsPlausibleStep
 section Monadic
 
 /-- The constructor has been renamed. -/
-@[deprecated IterM.mk (since := "2025-01-19"), inline, expose]
+@[deprecated IterM.mk (since := "2025-01-19"), inline]
 abbrev IterM.mk' {α : Type w} {m : Type w → Type w'} {β : Type w} (it : α) : IterM (α := α) m β :=
   ⟨it⟩
 
@@ -434,7 +433,6 @@ abbrev IterM.IsPlausibleStep {α : Type w} {m : Type w → Type w'} {β : Type w
 The type of the step object returned by `IterM.step`, containing an `IterStep`
 and a proof that this is a plausible step for the given iterator.
 -/
-@[expose]
 abbrev IterM.Step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     (it : IterM (α := α) m β) :=
   PlausibleIterStep it.IsPlausibleStep
@@ -493,7 +491,6 @@ section Pure
 Asserts that certain step is plausibly the successor of a given iterator. What "plausible" means
 is up to the `Iterator` instance but it should be strong enough to allow termination proofs.
 -/
-@[expose]
 abbrev Iter.IsPlausibleStep {α : Type w} {β : Type w} [Iterator α Id β]
     (it : Iter (α := α) β) (step : IterStep (Iter (α := α) β) β) : Prop :=
   it.toIterM.IsPlausibleStep (step.mapIterator Iter.toIterM)
@@ -549,7 +546,6 @@ theorem IterM.IsPlausibleIndirectOutput.trans {α β : Type w} {m : Type w → T
 The type of the step object returned by `Iter.step`, containing an `IterStep`
 and a proof that this is a plausible step for the given iterator.
 -/
-@[expose]
 abbrev Iter.Step {α : Type w} {β : Type w} [Iterator α Id β] (it : Iter (α := α) β) :=
   PlausibleIterStep (Iter.IsPlausibleStep it)
 

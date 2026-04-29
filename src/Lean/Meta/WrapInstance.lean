@@ -88,21 +88,6 @@ builtin_initialize registerTraceClass `Meta.wrapInstance
 
 open Meta
 
-/--
-Rebuild a type application with fresh synthetic metavariables for instance-implicit arguments.
-Non-instance-implicit arguments are assigned from the original application's arguments.
-If the function is over-applied, extra arguments are preserved.
--/
-public def abstractInstImplicitArgs (type : Expr) : MetaM Expr := do
-  let fn := type.getAppFn
-  let args := type.getAppArgs
-  let (mvars, bis, _) ← forallMetaTelescope (← inferType fn)
-  for i in [:mvars.size] do
-    unless bis[i]!.isInstImplicit do
-      mvars[i]!.mvarId!.assign args[i]!
-  let args := mvars ++ args.drop mvars.size
-  instantiateMVars (mkAppN fn args)
-
 partial def getFieldOrigin (structName field : Name) : MetaM (Name × StructureFieldInfo) := do
   let env ← getEnv
   for parent in getStructureParentInfo env structName do
@@ -160,7 +145,6 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
           else
             let name ← mkAuxDeclName
             let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
-            setReducibilityStatus name .implicitReducible
             if isMeta then modifyEnv (markMeta · name)
             if compile then
               compileDecls (logErrors := logCompileErrors) #[name]

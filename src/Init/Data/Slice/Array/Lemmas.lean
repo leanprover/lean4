@@ -233,7 +233,7 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
   simp [this, ListSlice.toList_eq, lslice]
 
 -- TODO: The current `List.extract_eq_drop_take` should be called `List.extract_eq_take_drop`
-private theorem Std.Internal.List.extract_eq_drop_take' {l : List α} {start stop : Nat} :
+theorem Std.Internal.List.extract_eq_drop_take' {l : List α} {start stop : Nat} :
     l.extract start stop = (l.take stop).drop start := by
   simp [List.take_drop]
   by_cases start ≤ stop

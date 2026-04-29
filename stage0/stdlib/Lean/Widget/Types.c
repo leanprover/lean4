@@ -207,6 +207,7 @@ lean_ctor_set(v___x_56_, 1, v___x_55_);
 v___x_57_ = ((lean_object*)(l_Lean_Widget_instToJsonRpcEncodablePacket_toJson___closed__0_00___x40_Lean_Widget_Types_3328362917____hygCtx___hyg_32_));
 v___x_58_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_Widget_instToJsonRpcEncodablePacket_toJson_00___x40_Lean_Widget_Types_3328362917____hygCtx___hyg_32__spec__0(v___x_56_, v___x_57_);
 v___x_59_ = l_Lean_Json_mkObj(v___x_58_);
+lean_dec(v___x_58_);
 return v___x_59_;
 }
 }

@@ -9,6 +9,7 @@ Author: Leonardo de Moura
 #include "runtime/interrupt.h"
 #include "runtime/exception.h"
 #include "runtime/memory.h"
+#include "runtime/object.h"
 #include "lean/lean.h"
 #include "util/io.h"
 
@@ -57,13 +58,20 @@ LEAN_THREAD_VALUE(lean_object *, g_cancel_tk, nullptr);
 
 LEAN_EXPORT scope_cancel_tk::scope_cancel_tk(lean_object * o):flet<lean_object *>(g_cancel_tk, o) {}
 
-/* CancelToken.isSet : @& IO.CancelToken → BaseIO Bool */
-extern "C" lean_obj_res lean_io_cancel_token_is_set(b_lean_obj_arg cancel_tk);
+// `IO.CancelToken` is `structure { promise : IO.Promise Unit; setRef : IO.Ref Bool }`. We read
+// the `Bool` flag (field 1) directly: cheaper than walking the promise's task state, and this
+// is on the hot `Core.checkInterrupted` path. Must stay in sync with the field order in
+// `Init/System/CancelToken.lean`.
+static bool cancel_tk_is_set(lean_object * tk) {
+    lean_object * setRef = lean_ctor_get(tk, 1);
+    return lean_unbox(lean_to_ref(setRef)->m_value) != 0;
+}
 
 void check_interrupted() {
     if (g_cancel_tk) {
-        inc_ref(g_cancel_tk);
-        if (lean_io_cancel_token_is_set(g_cancel_tk) &&
+        // `g_cancel_tk` is owned by the enclosing `scope_cancel_tk`, so it stays alive for the
+        // duration of this call without an explicit `inc_ref`.
+        if (cancel_tk_is_set(g_cancel_tk) &&
             !std::uncaught_exceptions()) {
             throw interrupted();
         }

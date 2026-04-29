@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync
-// Imports: public import Std.Sync.Basic public import Std.Sync.Channel public import Std.Sync.Mutex public import Std.Sync.RecursiveMutex public import Std.Sync.Barrier public import Std.Sync.SharedMutex public import Std.Sync.Notify public import Std.Sync.Broadcast public import Std.Sync.StreamMap public import Std.Sync.CancellationToken public import Std.Sync.CancellationContext
+// Imports: public import Std.Sync.Basic public import Std.Sync.Channel public import Std.Sync.Mutex public import Std.Sync.RecursiveMutex public import Std.Sync.Barrier public import Std.Sync.Semaphore public import Std.Sync.SharedMutex public import Std.Sync.Notify public import Std.Sync.Broadcast public import Std.Sync.StreamMap public import Std.Sync.CancellationToken public import Std.Sync.CancellationContext
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,7 @@ lean_object* runtime_initialize_Std_Sync_Channel(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync_Mutex(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync_RecursiveMutex(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync_Barrier(uint8_t builtin);
+lean_object* runtime_initialize_Std_Sync_Semaphore(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync_SharedMutex(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync_Notify(uint8_t builtin);
 lean_object* runtime_initialize_Std_Sync_Broadcast(uint8_t builtin);
@@ -42,6 +43,9 @@ res = runtime_initialize_Std_Sync_RecursiveMutex(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Sync_Barrier(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Sync_Semaphore(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Sync_SharedMutex(builtin);
@@ -76,6 +80,7 @@ lean_object* initialize_Std_Sync_Channel(uint8_t builtin);
 lean_object* initialize_Std_Sync_Mutex(uint8_t builtin);
 lean_object* initialize_Std_Sync_RecursiveMutex(uint8_t builtin);
 lean_object* initialize_Std_Sync_Barrier(uint8_t builtin);
+lean_object* initialize_Std_Sync_Semaphore(uint8_t builtin);
 lean_object* initialize_Std_Sync_SharedMutex(uint8_t builtin);
 lean_object* initialize_Std_Sync_Notify(uint8_t builtin);
 lean_object* initialize_Std_Sync_Broadcast(uint8_t builtin);
@@ -100,6 +105,9 @@ res = initialize_Std_Sync_RecursiveMutex(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Sync_Barrier(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Sync_Semaphore(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Sync_SharedMutex(builtin);

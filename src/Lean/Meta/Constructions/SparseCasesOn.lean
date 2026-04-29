@@ -15,7 +15,7 @@ import Lean.Meta.Transform
 namespace Lean.Meta
 
 
-private structure SparseCasesOnKey where
+structure SparseCasesOnKey where
   indName : Name
   ctors   : Array Name
   -- When this is created in a private context and thus may contain private references, we must
@@ -23,7 +23,7 @@ private structure SparseCasesOnKey where
   isPrivate : Bool
 deriving BEq, Hashable
 
-private builtin_initialize sparseCasesOnCacheExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
+builtin_initialize sparseCasesOnCacheExt : EnvExtension (PHashMap SparseCasesOnKey Name) ←
   registerEnvExtension (pure {}) (asyncMode := .local)  -- mere cache, keep it local
 
 /-- Information necessary to recognize and split on sparse casesOn (in particular in MatchEqs) -/
@@ -34,7 +34,7 @@ public structure SparseCasesOnInfo where
   insterestingCtors : Array Name
 deriving Inhabited
 
-private builtin_initialize sparseCasesOnInfoExt : MapDeclarationExtension SparseCasesOnInfo ←
+builtin_initialize sparseCasesOnInfoExt : MapDeclarationExtension SparseCasesOnInfo ←
   mkMapDeclarationExtension (exportEntriesFn := fun env s =>
     let all := s.toArray
     -- Do not export for non-exposed defs at exported/server levels

@@ -236,6 +236,7 @@ theorem Spec.seq [Monad m] [WPMonad m ps] {α β} {x : m (α → β)} {y : m α}
 
 /-! # `MonadLift` -/
 
+
 @[spec]
 theorem Spec.monadLift_StateT [Monad m] [WPMonad m ps] (x : m α) (Q : PostCond α (.arg σ ps)) :
   Triple (MonadLift.monadLift x : StateT σ m α) (spred(fun s => wp⟦x⟧ (fun a => Q.1 a s, Q.2))) Q := by simp [Triple.iff, SPred.entails.refl]

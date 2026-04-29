@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Elab.Do.Basic
 meta import Lean.Parser.Do
-import Std.Internal.Async.TCP
+import Std.Async.TCP
 
 /-!
 # Interactive Debug Expression Evaluator (`idbg`)
@@ -22,7 +22,7 @@ and client (compiled program side) compute a deterministic port from the source 
 -/
 
 open Lean Lean.Elab Lean.Elab.Term Lean.Meta
-open Std.Net Std.Internal.IO.Async
+open Std.Net Std.Async
 
 namespace Lean.Idbg
 
@@ -364,8 +364,9 @@ def elabIdbgTerm : TermElab := fun stx expectedType? => do
 
 @[builtin_doElem_elab Lean.Parser.Term.doIdbg]
 def elabDoIdbg : DoElab := fun stx dec => do
-  let `(Lean.Parser.Term.doIdbg| idbg $e) := stx | throwUnsupportedSyntax
+  let `(Lean.Parser.Term.doIdbg| idbg%$tk $e) := stx | throwUnsupportedSyntax
   let mγ ← mkMonadicType (← read).doBlockResultType
+  let dec ← dec.ensureUnitAt tk
   doElabToSyntax "idbg body" dec.continueWithUnit fun body => do
     elabIdbgCore (e := e) (body := body) (ref := stx) mγ
 

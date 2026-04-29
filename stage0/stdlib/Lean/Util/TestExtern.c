@@ -524,8 +524,8 @@ v_a_159_ = lean_ctor_get(v___x_158_, 0);
 lean_inc(v_a_159_);
 lean_dec_ref(v___x_158_);
 v_macroStack_160_ = lean_ctor_get(v___y_150_, 1);
-lean_inc_n(v_macroStack_160_, 2);
 v___x_161_ = l_Lean_Elab_getBetterRef(v_ref_157_, v_macroStack_160_);
+lean_inc(v_macroStack_160_);
 v___x_162_ = l_Lean_Elab_addMacroStack___at___00Lean_throwError___at___00elabTestExtern_spec__1_spec__2___redArg(v_a_159_, v_macroStack_160_, v___y_154_);
 v_a_163_ = lean_ctor_get(v___x_162_, 0);
 v_isSharedCheck_171_ = !lean_is_exclusive(v___x_162_);
@@ -1068,9 +1068,9 @@ return v___x_313_;
 LEAN_EXPORT lean_object* l_elabTestExtern___lam__0___boxed(lean_object* v___x_316_, lean_object* v___x_317_, lean_object* v___x_318_, lean_object* v___y_319_, lean_object* v___y_320_, lean_object* v___y_321_, lean_object* v___y_322_, lean_object* v___y_323_, lean_object* v___y_324_, lean_object* v___y_325_){
 _start:
 {
-uint8_t v___x_5034__boxed_326_; lean_object* v_res_327_; 
-v___x_5034__boxed_326_ = lean_unbox(v___x_318_);
-v_res_327_ = l_elabTestExtern___lam__0(v___x_316_, v___x_317_, v___x_5034__boxed_326_, v___y_319_, v___y_320_, v___y_321_, v___y_322_, v___y_323_, v___y_324_);
+uint8_t v___x_5035__boxed_326_; lean_object* v_res_327_; 
+v___x_5035__boxed_326_ = lean_unbox(v___x_318_);
+v_res_327_ = l_elabTestExtern___lam__0(v___x_316_, v___x_317_, v___x_5035__boxed_326_, v___y_319_, v___y_320_, v___y_321_, v___y_322_, v___y_323_, v___y_324_);
 lean_dec(v___y_324_);
 lean_dec_ref(v___y_323_);
 lean_dec(v___y_322_);

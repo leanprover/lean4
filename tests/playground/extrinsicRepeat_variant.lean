@@ -3,25 +3,25 @@ import Std
 set_option mvcgen.warning false
 
 /-!
-# `extrinsicRepeat`: a classically-defined `repeat`/`while` loop combinator
+# `Repeat.loop`: a classically-defined `repeat`/`while` loop combinator
 
-`extrinsicRepeat f a` iterates `f : α → m (ForInStep α)` at `a`. Its definition only requires
+`Repeat.loop f a` iterates `f : α → m (ForInStep α)` at `a`. Its definition only requires
 `[Monad m]` — same obligations as `Loop.forIn`. Termination evidence is *extrinsic*: the
 combinator is opaque by default and is only logically usable for proofs once a fixpoint is
 established. Operationally, `@[implemented_by opaqueRepeat]` provides the runtime impl.
 
-The classical condition `∃ g, g = repeatF f g` gates the dif: existence of any global
-fixpoint of `repeatF f`. When it holds, the classical `h.choose a` is the loop value.
+The classical condition `∃ g, g = Repeat.body f g` gates the dif: existence of any global
+fixpoint of `Repeat.body f`. When it holds, the classical `h.choose a` is the loop value.
 
 `MonadAttach` + lawfulness appear only in the *termination* and *Spec* sections, never in
-`extrinsicRepeat`'s own type.
+`Repeat.loop`'s own type.
 
 ## Structure
-- **Definition** — `repeatF`, `PredRepeat`, `extrinsicRepeat'`, `extrinsicRepeat`, and the
+- **Definition** — `Repeat.body`, `RepeatPred`, `Repeat.loop'`, `Repeat.loop`, and the
   private `extrinsicRepeat_eq_fix` (the only way to "look inside" the classical choice).
-- **Termination** — `IsPlausibleStep`, `IsLoopVariant`, and the public unfolding API
-  `IsLoopVariant.extrinsicRepeat_unfold`. Internals (`bound_widen`, `hasFix`) are `private`.
-- **Spec** — `IsLoopVariant.of_wp_measure` (WPAdequacy bridge) and `Spec.extrinsicRepeat`
+- **Termination** — `IsPlausibleStep`, `IsRepeatVariant`, and the public unfolding API
+  `IsRepeatVariant.extrinsicRepeat_unfold`. Internals (`bound_widen`, `hasFix`) are `private`.
+- **Spec** — `IsRepeatVariant.of_wp_measure` (WPAdequacy bridge) and `Spec.Repeat.loop`
   (the `@[spec]` theorem for `mvcgen` integration).
 - **Sqrt example** — end-to-end `sqrt_correct` proof to demonstrate the full pipeline.
 -/
@@ -31,58 +31,57 @@ section Definition
 variable {α : Type u} {m : Type u → Type v} [Monad m]
 
 /-- One-step unfolding of the loop body: run `f a`, return on `done`, recurse via `cont`
-on `yield`. Used to phrase the fixpoint equation `g = repeatF f g` for any candidate `g`. -/
-@[inline] def repeatF (f : α → m (ForInStep α)) (cont : α → m α) (a : α) : m α := do
+on `yield`. Used to phrase the fixpoint equation `g = Repeat.body f g` for any candidate `g`. -/
+@[inline] abbrev Repeat.body (f : α → m (ForInStep α)) (cont : α → m α) (a : α) : m α := do
   match ← f a with
   | .done a' => pure a'
   | .yield a' => cont a'
 
-private def PredRepeat (f : α → m (ForInStep α)) : α → m α → Prop :=
+private def RepeatPred (f : α → m (ForInStep α)) (a : α) : m α → Prop :=
   open scoped Classical in
-  if h : ∃ g, g = repeatF f g then (h.choose · = ·) else (fun _ _ => True)
+  if h : ∃ g, g = Repeat.body f g then (h.choose a = ·) else (fun _ => True)
 
-instance {f : α → m (ForInStep α)} {a : α} :
-    Nonempty (Subtype (PredRepeat f a)) := by
-  by_cases h : ∃ g, g = repeatF f g
-  · exact ⟨⟨h.choose a, by simp [PredRepeat, h]⟩⟩
-  · exact ⟨⟨pure a, by simp [PredRepeat, h]⟩⟩
+private instance {f : α → m (ForInStep α)} {a : α} :
+    Nonempty (Subtype (RepeatPred f a)) := by
+  by_cases h : ∃ g, g = Repeat.body f g
+  · exact ⟨⟨h.choose a, by simp [RepeatPred, h]⟩⟩
+  · exact ⟨⟨pure a, by simp [RepeatPred, h]⟩⟩
 
 /-- INTERNAL. Computational core: at each `a`, returns the loop value packaged with the
-predicate `PredRepeat f a` that pins it to the classical fixpoint when one exists.
+predicate `RepeatPred f a` that pins it to the classical fixpoint when one exists.
 Defined as a `partial def` so it computes operationally; the predicate carries the
 logical content needed to prove unfolding. -/
-partial def extrinsicRepeat' (f : α → m (ForInStep α)) (a : α) :
-    Subtype (PredRepeat f a) :=
-  ⟨repeatF f (extrinsicRepeat' f · |>.val) a, by
-    simp only [PredRepeat]
+@[specialize] private partial def Repeat.loop.impl (f : α → m (ForInStep α)) (a : α) :
+    Subtype (RepeatPred f a) :=
+  ⟨Repeat.body f (Repeat.loop.impl f · |>.val) a, by
+    simp only [RepeatPred]
     split <;> rename_i h
     · simp
-      have h' x := (extrinsicRepeat' f x).property
-      simp [PredRepeat, h] at h'
+      have h' x := (Repeat.loop.impl f x).property
+      simp [RepeatPred, h] at h'
       simp [← h']
       have := h.choose_spec
       rw [← this]
     · simp
     done⟩
 
-/-- `extrinsicRepeat f a` iterates `f` at `a`. Same obligations as `Loop.forIn` (just
-`[Monad m]`); computable without `@[implemented_by]` via the `PredRepeat`/`extrinsicRepeat'`
+/-- `Repeat.loop f a` iterates `f` at `a`. Same obligations as `Loop.forIn` (just
+`[Monad m]`); computable without `@[implemented_by]` via the `RepeatPred`/`Repeat.loop.impl`
 machinery above. -/
-def extrinsicRepeat (f : α → m (ForInStep α)) (a : α) : m α :=
-  haveI : Nonempty (m α) := ⟨pure a⟩
-  (extrinsicRepeat' f a).val
+@[inline] def Repeat.loop (f : α → m (ForInStep α)) (a : α) : m α :=
+  (Repeat.loop.impl f a).val
 
-/-- INTERNAL. Given any global fixpoint witness, `extrinsicRepeat f` *is* a fixpoint of
-`repeatF f`. Don't use directly — go through `IsLoopVariant.extrinsicRepeat_unfold`. -/
+/-- INTERNAL. Given any global fixpoint witness, `Repeat.loop f` *is* a fixpoint of
+`Repeat.body f`. Don't use directly — go through `IsRepeatVariant.extrinsicRepeat_unfold`. -/
 private theorem extrinsicRepeat_eq_fix {f : α → m (ForInStep α)}
-    (g : α → m α) (hfix : g = repeatF f g) :
-    extrinsicRepeat f = repeatF f (extrinsicRepeat f) := by
-  have h : ∃ g, g = repeatF f g := ⟨g, hfix⟩
+    (g : α → m α) (hfix : g = Repeat.body f g) :
+    Repeat.loop f = Repeat.body f (Repeat.loop f) := by
+  have h : ∃ g, g = Repeat.body f g := ⟨g, hfix⟩
   ext a
   haveI : Nonempty (m α) := ⟨pure a⟩
-  show (extrinsicRepeat' f a).val = repeatF f (fun b => (extrinsicRepeat' f b).val) a
-  have h' x := (extrinsicRepeat' f x).property
-  simp [PredRepeat, h] at h'
+  show (Repeat.loop.impl f a).val = Repeat.body f (fun b => (Repeat.loop.impl f b).val) a
+  have h' x := (Repeat.loop.impl f x).property
+  simp [RepeatPred, h] at h'
   simp [← h']
   exact congrFun h.choose_spec a
 
@@ -93,34 +92,26 @@ section Termination
 variable {α : Type u} {m : Type u → Type v} [Monad m] [MonadAttach m]
 
 /-- Step relation: `a' ≺ a` iff `f a` can yield `a'`. -/
-def IsPlausibleStep (f : α → m (ForInStep α)) : α → α → Prop :=
+private def IsPlausibleStep (f : α → m (ForInStep α)) : α → α → Prop :=
   fun a' a => MonadAttach.CanReturn (f a) (ForInStep.yield a')
 
-/-- A user-supplied variant: every plausible yield of `f` strictly decreases `μ a`
-according to a well-founded relation on `γ`. -/
-def IsLoopVariant {γ : Sort _} [WellFoundedRelation γ]
+/-- A user-supplied variant: every plausible yield of `f` strictly decreases `μ` according
+to a well-founded relation on `γ`. -/
+def IsRepeatVariant {γ : Sort _} [WellFoundedRelation γ]
     (μ : α → γ) (f : α → m (ForInStep α)) : Prop :=
   ∀ a a', IsPlausibleStep f a' a → WellFoundedRelation.rel (μ a') (μ a)
 
 omit [Monad m] in
-/-- A valid variant gives accessibility of every point. -/
-theorem IsLoopVariant.acc {γ : Sort _} [WellFoundedRelation γ]
+/-- Under a variant, every `a` is accessible. -/
+private theorem IsRepeatVariant.acc {γ : Sort _} [WellFoundedRelation γ]
     {μ : α → γ} {f : α → m (ForInStep α)}
-    (hvar : IsLoopVariant μ f) (a : α) : Acc (IsPlausibleStep f) a :=
-  Subrelation.accessible (fun h => hvar _ _ h)
+    (hvar : IsRepeatVariant μ f) (a : α) : Acc (IsPlausibleStep f) a :=
+  Subrelation.accessible (r := InvImage WellFoundedRelation.rel μ)
+    (fun {a' b} h => hvar b a' h)
     (InvImage.accessible μ (WellFoundedRelation.wf.apply (μ a)))
 
 variable [LawfulMonad m] [WeaklyLawfulMonadAttach m]
 
-/-- INTERNAL. Bind congruence using `MonadAttach.CanReturn` to supply the pointwise hypothesis. -/
-private theorem bind_congr_canReturn {x : m α} {k1 k2 : α → m β}
-    (h : ∀ a, MonadAttach.CanReturn x a → k1 a = k2 a) : x >>= k1 = x >>= k2 := by
-  rw [← WeaklyLawfulMonadAttach.attach_bind_val (x := x) (f := k1),
-      ← WeaklyLawfulMonadAttach.attach_bind_val (x := x) (f := k2)]
-  exact bind_congr fun ⟨a, ha⟩ => h a ha
-
-/-- INTERNAL. Attach-exposing one-step unfolding of the loop body, used to construct the
-WF fixpoint via `WellFounded.fix`. -/
 @[inline] private def repeatFAttach (f : α → m (ForInStep α)) (a : α)
     (cont : (a' : α) → MonadAttach.CanReturn (f a) (.yield a') → m α) : m α := do
   match ← MonadAttach.attach (f a) with
@@ -128,31 +119,31 @@ WF fixpoint via `WellFounded.fix`. -/
   | ⟨.yield a', h⟩ => cont a' h
 
 /--
-INTERNAL. Under a variant, `WellFounded.fix` of `repeatFAttach` is a global fixpoint of
-`repeatF f`. Works for any `WellFoundedRelation γ`, not just `Nat`.
+Under a variant, `WellFounded.fix` of `repeatFAttach` is a global fixpoint of
+`Repeat.body f`. Works for any `WellFoundedRelation γ`, not just `Nat`.
 -/
-private theorem IsLoopVariant.hasFix {γ : Sort _} [WellFoundedRelation γ]
+private theorem IsRepeatVariant.hasFix {γ : Sort _} [WellFoundedRelation γ]
     {μ : α → γ} {f : α → m (ForInStep α)}
-    (hvar : IsLoopVariant μ f) : ∃ g, g = repeatF f g := by
+    (hvar : IsRepeatVariant μ f) : ∃ g, g = Repeat.body f g := by
   let hwf : WellFounded (IsPlausibleStep f) :=
     Subrelation.wf (fun h => hvar _ _ h) (InvImage.wf μ WellFoundedRelation.wf)
   refine ⟨WellFounded.fix hwf (repeatFAttach f), funext fun a => ?_⟩
   rw [WellFounded.fix_eq]
-  simp only [repeatFAttach, repeatF]
+  simp only [repeatFAttach, Repeat.body]
   rw [← WeaklyLawfulMonadAttach.attach_bind_val (x := f a)]
   apply bind_congr
   rintro ⟨r, h⟩
   cases r <;> rfl
 
 /--
-**Public unfolding API.** Under a variant, `extrinsicRepeat f a` unfolds to one step of the
-loop body. This is the *only* way downstream code should unfold `extrinsicRepeat` — the
+**Public unfolding API.** Under a variant, `Repeat.loop f a` unfolds to one step of the
+loop body. This is the *only* way downstream code should unfold `Repeat.loop` — the
 classical internals (`extrinsicRepeat_eq_fix`, `hasFix`) are `private`.
 -/
-theorem IsLoopVariant.extrinsicRepeat_unfold {γ : Sort _} [WellFoundedRelation γ]
+theorem IsRepeatVariant.extrinsicRepeat_unfold {γ : Sort _} [WellFoundedRelation γ]
     {μ : α → γ} {f : α → m (ForInStep α)}
-    (hvar : IsLoopVariant μ f) (a : α) :
-    extrinsicRepeat f a = repeatF f (extrinsicRepeat f) a := by
+    (hvar : IsRepeatVariant μ f) (a : α) :
+    Repeat.loop f a = Repeat.body f (Repeat.loop f) a := by
   obtain ⟨g, hfix⟩ := hvar.hasFix
   exact congrFun (extrinsicRepeat_eq_fix g hfix) a
 
@@ -166,11 +157,11 @@ variable {β : Type u} {m : Type u → Type v} {ps : PostShape.{u}}
 variable [Monad m] [MonadAttach m] [LawfulMonad m] [WeaklyLawfulMonadAttach m] [WPMonad m ps]
 
 omit [LawfulMonad m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] in
-/-- Derive `IsLoopVariant` from a WP-based decrease proof (via `WPAdequacy`). -/
-theorem IsLoopVariant.of_wp_measure [WPAdequacy m ps]
+/-- Derive `IsRepeatVariant` from a WP-based decrease proof (via `WPAdequacy`). -/
+theorem IsRepeatVariant.of_wp_measure [WPAdequacy m ps]
     (μ : β → Nat) (f : β → m (ForInStep β))
     (h : ∀ b, ⦃⌜True⌝⦄ f b ⦃⇓ step => ⌜∀ b', step = .yield b' → μ b' < μ b⌝⦄) :
-    IsLoopVariant μ f := by
+    IsRepeatVariant μ f := by
   intro a a' hr
   have h' : ⊢ₛ wp⟦f a⟧ (⇓? step => ⌜∀ b', step = .yield b' → μ b' < μ a⌝) := by
     apply SPred.entails.trans (Triple.iff.mp (h a))
@@ -180,25 +171,25 @@ theorem IsLoopVariant.of_wp_measure [WPAdequacy m ps]
     (P := fun step => ∀ b', step = .yield b' → μ b' < μ a) h' (.yield a') hr a' rfl
 
 /--
-**Public `@[spec]` theorem for `extrinsicRepeat`.** Under a variant `μ` and a step-preserving
+**Public `@[spec]` theorem for `Repeat.loop`.** Under a variant `μ` and a step-preserving
 invariant, the whole loop satisfies the invariant.
 -/
 @[spec]
-theorem Spec.extrinsicRepeat
+theorem Spec.Repeat.loop
     {init : β} {f : β → m (ForInStep β)}
     (μ : RepeatVariant β)
     (inv : RepeatInvariant β ps)
-    (hvar : IsLoopVariant μ f)
+    (hvar : IsRepeatVariant μ f)
     (step : ∀ b, Triple (f b) (inv.1 (.repeat b))
         (fun r => match r with
           | .yield b' => inv.1 (.repeat b')
           | .done b' => inv.1 (.done b'), inv.2)) :
-    Triple (extrinsicRepeat f init) (inv.1 (.repeat init))
+    Triple (Repeat.loop f init) (inv.1 (.repeat init))
         (fun b => inv.1 (.done b), inv.2) := by
   induction hvar.acc init with
   | intro a _ ih =>
     rw [hvar.extrinsicRepeat_unfold a]
-    simp only [repeatF]
+    simp only [Repeat.body]
     rw [← WeaklyLawfulMonadAttach.attach_bind_val (x := f a)]
     mvcgen [step, ih]
     rename_i stp
@@ -212,10 +203,10 @@ section SqrtExample
 
 open Std.Do
 
-/-- `sqrt n` computes the integer square root of `n` using `extrinsicRepeat`. -/
+/-- `sqrt n` computes the integer square root of `n` using `Repeat.loop`. -/
 def sqrt (n : Nat) : Id Nat := do
   if n = 0 then return 0
-  let res ← extrinsicRepeat
+  let res ← Repeat.loop
     (fun i => pure (if i * i ≤ n then .yield (i + 1) else .done i))
     0
   return res - 1

@@ -36,31 +36,50 @@ on `yield`. Used to phrase the fixpoint equation `g = repeatF f g` for any candi
   | .done a' => pure a'
   | .yield a' => cont a'
 
-/-- Operational implementation of `extrinsicRepeat`, registered via `@[implemented_by]`.
-Defined as a `partial def` so it has no logical content — the runtime calls this; the logic
-goes through `extrinsicRepeat`'s classical body. -/
-partial def opaqueRepeat (f : α → m (ForInStep α)) (a : α) : m α :=
-  repeatF f (opaqueRepeat f) a
-
 /-- `IsFix f g` says `g` is a (global) function fixpoint of `repeatF f`: `g = repeatF f g`. -/
 def IsFix (f : α → m (ForInStep α)) (g : α → m α) : Prop :=
   g = repeatF f g
 
-/-- `Total f a` says all fixpoints of `repeatF f` agree at `a`. Together with existence of
-some fixpoint, this pins down `extrinsicRepeat f a` uniquely. -/
+/-- `Total f a` says all fixpoints of `repeatF f` agree at `a`. -/
 def Total (f : α → m (ForInStep α)) (a : α) : Prop :=
   ∀ g₁ g₂ : α → m α, IsFix f g₁ → IsFix f g₂ → g₁ a = g₂ a
 
-open Classical in
+/-- INTERNAL. Predicate pinning the loop value at `a` to `h.choose a` when a global
+fixpoint of `repeatF f` exists; otherwise vacuous. -/
+noncomputable def PredRepeat (f : α → m (ForInStep α)) : α → m α → Prop :=
+  open scoped Classical in
+  if h : ∃ g, IsFix f g then (h.choose · = ·) else (fun _ _ => True)
+
+instance [Nonempty (m α)] {f : α → m (ForInStep α)} {a : α} :
+    Nonempty (Subtype (PredRepeat f a)) := by
+  by_cases h : ∃ g, IsFix f g
+  · exact ⟨⟨h.choose a, by simp [PredRepeat, h]⟩⟩
+  · exact ⟨⟨Classical.choice inferInstance, by simp [PredRepeat, h]⟩⟩
+
+/-- INTERNAL. Computational core: at each `a`, returns the loop value packaged with the
+predicate `PredRepeat f a` that pins it to the classical fixpoint when one exists.
+Defined as a `partial def` so it computes operationally; the predicate carries the
+logical content needed to prove unfolding. -/
+partial def extrinsicRepeat' [Nonempty (m α)] (f : α → m (ForInStep α)) (a : α) :
+    Subtype (PredRepeat f a) :=
+  ⟨repeatF f (extrinsicRepeat' f · |>.val) a, by
+    simp only [PredRepeat]
+    split <;> rename_i h
+    · simp
+      have h' x := (extrinsicRepeat' f x).property
+      simp [PredRepeat, h] at h'
+      simp [← h']
+      have := h.choose_spec
+      rw [← this]
+    · simp
+    done⟩
+
 /-- `extrinsicRepeat f a` iterates `f` at `a`. Same obligations as `Loop.forIn` (just
-`[Monad m]`). When some global fixpoint of `repeatF f` exists, the classical `h.choose`
-provides one; otherwise the dif falls back to `opaqueRepeat f a` (the runtime impl). -/
-@[cbv_opaque, implemented_by opaqueRepeat]
+`[Monad m]`); computable without `@[implemented_by]` via the `PredRepeat`/`extrinsicRepeat'`
+machinery above. -/
 def extrinsicRepeat (f : α → m (ForInStep α)) (a : α) : m α :=
-  if h : ∃ g, IsFix f g then
-    h.choose a
-  else
-    opaqueRepeat f a
+  haveI : Nonempty (m α) := ⟨pure a⟩
+  (extrinsicRepeat' f a).val
 
 /-- INTERNAL. Given any global fixpoint witness, `extrinsicRepeat f` *is* a fixpoint of
 `repeatF f`. Don't use directly — go through `IsLoopVariant.extrinsicRepeat_unfold`. -/
@@ -68,8 +87,13 @@ private theorem extrinsicRepeat_eq_fix {f : α → m (ForInStep α)}
     (g : α → m α) (hfix : IsFix f g) :
     extrinsicRepeat f = repeatF f (extrinsicRepeat f) := by
   have h : ∃ g, IsFix f g := ⟨g, hfix⟩
-  simp +unfoldPartialApp only [extrinsicRepeat, dif_pos h]
-  conv => lhs; rw [h.choose_spec]
+  ext a
+  haveI : Nonempty (m α) := ⟨pure a⟩
+  show (extrinsicRepeat' f a).val = repeatF f (fun b => (extrinsicRepeat' f b).val) a
+  have h' x := (extrinsicRepeat' f x).property
+  simp [PredRepeat, h] at h'
+  simp [← h']
+  exact congrFun h.choose_spec a
 
 end Definition
 

@@ -30,4 +30,4 @@ lean_lib BaselineBench where
 
 @[test_driver]
 lean_lib VCGenTest where
-  roots := #[`test_vcgen]
+  roots := #[`test_vcgen, `test_do_logic]

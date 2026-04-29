@@ -1288,7 +1288,7 @@ or type class instances are unfolded.
 
 /--
 Execute `x` ensuring the transparency setting is at least `mode`.
-Recall that `.all > .default > .instances > .reducible`.
+Recall that `.none < .reducible < .instances < .default < .all`.
 -/
 @[inline] def withAtLeastTransparency (mode : TransparencyMode) : n α → n α :=
   mapMetaM <| withReader fun ctx =>

@@ -54,6 +54,8 @@ def pure {σs : List (Type u)} (P : Prop) : SPred σs := match σs with
   | _ :: _ => fun _ => pure P
 theorem pure_nil : pure (σs:=[]) P = ULift.up P := rfl
 theorem pure_cons : pure (σs:=σ::σs) P = fun _ => pure P := rfl
+@[simp, grind =] theorem down_pure_nil : (pure (σs:=[]) P).down = P := rfl
+@[simp, grind =] theorem apply_pure_cons : pure (σs:=σ::σs) P s = pure P := rfl
 
 /--
 Entailment in `SPred`.

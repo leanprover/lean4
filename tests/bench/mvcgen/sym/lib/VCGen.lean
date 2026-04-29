@@ -616,7 +616,7 @@ no further progress is made:
 Returns `none` when no reduction was possible. Maintains maximal sharing via `shareCommonInc`.
 -/
 meta partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
-  go none e.getAppFn e.getAppRevArgs
+  withReducible <| go none e.getAppFn e.getAppRevArgs
   where
     go lastReduction f rargs := do
       match f with
@@ -634,7 +634,7 @@ meta partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
           let e' ← Sym.shareCommonInc e'
           go lastReduction e'.getAppFn e'.getAppRevArgs  -- intentional lastReduction! see docstring
         -- iota reduction: match/recursor with concrete discriminant
-        else if let some e' ← liftMetaM <| withReducible <| reduceRecMatcher? (mkAppRev f rargs) then
+        else if let some e' ← liftMetaM <| reduceRecMatcher? (mkAppRev f rargs) then
           let e' ← Sym.shareCommonInc e'
           go (some e') e'.getAppFn e'.getAppRevArgs
         else

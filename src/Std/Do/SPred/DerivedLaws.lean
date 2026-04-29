@@ -161,6 +161,8 @@ theorem pure_exists {φ : α → Prop} : (∃ x, ⌜φ x⌝ : SPred σs) ⊣⊢�
 @[simp] theorem _root_.ULift.down_dite {φ : Prop} [Decidable φ] (t : φ → α) (e : ¬φ → α) : (ULift.down (if h : φ then ⟨t h⟩ else ⟨e h⟩)) = if h : φ then t h else e h := apply_dite _ _ _ _
 @[simp] theorem _root_.ULift.down_ite {φ : Prop} [Decidable φ] (t e : α) : (ULift.down (if φ then ⟨t⟩ else ⟨e⟩)) = if φ then t else e := apply_ite _ _ _ _
 
+theorem down_apply_pure_elim {φ : Prop} (h : φ) : (pure (σs:=[]) φ).down := by simp [h]
+
 /-! # Miscellaneous -/
 
 theorem and_left_comm : P ∧ Q ∧ R ⊣⊢ₛ Q ∧ P ∧ R := and_assoc.symm.trans <| (and_congr_l and_comm).trans and_assoc
@@ -170,6 +172,9 @@ theorem and_right_comm : (P ∧ Q) ∧ R ⊣⊢ₛ (P ∧ R) ∧ Q := and_assoc.
 
 -- NB: We cannot currently make the following lemma @[grind =]; we are blocked on #9623.
 theorem entails_pure_elim_cons {σ : Type u} [Inhabited σ] (P Q : Prop) : entails ⌜P⌝ (σs := σ::σs) ⌜Q⌝ ↔ entails ⌜P⌝ (σs := σs) ⌜Q⌝ := by simp [entails]
+theorem apply_pure_cons_entails_l {σ : Type u} {s : σ} (h : pure (σs:=σs) φ ⊢ₛ Q) : pure (σs:=σ::σs) φ s ⊢ₛ Q := by simpa using h
+theorem apply_pure_cons_entails_r {σ : Type u} {s : σ} (h : P ⊢ₛ pure (σs:=σs) φ) : P ⊢ₛ pure (σs:=σ::σs) φ s := by simpa using h
+
 @[simp] theorem entails_true_intro (P Q : SPred σs) : (⊢ₛ P → Q) ↔ (P ⊢ₛ Q) := Iff.intro (fun h => (and_intro true_intro .rfl).trans (imp_elim h)) (fun h => imp_intro (and_elim_r.trans h))
 -- The following lemmas work around a DefEq incompleteness that would be fixed by #9015.
 @[simp] theorem entails_1 {P Q : SPred [σ]} : SPred.entails P Q ↔ (∀ s, (P s).down → (Q s).down) := iff_of_eq rfl

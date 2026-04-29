@@ -156,15 +156,15 @@ theorem fib_impl_vcs
     (Q : Nat → PostCond Nat PostShape.pure)
     (I : (n : Nat) → (_ : ¬n = 0) →
       Invariant [1:n].toList (Prod Nat Nat) PostShape.pure)
-    (ret : ⊢ₛ (Q 0).1 0)
-    (loop_pre : ∀ n (hn : ¬n = 0), ⊢ₛ (I n hn).1 ⟨⟨[], [1:n].toList, rfl⟩, 0, 1⟩)
-    (loop_post : ∀ n (hn : ¬n = 0) r, (I n hn).1 ⟨⟨[1:n].toList, [], by simp⟩, r⟩ ⊢ₛ (Q n).1 r.2)
+    (ret : ⊢ₛ (Q 0).fst 0)
+    (loop_pre : ∀ n (hn : ¬n = 0), ⊢ₛ (I n hn).fst ⟨⟨[], [1:n].toList, rfl⟩, 0, 1⟩)
+    (loop_post : ∀ n (hn : ¬n = 0) r, (I n hn).fst ⟨⟨[1:n].toList, [], by simp⟩, r⟩ ⊢ₛ (Q n).fst r.2)
     (loop_step : ∀ n (hn : ¬n = 0) r pref cur suff (h : [1:n].toList = pref ++ cur :: suff),
-                  (I n hn).1 ⟨⟨pref, cur::suff, by simp[h]⟩, r⟩ ⊢ₛ (I n hn).1 ⟨⟨pref ++ [cur], suff, by simp[h]⟩, r.2, r.1+r.2⟩)
+                  (I n hn).fst ⟨⟨pref, cur::suff, by simp[h]⟩, r⟩ ⊢ₛ (I n hn).1 ⟨⟨pref ++ [cur], suff, by simp[h]⟩, r.2, r.1+r.2⟩)
     : ⊢ₛ wp⟦fib_impl n⟧ (Q n) := by
   mvcgen' [fib_impl]
   case inv1 h => exact I n h
-  case vc1 h _ => subst h; apply_rules [ret]
+  case vc1 h => subst h; apply_rules [ret]
   case vc2 h => apply_rules [loop_pre]
   case vc3 => apply_rules [loop_step]
   case vc4 => apply_rules [loop_post]

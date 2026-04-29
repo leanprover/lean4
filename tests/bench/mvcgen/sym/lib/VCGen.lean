@@ -582,6 +582,15 @@ public structure VCGen.Context where
   entailsNilPureIntroRule : BackwardRule
   /-- The backward rule for `SPred.entails_nil_intro`. Fallback when LHS is not `⌜φ⌝`. -/
   entailsNilIntroRule : BackwardRule
+  /-- The backward rule for `SPred.apply_pure_cons_entails_l`. Peels a state arg from
+  `SPred.pure (σ::σs) φ s` on the LHS of an entailment. -/
+  applyPureConsEntailsLRule : BackwardRule
+  /-- The backward rule for `SPred.apply_pure_cons_entails_r`. Peels a state arg from
+  `SPred.pure (σ::σs) φ s` on the RHS of an entailment. -/
+  applyPureConsEntailsRRule : BackwardRule
+  /-- The backward rule for `SPred.down_apply_pure_elim`. Reduces a target of the form
+  `(SPred.pure [] φ).down` to `φ`. -/
+  downApplyPureElimRule : BackwardRule
   /-- The backward rule for `SPred.pure_elim'`. -/
   pureElimRule : BackwardRule
   /-- The backward rule for `SPred.pure_intro`. -/
@@ -858,6 +867,35 @@ meta def PreTac.processHypotheses (preTac : PreTac) (goal : Grind.Goal) : VCGenM
   else
     return goal
 
+/--
+Apply `SPred.entails_cons_intro` to introduce one state variable, then `introsSimp`,
+then peel a leading `SPred.pure (σ::σs) φ s` from each side of `⊢ₛ` via
+`apply_pure_cons_entails_l/r`. Returns `none` if no `entails_cons_intro` was applicable.
+
+Performs the pure-cons cleanup at the exact iteration the state variable is introduced,
+so the goal stays in canonical form throughout the eta-expansion loop.
+-/
+meta def consIntroAndSimpStep (goal : MVarId) : VCGenM (Option MVarId) := do
+  let ctx ← read
+  let .goals [g'] ← ctx.entailsConsIntroRule.apply goal | return none
+  let mut goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_cons_intro}"
+  if let .goals [g''] ← ctx.applyPureConsEntailsLRule.apply goal then
+    goal := g''
+  if let .goals [g''] ← ctx.applyPureConsEntailsRRule.apply goal then
+    goal := g''
+  return some goal
+
+/--
+Break down `H ⊢ₛ T` as far as possible, reporting `none` when no progress was made.
+1. If `H` is pure `⌜φ₁⌝`, turn the goal into `h : φ₁ ⊢ ⊢ₛ T`.
+2. If *also* `T` is pure `⌜φ₂⌝`, turn the goal into `h : φ₁ ⊢ φ₂`, then exit.
+3. Otherwise, `H` or `T` was not pure. We continue by introducing all state variables,
+   `H s₁ ... sₙ ⊢ₛ T s₁ ... sₙ`. For a monomorphic monad stack, this will an entailment on
+  `SPred []`. If either `H` or `T` was pure, `⌜·⌝`, state introduction preserves this.
+4. Finally, turn `H ⊢ₛ T` into `h : H.down ⊢ T.down` (at `SPred []`).
+5. If either `T` was pure `⌜φ₂⌝` (and `H` was not), we turn `T.down` into `φ₂`.
+   (NB: If `H` was pure, then we have already lifted `φ₁` to the local context.)
+-/
 meta def solveSPredEntails (goal : MVarId) : VCGenM (Option MVarId) := goal.withContext do
   let_expr SPred.entails _σs H T := (← goal.getType) | return none
   let mut progress := false
@@ -888,19 +926,32 @@ meta def solveSPredEntails (goal : MVarId) : VCGenM (Option MVarId) := goal.with
     progress := true
     return some g'
 
-  -- Now eta-expand. Apply `entails_cons_intro` + `introsSimp` for each state variable.
+  -- Now introduce states. If the monad stack is monomorphic, we will go all the way to `SPred []`
+  -- and hence every entailment becomes pure.
   repeat do
-    let .goals [g'] ← (← read).entailsConsIntroRule.apply goal | break
+    let some g' ← consIntroAndSimpStep goal | break
     progress := true
-    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_cons_intro}"
-  -- Apply `entails_nil_pure_intro` to reduce `⌜φ⌝ ⊢ₛ Q` to `φ → Q.down`, then `introsSimp`,
-  -- fall back to `entails_nil_intro`.
-  if let .goals [g'] ← (← read).entailsNilPureIntroRule.apply goal then
+    goal := g'
+
+  -- Now turn `H ⊢ₛ T` into `h : H.down ⊢ T.down` (at `SPred []`).
+  -- If `H` is `⌜True⌝`, we avoid introducing `h : True` by using `SPred.pure_intro`.
+  let_expr SPred.entails _σs H _T := (← goal.getType) | throwError "Not a SPred.entails: {← goal.getType}"
+  if let some (_, .const ``True _) := H.app2? ``SPred.pure then
+    -- If `H` is `⌜True⌝`, we avoid introducing `h : True` by using `SPred.pure_intro`.
+    if let .goals [g'] ← (← read).pureIntroRule.apply goal then
+      progress := true
+      goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.pure_intro}"
+  else
+    if let .goals [g'] ← (← read).entailsNilIntroRule.apply goal then
+      progress := true
+      goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_nil_intro}"
+
+  -- Finally, if `T` is pure `⌜φ₂⌝`, we turn `T.down` into `φ₂`.
+  -- (If `H` was pure, then we have already lifted `φ₁` to the local context without the `.down`,
+  -- so `H.down` does not reduce further.)
+  if let .goals [g'] ← (← read).downApplyPureElimRule.apply goal then
     progress := true
-    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_nil_pure_intro}. Before: {goal}"
-  else if let .goals [g'] ← (← read).entailsNilIntroRule.apply goal then
-    progress := true
-    goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_nil_intro}"
+    goal := g'
 
   if progress then
     return some goal
@@ -1224,6 +1275,9 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
   let entailsConsIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_cons_intro
   let entailsNilPureIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_nil_pure_intro
   let entailsNilIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_nil_intro
+  let applyPureConsEntailsLRule ← mkBackwardRuleFromDecl ``SPred.apply_pure_cons_entails_l
+  let applyPureConsEntailsRRule ← mkBackwardRuleFromDecl ``SPred.apply_pure_cons_entails_r
+  let downApplyPureElimRule ← mkBackwardRuleFromDecl ``SPred.down_apply_pure_elim
   let pureElimRule ← mkBackwardRuleFromDecl ``SPred.pure_elim'
   let pureIntroRule ← mkBackwardRuleFromDecl ``SPred.pure_intro
   let postCondEntailsRflRule ← mkBackwardRuleFromDecl ``PostCond.entails.rfl
@@ -1239,6 +1293,9 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
     entailsConsIntroRule,
     entailsNilPureIntroRule,
     entailsNilIntroRule,
+    applyPureConsEntailsLRule,
+    applyPureConsEntailsRRule,
+    downApplyPureElimRule,
     pureElimRule,
     pureIntroRule,
     postCondEntailsRflRule,

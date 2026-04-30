@@ -990,22 +990,27 @@ meta def solveSPredEntails (goal : MVarId) : VCGenM (Option MVarId) := goal.with
     progress := true
     goal := g'
 
-  -- Now turn `H ⊢ₛ T` into `h : H.down ⊢ T.down` (at `SPred []`).
-  -- If `H` is `⌜True⌝`, we avoid introducing `h : True` by using `SPred.pure_intro`.
+  -- Now check again whether `H` became `⌜φ₁⌝` (it might have started as `fun s => ⌜φ₁⌝`).
+  -- * If so, and `φ₁` is not `True`, we move `φ₁` to the local context and then
+  --   turn `(h : φ₁)? ⊢ H ⊢ₛ T` into `⊢ T.down`.
+  -- * Otherwise, we turn `⊢ H ⊢ₛ T` into `⊢ H.down → T.down` and
+  --   introduce `H.down` (at `SPred []`).
   let_expr SPred.entails _σs H _T := (← goal.getType) | throwError "Not a SPred.entails: {← goal.getType}"
-  if let some (_, .const ``True _) := H.app2? ``SPred.pure then
-    -- If `H` is `⌜True⌝`, we avoid introducing `h : True` by using `SPred.pure_intro`.
+  if let some (_, h) := H.app2? ``SPred.pure then
+    -- If `H` is `⌜True⌝`, we avoid introducing `h : True`.
+    unless h matches .const ``True _ do
+      if let .goals [g'] ← (← read).pureElimRule.apply goal then
+        progress := true
+        goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.pure_elim'}"
     if let .goals [g'] ← (← read).pureIntroRule.apply goal then
       progress := true
-      goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.pure_intro}"
+      goal := g'
   else
     if let .goals [g'] ← (← read).entailsNilIntroRule.apply goal then
       progress := true
       goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_nil_intro}"
 
   -- Finally, if `T` is pure `⌜φ₂⌝`, we turn `T.down` into `φ₂`.
-  -- (If `H` was pure, then we have already lifted `φ₁` to the local context without the `.down`,
-  -- so `H.down` does not reduce further.)
   if let .goals [g'] ← (← read).downPureIntroRule.apply goal then
     progress := true
     goal := g'

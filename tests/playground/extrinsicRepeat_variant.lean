@@ -32,26 +32,26 @@ variable {α : Type u} {m : Type u → Type v} [Monad m]
 
 /-- One-step unfolding of the loop body: run `f a`, return on `done`, recurse via `cont`
 on `yield`. Used to phrase the fixpoint equation `g = Repeat.body f g` for any candidate `g`. -/
-@[inline] abbrev Repeat.body (f : α → m (ForInStep α)) (cont : α → m α) (a : α) : m α := do
+@[inline] abbrev Repeat.body (f : α → m (α ⊕ β)) (cont : α → m β) (a : α) : m β := do
   match ← f a with
-  | .done a' => pure a'
-  | .yield a' => cont a'
+  | .inl a' => cont a'
+  | .inr a' => pure a'
 
-private def RepeatPred (f : α → m (ForInStep α)) (a : α) : m α → Prop :=
+private def RepeatPred (f : α → m (α ⊕ β)) (a : α) : m β → Prop :=
   open scoped Classical in
   if h : ∃ g, g = Repeat.body f g then (h.choose a = ·) else (fun _ => True)
 
-private instance {f : α → m (ForInStep α)} {a : α} :
+private instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
     Nonempty (Subtype (RepeatPred f a)) := by
   by_cases h : ∃ g, g = Repeat.body f g
   · exact ⟨⟨h.choose a, by simp [RepeatPred, h]⟩⟩
-  · exact ⟨⟨pure a, by simp [RepeatPred, h]⟩⟩
+  · exact ⟨⟨pure (Classical.choice inferInstance), by simp [RepeatPred, h]⟩⟩
 
 /-- INTERNAL. Computational core: at each `a`, returns the loop value packaged with the
 predicate `RepeatPred f a` that pins it to the classical fixpoint when one exists.
 Defined as a `partial def` so it computes operationally; the predicate carries the
 logical content needed to prove unfolding. -/
-@[specialize] private partial def Repeat.loop.impl (f : α → m (ForInStep α)) (a : α) :
+@[specialize] private partial def Repeat.loop.impl [Nonempty β] (f : α → m (α ⊕ β)) (a : α) :
     Subtype (RepeatPred f a) :=
   ⟨Repeat.body f (Repeat.loop.impl f · |>.val) a, by
     simp only [RepeatPred]
@@ -68,13 +68,13 @@ logical content needed to prove unfolding. -/
 /-- `Repeat.loop f a` iterates `f` at `a`. Same obligations as `Loop.forIn` (just
 `[Monad m]`); computable without `@[implemented_by]` via the `RepeatPred`/`Repeat.loop.impl`
 machinery above. -/
-@[inline] def Repeat.loop (f : α → m (ForInStep α)) (a : α) : m α :=
+@[inline] def Repeat.loop [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
   (Repeat.loop.impl f a).val
 
 /-- INTERNAL. Given any global fixpoint witness, `Repeat.loop f` *is* a fixpoint of
 `Repeat.body f`. Don't use directly — go through `IsRepeatVariant.extrinsicRepeat_unfold`. -/
-private theorem extrinsicRepeat_eq_fix {f : α → m (ForInStep α)}
-    (g : α → m α) (hfix : g = Repeat.body f g) :
+private theorem extrinsicRepeat_eq_fix [Nonempty β] {f : α → m (α ⊕ β)}
+    (g : α → m β) (hfix : g = Repeat.body f g) :
     Repeat.loop f = Repeat.body f (Repeat.loop f) := by
   have h : ∃ g, g = Repeat.body f g := ⟨g, hfix⟩
   ext a
@@ -92,8 +92,42 @@ section Termination
 variable {α : Type u} {m : Type u → Type v} [Monad m] [MonadAttach m]
 
 /-- Step relation: `a' ≺ a` iff `f a` can yield `a'`. -/
-private def IsPlausibleStep (f : α → m (ForInStep α)) : α → α → Prop :=
-  fun a' a => MonadAttach.CanReturn (f a) (ForInStep.yield a')
+private def IsPlausibleStep (f : α → m (α ⊕ β)) : α → α → Prop :=
+  fun a' a => MonadAttach.CanReturn (f a) (.inl a')
+
+private def Pred (f : α → m (α ⊕ β)) (a : α) (a' : α) :=
+  a' = a ∨ Relation.TransGen (IsPlausibleStep f) a' a
+
+open Relation in
+@[inline] def Repeat.loop.acc [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
+  Repeat.loop (α := Subtype (Pred f a))
+    (fun a => doit a <$> MonadAttach.attach (f a.val)) ⟨a, Or.inl rfl⟩
+  where
+    doit (a₁ : Subtype (Pred f a))
+        (r : Subtype (MonadAttach.CanReturn (f a₁.val))) :
+        (Subtype (Pred f a)) ⊕ β :=
+      match r with
+      | ⟨.inr b, _⟩ => .inr b
+      | ⟨.inl a', hcan⟩ => .inl ⟨a', by
+        rcases a₁.property with ha | ha
+        · rw [ha] at hcan
+          exact Or.inr (TransGen.single hcan)
+        · exact Or.inr (TransGen.trans (TransGen.single hcan) ha)⟩
+
+theorem Repeat.loop.acc.eq [Nonempty β] (f : α → m (α ⊕ β)) (a : α) (hacc : Acc (IsPlausibleStep f) a) :
+    Repeat.loop f a = Repeat.loop.acc f a := by
+  -- Both sides are partial-def values pinned by `RepeatPred`, which gates on the existence
+  -- of a *global* fixpoint. RHS lives on `Subtype (Pred f a)` where cone-Acc gives global
+  -- WF, so the Subtype-side existential always holds. LHS lives on full `α`, where the
+  -- α-side existential is needed — and is the gap from cone-Acc alone.
+  by_cases h_α : ∃ g : α → m β, g = Repeat.body f g
+  case pos =>
+    -- Both sides are pinned. We show they agree by uniqueness of fixpoints over cone-WF.
+    sorry
+  case neg =>
+    -- α-side `RepeatPred` is `True` so LHS is unconstrained. Equality cannot be proved
+    -- from cone-Acc alone in this branch — would need to derive `h_α` from `hacc`.
+    sorry
 
 /-- A user-supplied variant: every plausible yield of `f` strictly decreases `μ` according
 to a well-founded relation on `γ`. -/

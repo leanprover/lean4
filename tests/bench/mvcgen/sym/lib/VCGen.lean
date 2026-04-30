@@ -26,6 +26,54 @@ open Std.Do
 Creating backward rules for registered specifications
 -/
 
+/--
+Repeatedly reduces head redexes in `e`, cycling through the following reductions until
+no further progress is made:
+
+1. **Beta**: `(fun x₁ ... xₘ => b) a₁ ... aₙ` → `b[a₁/x₁, aₘ/xₘ] aₘ₊₁ ... aₙ`
+2. **Iota**: `MyType.casesOn (MyType.ctor args) alts` → `altᵢ args`
+   (matcher/recursor applied to a constructor, at reducible transparency)
+3. **Proj-reduction**: `⟨a, b, c⟩.1` → `a` (kernel `.proj` nodes)
+4. **Projection delta**: `Struct.field x` → `x.5` (unfolds projection *functions*,
+   progress only if followed by proj-reduction)
+
+Returns `none` when no reduction was possible. Maintains maximal sharing via `shareCommonInc`.
+-/
+meta partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
+  withReducible <| go none e.getAppFn e.getAppRevArgs
+  where
+    go lastReduction f rargs := do
+      match f with
+      | .mdata _ f => go lastReduction f rargs
+      | .app f a => go lastReduction f (rargs.push a)
+      | .lam .. =>
+        if rargs.size = 0 then return lastReduction
+        let e' := f.betaRev rargs
+        let e' ← Sym.shareCommonInc e'
+        go (some e') e'.getAppFn e'.getAppRevArgs
+      | .const name .. =>
+        -- projections
+        if ← isProjectionFn name then
+          let some e' ← Meta.unfoldDefinition? (mkAppRev f rargs) | return lastReduction
+          let e' ← Sym.shareCommonInc e'
+          go lastReduction e'.getAppFn e'.getAppRevArgs  -- intentional lastReduction! see docstring
+        -- iota reduction: match/recursor with concrete discriminant
+        else if let some e' ← liftMetaM <| reduceRecMatcher? (mkAppRev f rargs) then
+          let e' ← Sym.shareCommonInc e'
+          go (some e') e'.getAppFn e'.getAppRevArgs
+        else
+          pure lastReduction
+      | .proj .. => match ← reduceProj? f with
+        | some f' =>
+          let e' := mkAppRev f' rargs
+          let e' ← Sym.shareCommonInc e'
+          go (some e') e'.getAppFn e'.getAppRevArgs
+        | none    => pure lastReduction
+      | _ => pure lastReduction
+
+meta def reduceHead (e : Expr) : SymM Expr :=
+  return (← reduceHead? e).getD e
+
 namespace Lean.Elab.Tactic.Do.SpecAttr
 
 /--
@@ -356,7 +404,7 @@ meta def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : Ex
     let u := us[0]!
     let wp := mkApp5 (mkConst ``WP.wp us) m ps instWP α prog
     let wpApplyQ := mkApp4 (mkConst ``PredTrans.apply [u]) ps α wp Q  -- wp⟦prog⟧ Q
-    let Pss := P.beta ss  -- P s₁ ... sₙ
+    let Pss ← reduceHead <| mkAppN P ss  -- P s₁ ... sₙ
     let typeP ← preprocessExpr (mkApp (mkConst ``SPred [u]) σs)
       -- Note that this is the type of `P s₁ ... sₙ`,
       -- which is `Assertion ps'`, but we don't know `ps'`
@@ -649,51 +697,6 @@ abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 
 namespace VCGen
 
-/--
-Repeatedly reduces head redexes in `e`, cycling through the following reductions until
-no further progress is made:
-
-1. **Beta**: `(fun x₁ ... xₘ => b) a₁ ... aₙ` → `b[a₁/x₁, aₘ/xₘ] aₘ₊₁ ... aₙ`
-2. **Iota**: `MyType.casesOn (MyType.ctor args) alts` → `altᵢ args`
-   (matcher/recursor applied to a constructor, at reducible transparency)
-3. **Proj-reduction**: `⟨a, b, c⟩.1` → `a` (kernel `.proj` nodes)
-4. **Projection delta**: `Struct.field x` → `x.5` (unfolds projection *functions*,
-   progress only if followed by proj-reduction)
-
-Returns `none` when no reduction was possible. Maintains maximal sharing via `shareCommonInc`.
--/
-meta partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
-  withReducible <| go none e.getAppFn e.getAppRevArgs
-  where
-    go lastReduction f rargs := do
-      match f with
-      | .mdata _ f => go lastReduction f rargs
-      | .app f a => go lastReduction f (rargs.push a)
-      | .lam .. =>
-        if rargs.size = 0 then return lastReduction
-        let e' := f.betaRev rargs
-        let e' ← Sym.shareCommonInc e'
-        go (some e') e'.getAppFn e'.getAppRevArgs
-      | .const name .. =>
-        -- projections
-        if ← isProjectionFn name then
-          let some e' ← Meta.unfoldDefinition? (mkAppRev f rargs) | return lastReduction
-          let e' ← Sym.shareCommonInc e'
-          go lastReduction e'.getAppFn e'.getAppRevArgs  -- intentional lastReduction! see docstring
-        -- iota reduction: match/recursor with concrete discriminant
-        else if let some e' ← liftMetaM <| reduceRecMatcher? (mkAppRev f rargs) then
-          let e' ← Sym.shareCommonInc e'
-          go (some e') e'.getAppFn e'.getAppRevArgs
-        else
-          pure lastReduction
-      | .proj .. => match ← reduceProj? f with
-        | some f' =>
-          let e' := mkAppRev f' rargs
-          let e' ← Sym.shareCommonInc e'
-          go (some e') e'.getAppFn e'.getAppRevArgs
-        | none    => pure lastReduction
-      | _ => pure lastReduction
-
 @[inline]
 meta def _root_.Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
     (cache : Std.HashMap α β) (key : α) (fallback : m β) : m (β × Std.HashMap α β) := do
@@ -747,8 +750,8 @@ open Lean.Elab.Tactic.Do in
 meta def solveExceptCondsEntails (goal : MVarId) : _root_.VCGenM (Option MVarId) := goal.withContext do
   let target ← goal.getType
   let_expr ent@ExceptConds.entails ps P Q := target | return none
-  let P := (← reduceHead? P).getD P
-  let Q := (← reduceHead? Q).getD Q
+  let P ← reduceHead P
+  let Q ← reduceHead Q
   let goal ← goal.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent ps P Q)
   if let .goals [] ← (← read).exceptCondsEntailsPureRule.apply goal then
     return none
@@ -897,8 +900,10 @@ meta partial def repeatAndRfl (goal : MVarId) : VCGenM (Option MVarId) :=
       g₂'.assign (mkApp3 (mkConst ``And.right) t₁ t₂ combined)
       return some combined.mvarId!
   else if let some (ty, lhs, rhs) := ty.app3? ``Eq then
-    let lhs := (← reduceHead? lhs).getD lhs
-    let rhs := (← reduceHead? rhs).getD rhs
+    let lhs ← reduceHead lhs
+    let rhs ← reduceHead rhs
+    let u ← Meta.getLevel ty
+    let goal ← goal.replaceTargetDefEq (mkApp3 (mkConst ``Eq [u]) ty lhs rhs)
     if ← withAssignableSyntheticOpaque <| isDefEqS lhs rhs then
       goal.assign (mkApp2 (mkConst ``Eq.refl [← Meta.getLevel ty]) ty lhs)
       return none

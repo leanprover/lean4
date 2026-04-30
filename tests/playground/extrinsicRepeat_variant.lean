@@ -26,6 +26,21 @@ fixpoint of `Repeat.body f`. When it holds, the classical `h.choose a` is the lo
 - **Sqrt example** — end-to-end `sqrt_correct` proof to demonstrate the full pipeline.
 -/
 
+/-- `MayReturnM x a` says `a` is in the image of `x` — `x` cannot be lifted to a monadic value
+in `{b // b ≠ a}`. Same role as `MonadAttach.CanReturn`, but is just a closed `Functor`-level
+definition (no typeclass). -/
+def MayReturnM {m : Type u → Type v} [Functor m] {α : Type u} (x : m α) (a : α) : Prop :=
+  ¬ ∃ y : m {b : α // b ≠ a}, Subtype.val <$> y = x
+
+/-- Discharge a postcondition from `MayReturnM`: if `x` lifts to `m {b // P b}`, then `P` holds
+at every value `MayReturnM` says `x` may return. (Classical, via the singleton predicate.) -/
+theorem MayReturnM.imp {m : Type u → Type v} [Monad m] [LawfulMonad m] {α : Type u}
+    {x : m α} {P : α → Prop} (a : α) (hCR : MayReturnM x a)
+    (y : m {b // P b}) (hy : Subtype.val <$> y = x) : P a := by
+  refine Classical.byContradiction fun hPa => hCR ⟨?_, ?_⟩
+  · exact (fun b => ⟨b.val, fun heq => hPa (heq ▸ b.property)⟩) <$> y
+  · rw [← hy]; simp only [← LawfulMonad.bind_pure_comp, bind_assoc, pure_bind]
+
 section Definition
 
 variable {α : Type u} {m : Type u → Type v} [Monad m]
@@ -37,151 +52,187 @@ on `yield`. Used to phrase the fixpoint equation `g = Repeat.body f g` for any c
   | .inl a' => cont a'
   | .inr a' => pure a'
 
-private def RepeatPred (f : α → m (α ⊕ β)) (a : α) : m β → Prop :=
+/-- Step relation: `a' ≺ a` iff `f a` may return `.inl a'`. -/
+def IsPlausibleStep (f : α → m (α ⊕ β)) : α → α → Prop :=
+  fun a' a => MayReturnM (f a) (.inl a')
+
+/-- The partial-def's pinning predicate. Gates on **per-point Acc** plus a structural attach:
+when both hold, `v` is pinned to the value computed by `Acc.recOn` against the chosen attach.
+When the gate fails, the predicate is trivially `True`. -/
+private noncomputable def RepeatPred (f : α → m (α ⊕ β)) (a : α) : m β → Prop :=
   open scoped Classical in
-  if h : ∃ g, g = Repeat.body f g then (h.choose a = ·) else (fun _ => True)
+  if h : Acc (IsPlausibleStep f) a ∧
+      ∃ attach : (x : α) → m {s : α ⊕ β // ∀ a', s = .inl a' → IsPlausibleStep f a' x},
+        ∀ x, Subtype.val <$> attach x = f x then
+    fun v => v = h.1.recOn (motive := fun x _ => m β) (fun _ _ ih => do
+      let ⟨s, hp⟩ ← h.2.choose _
+      match s, hp with
+      | .inl x', hp => ih x' (hp x' rfl)
+      | .inr b, _ => pure b)
+  else
+    fun _ => True
 
 private instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
     Nonempty (Subtype (RepeatPred f a)) := by
-  by_cases h : ∃ g, g = Repeat.body f g
-  · exact ⟨⟨h.choose a, by simp [RepeatPred, h]⟩⟩
+  by_cases h : Acc (IsPlausibleStep f) a ∧
+      ∃ attach : (x : α) → m {s : α ⊕ β // ∀ a', s = .inl a' → IsPlausibleStep f a' x},
+        ∀ x, Subtype.val <$> attach x = f x
+  · refine ⟨⟨h.1.recOn (motive := fun x _ => m β) (fun _ _ ih => do
+        let ⟨s, hp⟩ ← h.2.choose _
+        match s, hp with
+        | .inl x', hp => ih x' (hp x' rfl)
+        | .inr b, _ => pure b), ?_⟩⟩
+    simp [RepeatPred, h]
   · exact ⟨⟨pure (Classical.choice inferInstance), by simp [RepeatPred, h]⟩⟩
 
 /-- INTERNAL. Computational core: at each `a`, returns the loop value packaged with the
-predicate `RepeatPred f a` that pins it to the classical fixpoint when one exists.
-Defined as a `partial def` so it computes operationally; the predicate carries the
-logical content needed to prove unfolding. -/
-@[specialize] private partial def Repeat.loop.impl [Nonempty β] (f : α → m (α ⊕ β)) (a : α) :
+new `RepeatPred` predicate. -/
+@[specialize] private partial def Repeat.loop.impl [Nonempty β] [LawfulMonad m]
+    (f : α → m (α ⊕ β)) (a : α) :
     Subtype (RepeatPred f a) :=
   ⟨Repeat.body f (Repeat.loop.impl f · |>.val) a, by
     simp only [RepeatPred]
     split <;> rename_i h
-    · simp
-      have h' x := (Repeat.loop.impl f x).property
-      simp [RepeatPred, h] at h'
-      simp [← h']
-      have := h.choose_spec
-      rw [← this]
-    · simp
-    done⟩
+    · -- gate true at a; prove the body equals the Acc.recOn value over the gate's attach.
+      suffices key : ∀ x (h_x : Acc (IsPlausibleStep f) x),
+          Repeat.body f (Repeat.loop.impl f · |>.val) x =
+          h_x.recOn (motive := fun y _ => m β) (fun y _ ih => do
+            let ⟨s, hp⟩ ← h.2.choose y
+            match s, hp with
+            | .inl y', hp => ih y' (hp y' rfl)
+            | .inr b, _ => pure b) from key a h.1
+      intro x h_x
+      induction h_x with
+      | intro x next ih =>
+        simp only [Repeat.body]
+        rw [show f x = Subtype.val <$> h.2.choose x from (h.2.choose_spec x).symm, bind_map_left]
+        apply bind_congr
+        rintro ⟨s, hp⟩
+        cases s with
+        | inr b => rfl
+        | inl x' =>
+          show (Repeat.loop.impl f x').val = _
+          have h_x' : Acc (IsPlausibleStep f) x' ∧
+              ∃ attach : (y : α) → m {s : α ⊕ β // ∀ a', s = .inl a' → IsPlausibleStep f a' y},
+                ∀ y, Subtype.val <$> attach y = f y :=
+            ⟨next x' (hp x' rfl), h.2⟩
+          have hp_x' := (Repeat.loop.impl f x').property
+          simp only [RepeatPred, dif_pos h_x'] at hp_x'
+          rw [hp_x']
+    · trivial⟩
 
-/-- `Repeat.loop f a` iterates `f` at `a`. Same obligations as `Loop.forIn` (just
-`[Monad m]`); computable without `@[implemented_by]` via the `RepeatPred`/`Repeat.loop.impl`
-machinery above. -/
-@[inline] def Repeat.loop [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
+/-- `Repeat.loop f a` iterates `f` at `a`. -/
+@[inline] def Repeat.loop [Nonempty β] [LawfulMonad m] (f : α → m (α ⊕ β)) (a : α) : m β :=
   (Repeat.loop.impl f a).val
-
-/-- INTERNAL. Given any global fixpoint witness, `Repeat.loop f` *is* a fixpoint of
-`Repeat.body f`. Don't use directly — go through `IsRepeatVariant.extrinsicRepeat_unfold`. -/
-private theorem extrinsicRepeat_eq_fix [Nonempty β] {f : α → m (α ⊕ β)}
-    (g : α → m β) (hfix : g = Repeat.body f g) :
-    Repeat.loop f = Repeat.body f (Repeat.loop f) := by
-  have h : ∃ g, g = Repeat.body f g := ⟨g, hfix⟩
-  ext a
-  haveI : Nonempty (m α) := ⟨pure a⟩
-  show (Repeat.loop.impl f a).val = Repeat.body f (fun b => (Repeat.loop.impl f b).val) a
-  have h' x := (Repeat.loop.impl f x).property
-  simp [RepeatPred, h] at h'
-  simp [← h']
-  exact congrFun h.choose_spec a
 
 end Definition
 
 section Termination
 
-variable {α : Type u} {m : Type u → Type v} [Monad m] [MonadAttach m]
+variable {α : Type u} {m : Type u → Type v} [Monad m] [LawfulMonad m]
 
-/-- Step relation: `a' ≺ a` iff `f a` can yield `a'`. -/
-private def IsPlausibleStep (f : α → m (α ⊕ β)) : α → α → Prop :=
-  fun a' a => MonadAttach.CanReturn (f a) (.inl a')
-
-private def Pred (f : α → m (α ⊕ β)) (a : α) (a' : α) :=
-  a' = a ∨ Relation.TransGen (IsPlausibleStep f) a' a
-
-open Relation in
-@[inline] def Repeat.loop.acc [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
-  Repeat.loop (α := Subtype (Pred f a))
-    (fun a => doit a <$> MonadAttach.attach (f a.val)) ⟨a, Or.inl rfl⟩
-  where
-    doit (a₁ : Subtype (Pred f a))
-        (r : Subtype (MonadAttach.CanReturn (f a₁.val))) :
-        (Subtype (Pred f a)) ⊕ β :=
-      match r with
-      | ⟨.inr b, _⟩ => .inr b
-      | ⟨.inl a', hcan⟩ => .inl ⟨a', by
-        rcases a₁.property with ha | ha
-        · rw [ha] at hcan
-          exact Or.inr (TransGen.single hcan)
-        · exact Or.inr (TransGen.trans (TransGen.single hcan) ha)⟩
-
-theorem Repeat.loop.acc.eq [Nonempty β] (f : α → m (α ⊕ β)) (a : α) (hacc : Acc (IsPlausibleStep f) a) :
-    Repeat.loop f a = Repeat.loop.acc f a := by
-  -- Both sides are partial-def values pinned by `RepeatPred`, which gates on the existence
-  -- of a *global* fixpoint. RHS lives on `Subtype (Pred f a)` where cone-Acc gives global
-  -- WF, so the Subtype-side existential always holds. LHS lives on full `α`, where the
-  -- α-side existential is needed — and is the gap from cone-Acc alone.
-  by_cases h_α : ∃ g : α → m β, g = Repeat.body f g
-  case pos =>
-    -- Both sides are pinned. We show they agree by uniqueness of fixpoints over cone-WF.
-    sorry
-  case neg =>
-    -- α-side `RepeatPred` is `True` so LHS is unconstrained. Equality cannot be proved
-    -- from cone-Acc alone in this branch — would need to derive `h_α` from `hacc`.
-    sorry
-
-/-- A user-supplied variant: every plausible yield of `f` strictly decreases `μ` according
-to a well-founded relation on `γ`. -/
+/-- A user-supplied variant: for every `a`, `f a` lifts to a Subtype where yields decrease `μ`.
+The lift is the constructive enriched body needed to build a global fixpoint. -/
 def IsRepeatVariant {γ : Sort _} [WellFoundedRelation γ]
-    (μ : α → γ) (f : α → m (ForInStep α)) : Prop :=
-  ∀ a a', IsPlausibleStep f a' a → WellFoundedRelation.rel (μ a') (μ a)
+    (μ : α → γ) (f : α → m (α ⊕ β)) : Prop :=
+  ∀ a, ∃ y : m {s : α ⊕ β // ∀ a', s = .inl a' → WellFoundedRelation.rel (μ a') (μ a)},
+    Subtype.val <$> y = f a
 
-omit [Monad m] in
+/-- The variant implies `IsPlausibleStep` decrease, via `MayReturnM`. -/
+theorem IsRepeatVariant.step {γ : Sort _} [WellFoundedRelation γ]
+    {μ : α → γ} {f : α → m (α ⊕ β)}
+    (hvar : IsRepeatVariant μ f) {a a' : α} (h : IsPlausibleStep f a' a) :
+    WellFoundedRelation.rel (μ a') (μ a) :=
+  let ⟨y, hy⟩ := hvar a
+  MayReturnM.imp _ h y hy a' rfl
+
 /-- Under a variant, every `a` is accessible. -/
 private theorem IsRepeatVariant.acc {γ : Sort _} [WellFoundedRelation γ]
-    {μ : α → γ} {f : α → m (ForInStep α)}
+    {μ : α → γ} {f : α → m (α ⊕ β)}
     (hvar : IsRepeatVariant μ f) (a : α) : Acc (IsPlausibleStep f) a :=
   Subrelation.accessible (r := InvImage WellFoundedRelation.rel μ)
-    (fun {a' b} h => hvar b a' h)
+    (fun {a' b} h => hvar.step h)
     (InvImage.accessible μ (WellFoundedRelation.wf.apply (μ a)))
 
-variable [LawfulMonad m] [WeaklyLawfulMonadAttach m]
+/-- The variant proof gives a classically-attached body via `Classical.choose`. -/
+private noncomputable def attachByVariant {γ : Sort _} [WellFoundedRelation γ]
+    {μ : α → γ} {f : α → m (α ⊕ β)} (hvar : IsRepeatVariant μ f) (a : α) :
+    m {s : α ⊕ β // ∀ a', s = .inl a' → WellFoundedRelation.rel (μ a') (μ a)} :=
+  (hvar a).choose
 
-@[inline] private def repeatFAttach (f : α → m (ForInStep α)) (a : α)
-    (cont : (a' : α) → MonadAttach.CanReturn (f a) (.yield a') → m α) : m α := do
-  match ← MonadAttach.attach (f a) with
-  | ⟨.done a', _⟩ => pure a'
-  | ⟨.yield a', h⟩ => cont a' h
-
-/--
-Under a variant, `WellFounded.fix` of `repeatFAttach` is a global fixpoint of
-`Repeat.body f`. Works for any `WellFoundedRelation γ`, not just `Nat`.
--/
-private theorem IsRepeatVariant.hasFix {γ : Sort _} [WellFoundedRelation γ]
-    {μ : α → γ} {f : α → m (ForInStep α)}
-    (hvar : IsRepeatVariant μ f) : ∃ g, g = Repeat.body f g := by
-  let hwf : WellFounded (IsPlausibleStep f) :=
-    Subrelation.wf (fun h => hvar _ _ h) (InvImage.wf μ WellFoundedRelation.wf)
-  refine ⟨WellFounded.fix hwf (repeatFAttach f), funext fun a => ?_⟩
-  rw [WellFounded.fix_eq]
-  simp only [repeatFAttach, Repeat.body]
-  rw [← WeaklyLawfulMonadAttach.attach_bind_val (x := f a)]
-  apply bind_congr
-  rintro ⟨r, h⟩
-  cases r <;> rfl
-
-/--
-**Public unfolding API.** Under a variant, `Repeat.loop f a` unfolds to one step of the
-loop body. This is the *only* way downstream code should unfold `Repeat.loop` — the
-classical internals (`extrinsicRepeat_eq_fix`, `hasFix`) are `private`.
--/
-theorem IsRepeatVariant.extrinsicRepeat_unfold {γ : Sort _} [WellFoundedRelation γ]
-    {μ : α → γ} {f : α → m (ForInStep α)}
-    (hvar : IsRepeatVariant μ f) (a : α) :
-    Repeat.loop f a = Repeat.body f (Repeat.loop f) a := by
-  obtain ⟨g, hfix⟩ := hvar.hasFix
-  exact congrFun (extrinsicRepeat_eq_fix g hfix) a
+private theorem attachByVariant_eq {γ : Sort _} [WellFoundedRelation γ]
+    {μ : α → γ} {f : α → m (α ⊕ β)} (hvar : IsRepeatVariant μ f) (a : α) :
+    Subtype.val <$> attachByVariant hvar a = f a :=
+  (hvar a).choose_spec
 
 end Termination
+
+section UnfoldAtPoint
+
+variable {α : Type u} {m : Type u → Type v} [Monad m] [LawfulMonad m]
+  [MonadAttach m] [LawfulMonadAttach m] {β : Type u} {f : α → m (α ⊕ β)}
+
+/-- `MonadAttach.CanReturn` implies our `MayReturnM` (assuming `LawfulMonadAttach`). -/
+theorem MayReturnM.of_canReturn {x : m α} {a : α}
+    (h : MonadAttach.CanReturn x a) : MayReturnM x a := by
+  intro ⟨y, hy⟩
+  rw [← hy] at h
+  exact LawfulMonadAttach.canReturn_map_imp h rfl
+
+/-- Build the structural attach using `MonadAttach.attach`. -/
+private noncomputable def attachFromMonadAttach (x : α) :
+    m {s : α ⊕ β // ∀ a', s = .inl a' → IsPlausibleStep f a' x} :=
+  (fun ⟨s, hCR⟩ => ⟨s, fun a' heq => MayReturnM.of_canReturn (heq ▸ hCR)⟩) <$>
+    MonadAttach.attach (f x)
+
+private theorem attachFromMonadAttach_val (x : α) :
+    Subtype.val <$> attachFromMonadAttach (f := f) x = f x := by
+  unfold attachFromMonadAttach
+  rw [← LawfulFunctor.comp_map]
+  exact WeaklyLawfulMonadAttach.map_attach
+
+/-- **Per-point unfolding.** Under `LawfulMonadAttach m` and `Acc (IsPlausibleStep f) a`,
+`Repeat.loop f a` unfolds to one step. -/
+theorem Repeat.loop.unfold_at [Nonempty β]
+    (a : α) (h : Acc (IsPlausibleStep f) a) :
+    Repeat.loop f a = Repeat.body f (Repeat.loop f) a := by
+  have hGate : Acc (IsPlausibleStep f) a ∧
+      ∃ attach : (x : α) → m {s : α ⊕ β // ∀ a', s = .inl a' → IsPlausibleStep f a' x},
+        ∀ x, Subtype.val <$> attach x = f x :=
+    ⟨h, ⟨attachFromMonadAttach, attachFromMonadAttach_val⟩⟩
+  have hp_a := (Repeat.loop.impl f a).property
+  simp only [RepeatPred, dif_pos hGate] at hp_a
+  show (Repeat.loop.impl f a).val = Repeat.body f (fun b => (Repeat.loop.impl f b).val) a
+  rw [hp_a]
+  -- Now: Acc.recOn at a using hGate.2.choose = body f (impl · |>.val) a.
+  -- Same shape as the body proof's `key` — Acc-induction.
+  suffices key : ∀ x (h_x : Acc (IsPlausibleStep f) x),
+      Repeat.body f (Repeat.loop.impl f · |>.val) x =
+      h_x.recOn (motive := fun y _ => m β) (fun y _ ih => do
+        let ⟨s, hp⟩ ← hGate.2.choose y
+        match s, hp with
+        | .inl y', hp => ih y' (hp y' rfl)
+        | .inr b, _ => pure b) from (key a hGate.1).symm
+  intro x h_x
+  induction h_x with
+  | intro x next ih =>
+    simp only [Repeat.body]
+    rw [show f x = Subtype.val <$> hGate.2.choose x from (hGate.2.choose_spec x).symm, bind_map_left]
+    apply bind_congr
+    rintro ⟨s, hp⟩
+    cases s with
+    | inr b => rfl
+    | inl x' =>
+      show (Repeat.loop.impl f x').val = _
+      have h_x' : Acc (IsPlausibleStep f) x' ∧
+          ∃ attach : (y : α) → m {s : α ⊕ β // ∀ a', s = .inl a' → IsPlausibleStep f a' y},
+            ∀ y, Subtype.val <$> attach y = f y :=
+        ⟨next x' (hp x' rfl), hGate.2⟩
+      have hp_x' := (Repeat.loop.impl f x').property
+      simp only [RepeatPred, dif_pos h_x'] at hp_x'
+      rw [hp_x']
+
+end UnfoldAtPoint
 
 section Spec
 

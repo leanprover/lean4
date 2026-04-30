@@ -493,7 +493,6 @@ theorem forIn_eq_sum (xs : Array Nat) {m ps} [Monad m] [WPMonad m ps] :
   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum⌝
   all_goals grind
 
-set_option trace.Elab.Tactic.Do.vcgen true in
 theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
     [WPMonad m ps] :
     Triple (m := m) (do

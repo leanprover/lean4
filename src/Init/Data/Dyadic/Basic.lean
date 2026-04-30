@@ -408,7 +408,7 @@ theorem ofIntWithPrec_shiftLeft_add {n : Nat} :
 
 /-- The "precision" of a dyadic number, i.e. in `n * 2^(-p)` with `n` odd the precision is `p`. -/
 -- TODO: If `WithBot` is upstreamed, replace this with `WithBot Int`.
-@[expose, implicit_reducible] def precision : Dyadic → Option Int
+@[implicit_reducible] def precision : Dyadic → Option Int
   | .zero => none
   | .ofOdd _ p _ => some p
 

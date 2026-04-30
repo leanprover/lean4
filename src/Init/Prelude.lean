@@ -128,7 +128,7 @@ difference for typeclass inference, since `T` and `T'` may have different
 typeclass instances on them. `show T' from e` is sugar for an `@id T' e`
 expression.
 -/
-@[inline, implicit_reducible, expose] def id {α : Sort u} (a : α) : α := a
+@[inline, implicit_reducible] def id {α : Sort u} (a : α) : α := a
 
 /--
 Function composition, usually written with the infix operator `∘`. A new function is created from
@@ -314,7 +314,7 @@ so if your goal is `¬p` you can use `intro h` to turn the goal into
 and `(hn h).elim` will prove anything.
 For more information: [Propositional Logic](https://lean-lang.org/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
-@[expose, implicit_reducible] def Not (a : Prop) : Prop := a → False
+@[implicit_reducible] def Not (a : Prop) : Prop := a → False
 
 /--
 `False.elim : False → C` says that from `False`, any desired proposition
@@ -2923,7 +2923,7 @@ Examples:
  * `(some "hello").getD "goodbye" = "hello"`
  * `none.getD "goodbye" = "goodbye"`
 -/
-@[macro_inline, expose, implicit_reducible] def Option.getD (opt : Option α) (dflt : α) : α :=
+@[macro_inline, implicit_reducible] def Option.getD (opt : Option α) (dflt : α) : α :=
   match opt with
   | some x => x
   | none => dflt
@@ -3610,7 +3610,7 @@ A UTF-8 byte position that points at the end of a string, just after the last ch
 * `"abc".rawEndPos = ⟨3⟩`
 * `"L∃∀N".rawEndPos = ⟨8⟩`
 -/
-@[inline, expose, implicit_reducible] def String.rawEndPos (s : String) : String.Pos.Raw where
+@[inline, implicit_reducible] def String.rawEndPos (s : String) : String.Pos.Raw where
   byteIdx := utf8ByteSize s
 
 /--
@@ -4101,7 +4101,7 @@ overridden by `withReader`, but it cannot be mutated.
 Actions in the resulting monad are functions that take the local value as a parameter, returning
 ordinary actions in `m`.
 -/
-@[expose, implicit_reducible] def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
+@[implicit_reducible] def ReaderT (ρ : Type u) (m : Type u → Type v) (α : Type u) : Type (max u v) :=
   (a : @&ρ) → m α
 
 /--

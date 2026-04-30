@@ -36,7 +36,7 @@ namespace BitVec.Internal
 /--
 Pack the next up-to-`remaining` bools (LSB-first) into `chunk`, starting at bit index `used`.
 -/
-def packChunk : List Bool → Nat → Nat → Nat → Nat × Nat × List Bool
+private def packChunk : List Bool → Nat → Nat → Nat → Nat × Nat × List Bool
   | [],      _,   chunk, used => (chunk, used, [])
   | bs,      0,   chunk, used => (chunk, used, bs)
   | b :: bs, k+1, chunk, used =>
@@ -44,7 +44,7 @@ def packChunk : List Bool → Nat → Nat → Nat → Nat × Nat × List Bool
     packChunk bs k chunk' (used + 1)
 
 /-- Walk a list of `Bool`s in 64-bit chunks, producing `(value, width)` pairs. -/
-def collectChunks : Nat → List Bool → Array (Nat × Nat) → Array (Nat × Nat)
+private def collectChunks : Nat → List Bool → Array (Nat × Nat) → Array (Nat × Nat)
   | _,   [],      acc => acc
   | 0,   _,       acc => acc -- unreachable when fuel ≥ list length
   | n+1, b :: bs, acc =>
@@ -52,7 +52,7 @@ def collectChunks : Nat → List Bool → Array (Nat × Nat) → Array (Nat × N
     collectChunks n rest (acc.push (chunk, used))
 
 /-- One pass of a balanced binary merge. -/
-def mergePass (arr : Array (Nat × Nat)) : Array (Nat × Nat) :=
+private def mergePass (arr : Array (Nat × Nat)) : Array (Nat × Nat) :=
   go 0 (Array.mkEmpty ((arr.size + 1) / 2))
 where
   go (i : Nat) (acc : Array (Nat × Nat)) : Array (Nat × Nat) :=
@@ -71,7 +71,7 @@ where
             (Nat.sub_succ_lt_self arr.size i (Nat.lt_of_succ_lt h))
 
 /-- Tree-merge with explicit fuel. -/
-def treeMerge (arr : Array (Nat × Nat)) : Nat :=
+private def treeMerge (arr : Array (Nat × Nat)) : Nat :=
   go arr.size arr
 where
   go : Nat → Array (Nat × Nat) → Nat
@@ -99,6 +99,13 @@ private theorem two_pow_le_of_le {a b : Nat} (h : a ≤ b) : 2^a ≤ 2^b :=
 private theorem one_shiftLeft_lt_two_pow_succ (i : Nat) : (1 : Nat) <<< i < 2 ^ (i + 1) := by
   rw [Nat.shiftLeft_eq, Nat.one_mul]
   exact Nat.pow_lt_pow_succ (by decide)
+
+/-- If `a ≤ 2^(k+1)` then `(a + 1) / 2 ≤ 2^k`. Used for the `mergePass` halving step. -/
+private theorem half_le_pow_of_le_double {a k : Nat} (h : a ≤ 2^(k+1)) :
+    (a + 1) / 2 ≤ 2^k := by
+  rw [Nat.two_pow_succ] at h
+  generalize 2^k = m at *
+  omega
 
 private theorem step_lt (b : Bool) {c i : Nat} (h : c < 2^i) :
     (if b then c ||| (1 <<< i) else c) < 2^(i+1) := by
@@ -220,15 +227,15 @@ private theorem packChunk_init_testBit (bs : List Bool) (r j : Nat) (hjr : j < m
 
 /-! ### flattenList spec function -/
 
-def flattenList : List (Nat × Nat) → Nat
+private def flattenList : List (Nat × Nat) → Nat
   | [] => 0
   | (v, w) :: rest => v ||| (flattenList rest <<< w)
 
-def totalWidth : List (Nat × Nat) → Nat
+private def totalWidth : List (Nat × Nat) → Nat
   | [] => 0
   | (_, w) :: rest => w + totalWidth rest
 
-def WellFormedList (xs : List (Nat × Nat)) : Prop :=
+private def WellFormedList (xs : List (Nat × Nat)) : Prop :=
   ∀ p ∈ xs, p.1 < 2^p.2
 
 private theorem WellFormedList.nil : WellFormedList [] := by
@@ -293,7 +300,7 @@ private theorem testBit_flattenList_high (xs : List (Nat × Nat)) (h : WellForme
 
 /-! ### List-level mergePass -/
 
-def mergePassList : List (Nat × Nat) → List (Nat × Nat)
+private def mergePassList : List (Nat × Nat) → List (Nat × Nat)
   | (lo, lb) :: (hi, hb) :: rest =>
     (lo ||| (hi <<< lb), lb + hb) :: mergePassList rest
   | rest => rest
@@ -485,13 +492,7 @@ private theorem treeMerge_go_eq_flattenList (n : Nat) (arr : Array (Nat × Nat))
       have hwf' : WellFormedList (mergePass arr).toList := by
         rw [mergePass_toList]; exact mergePassList_wellFormed _ h
       have hsize' : (mergePass arr).size ≤ 2^k := by
-        rw [mergePass_size]
-        -- We need (arr.size + 1) / 2 ≤ 2^k from arr.size ≤ 2^(k+1) = 2^k + 2^k.
-        have hpow : 2^(k+1) = 2^k + 2^k := Nat.two_pow_succ k
-        rw [hpow] at hsize
-        clear hpow ih h hwf'
-        generalize 2^k = m at *
-        omega
+        rw [mergePass_size]; exact half_le_pow_of_le_double hsize
       rw [ih _ hwf' hsize', mergePass_toList]
       exact flattenList_mergePassList arr.toList h
 

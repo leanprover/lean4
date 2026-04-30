@@ -188,14 +188,9 @@ theorem add_unfold [Monad m] [WPMonad m sh] :
   mvcgen' [mkFreshNat]
   simp_all +zetaDelta
 
-set_option trace.Elab.Tactic.Do.vcgen true in
 -- `mkFreshPair_triple` from doLogicTests uses `mvcgen -elimLets +trivial [mkFreshPair]`.
--- BLOCKED: mvcgen' does not support `+trivial`. Without it, schematic VCs `?vc4..?vc7`
--- representing `mkFreshPair`'s output state remain unsolved, and `simp_all` cannot
--- instantiate them. Some hypotheses also retain `⌜...⌝.down` form.
--- TODO: Reintroduce `+trivial` (auto-discharge by `rfl`/`And.intro`) for `mvcgen'`.
 theorem mkFreshPair_triple : ⦃⌜True⌝⦄ mkFreshPair ⦃⇓ (a, b) => ⌜a ≠ b⌝⦄ := by
-  mvcgen -elimLets +trivial [mkFreshPair]
+  mvcgen' [mkFreshPair]
   simp_all
 
 theorem sum_loop_spec :

@@ -610,6 +610,8 @@ public structure VCGen.Context where
   exceptCondsEntailsTrueRule : BackwardRule
   /-- The backward rule for `Triple.of_entails_wp`. -/
   tripleOfEntailsWPRule : BackwardRule
+  /-- The backward rule for `And.intro`. -/
+  andIntroRule : BackwardRule
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
   /-- Pre-tactic to try on each emitted VC. -/
@@ -866,6 +868,44 @@ meta def PreTac.processHypotheses (preTac : PreTac) (goal : Grind.Goal) : VCGenM
     Grind.processHypotheses goal
   else
     return goal
+
+/--
+Solves conjunctions whose leaves are `True` or `e₁ = e₂`, and returns a residual goal containing
+exactly the conjuncts that could not be solved.
+This procedure may assign metavariables in `e₁`/`e₂`, for example for `e = ?m` it will assign
+`?m := e`.
+-/
+meta partial def repeatAndRfl (goal : MVarId) : VCGenM (Option MVarId) :=
+    goal.withContext do
+  let ctx ← read
+  let ty ← instantiateMVars (← goal.getType)
+  if ty.isAppOf ``True then
+    goal.assign (mkConst ``True.intro)
+    return none
+  else if ty.isAppOf ``And then
+    let .goals [g₁, g₂] ← ctx.andIntroRule.apply goal
+      | throwError "repeatAndRfl: failed to apply {.ofConstName ``And.intro} to{indentExpr ty}"
+    match ← repeatAndRfl g₁, ← repeatAndRfl g₂ with
+    | none,    none    => return none
+    | some g,  none    => return some g
+    | none,    some g  => return some g
+    | some g₁', some g₂' =>
+      let t₁ ← g₁'.getType
+      let t₂ ← g₂'.getType
+      let combined ← mkFreshExprSyntheticOpaqueMVar (mkApp2 (mkConst ``And) t₁ t₂)
+      g₁'.assign (mkApp3 (mkConst ``And.left) t₁ t₂ combined)
+      g₂'.assign (mkApp3 (mkConst ``And.right) t₁ t₂ combined)
+      return some combined.mvarId!
+  else if let some (ty, lhs, rhs) := ty.app3? ``Eq then
+    let lhs := (← reduceHead? lhs).getD lhs
+    let rhs := (← reduceHead? rhs).getD rhs
+    if ← withAssignableSyntheticOpaque <| isDefEqS lhs rhs then
+      goal.assign (mkApp2 (mkConst ``Eq.refl [← Meta.getLevel ty]) ty lhs)
+      return none
+    else
+      return some goal
+  else
+    return some goal
 
 /--
 Apply `SPred.entails_cons_intro` to introduce one state variable, then `introsSimp`,
@@ -1170,9 +1210,13 @@ meta def emitVC (goal : Grind.Goal) : VCGenM Unit := do
     modify fun s => { s with invariants := s.invariants.push goal.mvarId }
     return
   let goal ← (← read).preTac.processHypotheses goal
-  let goals ← (← read).preTac.run goal
-  for g in goals do g.setKind .syntheticOpaque
-  modify fun s => { s with vcs := s.vcs ++ goals.toArray }
+  let mut vcs := #[]
+  let some mvarId ← repeatAndRfl goal.mvarId | return
+  let goal := { goal with mvarId := mvarId }
+  for mvarId in (← (← read).preTac.run goal) do
+    mvarId.setKind .syntheticOpaque
+    vcs := vcs.push mvarId
+  modify fun s => { s with vcs := s.vcs ++ vcs }
 
 meta def work (goal : Grind.Goal) : VCGenM Unit := do
   let mvarId ← preprocessMVar goal.mvarId
@@ -1304,6 +1348,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
   let exceptCondsEntailsFalseRule ← mkBackwardRuleFromDecl ``ExceptConds.entails_false
   let exceptCondsEntailsTrueRule ← mkBackwardRuleFromDecl ``ExceptConds.entails_true
   let tripleOfEntailsWPRule ← mkBackwardRuleFromDecl ``Triple.of_entails_wp
+  let andIntroRule ← mkBackwardRuleFromDecl ``And.intro
   let specThmsNew ← SymM.run <| migrateSpecTheoremsDatabase specThms simpThms
   return {
     specThms := specThmsNew,
@@ -1322,6 +1367,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
     exceptCondsEntailsFalseRule,
     exceptCondsEntailsTrueRule,
     tripleOfEntailsWPRule,
+    andIntroRule,
   }
 
 end VCGen

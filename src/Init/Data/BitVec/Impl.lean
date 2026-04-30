@@ -9,16 +9,13 @@ prelude
 public import Init.Data.BitVec.Lemmas
 public import Init.Data.Nat.Bitwise.Lemmas
 import Init.Data.BitVec.Bootstrap
-import Init.Data.List.Lemmas
 import Init.Data.List.TakeDrop
 import Init.Data.List.Nat.TakeDrop
 import Init.Data.Array.Lemmas
 import Init.Data.Array.Bootstrap
-import Init.Data.Nat.Lemmas
 import Init.ByCases
 import Init.Omega
 
-public section
 
 /-!
 ## Tail-recursive implementations for `BitVec` definitions.
@@ -36,7 +33,7 @@ namespace BitVec.Internal
 /--
 Pack the next up-to-`remaining` bools (LSB-first) into `chunk`, starting at bit index `used`.
 -/
-private def packChunk : List Bool → Nat → Nat → Nat → Nat × Nat × List Bool
+def packChunk : List Bool → Nat → Nat → Nat → Nat × Nat × List Bool
   | [],      _,   chunk, used => (chunk, used, [])
   | bs,      0,   chunk, used => (chunk, used, bs)
   | b :: bs, k+1, chunk, used =>
@@ -44,7 +41,7 @@ private def packChunk : List Bool → Nat → Nat → Nat → Nat × Nat × List
     packChunk bs k chunk' (used + 1)
 
 /-- Walk a list of `Bool`s in 64-bit chunks, producing `(value, width)` pairs. -/
-private def collectChunks : Nat → List Bool → Array (Nat × Nat) → Array (Nat × Nat)
+def collectChunks : Nat → List Bool → Array (Nat × Nat) → Array (Nat × Nat)
   | _,   [],      acc => acc
   | 0,   _,       acc => acc -- unreachable when fuel ≥ list length
   | n+1, b :: bs, acc =>
@@ -52,7 +49,7 @@ private def collectChunks : Nat → List Bool → Array (Nat × Nat) → Array (
     collectChunks n rest (acc.push (chunk, used))
 
 /-- One pass of a balanced binary merge. -/
-private def mergePass (arr : Array (Nat × Nat)) : Array (Nat × Nat) :=
+def mergePass (arr : Array (Nat × Nat)) : Array (Nat × Nat) :=
   go 0 (Array.mkEmpty ((arr.size + 1) / 2))
 where
   go (i : Nat) (acc : Array (Nat × Nat)) : Array (Nat × Nat) :=
@@ -71,7 +68,7 @@ where
             (Nat.sub_succ_lt_self arr.size i (Nat.lt_of_succ_lt h))
 
 /-- Tree-merge with explicit fuel. -/
-private def treeMerge (arr : Array (Nat × Nat)) : Nat :=
+def treeMerge (arr : Array (Nat × Nat)) : Nat :=
   go arr.size arr
 where
   go : Nat → Array (Nat × Nat) → Nat
@@ -83,31 +80,31 @@ where
       go n (mergePass arr)
 
 /-- Tail-recursive implementation of `BitVec.ofBoolListLE`. -/
-def ofBoolListLEImpl (bs : List Bool) : BitVec bs.length :=
+public def ofBoolListLEImpl (bs : List Bool) : BitVec bs.length :=
   let chunks := collectChunks bs.length bs (Array.mkEmpty ((bs.length + 63) / 64))
   BitVec.ofNat bs.length (treeMerge chunks)
 
 /-- Tail-recursive implementation of `BitVec.ofBoolListBE`: reverse, then LE. -/
-def ofBoolListBEImpl (bs : List Bool) : BitVec bs.length :=
+public def ofBoolListBEImpl (bs : List Bool) : BitVec bs.length :=
   (ofBoolListLEImpl bs.reverse).cast List.length_reverse
 
 /-! ### Helpers -/
 
-private theorem two_pow_le_of_le {a b : Nat} (h : a ≤ b) : 2^a ≤ 2^b :=
+theorem two_pow_le_of_le {a b : Nat} (h : a ≤ b) : 2^a ≤ 2^b :=
   Nat.pow_le_pow_right (by decide) h
 
-private theorem one_shiftLeft_lt_two_pow_succ (i : Nat) : (1 : Nat) <<< i < 2 ^ (i + 1) := by
+theorem one_shiftLeft_lt_two_pow_succ (i : Nat) : (1 : Nat) <<< i < 2 ^ (i + 1) := by
   rw [Nat.shiftLeft_eq, Nat.one_mul]
   exact Nat.pow_lt_pow_succ (by decide)
 
 /-- If `a ≤ 2^(k+1)` then `(a + 1) / 2 ≤ 2^k`. Used for the `mergePass` halving step. -/
-private theorem half_le_pow_of_le_double {a k : Nat} (h : a ≤ 2^(k+1)) :
+theorem half_le_pow_of_le_double {a k : Nat} (h : a ≤ 2^(k+1)) :
     (a + 1) / 2 ≤ 2^k := by
   rw [Nat.two_pow_succ] at h
   generalize 2^k = m at *
   omega
 
-private theorem step_lt (b : Bool) {c i : Nat} (h : c < 2^i) :
+theorem step_lt (b : Bool) {c i : Nat} (h : c < 2^i) :
     (if b then c ||| (1 <<< i) else c) < 2^(i+1) := by
   cases b
   case false => exact Nat.lt_of_lt_of_le h (two_pow_le_of_le (Nat.le_succ i))
@@ -116,7 +113,7 @@ private theorem step_lt (b : Bool) {c i : Nat} (h : c < 2^i) :
     · exact Nat.lt_of_lt_of_le h (two_pow_le_of_le (Nat.le_succ i))
     · exact one_shiftLeft_lt_two_pow_succ i
 
-private theorem testBit_step_at (b : Bool) {c i : Nat} (h : c < 2^i) :
+theorem testBit_step_at (b : Bool) {c i : Nat} (h : c < 2^i) :
     (if b then c ||| (1 <<< i) else c).testBit i = b := by
   have hci : c.testBit i = false := Nat.testBit_lt_two_pow h
   cases b
@@ -125,7 +122,7 @@ private theorem testBit_step_at (b : Bool) {c i : Nat} (h : c < 2^i) :
     rw [if_pos rfl, Nat.testBit_or, Nat.testBit_shiftLeft]
     simp [hci]
 
-private theorem testBit_step_lo (b : Bool) {c i j : Nat} (hji : j < i) :
+theorem testBit_step_lo (b : Bool) {c i j : Nat} (hji : j < i) :
     (if b then c ||| (1 <<< i) else c).testBit j = c.testBit j := by
   cases b
   case false => rfl
@@ -136,7 +133,7 @@ private theorem testBit_step_lo (b : Bool) {c i j : Nat} (hji : j < i) :
 
 /-! ### packChunk invariants -/
 
-private theorem packChunk_used (bs : List Bool) (r c u : Nat) :
+theorem packChunk_used (bs : List Bool) (r c u : Nat) :
     (packChunk bs r c u).2.1 = u + min bs.length r := by
   induction bs generalizing r c u with
   | nil => simp [packChunk]
@@ -147,7 +144,7 @@ private theorem packChunk_used (bs : List Bool) (r c u : Nat) :
       simp only [packChunk, List.length_cons]
       rw [ih]; omega
 
-private theorem packChunk_rest (bs : List Bool) (r c u : Nat) :
+theorem packChunk_rest (bs : List Bool) (r c u : Nat) :
     (packChunk bs r c u).2.2 = bs.drop (min bs.length r) := by
   induction bs generalizing r c u with
   | nil => simp [packChunk]
@@ -160,7 +157,7 @@ private theorem packChunk_rest (bs : List Bool) (r c u : Nat) :
       have hmin : min (bs.length + 1) (r + 1) = min bs.length r + 1 := by omega
       rw [hmin]; rfl
 
-private theorem packChunk_lt (bs : List Bool) (r c u : Nat) (h : c < 2^u) :
+theorem packChunk_lt (bs : List Bool) (r c u : Nat) (h : c < 2^u) :
     (packChunk bs r c u).1 < 2^(u + min bs.length r) := by
   induction bs generalizing r c u with
   | nil => simpa [packChunk] using h
@@ -174,7 +171,7 @@ private theorem packChunk_lt (bs : List Bool) (r c u : Nat) (h : c < 2^u) :
       have ih' := ih (r := r) (c := if b then c ||| (1 <<< u) else c) (u := u + 1) step
       rw [← hrw]; exact ih'
 
-private theorem packChunk_testBit_lo (bs : List Bool) (r c u j : Nat) (hju : j < u) :
+theorem packChunk_testBit_lo (bs : List Bool) (r c u j : Nat) (hju : j < u) :
     (packChunk bs r c u).1.testBit j = c.testBit j := by
   induction bs generalizing r c u with
   | nil => simp [packChunk]
@@ -187,7 +184,7 @@ private theorem packChunk_testBit_lo (bs : List Bool) (r c u j : Nat) (hju : j <
       rw [ih (r := r) (c := if b then c ||| (1 <<< u) else c) (u := u + 1) hju1]
       exact testBit_step_lo b hju
 
-private theorem packChunk_testBit_mid (bs : List Bool) (r c u j : Nat)
+theorem packChunk_testBit_mid (bs : List Bool) (r c u j : Nat)
     (hc : c < 2^u) (hjr : j < min bs.length r) :
     (packChunk bs r c u).1.testBit (u + j) = bs.getD j false := by
   induction bs generalizing r c u j with
@@ -215,43 +212,43 @@ private theorem packChunk_testBit_mid (bs : List Bool) (r c u j : Nat)
         rw [ih', hcons]
 
 /-- The chunk produced from initial state `(c=0, u=0)` is well-formed. -/
-private theorem packChunk_init_lt (bs : List Bool) (r : Nat) :
+theorem packChunk_init_lt (bs : List Bool) (r : Nat) :
     (packChunk bs r 0 0).1 < 2^((packChunk bs r 0 0).2.1) := by
   rw [packChunk_used]
   exact packChunk_lt bs r 0 0 (by simp)
 
-private theorem packChunk_init_testBit (bs : List Bool) (r j : Nat) (hjr : j < min bs.length r) :
+theorem packChunk_init_testBit (bs : List Bool) (r j : Nat) (hjr : j < min bs.length r) :
     (packChunk bs r 0 0).1.testBit j = bs.getD j false := by
   have := packChunk_testBit_mid bs r 0 0 j (by simp) hjr
   simpa using this
 
 /-! ### flattenList spec function -/
 
-private def flattenList : List (Nat × Nat) → Nat
+def flattenList : List (Nat × Nat) → Nat
   | [] => 0
   | (v, w) :: rest => v ||| (flattenList rest <<< w)
 
-private def totalWidth : List (Nat × Nat) → Nat
+def totalWidth : List (Nat × Nat) → Nat
   | [] => 0
   | (_, w) :: rest => w + totalWidth rest
 
-private def WellFormedList (xs : List (Nat × Nat)) : Prop :=
+def WellFormedList (xs : List (Nat × Nat)) : Prop :=
   ∀ p ∈ xs, p.1 < 2^p.2
 
-private theorem WellFormedList.nil : WellFormedList [] := by
+theorem WellFormedList.nil : WellFormedList [] := by
   intro p hp; simp at hp
 
-private theorem WellFormedList.tail {p : Nat × Nat} {rest : List (Nat × Nat)}
+theorem WellFormedList.tail {p : Nat × Nat} {rest : List (Nat × Nat)}
     (h : WellFormedList (p :: rest)) : WellFormedList rest :=
   fun q hq => h q (List.mem_cons_of_mem _ hq)
 
-private theorem WellFormedList.head {p : Nat × Nat} {rest : List (Nat × Nat)}
+theorem WellFormedList.head {p : Nat × Nat} {rest : List (Nat × Nat)}
     (h : WellFormedList (p :: rest)) : p.1 < 2^p.2 :=
   h p List.mem_cons_self
 
 /-! ### Append lemmas -/
 
-private theorem totalWidth_append (xs ys : List (Nat × Nat)) :
+theorem totalWidth_append (xs ys : List (Nat × Nat)) :
     totalWidth (xs ++ ys) = totalWidth xs + totalWidth ys := by
   induction xs with
   | nil => simp [totalWidth]
@@ -259,7 +256,7 @@ private theorem totalWidth_append (xs ys : List (Nat × Nat)) :
     obtain ⟨v, w⟩ := p
     simp only [List.cons_append, totalWidth]; omega
 
-private theorem flattenList_append (xs ys : List (Nat × Nat)) :
+theorem flattenList_append (xs ys : List (Nat × Nat)) :
     flattenList (xs ++ ys) = flattenList xs ||| (flattenList ys <<< totalWidth xs) := by
   induction xs with
   | nil => simp [flattenList, totalWidth]
@@ -271,10 +268,10 @@ private theorem flattenList_append (xs ys : List (Nat × Nat)) :
          = flattenList ys <<< (w + totalWidth rest) from by
       rw [← Nat.shiftLeft_add]; congr 1; omega]
 
-private theorem flattenList_singleton (v w : Nat) : flattenList [(v, w)] = v := by
+theorem flattenList_singleton (v w : Nat) : flattenList [(v, w)] = v := by
   simp [flattenList]
 
-private theorem flattenList_lt (xs : List (Nat × Nat)) (h : WellFormedList xs) :
+theorem flattenList_lt (xs : List (Nat × Nat)) (h : WellFormedList xs) :
     flattenList xs < 2^(totalWidth xs) := by
   induction xs with
   | nil => simp [flattenList, totalWidth]
@@ -293,23 +290,23 @@ private theorem flattenList_lt (xs : List (Nat × Nat)) (h : WellFormedList xs) 
         rw [← Nat.pow_add]; congr 1; omega
       rw [heq] at hmul; exact hmul
 
-private theorem testBit_flattenList_high (xs : List (Nat × Nat)) (h : WellFormedList xs)
+theorem testBit_flattenList_high (xs : List (Nat × Nat)) (h : WellFormedList xs)
     (n : Nat) (hn : totalWidth xs ≤ n) :
     (flattenList xs).testBit n = false :=
   Nat.testBit_lt_two_pow (Nat.lt_of_lt_of_le (flattenList_lt xs h) (two_pow_le_of_le hn))
 
 /-! ### List-level mergePass -/
 
-private def mergePassList : List (Nat × Nat) → List (Nat × Nat)
+def mergePassList : List (Nat × Nat) → List (Nat × Nat)
   | (lo, lb) :: (hi, hb) :: rest =>
     (lo ||| (hi <<< lb), lb + hb) :: mergePassList rest
   | rest => rest
 
-private theorem mergePassList_nil : mergePassList [] = [] := rfl
+theorem mergePassList_nil : mergePassList [] = [] := rfl
 
-private theorem mergePassList_singleton (p : Nat × Nat) : mergePassList [p] = [p] := rfl
+theorem mergePassList_singleton (p : Nat × Nat) : mergePassList [p] = [p] := rfl
 
-private theorem mergePassList_length (xs : List (Nat × Nat)) :
+theorem mergePassList_length (xs : List (Nat × Nat)) :
     (mergePassList xs).length = (xs.length + 1) / 2 := by
   match xs with
   | [] => rfl
@@ -318,7 +315,7 @@ private theorem mergePassList_length (xs : List (Nat × Nat)) :
     simp only [mergePassList, List.length_cons]
     rw [mergePassList_length rest]; omega
 
-private theorem mergePassList_wellFormed : ∀ (xs : List (Nat × Nat)),
+theorem mergePassList_wellFormed : ∀ (xs : List (Nat × Nat)),
     WellFormedList xs → WellFormedList (mergePassList xs)
   | [], _ => WellFormedList.nil
   | [p], h => h
@@ -340,7 +337,7 @@ private theorem mergePassList_wellFormed : ∀ (xs : List (Nat × Nat)),
         rw [heq] at hmul; exact hmul
     · exact ihx p hp
 
-private theorem flattenList_pack (lo lb hi hb : Nat) (rest : List (Nat × Nat))
+theorem flattenList_pack (lo lb hi hb : Nat) (rest : List (Nat × Nat))
     (h_lo : lo < 2^lb) :
     (lo ||| (hi <<< lb)) ||| (flattenList rest <<< (lb + hb))
       = lo ||| ((hi ||| (flattenList rest <<< hb)) <<< lb) := by
@@ -364,7 +361,7 @@ private theorem flattenList_pack (lo lb hi hb : Nat) (rest : List (Nat × Nat))
   · have hge2 : ¬ lb + hb ≤ j := by omega
     simp [hjlb, hge2]
 
-private theorem flattenList_mergePassList : ∀ (xs : List (Nat × Nat)),
+theorem flattenList_mergePassList : ∀ (xs : List (Nat × Nat)),
     WellFormedList xs → flattenList (mergePassList xs) = flattenList xs
   | [], _ => rfl
   | [_], _ => rfl
@@ -377,7 +374,7 @@ private theorem flattenList_mergePassList : ∀ (xs : List (Nat × Nat)),
 
 /-! ### Bridge Array `mergePass` ↔ List `mergePassList` -/
 
-private theorem mergePass_go_toList_aux (arr : Array (Nat × Nat)) :
+theorem mergePass_go_toList_aux (arr : Array (Nat × Nat)) :
     ∀ (n i : Nat) (acc : Array (Nat × Nat)), arr.size - i ≤ n →
     (mergePass.go arr i acc).toList = acc.toList ++ mergePassList (arr.toList.drop i) := by
   intro n
@@ -430,17 +427,17 @@ private theorem mergePass_go_toList_aux (arr : Array (Nat × Nat)) :
           List.drop_of_length_le (by simpa using Nat.le_of_not_lt h2)
         rw [hdrop, mergePassList_nil, List.append_nil]
 
-private theorem mergePass_go_toList (arr : Array (Nat × Nat)) (i : Nat) (acc : Array (Nat × Nat)) :
+theorem mergePass_go_toList (arr : Array (Nat × Nat)) (i : Nat) (acc : Array (Nat × Nat)) :
     (mergePass.go arr i acc).toList = acc.toList ++ mergePassList (arr.toList.drop i) :=
   mergePass_go_toList_aux arr (arr.size - i) i acc (Nat.le_refl _)
 
-private theorem mergePass_toList (arr : Array (Nat × Nat)) :
+theorem mergePass_toList (arr : Array (Nat × Nat)) :
     (mergePass arr).toList = mergePassList arr.toList := by
   unfold mergePass
   rw [mergePass_go_toList]
   simp [Array.mkEmpty_eq]
 
-private theorem mergePass_size (arr : Array (Nat × Nat)) :
+theorem mergePass_size (arr : Array (Nat × Nat)) :
     (mergePass arr).size = (arr.size + 1) / 2 := by
   rw [show (mergePass arr).size = (mergePass arr).toList.length from by simp]
   rw [mergePass_toList, mergePassList_length]
@@ -448,7 +445,7 @@ private theorem mergePass_size (arr : Array (Nat × Nat)) :
 
 /-! ### treeMerge correctness -/
 
-private theorem toList_size_one {arr : Array (Nat × Nat)} (h : arr.size = 1) :
+theorem toList_size_one {arr : Array (Nat × Nat)} (h : arr.size = 1) :
     arr.toList = [arr[0]] := by
   apply List.ext_getElem (by simp [h])
   intro i hi1 hi2
@@ -457,12 +454,12 @@ private theorem toList_size_one {arr : Array (Nat × Nat)} (h : arr.size = 1) :
   subst this
   simp
 
-private theorem toList_size_zero {arr : Array (Nat × Nat)} (h : arr.size = 0) :
+theorem toList_size_zero {arr : Array (Nat × Nat)} (h : arr.size = 0) :
     arr.toList = [] := by
   rw [Array.toList_eq_nil_iff]
   apply Array.eq_empty_of_size_eq_zero h
 
-private theorem treeMerge_go_eq_flattenList (n : Nat) (arr : Array (Nat × Nat))
+theorem treeMerge_go_eq_flattenList (n : Nat) (arr : Array (Nat × Nat))
     (h : WellFormedList arr.toList) (hsize : arr.size ≤ 2^n) :
     treeMerge.go n arr = flattenList arr.toList := by
   induction n generalizing arr with
@@ -496,7 +493,7 @@ private theorem treeMerge_go_eq_flattenList (n : Nat) (arr : Array (Nat × Nat))
       rw [ih _ hwf' hsize', mergePass_toList]
       exact flattenList_mergePassList arr.toList h
 
-private theorem treeMerge_eq_flattenList (arr : Array (Nat × Nat))
+theorem treeMerge_eq_flattenList (arr : Array (Nat × Nat))
     (h : WellFormedList arr.toList) :
     treeMerge arr = flattenList arr.toList := by
   unfold treeMerge
@@ -504,7 +501,7 @@ private theorem treeMerge_eq_flattenList (arr : Array (Nat × Nat))
 
 /-! ### collectChunks correctness -/
 
-private theorem collectChunks_wellFormed (fuel : Nat) (bs : List Bool) (acc : Array (Nat × Nat))
+theorem collectChunks_wellFormed (fuel : Nat) (bs : List Bool) (acc : Array (Nat × Nat))
     (hacc : WellFormedList acc.toList) :
     WellFormedList (collectChunks fuel bs acc).toList := by
   induction fuel generalizing bs acc with
@@ -527,7 +524,7 @@ private theorem collectChunks_wellFormed (fuel : Nat) (bs : List Bool) (acc : Ar
         exact packChunk_init_lt (b :: bs) 64
 
 /-- The strengthened spec for `collectChunks`. -/
-private theorem testBit_flattenList_collectChunks_aux
+theorem testBit_flattenList_collectChunks_aux
     (fuel : Nat) (bs : List Bool) (acc : Array (Nat × Nat))
     (hfuel : bs.length ≤ fuel) (hacc : WellFormedList acc.toList) (i : Nat) :
     (flattenList (collectChunks fuel bs acc).toList).testBit i =
@@ -620,7 +617,7 @@ private theorem testBit_flattenList_collectChunks_aux
           congr 2
           omega
 
-private theorem testBit_flattenList_collectChunks (bs : List Bool) (i : Nat) :
+theorem testBit_flattenList_collectChunks (bs : List Bool) (i : Nat) :
     (flattenList ((collectChunks bs.length bs
         (Array.mkEmpty ((bs.length + 63) / 64))).toList)).testBit i = bs.getD i false := by
   have hempty :
@@ -635,7 +632,7 @@ private theorem testBit_flattenList_collectChunks (bs : List Bool) (i : Nat) :
 
 /-! ### Main correctness theorems -/
 
-private theorem getLsbD_ofBoolListLEImpl (bs : List Bool) (i : Nat) (hi : i < bs.length) :
+theorem getLsbD_ofBoolListLEImpl (bs : List Bool) (i : Nat) (hi : i < bs.length) :
     (ofBoolListLEImpl bs).getLsbD i = bs.getD i false := by
   unfold ofBoolListLEImpl
   rw [getLsbD_ofNat]
@@ -649,7 +646,7 @@ private theorem getLsbD_ofBoolListLEImpl (bs : List Bool) (i : Nat) (hi : i < bs
   rw [treeMerge_eq_flattenList _ hwf]
   exact testBit_flattenList_collectChunks bs i
 
-private theorem getLsbD_ofBoolListBEImpl (bs : List Bool) (i : Nat) (hi : i < bs.length) :
+theorem getLsbD_ofBoolListBEImpl (bs : List Bool) (i : Nat) (hi : i < bs.length) :
     (ofBoolListBEImpl bs).getLsbD i =
       (decide (i < bs.length) && bs.getD (bs.length - 1 - i) false) := by
   unfold ofBoolListBEImpl
@@ -665,7 +662,7 @@ end BitVec.Internal
 namespace BitVec
 
 @[csimp]
-theorem ofBoolListLE_eq_impl : @ofBoolListLE = @BitVec.Internal.ofBoolListLEImpl := by
+public theorem ofBoolListLE_eq_impl : @ofBoolListLE = @BitVec.Internal.ofBoolListLEImpl := by
   funext bs
   apply BitVec.eq_of_getLsbD_eq
   intro i hi
@@ -673,7 +670,7 @@ theorem ofBoolListLE_eq_impl : @ofBoolListLE = @BitVec.Internal.ofBoolListLEImpl
   exact (BitVec.Internal.getLsbD_ofBoolListLEImpl bs i hi).symm
 
 @[csimp]
-theorem ofBoolListBE_eq_impl : @ofBoolListBE = @BitVec.Internal.ofBoolListBEImpl := by
+public theorem ofBoolListBE_eq_impl : @ofBoolListBE = @BitVec.Internal.ofBoolListBEImpl := by
   funext bs
   apply BitVec.eq_of_getLsbD_eq
   intro i hi

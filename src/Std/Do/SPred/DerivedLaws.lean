@@ -156,12 +156,12 @@ theorem pure_forall {φ : α → Prop} : (∀ x, (⌜φ x⌝ : SPred σs)) ⊣�
 
 theorem pure_exists {φ : α → Prop} : (∃ x, ⌜φ x⌝ : SPred σs) ⊣⊢ₛ ⌜∃ x, φ x⌝ := bientails.iff.mpr ⟨exists_elim fun a => pure_mono (⟨a, ·⟩), pure_elim' fun ⟨x, h⟩ => (pure_intro h).trans (exists_intro' x .rfl)⟩
 
+theorem down_pure_intro {φ : Prop} (h : φ) : (pure (σs:=[]) φ).down := by simp [h]
+
 @[simp, grind =] theorem true_intro_simp : (Q ⊢ₛ ⌜True⌝) ↔ True := iff_true_intro true_intro
 
 @[simp] theorem _root_.ULift.down_dite {φ : Prop} [Decidable φ] (t : φ → α) (e : ¬φ → α) : (ULift.down (if h : φ then ⟨t h⟩ else ⟨e h⟩)) = if h : φ then t h else e h := apply_dite _ _ _ _
 @[simp] theorem _root_.ULift.down_ite {φ : Prop} [Decidable φ] (t e : α) : (ULift.down (if φ then ⟨t⟩ else ⟨e⟩)) = if φ then t else e := apply_ite _ _ _ _
-
-theorem down_apply_pure_elim {φ : Prop} (h : φ) : (pure (σs:=[]) φ).down := by simp [h]
 
 /-! # Miscellaneous -/
 

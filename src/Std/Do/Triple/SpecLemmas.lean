@@ -720,8 +720,7 @@ successfully proving the induction step, as it contradicts with the assumption t
 won't need to prove anything about the bogus case where the loop has returned early yet takes
 another iteration of the loop body.
 -/
-@[simp]
-def Invariant.withEarlyReturn {α} {xs : List α} {γ : Type (max u₁ u₂)}
+abbrev Invariant.withEarlyReturn {α} {xs : List α} {γ : Type (max u₁ u₂)}
   (onContinue : List.Cursor xs → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
@@ -733,8 +732,7 @@ def Invariant.withEarlyReturn {α} {xs : List α} {γ : Type (max u₁ u₂)}
 
 /-- Like `Invariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
 instead of `MProd` for the state tuple. -/
-@[simp]
-def Invariant.withEarlyReturnNewDo {α} {xs : List α} {γ : Type (max u₁ u₂)}
+abbrev Invariant.withEarlyReturnNewDo {α} {xs : List α} {γ : Type (max u₁ u₂)}
   (onContinue : List.Cursor xs → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
@@ -2052,8 +2050,7 @@ successfully proving the induction step, as it contradicts with the assumption t
 won't need to prove anything about the bogus case where the loop has returned early yet takes
 another iteration of the loop body.
 -/
-@[simp]
-def StringInvariant.withEarlyReturn {s : String}
+abbrev StringInvariant.withEarlyReturn {s : String}
   (onContinue : s.Pos → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
@@ -2066,8 +2063,7 @@ def StringInvariant.withEarlyReturn {s : String}
 
 /-- Like `StringInvariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
 instead of `MProd` for the state tuple. -/
-@[simp]
-def StringInvariant.withEarlyReturnNewDo {s : String}
+abbrev StringInvariant.withEarlyReturnNewDo {s : String}
   (onContinue : s.Pos → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
@@ -2139,8 +2135,7 @@ successfully proving the induction step, as it contradicts with the assumption t
 won't need to prove anything about the bogus case where the loop has returned early yet takes
 another iteration of the loop body.
 -/
-@[simp]
-def StringSliceInvariant.withEarlyReturn {s : String.Slice}
+abbrev StringSliceInvariant.withEarlyReturn {s : String.Slice}
   (onContinue : s.Pos → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :
@@ -2153,8 +2148,7 @@ def StringSliceInvariant.withEarlyReturn {s : String.Slice}
 
 /-- Like `StringSliceInvariant.withEarlyReturn`, but for the new `do` elaborator which uses `Prod`
 instead of `MProd` for the state tuple. -/
-@[simp]
-def StringSliceInvariant.withEarlyReturnNewDo {s : String.Slice}
+abbrev StringSliceInvariant.withEarlyReturnNewDo {s : String.Slice}
   (onContinue : s.Pos → β → Assertion ps)
   (onReturn : γ → β → Assertion ps)
   (onExcept : ExceptConds ps := ExceptConds.false) :

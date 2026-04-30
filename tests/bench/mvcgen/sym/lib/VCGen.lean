@@ -588,9 +588,9 @@ public structure VCGen.Context where
   /-- The backward rule for `SPred.apply_pure_cons_entails_r`. Peels a state arg from
   `SPred.pure (σ::σs) φ s` on the RHS of an entailment. -/
   applyPureConsEntailsRRule : BackwardRule
-  /-- The backward rule for `SPred.down_apply_pure_elim`. Reduces a target of the form
+  /-- The backward rule for `SPred.down_pure_intro`. Reduces a target of the form
   `(SPred.pure [] φ).down` to `φ`. -/
-  downApplyPureElimRule : BackwardRule
+  downPureIntroRule : BackwardRule
   /-- The backward rule for `SPred.pure_elim'`. -/
   pureElimRule : BackwardRule
   /-- The backward rule for `SPred.pure_intro`. -/
@@ -961,7 +961,7 @@ meta def solveSPredEntails (goal : MVarId) : VCGenM (Option MVarId) := goal.with
   -- Finally, if `T` is pure `⌜φ₂⌝`, we turn `T.down` into `φ₂`.
   -- (If `H` was pure, then we have already lifted `φ₁` to the local context without the `.down`,
   -- so `H.down` does not reduce further.)
-  if let .goals [g'] ← (← read).downApplyPureElimRule.apply goal then
+  if let .goals [g'] ← (← read).downPureIntroRule.apply goal then
     progress := true
     goal := g'
 
@@ -1068,6 +1068,7 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   unless head.isConstOf ``PredTrans.apply do
     -- The target is not a predicate transformer. We assume there is no weakest precondition to
     -- discharge and try solving by (syntactic) rfl.
+    trace[Elab.Tactic.Do.vcgen] "Trying rfl {goal}"
     if ← withAssignableSyntheticOpaque <| isDefEqS H T then
       trace[Elab.Tactic.Do.vcgen] "Solved by rfl {goal}"
       goal.assign (mkApp2 (mkConst ``SPred.entails.refl ent.constLevels!) σs H)
@@ -1293,7 +1294,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
   let entailsNilIntroRule ← mkBackwardRuleFromDecl ``SPred.entails_nil_intro
   let applyPureConsEntailsLRule ← mkBackwardRuleFromDecl ``SPred.apply_pure_cons_entails_l
   let applyPureConsEntailsRRule ← mkBackwardRuleFromDecl ``SPred.apply_pure_cons_entails_r
-  let downApplyPureElimRule ← mkBackwardRuleFromDecl ``SPred.down_apply_pure_elim
+  let downPureIntroRule ← mkBackwardRuleFromDecl ``SPred.down_pure_intro
   let pureElimRule ← mkBackwardRuleFromDecl ``SPred.pure_elim'
   let pureIntroRule ← mkBackwardRuleFromDecl ``SPred.pure_intro
   let postCondEntailsRflRule ← mkBackwardRuleFromDecl ``PostCond.entails.rfl
@@ -1311,7 +1312,7 @@ meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGe
     entailsNilIntroRule,
     applyPureConsEntailsLRule,
     applyPureConsEntailsRRule,
-    downApplyPureElimRule,
+    downPureIntroRule,
     pureElimRule,
     pureIntroRule,
     postCondEntailsRflRule,

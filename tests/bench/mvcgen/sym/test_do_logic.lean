@@ -17,43 +17,28 @@ and replacing `mvcgen` with `mvcgen'` where possible.
 Tests that are not yet working with `mvcgen'` keep the original `mvcgen`-based proof.
 The deprecation warning emitted by `mvcgen` indicates which tests still need migration.
 
-## Passing tests with `mvcgen'`
-
-Most tests pass with the same proof as the `mvcgen` version. Minor differences:
-- Some need `+zetaDelta` because `mvcgen'` leaves let-bindings in VCs that `mvcgen` eliminates.
-- `test_ite` needs an extra `exact ExceptConds.entails_false` because `mvcgen'` doesn't
-  auto-discharge `ExceptConds.entails` for non-`.pure` PostShapes.
+Tests whose proofs do not mention `mvcgen`/`mvcgen'` (manual `mspec`/`mintro` proofs)
+are intentionally not ported.
 
 ## Remaining blockers (tests still using `mvcgen`)
 
-### ForInStep information loss (2 tests)
-`mvcgen'` drops the `ForInStep.done`/break information from the loop post-VC.
-→ `test_loop_break`, `test_loop_early_return`.
+Each blocked test is annotated with a `BLOCKED:` comment explaining the cause:
 
-### Un-destructured tuples in VCs (2 tests)
-`mvcgen'` leaves VCs with `b.fst`, `b.snd.snd` instead of named pattern variables.
-→ `max_and_sum_spec`, `fast_expo_correct`.
+- **`fib_triple_step`** — `mvcgen'` does not support `optConfig` (no `stepLimit`).
+- **`fib_triple_erase`**, **`erase_unfold`** — `mvcgen' [-name]` errors with
+  "No spec found" instead of leaving an unsolved VC. Needs an `-errorOnMissingSpec`
+  flag (default true) to gate this.
+- **`mkFreshPair_triple`** — `mvcgen'` lacks the `+trivial` flag, so schematic
+  output-state VCs remain unsolved.
+- **`mem_mergeWithAll`** — `mvcgen'` errors "No spec found" for `forIn` on the
+  universe-polymorphic `ExtTreeMap`.
 
-### `xs.iter.toList` not reduced (3 tests)
-`mvcgen'` doesn't normalize `xs.iter.toList.sum` to `xs.sum`.
-→ `forIn_eq_sum`, `forIn_map_eq_sum_add_size`, `foldM_eq_sum`.
+## Notes on workarounds
 
-### Missing specs for composed iterators (2 tests)
-`mvcgen'` does not find specs for `forIn` on `IterM.mapM` and `IterM.filterMapM`.
-
-### Universe polymorphism issues (1 test, commented out)
-Universe-polymorphic programs (e.g., `ExtTreeMap`) fail with "Function expected at".
-
-### Features not yet supported by `mvcgen'`
-
-- **No `optConfig` support**: `mvcgen` accepts `(stepLimit := some n)`, etc.
-  → `fib_triple_step` omitted.
-- **No `-elimLets`/`+trivial` config flags**: `mvcgen` supports these for let-elimination
-  and automatic VC discharge. → `mkFreshPair_triple` omitted.
-- **No `[-decl]` erase syntax**: `mvcgen' [-modify]` is not supported.
-  → `erase_unfold`, `fib_triple_erase` use `mvcgen`.
-- **No `invariantAlts`/`vcAlts` syntax**: `mvcgen` supports inline invariant and VC
-  alternative syntax blocks after `with`.
+- Some tests need `+zetaDelta` because `mvcgen'` leaves let-bindings in VCs.
+- `test_ite` needs an extra `exact ExceptConds.entails_false` because `mvcgen'` doesn't
+  auto-discharge `ExceptConds.entails` for non-`.pure` PostShapes.
+- `fast_expo_correct` manually `obtain`s tuples that `mvcgen'` leaves un-destructured.
 -/
 
 open Lean Meta Elab Tactic Sym Std Do SpecAttr
@@ -138,14 +123,21 @@ theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n�
   all_goals grind
 
 -- `fib_triple_step` from doLogicTests uses `mvcgen (stepLimit := some 14)`.
--- OMITTED: mvcgen' does not support `optConfig`.
+-- BLOCKED: mvcgen' does not support `optConfig` (no `stepLimit`).
+theorem fib_triple_step : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
+  unfold fib_impl
+  mvcgen (stepLimit := some 14)
+  case inv1 => exact ⇓ ⟨xs, a, b⟩ =>
+    ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝
+  all_goals simp_all +zetaDelta [Nat.sub_one_add_one]
 
 attribute [local spec] fib_triple in
 theorem fib_triple_attr : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   mvcgen'
 
--- BLOCKED: mvcgen' throws a hard error ("No spec found") when the spec is erased.
--- TODO: Implement a -errorOnMissingSpec flag.
+-- BLOCKED: mvcgen' throws a hard error ("No spec found") when the spec is erased
+-- via `[-fib_triple]`. The legacy mvcgen keeps an unsolved VC; mvcgen' aborts.
+-- TODO: Implement a -errorOnMissingSpec flag (default true).
 attribute [local spec] fib_triple in
 theorem fib_triple_erase : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   mvcgen [-fib_triple]
@@ -177,8 +169,8 @@ theorem mkFreshNat_spec [Monad m] [WPMonad m sh] :
   mvcgen' [mkFreshNat]
   simp_all +zetaDelta
 
--- BLOCKED: mvcgen' is blocked on a missing spec for `modify` with `[-modify]` erase syntax.
--- TODO: Implement a -errorOnMissingSpec flag.
+-- BLOCKED: `mvcgen' [-modify]` errors with "No spec found" instead of leaving an
+-- unsolved VC. Same blocker as `fib_triple_erase`.
 theorem erase_unfold [Monad m] [WPMonad m sh] :
   ⦃fun s => ⌜s.1 = n ∧ s.2 = o⌝⦄
   (mkFreshNat : StateT AppState m Nat)
@@ -196,8 +188,15 @@ theorem add_unfold [Monad m] [WPMonad m sh] :
   mvcgen' [mkFreshNat]
   simp_all +zetaDelta
 
+set_option trace.Elab.Tactic.Do.vcgen true in
 -- `mkFreshPair_triple` from doLogicTests uses `mvcgen -elimLets +trivial [mkFreshPair]`.
--- OMITTED: mvcgen' does not support `-elimLets`/`+trivial` config flags.
+-- BLOCKED: mvcgen' does not support `+trivial`. Without it, schematic VCs `?vc4..?vc7`
+-- representing `mkFreshPair`'s output state remain unsolved, and `simp_all` cannot
+-- instantiate them. Some hypotheses also retain `⌜...⌝.down` form.
+-- TODO: Reintroduce `+trivial` (auto-discharge by `rfl`/`And.intro`) for `mvcgen'`.
+theorem mkFreshPair_triple : ⦃⌜True⌝⦄ mkFreshPair ⦃⇓ (a, b) => ⌜a ≠ b⌝⦄ := by
+  mvcgen -elimLets +trivial [mkFreshPair]
+  simp_all
 
 theorem sum_loop_spec :
   ⦃⌜True⌝⦄
@@ -219,7 +218,6 @@ theorem throwing_loop_spec :
                          fun e s => ⌜e = 42 ∧ s = 4⌝⟩
   all_goals mleave; try (subst_vars; grind)
 
--- BLOCKED: mvcgen' drops the `ForInStep.done`/break information from the loop post-VC.
 theorem test_loop_break :
   ⦃fun s => ⌜s = 42⌝⦄
   breaking_loop
@@ -228,7 +226,6 @@ theorem test_loop_break :
   case inv1 => exact (⇓ (xs, r) s => ⌜(r ≤ 4 ∧ r = xs.prefix.sum ∨ r > 4) ∧ s = 42⌝)
   all_goals grind
 
--- BLOCKED: same ForInStep.done information loss as test_loop_break.
 theorem test_loop_early_return :
   ⦃fun s => ⌜s = 4⌝⦄
   returning_loop
@@ -375,6 +372,37 @@ theorem ex : ⦃⌜True⌝⦄ test_ite ⦃Q⦄ := by
 
 end RishsTailContextBug
 
+namespace KimsUnivPolyUseCase
+
+open Std
+
+variable {α : Type u} {β : Type v} {cmp : α → α → Ordering} [TransCmp cmp]
+
+def mergeWithAll (m₁ m₂ : ExtTreeMap α β cmp) (f : α → Option β → Option β → Option β) : ExtTreeMap α β cmp :=
+  Id.run do
+    let mut r := ∅
+    for (a, b₁) in m₁ do
+      if let some b := f a (some b₁) m₂[a]? then
+        r := r.insert a b
+    for (a, b₂) in m₂ do
+      if a ∉ m₁ then
+        if let some b := f a none (some b₂) then
+          r := r.insert a b
+    return r
+
+-- BLOCKED: mvcgen' errors with "No spec found for program forIn m₁ ..." on the
+-- universe-polymorphic `ExtTreeMap` traversal. The legacy mvcgen leaves an
+-- unsolved VC instead. This was originally a demo that `Id.of_wp_run_eq` applies
+-- despite universe polymorphism.
+theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp} {f : α → Option β → Option β → Option β} {a : α} :
+    a ∈ mergeWithAll m₁ m₂ f ↔ (a ∈ m₁ ∨ a ∈ m₂) ∧ (f a m₁[a]? m₂[a]?).isSome := by
+  generalize h : mergeWithAll m₁ m₂ f = x
+  apply Id.of_wp_run_eq h
+  mvcgen
+  admit
+
+end KimsUnivPolyUseCase
+
 namespace Slices
 
 def subarraySum (xs : Subarray Nat) : Nat := Id.run do
@@ -422,7 +450,8 @@ theorem naive_expo_correct (x n : Nat) : naive_expo x n = x^n := by
   case inv1 => exact ⇓⟨xs, r⟩ => ⌜r = x^xs.pos⌝
   all_goals simp_all +zetaDelta [Nat.pow_add_one]
 
--- BLOCKED: mvcgen' leaves VCs with un-destructured tuples (`b.fst`, `b.snd.snd`).
+-- NOTE: mvcgen' leaves VCs with un-destructured tuples (`b.fst`, `b.snd.snd`),
+-- so the proof manually `obtain`s them. The legacy mvcgen names the components.
 theorem fast_expo_correct (x n : Nat) : fast_expo x n = x^n := by
   generalize h : fast_expo x n = r
   apply Id.of_wp_run_eq h
@@ -459,9 +488,6 @@ section IteratorTests
 variable {m} [Monad m]
 open Std Std.Iterators
 
--- BLOCKED: mvcgen' leaves `xs.iter.toList.sum` unreduced.
--- Note: the VCs left by `mvcgen` require `xs.iter.toList.sum = xs.sum` which `grind` can
--- close in the full Lean build (doLogicTests.lean) but not here due to missing simp lemmas.
 theorem forIn_eq_sum (xs : Array Nat) {m ps} [Monad m] [WPMonad m ps] :
     Triple (m := m) (do
       let mut sum : Nat := 0
@@ -473,7 +499,6 @@ theorem forIn_eq_sum (xs : Array Nat) {m ps} [Monad m] [WPMonad m ps] :
   all_goals grind
 
 set_option trace.Elab.Tactic.Do.vcgen true in
--- BLOCKED: mvcgen' leaves `xs.iter.toList.sum` unreduced.
 theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
     [WPMonad m ps] :
     Triple (m := m) (do
@@ -486,7 +511,6 @@ theorem forIn_map_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [LawfulMonad
   all_goals grind
 
 
--- BLOCKED: mvcgen' leaves `xs.iter.toList.sum` unreduced.
 theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
     [WPMonad m ps] :
     Triple (m := m) (do
@@ -498,7 +522,6 @@ theorem forIn_map_eq_sum_add_size' (xs : Array Nat) {m ps} [Monad m] [LawfulMona
   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
--- BLOCKED: mvcgen' does not find specs for `forIn` on `IterM.mapM`.
 theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [MonadAttach m]
     [LawfulMonad m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :
     Triple (m := m) (do
@@ -510,7 +533,6 @@ theorem forIn_mapM_eq_sum_add_size (xs : Array Nat) {m ps} [Monad m] [MonadAttac
   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
--- BLOCKED: mvcgen' does not find specs for `forIn` on `IterM.filterMapM`.
 theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m ps}
     [Monad m] [LawfulMonad m] [MonadAttach m] [WeaklyLawfulMonadAttach m] [WPMonad m ps] :
     Triple (m := m) (do
@@ -522,7 +544,6 @@ theorem forIn_filterMapM_eq_sum_add_size (xs : Array Nat) {m ps}
   case inv1 => exact ⇓⟨cur, n⟩ => ⌜n = cur.prefix.sum + cur.prefix.length⌝
   all_goals grind
 
--- BLOCKED: mvcgen' leaves `xs.iter.toList.sum` unreduced.
 theorem foldM_eq_sum (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
     [WPMonad m ps] :
     Triple (m := m)

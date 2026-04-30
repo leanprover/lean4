@@ -114,38 +114,34 @@ theorem isNat_iff' {s : String.Slice} :
         ((∃ c ∈ s.copy.toList, c.isDigit = false ∧ c ≠ '_') ∨ ¬ NoRepetition '_' ('_' :: s.copy.toList))⌝)
   next pref c suff h b hc h₁ h₂ =>
     subst hc
-    simp only [Invariant.withEarlyReturnNewDo, ↓Char.isValue, eq_iff_iff, SPred.and_nil,
-      SPred.down_pure, h, List.mem_append, List.mem_cons, ne_eq, SPred.exists_nil, Bool.exists_bool,
-      true_and, Bool.true_eq_false, false_and, and_false, or_false, SPred.or_nil, h₁, Bool.false_eq,
-      false_iff, Decidable.not_not, reduceCtorEq, false_or] at ⊢ h₂
+    simp only [h₁, ↓Char.isValue, eq_iff_iff, false_iff, Decidable.not_not,
+      reduceCtorEq, h, List.mem_append, List.mem_cons, ne_eq, false_and, and_false, exists_const,
+      or_false, Option.some.injEq, Bool.false_eq, true_and, and_self_left, exists_eq_left,
+      false_or] at ⊢ h₂
     rw [List.append_cons, ← List.cons_append, ← List.cons_append]
     exact Or.inr (not_noRepetition_append_of_left (not_noRepetition_append_singleton_of_suffix h₂.2.1))
   next pref c suff h b hc h₁ h₂ =>
     subst hc
-    simp only [Invariant.withEarlyReturnNewDo, ↓Char.isValue, eq_iff_iff, SPred.and_nil,
-      SPred.down_pure, h, List.mem_append, List.mem_cons, ne_eq, SPred.exists_nil, Bool.exists_bool,
-      true_and, Bool.true_eq_false, false_and, and_false, or_false, SPred.or_nil, h₁, true_iff,
-      reduceCtorEq, Bool.false_eq_true, List.suffix_cons_append, not_true_eq_false,
-      List.not_mem_nil, forall_or_imp_or_self_right_right] at ⊢ h₂
+    simp only [h₁, ↓Char.isValue, eq_iff_iff, true_iff, reduceCtorEq, h, List.mem_append,
+      List.mem_cons, ne_eq, false_and, and_false, exists_const, or_false, Bool.false_eq_true,
+      List.suffix_cons_append, not_true_eq_false, List.not_mem_nil,
+      forall_or_imp_or_self_right_right, true_and] at ⊢ h₂
     refine ⟨h₂.2.2.1, ?_⟩
     rw [← List.cons_append]
     exact NoRepetition.append_singleton_of_not_suffix h₂.2.2.2 h₂.2.1
   next pref c suff h b hc hc' h₁ =>
-    simp only [Invariant.withEarlyReturnNewDo, ↓Char.isValue, eq_iff_iff, SPred.and_nil,
-      SPred.down_pure, h, List.mem_append, List.mem_cons, ne_eq, SPred.exists_nil, Bool.exists_bool,
-      true_and, Bool.true_eq_false, false_and, and_false, or_false, SPred.or_nil, reduceCtorEq,
-      List.singleton_suffix_cons_append_singleton_iff, Ne.symm hc, not_false_eq_true,
-      List.not_mem_nil, forall_or_eq_imp, hc', true_or, and_true] at ⊢ h₁
+    simp only [↓Char.isValue, eq_iff_iff, reduceCtorEq, h, List.mem_append, List.mem_cons, ne_eq,
+      false_and, and_false, exists_const, or_false, List.singleton_suffix_cons_append_singleton_iff,
+      Ne.symm hc, not_false_eq_true, List.not_mem_nil, forall_or_eq_imp, hc', true_or, and_true,
+      true_and] at ⊢ h₁
     refine ⟨h₁.2.2.1, ?_⟩
     rw [← List.cons_append]
     exact NoRepetition.append_singleton_of_ne h₁.2.2.2 (Ne.symm hc)
-  next pref c suff h b hc hc' h₁ => simpa [Invariant.withEarlyReturnNewDo, h] using Or.inl ⟨c, by simp_all⟩
-  next => simp [Invariant.withEarlyReturnNewDo]
+  next pref c suff h b hc hc' h₁ => simpa [h] using Or.inl ⟨c, by simp_all⟩
+  next => simp
   next r b h₁ h₂ =>
-    simp only [Invariant.withEarlyReturnNewDo, ↓Char.isValue, eq_iff_iff, SPred.and_nil,
-      SPred.down_pure, ne_eq, SPred.exists_nil, Bool.exists_bool, true_and, Bool.true_eq_false,
-      false_and, and_false, or_false, SPred.or_nil, h₁, reduceCtorEq, Option.some.injEq,
-      false_or] at h₂
+    simp only [h₁, reduceCtorEq, ↓Char.isValue, eq_iff_iff, false_and, Option.some.injEq, ne_eq,
+      true_and, exists_eq_left', false_or] at h₂
     simp only [h₂.1, Bool.false_eq_true, toList_eq_nil_iff, copy_eq_empty_iff, Bool.not_eq_true,
       ↓Char.isValue, List.cons_append, false_iff, not_and]
     intro hx hy
@@ -156,9 +152,8 @@ theorem isNat_iff' {s : String.Slice} :
       exact not_noRepetition_append_of_left hn
   next r h₁ h₂ =>
     generalize s.copy.toList = l at *
-    simp only [Invariant.withEarlyReturnNewDo, ↓Char.isValue, eq_iff_iff, SPred.and_nil,
-      SPred.down_pure, ne_eq, SPred.exists_nil, Bool.exists_bool, true_and, Bool.true_eq_false,
-      false_and, and_false, or_false, SPred.or_nil, h₁, reduceCtorEq, List.cons_append] at ⊢ h₂
+    simp only [h₁, ↓Char.isValue, eq_iff_iff, true_and, reduceCtorEq, ne_eq, false_and,
+      exists_const, or_false, List.cons_append] at ⊢ h₂
     rw [h₂.1]
     refine ⟨fun h => ⟨?_, h₂.2.1, ?_⟩, fun ⟨h₁, _, h₂⟩ => ?_⟩
     · rintro rfl

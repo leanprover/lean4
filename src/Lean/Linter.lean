@@ -21,3 +21,4 @@ public import Lean.Linter.Coe
 public import Lean.Linter.GlobalAttributeIn
 public import Lean.Linter.EnvLinter
 public import Lean.Linter.PersistentLintLog
+public import Lean.Linter.Clippy

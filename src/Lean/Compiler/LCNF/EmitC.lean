@@ -420,7 +420,6 @@ where
       for h : idx in 0...chunks do
         have : idx * 8 + 7 < scalarArgs.size := by
           have : idx < scalarArgs.size / 8 := Std.Rco.lt_upper_of_mem h
-          simp at this
           omega
         let b1 := scalarArgs[idx * 8]
         let b2 := scalarArgs[idx * 8 + 1]

@@ -359,7 +359,7 @@ instance (priority := high) {p} [Semiring α] [AddRightCancel α] [IsCharP α p]
         replace h := AddRightCancel.add_right_cancel _ _ _ h
         simp [Semiring.ofNat_eq_natCast, h]
       have := IsCharP.ofNat_ext_iff p |>.mp h
-      simp at this; assumption
+      exact this
     next =>
       intro h
       have := IsCharP.ofNat_ext_iff (α := α) p |>.mpr h

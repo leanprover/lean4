@@ -1,0 +1,23 @@
+name = "lint"
+builtinLint = false
+defaultTargets = ["Main", "Clean", "Linters", "ClippyViolations", "TextLints"]
+
+[[require]]
+name = "dep"
+path = "dep"
+
+[[lean_lib]]
+name = "Main"
+globs = "Main.*"
+
+[[lean_lib]]
+name = "Clean"
+
+[[lean_lib]]
+name = "Linters"
+
+[[lean_lib]]
+name = "ClippyViolations"
+
+[[lean_lib]]
+name = "TextLints"

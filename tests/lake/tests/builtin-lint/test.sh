@@ -2,7 +2,6 @@
 source ../common.sh
 
 ./clean.sh
-cp -r input/* .
 
 # --builtin-lint drives the build itself; we do not need to `lake build` first.
 # Linting Clean should succeed (no violations) and implicitly build Clean.
@@ -85,6 +84,8 @@ test_run lint --builtin-only Clean
 lake_out lint --builtin-only ClippyViolations || true
 no_match_pat 'badNameClippy' produced.out
 no_match_pat 'clippy text linter saw a declaration' produced.out
+# Builtin clippy text linter `unnecessarySeqFocus` is non-default, so silent.
+no_match_pat 'tac1 <;> tac2' produced.out
 # Builtin clippy env linter `dupNamespace` is non-default, so it stays silent.
 no_match_pat 'Dup.Dup.violation' produced.out
 
@@ -94,6 +95,10 @@ lake_out lint --clippy ClippyViolations || true
 match_pat 'badNameClippy' produced.out
 match_pat "declaration name ends with 'Clippy'" produced.out
 match_pat 'clippy text linter saw a declaration' produced.out
+# Builtin clippy text linter `unnecessarySeqFocus` fires under --clippy: its
+# tag `linter.clippy.unnecessarySeqFocus` is matched by the `linter.clippy`
+# prefix filter.
+match_pat 'tac1 <;> tac2' produced.out
 # Builtin `dupNamespace` env linter fires under --clippy.
 match_pat 'Dup.Dup.violation' produced.out
 match_pat "namespace .*Dup.* is duplicated" produced.out
@@ -113,7 +118,13 @@ no_match_pat 'missing doc string' produced.out
 lake_out lint --lint-all ClippyViolations || true
 match_pat 'badNameClippy' produced.out
 match_pat 'clippy text linter saw a declaration' produced.out
-match_pat 'Dup.Dup.violation' produced.out
+match_pat 'tac1 <;> tac2' produced.out
+
+# --lint-only unnecessarySeqFocus runs only the clippy text linter.
+lake_out lint --lint-only unnecessarySeqFocus ClippyViolations || true
+match_pat 'tac1 <;> tac2' produced.out
+no_match_pat 'badNameClippy' produced.out
+no_match_pat 'Dup.Dup.violation' produced.out
 
 # --lint-only dupNamespace runs only the builtin clippy `dupNamespace` env linter.
 lake_out lint --lint-only dupNamespace ClippyViolations || true
@@ -175,27 +186,22 @@ lake_out lint --lint-only defLemma || true
 match_pat 'shouldBeTheorem' produced.out
 
 # builtinLint = false: check-lint fails (no lint driver and builtin linting disabled)
-sed_i 's/^name = .*/&\nbuiltinLint = false/' lakefile.toml
-test_fails check-lint
+test_fails -f lakefile-builtin-false.toml check-lint
 
 # builtinLint = false: lake lint errors
-lake_out lint || true
+lake_out -f lakefile-builtin-false.toml lint || true
 match_pat 'no lint driver configured' produced.out
 
 # builtinLint = false with --builtin-lint flag: overrides and runs builtin lints
-lake_out lint --builtin-lint || true
+lake_out -f lakefile-builtin-false.toml lint --builtin-lint || true
 match_pat 'shouldBeTheorem' produced.out
 
 # builtinLint = true: check-lint succeeds even without a lint driver
-sed_i 's/builtinLint = false/builtinLint = true/' lakefile.toml
-test_run check-lint
+test_run -f lakefile-builtin-true.toml check-lint
 
 # builtinLint = true: lake lint runs builtin lints
-lake_out lint || true
+lake_out -f lakefile-builtin-true.toml lint || true
 match_pat 'shouldBeTheorem' produced.out
-
-# Restore original lakefile
-cp input/lakefile.toml lakefile.toml
 
 # --- builtinLint = true with a lint driver ---
 

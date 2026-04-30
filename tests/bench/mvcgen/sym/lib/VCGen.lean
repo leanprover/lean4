@@ -356,7 +356,7 @@ meta def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : Ex
     let u := us[0]!
     let wp := mkApp5 (mkConst ``WP.wp us) m ps instWP α prog
     let wpApplyQ := mkApp4 (mkConst ``PredTrans.apply [u]) ps α wp Q  -- wp⟦prog⟧ Q
-    let Pss := mkAppN P ss  -- P s₁ ... sₙ
+    let Pss := P.beta ss  -- P s₁ ... sₙ
     let typeP ← preprocessExpr (mkApp (mkConst ``SPred [u]) σs)
       -- Note that this is the type of `P s₁ ... sₙ`,
       -- which is `Assertion ps'`, but we don't know `ps'`
@@ -393,7 +393,7 @@ meta def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : Ex
       let mut prf := spec
       let P := Pss  -- P s₁ ... sₙ
       let wpApplyQ := mkAppN wpApplyQ ss  -- wp⟦prog⟧ Q s₁ ... sₙ
-      prf := mkAppN prf ss -- Turn `⦃P⦄ prog ⦃Q⦄` into `P s₁ ... sₙ ⊢ₛ wp⟦prog⟧ Q s₁ ... sₙ`
+      prf := prf.beta ss -- Turn `⦃P⦄ prog ⦃Q⦄` into `P s₁ ... sₙ ⊢ₛ wp⟦prog⟧ Q s₁ ... sₙ`
       let mut newP := P
       let mut newQ := Q
       if needPreVC then
@@ -885,6 +885,18 @@ meta def consIntroAndSimpStep (goal : MVarId) : VCGenM (Option MVarId) := do
     goal := g''
   return some goal
 
+meta def neededStateIntro (thm : SpecTheoremNew) (goal : MVarId) (excessArgs : Array Expr) : VCGenM (Option MVarId) := do
+  let .triple potential := thm.kind | return none
+  let mut n := potential - excessArgs.size
+  if n = 0 then return none
+  let mut goal := goal
+  while n > 0 do
+    n := n - 1
+    let some g ← consIntroAndSimpStep goal
+      | throwError "Failed to introduce state at {goal} despite {n+1} spec potential"
+    goal := g
+  return some goal
+
 /--
 Break down `H ⊢ₛ T` as far as possible, reporting `none` when no progress was made.
 1. If `H` is pure `⌜φ₁⌝`, turn the goal into `h : φ₁ ⊢ ⊢ₛ T`.
@@ -1114,7 +1126,11 @@ meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
     | .error thms => return .noSpecFoundForProgram e m thms
     | .ok thm =>
     trace[Elab.Tactic.Do.vcgen] "Spec for {e}: {thm.proof}"
+    if let some goal ← neededStateIntro thm goal excessArgs then
+      trace[Elab.Tactic.Do.vcgen] "Needed state intro. Retrying."
+      return .goals [goal]
     let rule ← mkBackwardRuleFromSpecCached thm m σs ps instWP excessArgs
+    trace[Elab.Tactic.Do.vcgen] "Rule type: {← Meta.inferType rule.expr}"
     let ApplyResult.goals goals ← rule.apply goal
       | throwError "Failed to apply rule {rule.expr} for {indentExpr e}"
     return .goals goals

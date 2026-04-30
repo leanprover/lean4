@@ -698,7 +698,7 @@ After leaving the loop, the cursor's prefix is `xs` and the suffix is empty.
 During the induction step, the invariant holds for a suffix with head element `x`.
 After running the loop body, the invariant then holds after shifting `x` to the prefix.
 -/
-@[spec_invariant_type, simp]
+@[spec_invariant_type, simp, grind =]
 def Invariant {α : Type u₁} (xs : List α) (β : Type u₂) (ps : PostShape.{max u₁ u₂}) :=
   PostCond (List.Cursor xs × β) ps
 
@@ -2030,7 +2030,7 @@ A loop invariant is a `PostCond` that takes as parameters
 * A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
   `let mut` variables and early return.
 -/
-@[spec_invariant_type, simp]
+@[spec_invariant_type, simp, grind =]
 def StringInvariant (s : String) (β : Type u) (ps : PostShape.{u}) :=
   PostCond (s.Pos × β) ps
 
@@ -2117,7 +2117,7 @@ A loop invariant is a `PostCond` that takes as parameters
 * A state tuple of type `β`, which will be a nesting of `MProd`s representing the elaboration of
   `let mut` variables and early return.
 -/
-@[spec_invariant_type, simp]
+@[spec_invariant_type, simp, grind =]
 def StringSliceInvariant (s : String.Slice) (β : Type u) (ps : PostShape.{u}) :=
   PostCond (s.Pos × β) ps
 

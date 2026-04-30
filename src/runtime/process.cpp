@@ -10,6 +10,12 @@ Author: Jared Roesch
 #include <iomanip>
 #include <utility>
 #include <system_error>
+#include <vector>
+#include <unordered_map>
+#include <cstring>
+#include <optional>
+#include <mutex>
+#include <condition_variable>
 
 #if defined(LEAN_WINDOWS)
 #include <unordered_map>
@@ -33,6 +39,7 @@ Author: Jared Roesch
 
 #include "runtime/object.h"
 #include "runtime/io.h"
+#include "runtime/uv/event_loop.h"
 #include "runtime/array_ref.h"
 #include "runtime/string_ref.h"
 #include "runtime/option_ref.h"
@@ -41,11 +48,42 @@ Author: Jared Roesch
 
 namespace lean {
 
+#if !defined(LEAN_WINDOWS)
+extern "C" char **environ;
+#endif
+
 enum stdio {
     PIPED,
     INHERIT,
     NUL,
 };
+
+struct lean_process_child_object {
+    uv_process_t * m_uv_process;
+    std::mutex m_mutex;
+    std::condition_variable m_cv;
+    bool m_exited;
+    int64_t m_exit_status;
+
+    lean_process_child_object() : m_uv_process(nullptr), m_exited(false), m_exit_status(0) {}
+};
+
+static lean_external_class * g_process_child_external_class = nullptr;
+
+static void process_child_finalizer(void * ptr) {
+    lean_process_child_object * child = static_cast<lean_process_child_object *>(ptr);
+    event_loop_lock(&global_ev);
+    if (child->m_uv_process) {
+        uv_close((uv_handle_t*)child->m_uv_process, [](uv_handle_t* handle) {
+            free(handle);
+        });
+    }
+    event_loop_unlock(&global_ev);
+    delete child;
+}
+
+static void process_child_foreach(void * /* mod */, b_obj_arg /* fn */) {
+}
 
 #if defined(LEAN_WINDOWS)
 
@@ -88,228 +126,13 @@ extern "C" LEAN_EXPORT uint64_t lean_io_get_tid() {
     return GetCurrentThreadId();
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child) {
-    HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
-    DWORD exit_code;
-    if (WaitForSingleObject(h, INFINITE) == WAIT_FAILED) {
-        return io_result_mk_error((sstream() << GetLastError()).str());
-    }
-    if (!GetExitCodeProcess(h, &exit_code)) {
-        return io_result_mk_error((sstream() << GetLastError()).str());
-    }
-    return lean_io_result_mk_ok(box_uint32(exit_code));
-}
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child) {
-    HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
-    DWORD exit_code;
-    DWORD ret = WaitForSingleObject(h, 0);
-    if (ret == WAIT_FAILED) {
-        return io_result_mk_error((sstream() << GetLastError()).str());
-    } else if (ret == WAIT_TIMEOUT) {
-        return io_result_mk_ok(mk_option_none());
-    } else {
-        if (!GetExitCodeProcess(h, &exit_code)) {
-            return io_result_mk_error((sstream() << GetLastError()).str());
-        }
-        return lean_io_result_mk_ok(mk_option_some(box_uint32(exit_code)));
-    }
-}
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child) {
-    HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
-    if (!TerminateProcess(h, 1)) {
-        return io_result_mk_error((sstream() << GetLastError()).str());
-    }
-    return lean_io_result_mk_ok(box(0));
-}
 
-extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
-    HANDLE h = static_cast<HANDLE>(lean_get_external_data(cnstr_get(child, 3)));
-    return GetProcessId(h);
-}
-
-static FILE * from_win_handle(HANDLE handle, char const * mode) {
-    int fd = _open_osfhandle(reinterpret_cast<intptr_t>(handle), _O_APPEND);
-    return fdopen(fd, mode);
-}
-
-static void setup_stdio(SECURITY_ATTRIBUTES * saAttr, HANDLE * theirs, object ** ours, bool in, stdio cfg) {
-    /* Setup stdio based on process configuration. */
-    switch (cfg) {
-    case stdio::INHERIT:
-        lean_always_assert(DuplicateHandle(GetCurrentProcess(), *theirs,
-                                           GetCurrentProcess(), theirs,
-                                           0, TRUE, DUPLICATE_SAME_ACCESS));
-        return;
-    case stdio::PIPED: {
-        HANDLE readh;
-        HANDLE writeh;
-        if (!CreatePipe(&readh, &writeh, saAttr, 0))
-            throw std::system_error(GetLastError(), std::system_category());
-        *ours = io_wrap_handle(in ? from_win_handle(writeh, "w") : from_win_handle(readh, "r"));
-        *theirs = in ? readh : writeh;
-        // Ensure the write handle to the pipe for STDIN is not inherited.
-        lean_always_assert(SetHandleInformation(in ? writeh : readh, HANDLE_FLAG_INHERIT, 0));
-        return;
-    }
-    case stdio::NUL:
-        HANDLE hNul = CreateFile("NUL",
-                                 in ? GENERIC_READ : GENERIC_WRITE,
-                                 0, // TODO(WN): does NUL have to be shared?
-                                 saAttr,
-                                 OPEN_EXISTING,
-                                 FILE_ATTRIBUTE_NORMAL,
-                                 NULL);
-        if (hNul == INVALID_HANDLE_VALUE)
-            throw std::system_error(GetLastError(), std::system_category());
-        *theirs = hNul;
-        return;
-    }
-    lean_unreachable();
-}
-
-// This code is adapted from: https://msdn.microsoft.com/en-us/library/windows/desktop/ms682499(v=vs.85).aspx
-static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
-                     stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
-                     bool inherit_env, bool _do_setsid) {
-    HANDLE child_stdin  = GetStdHandle(STD_INPUT_HANDLE);
-    HANDLE child_stdout = GetStdHandle(STD_OUTPUT_HANDLE);
-    HANDLE child_stderr = GetStdHandle(STD_ERROR_HANDLE);
-
-    SECURITY_ATTRIBUTES saAttr;
-
-    // Set the bInheritHandle flag so pipe/NUL handles are inherited.
-    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-    saAttr.bInheritHandle = TRUE;
-    saAttr.lpSecurityDescriptor = NULL;
-
-    object * parent_stdin  = box(0); setup_stdio(&saAttr, &child_stdin,  &parent_stdin,  true, stdin_mode);
-    object * parent_stdout = box(0); setup_stdio(&saAttr, &child_stdout, &parent_stdout, false, stdout_mode);
-    object * parent_stderr = box(0); setup_stdio(&saAttr, &child_stderr, &parent_stderr, false, stderr_mode);
-
-    std::string program = proc_name.to_std_string();
-
-    // Always escape program in cmdline, in case it contains spaces
-    std::string command = "\"";
-    command += program;
-    command += "\"";
-
-    // This needs some thought, on Windows we must pass a command string
-    // which is a valid command, that is a fully assembled command to be executed.
-    //
-    // We must escape the arguments to preserving spacing and other characters,
-    // we might need to revisit escaping here.
-    for (auto arg : args) {
-        command += " \"";
-        for (char const * c = arg.data(); *c != 0; c++) {
-            if (*c == '"') {
-                command += '\\';
-            }
-            command += *c;
-        }
-        command += "\"";
-    }
-
-    PROCESS_INFORMATION piProcInfo;
-    STARTUPINFO siStartInfo;
-
-    // Set up members of the PROCESS_INFORMATION structure.
-    ZeroMemory(&piProcInfo, sizeof(PROCESS_INFORMATION));
-
-    // Set up members of the STARTUPINFO structure.
-    // This structure specifies the STDIN and STDOUT handles for redirection.
-
-    ZeroMemory(&siStartInfo, sizeof(STARTUPINFO));
-    siStartInfo.cb = sizeof(STARTUPINFO);
-    siStartInfo.hStdInput = child_stdin;
-    siStartInfo.hStdOutput = child_stdout;
-    siStartInfo.hStdError = child_stderr;
-    siStartInfo.dwFlags |= STARTF_USESTDHANDLES;
-
-    std::unique_ptr<char[]> new_env(nullptr);
-
-    if (env.size() || !inherit_env) {
-        static constexpr auto env_buf_size = 0x7fff; // according to MS docs 0x7fff is the max total size of env block
-        new_env = std::make_unique<char[]>(env_buf_size);
-        char *new_envp = new_env.get();
-
-        if (env.size()) {
-            std::unordered_map<std::string, option_ref<string_ref>> new_env_vars; // C++17 gives us no-copy std::string_view for this, much better!
-            for (auto & entry : env) {
-                new_env_vars[entry.fst().data()] = entry.snd();
-            }
-
-            // First copy old evars not in new evars.
-            if (inherit_env) {
-                auto *esp = GetEnvironmentStrings();
-                char *key_begin = esp;
-                while (*key_begin) {
-                    char *key_end = strchr(key_begin, '=');
-                    char *entry_end = key_end + strlen(key_end);
-                    if (!new_env_vars.count({key_begin, key_end})) {
-                        new_envp = std::copy(key_begin, entry_end + 1, new_envp);
-                    }
-                    key_begin = entry_end + 1;
-                }
-                FreeEnvironmentStrings(esp);
-            }
-
-            // Then copy new evars if nonempty
-            for(const auto & ev : new_env_vars) {
-                if (!ev.second) continue;
-                std::string val = ev.second.get()->data();
-                // Check if the destination buffer has enough room.
-                if (new_envp + ev.first.length() + 1 + val.length() + 1 > new_env.get() + env_buf_size - 1) break;
-                new_envp = std::copy(ev.first.cbegin(), ev.first.cend(), new_envp);
-                *new_envp++ = '=';
-                new_envp = std::copy(val.cbegin(), val.cend(), new_envp);
-                *new_envp++ = '\0';
-            }
-        }
-
-        *new_envp = '\0';
-    }
-
-    // Create the child process.
-    bool bSuccess = CreateProcess(
-        // Passing `program` here should be more robust, but would require adding a `.exe` extension
-        // and searching through `PATH` where necessary
-        NULL,
-        const_cast<char *>(command.c_str()), // command line
-        NULL,                                // process security attributes
-        NULL,                                // primary thread security attributes
-        TRUE,                                // handles are inherited
-        0,                                   // creation flags
-        new_env.get(),                       // new environment
-        cwd ? cwd.get()->data() : NULL,      // current directory
-        &siStartInfo,                        // STARTUPINFO pointer
-        &piProcInfo);                        // receives PROCESS_INFORMATION
-
-    if (!bSuccess) {
-        throw std::system_error(GetLastError(), std::system_category());
-    }
-
-    // Close handle to primary thread, we don't need it.
-    CloseHandle(piProcInfo.hThread);
-
-    if (stdin_mode  == stdio::PIPED) CloseHandle(child_stdin);
-    if (stdout_mode == stdio::PIPED) CloseHandle(child_stdout);
-    if (stderr_mode == stdio::PIPED) CloseHandle(child_stderr);
-
-    object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, wrap_win_handle(piProcInfo.hProcess));
-    return lean_io_result_mk_ok(r.steal());
-}
-
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild) {
-    object_ref child(lchild);
-    object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), cnstr_get_ref(child, 3));
-    object_ref r = mk_cnstr(0, cnstr_get_ref(child, 0), child2);
-    return lean_io_result_mk_ok(r.steal());
-}
 
 void initialize_process() {
     g_win_handle_external_class = lean_register_external_class(win_handle_finalizer, win_handle_foreach);
+    g_process_child_external_class = lean_register_external_class(process_child_finalizer, process_child_foreach);
 }
 void finalize_process() {}
 
@@ -351,170 +174,169 @@ extern "C" LEAN_EXPORT uint64_t lean_io_get_tid() {
     return tid;
 }
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child) {
-    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
-    pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
-    int status;
-    if (waitpid(pid, &status, 0) == -1) {
-        return io_result_mk_error(decode_io_error(errno, nullptr));
-    }
-    if (WIFEXITED(status)) {
-        return lean_io_result_mk_ok(box_uint32(static_cast<unsigned>(WEXITSTATUS(status))));
-    } else {
-        lean_assert(WIFSIGNALED(status));
-        // use bash's convention
-        return lean_io_result_mk_ok(box_uint32(128 + static_cast<unsigned>(WTERMSIG(status))));
-    }
-}
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child) {
-    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
-    pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
-    int status;
-    int ret = waitpid(pid, &status, WNOHANG);
-    if (ret == -1) {
-        return io_result_mk_error(decode_io_error(errno, nullptr));
-    } else if (ret == 0) {
-        return io_result_mk_ok(mk_option_none());
-    } else {
-        if (WIFEXITED(status)) {
-            obj_res output = box_uint32(static_cast<unsigned>(WEXITSTATUS(status)));
-            return lean_io_result_mk_ok(mk_option_some(output));
-        } else {
-            lean_assert(WIFSIGNALED(status));
-            // use bash's convention
-            obj_res output = box_uint32(128 + static_cast<unsigned>(WTERMSIG(status)));
-            return lean_io_result_mk_ok(mk_option_some(output));
-        }
-    }
-}
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child) {
-    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
-    pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
-    bool setsid = cnstr_get_uint8(child, 3 * sizeof(object *) + sizeof(pid_t));
-    if ((setsid ? killpg(pid, SIGKILL) : kill(pid, SIGKILL)) == -1) {
-        return io_result_mk_error(decode_io_error(errno, nullptr));
-    }
-    return lean_io_result_mk_ok(box(0));
-}
 
-extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
-    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
-    pid_t pid = cnstr_get_uint32(child, 3 * sizeof(object *));
-    return pid;
+
+void initialize_process() {
+    g_process_child_external_class = lean_register_external_class(process_child_finalizer, process_child_foreach);
 }
+void finalize_process() {}
+
+#endif
 
 struct pipe { int m_read_fd; int m_write_fd; };
 
-static optional<pipe> setup_stdio(stdio cfg) {
-    /* Setup stdio based on process configuration. */
-    switch (cfg) {
-    case stdio::INHERIT:
-        /* We should need to do nothing in this case */
-        return optional<pipe>();
-    case stdio::PIPED:
-        int fds[2];
-#ifdef __APPLE__
-        // this is inherently racy, but there is nothing we can do on MacOS
-        if (::pipe(fds) == -1) { throw errno; }
-        if (::fcntl(fds[0], F_SETFD, FD_CLOEXEC)) { throw errno; }
-        if (::fcntl(fds[1], F_SETFD, FD_CLOEXEC)) { throw errno; }
+static pipe create_pipe() {
+    int fds[2];
+#if defined(LEAN_WINDOWS)
+    HANDLE readh, writeh;
+    SECURITY_ATTRIBUTES saAttr;
+    saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
+    saAttr.bInheritHandle = TRUE;
+    saAttr.lpSecurityDescriptor = NULL;
+    if (!CreatePipe(&readh, &writeh, &saAttr, 0))
+        throw std::system_error(GetLastError(), std::system_category());
+    fds[0] = _open_osfhandle(reinterpret_cast<intptr_t>(readh), 0);
+    fds[1] = _open_osfhandle(reinterpret_cast<intptr_t>(writeh), 0);
 #else
-        if (::pipe2(fds, O_CLOEXEC) == -1) { throw errno; }
+    if (pipe2(fds, O_CLOEXEC) == -1) throw errno;
 #endif
-        return optional<pipe>(pipe { fds[0], fds[1] });
-    case stdio::NUL:
-        /* We should map /dev/null. */
-        return optional<pipe>();
-    }
-    lean_unreachable();
+    return pipe { fds[0], fds[1] };
 }
 
-#ifdef __APPLE__
-extern "C" char **environ;
-#endif
+static std::pair<std::optional<pipe>, uv_stdio_container_t> setup_stdio(stdio cfg, int default_fd, bool is_in) {
+    std::optional<pipe> p;
+    uv_stdio_container_t container;
+    memset(&container, 0, sizeof(uv_stdio_container_t));
+
+    if (cfg == stdio::PIPED) {
+        p = create_pipe();
+        container.flags = UV_INHERIT_FD;
+        container.data.fd = is_in ? p->m_read_fd : p->m_write_fd;
+    } else if (cfg == stdio::NUL) {
+        container.flags = UV_IGNORE;
+    } else {
+        container.flags = UV_INHERIT_FD;
+        container.data.fd = default_fd;
+    }
+    return { p, container };
+}
 
 static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const & args, stdio stdin_mode, stdio stdout_mode,
-  stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
-  bool inherit_env, bool do_setsid) {
-    /* Setup stdio based on process configuration. */
-    auto stdin_pipe  = setup_stdio(stdin_mode);
-    auto stdout_pipe = setup_stdio(stdout_mode);
-    auto stderr_pipe = setup_stdio(stderr_mode);
+                     stdio stderr_mode, option_ref<string_ref> const & cwd, array_ref<pair_ref<string_ref, option_ref<string_ref>>> const & env,
+                     bool inherit_env, bool do_setsid) {
 
-    // It is crucial to not allocate between `fork` and `execvp` for ASAN to work.
-    buffer<char *> pargs;
-    pargs.push_back(strdup(proc_name.data()));
+    uv_stdio_container_t child_stdio[3];
+
+    auto stdin_res = setup_stdio(stdin_mode, 0, true);
+    std::optional<pipe> stdin_pipe = stdin_res.first;
+    child_stdio[0] = stdin_res.second;
+
+    auto stdout_res = setup_stdio(stdout_mode, 1, false);
+    std::optional<pipe> stdout_pipe = stdout_res.first;
+    child_stdio[1] = stdout_res.second;
+
+    auto stderr_res = setup_stdio(stderr_mode, 2, false);
+    std::optional<pipe> stderr_pipe = stderr_res.first;
+    child_stdio[2] = stderr_res.second;
+
+
+    std::vector<std::string> pargs_strs;
+    pargs_strs.push_back(proc_name.to_std_string());
     for (auto & arg : args)
-        pargs.push_back(strdup(arg.data()));
+        pargs_strs.push_back(arg.to_std_string());
+
+    buffer<char*> pargs;
+    pargs.ensure_capacity(pargs_strs.size() + 1);
+    for (auto & s : pargs_strs)
+        pargs.push_back(const_cast<char*>(s.c_str()));
     pargs.push_back(NULL);
 
-    int pid = fork();
+    std::vector<std::string> penv_strs;
+    buffer<char*> penv;
 
-    if (pid == 0) {
-        if (!inherit_env) {
-#ifdef __APPLE__
-            environ = NULL;
+    if (env.size() || !inherit_env) {
+        std::unordered_map<std::string, std::string> env_map;
+
+        if (inherit_env) {
+#if defined(LEAN_WINDOWS)
+            auto *esp = GetEnvironmentStrings();
+            char *key_begin = esp;
+            while (*key_begin) {
+                char *key_end = strchr(key_begin, '=');
+                char *entry_end = key_end + strlen(key_end);
+                env_map[std::string(key_begin, key_end)] = std::string(key_end + 1, entry_end);
+                key_begin = entry_end + 1;
+            }
+            FreeEnvironmentStrings(esp);
 #else
-            clearenv();
+
+            for (char **e = environ; *e; ++e) {
+                char *key_end = strchr(*e, '=');
+                if (key_end) {
+                    env_map[std::string(*e, key_end)] = std::string(key_end + 1);
+                }
+            }
 #endif
         }
+
         for (auto & entry : env) {
             if (entry.snd()) {
-                setenv(entry.fst().data(), entry.snd().get()->data(), true);
+                env_map[entry.fst().to_std_string()] = entry.snd().get()->to_std_string();
             } else {
-                unsetenv(entry.fst().data());
+                env_map.erase(entry.fst().to_std_string());
             }
         }
 
-        if (stdin_pipe) {
-            dup2(stdin_pipe->m_read_fd, STDIN_FILENO);
-            close(stdin_pipe->m_write_fd);
-        } else if (stdin_mode == stdio::NUL) {
-            int fd = open("/dev/null", O_RDONLY);
-            dup2(fd, STDIN_FILENO);
+        penv_strs.reserve(env_map.size());
+        for (auto & pair : env_map) {
+            penv_strs.push_back(std::move(pair.first) + "=" + std::move(pair.second));
         }
 
-        if (stdout_pipe) {
-            dup2(stdout_pipe->m_write_fd, STDOUT_FILENO);
-            close(stdout_pipe->m_read_fd);
-        } else if (stdout_mode == stdio::NUL) {
-            int fd = open("/dev/null", O_WRONLY);
-            dup2(fd, STDOUT_FILENO);
+        penv.ensure_capacity(penv_strs.size() + 1);
+        for (auto & s : penv_strs) {
+            penv.push_back(const_cast<char*>(s.c_str()));
         }
-
-        if (stderr_pipe) {
-            dup2(stderr_pipe->m_write_fd, STDERR_FILENO);
-            close(stderr_pipe->m_read_fd);
-        } else if (stderr_mode == stdio::NUL) {
-            int fd = open("/dev/null", O_WRONLY);
-            dup2(fd, STDERR_FILENO);
-        }
-
-        if (cwd) {
-            if (chdir(cwd.get()->data()) < 0) {
-                std::cerr << "could not change directory to " << cwd.get()->data() << std::endl;
-                exit(-1);
-            }
-        }
-
-        if (do_setsid) {
-            lean_always_assert(setsid() >= 0);
-        }
-
-        if (execvp(pargs[0], pargs.data()) < 0) {
-            std::cerr << "could not execute external process '" << pargs[0] << "'" << std::endl;
-            exit(-1);
-        }
-    } else if (pid == -1) {
-        throw errno;
+        penv.push_back(NULL);
     }
 
-    for (char* parg : pargs) {
-        if (parg != NULL) {
-            free(parg);
-        }
+    uv_process_options_t options;
+    memset(&options, 0, sizeof(uv_process_options_t));
+    options.file = proc_name.data();
+    options.args = pargs.data();
+    options.env = penv.empty() ? NULL : penv.data();
+    options.cwd = cwd ? cwd.get()->data() : NULL;
+    options.stdio_count = 3;
+    options.stdio = child_stdio;
+
+    if (do_setsid) {
+        options.flags |= UV_PROCESS_DETACHED;
+    }
+
+    lean_process_child_object * child_obj = new lean_process_child_object();
+    child_obj->m_uv_process = (uv_process_t*)malloc(sizeof(uv_process_t));
+    child_obj->m_uv_process->data = child_obj;
+
+    options.exit_cb = [](uv_process_t* process, int64_t exit_status, int term_signal) {
+        lean_process_child_object * child = static_cast<lean_process_child_object *>(process->data);
+        std::lock_guard<std::mutex> lock(child->m_mutex);
+        child->m_exited = true;
+        child->m_exit_status = term_signal ? 128 + term_signal : exit_status;
+        child->m_cv.notify_all();
+    };
+
+    event_loop_lock(&global_ev);
+    int spawn_r = uv_spawn(global_ev.loop, child_obj->m_uv_process, &options);
+    event_loop_unlock(&global_ev);
+
+    if (spawn_r != 0) {
+        free(child_obj->m_uv_process);
+        delete child_obj;
+        if (stdin_pipe) { close(stdin_pipe->m_read_fd); close(stdin_pipe->m_write_fd); }
+        if (stdout_pipe) { close(stdout_pipe->m_read_fd); close(stdout_pipe->m_write_fd); }
+        if (stderr_pipe) { close(stderr_pipe->m_read_fd); close(stderr_pipe->m_write_fd); }
+        return lean_io_result_mk_error(lean_decode_uv_error(spawn_r, NULL));
     }
 
     object * parent_stdin  = box(0);
@@ -535,25 +357,62 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         parent_stderr = io_wrap_handle(fdopen(stderr_pipe->m_read_fd, "r"));
     }
 
-    object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, sizeof(pid_t) + sizeof(uint8_t));
-    static_assert(sizeof(pid_t) == sizeof(uint32), "pid_t is expected to be a 32-bit type"); // NOLINT
-    cnstr_set_uint32(r.raw(), 3 * sizeof(object *), pid);
-    cnstr_set_uint8(r.raw(), 3 * sizeof(object *) + sizeof(pid_t), do_setsid);
+    object * child_val = lean_alloc_external(g_process_child_external_class, child_obj);
+    object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, child_val);
     return lean_io_result_mk_ok(r.steal());
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild) {
     object_ref child(lchild);
-    object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), sizeof(pid_t));
-    cnstr_set_uint32(child2.raw(), 3 * sizeof(object *), cnstr_get_uint32(child.raw(), 3 * sizeof(object *)));
+    object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), cnstr_get_ref(child, 3));
     object_ref r = mk_cnstr(0, cnstr_get_ref(child, 0), child2);
     return lean_io_result_mk_ok(r.steal());
 }
 
-void initialize_process() {}
-void finalize_process() {}
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child) {
+    lean_object * child_obj = cnstr_get(child, 3);
+    lean_process_child_object * data = static_cast<lean_process_child_object *>(lean_get_external_data(child_obj));
 
-#endif
+    std::unique_lock<std::mutex> lock(data->m_mutex);
+    data->m_cv.wait(lock, [data] { return data->m_exited; });
+
+    return lean_io_result_mk_ok(box_uint32(data->m_exit_status));
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child) {
+    lean_object * child_obj = cnstr_get(child, 3);
+    lean_process_child_object * data = static_cast<lean_process_child_object *>(lean_get_external_data(child_obj));
+
+    std::lock_guard<std::mutex> lock(data->m_mutex);
+    if (data->m_exited) {
+        return lean_io_result_mk_ok(mk_option_some(box_uint32(data->m_exit_status)));
+    } else {
+        return lean_io_result_mk_ok(mk_option_none());
+    }
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child) {
+    lean_object * child_obj = cnstr_get(child, 3);
+    lean_process_child_object * data = static_cast<lean_process_child_object *>(lean_get_external_data(child_obj));
+
+    std::lock_guard<std::mutex> lock(data->m_mutex);
+    if (!data->m_exited && data->m_uv_process) {
+        int r = uv_process_kill(data->m_uv_process, SIGKILL);
+        if (r != 0) {
+            return lean_io_result_mk_error(lean_decode_uv_error(r, NULL));
+        }
+    }
+    return lean_io_result_mk_ok(box(0));
+}
+
+extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
+    lean_object * child_obj = cnstr_get(child, 3);
+    lean_process_child_object * data = static_cast<lean_process_child_object *>(lean_get_external_data(child_obj));
+    if (data->m_uv_process) {
+        return data->m_uv_process->pid;
+    }
+    return 0;
+}
 
 extern "C" lean_object* lean_mk_io_error_other_error(uint32_t, lean_object*);
 

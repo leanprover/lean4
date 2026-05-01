@@ -78,9 +78,9 @@ lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_Lean_NameSet_insert(lean_object*, lean_object*);
-lean_object* lean_array_pop(lean_object*);
 lean_object* lean_array_get_borrowed(lean_object*, lean_object*, lean_object*);
 uint8_t l_Lean_Syntax_isOfKind(lean_object*, lean_object*);
+lean_object* lean_array_pop(lean_object*);
 lean_object* l_Lean_Syntax_getArg(lean_object*, lean_object*);
 lean_object* l_Lean_TSyntax_getId(lean_object*);
 uint8_t l_Lean_NameSet_contains(lean_object*, lean_object*);
@@ -4410,12 +4410,12 @@ goto v___jp_1376_;
 }
 else
 {
-goto v___jp_1388_;
+goto v___jp_1386_;
 }
 }
 else
 {
-goto v___jp_1388_;
+goto v___jp_1386_;
 }
 v___jp_1376_:
 {
@@ -4466,43 +4466,42 @@ return v___x_1383_;
 }
 v___jp_1386_:
 {
-lean_object* v___x_1387_; 
-v___x_1387_ = lean_array_pop(v_snd_1348_);
-v_idents_1377_ = v___x_1387_;
-goto v___jp_1376_;
-}
-v___jp_1388_:
+lean_object* v___x_1387_; lean_object* v___x_1388_; lean_object* v___x_1389_; lean_object* v___x_1390_; lean_object* v___x_1391_; uint8_t v___x_1392_; 
+v___x_1387_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_ProofMode_getFreshHypName___closed__2));
+v___x_1388_ = lean_box(0);
+v___x_1389_ = lean_unsigned_to_nat(1u);
+v___x_1390_ = lean_nat_sub(v___x_1349_, v___x_1389_);
+v___x_1391_ = lean_array_get_borrowed(v___x_1388_, v_snd_1348_, v___x_1390_);
+lean_dec(v___x_1390_);
+lean_inc(v___x_1391_);
+v___x_1392_ = l_Lean_Syntax_isOfKind(v___x_1391_, v___x_1387_);
+if (v___x_1392_ == 0)
 {
-lean_object* v___x_1389_; lean_object* v___x_1390_; lean_object* v___x_1391_; lean_object* v___x_1392_; lean_object* v___x_1393_; uint8_t v___x_1394_; 
-v___x_1389_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_ProofMode_getFreshHypName___closed__2));
-v___x_1390_ = lean_box(0);
-v___x_1391_ = lean_unsigned_to_nat(1u);
-v___x_1392_ = lean_nat_sub(v___x_1349_, v___x_1391_);
-v___x_1393_ = lean_array_get_borrowed(v___x_1390_, v_snd_1348_, v___x_1392_);
-lean_dec(v___x_1392_);
-lean_inc(v___x_1393_);
-v___x_1394_ = l_Lean_Syntax_isOfKind(v___x_1393_, v___x_1389_);
-if (v___x_1394_ == 0)
-{
+lean_object* v___x_1393_; 
 lean_del_object(v___x_1374_);
 lean_dec_ref(v_p_1372_);
 lean_dec(v_uniq_1371_);
-goto v___jp_1386_;
+v___x_1393_ = lean_array_pop(v_snd_1348_);
+v_idents_1377_ = v___x_1393_;
+goto v___jp_1376_;
 }
 else
 {
-lean_object* v___x_1395_; lean_object* v___x_1396_; uint8_t v___x_1397_; 
-v___x_1395_ = l_Lean_Syntax_getArg(v___x_1393_, v___x_1350_);
-v___x_1396_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_ProofMode_getFreshHypName___closed__6));
-lean_inc(v___x_1395_);
-v___x_1397_ = l_Lean_Syntax_isOfKind(v___x_1395_, v___x_1396_);
-if (v___x_1397_ == 0)
+lean_object* v___x_1394_; lean_object* v___x_1395_; uint8_t v___x_1396_; 
+v___x_1394_ = l_Lean_Syntax_getArg(v___x_1391_, v___x_1350_);
+v___x_1395_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_ProofMode_getFreshHypName___closed__6));
+lean_inc(v___x_1394_);
+v___x_1396_ = l_Lean_Syntax_isOfKind(v___x_1394_, v___x_1395_);
+if (v___x_1396_ == 0)
 {
-lean_dec(v___x_1395_);
+lean_object* v___x_1397_; 
+lean_dec(v___x_1394_);
 lean_del_object(v___x_1374_);
 lean_dec_ref(v_p_1372_);
 lean_dec(v_uniq_1371_);
-goto v___jp_1386_;
+v___x_1397_ = lean_array_pop(v_snd_1348_);
+v_idents_1377_ = v___x_1397_;
+goto v___jp_1376_;
 }
 else
 {
@@ -4511,8 +4510,8 @@ lean_dec(v_name_1370_);
 lean_del_object(v___x_1368_);
 lean_del_object(v___x_1364_);
 lean_dec_ref(v_H_1344_);
-v___x_1398_ = l_Lean_TSyntax_getId(v___x_1395_);
-lean_dec(v___x_1395_);
+v___x_1398_ = l_Lean_TSyntax_getId(v___x_1394_);
+lean_dec(v___x_1394_);
 if (v_isShared_1375_ == 0)
 {
 lean_ctor_set(v___x_1374_, 0, v___x_1398_);

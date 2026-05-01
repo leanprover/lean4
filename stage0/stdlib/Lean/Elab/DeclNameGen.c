@@ -2584,9 +2584,9 @@ return v___x_622_;
 LEAN_EXPORT lean_object* l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___lam__0___boxed(lean_object* v_body_636_, lean_object* v_binderName_637_, lean_object* v_binderInfo_638_, lean_object* v_binderType_639_, lean_object* v_arg_640_, lean_object* v___y_641_, lean_object* v___y_642_, lean_object* v___y_643_, lean_object* v___y_644_, lean_object* v___y_645_, lean_object* v___y_646_){
 _start:
 {
-uint8_t v_binderInfo_18864__boxed_647_; lean_object* v_res_648_; 
-v_binderInfo_18864__boxed_647_ = lean_unbox(v_binderInfo_638_);
-v_res_648_ = l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___lam__0(v_body_636_, v_binderName_637_, v_binderInfo_18864__boxed_647_, v_binderType_639_, v_arg_640_, v___y_641_, v___y_642_, v___y_643_, v___y_644_, v___y_645_);
+uint8_t v_binderInfo_18593__boxed_647_; lean_object* v_res_648_; 
+v_binderInfo_18593__boxed_647_ = lean_unbox(v_binderInfo_638_);
+v_res_648_ = l___private_Lean_Elab_DeclNameGen_0__Lean_Elab_Command_NameGen_winnowExpr_visit___lam__0(v_body_636_, v_binderName_637_, v_binderInfo_18593__boxed_647_, v_binderType_639_, v_arg_640_, v___y_641_, v___y_642_, v___y_643_, v___y_644_, v___y_645_);
 lean_dec(v___y_645_);
 lean_dec_ref(v___y_644_);
 lean_dec(v___y_643_);
@@ -6410,30 +6410,30 @@ goto v___jp_1972_;
 v___jp_1986_:
 {
 uint8_t v___x_1989_; 
-v___x_1989_ = lean_nat_dec_lt(v___x_1959_, v___y_1988_);
+v___x_1989_ = lean_nat_dec_lt(v___x_1959_, v___y_1987_);
 if (v___x_1989_ == 0)
 {
-lean_dec(v___y_1988_);
-lean_dec_ref(v___y_1987_);
+lean_dec_ref(v___y_1988_);
+lean_dec(v___y_1987_);
 goto v___jp_1983_;
 }
 else
 {
 if (v___x_1989_ == 0)
 {
-lean_dec(v___y_1988_);
-lean_dec_ref(v___y_1987_);
+lean_dec_ref(v___y_1988_);
+lean_dec(v___y_1987_);
 goto v___jp_1983_;
 }
 else
 {
 size_t v___x_1990_; size_t v___x_1991_; uint8_t v___x_1992_; 
 v___x_1990_ = ((size_t)0ULL);
-v___x_1991_ = lean_usize_of_nat(v___y_1988_);
-lean_dec(v___y_1988_);
+v___x_1991_ = lean_usize_of_nat(v___y_1987_);
+lean_dec(v___y_1987_);
 lean_inc(v___x_1982_);
-v___x_1992_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__4(v___x_1982_, v___y_1987_, v___x_1990_, v___x_1991_);
-lean_dec_ref(v___y_1987_);
+v___x_1992_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__4(v___x_1982_, v___y_1988_, v___x_1990_, v___x_1991_);
+lean_dec_ref(v___y_1988_);
 if (v___x_1992_ == 0)
 {
 goto v___jp_1983_;
@@ -6463,16 +6463,16 @@ v___x_1998_ = lean_array_get_size(v_a_1997_);
 v___x_1999_ = lean_nat_dec_lt(v___x_1959_, v___x_1998_);
 if (v___x_1999_ == 0)
 {
-v___y_1987_ = v_a_1997_;
-v___y_1988_ = v___x_1998_;
+v___y_1987_ = v___x_1998_;
+v___y_1988_ = v_a_1997_;
 goto v___jp_1986_;
 }
 else
 {
 if (v___x_1999_ == 0)
 {
-v___y_1987_ = v_a_1997_;
-v___y_1988_ = v___x_1998_;
+v___y_1987_ = v___x_1998_;
+v___y_1988_ = v_a_1997_;
 goto v___jp_1986_;
 }
 else
@@ -6483,8 +6483,8 @@ v___x_2001_ = lean_usize_of_nat(v___x_1998_);
 v___x_2002_ = l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any___at___00Lean_Elab_Command_NameGen_mkBaseNameWithSuffix_spec__5(v_a_1997_, v___x_2000_, v___x_2001_);
 if (v___x_2002_ == 0)
 {
-v___y_1987_ = v_a_1997_;
-v___y_1988_ = v___x_1998_;
+v___y_1987_ = v___x_1998_;
+v___y_1988_ = v_a_1997_;
 goto v___jp_1986_;
 }
 else

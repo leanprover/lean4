@@ -15,7 +15,7 @@ extern "C" {
 #endif
 lean_object* l_Lean_Expr_sort___override(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_whnfI(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_whnfR(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Expr_getAppFn(lean_object*);
 lean_object* l_Lean_Expr_getAppNumArgs(lean_object*);
 lean_object* lean_mk_array(lean_object*, lean_object*);
@@ -1420,7 +1420,7 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_PreDefinition_EqnsUtils_0__Lean_E
 _start:
 {
 lean_object* v___x_429_; 
-v___x_429_ = l_Lean_Meta_whnfI(v_e_423_, v_a_424_, v_a_425_, v_a_426_, v_a_427_);
+v___x_429_ = l_Lean_Meta_whnfR(v_e_423_, v_a_424_, v_a_425_, v_a_426_, v_a_427_);
 if (lean_obj_tag(v___x_429_) == 0)
 {
 lean_object* v_a_430_; lean_object* v___x_431_; 

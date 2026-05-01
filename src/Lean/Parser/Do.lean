@@ -275,10 +275,8 @@ with debug assertions enabled (see the `debugAssertions` option).
 
 @[builtin_doElem_parser] def doRepeat      := leading_parser
   "repeat " >> doSeq
-@[builtin_doElem_parser] def doWhileH      := leading_parser
-  "while " >> ident >> " : " >> withForbidden "do" termParser >> " do " >> doSeq
 @[builtin_doElem_parser] def doWhile       := leading_parser
-  "while " >> withForbidden "do" termParser >> " do " >> doSeq
+  "while " >> withForbidden "do" doIfCond >> " do " >> doSeq
 @[builtin_doElem_parser] def doRepeatUntil := leading_parser
   "repeat " >> doSeq >> ppDedent ppLine >> "until " >> termParser
 

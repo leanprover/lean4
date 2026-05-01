@@ -3413,8 +3413,8 @@ goto v___jp_645_;
 }
 else
 {
-lean_dec_ref(v___x_689_);
 lean_dec(v_tail_690_);
+lean_dec_ref(v___x_689_);
 lean_dec_ref(v_arg_674_);
 lean_dec_ref(v_arg_663_);
 lean_dec_ref(v_arg_660_);

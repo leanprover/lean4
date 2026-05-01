@@ -5046,6 +5046,7 @@ lean_ctor_set_uint8(v___x_1267_, sizeof(void*)*7 + 2, v_inTypeClassResolution_12
 lean_ctor_set_uint8(v___x_1267_, sizeof(void*)*7 + 3, v_cacheInferType_1264_);
 v___x_1268_ = l_Lean_Meta_reduceMatcher_x3f(v_val_1253_, v___x_1267_, v_a_1194_, v_a_1195_, v_a_1196_);
 lean_dec_ref(v___x_1267_);
+lean_dec(v_val_1253_);
 if (lean_obj_tag(v___x_1268_) == 0)
 {
 lean_object* v_a_1269_; 
@@ -6367,7 +6368,6 @@ goto v___jp_1583_;
 else
 {
 lean_object* v___x_1606_; 
-lean_inc_ref(v_e_1476_);
 v___x_1606_ = l_Lean_Meta_reduceRecMatcher_x3f(v_e_1476_, v___y_1602_, v___y_1603_, v___y_1604_, v___y_1605_);
 if (lean_obj_tag(v___x_1606_) == 0)
 {

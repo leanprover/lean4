@@ -174,14 +174,20 @@ structure SimpTheorem where
   `rfl` is true if `proof` is by `Eq.refl`, `rfl` or a `@[defeq]` theorem.
   -/
   rfl         : Bool
+  /--
+  `backwardRfl` is true if `proof` is by a `@[backward_defeq]` theorem (i.e. rfl at default,
+  but not instance, transparency). Honored by `dsimp` only when
+  `backward.defeqAttrib.useBackward` is set.
+  -/
+  backwardRfl : Bool := false
   deriving Inhabited
 
 mutual
-  private partial def isRflProofCore (type : Expr) (proof : Expr) : CoreM Bool := do
+  private partial def isRflProofCore (includeBackward : Bool) (type : Expr) (proof : Expr) : CoreM Bool := do
     match type with
     | .forallE _ _ type _ =>
       if let .lam _ _ proof _ := proof then
-        isRflProofCore type proof
+        isRflProofCore includeBackward type proof
       else
         return false
     | _ =>
@@ -190,23 +196,25 @@ mutual
           return true
         else if proof.isAppOfArity ``Eq.symm 4 then
           -- `Eq.symm` of rfl theorem is a rfl theorem
-          isRflProofCore type proof.appArg! -- small hack: we don't need to set the exact type
+          isRflProofCore includeBackward type proof.appArg! -- small hack: we don't need to set the exact type
         else if proof.getAppFn.isConst then
           -- The application of a `rfl` theorem is a `rfl` theorem
           -- A constant which is a `rfl` theorem is a `rfl` theorem
-          isRflTheoremCore proof.getAppFn.constName!
+          isRflTheoremCore includeBackward proof.getAppFn.constName!
         else
           return false
       else
         return false
 
-  private partial def isRflTheoremCore (declName : Name) : CoreM Bool := do
+  private partial def isRflTheoremCore (includeBackward : Bool) (declName : Name) : CoreM Bool := do
     if backward.dsimp.useDefEqAttr.get (← getOptions) then
-      return defeqAttr.hasTag (← getEnv) declName
+      let env ← getEnv
+      return defeqAttr.hasTag env declName ||
+        (includeBackward && backwardDefeqAttr.hasTag env declName)
     else
       let { kind := .thm, constInfo, .. } ← getAsyncConstInfo declName | return false
       let .thmInfo info ← traceBlock "isRflTheorem theorem body" constInfo | return false
-      isRflProofCore info.type info.value
+      isRflProofCore includeBackward info.type info.value
 end
 
 def isRflTheorem (declName : Name) : CoreM Bool :=
@@ -214,7 +222,12 @@ def isRflTheorem (declName : Name) : CoreM Bool :=
   -- for the ultimate application of a rfl theorem, only that the theorem type's LHS and RHS are
   -- defeq.
   withoutExporting do
-    isRflTheoremCore declName
+    isRflTheoremCore (includeBackward := false) declName
+
+/-- Like `isRflTheorem`, but also returns `true` for `@[backward_defeq]` theorems. -/
+def isBackwardRflTheorem (declName : Name) : CoreM Bool :=
+  withoutExporting do
+    isRflTheoremCore (includeBackward := true) declName
 
 def isRflProof (proof : Expr) : MetaM Bool := do
   -- Make theorem body available if `declName` is from the current module; the body does not matter
@@ -222,9 +235,18 @@ def isRflProof (proof : Expr) : MetaM Bool := do
   -- defeq.
   withoutExporting do
     if let .const declName .. := proof then
-      isRflTheoremCore declName
+      isRflTheoremCore (includeBackward := false) declName
     else
-      isRflProofCore (← inferType proof) proof
+      isRflProofCore (includeBackward := false) (← inferType proof) proof
+
+/-- Like `isRflProof`, but also returns `true` for proofs that are rfl only at default
+transparency (via `@[backward_defeq]`). -/
+def isBackwardRflProof (proof : Expr) : MetaM Bool := do
+  withoutExporting do
+    if let .const declName .. := proof then
+      isRflTheoremCore (includeBackward := true) declName
+    else
+      isRflProofCore (includeBackward := true) (← inferType proof) proof
 
 instance : ToFormat SimpTheorem where
   format s :=
@@ -405,6 +427,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
   let type ← instantiateMVars (← inferType e)
   let (keys, perm) ← mkSimpTheoremKeys type noIndexAtArgs checkLhs
   let rfl ← isRflProof proof
+  let backwardRfl ← if rfl then pure true else isBackwardRflProof proof
   if rfl && simp.rfl.checkTransparency.get (← getOptions) then
     forallTelescopeReducing type fun _ type => do
       let checkDefEq (lhs rhs : Expr) := do
@@ -419,7 +442,7 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
       | Iff lhs rhs => checkDefEq lhs rhs
       | _ =>
         logWarning m!"'{origin.key}' is a 'rfl' simp theorem, unexpected resulting type{indentExpr type}"
-  return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl }
+  return { origin, keys, perm, post, levelParams, proof, priority := prio, rfl, backwardRfl }
 
 /--
 Creates a `SimpTheorem` from a global theorem.
@@ -440,6 +463,8 @@ def mkSimpTheoremFromConst (declName : Name) (post := true) (inv := false)
         let auxName ← mkAuxLemma (kind? := `_simp) cinfo.levelParams type val (inferRfl := true)
           (forceExpose := true)  -- These kinds of theorems are small and `to_additive` may need to
                                  -- unfold them.
+          -- The `[defeq]` attribute transfers (should only matter for `[← thm]`)
+          (defeq := inv && defeqAttr.hasTag (← getEnv) declName)
         r := r.push <| (← do mkSimpTheoremCore origin (mkConst auxName us) #[] (mkConst auxName) post prio (noIndexAtArgs := false) (checkLhs := checkLhs))
       return r
     else

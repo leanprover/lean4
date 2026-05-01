@@ -8379,7 +8379,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Canon_0__Lean_Meta_Sym_Canon_
 _start:
 {
 lean_object* v___x_2429_; 
-lean_inc_ref(v_e_2420_);
 v___x_2429_ = l_Lean_Meta_reduceMatcher_x3f(v_e_2420_, v_a_2424_, v_a_2425_, v_a_2426_, v_a_2427_);
 if (lean_obj_tag(v___x_2429_) == 0)
 {
@@ -8406,7 +8405,7 @@ if (lean_obj_tag(v___x_2433_) == 0)
 {
 lean_object* v_a_2434_; lean_object* v___x_2435_; 
 v_a_2434_ = lean_ctor_get(v___x_2433_, 0);
-lean_inc_n(v_a_2434_, 2);
+lean_inc(v_a_2434_);
 lean_dec_ref(v___x_2433_);
 v___x_2435_ = l_Lean_Meta_reduceMatcher_x3f(v_a_2434_, v_a_2424_, v_a_2425_, v_a_2426_, v_a_2427_);
 if (lean_obj_tag(v___x_2435_) == 0)

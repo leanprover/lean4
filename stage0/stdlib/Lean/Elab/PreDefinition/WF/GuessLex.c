@@ -25954,16 +25954,16 @@ goto v_resetjp_9831_;
 }
 v_resetjp_9831_:
 {
-lean_object* v_a_9834_; lean_object* v___x_6867__overap_9835_; lean_object* v___x_9836_; 
+lean_object* v_a_9834_; lean_object* v___x_6732__overap_9835_; lean_object* v___x_9836_; 
 v_a_9834_ = lean_array_uget_borrowed(v_as_9813_, v_i_9815_);
-v___x_6867__overap_9835_ = lean_array_uget_borrowed(v_as_9813_, v_i_9815_);
-lean_inc(v___x_6867__overap_9835_);
+v___x_6732__overap_9835_ = lean_array_uget_borrowed(v_as_9813_, v_i_9815_);
+lean_inc(v___x_6732__overap_9835_);
 lean_inc(v___y_9820_);
 lean_inc_ref(v___y_9819_);
 lean_inc(v___y_9818_);
 lean_inc_ref(v___y_9817_);
 lean_inc(v___x_9811_);
-v___x_9836_ = lean_apply_6(v___x_6867__overap_9835_, v___x_9811_, v___y_9817_, v___y_9818_, v___y_9819_, v___y_9820_, lean_box(0));
+v___x_9836_ = lean_apply_6(v___x_6732__overap_9835_, v___x_9811_, v___y_9817_, v___y_9818_, v___y_9819_, v___y_9820_, lean_box(0));
 if (lean_obj_tag(v___x_9836_) == 0)
 {
 lean_object* v_a_9837_; lean_object* v___x_9839_; uint8_t v_isShared_9840_; uint8_t v_isSharedCheck_9880_; 

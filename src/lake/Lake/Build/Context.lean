@@ -27,6 +27,17 @@ public structure BuildConfig extends LogConfig where
   showSuccess : Bool := false
   /-- File to save input-to-output mappings from the build of the workspace's root -/
   outputsFile? : Option FilePath := none
+  /--
+  Per-package Lean option overrides, applied to every module whose owning
+  package's `baseName` appears as a key. When `recFetchSetup` builds module
+  `M`, the `LeanOptions` associated with `M.pkg.baseName` (if any) are appended
+  to `M.leanOptions`, overriding clashing entries.
+
+  Used by `lake lint` to inject `linter.clippy`/`linter.all` into every module
+  of a target package (so transitively-imported first-party modules capture
+  linter-tagged warnings), without touching dependencies.
+  -/
+  leanOptOverrides : Lean.NameMap Lean.LeanOptions := {}
 
 /--
 Whether the build should show progress information.
@@ -91,3 +102,7 @@ public instance [Pure m] : MonadLift LakeM (BuildT m) where
 
 @[inline] public def getIsQuiet [Functor m] [MonadBuild m] : m Bool :=
   (· == .quiet) <$> getVerbosity
+
+@[inline] public def getLeanOptOverrides [Functor m] [MonadBuild m]
+    : m (Lean.NameMap Lean.LeanOptions) :=
+  (·.leanOptOverrides) <$> getBuildConfig

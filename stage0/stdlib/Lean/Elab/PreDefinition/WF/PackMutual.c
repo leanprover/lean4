@@ -983,14 +983,14 @@ return v_res_252_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Elab_WF_packCalls_spec__1(lean_object* v_msg_254_, lean_object* v___y_255_, lean_object* v___y_256_, lean_object* v___y_257_, lean_object* v___y_258_){
 _start:
 {
-lean_object* v___f_260_; lean_object* v___x_1476__overap_261_; lean_object* v___x_262_; 
+lean_object* v___f_260_; lean_object* v___x_1447__overap_261_; lean_object* v___x_262_; 
 v___f_260_ = ((lean_object*)(l_panic___at___00Lean_Elab_WF_packCalls_spec__1___closed__0));
-v___x_1476__overap_261_ = lean_panic_fn_borrowed(v___f_260_, v_msg_254_);
+v___x_1447__overap_261_ = lean_panic_fn_borrowed(v___f_260_, v_msg_254_);
 lean_inc(v___y_258_);
 lean_inc_ref(v___y_257_);
 lean_inc(v___y_256_);
 lean_inc_ref(v___y_255_);
-v___x_262_ = lean_apply_5(v___x_1476__overap_261_, v___y_255_, v___y_256_, v___y_257_, v___y_258_, lean_box(0));
+v___x_262_ = lean_apply_5(v___x_1447__overap_261_, v___y_255_, v___y_256_, v___y_257_, v___y_258_, lean_box(0));
 return v___x_262_;
 }
 }
@@ -1276,13 +1276,13 @@ goto _start;
 LEAN_EXPORT lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_WF_packCalls_spec__2___boxed(lean_object* v___x_375_, lean_object* v_sz_376_, lean_object* v_i_377_, lean_object* v_bs_378_){
 _start:
 {
-uint8_t v___x_9929__boxed_379_; size_t v_sz_boxed_380_; size_t v_i_boxed_381_; lean_object* v_res_382_; 
-v___x_9929__boxed_379_ = lean_unbox(v___x_375_);
+uint8_t v___x_9900__boxed_379_; size_t v_sz_boxed_380_; size_t v_i_boxed_381_; lean_object* v_res_382_; 
+v___x_9900__boxed_379_ = lean_unbox(v___x_375_);
 v_sz_boxed_380_ = lean_unbox_usize(v_sz_376_);
 lean_dec(v_sz_376_);
 v_i_boxed_381_ = lean_unbox_usize(v_i_377_);
 lean_dec(v_i_377_);
-v_res_382_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_WF_packCalls_spec__2(v___x_9929__boxed_379_, v_sz_boxed_380_, v_i_boxed_381_, v_bs_378_);
+v_res_382_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lean_Elab_WF_packCalls_spec__2(v___x_9900__boxed_379_, v_sz_boxed_380_, v_i_boxed_381_, v_bs_378_);
 return v_res_382_;
 }
 }

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Linter.EnvLinter
+public import Lean.Linter.PersistentLintLog
 import Lean.CoreM
 import Lake.Config.Workspace
 
@@ -20,16 +21,37 @@ public structure Args where
   scope : Linter.EnvLinter.LintScope := .default
   /-- Run only the specified linters. -/
   only : Array Name := #[]
-  /-- Skip the up-to-date build check. -/
-  force : Bool := false
   /-- The list of root modules to lint. -/
   mods : Array Name := #[]
 
-/--
-Run the builtin environment linters on the given modules.
+public def leanOptOverrides (args : Args) : LeanOptions :=
+  let enableAll : Array LeanOption :=
+    #[⟨`linter.clippy, .ofBool true⟩, ⟨`linter.all, .ofBool true⟩]
+  if !args.only.isEmpty then
+    LeanOptions.ofArray enableAll
+  else
+    match args.scope with
+    | .default => {}
+    | .clippy  => LeanOptions.ofArray #[⟨`linter.clippy, .ofBool true⟩]
+    | .all     => LeanOptions.ofArray enableAll
 
-Assumes Lean's search path has already been properly configured.
--/
+private def collectTextLints
+    (env : Environment) (args : Args) (pkgRoot : Name) : Array Linter.LintEntry :=
+  let matchOnly (linter : Name) : Bool :=
+    args.only.isEmpty || args.only.any (fun n => n.isSuffixOf linter)
+  let matchScope (linter : Name) : Bool :=
+    if !args.only.isEmpty then true
+    else match args.scope with
+      | .default => linter != `linter.clippy
+      | .clippy  => linter == `linter.clippy
+      | .all     => true
+  Linter.getAllLints env |>.foldl (init := #[]) fun acc (mod, entries) =>
+    if pkgRoot.isPrefixOf mod then
+      entries.foldl (init := acc) fun acc e =>
+        if matchOnly e.linter && matchScope e.linter then acc.push e else acc
+    else
+      acc
+
 public def run (args : Args) : IO UInt32 := do
   let mods := args.mods
   if mods.isEmpty then
@@ -44,11 +66,19 @@ public def run (args : Args) : IO UInt32 := do
   for mod in mods do
     unsafe Lean.enableInitializersExecution
     let env ← importModules #[{ module := mod }, envLinterModule] {} (trustLevel := 1024) (loadExts := true)
-    let (result, _) ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
+
+    let textEntries := collectTextLints env args mod.getRoot
+    let textFailed := !textEntries.isEmpty
+    if textFailed then
+      IO.println s!"-- Text linter diagnostics in {mod}:"
+      for e in textEntries do
+        IO.print e.message.toString
+
+    let (declFailed, _) ← CoreM.toIO (ctx := { fileName := "", fileMap := default }) (s := { env }) do
       let decls ← Linter.EnvLinter.getDeclsInPackage mod.getRoot
       let linters ← Linter.EnvLinter.getChecks (scope := scope) (runOnly := runOnly)
       if linters.isEmpty then
-        IO.println s!"-- No linters registered for {mod}."
+        IO.println s!"-- No environment linters registered for {mod}."
         return false
       let results ← Linter.EnvLinter.lintCore decls linters
       let failed := results.any (!·.2.isEmpty)
@@ -58,10 +88,11 @@ public def run (args : Args) : IO UInt32 := do
             (groupByFilename := true) (useErrorFormat := true)
             s!"in {mod}" (scope := if args.only.isEmpty then scope else .all) .medium linters.size
         IO.print (← fmtResults.toString)
-      else
+      else unless textFailed do
         IO.println s!"-- Linting passed for {mod}."
       return failed
-    if result then
+
+    if textFailed || declFailed then
       anyFailed := true
 
   return if anyFailed then 1 else 0

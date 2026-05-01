@@ -42,5 +42,5 @@ This gadget is supported by
 It is ineffective in other positions (hypotheses of rewrite rules) or when used by other tactics
 (e.g. `apply`).
 -/
-@[simp ↓, expose]
+@[simp ↓, expose, implicit_reducible]
 def binderNameHint {α : Sort u} {β : Sort v} {γ : Sort w} (v : α) (binder : β) (e : γ) : γ := e

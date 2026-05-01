@@ -10462,8 +10462,8 @@ else
 lean_object* v_a_3586_; lean_object* v___x_3588_; uint8_t v_isShared_3589_; uint8_t v_isSharedCheck_3593_; 
 lean_dec(v_val_3522_);
 lean_dec_ref(v_children_3521_);
-lean_dec_ref(v_i_3520_);
 lean_dec_ref(v_x_3509_);
+lean_dec_ref(v_i_3520_);
 lean_dec_ref(v_postNode_3508_);
 lean_dec_ref(v_preNode_3507_);
 v_a_3586_ = lean_ctor_get(v___x_3524_, 0);

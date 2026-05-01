@@ -63,6 +63,11 @@ test_cmd grep -F "Module.ir" .lake/build/ir/Test/Module/ImportPublicMetaImport.s
 # https://github.com/leanprover/lean4/issues/13419
 test_run build Test.Module.MetaImportImport
 test_cmd grep -F "Module.ir" .lake/build/ir/Test/Module/MetaImportImport.setup.json
+# IR should be included when a module is re-visited with `needsMeta`
+# (reached via both a non-meta and a meta path)
+# TODO: currently broken, flip to `test_cmd` after fix
+test_run build Test.Module.MetaRevisit
+test_cmd_fails grep -F "Module.ir" .lake/build/ir/Test/Module/MetaRevisit.setup.json
 # IR should not be included for a transitive private `meta import`
 test_run build Test.Module.ImportMetaImport
 test_cmd_fails grep -F "Module.ir" .lake/build/ir/Test/Module/ImportMetaImport.setup.json

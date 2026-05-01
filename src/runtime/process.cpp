@@ -48,10 +48,6 @@ Author: Jared Roesch
 
 namespace lean {
 
-#ifdef __APPLE__
-extern "C" char **environ;
-#endif
-
 enum stdio {
     PIPED,
     INHERIT,
@@ -126,12 +122,6 @@ extern "C" LEAN_EXPORT uint64_t lean_io_get_tid() {
     return GetCurrentThreadId();
 }
 
-
-
-
-
-
-
 #else
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir() {
@@ -169,12 +159,6 @@ extern "C" LEAN_EXPORT uint64_t lean_io_get_tid() {
 #endif
     return tid;
 }
-
-
-
-
-
-
 
 #endif
 

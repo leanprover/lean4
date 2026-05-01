@@ -319,25 +319,17 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         std::unordered_map<std::string, std::string> env_map;
 
         if (inherit_env) {
-#if defined(LEAN_WINDOWS)
-            auto *esp = GetEnvironmentStrings();
-            char *key_begin = esp;
-            while (*key_begin) {
-                char *key_end = strchr(key_begin, '=');
-                char *entry_end = key_end + strlen(key_end);
-                env_map[std::string(key_begin, key_end)] = std::string(key_end + 1, entry_end);
-                key_begin = entry_end + 1;
-            }
-            FreeEnvironmentStrings(esp);
-#else
-
-            for (char **e = environ; *e; ++e) {
-                char *key_end = strchr(*e, '=');
-                if (key_end) {
-                    env_map[std::string(*e, key_end)] = std::string(key_end + 1);
+            uv_env_item_t* envitems;
+            int count;
+            int r = uv_os_environ(&envitems, &count);
+            if (r == 0) {
+                for (int i = 0; i < count; i++) {
+                    env_map[envitems[i].name] = envitems[i].value;
                 }
+                uv_os_free_environ(envitems, count);
+            } else {
+                return lean_io_result_mk_error(lean_decode_uv_error(r, NULL));
             }
-#endif
         }
 
         for (auto & entry : env) {

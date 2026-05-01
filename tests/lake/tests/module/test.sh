@@ -41,6 +41,9 @@ test_run build Test.Module.PromoteImport
 test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/PromoteImport.setup.json
 test_run build Test.Module.PromoteTransImport
 test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/PromoteTransImport.setup.json
+# an `import all` should not be demoted by a `meta import`
+test_run build Test.Module.PromoteMetaImport
+test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/PromoteMetaImport.setup.json
 # should be imported by a non-module
 test_run build Test.NonModule.Import
 test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/NonModule/Import.setup.json

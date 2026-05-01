@@ -73,7 +73,7 @@ static void process_child_finalizer(void * ptr) {
         uv_close((uv_handle_t*)child->m_uv_process, [](uv_handle_t* handle) {
             lean_process_child_object* child = static_cast<lean_process_child_object*>(handle->data);
             free(handle);
-            delete child;
+            free(child);
         });
     }
     event_loop_unlock(&global_ev);
@@ -343,7 +343,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         options.flags |= UV_PROCESS_DETACHED;
     }
 
-    lean_process_child_object * child_obj = new lean_process_child_object();
+    lean_process_child_object * child_obj = (lean_process_child_object*)malloc(sizeof(lean_process_child_object));
     child_obj->m_uv_process = (uv_process_t*)malloc(sizeof(uv_process_t));
     child_obj->m_uv_process->data = child_obj;
 
@@ -361,7 +361,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
     if (spawn_r != 0) {
         free(child_obj->m_uv_process);
-        delete child_obj;
+        free(child_obj);
         if (stdin_pipe) { close(stdin_pipe->m_read_fd); close(stdin_pipe->m_write_fd); }
         if (stdout_pipe) { close(stdout_pipe->m_read_fd); close(stdout_pipe->m_write_fd); }
         if (stderr_pipe) { close(stderr_pipe->m_read_fd); close(stderr_pipe->m_write_fd); }

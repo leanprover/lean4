@@ -191,7 +191,7 @@ def Poly.combine' (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
     else
       .add a₂ x₂ (combine' fuel (.add a₁ x₁ p₁) p₂)
 
-@[expose] abbrev hugeFuel := 100000000
+abbrev hugeFuel := 100000000
 
 @[expose]
 def Poly.combine (p₁ p₂ : Poly) : Poly :=
@@ -636,7 +636,6 @@ private theorem eq_of_norm_eq_of_divCoeffs {ctx : Context} {p₁ p₂ : Poly} {k
   have hz : k ≠ 0 := Int.ne_of_gt h₀
   replace h₁ := Poly.denote_div_eq_of_divCoeffs ctx p₁ k h₁
   replace h₂ := congrArg (Poly.denote ctx) h₂
-  simp at h₂
   rw [h₂, ← h₁]; clear h₁ h₂
   apply mul_add_cmod_le_iff
   assumption

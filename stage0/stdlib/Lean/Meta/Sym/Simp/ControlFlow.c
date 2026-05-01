@@ -4134,7 +4134,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Meta_Sym_Simp_ControlFlow_0__Lean_Meta
 _start:
 {
 lean_object* v___x_1167_; 
-lean_inc_ref(v_e_1156_);
 v___x_1167_ = l_Lean_Meta_reduceRecMatcher_x3f(v_e_1156_, v_a_1162_, v_a_1163_, v_a_1164_, v_a_1165_);
 if (lean_obj_tag(v___x_1167_) == 0)
 {

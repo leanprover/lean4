@@ -151,7 +151,7 @@ lean_object* l_Lean_Elab_Tactic_saveState___redArg(lean_object*, lean_object*, l
 lean_object* l_Lean_collectLevelParams(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_SavedState_restore___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_async;
-lean_object* l_Lean_Meta_mkAuxLemma(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkAuxLemma(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_param___override(lean_object*);
 lean_object* l_Lean_Meta_mkDecide(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_nativeEqTrue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7659,7 +7659,7 @@ lean_ctor_set_uint8(v___x_2575_, sizeof(void*)*14, v___x_2557_);
 lean_ctor_set_uint8(v___x_2575_, sizeof(void*)*14 + 1, v_suppressElabErrors_2570_);
 lean_inc_ref(v_expectedType_2485_);
 lean_inc(v___x_2526_);
-v___x_2576_ = l_Lean_Meta_mkAuxLemma(v___x_2526_, v_expectedType_2485_, v_a_2495_, v___x_2527_, v___x_2528_, v___x_2529_, v___x_2529_, v_a_2489_, v_a_2490_, v___x_2575_, v___y_2572_);
+v___x_2576_ = l_Lean_Meta_mkAuxLemma(v___x_2526_, v_expectedType_2485_, v_a_2495_, v___x_2527_, v___x_2528_, v___x_2529_, v___x_2529_, v___x_2529_, v_a_2489_, v_a_2490_, v___x_2575_, v___y_2572_);
 lean_dec_ref(v___x_2575_);
 if (lean_obj_tag(v___x_2576_) == 0)
 {

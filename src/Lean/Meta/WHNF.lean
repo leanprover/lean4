@@ -496,40 +496,37 @@ Auxiliary predicate for `whnfMatcher`.
 See comment above.
 -/
 def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
-  match cfg.transparency with
-  | .all     => return true
-  | .default => return !(← isIrreducible info.name)
-  | _ =>
-    let status ← getReducibilityStatus info.name
-    if status matches .reducible | .implicitReducible then
-      return true
-    else if hasMatchPatternAttribute (← getEnv) info.name then
-      return true
-    else
-      return info.name == ``decEq
-       || info.name == ``Nat.decEq
-       || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
-       || info.name == ``String.decEq || info.name == ``List.hasDecEq
-       || info.name == ``Fin.ofNat
-       || info.name == ``Fin.ofNat -- It is used to define `BitVec` literals
-       || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
-       || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
-       || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
-       || info.name == ``UInt64.ofNat || info.name == ``UInt64.decEq
-       /- Remark: we need to unfold the following two definitions because they are used for `Fin`, and
-          lazy unfolding at `isDefEq` does not unfold projections.  -/
-       || info.name == ``HMod.hMod || info.name == ``Mod.mod
+  if (← canUnfoldDefault cfg info) then
+    return true
+  /- Beyond what the normal transparency allows, we additionally unfold
+     certain definitions to expose constructors in match discriminants. -/
+  if hasMatchPatternAttribute (← getEnv) info.name then
+    return true
+  return info.name == ``OfNat.ofNat -- needed to reduce numeric literals in match discriminants
+   || info.name == ``NatCast.natCast -- needed for `↑m` in match discriminants (pervasive in Int proofs)
+   || info.name == ``Zero.zero || info.name == ``One.one -- needed for `0`/`1` in match discriminants
+   || info.name == ``decEq
+   || info.name == ``Nat.decEq
+   || info.name == ``Char.ofNat   || info.name == ``Char.ofNatAux
+   || info.name == ``String.decEq || info.name == ``List.hasDecEq
+   || info.name == ``Fin.ofNat -- needed for Fin literal reduction in match discriminants
+   || info.name == ``UInt8.ofNat  || info.name == ``UInt8.decEq
+   || info.name == ``UInt16.ofNat || info.name == ``UInt16.decEq
+   || info.name == ``UInt32.ofNat || info.name == ``UInt32.decEq
+   || info.name == ``UInt64.ofNat || info.name == ``UInt64.decEq
+   /- `Fin.ofNat` reduces to `⟨a % n, _⟩`, so we also need to unfold `%` (i.e., `HMod.hMod`
+      and `Mod.mod`) to expose the `Fin.mk` constructor in match discriminants. -/
+   || info.name == ``HMod.hMod || info.name == ``Mod.mod
 
 private def whnfMatcher (e : Expr) : MetaM Expr := do
-  /- When reducing `match` expressions, if the reducibility setting is at `TransparencyMode.reducible`,
-     we increase it to `TransparencyMode.instances`. We use the `TransparencyMode.reducible` in many places (e.g., `simp`),
-     and this setting prevents us from reducing `match` expressions where the discriminants are terms such as `OfNat.ofNat α n inst`.
-     For example, `simp [Int.div]` will not unfold the application `Int.div 2 1` occurring in the target.
-
-     TODO: consider other solutions; investigate whether the solution above produces counterintuitive behavior.  -/
+  /- When reducing `match` expressions at `.reducible` or `.instances` transparency,
+     we use a custom `canUnfoldAtMatcher` predicate that additionally allows unfolding
+     class projections (e.g., `OfNat.ofNat`, `NatCast.natCast`) and a few other specific
+     definitions. This ensures match discriminants like `OfNat.ofNat α n inst` can be
+     reduced to expose constructors, without bumping the overall transparency level.  -/
   if (← getTransparency) matches .instances | .reducible then
     -- Also unfold some default-reducible constants; see `canUnfoldAtMatcher`
-    withTransparency .instances <| withCanUnfoldPred canUnfoldAtMatcher do
+    withCanUnfoldPred canUnfoldAtMatcher do
       whnf e
   else
     -- Do NOT use `canUnfoldAtMatcher` here as it does not affect all/default reducibility and inhibits caching (#2564).
@@ -537,6 +534,7 @@ private def whnfMatcher (e : Expr) : MetaM Expr := do
     whnf e
 
 def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
+  let e := e.consumeMData
   let .const declName declLevels := e.getAppFn
     | return .notMatcher
   let some info ← getMatcherInfo? declName
@@ -984,6 +982,7 @@ partial def whnfCoreUnfoldingAnnotations (e : Expr) : MetaM Expr :=
 
 /-- Try to reduce matcher/recursor/quot applications. We say they are all "morally" recursor applications. -/
 def reduceRecMatcher? (e : Expr) : MetaM (Option Expr) := do
+  let e := e.consumeMData
   if !e.isApp then
     return none
   else match (← reduceMatcher? e) with

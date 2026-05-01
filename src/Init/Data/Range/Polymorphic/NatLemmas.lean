@@ -18,6 +18,9 @@ import Init.Data.Option.Lemmas
 import Init.Data.Range.Polymorphic.Lemmas
 import Init.Omega
 
+-- TODO: remove after stage0 update
+set_option linter.unusedSimpArgs false
+
 set_option doc.verso true
 
 public section
@@ -133,7 +136,7 @@ theorem size_toArray_roo {a b : Nat} :
 @[simp]
 theorem size_ric {b : Nat} :
     (*...=b).size = b + 1 := by
-  simp [Ric.size, Rxc.HasSize.size]
+  simp [Ric.size, Rxc.HasSize.size, Least?.least?]
 
 @[deprecated size_ric (since := "2025-10-30")]
 def _root_.Std.PRange.Nat.size_Ric := @_root_.Nat.size_ric
@@ -154,7 +157,7 @@ theorem size_toArray_ric {b : Nat} :
 @[simp]
 theorem size_rio {b : Nat} :
     (*...b).size = b := by
-  simp [Rio.size, Rxo.HasSize.size, Rxc.HasSize.size]
+  simp [Rio.size, Rxo.HasSize.size, Rxc.HasSize.size, Least?.least?]
 
 @[deprecated size_rio (since := "2025-10-30")]
 def _root_.Std.PRange.Nat.size_Rio := @_root_.Nat.size_rio
@@ -1852,7 +1855,7 @@ theorem induct_roc_right (motive : Nat → Nat → Prop)
 
 theorem toList_rio_eq_toList_rco {n : Nat} :
     (*...n).toList = (0...n).toList := by
-  simp [Rio.toList_eq_match_rco]
+  simp [Rio.toList_eq_match_rco, Least?.least?]
 
 @[simp]
 theorem toList_toArray_rio {n : Nat} :
@@ -2014,7 +2017,7 @@ theorem getD_toList_rio_eq_fallback {n i fallback : Nat} (h : n ≤ i) :
 
 theorem toArray_rio_eq_toArray_rco {n : Nat} :
     (*...n).toArray = (0...n).toArray := by
-  simp [Rio.toArray_eq_match_rco]
+  simp [Rio.toArray_eq_match_rco, Least?.least?]
 
 theorem toArray_rio_eq_if {n : Nat} :
     (*...n).toArray = if 0 < n then (*...(n - 1)).toArray.push (n - 1) else #[] := by
@@ -2166,7 +2169,8 @@ theorem getD_toArray_rio_eq_fallback {n i fallback : Nat} (h : n ≤ i) :
 
 theorem toList_ric_eq_toList_rio {n : Nat} :
     (*...=n).toList = (*...(n + 1)).toList := by
-  simp [Ric.toList_eq_match_rcc, toList_rio_succ_eq_append, toList_rio_eq_toList_rco]
+  simp [Ric.toList_eq_match_rcc, toList_rio_succ_eq_append, toList_rio_eq_toList_rco,
+    Least?.least?]
 
 theorem toList_ric_eq_toList_rcc {n : Nat} :
     (*...=n).toList = (0...=n).toList := by

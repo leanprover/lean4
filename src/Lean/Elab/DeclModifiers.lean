@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.DocString.Add
 public import Lean.Linter.Basic
+import Lean.Linter.EnvLinter.Nolint
 meta import Lean.Parser.Command
 
 public section

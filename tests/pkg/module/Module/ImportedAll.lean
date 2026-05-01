@@ -51,13 +51,13 @@ example : P fexp := by dsimp only [fexp_trfl]; exact hP1
 example : P fexp := by dsimp only [fexp_trfl']; exact hP1
 
 
-/-- info: @[defeq] private theorem f.eq_def : f = 1 -/
+/-- info: @[backward_defeq] private theorem f.eq_def : f = 1 -/
 #guard_msgs in #print sig f.eq_def
 
-/-- info: @[defeq] private theorem f.eq_unfold : f = 1 -/
+/-- info: @[backward_defeq] private theorem f.eq_unfold : f = 1 -/
 #guard_msgs in #print sig f.eq_unfold
 
-/-- info: @[defeq] private theorem f_struct.eq_1 : f_struct 0 = 0 -/
+/-- info: @[backward_defeq] private theorem f_struct.eq_1 : f_struct 0 = 0 -/
 #guard_msgs in #print sig f_struct.eq_1
 
 /--

@@ -60,8 +60,16 @@ elab_rules : tactic
   prom.resolve ()
   Core.checkInterrupted
 
--- can't use a naked promise in `initialize` as marking it persistent would block
-meta initialize unblockedCancelTk : IO.CancelToken ← IO.CancelToken.new
+-- CancelToken is Promise-based, so we can't create one during `initialize`
+-- (task manager not yet ready). Create lazily on first use, atomically via `modifyGet`
+-- to avoid two callers each constructing a token and only one being stored.
+meta initialize unblockedCancelTkRef : IO.Ref (Option IO.CancelToken) ← IO.mkRef none
+
+private meta def getUnblockedCancelTk : BaseIO IO.CancelToken := do
+  let fresh ← IO.CancelToken.new
+  unblockedCancelTkRef.modifyGet fun
+    | some tk => (tk, some tk)
+    | none    => (fresh, some fresh)
 
 /--
 Waits for `unblock` to be called, which is expected to happen in a subsequent document version that
@@ -86,7 +94,7 @@ elab_rules : tactic
   }
 
   while true do
-    if (← unblockedCancelTk.isSet) then
+    if (← (← getUnblockedCancelTk).isSet) then
       break
     IO.sleep 30
   if (← cancelTk.isSet) then
@@ -104,7 +112,7 @@ elab "wait_for_unblock_async" : tactic => do
     let ctx ← readThe Core.Context
     let some cancelTk := ctx.cancelTk? | unreachable!
     while true do
-      if (← unblockedCancelTk.isSet) then
+      if (← (← getUnblockedCancelTk).isSet) then
         break
       IO.sleep 30
     if (← cancelTk.isSet) then
@@ -118,7 +126,7 @@ elab "wait_for_unblock_async" : tactic => do
 /-- Unblocks a `wait_for_unblock*` task. -/
 scoped elab "unblock" : tactic => do
   dbg_trace "unblocking!"
-  unblockedCancelTk.set
+  (← getUnblockedCancelTk).set
 
 /--
 Like `wait_for_cancel_once` but does the waiting in a separate task and waits for its
@@ -183,6 +191,43 @@ elab_rules : tactic
 
   dbg_trace "blocked!"
   log "blocked"
+
+/-! ## Helpers for end-to-end testing of parallel subtask cancellation -/
+
+meta initialize checkCancelRefs : IO.Ref (Std.HashMap String (Task Unit × IO.CancelToken)) ← IO.mkRef {}
+
+/--
+Tests whether the cancel token is properly set on re-elaboration. On first invocation with a
+given label, loops checking `Core.checkSystem` and waiting for a signal from the second
+invocation. If the loop completes without interruption (i.e. the cancel token was not propagated),
+prints `"{label}: leaked!"` to stderr. Second invocation signals the first and waits for it to
+complete (so the server doesn't exit prematurely).
+-/
+scoped syntax "check_cancel" ident : tactic
+elab_rules : tactic
+| `(tactic| check_cancel $id) => do
+  let label := id.getId.toString (escape := false)
+  let prom ← IO.Promise.new
+  let signal ← IO.CancelToken.new
+  let prior ← checkCancelRefs.modifyGet fun m =>
+    match m.get? label with
+    | some entry => (some entry, m)
+    | none       => (none, m.insert label (prom.result!, signal))
+  if let some (t, sig) := prior then
+    sig.set
+    IO.wait t
+    return
+  try
+    while true do
+      Core.checkSystem "check_cancel"
+      if (← signal.isSet) then break
+      IO.sleep 10
+    let ctx ← readThe Core.Context
+    let some cancelTk := ctx.cancelTk? | unreachable!
+    if !(← cancelTk.isSet) then
+      IO.eprintln s!"{label}: leaked!"
+  finally
+    prom.resolve ()
 
 meta initialize cmdOnceRef : IO.Ref (Option (Task Unit)) ← IO.mkRef none
 

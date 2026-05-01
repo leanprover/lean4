@@ -1,6 +1,6 @@
-import Std.Internal.Http.Data.Chunk
-import Std.Internal.Http.Data.Request
-import Std.Internal.Http.Data.Response
+import Std.Http.Data.Chunk
+import Std.Http.Data.Request
+import Std.Http.Data.Response
 
 open Std.Http
 open Std.Http.Internal

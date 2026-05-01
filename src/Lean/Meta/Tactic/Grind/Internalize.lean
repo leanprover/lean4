@@ -317,7 +317,7 @@ def activateInjectiveTheorem (injThm : InjectiveTheorem) (generation : Nat) : Go
     let some thm := thm? | reportIssue! "failed to assert injectivity theorem `{injThm.origin.pp}`"
     activateTheorem thm generation
   else
-    addNewRawFact injThm.proof type generation (.inj injThm.origin)
+    addNewRawFact injThm.proof type generation (.inj injThm.origin) .other
 
 private def activateInjectiveTheorems (declName : Name) (generation : Nat) : GoalM Unit := do
   if (← getConfig).inj then

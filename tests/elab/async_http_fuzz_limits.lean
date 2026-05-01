@@ -1,7 +1,7 @@
-import Std.Internal.Http
-import Std.Internal.Async
+import Std.Http
+import Std.Async
 
-open Std.Internal.IO Async
+open Std.Async
 open Std Http Internal Test
 
 /-!

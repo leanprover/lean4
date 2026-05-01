@@ -1,6 +1,6 @@
-import Std.Internal.Http.Test.Helpers
+import Std.Http.Test.Helpers
 
-open Std.Internal.IO Async
+open Std.Async
 open Std Http Internal Test
 
 -- RFC 9112 §6: Transfer-Encoding and Content-Length framing

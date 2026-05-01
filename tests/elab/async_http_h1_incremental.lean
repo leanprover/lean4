@@ -1,4 +1,4 @@
-import Std.Internal.Http
+import Std.Http
 
 open Std Http
 open Std.Http.Protocol.H1

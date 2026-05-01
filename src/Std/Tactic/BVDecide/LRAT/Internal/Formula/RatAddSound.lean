@@ -43,7 +43,6 @@ theorem mem_of_necessary_assignment {n : Nat} {p : (PosFin n) → Bool} {c : Def
     next hne => simp [h] at pv
   · specialize p'_not_entails_c v
     have h := p'_not_entails_c.2 v_in_c
-    simp only at h
     split at h
     next heq => simp [Literal.negate, ← heq, h, v_in_c]
     next hne => simp [h] at pv
@@ -175,7 +174,6 @@ theorem assignmentsInvariant_insertRatUnits {n : Nat} (f : DefaultFormula n)
       · rfl
     have hp1 := hp j1_unit ((Or.inr ∘ Or.inr) j1_unit_in_insertRatUnits_res)
     have hp2 := hp j2_unit ((Or.inr ∘ Or.inr) j2_unit_in_insertRatUnits_res)
-    simp only at hp1 hp2
     rcases hp1 with ⟨i1, hp1⟩
     rcases hp2 with ⟨i2, hp2⟩
     simp only [Fin.getElem_fin] at h1 h2

@@ -1,7 +1,7 @@
-import Std.Internal.Async.Select
+import Std.Async.Select
 import Std.Sync.Channel
 
-open Std Internal IO Async
+open Std Async
 
 /-!
 Tests for the `gate` in `Selectable.one`.

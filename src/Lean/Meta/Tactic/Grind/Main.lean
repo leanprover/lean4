@@ -115,8 +115,9 @@ def GrindM.run (x : GrindM α) (params : Params) (evalTactic? : Option EvalTacti
   let extensions := params.extensions
   let anchorRefs? := params.anchorRefs?
   let debug := grind.debug.get (← getOptions)
+  let ematchDiag := grind.ematch.diagnostics.get (← getOptions)
   x (← mkMethods evalTactic?).toMethodsRef
-    { config, anchorRefs?, simpMethods, simp, extensions, symPrios, debug }
+    { config, anchorRefs?, simpMethods, simp, extensions, symPrios, debug, ematchDiag }
     |>.run' {}
 
 private def mkCleanState (mvarId : MVarId) : GrindM Clean.State := mvarId.withContext do
@@ -133,7 +134,7 @@ Asserts extra facts provided as `grind` parameters.
 def assertExtra (params : Params) : GoalM Unit := do
   for proof in params.extraFacts do
     let prop ← inferType proof
-    addNewRawFact proof prop 0 .input
+    addNewRawFact proof prop 0 .input .other
   for thm in params.extra do
     activateTheorem thm 0
   for thm in params.extraInj do
@@ -168,12 +169,13 @@ public def mkGoalCore (mvarId : MVarId) : GrindM Goal := do
     initENodeCore ordEqExpr (interpreted := false) (ctor := true)
 
 structure Result where
-  failure?   : Option Goal
-  issues     : List MessageData
-  config     : Grind.Config
-  counters   : Counters
-  simp       : Simp.Stats
-  splitDiags : PArray SplitDiagInfo
+  failure?    : Option Goal
+  issues      : List MessageData
+  config      : Grind.Config
+  counters    : Counters
+  simp        : Simp.Stats
+  splitDiags  : PArray SplitDiagInfo
+  ematchDiags : PArray EMatchDiagInfo
 
 private def countersToMessageData (header : String) (cls : Name) (data : Array (Name × Nat)) : MetaM MessageData := do
   let data := data.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then Name.lt d₁ d₂ else c₁ > c₂
@@ -333,17 +335,33 @@ private def initCore (mvarId : MVarId) : GrindM Goal := do
   else
     processHypotheses goal
 
+partial def traceEMatchDiagsCompact (diag : PArray EMatchDiagInfo) : GrindM Unit := do
+  if (← isTracingEnabledFor `grind.ematch.diagnostics.compact) then
+  unless (← isEmatchDiagEnabled) do
+    logWarning "use `set_option grind.ematch.diagnostics true` when using `set_option trace.grind.ematch.diagnostics.compact true`"
+  withTraceNode `grind.ematch.diagnostics.compact (fun _ => return m!"instances") do
+  for { sources, target, .. } in diag do
+    let .decl target := target.origin | pure ()
+    let sources := sources.filterMap fun { origin, .. } =>
+      match origin with
+      | .decl source => some source
+      | _ => none
+    let sources := sources.toArray.qsort Name.lt
+    addTrace `inst m!"{sources.toList} => {.ofConstName target}"
+
 def mkResult (params : Params) (failure? : Option Goal) : GrindM Result := do
-  let issues     ← Sym.getIssues
-  let counters   := (← get).counters
-  let splitDiags := (← get).splitDiags
-  let simp       := { (← get).simp with }
+  let issues      ← Sym.getIssues
+  let counters    := (← get).counters
+  let splitDiags  := (← get).splitDiags
+  let ematchDiags := (← get).ematchDiags
+  let simp        := { (← get).simp with }
+  traceEMatchDiagsCompact ematchDiags
   if failure?.isNone then
     -- If there are no failures and diagnostics are enabled, we still report the performance counters.
     if (← isDiagnosticsEnabled) then
       if let some msg ← mkGlobalDiag counters simp splitDiags then
         logInfo msg
-  return { failure?, issues, config := params.config, counters, simp, splitDiags }
+  return { failure?, issues, config := params.config, counters, simp, splitDiags, ematchDiags }
 
 def GrindM.runAtGoal (mvarId : MVarId) (params : Params) (k : Goal → GrindM α) (evalTactic? : Option EvalTactic := none) : MetaM α := do
   let go : GrindM α := withGTransparency do

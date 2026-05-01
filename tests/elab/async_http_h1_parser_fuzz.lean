@@ -1,5 +1,5 @@
-import Std.Internal.Http
-import Std.Internal.Http.Protocol.H1.Parser
+import Std.Http
+import Std.Http.Protocol.H1.Parser
 
 open Std Internal Parsec ByteArray
 open Std.Http.Protocol.H1

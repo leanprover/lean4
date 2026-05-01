@@ -10,7 +10,42 @@ namespace Homomorphism
 open Lean Meta Grind Sym Simp
 
 initialize registerTraceClass `homo
+initialize registerTraceClass `homo.pred
 initialize registerTraceClass `homo.visit
+
+initialize homoPredExt : SimplePersistentEnvExtension (Name × Name) (NameMap Name) ←
+  let add := fun s (f, thm) => s.insert f thm
+  registerSimplePersistentEnvExtension {
+    addEntryFn    := add
+    addImportedFn := fun es => mkStateFromImportedEntries add {} es
+  }
+
+def getPredMap : CoreM (NameMap Name) :=
+  return homoPredExt.getState (← getEnv)
+
+def addPredicate (thmName : Name) : MetaM Unit := do
+  let info ← getConstInfo thmName
+  unless (← isProp info.type) do
+    throwError "invalid homomorphism predicate, `{thmName}` is not a proposition"
+  let vs := info.levelParams.map mkLevelParam
+  forallTelescope info.type fun xs type => do
+    let found? := type.find? fun e => Id.run do
+      unless e.getAppNumArgs == xs.size do return false
+      let .const _ us := e.getAppFn | return false
+      return e.getAppArgs == xs && us == vs
+    let some found := found? |
+      throwError "invalid homomorphism predicate, `{thmName}` does not contain application that covers all parameters"
+    let .const declName _ := found.getAppFn | unreachable!
+    if (← getPredMap).contains declName then
+      throwError "invalid homomorphism predicate, `{declName}` already contains a theorem associated with it."
+    modifyEnv fun env => homoPredExt.addEntry env (declName, thmName)
+
+initialize registerBuiltinAttribute {
+    name := `grind_homo_pred
+    descr := "add a theorem to be applied to atoms"
+    add := fun declName _ _ =>
+      discard <| addPredicate declName |>.run {} {}
+  }
 
 /--
 Declares attribute `[grind_mono]` for marking theorems implementing the homomorphism.
@@ -53,18 +88,25 @@ def mkRewriter : GoalM Sym.Simp.Simproc := do
 
 structure State where
   cache : Sym.Simp.Cache := {}
+  processed : PHashSet ExprPtr := {}
 
-initialize homoExt : SolverExtension Sym.Simp.Cache ←
+initialize homoExt : SolverExtension State ←
   registerSolverExtension (return {})
+
+def get' : GoalM State := do
+  homoExt.getState
+
+abbrev modify' (f : State → State) : GoalM Unit := do
+  homoExt.modifyState f
 
 /-- Apply the homomorphism theorems. -/
 def applyHomo (e : Expr) : GoalM Sym.Simp.Result := do
   let methods := { pre := (← mkRewriter) }
   -- Reuse cache.
-  let persistentCache ← homoExt.getState
-  homoExt.modifyState fun _ => {} -- Improve uniqueness. This is a minor optimization
-  let (r, s) ← Sym.Simp.SimpM.run (Sym.Simp.simp e) (methods := methods) (s := { persistentCache })
-  homoExt.modifyState fun _ => s.persistentCache
+  let persistentCache := (← homoExt.getState).cache
+  homoExt.modifyState fun s => { s with cache := {} } -- Improve uniqueness. This is a minor optimization
+  let (r, simpState) ← Sym.Simp.SimpM.run (Sym.Simp.simp e) (methods := methods) (s := { persistentCache })
+  homoExt.modifyState fun s => { s with cache := simpState.persistentCache }
   return r
 
 /--
@@ -80,7 +122,28 @@ def isTarget (e : Expr) : CoreM Bool := do
 Internalization procedure for this module. See `homoExt.setMethods`
 -/
 def internalize (e : Expr) (_ : Option Expr) : GoalM Unit := do
+  let f := e.getAppFn
+  if let .const declName us := f then
+    let s ← get'
+    unless s.processed.contains { expr := e } do
+      modify' fun s => { s with processed := s.processed.insert { expr := e } }
+      if let some thmName := (← getPredMap).find? declName then
+        let thm := mkAppN (mkConst thmName us) e.getAppArgs
+        let pred ← Meta.inferType thm
+        trace[homo.pred] "{pred}"
+        addNewRawFact thm (← Meta.inferType thm) (← getGeneration e) .input .other
+        return ()
   unless (← isTarget e) do return ()
+  if !(← alreadyInternalized e) then
+    /-
+    The `grind` core has an optimization: it does not internalize top-level equalities
+    since they can be merged immediately. A satellite solver may implement the `newEq` handler,
+    but this is too inconvenient. It is easier to force `e` to be internalized.
+    -/
+    let_expr Eq _ lhs rhs := e | return ()
+    let gen := max (← getGeneration lhs) (← getGeneration rhs)
+    Grind.internalize e gen
+    return ()
   let .step e₁ h₁ _ ← applyHomo e | return ()
   let r ← preprocess e₁
   let h ← mkEqTrans h₁ (← r.getProof)

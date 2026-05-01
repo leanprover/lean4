@@ -27,6 +27,7 @@ import Lake.CLI.Build
 import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
+public import Lake.CLI.BuiltinLint
 import Init.Data.String.Modify
 
 -- # CLI
@@ -55,6 +56,7 @@ public structure LakeOptions where
   reconfigure : Bool := false
   oldMode : Bool := false
   trustHash : Bool := true
+  allowEmpty : Bool := false
   noBuild : Bool := false
   noCache : Option Bool := none
   failLv : LogLevel := .error
@@ -72,6 +74,11 @@ public structure LakeOptions where
   rev? : Option GitRev := none
   maxRevs : Nat := 100
   shake : Shake.Args := {}
+  builtinLint : BuiltinLint.Args := {}
+  /-- Whether `lake lint` should also run builtin lints (via `--builtin-lint`). -/
+  runBuiltinLint : Bool := false
+  /-- Whether `lake lint` should skip the lint driver (via `--builtin-only`). -/
+  builtinOnly : Bool := false
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -241,6 +248,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
 | "--text"        => modifyThe LakeOptions ({· with outFormat := .text})
 | "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
+| "--allow-empty" => modifyThe LakeOptions ({· with allowEmpty := true})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
 | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
 | "--try-cache"   => modifyThe LakeOptions ({· with noCache := false})
@@ -302,12 +310,24 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--"            => do
   let subArgs ← takeArgs
   modifyThe LakeOptions ({· with subArgs})
+-- Builtin lint options (using any of these implicitly enables --builtin-lint)
+| "--builtin-lint" => modifyThe LakeOptions ({· with runBuiltinLint := true})
+| "--builtin-only" => modifyThe LakeOptions ({· with runBuiltinLint := true, builtinOnly := true})
+| "--clippy" => modifyThe LakeOptions ({· with
+    runBuiltinLint := true, builtinLint.scope := .clippy, builtinLint.only := #[]})
+| "--lint-all" => modifyThe LakeOptions ({· with
+    runBuiltinLint := true, builtinLint.scope := .all, builtinLint.only := #[]})
+| "--lint-only" => do
+  let name ← takeOptArg "--lint-only" "linter name"
+  modifyThe LakeOptions fun opts =>
+    {opts with runBuiltinLint := true, builtinLint.only := opts.builtinLint.only.push name.toName}
+-- Shared options
+| "--force" => modifyThe LakeOptions ({· with shake.force := true})
 -- Shake options
 | "--keep-implied" => modifyThe LakeOptions ({· with shake.keepImplied := true})
 | "--keep-prefix" => modifyThe LakeOptions ({· with shake.keepPrefix := true})
 | "--keep-public" => modifyThe LakeOptions ({· with shake.keepPublic := true})
 | "--add-public" => modifyThe LakeOptions ({· with shake.addPublic := true})
-| "--force" => modifyThe LakeOptions ({· with shake.force := true})
 | "--gh-style" => modifyThe LakeOptions ({· with shake.githubStyle := true})
 | "--explain" => modifyThe LakeOptions ({· with shake.explain := true})
 | "--trace" => modifyThe LakeOptions ({· with shake.trace := true})
@@ -827,6 +847,12 @@ protected def build : CliM PUnit := do
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
+  if specs.isEmpty && !opts.allowEmpty then
+    logWarning "no targets specified and no default targets configured\
+      \n  Note: This will be an error in a future version of Lake.\
+      \n  Hint: This warning (or error) can be suppressed with '--allow-empty'."
+    if opts.failLv ≤ .warning then
+      exit 1
   specs.forM fun spec =>
     unless spec.buildable do
       throw <| .invalidBuildTarget spec.info.key.toSimpleString
@@ -945,18 +971,59 @@ protected def checkTest : CliM PUnit := do
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.testDriver.isEmpty then 1 else 0
 
+private def runBuiltinLint
+    (opts : LakeOptions) (ws : Workspace) (specifiedMods : Array Lean.Name)
+    : CliM UInt32 := do
+  let mods := if specifiedMods.isEmpty then ws.defaultTargetRoots else specifiedMods
+  if mods.isEmpty then
+    error "no modules specified and there are no applicable default targets"
+  let args := opts.builtinLint
+  let args := {args with mods}
+  let specs ← parseTargetSpecs ws (mods.map (s!"+{·}") |>.toList)
+  let lintOpts := BuiltinLint.leanOptOverrides args
+  let overrides : Lean.NameMap Lean.LeanOptions :=
+    if lintOpts.values.isEmpty then
+      {}
+    else
+      mods.foldl (init := ({} : Lean.NameMap Lean.LeanOptions))
+        fun m modName =>
+          match ws.findTargetModule? modName with
+          | some mod => m.insert mod.pkg.baseName lintOpts
+          | none     => m
+  let buildCfg := { mkBuildConfig opts with
+    outLv := .error
+    leanOptOverrides := overrides
+  }
+  ws.runBuild (buildSpecs specs) buildCfg
+  Lean.searchPathRef.set ws.augmentedLeanPath
+  BuiltinLint.run args
+
 protected def lint : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let ws ← loadWorkspace (← mkLoadConfig opts)
-  noArgsRem do
-  let x := ws.root.lint opts.subArgs (mkBuildConfig opts)
-  exit <| ← x.run (mkLakeContext ws)
+  let hasDriver := !ws.root.lintDriver.isEmpty && !opts.builtinOnly
+  let pkgBuiltinLint := ws.root.config.builtinLint?
+  let doBuiltinLint := opts.runBuiltinLint || pkgBuiltinLint == some true
+  let mut exitCode : UInt32 := 0
+  if doBuiltinLint then
+    let mods := (← takeArgs).toArray.map (·.toName)
+    exitCode ← runBuiltinLint opts ws mods
+  if hasDriver then
+    let driverExitCode ← noArgsRem do
+      ws.root.lint opts.subArgs (mkBuildConfig opts) |>.run (mkLakeContext ws)
+    unless driverExitCode == 0 do
+      exitCode := driverExitCode
+  unless doBuiltinLint || hasDriver do
+    error s!"no lint driver configured and builtin linting is disabled"
+  exit exitCode
 
 protected def checkLint : CliM PUnit := do
   processOptions lakeOption
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
-  noArgsRem do exit <| if pkg.lintDriver.isEmpty then 1 else 0
+  noArgsRem do
+  let hasLint := !pkg.lintDriver.isEmpty || pkg.config.builtinLint? == some true
+  exit <| if hasLint then 0 else 1
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption

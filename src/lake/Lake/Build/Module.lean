@@ -540,6 +540,7 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
     | some false => addTrace depTrace; addTrace libTrace; addPlatformTrace
     | some true => addTrace depTrace
     let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
+    let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
     return {
       name := mod.name
       isModule := header.isModule
@@ -548,7 +549,7 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
       importArts := info.directArts
       dynlibs := dynlibs.map (·.path)
       plugins := plugins.map (·.path)
-      options := mod.leanOptions
+      options := mod.leanOptions ++ extra
     }
 
 /-- The `ModuleFacetConfig` for the builtin `setupFacet`. -/

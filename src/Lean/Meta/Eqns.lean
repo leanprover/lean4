@@ -40,7 +40,8 @@ value at definition time, not realization time, should matter.
 This is implemented by storing their values at definition time (when non-default) in an environment
 extension, and restoring them when the equations are lazily realized.
 -/
-def eqnAffectingOptions : Array (Lean.Option Bool) := #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit]
+def eqnAffectingOptions : Array (Lean.Option Bool) :=
+  #[backward.eqns.nonrecursive, backward.eqns.deepRecursiveSplit, backward.defeqAttrib.useBackward]
 
 /-- Environment extension that stores the values of `eqnAffectingOptions` at definition time,
 keyed by declaration name. Only populated when at least one option has a non-default value.

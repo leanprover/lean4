@@ -1,6 +1,6 @@
-import Std.Internal.Http.Data.Body
+import Std.Http.Data.Body
 
-open Std.Internal.IO Async
+open Std.Async
 open Std.Http
 open Std.Http.Body
 

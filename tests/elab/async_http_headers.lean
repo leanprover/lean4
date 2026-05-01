@@ -1,5 +1,5 @@
-import Std.Internal.Http.Data.Headers
-import Std.Internal.Http.Protocol.H1
+import Std.Http.Data.Headers
+import Std.Http.Protocol.H1
 
 open Std.Http
 open Std.Http.Header

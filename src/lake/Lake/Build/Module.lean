@@ -219,6 +219,12 @@ def computeModuleDeps
     plugins := plugins.push (← getLakeInstall).sharedDynlib
   return {dynlibs, plugins}
 
+structure TransImportEntry where
+  mod : Module
+  importAll : Bool
+  /-- Whether `needsIRTrans` is set for this module (per Lean's meta import rules). -/
+  needsMeta : Bool
+
 partial def fetchTransImportArts
   (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (nonModule : Bool)
 : FetchM (NameMap ImportArtifacts) := do
@@ -226,12 +232,12 @@ partial def fetchTransImportArts
     let some mod := imp.module? | return q
     let input ← (← mod.input.fetch).await
     let importAll := strictOr nonModule imp.importAll
-    return enqueue importAll input q
+    return enqueue importAll imp.isMeta input q
   walk directArts q
 where
-  walk s q := do
+  walk s (q : Array TransImportEntry) := do
     if h : 0 < q.size then
-      let (mod, importAll) := q.back
+      let {mod, importAll, needsMeta} := q.back
       let q := q.pop
       if let some arts := s.find? mod.name then
         -- may need to promote a module system `import` to an `import all`
@@ -242,15 +248,18 @@ where
       let arts := if importAll then info.allArts else info.arts
       let s := s.insert mod.name arts
       let input ← (← mod.input.fetch).await
-      let q := enqueue importAll input q
+      let q := enqueue importAll needsMeta input q
       walk s q
     else
       return s
-  enqueue importAll input q :=
+  enqueue importAll needsMeta input q :=
     input.imports.foldr (init := q) fun imp q =>
       if let some mod := imp.module? then
-        if importAll || imp.isExported then
-          q.push (mod, nonModule || (importAll && imp.importAll))
+        let reachable := importAll || imp.isExported
+        let importAll := nonModule || (importAll && imp.importAll)
+        let needsMeta := needsMeta || (reachable && imp.isMeta)
+        if reachable || needsMeta then
+          q.push {mod, importAll, needsMeta}
         else q
       else q
 

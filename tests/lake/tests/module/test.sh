@@ -60,10 +60,9 @@ test_cmd_fails grep -F "Module.olean" .lake/build/ir/Test/Module/ImportImport.se
 test_run build Test.Module.ImportPublicMetaImport
 test_cmd grep -F "Module.ir" .lake/build/ir/Test/Module/ImportPublicMetaImport.setup.json
 # IR should be included for private imports of a `meta import`ed module
-# TODO: currently broken, flip to `test_cmd` after fix
 # https://github.com/leanprover/lean4/issues/13419
 test_run build Test.Module.MetaImportImport
-test_cmd_fails grep -F "Module.ir" .lake/build/ir/Test/Module/MetaImportImport.setup.json
+test_cmd grep -F "Module.ir" .lake/build/ir/Test/Module/MetaImportImport.setup.json
 # IR should not be included for a transitive private `meta import`
 test_run build Test.Module.ImportMetaImport
 test_cmd_fails grep -F "Module.ir" .lake/build/ir/Test/Module/ImportMetaImport.setup.json

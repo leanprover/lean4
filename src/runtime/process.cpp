@@ -187,13 +187,6 @@ void initialize_process() {
 
 void finalize_process() {}
 
-extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild) {
-    object_ref child(lchild);
-    object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), cnstr_get_ref(child, 3));
-    object_ref r = mk_cnstr(0, cnstr_get_ref(child, 0), child2);
-    return lean_io_result_mk_ok(r.steal());
-}
-
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child) {
     lean_object * child_obj = cnstr_get(child, 3);
     lean_process_child_object * data = static_cast<lean_process_child_object *>(lean_get_external_data(child_obj));
@@ -410,6 +403,13 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
 
     object * child_val = lean_alloc_external(g_process_child_external_class, child_obj);
     object_ref r = mk_cnstr(0, parent_stdin, parent_stdout, parent_stderr, child_val);
+    return lean_io_result_mk_ok(r.steal());
+}
+
+extern "C" LEAN_EXPORT obj_res lean_io_process_child_take_stdin(b_obj_arg, obj_arg lchild) {
+    object_ref child(lchild);
+    object_ref child2 = mk_cnstr(0, object_ref(box(0)), cnstr_get_ref(child, 1), cnstr_get_ref(child, 2), cnstr_get_ref(child, 3));
+    object_ref r = mk_cnstr(0, cnstr_get_ref(child, 0), child2);
     return lean_io_result_mk_ok(r.steal());
 }
 

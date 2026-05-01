@@ -18,6 +18,7 @@ public import Lean.Server.FileWorker.Utils
 public import Lean.Server.FileWorker.RequestHandling
 public import Lean.Server.FileWorker.WidgetRequests
 public import Lean.Server.FileWorker.SetupFile
+public import Lean.Server.FileWorker.Markdown
 public import Lean.Server.Completion.ImportCompletion
 public import Lean.Server.CodeActions.UnknownIdentifier
 

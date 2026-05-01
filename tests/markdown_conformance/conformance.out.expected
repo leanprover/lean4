@@ -1,0 +1,87 @@
+Skipped: 109/655 (16%)
+Overall: 546/546 (100%)
+
+Per section:
+  ATX headings:
+    Pass: 18/18 (100%)
+  Autolinks:
+    Pass: 17/17 (100%)
+    Skip:
+      HTML: 2
+  Backslash escapes:
+    Pass: 12/12 (100%)
+    Skip:
+      HTML: 1
+  Blank lines:
+    Pass: 1/1 (100%)
+  Block quotes:
+    Pass: 25/25 (100%)
+  Code spans:
+    Pass: 20/20 (100%)
+    Skip:
+      HTML: 2
+  Emphasis and strong emphasis:
+    Pass: 123/123 (100%)
+    Skip:
+      HTML: 3
+      Unicode flanking: 6
+  Entity and numeric character references:
+    Pass: 8/8 (100%)
+    Skip:
+      HTML: 1
+      Named entity: 8
+  Fenced code blocks:
+    Pass: 29/29 (100%)
+  HTML blocks:
+    Pass: 0/0 (0%)
+    Skip:
+      HTML: 46
+  Hard line breaks:
+    Pass: 13/13 (100%)
+    Skip:
+      HTML: 2
+  Images:
+    Pass: 21/21 (100%)
+    Skip:
+      HTML: 1
+  Indented code blocks:
+    Pass: 11/11 (100%)
+    Skip:
+      HTML: 1
+  Link reference definitions:
+    Pass: 24/24 (100%)
+    Skip:
+      HTML: 2
+      Unicode case-folding: 1
+  Links:
+    Pass: 80/80 (100%)
+    Skip:
+      HTML: 8
+      Unicode case-folding: 1
+      Named entity: 1
+  List items:
+    Pass: 48/48 (100%)
+  Lists:
+    Pass: 25/25 (100%)
+    Skip:
+      HTML: 2
+  Paragraphs:
+    Pass: 8/8 (100%)
+  Precedence:
+    Pass: 1/1 (100%)
+  Raw HTML:
+    Pass: 1/1 (100%)
+    Skip:
+      HTML: 20
+  Setext headings:
+    Pass: 26/26 (100%)
+    Skip:
+      HTML: 1
+  Soft line breaks:
+    Pass: 2/2 (100%)
+  Tabs:
+    Pass: 11/11 (100%)
+  Textual content:
+    Pass: 3/3 (100%)
+  Thematic breaks:
+    Pass: 19/19 (100%)

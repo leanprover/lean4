@@ -909,6 +909,36 @@ theorem contains_of_mem_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) {
     (h' : k ∈ m.keysArray) : m.contains k :=
   DHashMap.Raw.contains_of_mem_keysArray h.out h'
 
+@[simp, grind =]
+theorem length_values [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.values.length = m.size :=
+  DHashMap.Raw.Const.length_values h.out
+
+@[simp, grind =]
+theorem isEmpty_values [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.values.isEmpty = m.isEmpty :=
+  DHashMap.Raw.Const.isEmpty_values h.out
+
+@[simp]
+theorem toArray_values (h : m.WF) :
+    m.values.toArray = m.valuesArray :=
+  DHashMap.Raw.Const.toArray_values h.out
+
+@[simp]
+theorem toList_valuesArray (h : m.WF) :
+    m.valuesArray.toList = m.values :=
+  DHashMap.Raw.Const.toList_valuesArray h.out
+
+@[simp]
+theorem size_valuesArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.valuesArray.size = m.size :=
+  DHashMap.Raw.Const.size_valuesArray h.out
+
+@[simp]
+theorem isEmpty_valuesArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.valuesArray.isEmpty = m.isEmpty :=
+  DHashMap.Raw.Const.isEmpty_valuesArray h.out
+
 @[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     m.toList.map Prod.fst = m.keys :=

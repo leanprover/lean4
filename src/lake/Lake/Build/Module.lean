@@ -240,10 +240,19 @@ where
       let {mod, importAll, needsMeta} := q.back
       let q := q.pop
       if let some arts := s.find? mod.name then
-        -- may need to promote a module system `import` to an `import all`
-        -- size of 1 = non-module, 3 = module system `import`, 4 = `import all`
-        -- or re-visit with `needsMeta` to enqueue previously skipped imports
-        unless (importAll && arts.size == 3) || needsMeta do
+        /-
+        A module system `import` may need to be promoted to a
+        wider import (`meta import`, `import all`) on another branch.
+
+        The size of import artifacts implies the following:
+        * `1`: non-module `import` (`.olean` only)
+        * `3`: module `import` (`.olean`, `.olean.server`, `.olean.ir`)
+        * `4`: `import all` (module + `.olean.private`)
+
+        Sizes `1` and `4` imply all imports were already enqueued,
+        so re-visiting them for `meta import` or `import all` is redundant.
+        -/
+        unless (importAll || needsMeta) && arts.size == 3 do
           return ← walk s q
       let info ← (← mod.exportInfo.fetch).await
       let arts := if importAll then info.allArts else info.arts

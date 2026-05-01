@@ -71,11 +71,12 @@ static void process_child_finalizer(void * ptr) {
     event_loop_lock(&global_ev);
     if (child->m_uv_process) {
         uv_close((uv_handle_t*)child->m_uv_process, [](uv_handle_t* handle) {
+            lean_process_child_object* child = static_cast<lean_process_child_object*>(handle->data);
             free(handle);
+            delete child;
         });
     }
     event_loop_unlock(&global_ev);
-    delete child;
 }
 
 static void process_child_foreach(void * /* mod */, b_obj_arg /* fn */) {

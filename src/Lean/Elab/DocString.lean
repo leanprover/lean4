@@ -173,9 +173,8 @@ private def setModState [Monad m] [MonadEnv m] (state : ModuleDocstringState) : 
 
 /--
 Reports errors registered via `Term.registerMVarErrorInfo` for any metavariable still appearing in
-the types or values of fresh local declarations introduced during doc elaboration (i.e. present in
-`docState.lctx` but not `initialLctx`). This catches unresolved holes from `{given}` and
-`{givenInstance}` before doc-elab term state is rolled back.
+the types or values of fresh local declarations introduced during docstring elaboration. This
+catches unresolved holes from `{given}` and `{givenInstance}` before the term state is rolled back.
 -/
 private def checkUnsolvedDocMVars (initialLctx : LocalContext) (docState : State) :
     TermElabM Unit := do
@@ -1756,10 +1755,11 @@ public def elabModSnippet
   return s
 
 /--
-Renders the name of a documentation `extension` (role, code block, etc.) for user-facing messages.
-Built-in elements are written by their last component because users  invoke them by that bare name
-(`{given}`, rather than `{Lean.Doc.given}`), regardless of which namespaces are open. Non-builtin
-elements use `MessageData.ofConstName` so they appear in their shortest unambiguous form.
+Renders the name of a documentation `extension` (role, code block, directive, or command) for
+user-facing messages. Builtins are designated by their last component because users invoke them by
+that bare name (e.g. `` {given}`x` ``, rather than `` {Lean.Doc.given}`x` ``), regardless of which
+namespaces are open. Non-builtin elements use `MessageData.ofConstName` so they appear in their
+shortest unambiguous form.
 -/
 private def docElementMessage (extension : Name) : BaseIO MessageData := do
   if (← isBuiltin) then
@@ -1777,21 +1777,17 @@ where
 
 /--
 Registers a single `MVarErrorInfo` so that, if any metavariable in `e` remains unresolved at the
-end of document elaboration, exactly one error is emitted at `ref` naming the doc `element` (the
-constant implementing the role/code block, e.g. ``Lean.Doc.given``) and the supplied `location`
+end of document elaboration, one error is emitted at `ref` naming the documentation `extension` (the
+constant implementing the role/code block, e.g. `Lean.Doc.given`) and the supplied `location`
 (e.g. "type of variable `xs`") that contained the hole. The element name is rendered via
-`docElementMessage`. Roles and code blocks use this to attach a doc-aware diagnostic to the syntax
+`docElementMessage`. Roles and code blocks use this to attach a diagnostic to the syntax
 that introduced the variable, in addition to the standard placeholder errors that the underlying
-elaborator emits at each `_`.
-
-This works by allocating a fresh anchor metavariable assigned to `e`: `logUnassignedUsingErrorInfos`
-follows that assignment via `getMVars`, so the registered error fires whenever any sub-mvar of `e`
-is still unresolved, regardless of how many holes `e` contains.
+elaborator emits for unsolved metas.
 -/
-public def registerDocMVar (element : Name) (e : Expr) (ref : Syntax) (location : MessageData) :
+public def registerDocMVar (extension : Name) (e : Expr) (ref : Syntax) (location : MessageData) :
     TermElabM Unit := do
   unless (← Meta.getMVars e).isEmpty do
-    let elementMsg ← docElementMessage element
+    let elementMsg ← docElementMessage extension
     let anchor ← Meta.mkFreshExprMVar none
     anchor.mvarId!.assign e
     Term.registerMVarErrorCustomInfo anchor.mvarId! ref

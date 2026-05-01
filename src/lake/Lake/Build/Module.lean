@@ -242,7 +242,8 @@ where
       if let some arts := s.find? mod.name then
         -- may need to promote a module system `import` to an `import all`
         -- size of 1 = non-module, 3 = module system `import`, 4 = `import all`
-        unless importAll && arts.size == 3 do
+        -- or re-visit with `needsMeta` to enqueue previously skipped imports
+        unless (importAll && arts.size == 3) || needsMeta do
           return ← walk s q
       let info ← (← mod.exportInfo.fetch).await
       let arts := if importAll then info.allArts else info.arts

@@ -48,7 +48,7 @@ Author: Jared Roesch
 
 namespace lean {
 
-#if !defined(LEAN_WINDOWS)
+#ifdef __APPLE__
 extern "C" char **environ;
 #endif
 
@@ -199,8 +199,13 @@ static pipe create_pipe() {
         throw std::system_error(GetLastError(), std::system_category());
     fds[0] = _open_osfhandle(reinterpret_cast<intptr_t>(readh), 0);
     fds[1] = _open_osfhandle(reinterpret_cast<intptr_t>(writeh), 0);
+#elif defined(__APPLE__)
+    // this is inherently racy, but there is nothing we can do on MacOS
+    if (::pipe(fds) == -1) { throw errno; }
+    if (::fcntl(fds[0], F_SETFD, FD_CLOEXEC)) { throw errno; }
+    if (::fcntl(fds[1], F_SETFD, FD_CLOEXEC)) { throw errno; }
 #else
-    if (pipe2(fds, O_CLOEXEC) == -1) throw errno;
+    if (::pipe2(fds, O_CLOEXEC) == -1) { throw errno; }
 #endif
     return pipe { fds[0], fds[1] };
 }

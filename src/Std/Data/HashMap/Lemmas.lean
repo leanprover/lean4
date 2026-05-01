@@ -928,6 +928,36 @@ theorem contains_of_mem_keysArray [EquivBEq α] [LawfulHashable α] {k : α}
     (h' : k ∈ m.keysArray) : m.contains k :=
   DHashMap.contains_of_mem_keysArray h'
 
+@[simp, grind =]
+theorem length_values [EquivBEq α] [LawfulHashable α] :
+    m.values.length = m.size :=
+  DHashMap.Const.length_values
+
+@[simp, grind =]
+theorem isEmpty_values [EquivBEq α] [LawfulHashable α] :
+    m.values.isEmpty = m.isEmpty :=
+  DHashMap.Const.isEmpty_values
+
+@[simp]
+theorem toArray_values :
+    m.values.toArray = m.valuesArray :=
+  DHashMap.Const.toArray_values
+
+@[simp]
+theorem toList_valuesArray :
+    m.valuesArray.toList = m.values :=
+  DHashMap.Const.toList_valuesArray
+
+@[simp]
+theorem size_valuesArray [EquivBEq α] [LawfulHashable α] :
+    m.valuesArray.size = m.size :=
+  DHashMap.Const.size_valuesArray
+
+@[simp]
+theorem isEmpty_valuesArray [EquivBEq α] [LawfulHashable α] :
+    m.valuesArray.isEmpty = m.isEmpty :=
+  DHashMap.Const.isEmpty_valuesArray
+
 @[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     m.toList.map Prod.fst = m.keys :=

@@ -1340,6 +1340,36 @@ namespace Const
 
 variable {β : Type v} {m : Raw α (fun _ => β)}
 
+@[simp, grind =]
+theorem length_values [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.values.length = m.size := by
+  simp_to_raw using Raw₀.Const.length_values ⟨m, h.size_buckets_pos⟩ h
+
+@[simp, grind =]
+theorem isEmpty_values [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.values.isEmpty = m.isEmpty := by
+  simp_to_raw using Raw₀.Const.isEmpty_values ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem toArray_values (h : m.WF) :
+    m.values.toArray = m.valuesArray :=
+  Raw₀.Const.toArray_values_eq_valuesArray ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem toList_valuesArray (h : m.WF) :
+    m.valuesArray.toList = m.values :=
+  Raw₀.Const.toList_valuesArray_eq_values ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem size_valuesArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.valuesArray.size = m.size :=
+  Raw₀.Const.size_valuesArray ⟨m, h.size_buckets_pos⟩ h
+
+@[simp]
+theorem isEmpty_valuesArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    m.valuesArray.isEmpty = m.isEmpty :=
+  Raw₀.Const.isEmpty_valuesArray ⟨m, h.size_buckets_pos⟩ h
+
 @[simp, grind _=_]
 theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     (Raw.Const.toList m).map Prod.fst = m.keys := by

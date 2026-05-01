@@ -418,11 +418,19 @@ theorem containsKey_eq_contains_map_fst [BEq α] [PartialEquivBEq α] {l : List 
 @[simp] theorem values_nil {β : Type v} : values ([] : List ((_ : α) × β )) = [] := (rfl)
 @[simp] theorem keys_cons {l : List ((a : α) × β a)} {k : α} {v : β k} :
     keys (⟨k, v⟩ :: l) = k :: keys l := (rfl)
+@[simp] theorem values_cons {β : Type v} {l : List ((_ : α) × β)} {k : α} {v : β} :
+    values (⟨k, v⟩ :: l) = v :: values l := (rfl)
 
 theorem length_keys_eq_length (l : List ((a : α) × β a)) : (keys l).length = l.length := by
   induction l using assoc_induction <;> simp_all
 
+theorem length_values_eq_length {β : Type v} (l : List ((_ : α) × β)) : (values l).length = l.length := by
+  induction l using assoc_induction <;> simp_all
+
 theorem isEmpty_keys_eq_isEmpty (l : List ((a : α) × β a)) : (keys l).isEmpty = l.isEmpty := by
+  induction l using assoc_induction <;> simp_all
+
+theorem isEmpty_values_eq_isEmpty {β : Type v} (l : List ((_ : α) × β)) : (values l).isEmpty = l.isEmpty := by
   induction l using assoc_induction <;> simp_all
 
 theorem containsKey_eq_keys_contains [BEq α] [PartialEquivBEq α] {l : List ((a : α) × β a)}

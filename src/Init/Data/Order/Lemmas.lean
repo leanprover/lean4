@@ -243,6 +243,10 @@ public theorem lt_iff_le_and_ne [LE α] [LT α] [LawfulOrderLT α] [IsPartialOrd
     a < b ↔ a ≤ b ∧ a ≠ b := by
   simpa [le_iff_lt_or_eq, or_and_right] using Std.ne_of_lt
 
+public theorem lt_trichotomy [LT α] [Std.Trichotomous (α := α) (· < ·)] (a b : α) :
+    a < b ∨ a = b ∨ b < a :=
+  Trichotomous.rel_or_eq_or_rel_swap
+
 end LT
 end Std
 

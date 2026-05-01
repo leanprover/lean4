@@ -36,7 +36,7 @@ example
   (heq_1 : double n = double j)
   (heq_2 : Parity.even n ≍ Parity.even j):
   h_2 n ≍ h_2 j := by
-grind
+  grind
 
 opaque q : Nat → Nat → Prop
 axiom qax : q a b → double a = double b
@@ -49,4 +49,4 @@ example
   (heq_1 : q j n)
   (heq_2 : Parity.even n ≍ Parity.even j):
   h_2 n ≍ h_2 j := by
-grind
+  grind

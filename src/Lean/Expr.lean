@@ -73,7 +73,7 @@ inductive BinderInfo where
   | default
   /-- Implicit binder annotation, e.g., `{x : α}` -/
   | implicit
-  /-- Strict implicit binder annotation, e.g., `{{ x : α }}` -/
+  /-- Strict implicit binder annotation, e.g., `⦃x : α⦄` -/
   | strictImplicit
   /-- Local instance binder annotation, e.g., `[Decidable α]` -/
   | instImplicit
@@ -107,7 +107,7 @@ def BinderInfo.isImplicit : BinderInfo → Bool
   | BinderInfo.implicit => true
   | _                   => false
 
-/-- Return `true` if the given `BinderInfo` is a strict implicit annotation (e.g., `{{α : Type u}}`) -/
+/-- Return `true` if the given `BinderInfo` is a strict implicit annotation (e.g., `⦃α : Type u⦄`) -/
 def BinderInfo.isStrictImplicit : BinderInfo → Bool
   | BinderInfo.strictImplicit => true
   | _                         => false
@@ -1750,6 +1750,12 @@ def isFalse (e : Expr) : Bool :=
 
 def isTrue (e : Expr) : Bool :=
   e.cleanupAnnotations.isConstOf ``True
+
+def isBoolFalse (e : Expr) : Bool :=
+  e.cleanupAnnotations.isConstOf ``false
+
+def isBoolTrue (e : Expr) : Bool :=
+  e.cleanupAnnotations.isConstOf ``true
 
 /--
 `getForallArity type` returns the arity of a `forall`-type. This function consumes nested annotations,

@@ -207,7 +207,7 @@ def emitLns [EmitToString α] (as : List α) : EmitM Unit :=
   emitLn "}"
   return ret
 
-def toHexDigit (c : Nat) : String :=
+def toDigit (c : Nat) : String :=
   String.singleton c.digitChar
 
 def quoteString (s : String) : String :=
@@ -221,7 +221,11 @@ def quoteString (s : String) : String :=
       else if c == '\"' then "\\\""
       else if c == '?' then "\\?" -- avoid trigraphs
       else if c.toNat <= 31 then
-        "\\x" ++ toHexDigit (c.toNat / 16) ++ toHexDigit (c.toNat % 16)
+        -- Use octal escapes instead of hex escapes because C hex escapes are
+        -- greedy: "\x01abc" would be parsed as the single escape \x01abc rather
+        -- than \x01 followed by "abc".  Octal escapes consume at most 3 digits.
+        let n := c.toNat
+        "\\" ++ toDigit (n / 64) ++ toDigit ((n / 8) % 8) ++ toDigit (n % 8)
       -- TODO(Leo): we should use `\unnnn` for escaping unicode characters.
       else String.singleton c)
     q;
@@ -774,7 +778,7 @@ where
 
 mutual
 
-private partial def emitBasicBlock (code : Code .impure) : EmitM Unit := do
+partial def emitBasicBlock (code : Code .impure) : EmitM Unit := do
   match code with
   | .jp (k := k) .. => emitBasicBlock k
   | .let decl k =>
@@ -896,7 +900,7 @@ where
   emitUnreach : EmitM Unit := do
     emitLn "lean_internal_panic_unreachable();"
 
-private partial def emitJoinPoints (code : Code .impure) : EmitM Unit := do
+partial def emitJoinPoints (code : Code .impure) : EmitM Unit := do
   match code with
   | .jp decl k =>
     emit decl.binderName; emitLn ":"
@@ -906,7 +910,7 @@ private partial def emitJoinPoints (code : Code .impure) : EmitM Unit := do
   | .sset (k := k) .. | .uset (k := k) .. | .oset (k := k) .. => emitJoinPoints k
   | .cases .. | .return .. | .jmp .. | .unreach .. => return ()
 
-private partial def emitCode (code : Code .impure) : EmitM Unit := do
+partial def emitCode (code : Code .impure) : EmitM Unit := do
   withEmitBlock do
     let declared ← declareVars code
     if declared then emitLn ""

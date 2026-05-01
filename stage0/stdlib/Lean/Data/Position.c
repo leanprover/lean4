@@ -52,7 +52,7 @@ lean_object* l_String_Slice_Pos_nextn(lean_object*, lean_object*, lean_object*);
 lean_object* lean_array_fget_borrowed(lean_object*, lean_object*);
 lean_object* l_Nat_decLt___boxed(lean_object*, lean_object*);
 lean_object* l_instDecidableEqNat___boxed(lean_object*, lean_object*);
-uint8_t l_Prod_lexLtDec___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+uint8_t l_Prod_lexLtDec___aux__1___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static const lean_ctor_object l_Lean_instInhabitedPosition_default___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)(((size_t)(0) << 1) | 1))}};
 static const lean_object* l_Lean_instInhabitedPosition_default___closed__0 = (const lean_object*)&l_Lean_instInhabitedPosition_default___closed__0_value;
 LEAN_EXPORT const lean_object* l_Lean_instInhabitedPosition_default = (const lean_object*)&l_Lean_instInhabitedPosition_default___closed__0_value;
@@ -528,6 +528,7 @@ lean_ctor_set(v___x_132_, 1, v___x_131_);
 v___x_133_ = ((lean_object*)(l_Lean_instToJsonPosition_toJson___closed__0));
 v___x_134_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00Lean_instToJsonPosition_toJson_spec__0(v___x_132_, v___x_133_);
 v___x_135_ = l_Lean_Json_mkObj(v___x_134_);
+lean_dec(v___x_134_);
 return v___x_135_;
 }
 }
@@ -964,7 +965,7 @@ goto v_reusejp_252_;
 v_reusejp_252_:
 {
 uint8_t v___x_254_; 
-v___x_254_ = l_Prod_lexLtDec___redArg(v___x_248_, v___x_249_, v___x_249_, v___x_251_, v___x_253_);
+v___x_254_ = l_Prod_lexLtDec___aux__1___redArg(v___x_248_, v___x_249_, v___x_249_, v___x_251_, v___x_253_);
 return v___x_254_;
 }
 }
@@ -1505,7 +1506,6 @@ lean_object* v___x_482_; lean_object* v___x_483_;
 v___x_482_ = lean_nat_sub(v___x_478_, v___x_476_);
 v___x_483_ = lean_array_get_borrowed(v___x_480_, v_positions_468_, v___x_482_);
 lean_dec(v___x_482_);
-lean_inc(v___x_483_);
 v___y_470_ = v___x_483_;
 goto v___jp_469_;
 }
@@ -1520,7 +1520,6 @@ else
 lean_object* v___x_484_; 
 v___x_484_ = lean_array_fget_borrowed(v_positions_468_, v___x_477_);
 lean_dec(v___x_477_);
-lean_inc(v___x_484_);
 v___y_470_ = v___x_484_;
 goto v___jp_469_;
 }
@@ -1535,7 +1534,6 @@ lean_ctor_set(v___x_473_, 0, v_source_467_);
 lean_ctor_set(v___x_473_, 1, v___x_472_);
 lean_ctor_set(v___x_473_, 2, v___x_471_);
 v___x_474_ = l_String_Slice_pos_x21(v___x_473_, v___y_470_);
-lean_dec(v___y_470_);
 v___x_475_ = l_String_Slice_Pos_nextn(v___x_473_, v___x_474_, v_column_466_);
 lean_dec_ref(v___x_473_);
 return v___x_475_;

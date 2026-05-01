@@ -127,7 +127,7 @@ v___x_2_ = lean_nat_to_int(v___x_1_);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default(lean_object* v_a_3_){
+LEAN_EXPORT lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default(lean_object* v_00_u03b1_3_){
 _start:
 {
 lean_object* v___x_4_; 
@@ -135,12 +135,12 @@ v___x_4_ = lean_obj_once(&l_Std_Time_Internal_instInhabitedUnitVal_default___clo
 return v___x_4_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default___boxed(lean_object* v_a_5_){
+LEAN_EXPORT lean_object* l_Std_Time_Internal_instInhabitedUnitVal_default___boxed(lean_object* v_00_u03b1_5_){
 _start:
 {
 lean_object* v_res_6_; 
-v_res_6_ = l_Std_Time_Internal_instInhabitedUnitVal_default(v_a_5_);
-lean_dec_ref(v_a_5_);
+v_res_6_ = l_Std_Time_Internal_instInhabitedUnitVal_default(v_00_u03b1_5_);
+lean_dec_ref(v_00_u03b1_5_);
 return v_res_6_;
 }
 }

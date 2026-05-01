@@ -102,16 +102,16 @@ test_run exe test
 touch Ignored.lean
 test_run -v build +Ignored
 
-# Verify that fetching from the cache can be disabled
+# Verify that using the cache can be disabled
 test_cmd rm -f .lake/build/lib/lean/Ignored.trace
 test_status $NO_BUILD_CODE -v -f disabled.toml build +Ignored --no-build
 LAKE_ARTIFACT_CACHE=false test_status $NO_BUILD_CODE -v \
   -f unset.toml build +Ignored --no-build
 
-# Verify that fetching from the cache creates a trace file that does not replay
-test_out "Fetched Ignored" -v build +Ignored
+# Verify that using the cache creates a trace file that does not replay
+test_out "Reused Ignored" -v build +Ignored
 test_exp -f .lake/build/lib/lean/Ignored.trace
-test_out "Fetched Ignored" -v build +Ignored
+test_out "Reused Ignored" -v build +Ignored
 
 # Verify that modifications invalidate the cache
 echo "def foo := ()" > Ignored.lean
@@ -162,7 +162,7 @@ check_diff .lake/backup-outputs.txt <(ls "$CACHE_DIR/outputs")
 test_cmd rm -f "$local_art"
 test_out "Replayed Test:c.o" build +Test:o -v --no-build
 test_cmd rm -f "$local_art.trace"
-test_out "Fetched Test:c.o" build +Test:o -v --no-build
+test_out "Reused Test:c.o" build +Test:o -v --no-build
 
 # Verify that if the input cache is missing,
 # the cached artifact is still used via the output hash in the trace
@@ -200,6 +200,33 @@ test_lines 6 .lake/outputs.jsonl
 # in the mappings file for platform-independent packages
 test_run -f platformIndependent.toml build Test:static -o .lake/outputs.jsonl
 test_lines 3 .lake/outputs.jsonl
+
+# Test `lake cache stage` and `lake cache unstage`
+test_run build Test:static -o .lake/outputs.jsonl
+test_lines 6 .lake/outputs.jsonl
+
+# Verify `cache stage` copies artifacts to the staging directory
+test_run cache stage .lake/outputs.jsonl .lake/staging
+test_exp -d .lake/staging
+test_exp -f .lake/staging/outputs.jsonl
+test_cmd cmp -s .lake/outputs.jsonl .lake/staging/outputs.jsonl
+
+# Verify `cache unstage` restores artifacts to the cache
+test_cmd rm -rf "$CACHE_DIR/artifacts"
+test_exp ! -d "$CACHE_DIR/artifacts"
+test_run cache unstage .lake/staging
+test_exp -d "$CACHE_DIR/artifacts"
+test_run build Test:static --no-build
+
+# Verify that `cache stage` fails if cached artifacts are missing
+test_cmd rm -rf "$CACHE_DIR/artifacts"
+test_err 'artifact not found in cache' cache stage .lake/outputs.jsonl .lake/staging-fail
+test_run cache unstage .lake/staging
+
+# Verify that `cache unstage` fails if staging artifacts are missing
+test_cmd mkdir -p .lake/staging-empty
+test_cmd cp .lake/outputs.jsonl .lake/staging-empty/outputs.jsonl
+test_err 'artifact not found in staging directory' cache unstage .lake/staging-empty
 
 # Verify that `lake cache clean` deletes the cache directory
 test_exp -d "$CACHE_DIR"

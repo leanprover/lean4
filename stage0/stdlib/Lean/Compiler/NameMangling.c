@@ -1036,7 +1036,6 @@ v___jp_300_:
 {
 lean_object* v___x_302_; lean_object* v___x_303_; 
 v___x_302_ = lean_string_append(v_m1_299_, v___y_301_);
-lean_dec_ref(v___y_301_);
 v___x_303_ = lean_string_append(v___x_302_, v_m_294_);
 lean_dec_ref(v_m_294_);
 return v___x_303_;

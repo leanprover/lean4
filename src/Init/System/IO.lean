@@ -1672,37 +1672,6 @@ Creates a new mutable reference cell that contains `a`.
 def mkRef (a : α) : BaseIO (IO.Ref α) :=
   ST.mkRef a
 
-/--
-Mutable cell that can be passed around for purposes of cooperative task cancellation: request
-cancellation with `CancelToken.set` and check for it with `CancelToken.isSet`.
-
-This is a more flexible alternative to `Task.cancel` as the token can be shared between multiple
-tasks.
--/
-structure CancelToken where
-  private ref : IO.Ref Bool
-deriving Nonempty
-
-namespace CancelToken
-
-/-- Creates a new cancellation token. -/
-def new : BaseIO CancelToken :=
-  CancelToken.mk <$> IO.mkRef false
-
-/-- Activates a cancellation token. Idempotent. -/
-def set (tk : CancelToken) : BaseIO Unit :=
-  tk.ref.set true
-
-/-- Checks whether the cancellation token has been activated. -/
-def isSet (tk : CancelToken) : BaseIO Bool :=
-  tk.ref.get
-
--- separate definition as otherwise no unboxed version is generated
-@[export lean_io_cancel_token_is_set]
-private def isSetExport := @isSet
-
-end CancelToken
-
 namespace FS
 namespace Stream
 
@@ -1880,3 +1849,12 @@ lead to undefined behavior.
 -/
 @[extern "lean_runtime_forget"]
 def Runtime.forget (a : α) : BaseIO Unit := return
+
+set_option linter.unusedVariables false in
+/--
+Ensures `a` remains at least alive until the call site by holding a reference to `a`. This can be useful
+for unsafe code (such as an FFI) that relies on a Lean object not being freed until after some point
+in the program. At runtime, this will be a no-op as the C compiler will optimize away this call.
+-/
+@[extern "lean_runtime_hold"]
+def Runtime.hold (a : @& α) : BaseIO Unit := return

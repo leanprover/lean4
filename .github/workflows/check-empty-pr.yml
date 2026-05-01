@@ -1,0 +1,29 @@
+name: Check for empty PR
+
+on:
+  merge_group:
+  pull_request:
+
+jobs:
+  check-empty-pr:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v6
+      with:
+        ref: ${{ github.event_name == 'pull_request' && github.event.pull_request.head.sha || github.sha }}
+        fetch-depth: 0
+        filter: tree:0
+
+    - name: Check for empty diff
+      run: |
+        if [[ "${{ github.event_name }}" == "pull_request" ]]; then
+          base=$(git merge-base "origin/${{ github.base_ref }}" HEAD)
+        else
+          base=$(git rev-parse HEAD^1)
+        fi
+        if git diff --quiet "$base" HEAD --; then
+          echo "This PR introduces no changes compared to its base branch." | tee "$GITHUB_STEP_SUMMARY"
+          echo "It may be a duplicate of an already-merged PR." | tee -a "$GITHUB_STEP_SUMMARY"
+          exit 1
+        fi
+      shell: bash

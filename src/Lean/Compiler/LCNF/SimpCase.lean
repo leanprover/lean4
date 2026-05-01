@@ -24,7 +24,7 @@ In particular we perform:
 - folding of the most common cases arm into the default arm if possible
 
 Note: Currently the simplifier still contains almost equivalent simplifications to the ones shown
-here. We know that this causes unforseen behavior and do plan on changing it eventually.
+here. We know that this causes unforeseen behavior and do plan on changing it eventually.
 -/
 
 -- TODO: the following functions are duplicated from simp and should be deleted in simp once we

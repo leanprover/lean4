@@ -50,6 +50,6 @@ public abbrev CacheServiceMap := NameMap CacheService
 public structure LoadedLakeConfig where
   config : LakeConfig
   defaultCacheService : CacheService
-  defaultUploadCacheService? : Option CacheService
+  defaultCacheUploadService? : Option CacheService
   cacheServices : CacheServiceMap
   deriving Nonempty

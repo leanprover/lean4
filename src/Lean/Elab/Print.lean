@@ -37,6 +37,8 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
 
   if defeqAttr.hasTag (← getEnv) id then
     attrs := attrs.push m!"defeq"
+  else if backwardDefeqAttr.hasTag (← getEnv) id then
+    attrs := attrs.push m!"backward_defeq"
 
   let mut m : MessageData := m!""
   unless attrs.isEmpty do
@@ -243,10 +245,6 @@ private def printAxiomsOf (constName : Name) : CommandElabM Unit := do
 
 @[builtin_command_elab «printAxioms»] def elabPrintAxioms : CommandElab
   | `(#print%$tk axioms $id) => withRef tk do
-    if (← getEnv).header.isModule then
-      throwError "cannot use `#print axioms` in a `module`; consider temporarily removing the \
-        `module` header or placing the command in a separate file"
-
     let cs ← liftCoreM <| realizeGlobalConstWithInfos id
     cs.forM printAxiomsOf
   | _ => throwUnsupportedSyntax

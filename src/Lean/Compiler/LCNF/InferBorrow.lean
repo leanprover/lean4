@@ -67,7 +67,7 @@ structure ParamMap where
   The set of fvars that were already annotated as borrowed before arriving at this pass. We try to
   preserve the annotations here if possible.
   -/
-  annoatedBorrows : Std.HashSet FVarId := {}
+  annotatedBorrows : Std.HashSet FVarId := {}
 
 namespace ParamMap
 
@@ -95,7 +95,7 @@ where
         modify fun m =>
           { m with
             map := m.map.insert (.decl decl.name) (initParamsIfNotExported exported decl.params),
-            annoatedBorrows := decl.params.foldl (init := m.annoatedBorrows) fun acc p =>
+            annotatedBorrows := decl.params.foldl (init := m.annotatedBorrows) fun acc p =>
               if p.borrow then acc.insert p.fvarId else acc
           }
         goCode decl.name code
@@ -116,7 +116,7 @@ where
       modify fun m =>
         { m with
           map := m.map.insert (.jp declName decl.fvarId) (initParams decl.params),
-          annoatedBorrows := decl.params.foldl (init := m.annoatedBorrows) fun acc p =>
+          annotatedBorrows := decl.params.foldl (init := m.annotatedBorrows) fun acc p =>
             if p.borrow then acc.insert p.fvarId else acc
         }
       goCode declName decl.value
@@ -213,6 +213,8 @@ inductive OwnReason where
   | jpArgPropagation (jpFVar : FVarId)
   /-- Tail call preservation at a join point jump. -/
   | jpTailCallPreservation (jpFVar : FVarId)
+  /-- Annotated as an owned parameter (currently only triggerable through `@[export]`)-/
+  | ownedAnnotation
 
 def OwnReason.toString (reason : OwnReason) : CompilerM String := do
   PP.run do
@@ -229,6 +231,7 @@ def OwnReason.toString (reason : OwnReason) : CompilerM String := do
     | .tailCallPreservation funcName => return s!"tail call preservation of {funcName}"
     | .jpArgPropagation jpFVar => return s!"backward propagation from JP {← PP.ppFVar jpFVar}"
     | .jpTailCallPreservation jpFVar => return s!"JP tail call preservation {← PP.ppFVar jpFVar}"
+    | .ownedAnnotation => return s!"Annotated as owned"
 
 /--
 Determine whether an `OwnReason` is necessary for correctness (forced) or just an optimization
@@ -240,13 +243,19 @@ def OwnReason.isForced (reason : OwnReason) : Bool :=
   -- All of these reasons propagate through ABI decisions and can thus safely be ignored as they
   -- will be accounted for by the reference counting pass.
   | .constructorArg .. | .functionCallArg .. | .fvarCall .. | .partialApplication ..
-  | .jpArgPropagation .. => false
+  | .jpArgPropagation ..
+  -- forward propagation can never affect a user-annotated parameter
+  | .forwardProjectionProp ..
+  -- backward propagation on a user-annotated parameter is only necessary if the projected value
+  -- directly flows into a reset-reuse. However, the borrow annotation propagator ensures this
+  -- situation never arises
+  | .backwardProjectionProp .. => false
   -- Results of functions and constructors are naturally owned.
   | .constructorResult .. | .functionCallResult ..
   -- We cannot pass borrowed values to reset or have borrow annotations destroy tail calls for
   -- correctness reasons.
   | .resetReuse .. | .tailCallPreservation .. | .jpTailCallPreservation ..
-  | .forwardProjectionProp .. | .backwardProjectionProp .. => true
+  | .ownedAnnotation => true
 
 /--
 Infer the borrowing annotations in a SCC through dataflow analysis.
@@ -256,10 +265,19 @@ partial def infer (decls : Array (Decl .impure)) : CompilerM ParamMap := do
   return map.paramMap
 where
   go : InferM Unit := do
+    for (_, params) in (← get).paramMap.map do
+      for param in params do
+        if !param.borrow && param.type.isPossibleRef then
+          -- if the param already disqualifies as borrow now this is because of an annotation
+          ownFVar param.fvarId .ownedAnnotation
+    modify fun s => { s with modified := false }
+    loop
+
+  loop : InferM Unit := do
     step
     if (← get).modified then
       modify fun s => { s with modified := false }
-      go
+      loop
     else
       return ()
 
@@ -268,7 +286,7 @@ where
 
   ownFVar (fvarId : FVarId) (reason : OwnReason) : InferM Unit := do
     unless (← get).owned.contains fvarId do
-      if !reason.isForced && (← get).paramMap.annoatedBorrows.contains fvarId then
+      if !reason.isForced && (← get).paramMap.annotatedBorrows.contains fvarId then
         trace[Compiler.inferBorrow] "user annotation blocked owning {← PP.run <| PP.ppFVar fvarId}: {← reason.toString}"
       else
         trace[Compiler.inferBorrow] "own {← PP.run <| PP.ppFVar fvarId}: {← reason.toString}"
@@ -357,14 +375,31 @@ where
     match v with
     | .reset _ x => ownFVar z (.resetReuse z); ownFVar x (.resetReuse z)
     | .reuse x _ _ args => ownFVar z (.resetReuse z); ownFVar x (.resetReuse z); ownArgsIfParam z args
-    | .ctor _ args => ownFVar z (.constructorResult z); ownArgsIfParam z args
     | .oproj _ x _ =>
       if ← isOwned x then ownFVar z (.forwardProjectionProp z)
       if ← isOwned z then ownFVar x (.backwardProjectionProp z)
+    -- Keep in sync with ExplicitRC, PropagateBorrow
+    | .fap ``Array.getInternal args =>
+      if let .fvar parent := args[1]! then
+        if ← isOwned parent then ownFVar z (.forwardProjectionProp z)
+    | .fap ``Array.get!Internal args =>
+      if let .fvar parent := args[1]! then
+        if ← isOwned parent then ownFVar z (.forwardProjectionProp z)
+      if let .fvar parent := args[2]! then
+        if ← isOwned parent then ownFVar z (.forwardProjectionProp z)
+    | .fap ``Array.uget args =>
+      if let .fvar parent := args[1]! then
+        if ← isOwned parent then ownFVar z (.forwardProjectionProp z)
     | .fap f args =>
-      let ps ← getParamInfo (.decl f)
-      ownFVar z (.functionCallResult z)
-      ownArgsUsingParams args ps (.functionCallArg z)
+      -- Constants remain alive at least until the end of execution and can thus effectively be seen
+      -- as a "borrowed" read.
+      if args.size > 0 then
+        let ps ← getParamInfo (.decl f)
+        ownFVar z (.functionCallResult z)
+        ownArgsUsingParams args ps (.functionCallArg z)
+    | .ctor i args =>
+      if !i.isScalar then
+        ownFVar z (.constructorResult z); ownArgsIfParam z args
     | .fvar x args =>
       ownFVar z (.functionCallResult z); ownFVar x (.fvarCall z); ownArgs (.fvarCall z) args
     | .pap _ args => ownFVar z (.functionCallResult z); ownArgs (.partialApplication z) args

@@ -505,28 +505,24 @@ is not definitionally equal to the right-hand side
 example : S true false  := by with_reducible apply_rfl -- Error
 /--
 error: unsolved goals
-case a
 ⊢ true = true
 -/
 #guard_msgs in
 example : S true true   := by apply_rfl -- Error (left-over goal)
 /--
 error: unsolved goals
-case a
 ⊢ true = true
 -/
 #guard_msgs in
 example : S true true   := by with_reducible apply_rfl -- Error (left-over goal)
 /--
 error: unsolved goals
-case a
 ⊢ false = true
 -/
 #guard_msgs in
 example : S false false := by apply_rfl -- Error (left-over goal)
 /--
 error: unsolved goals
-case a
 ⊢ false = true
 -/
 #guard_msgs in

@@ -312,23 +312,6 @@ def Internal.anyImpl (s : String) (p : Char → Bool) :=
   String.any s p
 
 /--
-Checks whether a slice only consists of matches of the pattern {name}`pat`.
-
-Short-circuits at the first pattern mis-match.
-
-This function is generic over all currently supported patterns.
-
-Examples:
- * {lean}`"brown".all Char.isLower = true`
- * {lean}`"brown and orange".all Char.isLower = false`
- * {lean}`"aaaaaa".all 'a' = true`
- * {lean}`"aaaaaa".all "aa" = true`
- * {lean}`"aaaaaaa".all "aa" = false`
--/
-@[inline, suggest_for String.every] def all (s : String) (pat : ρ) [ForwardPattern pat] : Bool :=
-  s.toSlice.all pat
-
-/--
 Checks whether the string can be interpreted as the decimal representation of a natural number.
 
 A slice can be interpreted as a decimal natural number if it is not empty and all the characters in

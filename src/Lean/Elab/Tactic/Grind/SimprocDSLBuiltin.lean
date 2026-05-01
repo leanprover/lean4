@@ -9,6 +9,8 @@ import Lean.Elab.Tactic.Grind.SimprocDSL
 import Init.Sym.Simp.SimprocDSL
 import Lean.Meta.Sym.Simp.EvalGround
 import Lean.Meta.Sym.Simp.Telescope
+import Lean.Meta.Sym.Simp.ControlFlow
+import Lean.Meta.Sym.Simp.Forall
 import Lean.Meta.Sym.Simp.Rewrite
 namespace Lean.Elab.Tactic.Grind
 open Meta Sym.Simp
@@ -22,6 +24,14 @@ def elabSimprocGround : SymSimprocElab := fun _ =>
 @[builtin_sym_simproc telescope]
 def elabSimprocTelescope : SymSimprocElab := fun _ =>
   return simpTelescope
+
+@[builtin_sym_simproc Lean.Parser.Sym.Simp.control]
+def elabSimprocControl : SymSimprocElab := fun _ =>
+  return simpControl
+
+@[builtin_sym_simproc Lean.Parser.Sym.Simp.arrowTelescope]
+def elabSimprocArrowTelescope : SymSimprocElab := fun _ =>
+  return simpArrowTelescope
 
 @[builtin_sym_simproc self]
 def elabSimprocSelf : SymSimprocElab := fun _ =>

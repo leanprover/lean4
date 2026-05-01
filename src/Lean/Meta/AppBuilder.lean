@@ -8,6 +8,7 @@ prelude
 public import Lean.Meta.SynthInstance
 public import Lean.Meta.DecLevel
 import Lean.Meta.CtorRecognizer
+public import Lean.Meta.HasAssignableMVar
 import Lean.Structure
 import Init.Omega
 public section

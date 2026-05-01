@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Int
-// Imports: public import Init.Data.List.Int.Sum public import Init.Data.Array.MinMax import Init.Data.Int.Lemmas
+// Imports: public import Init.Data.List.Int.Sum public import Init.Data.List.Int.Prod public import Init.Data.Array.MinMax import Init.Data.Int.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -14,6 +14,7 @@
 extern "C" {
 #endif
 lean_object* runtime_initialize_Init_Data_List_Int_Sum(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Int_Prod(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_MinMax(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Int_Lemmas(uint8_t builtin);
 static bool _G_runtime_initialized = false;
@@ -22,6 +23,9 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 res = runtime_initialize_Init_Data_List_Int_Sum(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Int_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Array_MinMax(builtin);
@@ -40,6 +44,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_List_Int_Sum(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Int_Prod(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_MinMax(uint8_t builtin);
 lean_object* initialize_Init_Data_Int_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
@@ -48,6 +53,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_List_Int_Sum(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Int_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_MinMax(builtin);

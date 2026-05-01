@@ -17,7 +17,7 @@ lean_object* lean_byte_array_size(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern uint64_t l_instInhabitedUInt64;
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_byte_array_get(lean_object*, lean_object*);
 uint64_t lean_uint8_to_uint64(uint8_t);
 uint64_t lean_uint64_shift_left(uint64_t, uint64_t);
@@ -55,7 +55,7 @@ _start:
 {
 lean_object* v___x_4_; lean_object* v___x_5_; uint64_t v___x_6_; 
 v___x_4_ = l_panic___at___00ByteArray_toUInt64LE_x21_spec__0___boxed__const__1;
-v___x_5_ = lean_panic_fn(v___x_4_, v_msg_3_);
+v___x_5_ = lean_panic_fn_borrowed(v___x_4_, v_msg_3_);
 v___x_6_ = lean_unbox_uint64(v___x_5_);
 lean_dec(v___x_5_);
 return v___x_6_;

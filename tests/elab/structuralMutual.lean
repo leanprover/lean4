@@ -70,6 +70,26 @@ theorem B_size_eq3 : B.empty.size = 0  := rfl
 #guard_msgs in
 #check B.size.eq_3
 
+-- `_f` definitions show up in diagnostics
+/--
+info: 3
+---
+trace: [diag] Diagnostics
+  [reduction] unfolded declarations (max: 8, num: 4):
+    [reduction] A.rec ↦ 8
+    [reduction] Add.add ↦ 3
+    [reduction] HAdd.hAdd ↦ 3
+    [reduction] OfNat.ofNat ↦ 2
+  [reduction] unfolded reducible declarations (max: 4, num: 2):
+    [reduction] A.casesOn ↦ 4
+    [reduction] A.size._f ↦ 4
+  use `set_option diagnostics.threshold <num>` to control threshold for reporting counters
+-/
+#guard_msgs in
+set_option diagnostics true in
+set_option diagnostics.threshold 1 in
+#reduce A.size (.self (.self (.self .empty)))
+
 -- Smart unfolding works
 
 /--
@@ -512,13 +532,13 @@ Too many possible combinations of parameters of type Nattish (or please indicate
 Could not find a decreasing measure.
 The basic measures relate at each recursive call as follows:
 (<, ≤, =: relation proved, ? all proofs failed, _: no proof attempted)
-Call from ManyCombinations.f to ManyCombinations.g at 544:15-29:
+Call from ManyCombinations.f to ManyCombinations.g at 564:15-29:
    #1 #2 #3 #4
 #5  ?  ?  ?  ?
 #6  ?  ?  =  ?
 #7  ?  ?  ?  =
 #8  ?  =  ?  ?
-Call from ManyCombinations.g to ManyCombinations.f at 547:15-29:
+Call from ManyCombinations.g to ManyCombinations.f at 567:15-29:
    #5 #6 #7 #8
 #1  _  _  _  _
 #2  _  _  _  ?

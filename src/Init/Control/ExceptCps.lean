@@ -37,7 +37,7 @@ set_option linter.unusedVariables false in  -- `s` unused
 Use a monadic action that may throw an exception by providing explicit success and failure
 continuations.
 -/
-@[always_inline, inline]
+@[always_inline, inline, expose]
 def runK {ε α : Type u} (x : ExceptCpsT ε m α) (s : ε) (ok : α → m β) (error : ε → m β) : m β :=
   x _ ok error
 
@@ -83,6 +83,8 @@ of `True`.
 -/
 instance : MonadAttach (ExceptCpsT ε m) := .trivial
 
+@[simp] theorem throw_bind [Monad m] (e : ε) (f : α → ExceptCpsT ε m β) : (throw e >>= f : ExceptCpsT ε m β) = throw e := rfl
+
 @[simp] theorem run_pure [Monad m] : run (pure x : ExceptCpsT ε m α) = pure (Except.ok x) := rfl
 
 @[simp] theorem run_lift {α ε : Type u} [Monad m] (x : m α) : run (ExceptCpsT.lift x : ExceptCpsT ε m α) = (x >>= fun a => pure (Except.ok a) : m (Except ε α)) := rfl
@@ -91,7 +93,20 @@ instance : MonadAttach (ExceptCpsT ε m) := .trivial
 
 @[simp] theorem run_bind_lift [Monad m] (x : m α) (f : α → ExceptCpsT ε m β) : run (ExceptCpsT.lift x >>= f : ExceptCpsT ε m β) = x >>= fun a => run (f a) := rfl
 
-@[simp] theorem run_bind_throw [Monad m] (e : ε) (f : α → ExceptCpsT ε m β) : run (throw e >>= f : ExceptCpsT ε m β) = run (throw e) := rfl
+@[deprecated throw_bind (since := "2026-03-13")]
+theorem run_bind_throw [Monad m] (e : ε) (f : α → ExceptCpsT ε m β) : run (throw e >>= f : ExceptCpsT ε m β) = run (throw e) := rfl
+
+@[simp] theorem runK_pure :
+    runK (pure x : ExceptCpsT ε m α) s ok error = ok x := rfl
+
+@[simp] theorem runK_lift {α ε : Type u} [Monad m] (x : m α) (s : ε) (ok : α → m β) (error : ε → m β) :
+    runK (ExceptCpsT.lift x : ExceptCpsT ε m α) s ok error = x >>= ok := rfl
+
+@[simp] theorem runK_throw [Monad m] :
+    runK (throw e : ExceptCpsT ε m β) s ok error = error e := rfl
+
+@[simp] theorem runK_bind_lift [Monad m] (x : m α) (f : α → ExceptCpsT ε m β) :
+    runK (ExceptCpsT.lift x >>= f : ExceptCpsT ε m β) s ok error = x >>= fun a => runK (f a) s ok error := rfl
 
 @[simp] theorem runCatch_pure [Monad m] : runCatch (pure x : ExceptCpsT α m α) = pure x := rfl
 
@@ -102,6 +117,7 @@ instance : MonadAttach (ExceptCpsT ε m) := .trivial
 
 @[simp] theorem runCatch_bind_lift [Monad m] (x : m α) (f : α → ExceptCpsT β m β) : runCatch (ExceptCpsT.lift x >>= f : ExceptCpsT β m β) = x >>= fun a => runCatch (f a) := rfl
 
-@[simp] theorem runCatch_bind_throw [Monad m] (e : β) (f : α → ExceptCpsT β m β) : runCatch (throw e >>= f : ExceptCpsT β m β) = pure e := rfl
+@[deprecated throw_bind (since := "2026-03-13")]
+theorem runCatch_bind_throw [Monad m] (e : β) (f : α → ExceptCpsT β m β) : runCatch (throw e >>= f : ExceptCpsT β m β) = pure e := rfl
 
 end ExceptCpsT

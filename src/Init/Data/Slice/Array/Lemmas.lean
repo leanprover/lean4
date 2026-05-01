@@ -193,6 +193,7 @@ public theorem Array.toSubarray_eq_toSubarray_of_min_eq_min {xs : Array α}
         simp [*]; omega
       · simp
 
+@[cbv_eval]
 public theorem Array.toSubarray_eq_min {xs : Array α} {lo hi : Nat} :
     xs.toSubarray lo hi = ⟨⟨xs, min lo (min hi xs.size), min hi xs.size, Nat.min_le_right _ _,
       Nat.min_le_right _ _⟩⟩ := by
@@ -232,7 +233,7 @@ public theorem Subarray.toList_eq {xs : Subarray α} :
   simp [this, ListSlice.toList_eq, lslice]
 
 -- TODO: The current `List.extract_eq_drop_take` should be called `List.extract_eq_take_drop`
-private theorem Std.Internal.List.extract_eq_drop_take' {l : List α} {start stop : Nat} :
+theorem Std.Internal.List.extract_eq_drop_take' {l : List α} {start stop : Nat} :
     l.extract start stop = (l.take stop).drop start := by
   simp [List.take_drop]
   by_cases start ≤ stop

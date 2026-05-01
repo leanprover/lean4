@@ -514,9 +514,8 @@ _start:
 {
 lean_object* v___x_134_; lean_object* v___x_135_; uint8_t v___x_136_; 
 lean_inc_ref(v_inst_132_);
-lean_inc(v_val_133_);
+lean_inc_n(v_val_133_, 2);
 v___x_134_ = lean_apply_2(v_inst_132_, v_val_133_, v_hi_131_);
-lean_inc(v_val_133_);
 v___x_135_ = lean_apply_2(v_inst_132_, v_lo_130_, v_val_133_);
 v___x_136_ = lean_unbox(v___x_135_);
 if (v___x_136_ == 0)
@@ -552,9 +551,8 @@ _start:
 {
 lean_object* v___x_146_; lean_object* v___x_147_; uint8_t v___x_148_; 
 lean_inc_ref(v_inst_144_);
-lean_inc(v_val_145_);
+lean_inc_n(v_val_145_, 2);
 v___x_146_ = lean_apply_2(v_inst_144_, v_val_145_, v_hi_143_);
-lean_inc(v_val_145_);
 v___x_147_ = lean_apply_2(v_inst_144_, v_lo_142_, v_val_145_);
 v___x_148_ = lean_unbox(v___x_147_);
 if (v___x_148_ == 0)

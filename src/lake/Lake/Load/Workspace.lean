@@ -31,18 +31,26 @@ Does not resolve dependencies.
 public def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
   Lean.searchPathRef.set config.lakeEnv.leanSearchPath
   let lakeConfig ← loadLakeConfig config.lakeEnv
-  let (root, env?) ← loadPackageCore "[root]" {config with pkgIdx := 0}
-  let ws : Workspace := {
-    root
+  let config := {config with pkgIdx := 0}
+  let ⟨config, h⟩ ← resolveConfigFile "[root]" config
+  let fileCfg ← loadConfigFile config h
+  let root := mkPackage config fileCfg 0
+  have wsIdx_root : root.wsIdx = 0 := wsIdx_mkPackage
+  let facetConfigs := fileCfg.facetDecls.foldl (·.insert ·.config) initFacetConfigs
+  return {
     lakeEnv := config.lakeEnv
+    lakeCache := computeLakeCache root config.lakeEnv
     lakeConfig
     lakeArgs? := config.lakeArgs?
-    facetConfigs := initFacetConfigs
+    facetConfigs
+    packages := #[root]
+    packageMap := DNameMap.empty.insert root.keyName root
+    size_packages_pos := by simp
+    packages_wsIdx {i} h := by
+      cases i with
+      | zero => simp [wsIdx_root]
+      | succ => simp at h
   }
-  if let some env := env? then
-    IO.ofExcept <| ws.addFacetsFromEnv env config.leanOpts
-  else
-    return ws
 
 /--
 Load a `Workspace` for a Lake package by

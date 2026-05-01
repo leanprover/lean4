@@ -503,12 +503,11 @@ lean_object* v_toApplicative_144_; lean_object* v_toBind_145_; lean_object* v_to
 v_toApplicative_144_ = lean_ctor_get(v_inst_139_, 0);
 lean_inc_ref(v_toApplicative_144_);
 v_toBind_145_ = lean_ctor_get(v_inst_139_, 1);
-lean_inc(v_toBind_145_);
+lean_inc_n(v_toBind_145_, 2);
 lean_dec_ref(v_inst_139_);
 v_toPure_146_ = lean_ctor_get(v_toApplicative_144_, 1);
 lean_inc(v_toPure_146_);
 lean_dec_ref(v_toApplicative_144_);
-lean_inc(v_toBind_145_);
 v___f_147_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__5), 4, 3);
 lean_closure_set(v___f_147_, 0, v_toPure_146_);
 lean_closure_set(v___f_147_, 1, v_x_143_);
@@ -576,12 +575,11 @@ lean_object* v_toApplicative_173_; lean_object* v_toBind_174_; lean_object* v_to
 v_toApplicative_173_ = lean_ctor_get(v_inst_168_, 0);
 lean_inc_ref(v_toApplicative_173_);
 v_toBind_174_ = lean_ctor_get(v_inst_168_, 1);
-lean_inc(v_toBind_174_);
+lean_inc_n(v_toBind_174_, 2);
 lean_dec_ref(v_inst_168_);
 v_toPure_175_ = lean_ctor_get(v_toApplicative_173_, 1);
 lean_inc(v_toPure_175_);
 lean_dec_ref(v_toApplicative_173_);
-lean_inc(v_toBind_174_);
 v___f_176_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__8), 4, 3);
 lean_closure_set(v___f_176_, 0, v_toPure_175_);
 lean_closure_set(v___f_176_, 1, v_y_172_);
@@ -643,25 +641,20 @@ LEAN_EXPORT lean_object* l_OptionT_instMonad___redArg(lean_object* v_inst_199_){
 _start:
 {
 lean_object* v___f_200_; lean_object* v___f_201_; lean_object* v___f_202_; lean_object* v___f_203_; lean_object* v___f_204_; lean_object* v___x_205_; lean_object* v___x_206_; lean_object* v___x_207_; lean_object* v___x_208_; lean_object* v___x_209_; 
-lean_inc_ref(v_inst_199_);
+lean_inc_ref_n(v_inst_199_, 6);
 v___f_200_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__1), 5, 1);
 lean_closure_set(v___f_200_, 0, v_inst_199_);
-lean_inc_ref(v_inst_199_);
 v___f_201_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__3), 5, 1);
 lean_closure_set(v___f_201_, 0, v_inst_199_);
-lean_inc_ref(v_inst_199_);
 v___f_202_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__6), 5, 1);
 lean_closure_set(v___f_202_, 0, v_inst_199_);
-lean_inc_ref(v_inst_199_);
 v___f_203_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__9), 5, 1);
 lean_closure_set(v___f_203_, 0, v_inst_199_);
-lean_inc_ref(v_inst_199_);
 v___f_204_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__11), 5, 1);
 lean_closure_set(v___f_204_, 0, v_inst_199_);
 v___x_205_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_205_, 0, v___f_200_);
 lean_ctor_set(v___x_205_, 1, v___f_201_);
-lean_inc_ref(v_inst_199_);
 v___x_206_ = lean_alloc_closure((void*)(l_OptionT_pure), 4, 2);
 lean_closure_set(v___x_206_, 0, lean_box(0));
 lean_closure_set(v___x_206_, 1, v_inst_199_);
@@ -684,25 +677,20 @@ LEAN_EXPORT lean_object* l_OptionT_instMonad(lean_object* v_m_210_, lean_object*
 _start:
 {
 lean_object* v___f_212_; lean_object* v___f_213_; lean_object* v___f_214_; lean_object* v___f_215_; lean_object* v___f_216_; lean_object* v___x_217_; lean_object* v___x_218_; lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; 
-lean_inc_ref(v_inst_211_);
+lean_inc_ref_n(v_inst_211_, 6);
 v___f_212_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__1), 5, 1);
 lean_closure_set(v___f_212_, 0, v_inst_211_);
-lean_inc_ref(v_inst_211_);
 v___f_213_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__3), 5, 1);
 lean_closure_set(v___f_213_, 0, v_inst_211_);
-lean_inc_ref(v_inst_211_);
 v___f_214_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__6), 5, 1);
 lean_closure_set(v___f_214_, 0, v_inst_211_);
-lean_inc_ref(v_inst_211_);
 v___f_215_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__9), 5, 1);
 lean_closure_set(v___f_215_, 0, v_inst_211_);
-lean_inc_ref(v_inst_211_);
 v___f_216_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__11), 5, 1);
 lean_closure_set(v___f_216_, 0, v_inst_211_);
 v___x_217_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_217_, 0, v___f_212_);
 lean_ctor_set(v___x_217_, 1, v___f_213_);
-lean_inc_ref(v_inst_211_);
 v___x_218_ = lean_alloc_closure((void*)(l_OptionT_pure), 4, 2);
 lean_closure_set(v___x_218_, 0, lean_box(0));
 lean_closure_set(v___x_218_, 1, v_inst_211_);
@@ -830,25 +818,20 @@ LEAN_EXPORT lean_object* l_OptionT_instAlternative___redArg(lean_object* v_inst_
 _start:
 {
 lean_object* v___f_266_; lean_object* v___f_267_; lean_object* v___f_268_; lean_object* v___f_269_; lean_object* v___f_270_; lean_object* v___x_271_; lean_object* v___x_272_; lean_object* v___x_273_; lean_object* v___x_274_; lean_object* v___x_275_; lean_object* v___x_276_; 
-lean_inc_ref(v_inst_265_);
+lean_inc_ref_n(v_inst_265_, 7);
 v___f_266_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__1), 5, 1);
 lean_closure_set(v___f_266_, 0, v_inst_265_);
-lean_inc_ref(v_inst_265_);
 v___f_267_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__3), 5, 1);
 lean_closure_set(v___f_267_, 0, v_inst_265_);
-lean_inc_ref(v_inst_265_);
 v___f_268_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__6), 5, 1);
 lean_closure_set(v___f_268_, 0, v_inst_265_);
-lean_inc_ref(v_inst_265_);
 v___f_269_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__9), 5, 1);
 lean_closure_set(v___f_269_, 0, v_inst_265_);
-lean_inc_ref(v_inst_265_);
 v___f_270_ = lean_alloc_closure((void*)(l_OptionT_instMonad___redArg___lam__11), 5, 1);
 lean_closure_set(v___f_270_, 0, v_inst_265_);
 v___x_271_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_271_, 0, v___f_266_);
 lean_ctor_set(v___x_271_, 1, v___f_267_);
-lean_inc_ref(v_inst_265_);
 v___x_272_ = lean_alloc_closure((void*)(l_OptionT_pure), 4, 2);
 lean_closure_set(v___x_272_, 0, lean_box(0));
 lean_closure_set(v___x_272_, 1, v_inst_265_);
@@ -858,7 +841,6 @@ lean_ctor_set(v___x_273_, 1, v___x_272_);
 lean_ctor_set(v___x_273_, 2, v___f_268_);
 lean_ctor_set(v___x_273_, 3, v___f_269_);
 lean_ctor_set(v___x_273_, 4, v___f_270_);
-lean_inc_ref(v_inst_265_);
 v___x_274_ = lean_alloc_closure((void*)(l_OptionT_fail), 3, 2);
 lean_closure_set(v___x_274_, 0, lean_box(0));
 lean_closure_set(v___x_274_, 1, v_inst_265_);

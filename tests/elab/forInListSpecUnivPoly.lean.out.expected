@@ -621,57 +621,61 @@
         wp⟦pure (ForInStep.yield r✝)⟧
           (fun r =>
             match r with
-            | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
-            | ForInStep.done b' => Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-            Prod.snd ?inv),
+            | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+            | ForInStep.done b' =>
+              Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+            Prod.snd ?inv✝),
         (fun r =>
             match r with
-            | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
-            | ForInStep.done b' => Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-            Prod.snd ?inv).snd)
+            | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+            | ForInStep.done b' =>
+              Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+            Prod.snd ?inv✝).snd)
 [Elab.Tactic.Do.spec] pureRflAndAndIntro: wp⟦pure PUnit.unit⟧
       (fun a =>
         wp⟦pure (ForInStep.yield r✝)⟧
           (fun r =>
             match r with
-            | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
-            | ForInStep.done b' => Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-            Prod.snd ?inv),
+            | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+            | ForInStep.done b' =>
+              Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+            Prod.snd ?inv✝),
         (fun r =>
             match r with
-            | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
-            | ForInStep.done b' => Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-            Prod.snd ?inv).snd)
+            | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+            | ForInStep.done b' =>
+              Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+            Prod.snd ?inv✝).snd)
 [Elab.Tactic.Do.spec] discharge? (wp⟦pure PUnit.unit⟧
         (fun a =>
           wp⟦pure (ForInStep.yield r✝)⟧
             (fun r =>
               match r with
-              | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+              | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
               | ForInStep.done b' =>
-                Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-              Prod.snd ?inv),
+                Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+              Prod.snd ?inv✝),
           (fun r =>
               match r with
-              | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+              | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
               | ForInStep.done b' =>
-                Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-              Prod.snd ?inv).snd)).down
+                Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+              Prod.snd ?inv✝).snd)).down
 [Elab.Tactic.Do.spec] pure Prop: (wp⟦pure PUnit.unit⟧
         (fun a =>
           wp⟦pure (ForInStep.yield r✝)⟧
             (fun r =>
               match r with
-              | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+              | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
               | ForInStep.done b' =>
-                Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-              Prod.snd ?inv),
+                Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+              Prod.snd ?inv✝),
           (fun r =>
               match r with
-              | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+              | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
               | ForInStep.done b' =>
-                Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-              Prod.snd ?inv).snd)).down
+                Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+              Prod.snd ?inv✝).snd)).down
 [Elab.Tactic.Do.spec] Candidates for pure PUnit.unit: [SpecProof.global Std.Do.Spec.pure]
 [Elab.Tactic.Do.spec] SpecProof.global Std.Do.Spec.pure instantiates to ⦃Prod.fst ?Q ?a⦄ pure ?a ⦃?Q⦄
 [Elab.Tactic.Do.spec] Specs for pure PUnit.unit: [SpecProof.global Std.Do.Spec.pure]
@@ -679,88 +683,94 @@
           wp⟦pure (ForInStep.yield r✝)⟧
             (fun r =>
               match r with
-              | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+              | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
               | ForInStep.done b' =>
-                Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-              Prod.snd ?inv),
+                Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+              Prod.snd ?inv✝),
           (fun r =>
               match r with
-              | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+              | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
               | ForInStep.done b' =>
-                Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-              Prod.snd ?inv).snd).fst
+                Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+              Prod.snd ?inv✝).snd).fst
       PUnit.unit
 [Elab.Tactic.Do.spec] pureRflAndAndIntro: (fun a =>
           wp⟦pure (ForInStep.yield r✝)⟧
             (fun r =>
               match r with
-              | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+              | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
               | ForInStep.done b' =>
-                Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-              Prod.snd ?inv),
+                Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+              Prod.snd ?inv✝),
           (fun r =>
               match r with
-              | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+              | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
               | ForInStep.done b' =>
-                Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-              Prod.snd ?inv).snd).fst
+                Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+              Prod.snd ?inv✝).snd).fst
       PUnit.unit
 [Elab.Tactic.Do.spec] discharge? ((fun a =>
             wp⟦pure (ForInStep.yield r✝)⟧
               (fun r =>
                 match r with
-                | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+                | ForInStep.yield b' =>
+                  Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
                 | ForInStep.done b' =>
-                  Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-                Prod.snd ?inv),
+                  Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+                Prod.snd ?inv✝),
             (fun r =>
                 match r with
-                | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+                | ForInStep.yield b' =>
+                  Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
                 | ForInStep.done b' =>
-                  Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-                Prod.snd ?inv).snd).fst
+                  Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+                Prod.snd ?inv✝).snd).fst
         PUnit.unit).down
 [Elab.Tactic.Do.spec] pure Prop: ((fun a =>
             wp⟦pure (ForInStep.yield r✝)⟧
               (fun r =>
                 match r with
-                | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+                | ForInStep.yield b' =>
+                  Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
                 | ForInStep.done b' =>
-                  Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-                Prod.snd ?inv),
+                  Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+                Prod.snd ?inv✝),
             (fun r =>
                 match r with
-                | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+                | ForInStep.yield b' =>
+                  Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
                 | ForInStep.done b' =>
-                  Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-                Prod.snd ?inv).snd).fst
+                  Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+                Prod.snd ?inv✝).snd).fst
         PUnit.unit).down
 [Elab.Tactic.Do.spec] Candidates for pure (ForInStep.yield r✝): [SpecProof.global Std.Do.Spec.pure]
 [Elab.Tactic.Do.spec] SpecProof.global Std.Do.Spec.pure instantiates to ⦃Prod.fst ?Q ?a⦄ pure ?a ⦃?Q⦄
 [Elab.Tactic.Do.spec] Specs for pure (ForInStep.yield r✝): [SpecProof.global Std.Do.Spec.pure]
 [Elab.Tactic.Do.spec] dischargeMGoal: (fun r =>
           match r with
-          | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
-          | ForInStep.done b' => Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-          Prod.snd ?inv).fst
+          | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+          | ForInStep.done b' => Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+          Prod.snd ?inv✝).fst
       (ForInStep.yield r✝)
 [Elab.Tactic.Do.spec] pureRflAndAndIntro: (fun r =>
           match r with
-          | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
-          | ForInStep.done b' => Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-          Prod.snd ?inv).fst
+          | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+          | ForInStep.done b' => Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+          Prod.snd ?inv✝).fst
       (ForInStep.yield r✝)
 [Elab.Tactic.Do.spec] discharge? ((fun r =>
             match r with
-            | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
-            | ForInStep.done b' => Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-            Prod.snd ?inv).fst
+            | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+            | ForInStep.done b' =>
+              Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+            Prod.snd ?inv✝).fst
         (ForInStep.yield r✝)).down
 [Elab.Tactic.Do.spec] pure Prop: ((fun r =>
             match r with
-            | ForInStep.yield b' => Prod.fst ?inv ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
-            | ForInStep.done b' => Prod.fst ?inv ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
-            Prod.snd ?inv).fst
+            | ForInStep.yield b' => Prod.fst ?inv✝ ({ «prefix» := pref ++ [cur], suffix := suff, property := ⋯ }, b')
+            | ForInStep.done b' =>
+              Prod.fst ?inv✝ ({ «prefix» := List.range (n✝ - 1), suffix := [], property := ⋯ }, b'),
+            Prod.snd ?inv✝).fst
         (ForInStep.yield r✝)).down
 [Elab.Tactic.Do.spec] Candidates for pure r✝.toArray: [SpecProof.global Std.Do.Spec.pure]
 [Elab.Tactic.Do.spec] SpecProof.global Std.Do.Spec.pure instantiates to ⦃Prod.fst ?Q ?a⦄ pure ?a ⦃?Q⦄

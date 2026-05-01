@@ -12,6 +12,7 @@ public import Lean.Meta.Tactic.Simp.Arith
 public import Lean.Meta.Tactic.Simp.Attr
 public import Lean.Meta.BinderNameHint
 import Lean.Meta.WHNF
+public import Lean.Meta.HasAssignableMVar
 public section
 namespace Lean.Meta.Simp
 /--
@@ -99,14 +100,14 @@ where
       if (← withReducibleAndInstances <| isDefEq x val) then
         return true
       else
-        trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsythesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
+        trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to assign instance{indentExpr type}\nsynthesized value{indentExpr val}\nis not definitionally equal to{indentExpr x}"
         return false
     | _ =>
       trace[Meta.Tactic.simp.discharge] "{← ppOrigin thmId}, failed to synthesize instance{indentExpr type}"
       return false
 
 private def useImplicitDefEqProof (thm : SimpTheorem) : SimpM Bool := do
-  if thm.rfl then
+  if thm.rfl || (thm.backwardRfl && backward.defeqAttrib.useBackward.get (← getOptions)) then
     return (← getConfig).implicitDefEqProofs
   else
     return false
@@ -217,10 +218,12 @@ where
       return none
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.1.priority > e₂.1.priority
+      let useBackward := backward.defeqAttrib.useBackward.get (← getOptions)
       for (thm, numExtraArgs) in candidates do
+        checkSystem "simp"
         if inErasedSet thm then continue
         if rflOnly then
-          unless thm.rfl do
+          unless thm.rfl || (useBackward && thm.backwardRfl) do
             if debug.tactic.simp.checkDefEqAttr.get (← getOptions) &&
                backward.dsimp.useDefEqAttr.get (← getOptions) then
               let isRflOld ← withOptions (backward.dsimp.useDefEqAttr.set · false) do
@@ -244,8 +247,10 @@ where
       return none
     else
       let candidates := candidates.insertionSort fun e₁ e₂ => e₁.priority > e₂.priority
+      let useBackward := backward.defeqAttrib.useBackward.get (← getOptions)
       for thm in candidates do
-        unless inErasedSet thm || (rflOnly && !thm.rfl) do
+        checkSystem "simp"
+        unless inErasedSet thm || (rflOnly && !(thm.rfl || (useBackward && thm.backwardRfl))) do
           let result? ← withNewMCtxDepth do
             let val  ← thm.getValue
             let type ← inferType val
@@ -357,7 +362,7 @@ def simpMatchDiscrs? (info : MatcherInfo) (e : Expr) : SimpM (Option Result) := 
 def simpMatchCore (matcherName : Name) (e : Expr) : SimpM Step := do
   for matchEq in (← Match.getEquationsFor matcherName).eqnNames do
     -- Try lemma
-    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq) }) with
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl matchEq, proof := mkConst matchEq, rfl := (← isRflTheorem matchEq), backwardRfl := (← isBackwardRflTheorem matchEq) }) with
     | none   => pure ()
     | some r => return .visit r
   return .continue
@@ -438,7 +443,7 @@ def sevalGround : Simproc := fun e => do
     -- `declName` has equation theorems associated with it.
     for eqn in eqns do
       -- TODO: cache SimpTheorem to avoid calls to `isRflTheorem`
-      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rfl := (← isRflTheorem eqn) } then
+      if let some result ← Simp.tryTheorem? e { origin := .decl eqn, proof := mkConst eqn, rfl := (← isRflTheorem eqn), backwardRfl := (← isBackwardRflTheorem eqn) } then
         trace[Meta.Tactic.simp.ground] "unfolded, {e} => {result.expr}"
         return .visit result
     return .continue

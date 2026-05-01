@@ -10,13 +10,15 @@ public import Init.Core
 
 public section
 
-/-!
-# Notation for `while` and `repeat` loops.
--/
-
 namespace Lean
 
-/-! # `repeat` and `while` notation -/
+/-!
+# `Loop` type backing `repeat`/`while`/`repeat ... until`
+
+The parsers and elaborators for `repeat`, `while`, and `repeat ... until` live in
+`Lean.Parser.Do` and `Lean.Elab.BuiltinDo.Repeat`. This module only provides the
+`Loop` type (and `ForIn` instance) that those elaborators expand to.
+-/
 
 inductive Loop where
   | mk
@@ -31,25 +33,5 @@ partial def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m] (_ : Loop
 
 instance [Monad m] : ForIn m Loop Unit where
   forIn := Loop.forIn
-
-syntax "repeat " doSeq : doElem
-
-macro_rules
-  | `(doElem| repeat $seq) => `(doElem| for _ in Loop.mk do $seq)
-
-syntax "while " ident " : " termBeforeDo " do " doSeq : doElem
-
-macro_rules
-  | `(doElem| while $h : $cond do $seq) => `(doElem| repeat if $h:ident : $cond then $seq else break)
-
-syntax "while " termBeforeDo " do " doSeq : doElem
-
-macro_rules
-  | `(doElem| while $cond do $seq) => `(doElem| repeat if $cond then $seq else break)
-
-syntax "repeat " doSeq ppDedent(ppLine) "until " term : doElem
-
-macro_rules
-  | `(doElem| repeat $seq until $cond) => `(doElem| repeat do $seq:doSeq; if $cond then break)
 
 end Lean

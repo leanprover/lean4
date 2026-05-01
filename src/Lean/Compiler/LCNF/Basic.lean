@@ -342,6 +342,11 @@ def LetValue.toExpr (e : LetValue pu) : Expr :=
   | .unbox var _ => mkApp (.const `unbox []) (.fvar var)
   | .isShared fvarId _ => mkApp (.const `isShared []) (.fvar fvarId)
 
+def LetValue.isPersistent (val : LetValue .impure) : Bool :=
+  match val with
+  | .fap _ xs => xs.isEmpty -- all global constants are persistent
+  | _ => false
+
 structure LetDecl (pu : Purity) where
   fvarId : FVarId
   binderName : Name
@@ -1225,7 +1230,14 @@ def instantiateRevRangeArgs (e : Expr) (beginIdx endIdx : Nat) (args : Array (Ar
   else
     e.instantiateRevRange beginIdx endIdx (args.map (·.toExpr))
 
-/-- Lookup function for compiler extensions with sorted persisted state that works in both `lean` and `leanir`. -/
+/--
+Lookup function for compiler extensions with sorted persisted state that works in both `lean` and
+`leanir`.
+
+`preferImported` defaults to false because in `leanir`, we do not want to mix information from
+`meta` compilation in `lean` with our own state. But in `lean`, setting `preferImported` can help
+with avoiding unnecessary task blocks.
+-/
 @[inline] def findExtEntry? [Inhabited σ] (env : Environment) (ext : PersistentEnvExtension α β σ) (declName : Name)
     (findAtSorted? : Array α → Name → Option α')
     (findInState? : σ → Name → Option α') : Option α' :=

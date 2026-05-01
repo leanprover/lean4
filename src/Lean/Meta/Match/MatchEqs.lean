@@ -138,6 +138,7 @@ Creates conditional equations and splitter for the given match auxiliary declara
 
 See also `getEquationsFor`.
 -/
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_get_match_equations_for]
 def getEquationsForImpl (matchDeclName : Name) : MetaM MatchEqns := do
   /-
@@ -246,6 +247,7 @@ where go baseName splitterName := withConfig (fun c => { c with etaStruct := .no
     let result := { eqnNames, splitterName, splitterMatchInfo }
     registerMatchEqns matchDeclName result
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Generate the congruence equations for the given match auxiliary declaration.
 The congruence equations have a completely unrestricted left-hand side (arbitrary discriminants),

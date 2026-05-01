@@ -1004,10 +1004,9 @@ LEAN_EXPORT lean_object* l_Array_binInsert___redArg(lean_object* v_lt_412_, lean
 _start:
 {
 lean_object* v___f_415_; lean_object* v___f_416_; lean_object* v___x_417_; lean_object* v___x_418_; 
-lean_inc(v_k_414_);
+lean_inc_n(v_k_414_, 2);
 v___f_415_ = lean_alloc_closure((void*)(l_Array_binInsert___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_415_, 0, v_k_414_);
-lean_inc(v_k_414_);
 v___f_416_ = lean_alloc_closure((void*)(l_Array_binInsert___redArg___lam__1___boxed), 2, 1);
 lean_closure_set(v___f_416_, 0, v_k_414_);
 v___x_417_ = ((lean_object*)(l_Array_binInsert___redArg___closed__9));
@@ -1019,10 +1018,9 @@ LEAN_EXPORT lean_object* l_Array_binInsert(lean_object* v_00_u03b1_419_, lean_ob
 _start:
 {
 lean_object* v___f_423_; lean_object* v___f_424_; lean_object* v___x_425_; lean_object* v___x_426_; 
-lean_inc(v_k_422_);
+lean_inc_n(v_k_422_, 2);
 v___f_423_ = lean_alloc_closure((void*)(l_Array_binInsert___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_423_, 0, v_k_422_);
-lean_inc(v_k_422_);
 v___f_424_ = lean_alloc_closure((void*)(l_Array_binInsert___redArg___lam__1___boxed), 2, 1);
 lean_closure_set(v___f_424_, 0, v_k_422_);
 v___x_425_ = ((lean_object*)(l_Array_binInsert___redArg___closed__9));

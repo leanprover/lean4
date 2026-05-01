@@ -16,46 +16,81 @@ namespace Lean.Elab.Do
 
 open Lean Meta Parser.Term
 
-/-- Represents information about what control effects a `do` block has. -/
+/--
+Represents information about what control effects a `do` block has.
+
+The fields split by flavor:
+
+* `breaks`, `continues`, `returnsEarly`, and `reassigns` are **syntactic**: `true`/non-empty iff
+  the corresponding construct appears anywhere in the source text of the block, independent of
+  whether it is semantically reachable. Downstream elaborators must assume every such syntactic
+  effect may occur, because the elaborator visits every doElem (only top-level
+  `return`/`break`/`continue` short-circuit via `elabAsSyntacticallyDeadCode`).
+* `numRegularExits` is also **syntactic**: the number of times the block wires the enclosing
+  continuation into its elaborated expression. `withDuplicableCont` reads it as a join-point
+  duplication trigger (`> 1`).
+* `noFallthrough = true` asserts that the next doElem in the enclosing sequence is semantically
+  irrelevant (control never falls through to it). `noFallthrough = false` makes no such
+  assertion. The dead-code warning fires on the next element when this is `true`.
+
+Invariant: `numRegularExits = 0 → noFallthrough`. The converse does not hold.
+-/
 structure ControlInfo where
-  /-- The `do` block may `break`. -/
+  /-- The `do` block syntactically contains a `break`. -/
   breaks : Bool := false
-  /-- The `do` block may `continue`. -/
+  /-- The `do` block syntactically contains a `continue`. -/
   continues : Bool := false
-  /-- The `do` block may `return` early. -/
+  /-- The `do` block syntactically contains an early `return`. -/
   returnsEarly : Bool := false
   /--
-  The number of regular exit paths the `do` block has.
-  Corresponds to the number of jumps to an ambient join point.
+  The number of times the block wires the enclosing continuation into its elaborated expression.
+  Consumed by `withDuplicableCont` to decide whether to introduce a join point (`> 1`).
   -/
   numRegularExits : Nat := 1
-  /-- The variables that are reassigned in the `do` block. -/
+  /--
+  When `true`, asserts that the next doElem in the enclosing sequence is semantically irrelevant
+  (control never falls through to it). `false` asserts nothing.
+  -/
+  noFallthrough : Bool := false
+  /-- The variables that are syntactically reassigned somewhere in the `do` block. -/
   reassigns : NameSet := {}
   deriving Inhabited
 
 def ControlInfo.pure : ControlInfo := {}
 
-def ControlInfo.sequence (a b : ControlInfo) : ControlInfo :=
-  if a.numRegularExits == 0 then a else {
+/--
+The identity of `ControlInfo.alternative`: a `ControlInfo` describing a block with no branches
+at all (so no regular exits and the next element is trivially unreachable).
+-/
+def ControlInfo.empty : ControlInfo := { numRegularExits := 0, noFallthrough := true }
+
+def ControlInfo.sequence (a b : ControlInfo) : ControlInfo := {
+    -- Syntactic fields aggregate unconditionally; the elaborator keeps visiting `b` unless `a` is
+    -- a syntactically-terminal element (only top-level `return`/`break`/`continue` are, via
+    -- `elabAsSyntacticallyDeadCode`).
     breaks := a.breaks || b.breaks,
     continues := a.continues || b.continues,
     returnsEarly := a.returnsEarly || b.returnsEarly,
-    numRegularExits := b.numRegularExits,
     reassigns := a.reassigns ++ b.reassigns,
+    numRegularExits := b.numRegularExits,
+    -- Semantic: the sequence is dead if either part is dead.
+    noFallthrough := a.noFallthrough || b.noFallthrough,
   }
 
 def ControlInfo.alternative (a b : ControlInfo) : ControlInfo := {
     breaks := a.breaks || b.breaks,
     continues := a.continues || b.continues,
     returnsEarly := a.returnsEarly || b.returnsEarly,
-    numRegularExits := a.numRegularExits + b.numRegularExits,
     reassigns := a.reassigns ++ b.reassigns,
+    numRegularExits := a.numRegularExits + b.numRegularExits,
+    -- Semantic: alternatives are dead only if all branches are dead.
+    noFallthrough := a.noFallthrough && b.noFallthrough,
   }
 
 instance : ToMessageData ControlInfo where
   toMessageData info := m!"breaks: {info.breaks}, continues: {info.continues},
-    returnsEarly: {info.returnsEarly}, exitsRegularly: {info.numRegularExits},
-    reassigns: {info.reassigns.toList}"
+    returnsEarly: {info.returnsEarly}, numRegularExits: {info.numRegularExits},
+    noFallthrough: {info.noFallthrough}, reassigns: {info.reassigns.toList}"
 
 /-- A handler for inferring `ControlInfo` from a `doElem` syntax. Register with `@[doElem_control_info parserName]`. -/
 abbrev ControlInfoHandler := TSyntax `doElem → TermElabM ControlInfo
@@ -79,6 +114,7 @@ builtin_initialize controlInfoElemAttribute : KeyedDeclsAttribute ControlInfoHan
 
 namespace InferControlInfo
 
+open InternalSyntax in
 mutual
 
 partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
@@ -88,18 +124,18 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     return ← ofElem ⟨stxNew⟩
 
   match stx with
-  | `(doElem| break) => return { breaks := true, numRegularExits := 0 }
-  | `(doElem| continue) => return { continues := true, numRegularExits := 0 }
-  | `(doElem| return $[$_]?) => return { returnsEarly := true, numRegularExits := 0 }
+  | `(doElem| break) => return { breaks := true, numRegularExits := 0, noFallthrough := true }
+  | `(doElem| continue) => return { continues := true, numRegularExits := 0, noFallthrough := true }
+  | `(doElem| return $[$_]?) => return { returnsEarly := true, numRegularExits := 0, noFallthrough := true }
   | `(doExpr| $_:term) => return { numRegularExits := 1 }
   | `(doElem| do $doSeq) => ofSeq doSeq
   -- Let
-  | `(doElem| let $[mut]? $_:letDecl) => return .pure
-  | `(doElem| have $_:letDecl) => return .pure
+  | `(doElem| let $[mut]? $_:letConfig $_:letDecl) => return .pure
+  | `(doElem| have $_:letConfig $_:letDecl) => return .pure
   | `(doElem| let rec $_:letRecDecl) => return .pure
-  | `(doElem| let $[mut]? $_ := $_ | $otherwise $(body?)?) =>
+  | `(doElem| let $[mut]? $_:letConfig $_ := $_ | $otherwise $(body?)?) =>
     ofLetOrReassign #[] none otherwise body?
-  | `(doElem| let $[mut]? $decl) =>
+  | `(doElem| let $[mut]? $_:letConfig $decl) =>
     ofLetOrReassignArrow false decl
   | `(doElem| $decl:letIdDeclNoBinders) =>
     ofLetOrReassign (← getLetIdDeclVars ⟨decl⟩) none none none
@@ -111,7 +147,7 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     ofLetOrReassignArrow true decl
   -- match
   | `(doElem| match $[(dependent := $_)]? $[(generalizing := $_)]? $(_)? $_,* with $alts:matchAlt*) =>
-    let mut info := {}
+    let mut info := ControlInfo.empty
     for alt in alts do
       let `(matchAltExpr| | $[$_,*]|* => $rhs) := alt | throwUnsupportedSyntax
       let rhsInfo ← ofSeq ⟨rhs⟩
@@ -128,12 +164,25 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     return thenInfo.alternative info
   | `(doElem| unless $_ do $elseSeq) =>
     ControlInfo.alternative {} <$> ofSeq elseSeq
+  -- For/Repeat
   | `(doElem| for $[$[$_ :]? $_ in $_],* do $bodySeq) =>
     let info ← ofSeq bodySeq
     return { info with  -- keep only reassigns and earlyReturn
       numRegularExits := 1,
       continues := false,
-      breaks := false
+      breaks := false,
+      noFallthrough := false,
+    }
+  | `(doRepeat| repeat $bodySeq) =>
+    -- A break-less `repeat` never falls through; the elaborator injects an `unreachable!` so the
+    -- surrounding continuation still has a polymorphic value to hand back, and any dead-code
+    -- warning on subsequent elements is actionable.
+    let info ← ofSeq bodySeq
+    return { info with  -- keep only reassigns and earlyReturn
+      numRegularExits := if info.breaks then 1 else 0,
+      continues := false,
+      breaks := false,
+      noFallthrough := !info.breaks,
     }
   -- Try
   | `(doElem| try $trySeq:doSeq $[$catches]* $[finally $finSeq?]?) =>
@@ -152,6 +201,7 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     let finInfo ← ofOptionSeq finSeq?
     return info.sequence finInfo
   -- Misc
+  | `(doElem| skip) => return .pure
   | `(doElem| dbg_trace $_) => return .pure
   | `(doElem| assert! $_) => return .pure
   | `(doElem| debug_assert! $_) => return .pure
@@ -169,15 +219,16 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
     let bodyInfo ← match body? with | none => pure {} | some body => ofSeq ⟨body⟩
     return otherwiseInfo.alternative bodyInfo
   | _ =>
-    let handlers := controlInfoElemAttribute.getEntries (← getEnv) stx.raw.getKind
+    let kind := stx.raw.getKind
+    let handlers := controlInfoElemAttribute.getEntries (← getEnv) kind
     for handler in handlers do
       let res ← catchInternalId unsupportedSyntaxExceptionId
         (some <$> handler.value stx)
         (fun _ => pure none)
       if let some info := res then return info
     throwError
-      "No `ControlInfo` inference handler found for `{stx.raw.getKind}` in syntax {indentD stx}\n\
-       Register a handler with `@[doElem_control_info {stx.raw.getKind}]`."
+      "No `ControlInfo` inference handler found for `{kind}` in syntax {indentD stx}\n\
+       Register a handler with `@[doElem_control_info {kind}]`."
 
 partial def ofLetOrReassignArrow (reassignment : Bool) (decl : TSyntax [``doIdDecl, ``doPatDecl]) : TermElabM ControlInfo := do
   match decl with
@@ -201,17 +252,7 @@ partial def ofLetOrReassign (reassigned : Array Ident) (rhs? : Option (TSyntax `
 partial def ofSeq (stx : TSyntax ``doSeq) : TermElabM ControlInfo := do
   let mut info : ControlInfo := {}
   for elem in getDoElems stx do
-    if info.numRegularExits == 0 then
-      break
-    let elemInfo ← ofElem elem
-    info := {
-      info with
-      breaks := info.breaks || elemInfo.breaks
-      continues := info.continues || elemInfo.continues
-      returnsEarly := info.returnsEarly || elemInfo.returnsEarly
-      numRegularExits := elemInfo.numRegularExits
-      reassigns := info.reassigns ++ elemInfo.reassigns
-    }
+    info := info.sequence (← ofElem elem)
   return info
 
 partial def ofOptionSeq (stx? : Option (TSyntax ``doSeq)) : TermElabM ControlInfo := do

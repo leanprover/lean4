@@ -49,6 +49,14 @@ syntax (name := ground) "ground" : sym_simproc
 /-- Simplify telescope binders but not the final body. -/
 syntax (name := telescope) "telescope" : sym_simproc
 
+/-- Simplify control-flow expressions (`if-then-else`, `match`, `cond`, `dite`).
+Visits only conditions and discriminants. Intended as a `pre` simproc. -/
+syntax (name := control) "control" : sym_simproc
+
+/-- Simplify arrow telescopes (`p₁ → p₂ → ... → q`) without entering binders.
+Simplifies each `pᵢ` and `q` individually. Intended as a `pre` simproc. -/
+syntax (name := arrowTelescope) "arrow_telescope" : sym_simproc
+
 /-- Rewrite using a named theorem set. Optionally specify a discharger for conditional rewrites. -/
 syntax (name := rewriteSet) "rewrite" ident (" with " sym_discharger)? : sym_simproc
 

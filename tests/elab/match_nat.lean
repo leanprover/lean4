@@ -6,7 +6,7 @@ def f : Nat → Nat
 
 
 /--
-info: def f.match_1.{u_1} : (motive : Nat → Sort u_1) →
+info: @[implicit_reducible] def f.match_1.{u_1} : (motive : Nat → Sort u_1) →
   (x : Nat) → (Unit → motive 0) → (Unit → motive 10) → (Unit → motive 100) → ((x : Nat) → motive x) → motive x
 -/
 #guard_msgs in

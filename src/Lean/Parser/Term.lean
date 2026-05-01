@@ -50,17 +50,17 @@ def versoCommentBodyFn : ParserFn := fun c s =>
     rawFn (Doc.Parser.ignoreFn <| chFn '-' >> chFn '/') (trailingWs := true) c s
   else s
 
-public def versoCommentBody : Parser where
+def versoCommentBody : Parser where
   fn := fun c s => nodeFn `Lean.Parser.Command.versoCommentBody versoCommentBodyFn c s
 
 
 @[combinator_parenthesizer versoCommentBody, expose]
-public def versoCommentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
+def versoCommentBody.parenthesizer := PrettyPrinter.Parenthesizer.visitToken
 
 open PrettyPrinter Formatter in
 open Syntax.MonadTraverser in
 @[combinator_formatter versoCommentBody, expose]
-public def versoCommentBody.formatter : PrettyPrinter.Formatter := do
+def versoCommentBody.formatter : PrettyPrinter.Formatter := do
   visitArgs $ do
     visitAtom `«-/»
     goLeft
@@ -353,6 +353,13 @@ def structInstFieldDef := leading_parser
 @[builtin_structInstFieldDecl_parser]
 def structInstFieldEqns := leading_parser
   optional "private" >> matchAlts
+
+/--
+Synthesizes a default value for a structure, making use of `Inhabited` instances for
+missing fields, as well as `Inhabited` instances for parent structures.
+-/
+@[builtin_term_parser] def structInstDefault := leading_parser
+  "struct_inst_default%"
 
 def funImplicitBinder := withAntiquot (mkAntiquot "implicitBinder" ``implicitBinder) <|
   atomic (lookahead ("{" >> many1 binderIdent >> (symbol " : " <|> "}"))) >> implicitBinder
@@ -774,10 +781,35 @@ In particular, it is like a unary operation with a fixed parameter `b`, where on
 @[builtin_term_parser] def noImplicitLambda := leading_parser
   "no_implicit_lambda% " >> termParser maxPrec
 /--
-`inferInstanceAs α` synthesizes an instance of type `α` and normalizes it to
-"instance normal form": the result is a constructor application whose sub-instance
-fields are canonical instances and whose types match `α` exactly. See
-`Lean.Meta.InstanceNormalForm` for details.
+`inferInstanceAs α` synthesizes an instance of type `α` and then adjusts it to conform to the
+expected type `β`, which must be inferable from context.
+
+Example:
+```
+def D := Nat
+instance : Inhabited D := inferInstanceAs (Inhabited Nat)
+```
+
+The adjustment will make sure that when the resulting instance will not "leak" the RHS `Nat` when
+reduced at transparency levels below `semireducible`, i.e. where `D` would not be unfolded either,
+preventing "defeq abuse".
+
+More specifically, given the "source type" (the argument) and "target type" (the expected type),
+`inferInstanceAs` synthesizes an instance for the source type and then unfolds and rewraps its
+components (fields, nested instances) as necessary to make them compatible with the target type. The
+individual steps are represented by the following options, which all default to enabled and can be
+disabled to help with porting:
+
+* `backward.inferInstanceAs.wrap`: master switch for instance adjustment in both `inferInstanceAs`
+  and the default deriving handler
+* `backward.inferInstanceAs.wrap.reuseSubInstances`: reuse existing instances for the target type
+  for sub-instance fields to avoid non-defeq instance diamonds
+* `backward.inferInstanceAs.wrap.instances`: wrap non-reducible instances in auxiliary definitions
+* `backward.inferInstanceAs.wrap.data`: wrap data fields in auxiliary definitions (proof fields are
+  always wrapped)
+
+If you just need to synthesize an instance without transporting between types, use `inferInstance`
+instead, potentially with a type annotation for the expected type.
 -/
 @[builtin_term_parser] def «inferInstanceAs» := leading_parser
   "inferInstanceAs" >> (((" $ " <|> " <| ") >> termParser minPrec) <|> (ppSpace >> termParser argPrec))
@@ -857,15 +889,28 @@ the available context).
 -/
 def identProjKind := `Lean.Parser.Term.identProj
 
+@[builtin_term_parser] def dotIdent := leading_parser
+  "." >> checkNoWsBefore >> rawIdent
+
 def isIdent (stx : Syntax) : Bool :=
   -- antiquotations should also be allowed where an identifier is expected
   stx.isAntiquot || stx.isIdent
 
-/-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
-@[builtin_term_parser] def explicitUniv : TrailingParser := trailing_parser
-  checkStackTop isIdent "expected preceding identifier" >>
+/-- Predicate for what `explicitUniv` can follow. It is only meant to be used on an identifier
+that becomes the head constant of an application. -/
+def isIdentOrDotIdentOrProj (stx : Syntax) : Bool :=
+  isIdent stx || stx.isOfKind ``dotIdent || stx.isOfKind ``proj
+
+/-- Syntax for `.{u, ...}` itself. Generally the `explicitUniv` trailing parser suffices.
+However, for `e |>.x.{u} a1 a2 a3` notation we need to be able to express explicit universes in the
+middle of the syntax. -/
+def explicitUnivSuffix : Parser :=
   checkNoWsBefore "no space before '.{'" >> ".{" >>
   sepBy1 levelParser ", " >> "}"
+/-- `x.{u, ...}` explicitly specifies the universes `u, ...` of the constant `x`. -/
+@[builtin_term_parser] def explicitUniv : TrailingParser := trailing_parser
+  checkStackTop isIdentOrDotIdentOrProj "expected preceding identifier" >>
+  explicitUnivSuffix
 /-- `x@e` or `x@h:e` matches the pattern `e` and binds its value to the identifier `x`.
 If present, the identifier `h` is bound to a proof of `x = e`. -/
 @[builtin_term_parser] def namedPattern : TrailingParser := trailing_parser
@@ -878,7 +923,7 @@ If present, the identifier `h` is bound to a proof of `x = e`. -/
 It is especially useful for avoiding parentheses with repeated applications.
 -/
 @[builtin_term_parser] def pipeProj   := trailing_parser:minPrec
-  " |>." >> checkNoWsBefore >> (fieldIdx <|> rawIdent) >> many argument
+  " |>." >> checkNoWsBefore >> (fieldIdx <|> rawIdent) >> optional explicitUnivSuffix >> many argument
 @[builtin_term_parser] def pipeCompletion := trailing_parser:minPrec
   " |>."
 
@@ -950,9 +995,6 @@ appropriate parameter for the underlying monad's `ST` effects, then passes it to
 
 @[builtin_term_parser] def dynamicQuot := withoutPosition <| leading_parser
   "`(" >> ident >> "| " >> incQuotDepth (parserOfStack 1) >> ")"
-
-@[builtin_term_parser] def dotIdent := leading_parser
-  "." >> checkNoWsBefore >> rawIdent
 
 /--
 Implementation of the `show_term` term elaborator.

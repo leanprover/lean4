@@ -82,9 +82,8 @@ case 5:
 {
 lean_object* v_a_16_; lean_object* v___x_17_; uint8_t v___x_18_; 
 v_a_16_ = lean_ctor_get(v_x_2_, 0);
-lean_inc(v_a_16_);
+lean_inc_n(v_a_16_, 2);
 lean_dec_ref(v_x_2_);
-lean_inc(v_a_16_);
 v___x_17_ = lean_apply_1(v_p_1_, v_a_16_);
 v___x_18_ = lean_unbox(v___x_17_);
 if (v___x_18_ == 0)
@@ -325,9 +324,8 @@ lean_inc_ref(v_value_96_);
 v_body_97_ = lean_ctor_get(v_x_78_, 3);
 lean_inc_ref(v_body_97_);
 lean_dec_ref(v_x_78_);
-lean_inc_ref(v_p_77_);
+lean_inc_ref_n(v_p_77_, 2);
 v___x_98_ = l_Lean_FindLevelMVar_visit(v_p_77_, v_type_95_, v_a_79_);
-lean_inc_ref(v_p_77_);
 v___x_99_ = l_Lean_FindLevelMVar_visit(v_p_77_, v_value_96_, v___x_98_);
 v___x_100_ = l_Lean_FindLevelMVar_visit(v_p_77_, v_body_97_, v___x_99_);
 return v___x_100_;

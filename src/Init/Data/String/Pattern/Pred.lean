@@ -139,8 +139,9 @@ instance {p : Char → Prop} [DecidablePred p] : LawfulBackwardPattern p where
   skipSuffixOfNonempty?_eq h := LawfulBackwardPattern.skipSuffixOfNonempty?_eq (pat := (decide <| p ·)) h
   endsWith_eq s := LawfulBackwardPattern.endsWith_eq (pat := (decide <| p ·)) s
 
-instance {p : Char → Prop} [DecidablePred p] : ToBackwardSearcher p (ToBackwardSearcher.DefaultBackwardSearcher p) :=
-  .defaultImplementation
+instance {p : Char → Prop} [DecidablePred p] :
+    ToBackwardSearcher p (ToBackwardSearcher.DefaultBackwardSearcher (decide <| p ·)) where
+  toSearcher s := ToBackwardSearcher.toSearcher (decide <| p ·) s
 
 end Decidable
 

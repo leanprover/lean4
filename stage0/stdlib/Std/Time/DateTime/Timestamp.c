@@ -19,7 +19,7 @@ lean_object* lean_int_add(lean_object*, lean_object*);
 lean_object* l_Std_Time_Duration_ofNanoseconds(lean_object*);
 uint8_t l_Std_Time_Duration_instDecidableLt(lean_object*, lean_object*);
 lean_object* lean_int_div(lean_object*, lean_object*);
-lean_object* l_Std_Time_Internal_UnitVal_instRepr___lam__0(lean_object*, lean_object*);
+lean_object* l_Std_Time_Nanosecond_instReprOrdinal___lam__0(lean_object*, lean_object*);
 lean_object* l_Repr_addAppParen(lean_object*, lean_object*);
 uint8_t l_Std_Time_instDecidableEqDuration_decEq(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -419,6 +419,7 @@ v___jp_62_:
 lean_object* v___x_66_; lean_object* v___x_67_; lean_object* v___x_68_; uint8_t v___x_69_; 
 v___x_66_ = l_Int_repr(v_fst_64_);
 lean_dec(v_fst_64_);
+lean_inc_ref(v_fst_63_);
 v___x_67_ = lean_string_append(v_fst_63_, v___x_66_);
 lean_dec_ref(v___x_66_);
 v___x_68_ = lean_obj_once(&l_Std_Time_instReprTimestamp_repr___redArg___closed__14, &l_Std_Time_instReprTimestamp_repr___redArg___closed__14_once, _init_l_Std_Time_instReprTimestamp_repr___redArg___closed__14);
@@ -669,7 +670,7 @@ v_nanos_160_ = lean_int_add(v___x_159_, v_nano_153_);
 lean_dec(v_nano_153_);
 lean_dec(v___x_159_);
 v___x_161_ = lean_unsigned_to_nat(0u);
-v___x_162_ = l_Std_Time_Internal_UnitVal_instRepr___lam__0(v_nanos_160_, v___x_161_);
+v___x_162_ = l_Std_Time_Nanosecond_instReprOrdinal___lam__0(v_nanos_160_, v___x_161_);
 lean_dec(v_nanos_160_);
 if (v_isShared_156_ == 0)
 {

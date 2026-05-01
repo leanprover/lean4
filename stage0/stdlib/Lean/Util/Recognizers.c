@@ -1454,8 +1454,8 @@ return v___x_422_;
 else
 {
 lean_object* v___x_423_; 
-lean_dec(v_pre_372_);
 lean_dec_ref(v_pre_371_);
+lean_dec(v_pre_372_);
 lean_dec_ref(v_declName_370_);
 lean_dec_ref(v_arg_355_);
 lean_dec_ref(v_arg_353_);
@@ -1466,8 +1466,8 @@ return v___x_423_;
 else
 {
 lean_object* v___x_424_; 
-lean_dec_ref(v_declName_370_);
 lean_dec(v_pre_371_);
+lean_dec_ref(v_declName_370_);
 lean_dec_ref(v_arg_355_);
 lean_dec_ref(v_arg_353_);
 v___x_424_ = lean_box(0);
@@ -2038,8 +2038,8 @@ return v___x_511_;
 else
 {
 lean_object* v___x_512_; 
-lean_dec_ref(v_pre_470_);
 lean_dec(v_pre_471_);
+lean_dec_ref(v_pre_470_);
 lean_dec_ref(v_declName_469_);
 lean_dec_ref(v_fn_426_);
 lean_dec_ref(v_fn_354_);
@@ -2408,8 +2408,8 @@ return v___x_563_;
 else
 {
 lean_object* v___x_564_; 
-lean_dec_ref(v_pre_517_);
 lean_dec(v_pre_518_);
+lean_dec_ref(v_pre_517_);
 lean_dec_ref(v_declName_516_);
 lean_dec_ref(v_fn_468_);
 lean_dec_ref(v_fn_426_);
@@ -2423,8 +2423,8 @@ return v___x_564_;
 else
 {
 lean_object* v___x_565_; 
-lean_dec(v_pre_517_);
 lean_dec_ref(v_declName_516_);
+lean_dec(v_pre_517_);
 lean_dec_ref(v_fn_468_);
 lean_dec_ref(v_fn_426_);
 lean_dec_ref(v_fn_354_);
@@ -2835,8 +2835,8 @@ return v___x_620_;
 else
 {
 lean_object* v___x_621_; 
-lean_dec(v_pre_570_);
 lean_dec_ref(v_pre_569_);
+lean_dec(v_pre_570_);
 lean_dec_ref(v_declName_568_);
 lean_dec_ref(v_fn_515_);
 lean_dec_ref(v_fn_468_);
@@ -2851,8 +2851,8 @@ return v___x_621_;
 else
 {
 lean_object* v___x_622_; 
-lean_dec(v_pre_569_);
 lean_dec_ref(v_declName_568_);
+lean_dec(v_pre_569_);
 lean_dec_ref(v_fn_515_);
 lean_dec_ref(v_fn_468_);
 lean_dec_ref(v_fn_426_);
@@ -3892,8 +3892,8 @@ return v___x_750_;
 else
 {
 lean_object* v___x_751_; 
-lean_dec_ref(v_declName_687_);
 lean_dec(v_pre_688_);
+lean_dec_ref(v_declName_687_);
 lean_dec_ref(v_fn_624_);
 lean_dec_ref(v_fn_567_);
 lean_dec_ref(v_fn_515_);
@@ -4236,8 +4236,8 @@ return v___x_789_;
 else
 {
 lean_object* v___x_790_; 
-lean_dec(v_pre_762_);
 lean_dec_ref(v_pre_761_);
+lean_dec(v_pre_762_);
 lean_dec_ref(v_declName_760_);
 lean_dec_ref(v_x_330_);
 v___x_790_ = lean_box(0);

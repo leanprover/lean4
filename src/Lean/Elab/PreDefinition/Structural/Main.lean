@@ -80,6 +80,32 @@ private def elimMutualRecursion (preDefs : Array PreDefinition) (fixedParamPerms
       withRecFunsAsAxioms preDefs do
         mkBRecOnF recArgInfos positions r values[idx]! FTypes[idx]!
   trace[Elab.definition.structural] "FArgs: {FArgs}"
+
+  -- Extract the functionals into named `_f` helper definitions (e.g. `foo._f`) so they show up
+  -- with a helpful name in kernel diagnostics. The `_f` definitions are `.abbrev` so the kernel
+  -- unfolds them eagerly; their body heights are registered via `setDefHeightOverride` so that
+  -- `getMaxHeight` computes the correct height for parent definitions.
+  -- For inductive predicates, the previous inline behavior is kept.
+  let FArgs ←
+    if isIndPred then
+      pure FArgs
+    else
+      let us := preDefs[0]!.levelParams.map mkLevelParam
+      FArgs.mapIdxM fun idx fArg => do
+        let fName := preDefs[idx]!.declName ++ `_f
+        let fValue ← eraseRecAppSyntaxExpr (← mkLambdaFVars xs fArg)
+        let fType ← Meta.letToHave (← inferType fValue)
+        let fHeight := getMaxHeight (← getEnv) fValue
+        addDecl (.defnDecl {
+          name := fName, levelParams := preDefs[idx]!.levelParams,
+          type := fType, value := fValue,
+          hints := .abbrev,
+          safety := if preDefs[idx]!.modifiers.isUnsafe then .unsafe else .safe,
+          all := [fName] })
+        modifyEnv (setDefHeightOverride · fName fHeight)
+        setReducibleAttribute fName
+        return mkAppN (mkConst fName us) xs
+
   let brecOn := brecOnConst 0
   -- the indices and the major premise are not mentioned in the minor premises
   -- so using `default` is fine here
@@ -183,10 +209,10 @@ def structuralRecursion
         registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos fixedParamPerms
     addSmartUnfoldingDef docCtx preDef recArgPos
   for preDef in preDefs do
+    saveEqnAffectingOptions preDef.declName
+  for preDef in preDefs do
     -- must happen in separate loop so realizations can see eqnInfos of all other preDefs
     enableRealizationsForConst preDef.declName
-    -- must happen after `enableRealizationsForConst`
-    generateEagerEqns preDef.declName
   applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation
 
 

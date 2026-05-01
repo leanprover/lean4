@@ -10,7 +10,7 @@ public import Lean.Compiler.NoncomputableAttr
 public import Lean.Util.NumApps
 public import Lean.Meta.Eqns
 public import Lean.Elab.RecAppSyntax
-public import Lean.Meta.InstanceNormalForm
+public import Lean.Meta.WrapInstance
 public import Lean.Elab.DefView
 public section
 
@@ -222,8 +222,8 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
     if applyAttrAfterCompilation then
+      saveEqnAffectingOptions preDef.declName
       enableRealizationsForConst preDef.declName
-      generateEagerEqns preDef.declName
     addPreDefDocs docCtx preDef
     if applyAttrAfterCompilation then
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation

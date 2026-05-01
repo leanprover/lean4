@@ -177,9 +177,9 @@ case 2:
 {
 lean_object* v_c_42_; lean_object* v_pivot_43_; lean_object* v_rupHints_44_; lean_object* v_ratHints_45_; lean_object* v___x_46_; lean_object* v___f_47_; lean_object* v___x_48_; lean_object* v___f_49_; lean_object* v___f_50_; lean_object* v___f_51_; uint8_t v___x_52_; 
 v_c_42_ = lean_ctor_get(v_val_24_, 1);
-lean_inc(v_c_42_);
+lean_inc_n(v_c_42_, 2);
 v_pivot_43_ = lean_ctor_get(v_val_24_, 2);
-lean_inc_ref(v_pivot_43_);
+lean_inc_ref_n(v_pivot_43_, 2);
 v_rupHints_44_ = lean_ctor_get(v_val_24_, 3);
 lean_inc_ref(v_rupHints_44_);
 v_ratHints_45_ = lean_ctor_get(v_val_24_, 4);
@@ -198,8 +198,6 @@ lean_closure_set(v___f_50_, 0, v___f_47_);
 v___f_51_ = lean_alloc_closure((void*)(l_instBEqProd___redArg___lam__0___boxed), 4, 2);
 lean_closure_set(v___f_51_, 0, v___f_49_);
 lean_closure_set(v___f_51_, 1, v___f_50_);
-lean_inc(v_c_42_);
-lean_inc_ref(v_pivot_43_);
 v___x_52_ = l_List_elem___redArg(v___f_51_, v_pivot_43_, v_c_42_);
 if (v___x_52_ == 0)
 {

@@ -64,6 +64,7 @@ where
         registerNonlinearOcc e x
     | _ => registerNonlinearOcc e x
 
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_grind_cutsat_mk_var]
 def mkVarImpl (expr : Expr) : GoalM Var := do
   if let some var := (← get').varMap.find? { expr } then

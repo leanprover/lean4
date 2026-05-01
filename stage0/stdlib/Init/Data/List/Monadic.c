@@ -87,7 +87,7 @@ else
 lean_object* v_toApplicative_13_; lean_object* v_toBind_14_; lean_object* v_toPure_15_; lean_object* v_head_16_; lean_object* v_tail_17_; lean_object* v___f_18_; lean_object* v___x_19_; lean_object* v___x_20_; 
 v_toApplicative_13_ = lean_ctor_get(v_inst_6_, 0);
 v_toBind_14_ = lean_ctor_get(v_inst_6_, 1);
-lean_inc(v_toBind_14_);
+lean_inc_n(v_toBind_14_, 2);
 v_toPure_15_ = lean_ctor_get(v_toApplicative_13_, 1);
 lean_inc(v_toPure_15_);
 v_head_16_ = lean_ctor_get(v_x_8_, 0);
@@ -95,7 +95,6 @@ lean_inc(v_head_16_);
 v_tail_17_ = lean_ctor_get(v_x_8_, 1);
 lean_inc(v_tail_17_);
 lean_dec_ref(v_x_8_);
-lean_inc(v_toBind_14_);
 lean_inc(v_f_7_);
 v___f_18_ = lean_alloc_closure((void*)(l_List_mapM_x27___redArg___lam__1), 6, 5);
 lean_closure_set(v___f_18_, 0, v_toPure_15_);

@@ -6,29 +6,5 @@ Authors: Markus Himmel
 module
 
 prelude
-public import Init.Data.Iterators.Combinators.FilterMap
-public import Init.Data.Iterators.Consumers.Collect
-
-set_option doc.verso true
-
-namespace Std
-
-/--
-Convenience function for turning an iterator into a list of strings, provided the output of the
-iterator implements {name}`ToString`.
--/
-@[inline]
-public abbrev Iter.toStringList {α β : Type} [Iterator α Id β] [ToString β]
-    (it : Iter (α := α) β) : List String :=
-  it.map toString |>.toList
-
-/--
-Convenience function for turning an iterator into an array of strings, provided the output of the
-iterator implements {name}`ToString`.
--/
-@[inline]
-public abbrev Iter.toStringArray {α β : Type} [Iterator α Id β] [ToString β]
-    (it : Iter (α := α) β) : Array String :=
-  it.map toString |>.toArray
-
-end Std
+public import Init.Data.String.Iter.Basic
+public import Init.Data.String.Iter.Intercalate

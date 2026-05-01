@@ -1,5 +1,5 @@
 module
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+import Lean.Meta.Sym.Arith.Poly
 open Lean.Grind.CommRing
 
 def w : Expr := .var 0

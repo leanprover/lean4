@@ -3096,13 +3096,13 @@ theorem foldl_eq_foldlM {f : β → α → β} {b} {xs : Array α} {start stop :
 theorem foldr_eq_foldrM {f : α → β → β} {b} {xs : Array α} {start stop : Nat} :
     xs.foldr f b start stop = (xs.foldrM (m := Id) (pure <| f · ·) b start stop).run := rfl
 
-public theorem foldl_eq_foldl_extract {xs : Array α} {f : β → α → β} {init : β} :
+theorem foldl_eq_foldl_extract {xs : Array α} {f : β → α → β} {init : β} :
     xs.foldl (init := init) (start := start) (stop := stop) f =
       (xs.extract start stop).foldl (init := init) f := by
   simp only [foldl_eq_foldlM]
   rw [foldlM_start_stop]
 
-public theorem foldr_eq_foldr_extract {xs : Array α} {f : α → β → β} {init : β} :
+theorem foldr_eq_foldr_extract {xs : Array α} {f : α → β → β} {init : β} :
     xs.foldr (init := init) (start := start) (stop := stop) f =
       (xs.extract stop start).foldr (init := init) f := by
   simp only [foldr_eq_foldrM]
@@ -4379,6 +4379,47 @@ theorem sum_eq_foldl [Zero α] [Add α] [Std.Associative (α := α) (· + ·)]
     [Std.LawfulIdentity (· + ·) (0 : α)] {xs : Array α} :
     xs.sum = xs.foldl (init := 0) (· + ·) := by
   simp [← sum_toList, List.sum_eq_foldl]
+
+/-! ### prod -/
+
+@[simp, grind =] theorem prod_empty [Mul α] [One α] : (#[] : Array α).prod = 1 := rfl
+theorem prod_eq_foldr [Mul α] [One α] {xs : Array α} :
+    xs.prod = xs.foldr (init := 1) (· * ·) :=
+  rfl
+
+@[simp, grind =]
+theorem prod_toList [Mul α] [One α] {as : Array α} : as.toList.prod = as.prod := by
+  cases as
+  simp [Array.prod, List.prod]
+
+@[simp, grind =]
+theorem prod_append [One α] [Mul α] [Std.Associative (α := α) (· * ·)]
+    [Std.LawfulLeftIdentity (α := α) (· * ·) 1]
+    {as₁ as₂ : Array α} : (as₁ ++ as₂).prod = as₁.prod * as₂.prod := by
+  simp [← prod_toList, List.prod_append]
+
+@[simp, grind =]
+theorem prod_singleton [Mul α] [One α] [Std.LawfulRightIdentity (· * ·) (1 : α)] {x : α} :
+    #[x].prod = x := by
+  simp [Array.prod_eq_foldr, Std.LawfulRightIdentity.right_id x]
+
+@[simp, grind =]
+theorem prod_push [Mul α] [One α] [Std.Associative (α := α) (· * ·)]
+    [Std.LawfulIdentity (· * ·) (1 : α)] {xs : Array α} {x : α} :
+    (xs.push x).prod = xs.prod * x := by
+  simp [Array.prod_eq_foldr, Std.LawfulRightIdentity.right_id, Std.LawfulLeftIdentity.left_id,
+    ← Array.foldr_assoc]
+
+@[simp, grind =]
+theorem prod_reverse [One α] [Mul α] [Std.Associative (α := α) (· * ·)]
+    [Std.Commutative (α := α) (· * ·)]
+    [Std.LawfulLeftIdentity (α := α) (· * ·) 1] (xs : Array α) : xs.reverse.prod = xs.prod := by
+  simp [← prod_toList, List.prod_reverse]
+
+theorem prod_eq_foldl [One α] [Mul α] [Std.Associative (α := α) (· * ·)]
+    [Std.LawfulIdentity (· * ·) (1 : α)] {xs : Array α} :
+    xs.prod = xs.foldl (init := 1) (· * ·) := by
+  simp [← prod_toList, List.prod_eq_foldl]
 
 theorem foldl_toList_eq_flatMap {l : List α} {acc : Array β}
     {F : Array β → α → Array β} {G : α → List β}

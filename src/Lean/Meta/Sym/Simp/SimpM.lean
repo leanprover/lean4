@@ -172,7 +172,7 @@ inductive Result where
 Pre-computed `.rfl` results to avoid dynamic memory allocation.
 Each combination of `done` and `contextDependent` maps to a compile-time constant.
 -/
-public def mkRflResult (done : Bool := false) (contextDependent : Bool := false) : Result :=
+def mkRflResult (done : Bool := false) (contextDependent : Bool := false) : Result :=
   match done, contextDependent with
   | false, false => .rfl
   | false, true  => .rfl false true
@@ -180,15 +180,15 @@ public def mkRflResult (done : Bool := false) (contextDependent : Bool := false)
   | true,  true  => .rfl true true
 
 /-- Like `mkRflResult` with `done := false`. -/
-public def mkRflResultCD (contextDependent : Bool) : Result :=
+def mkRflResultCD (contextDependent : Bool) : Result :=
   if contextDependent then .rfl false true else .rfl
 
 /-- Returns `true` if this result depends on the local context (e.g., hypotheses). -/
-public abbrev Result.isContextDependent : Result → Bool
+abbrev Result.isContextDependent : Result → Bool
   | .rfl _ cd | .step _ _ _ cd => cd
 
 /-- Marks a result as context-dependent. -/
-public def Result.withContextDependent : Result → Result
+def Result.withContextDependent : Result → Result
   | .rfl done _ => .rfl done true
   | .step e h done _ => .step e h done true
 

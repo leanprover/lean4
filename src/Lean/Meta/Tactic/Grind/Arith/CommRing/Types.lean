@@ -7,7 +7,7 @@ module
 prelude
 public import Init.Grind.Ring.CommSemiringAdapter
 public import Lean.Meta.Tactic.Grind.Types
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+import Lean.Meta.Sym.Arith.Poly
 public section
 
 namespace Lean.Meta.Grind.Arith.CommRing
@@ -214,6 +214,8 @@ structure CommRing extends Ring where
   noZeroDivInst? : Option Expr
   /-- `Field` instance for `type` if available. -/
   fieldInst?     : Option Expr
+  /-- `PowIdentity` instance, the synthesized `CommSemiring` instance, and exponent `p` if available. -/
+  powIdentityInst? : Option (Expr × Expr × Nat) := none
   /-- `denoteEntries` is `denote` as a `PArray` for deterministic traversal. -/
   denoteEntries  : PArray (Expr × RingExpr) := {}
   /-- Next unique id for `EqCnstr`s. -/
@@ -238,6 +240,8 @@ structure CommRing extends Ring where
   recheck        : Bool := false
   /-- Inverse theorems that have been already asserted. -/
   invSet         : PHashSet Expr := {}
+  /-- Number of variables for which `PowIdentity` equations have been pushed. -/
+  powIdentityVarCount : Nat := 0
   /--
   An equality of the form `c = 0`. It is used to simplify polynomial coefficients.
   -/

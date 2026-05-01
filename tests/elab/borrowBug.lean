@@ -29,14 +29,14 @@ trace: [Compiler.explicitRc] size: 27
         let z := g x;
         let fst := oproj[0] z;
         inc fst;
-        dec z;
+        dec[ref] z;
         goto _jp.1 fst
       | Bool.true =>
         dec x;
         let z := g y;
         let fst := oproj[0] z;
         inc fst;
-        dec z;
+        dec[ref] z;
         goto _jp.1 fst
 [Compiler.explicitRc] size: 2
     def f._boxed x y : tagged :=

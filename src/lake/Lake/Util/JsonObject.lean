@@ -18,7 +18,7 @@ indexing fields more convenient.
 namespace Lake
 
 /-- A JSON object (`Json.obj` data). -/
-@[expose] public abbrev JsonObject :=
+public abbrev JsonObject :=
   Std.TreeMap.Raw String Json
 
 namespace JsonObject

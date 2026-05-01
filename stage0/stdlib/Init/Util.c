@@ -238,6 +238,7 @@ lean_object* v_res_96_;
 v_res_96_ = l_panicWithPos___redArg(v_inst_91_, v_modName_92_, v_line_93_, v_col_94_, v_msg_95_);
 lean_dec_ref(v_msg_95_);
 lean_dec_ref(v_modName_92_);
+lean_dec(v_inst_91_);
 return v_res_96_;
 }
 }
@@ -257,6 +258,7 @@ lean_object* v_res_111_;
 v_res_111_ = l_panicWithPos(v_00_u03b1_105_, v_inst_106_, v_modName_107_, v_line_108_, v_col_109_, v_msg_110_);
 lean_dec_ref(v_msg_110_);
 lean_dec_ref(v_modName_107_);
+lean_dec(v_inst_106_);
 return v_res_111_;
 }
 }
@@ -312,6 +314,7 @@ v_res_153_ = l_panicWithPosWithDecl___redArg(v_inst_147_, v_modName_148_, v_decl
 lean_dec_ref(v_msg_152_);
 lean_dec_ref(v_declName_149_);
 lean_dec_ref(v_modName_148_);
+lean_dec(v_inst_147_);
 return v_res_153_;
 }
 }
@@ -332,6 +335,7 @@ v_res_170_ = l_panicWithPosWithDecl(v_00_u03b1_163_, v_inst_164_, v_modName_165_
 lean_dec_ref(v_msg_169_);
 lean_dec_ref(v_declName_166_);
 lean_dec_ref(v_modName_165_);
+lean_dec(v_inst_164_);
 return v_res_170_;
 }
 }

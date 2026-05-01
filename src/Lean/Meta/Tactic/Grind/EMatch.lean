@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
 import Init.Grind.Util
 import Init.Omega
+public import Lean.Meta.HasAssignableMVar
 public section
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -456,7 +457,7 @@ private def getUnassignedLevelMVars (e : Expr) : MetaM (Array LMVarId) := do
 -- **Note**: issues reported by the E-matching module are too distractive. We only
 -- report them if `set_option grind.debug true`
 macro "reportEMatchIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
-  expandReportDbgIssueMacro s.raw
+  Sym.expandReportDbgIssueMacro s.raw
 
 /--
 Stores new theorem instance in the state.

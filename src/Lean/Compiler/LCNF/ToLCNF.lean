@@ -213,11 +213,22 @@ structure Context where
   -/
   expectedType : Option Expr
 
+/--
+Key for the LCNF translation cache. `ignoreNoncomputable` is part of the key
+because entries cached in irrelevant positions skip the `checkComputable`
+check and must not be reused in relevant positions.
+-/
+structure CacheKey where
+  expr : Expr
+  expectedType? : Option Expr
+  ignoreNoncomputable : Bool
+  deriving BEq, Hashable
+
 structure State where
   /-- Local context containing the original Lean types (not LCNF ones). -/
   lctx : LocalContext := {}
   /-- Cache from Lean regular expression to LCNF argument. -/
-  cache : PHashMap (Expr × Option Expr) (Arg .pure) := {}
+  cache : PHashMap CacheKey (Arg .pure) := {}
   /--
   Determines whether caching has been disabled due to finding a use of
   a constant marked with `never_extract`.
@@ -473,7 +484,9 @@ partial def toLCNF (e : Expr) (eType : Expr) : CompilerM (Code .pure) := do
 where
   visitCore (e : Expr) : M (Arg .pure) := withIncRecDepth do
     let eType? := (← read).expectedType
-    if let some arg := (← get).cache.find? (e, eType?) then
+    let ignoreNoncomputable := (← read).ignoreNoncomputable
+    let key : CacheKey := { expr := e, expectedType? := eType?, ignoreNoncomputable }
+    if let some arg := (← get).cache.find? key then
       return arg
     let r : Arg .pure ← match e with
       | .app ..      => visitApp e
@@ -485,7 +498,7 @@ where
       | .lit lit     => visitLit lit
       | .fvar fvarId => if (← get).toAny.contains fvarId then pure .erased else pure (.fvar fvarId)
       | .forallE .. | .mvar .. | .bvar .. | .sort ..  => unreachable!
-    modify fun s => if s.shouldCache then { s with cache := s.cache.insert (e, eType?) r } else s
+    modify fun s => if s.shouldCache then { s with cache := s.cache.insert key r } else s
     return r
 
   visit (e : Expr) : M (Arg .pure) := withIncRecDepth do

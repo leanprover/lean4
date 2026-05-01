@@ -52,6 +52,12 @@ builtin_dsimproc [simp, seval] reduceSingleton (String.singleton _) := fun e => 
   let some c ← Char.fromExpr? e.appArg! | return .continue
   return .done <| toExpr (String.singleton c)
 
+builtin_dsimproc_decl reduceToSingleton ((_ : String)) := fun e => do
+  let some s ← fromExpr? e | return .continue
+  let l := s.toList
+  let [c] := l | return .continue
+  return .done <| mkApp (mkConst ``String.singleton) (toExpr c)
+
 @[inline] def reduceBinPred (declName : Name) (arity : Nat) (op : String → String → Bool) (e : Expr) : SimpM Step := do
   unless e.isAppOfArity declName arity do return .continue
   let some n ← fromExpr? e.appFn!.appArg! | return .continue

@@ -15,30 +15,30 @@ extern "C" {
 #endif
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Meta_registerSimpAttr(lean_object*, lean_object*, lean_object*);
-static const lean_string_object l_initFn___closed__0_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 13, .m_capacity = 13, .m_length = 12, .m_data = "bool_to_prop"};
-static const lean_object* l_initFn___closed__0_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_ = (const lean_object*)&l_initFn___closed__0_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value;
-static const lean_ctor_object l_initFn___closed__1_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_initFn___closed__0_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value),LEAN_SCALAR_PTR_LITERAL(230, 90, 229, 136, 228, 174, 42, 173)}};
-static const lean_object* l_initFn___closed__1_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_ = (const lean_object*)&l_initFn___closed__1_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value;
-static const lean_string_object l_initFn___closed__2_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 94, .m_capacity = 94, .m_length = 93, .m_data = "simp lemmas converting boolean expressions in terms of `decide` into propositional statements"};
-static const lean_object* l_initFn___closed__2_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_ = (const lean_object*)&l_initFn___closed__2_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value;
-LEAN_EXPORT lean_object* l_initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_();
-LEAN_EXPORT lean_object* l_initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2____boxed(lean_object*);
+static const lean_string_object l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__0_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 13, .m_capacity = 13, .m_length = 12, .m_data = "bool_to_prop"};
+static const lean_object* l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__0_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_ = (const lean_object*)&l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__0_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value;
+static const lean_ctor_object l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__1_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__0_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value),LEAN_SCALAR_PTR_LITERAL(230, 90, 229, 136, 228, 174, 42, 173)}};
+static const lean_object* l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__1_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_ = (const lean_object*)&l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__1_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value;
+static const lean_string_object l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__2_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 94, .m_capacity = 94, .m_length = 93, .m_data = "simp lemmas converting boolean expressions in terms of `decide` into propositional statements"};
+static const lean_object* l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__2_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_ = (const lean_object*)&l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__2_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2__value;
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_();
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_bool__to__prop;
-LEAN_EXPORT lean_object* l_initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_(){
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_(){
 _start:
 {
 lean_object* v___x_6_; lean_object* v___x_7_; lean_object* v___x_8_; 
-v___x_6_ = ((lean_object*)(l_initFn___closed__1_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_));
-v___x_7_ = ((lean_object*)(l_initFn___closed__2_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_));
+v___x_6_ = ((lean_object*)(l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__1_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_));
+v___x_7_ = ((lean_object*)(l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn___closed__2_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_));
 v___x_8_ = l_Lean_Meta_registerSimpAttr(v___x_6_, v___x_7_, v___x_6_);
 return v___x_8_;
 }
 }
-LEAN_EXPORT lean_object* l_initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2____boxed(lean_object* v_a_9_){
+LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2____boxed(lean_object* v_a_9_){
 _start:
 {
 lean_object* v_res_10_; 
-v_res_10_ = l_initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_();
+v_res_10_ = l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_();
 return v_res_10_;
 }
 }
@@ -51,7 +51,7 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Lean_Meta_Tactic_Simp_Attr(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l_initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_();
+res = l___private_Lean_Elab_Tactic_BoolToPropSimps_0__initFn_00___x40_Lean_Elab_Tactic_BoolToPropSimps_428426324____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l_bool__to__prop = lean_io_result_get_value(res);
 lean_mark_persistent(l_bool__to__prop);

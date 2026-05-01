@@ -347,11 +347,13 @@ partial def foldAndCollect (oldIH newIH : FVarId) (isRecCall : Expr → Option E
 
     if e.getAppArgs.any (·.isFVarOf oldIH) then
       -- Sometimes Fix.lean abstracts over oldIH in a proof definition.
-      -- So beta-reduce that definition. We need to look through theorems here!
-      if let some e' ← withTransparency .all do unfoldDefinition? e then
-        return ← foldAndCollect oldIH newIH isRecCall e'
-      else
-        throwError "Internal error in `foldAndCollect`: Cannot reduce application of `{e.getAppFn}` in:{indentExpr e}"
+      -- So delta-beta-reduce that definition. We need to look through theorems here!
+      if let .const declName lvls := e.getAppFn then
+        if let some cinfo := (← getEnv).find? declName then
+          if let some val := cinfo.value? (allowOpaque := true) then
+            let e' := (val.instantiateLevelParams cinfo.levelParams lvls).betaRev e.getAppRevArgs
+            return ← foldAndCollect oldIH newIH isRecCall e'
+      throwError "Internal error in `foldAndCollect`: Cannot reduce application of `{e.getAppFn}` in:{indentExpr e}"
 
     match e with
     | .app e1 e2 =>
@@ -741,6 +743,13 @@ partial def buildInductionBody (toErase toClear : Array FVarId) (goal : Expr)
         let goal' ← instantiateForall goal #[x]
         let b' ← buildInductionBody toErase toClear goal' oldIH newIH isRecCall (b.instantiate1 x)
         mkLambdaFVars #[x] b'
+
+  -- Unfold constant applications that take `oldIH` as an argument (e.g. `_f` auxiliary
+  -- definitions from structural recursion), so that we can see their body structure.
+  -- Similar to the case in `foldAndCollect`.
+  if e.getAppFn.isConst && e.getAppArgs.any (·.isFVarOf oldIH) then
+    if let some e' ← withTransparency .all (unfoldDefinition? e) then
+      return ← buildInductionBody toErase toClear goal oldIH newIH isRecCall e'
 
   liftM <| buildInductionCase oldIH newIH isRecCall toErase toClear goal e
 

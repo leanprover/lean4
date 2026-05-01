@@ -24,7 +24,7 @@ set_option linter.all true in
 A `Bounded` is represented by an `Int` that is constrained by a lower and higher bounded using some
 relation `rel`. It includes all the integers that `rel lo val ∧ rel val hi`.
 -/
-@[expose] def Bounded (rel : Int → Int → Prop) (lo : Int) (hi : Int) := { val : Int // rel lo val ∧ rel val hi }
+def Bounded (rel : Int → Int → Prop) (lo : Int) (hi : Int) := { val : Int // rel lo val ∧ rel val hi }
 
 namespace Bounded
 
@@ -103,7 +103,7 @@ namespace LE
 /--
 Convert a `Nat` to a `Bounded.LE` by wrapping it.
 -/
-@[inline, expose]
+@[inline]
 def ofNatWrapping { lo hi : Int } (val : Int) (h : lo ≤ hi) : Bounded.LE lo hi := by
   let range := hi - lo + 1
   have range_pos := Int.add_pos_of_nonneg_of_pos (b := 1) (Int.sub_nonneg_of_le h) (by decide)
@@ -214,7 +214,7 @@ def toInt (n : Bounded.LE lo hi) : Int :=
 /--
 Convert a `Bounded.LE` to a `Fin`.
 -/
-@[inline, simp, expose]
+@[inline, simp]
 def toFin (n : Bounded.LE lo hi) (h₀ : 0 ≤ lo) : Fin (hi + 1).toNat := by
   let h := n.property.right
   let h₁ := Int.le_trans h₀ n.property.left
@@ -239,7 +239,7 @@ def ofFin' {lo : Nat} (fin : Fin (Nat.succ hi)) (h : lo ≤ hi) : Bounded.LE lo 
     else ofNat' lo (And.intro (Nat.le_refl lo) h)
 
 /--
-Creates a new `Bounded.LE` using a the modulus of a number.
+Creates a new `Bounded.LE` using the modulus of a number.
 -/
 @[inline]
 def byEmod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
@@ -252,7 +252,7 @@ def byEmod (b : Int) (i : Int) (hi : i > 0) : Bounded.LE 0 (i - 1) := by
     exact Int.emod_lt_of_pos b hi
 
 /--
-Creates a new `Bounded.LE` using a the Truncating modulus of a number.
+Creates a new `Bounded.LE` using the Truncating modulus of a number.
 -/
 @[inline]
 def byMod (b : Int) (i : Int) (hi : 0 < i) : Bounded.LE (- (i - 1)) (i - 1) := by
@@ -284,7 +284,7 @@ def truncate (bounded : Bounded.LE n m) : Bounded.LE 0 (m - n) := by
 Adjust the bounds of a `Bounded` by changing the higher bound if another value `j` satisfies the same
 constraint.
 -/
-@[inline, simp, expose]
+@[inline, simp]
 def truncateTop (bounded : Bounded.LE n m) (h : bounded.val ≤ j) : Bounded.LE n j := by
   refine ⟨bounded.val, And.intro ?_ ?_⟩
   · exact bounded.property.left
@@ -312,7 +312,7 @@ def neg (bounded : Bounded.LE n m) : Bounded.LE (-m) (-n) := by
 /--
 Adjust the bounds of a `Bounded` by adding a constant value to both the lower and upper bounds.
 -/
-@[inline, simp, expose]
+@[inline, simp]
 def add (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n + num) (m + num) := by
   refine ⟨bounded.val + num, And.intro ?_ ?_⟩
   all_goals apply (Int.add_le_add · (Int.le_refl num))
@@ -331,7 +331,7 @@ def addProven (bounded : Bounded.LE n m) (h₀ : bounded.val + num ≤ m) (h₁ 
 /--
 Adjust the bounds of a `Bounded` by adding a constant value to the upper bounds.
 -/
-@[inline, expose]
+@[inline]
 def addTop (bounded : Bounded.LE n m) (num : Int) (h : num ≥ 0) : Bounded.LE n (m + num) := by
   refine ⟨bounded.val + num, And.intro ?_ ?_⟩
   · let h := Int.add_le_add bounded.property.left h
@@ -362,7 +362,7 @@ def addBounds (bounded : Bounded.LE n m) (bounded₂ : Bounded.LE i j) : Bounded
 /--
 Adjust the bounds of a `Bounded` by subtracting a constant value to both the lower and upper bounds.
 -/
-@[inline, simp, expose]
+@[inline, simp]
 def sub (bounded : Bounded.LE n m) (num : Int) : Bounded.LE (n - num) (m - num) :=
   add bounded (-num)
 

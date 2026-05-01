@@ -110,6 +110,7 @@ theorem Iter.reverse_toListRev_ensureTermination [Iterator α Id β] [Finite α 
     it.ensureTermination.toListRev.reverse = it.toList := by
   simp
 
+@[cbv_eval]
 theorem Iter.toListRev_eq {α β} [Iterator α Id β] [Finite α Id]
     {it : Iter (α := α) β} :
     it.toListRev = it.toList.reverse := by

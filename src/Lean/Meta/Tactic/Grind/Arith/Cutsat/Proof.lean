@@ -14,8 +14,8 @@ import Lean.Meta.Tactic.Grind.Arith.Cutsat.CommRing
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Util
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.Nat
 import Lean.Meta.Tactic.Grind.Arith.Cutsat.VarRename
-import Lean.Meta.Tactic.Grind.Arith.CommRing.VarRename
-import Lean.Meta.Tactic.Grind.Arith.CommRing.ToExpr
+import Lean.Meta.Sym.Arith.VarRename
+import Lean.Meta.Sym.Arith.ToExpr
 import Init.Data.Nat.Order
 import Init.Data.Order.Lemmas
 public section
@@ -325,7 +325,9 @@ private def mkPowEqProof (ka : Int) (ca? : Option EqCnstr) (kb : Nat) (cb? : Opt
   let h := mkApp8 (mkConst ``Int.Linear.pow_eq) a b (toExpr ka) (toExpr kbInt) (toExpr k) h₁ h₂ eagerReflBoolTrue
   return mkApp6 (mkConst ``Int.Linear.of_var_eq) (← getContext) (← mkVarDecl x) (toExpr k) (← mkPolyDecl c'.p) eagerReflBoolTrue h
 
+set_option compiler.ignoreBorrowAnnotation true in
 mutual
+
 @[export lean_cutsat_eq_cnstr_to_proof]
 private partial def EqCnstr.toExprProofImpl (c' : EqCnstr) : ProofM Expr := caching c' do
   trace[grind.debug.lia.proof] "{← c'.pp}"

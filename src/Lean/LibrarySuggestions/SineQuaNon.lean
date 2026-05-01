@@ -105,7 +105,9 @@ builtin_initialize sineQuaNonExt : PersistentEnvExtension (NameMap (List (Name �
     addImportedFn   := fun mapss _ => pure mapss
     addEntryFn      := nofun
     -- TODO: it would be nice to avoid the `toArray` here, e.g. via iterators.
-    exportEntriesFnEx := fun env _ _ => unsafe env.unsafeRunMetaM do return #[← prepareTriggers (env.constants.map₂.toArray.map (·.1))]
+    exportEntriesFnEx := fun env _ => unsafe
+      let ents := env.unsafeRunMetaM do return #[← prepareTriggers (env.constants.map₂.toArray.map (·.1))]
+      .uniform ents
     statsFn         := fun _ => "sine qua non premise selection extension"
   }
 

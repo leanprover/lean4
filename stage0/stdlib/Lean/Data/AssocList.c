@@ -231,7 +231,7 @@ v___x_55_ = l_Lean_AssocList_ctorElim___redArg(v_t_52_, v_cons_54_);
 return v___x_55_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instInhabitedAssocList_default(lean_object* v_a_56_, lean_object* v_a_57_){
+LEAN_EXPORT lean_object* l_Lean_instInhabitedAssocList_default(lean_object* v_00_u03b1_56_, lean_object* v_00_u03b2_57_){
 _start:
 {
 lean_object* v___x_58_; 
@@ -719,7 +719,7 @@ else
 {
 lean_object* v_key_267_; lean_object* v_value_268_; lean_object* v_tail_269_; lean_object* v___x_270_; uint8_t v___x_271_; 
 v_key_267_ = lean_ctor_get(v_x_265_, 0);
-lean_inc(v_key_267_);
+lean_inc_n(v_key_267_, 2);
 v_value_268_ = lean_ctor_get(v_x_265_, 1);
 lean_inc(v_value_268_);
 v_tail_269_ = lean_ctor_get(v_x_265_, 2);
@@ -727,7 +727,6 @@ lean_inc(v_tail_269_);
 lean_dec_ref(v_x_265_);
 lean_inc_ref(v_inst_263_);
 lean_inc(v_a_264_);
-lean_inc(v_key_267_);
 v___x_270_ = lean_apply_2(v_inst_263_, v_key_267_, v_a_264_);
 v___x_271_ = lean_unbox(v___x_270_);
 if (v___x_271_ == 0)

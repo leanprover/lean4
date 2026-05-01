@@ -31,6 +31,9 @@ make -C build/release -j "$(nproc)" test ARGS='--rerun-failed'
 # Run a test manually without ctest (test pile: pass filename relative to the pile dir)
 tests/with_stage1_test_env.sh tests/elab_bench/run_bench.sh cbv_decide.lean
 tests/with_stage1_test_env.sh tests/elab/run_test.sh grind_indexmap.lean
+
+# Build Lake and run a Lake test (pass directory name relative to `tests/lake`)
+tests/lake/run_test.sh tests/ltar
 ```
 
 ## Benchmark vs Test Problem Sizes
@@ -55,6 +58,13 @@ the stage 2 build as well as for final validation,
 make -C build/release/stage2 clean-stdlib
 ```
 must be run manually before building.
+
+To rebuild individual stage 2 modules without a full `make stage2`, use Lake directly:
+```
+cd build/release/stage2 && lake build Init.Prelude
+```
+
+To run tests in stage2, replace `-C build/release` from above with `-C build/release/stage2`.
 
 ## New features
 

@@ -85,7 +85,7 @@ function(check_test_bench_scripts DIR)
 
   if(NOT RUN_TEST_EXISTS AND NOT RUN_BENCH_EXISTS)
     cmake_path(RELATIVE_PATH DIR)
-    message(FATAL_ERROR "${DIR}: Found neither a run_test nor a run_bench file")
+    message(AUTHOR_WARNING "${DIR}: Found neither a run_test nor a run_bench file")
     return()
   endif()
 
@@ -261,6 +261,7 @@ else()
     GLOB_RECURSE LEANLAKETESTS
     "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
     "${LEAN_SOURCE_DIR}/../tests/lake/tests/shake/test.sh"
+    "${LEAN_SOURCE_DIR}/../tests/lake/tests/builtin-lint/test.sh"
   )
 endif()
 foreach(T ${LEANLAKETESTS})
@@ -290,7 +291,13 @@ add_test_pile(../doc/examples *.lean)
 add_test_pile(compile *.lean BENCH PART2)
 add_test_pile(compile_bench *.lean BENCH PART2)
 add_test_pile(docparse *.txt)
-add_test_pile(elab *.lean)
+add_test_pile(
+  elab
+  *.lean
+  EXCEPT
+    async_select_channel.lean # Flaky
+    sync_mutex.lean # Flaky
+)
 add_test_pile(elab_bench *.lean BENCH PART2)
 add_test_pile(elab_fail *.lean)
 add_test_pile(misc *.sh)

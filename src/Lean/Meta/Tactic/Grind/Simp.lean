@@ -42,6 +42,7 @@ def dsimpCore (e : Expr) : GrindM Expr := do profileitM Exception "grind dsimp" 
   modify fun s => { s with simp }
   return r
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 Preprocesses `e` using `grind` normalization theorems and simprocs,
 and then applies several other preprocessing steps.

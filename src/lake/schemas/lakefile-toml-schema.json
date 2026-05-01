@@ -568,6 +568,10 @@
                     "default": [],
                     "description": "Arguments to pass to the package's linter.\nThese arguments will come before those passed on the command line via `lake lint -- <args>...`."
                 },
+                "builtinLint": {
+                    "type": "boolean",
+                    "description": "Whether to run Lake's built-in linter on the package.\n\n* `true` — Always run built-in lints. When a lint driver is also configured, built-in lints run before the driver.\n* `false` — Never run built-in lints by default. `lake check-lint` will exit with a nonzero code if no lint driver is configured either.\n* unset (the default) — Currently equivalent to `false`. In a future release, an unset value will run built-in lints when no lint driver is configured (i.e., act like `true` as a fallback)."
+                },
                 "releaseRepo": {
                     "type": "string",
                     "description": "The URL of the GitHub repository to upload and download releases of this package.\nIf not set, for downloads, Lake uses the URL the package was download from (if it is a dependency) and for uploads, uses `gh`'s default."

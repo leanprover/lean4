@@ -98,4 +98,8 @@ theorem toNat_inj {c d : Char} : c.toNat = d.toNat ↔ c = d := by
 theorem isDigit_iff_toNat {c : Char} : c.isDigit ↔ '0'.toNat ≤ c.toNat ∧ c.toNat ≤ '9'.toNat := by
   simp [isDigit, UInt32.le_iff_toNat_le]
 
+@[simp]
+theorem toNat_mk {val : UInt32} {h} : (Char.mk val h).toNat = val.toNat := by
+  simp [← toNat_val]
+
 end Char

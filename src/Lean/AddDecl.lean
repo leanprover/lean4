@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Sorry
 public import Lean.Util.CollectAxioms
 public import Lean.OriginalConstKind
+import Lean.Compiler.MetaAttr
 import all Lean.OriginalConstKind  -- for accessing `privateConstKindsExt`
 
 public section
@@ -208,8 +209,12 @@ where
       catch _ => pure ()
 
 
-def addAndCompile (decl : Declaration) (logCompileErrors : Bool := true) : CoreM Unit := do
+def addAndCompile (decl : Declaration) (logCompileErrors : Bool := true)
+    (markMeta : Bool := false) : CoreM Unit := do
   addDecl decl
+  if markMeta then
+    for n in decl.getNames do
+      modifyEnv (Lean.markMeta · n)
   compileDecl decl (logErrors := logCompileErrors)
 
 end Lean

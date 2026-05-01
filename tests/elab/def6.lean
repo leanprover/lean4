@@ -20,7 +20,7 @@ rfl
 theorem ex2 (n : Nat) (b1 b2 : Bool) (v1 v2 : BV n) : map2 f (cons n b1 v1) (cons n b2 v2) = cons n (f b1 b2) (map2 f v1 v2) :=
 rfl
 
-#print map2
+#check @map2
 
 def map2' : {n : Nat} →  BV n → BV n → BV n
 | _, nil,          nil          => nil

@@ -787,6 +787,7 @@ where
           throw ex
 
 -- `evalSuggest` implementation
+set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_eval_suggest_tactic]
 private partial def evalSuggestImpl : TryTactic := fun tac => do
   trace[try.debug] "{tac}"
@@ -1039,6 +1040,19 @@ private def evalAndSuggestWithBy (tk : Syntax) (tac : TSyntax `tactic) (original
         evalAndSuggestWithBy tk stx originalMaxHeartbeats config
       else
         evalAndSuggest tk stx originalMaxHeartbeats config
+  | _ => throwUnsupportedSyntax
+
+@[builtin_tactic Lean.Parser.Tactic.tryTraceWith] def evalTryTraceWith : Tactic := fun stx => do
+  match stx with
+  | `(tactic| try?%$tk $config:optConfig => $tac:tacticSeq) => Tactic.focus do withMainContext do
+    let config ← elabTryConfig config
+    let originalMaxHeartbeats ← getMaxHeartbeats
+    let tac ← `(tactic| ($tac:tacticSeq))
+    withUnlimitedHeartbeats do
+      if config.wrapWithBy then
+        evalAndSuggestWithBy tk tac originalMaxHeartbeats config
+      else
+        evalAndSuggest tk tac originalMaxHeartbeats config
   | _ => throwUnsupportedSyntax
 
 end Lean.Elab.Tactic.Try

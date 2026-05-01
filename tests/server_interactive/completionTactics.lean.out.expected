@@ -1143,85 +1143,7 @@ Resolution of intro:
  "data": ["file:///completionTactics.lean", 91, 4, 0]}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 96, "character": 2}}
-{"items":
- [{"label": "open",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 96, 2, 0]},
-  {"label": "match",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 96, 2, 0]},
-  {"label": "set_option",
-   "kind": 14,
-   "documentation":
-   {"value":
-    "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
-    "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 96, 2, 0]},
-  {"label": "skip",
-   "kind": 14,
-   "documentation": {"value": "A docstring ", "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 96, 2, 0]},
-  {"label": "ident",
-   "kind": 14,
-   "data": ["file:///completionTactics.lean", 96, 2, 0]},
-  {"label": "exact",
-   "kind": 14,
-   "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 96, 2, 0]},
-  {"label": "intro",
-   "kind": 14,
-   "data": ["file:///completionTactics.lean", 96, 2, 0]}],
- "isIncomplete": true}
-Resolution of open:
-{"label": "open",
- "kind": 14,
- "documentation":
- {"value":
-  "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 96, 2, 0]}
-Resolution of match:
-{"label": "match",
- "kind": 14,
- "documentation":
- {"value":
-  "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 96, 2, 0]}
-Resolution of set_option:
-{"label": "set_option",
- "kind": 14,
- "documentation":
- {"value":
-  "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
-  "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 96, 2, 0]}
-Resolution of skip:
-{"label": "skip",
- "kind": 14,
- "documentation": {"value": "A docstring ", "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 96, 2, 0]}
-Resolution of ident:
-{"label": "ident",
- "kind": 14,
- "data": ["file:///completionTactics.lean", 96, 2, 0]}
-Resolution of exact:
-{"label": "exact",
- "kind": 14,
- "documentation": {"value": "Another docstring ", "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 96, 2, 0]}
-Resolution of intro:
-{"label": "intro",
- "kind": 14,
- "data": ["file:///completionTactics.lean", 96, 2, 0]}
+{"items": [], "isIncomplete": true}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
  "position": {"line": 102, "character": 4}}
 {"items":
@@ -1469,7 +1391,7 @@ Resolution of intro:
  "kind": 14,
  "data": ["file:///completionTactics.lean", 118, 4, 0]}
 {"textDocument": {"uri": "file:///completionTactics.lean"},
- "position": {"line": 132, "character": 21}}
+ "position": {"line": 133, "character": 2}}
 {"items":
  [{"label": "open",
    "kind": 14,
@@ -1477,43 +1399,43 @@ Resolution of intro:
    {"value":
     "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
     "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 132, 21, 0]},
+   "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "match",
    "kind": 14,
    "documentation":
    {"value":
     "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
     "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 132, 21, 0]},
+   "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "set_option",
    "kind": 14,
    "documentation":
    {"value":
     "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
     "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 132, 21, 0]},
+   "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "skip",
    "kind": 14,
    "documentation": {"value": "A docstring ", "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 132, 21, 0]},
+   "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "ident",
    "kind": 14,
-   "data": ["file:///completionTactics.lean", 132, 21, 0]},
+   "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "let rec",
    "kind": 14,
    "documentation": {"value": "Local recursive def ", "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 132, 21, 0]},
+   "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "exact",
    "kind": 14,
    "documentation": {"value": "Another docstring ", "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 132, 21, 0]},
+   "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "intro",
    "kind": 14,
-   "data": ["file:///completionTactics.lean", 132, 21, 0]},
+   "data": ["file:///completionTactics.lean", 133, 2, 0]},
   {"label": "let",
    "kind": 14,
    "documentation": {"value": "Local def ", "kind": "markdown"},
-   "data": ["file:///completionTactics.lean", 132, 21, 0]}],
+   "data": ["file:///completionTactics.lean", 133, 2, 0]}],
  "isIncomplete": true}
 Resolution of open:
 {"label": "open",
@@ -1522,7 +1444,7 @@ Resolution of open:
  {"value":
   "`open Foo in tacs` (the tactic) acts like `open Foo` at command level,\nbut it opens a namespace only within the tactics `tacs`. ",
   "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 132, 21, 0]}
+ "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of match:
 {"label": "match",
  "kind": 14,
@@ -1530,7 +1452,7 @@ Resolution of match:
  {"value":
   "`match` performs case analysis on one or more expressions.\nSee [Induction and Recursion][tpil4].\nThe syntax for the `match` tactic is the same as term-mode `match`, except that\nthe match arms are tactics instead of expressions.\n```\nexample (n : Nat) : n = n := by\n  match n with\n  | 0 => rfl\n  | i+1 => simp\n```\n\n[tpil4]: https://lean-lang.org/theorem_proving_in_lean4/induction_and_recursion.html\n",
   "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 132, 21, 0]}
+ "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of set_option:
 {"label": "set_option",
  "kind": 14,
@@ -1538,32 +1460,32 @@ Resolution of set_option:
  {"value":
   "`set_option opt val in tacs` (the tactic) acts like `set_option opt val` at the command level,\nbut it sets the option only within the tactics `tacs`. ",
   "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 132, 21, 0]}
+ "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of skip:
 {"label": "skip",
  "kind": 14,
  "documentation": {"value": "A docstring ", "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 132, 21, 0]}
+ "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of ident:
 {"label": "ident",
  "kind": 14,
- "data": ["file:///completionTactics.lean", 132, 21, 0]}
+ "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of let rec:
 {"label": "let rec",
  "kind": 14,
  "documentation": {"value": "Local recursive def ", "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 132, 21, 0]}
+ "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of exact:
 {"label": "exact",
  "kind": 14,
  "documentation": {"value": "Another docstring ", "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 132, 21, 0]}
+ "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of intro:
 {"label": "intro",
  "kind": 14,
- "data": ["file:///completionTactics.lean", 132, 21, 0]}
+ "data": ["file:///completionTactics.lean", 133, 2, 0]}
 Resolution of let:
 {"label": "let",
  "kind": 14,
  "documentation": {"value": "Local def ", "kind": "markdown"},
- "data": ["file:///completionTactics.lean", 132, 21, 0]}
+ "data": ["file:///completionTactics.lean", 133, 2, 0]}

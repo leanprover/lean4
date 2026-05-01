@@ -113,7 +113,7 @@ public theorem _root_.List.min?_toArray [Min α] {l : List α} :
   · simp [List.min_toArray, List.min_eq_get_min?, - List.get_min?]
   · simp_all
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval ←]
 public theorem min?_toList [Min α] {xs : Array α} :
     xs.toList.min? = xs.min? := by
   cases xs; simp
@@ -153,7 +153,7 @@ public theorem _root_.List.max?_toArray [Max α] {l : List α} :
   · simp [List.max_toArray, List.max_eq_get_max?, - List.get_max?]
   · simp_all
 
-@[simp, grind =]
+@[simp, grind =, cbv_eval ←]
 public theorem max?_toList [Max α] {xs : Array α} :
     xs.toList.max? = xs.max? := by
   cases xs; simp

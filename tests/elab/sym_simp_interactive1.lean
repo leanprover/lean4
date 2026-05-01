@@ -111,3 +111,29 @@ example (f : Nat → Nat) (x y : Nat) (h : f (f (f (f x))) = y) : 0 + x = x ∧ 
     simp simple
     try simp simple
     apply h
+
+/-! ## Test 11: duplicate variant name is rejected -/
+
+/--
+error: Sym.simp variant `simple` is already registered
+-/
+#guard_msgs in
+register_sym_simp simple where
+
+/-! ## Test 12: unknown theorem in `rewrite [...]` is rejected -/
+
+/--
+error: Unknown constant `bla`
+-/
+#guard_msgs in
+register_sym_simp simple₁ where
+  pre := rewrite [bla]
+
+/-! ## Test 13: unknown theorem set in `rewrite setName` is rejected -/
+
+/--
+error: unknown Sym.simp theorem set `boo`
+-/
+#guard_msgs in
+register_sym_simp simple₃ where
+  pre := rewrite boo

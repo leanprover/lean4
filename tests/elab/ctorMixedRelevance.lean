@@ -15,6 +15,7 @@ trace: [Compiler.IR] [result]
       ret x_1
     def test1 : obj :=
       let x_1 : obj := test1._closed_0;
+      inc x_1;
       ret x_1
 -/
 #guard_msgs in
@@ -32,6 +33,7 @@ trace: [Compiler.IR] [result]
       ret x_5
     def test2 : obj :=
       let x_1 : obj := test2._closed_0;
+      inc x_1;
       ret x_1
 -/
 #guard_msgs in

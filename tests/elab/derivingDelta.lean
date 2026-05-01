@@ -380,3 +380,22 @@ deriving instance NCP for NCPAlias
 
 /-- info: instNCPNCPAlias -/
 #guard_msgs in #synth NCP NCPAlias
+
+/-!
+Prop-valued instances should be `theorem`s, not `def`s (issue #13295).
+-/
+def Foo (α : Type u) := List α
+deriving instance Nonempty for Foo
+
+/--
+info: theorem instNonemptyFoo.{u_1} : ∀ (α : Type u_1), Nonempty (Foo α) :=
+fun α => instNonemptyFoo._proof_1 α
+-/
+#guard_msgs in #print instNonemptyFoo
+
+-- NCP is Prop-valued, so its derived instance should also be a theorem.
+/--
+info: theorem instNCPNCPAlias : NCP NCPAlias :=
+instNCPNCPAlias._proof_1
+-/
+#guard_msgs in #print instNCPNCPAlias

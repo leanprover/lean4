@@ -1115,11 +1115,6 @@ def symbolNoAntiquot (sym : String) : Parser :=
   { info := symbolInfo sym
     fn   := symbolFn sym }
 
-def checkTailNoWs (prev : Syntax) : Bool :=
-  match prev.getTailInfo with
-  | .original _ _ trailing _ => trailing.stopPos == trailing.startPos
-  | _                        => false
-
 /-- Check if the following token is the symbol _or_ identifier `sym`. Useful for
     parsing local tokens that have not been added to the token table (but may have
     been so by some unrelated code).
@@ -1168,13 +1163,18 @@ partial def strAux (sym : String) (errorMsg : String) (j : String.Pos.Raw) :Pars
       else parse (j.next' sym h₁) c (s.next' c i h₂)
   parse j
 
+private def pickNonNone (stack : SyntaxStack) : Syntax :=
+  match stack.toSubarray.findRev? fun stx => !stx.isNone with
+  | none => Syntax.missing
+  | some stx => stx
+
 def checkTailWs (prev : Syntax) : Bool :=
   match prev.getTailInfo with
   | .original _ _ trailing _ => trailing.stopPos > trailing.startPos
   | _                        => false
 
 def checkWsBeforeFn (errorMsg : String) : ParserFn := fun _ s =>
-  let prev := s.stxStack.back
+  let prev := pickNonNone s.stxStack
   if checkTailWs prev then s else s.mkError errorMsg
 
 /-- The `ws` parser requires that there is some whitespace at this location.
@@ -1202,10 +1202,10 @@ This parser has arity 0 - it does not capture anything. -/
   info := epsilonInfo
   fn   := checkLinebreakBeforeFn errorMsg
 
-private def pickNonNone (stack : SyntaxStack) : Syntax :=
-  match stack.toSubarray.findRev? fun stx => !stx.isNone with
-  | none => Syntax.missing
-  | some stx => stx
+def checkTailNoWs (prev : Syntax) : Bool :=
+  match prev.getTailInfo with
+  | .original _ _ trailing _ => trailing.stopPos == trailing.startPos
+  | _                        => false
 
 def checkNoWsBeforeFn (errorMsg : String) : ParserFn := fun _ s =>
   let prev := pickNonNone s.stxStack

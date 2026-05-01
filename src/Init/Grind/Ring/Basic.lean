@@ -564,6 +564,28 @@ end Ring
 
 end IsCharP
 
+/--
+`PowIdentity α p` states that `x ^ p = x` holds for all elements of `α`.
+
+The primary source of instances is Fermat's little theorem: for a finite field with `q` elements,
+`x ^ q = x` for every `x`. For `Fin p` or `ZMod p` with prime `p`, this gives `x ^ p = x`.
+
+The `grind` ring solver uses this typeclass to add the relation `x ^ p - x = 0` to the
+Groebner basis, which allows it to reduce high-degree polynomials. Mathlib can provide
+instances for general finite fields via `FiniteField.pow_card`.
+-/
+class PowIdentity (α : Type u) [CommSemiring α] (p : outParam Nat) : Prop where
+  /-- Every element satisfies `x ^ p = x`. -/
+  pow_eq (x : α) : x ^ p = x
+
+namespace PowIdentity
+
+variable [CommSemiring α] [PowIdentity α p]
+
+theorem pow (x : α) : x ^ p = x := pow_eq x
+
+end PowIdentity
+
 open AddCommGroup
 
 theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α] {k : Int} {a : α}

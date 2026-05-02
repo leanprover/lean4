@@ -1,4 +1,4 @@
 module
 
-import all Test.Generated.Module
+import all Test.Module.ImportImport
 meta import Test.Module.ImportImport

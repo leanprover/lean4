@@ -42,8 +42,10 @@ test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/PromoteImport
 test_run build Test.Module.PromoteTransImport
 test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/PromoteTransImport.setup.json
 # an `import all` should not be demoted by a `meta import`
+# and `meta import` should still propagate through transitive imports
 test_run build Test.Module.PromoteMetaImport
-test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/Module/PromoteMetaImport.setup.json
+test_cmd grep -F "ImportImport.olean.private" .lake/build/ir/Test/Module/PromoteMetaImport.setup.json
+test_cmd grep -F "Module.ir" .lake/build/ir/Test/Module/PromoteMetaImport.setup.json
 # should be imported by a non-module
 test_run build Test.NonModule.Import
 test_cmd grep -F "Module.olean.private" .lake/build/ir/Test/NonModule/Import.setup.json

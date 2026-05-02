@@ -497,9 +497,20 @@ Recursively build a module's dependencies, including:
 * `extraDepTargets` of its library
 -/
 def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob do
-  let extraDepJob ← mod.lib.extraDep.fetch
-  let headerJob ← mod.header.fetch
+  /-
+  Remark: Await extra target dependencies (e.g., cloud releases, `needs`) before any
+  other module processing. This both enables the dependencies to effect these elements
+  and prevents them from racing with the processing here ([1]).
 
+  An `await` is used here rather than `bindM` because keeping import graph processing on
+  a single thread is simpler and the build would need to block on this regardless.
+
+  [1]: https://github.com/leanprover/lean4/issues/13598
+  -/
+  let extraDepJob ← mod.lib.extraDep.fetch
+  discard extraDepJob.await
+
+  let headerJob ← mod.header.fetch
   /-
   Remark: We must build direct imports before we fetch the transitive
   precompiled imports so that errors in the import block of transitive imports
@@ -523,7 +534,6 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
   headerJob.bindM (sync := true) fun header => do
-  extraDepJob.bindM (sync := true) fun _ => do
   impInfoJob.bindM (sync := true) fun info => do
   newTrace
   impLibsJob.bindM (sync := true) fun impLibs => do

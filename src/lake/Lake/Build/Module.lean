@@ -234,9 +234,9 @@ partial def fetchTransImportArts
     let input ← (← mod.input.fetch).await
     let importAll := strictOr nonModule imp.importAll
     return enqueue importAll imp.isMeta input q
-  walk directArts q
+  walk directArts {} q
 where
-  walk s (q : Array TransImportEntry) := do
+  walk s (metaVisited : NameSet) (q : Array TransImportEntry) := do
     if h : 0 < q.size then
       let {mod, importAll, needsMeta} := q.back
       let q := q.pop
@@ -252,15 +252,18 @@ where
 
         Sizes `1` and `4` imply all imports were already enqueued,
         so re-visiting them for `meta import` or `import all` is redundant.
+        A module already visited with `needsMeta` need not be re-visited.
         -/
+        let needsMeta := needsMeta && !metaVisited.contains mod.name
         unless (importAll || needsMeta) && arts.size == 3 do
-          return ← walk s q
+          return ← walk s metaVisited q
       let info ← (← mod.exportInfo.fetch).await
       let arts := if importAll then info.allArts else info.arts
       let s := s.insert mod.name arts
+      let metaVisited := if importAll || needsMeta then metaVisited.insert mod.name else metaVisited
       let input ← (← mod.input.fetch).await
       let q := enqueue importAll needsMeta input q
-      walk s q
+      walk s metaVisited q
     else
       return s
   enqueue importAll needsMeta input q :=

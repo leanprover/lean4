@@ -221,8 +221,9 @@ def computeModuleDeps
 
 structure TransImportEntry where
   mod : Module
+  /-- Whether to include all module artifacts and traverse the module's direct imports. -/
   importAll : Bool
-  /-- Whether `needsIRTrans` is set for this module (per Lean's meta import rules). -/
+  /-- Whether this module has been transitively imported by a `meta import`. -/
   needsMeta : Bool
 
 partial def fetchTransImportArts
@@ -246,7 +247,7 @@ where
 
         The size of import artifacts implies the following:
         * `1`: non-module `import` (`.olean` only)
-        * `3`: module `import` (`.olean`, `.olean.server`, `.olean.ir`)
+        * `3`: module `import` (`.olean`, `.olean.server`, `.ir`)
         * `4`: `import all` (module + `.olean.private`)
 
         Sizes `1` and `4` imply all imports were already enqueued,

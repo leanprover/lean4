@@ -42,8 +42,8 @@ private def collectTextLints
   let matchScope (linter : Name) : Bool :=
     if !args.only.isEmpty then true
     else match args.scope with
-      | .default => linter != `linter.clippy
-      | .clippy  => linter == `linter.clippy
+      | .default => !(`linter.clippy).isPrefixOf linter
+      | .clippy  => (`linter.clippy).isPrefixOf linter
       | .all     => true
   Linter.getAllLints env |>.foldl (init := #[]) fun acc (mod, entries) =>
     if pkgRoot.isPrefixOf mod then

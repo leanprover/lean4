@@ -561,3 +561,12 @@ public def func (ctx : Nat) (operand : OpOperand2) : Nat :=
 
 /-- Setup for #12833. -/
 public def Namespaced.def := 0
+
+/-! Setup for the default-instance visibility test in `Module.PrivateImported`. -/
+
+public structure CustomMulT where
+  x : Nat
+
+@[default_instance]
+public instance instHMulNatCustom : HMul Nat CustomMulT CustomMulT where
+  hMul a b := { x := a + b.x }

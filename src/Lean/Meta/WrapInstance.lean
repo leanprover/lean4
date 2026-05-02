@@ -250,10 +250,11 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
             if let some baseClassType ← getParentStructType? className baseClassName expectedType then
               try
                 if let .some existingBaseClassInst ← trySynthInstance baseClassType then
+                  let proj ← mkProjection existingBaseClassInst fieldInfo.fieldName
                   -- ignore instances from non-defeq diamonds
-                  if (← withDefault <| isDefEq existingBaseClassInst inst) then
+                  if (← withDefault <| isDefEq proj arg) then
                     trace[Meta.wrapInstance] "using projection of existing instance `{existingBaseClassInst}`"
-                    mvarId.assign (← mkProjection existingBaseClassInst fieldInfo.fieldName)
+                    mvarId.assign proj
                     continue
                 trace[Meta.wrapInstance] "did not find existing instance for `{baseClassName}`"
               catch e =>

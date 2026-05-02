@@ -31,7 +31,7 @@ lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 lean_object* lean_string_utf8_extract(lean_object*, lean_object*, lean_object*);
 lean_object* l_Lake_Hash_ofHex_x3f(lean_object*);
-lean_object* l_Lake_Hash_hex(uint64_t);
+lean_object* l_Lake_lowerHexUInt64(uint64_t);
 static const lean_string_object l_Lake_artifactPath___closed__0_value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 2, .m_capacity = 2, .m_length = 1, .m_data = "."};
 static const lean_object* l_Lake_artifactPath___closed__0 = (const lean_object*)&l_Lake_artifactPath___closed__0_value;
 LEAN_EXPORT lean_object* l_Lake_artifactPath(uint64_t, lean_object*);
@@ -172,7 +172,7 @@ v___x_6_ = lean_nat_dec_eq(v___x_4_, v___x_5_);
 if (v___x_6_ == 0)
 {
 lean_object* v___x_7_; lean_object* v___x_8_; lean_object* v___x_9_; lean_object* v___x_10_; 
-v___x_7_ = l_Lake_Hash_hex(v_contentHash_2_);
+v___x_7_ = l_Lake_lowerHexUInt64(v_contentHash_2_);
 v___x_8_ = ((lean_object*)(l_Lake_artifactPath___closed__0));
 v___x_9_ = lean_string_append(v___x_7_, v___x_8_);
 v___x_10_ = lean_string_append(v___x_9_, v_ext_3_);
@@ -181,7 +181,7 @@ return v___x_10_;
 else
 {
 lean_object* v___x_11_; 
-v___x_11_ = l_Lake_Hash_hex(v_contentHash_2_);
+v___x_11_ = l_Lake_lowerHexUInt64(v_contentHash_2_);
 return v___x_11_;
 }
 }
@@ -386,7 +386,7 @@ v___x_107_ = lean_nat_dec_eq(v___x_105_, v___x_106_);
 if (v___x_107_ == 0)
 {
 lean_object* v___x_108_; lean_object* v___x_109_; lean_object* v___x_110_; lean_object* v___x_111_; 
-v___x_108_ = l_Lake_Hash_hex(v_hash_103_);
+v___x_108_ = l_Lake_lowerHexUInt64(v_hash_103_);
 v___x_109_ = ((lean_object*)(l_Lake_artifactPath___closed__0));
 v___x_110_ = lean_string_append(v___x_108_, v___x_109_);
 v___x_111_ = lean_string_append(v___x_110_, v_ext_104_);
@@ -395,7 +395,7 @@ return v___x_111_;
 else
 {
 lean_object* v___x_112_; 
-v___x_112_ = l_Lake_Hash_hex(v_hash_103_);
+v___x_112_ = l_Lake_lowerHexUInt64(v_hash_103_);
 return v___x_112_;
 }
 }
@@ -421,7 +421,7 @@ v___x_120_ = lean_nat_dec_eq(v___x_118_, v___x_119_);
 if (v___x_120_ == 0)
 {
 lean_object* v___x_121_; lean_object* v___x_122_; lean_object* v___x_123_; lean_object* v___x_124_; 
-v___x_121_ = l_Lake_Hash_hex(v_hash_116_);
+v___x_121_ = l_Lake_lowerHexUInt64(v_hash_116_);
 v___x_122_ = ((lean_object*)(l_Lake_artifactPath___closed__0));
 v___x_123_ = lean_string_append(v___x_121_, v___x_122_);
 v___x_124_ = lean_string_append(v___x_123_, v_ext_117_);
@@ -430,7 +430,7 @@ return v___x_124_;
 else
 {
 lean_object* v___x_125_; 
-v___x_125_ = l_Lake_Hash_hex(v_hash_116_);
+v___x_125_ = l_Lake_lowerHexUInt64(v_hash_116_);
 return v___x_125_;
 }
 }
@@ -456,7 +456,7 @@ v___x_135_ = lean_nat_dec_eq(v___x_133_, v___x_134_);
 if (v___x_135_ == 0)
 {
 lean_object* v___x_136_; lean_object* v___x_137_; lean_object* v___x_138_; lean_object* v___x_139_; lean_object* v___x_140_; 
-v___x_136_ = l_Lake_Hash_hex(v_hash_131_);
+v___x_136_ = l_Lake_lowerHexUInt64(v_hash_131_);
 v___x_137_ = ((lean_object*)(l_Lake_artifactPath___closed__0));
 v___x_138_ = lean_string_append(v___x_136_, v___x_137_);
 v___x_139_ = lean_string_append(v___x_138_, v_ext_132_);
@@ -467,7 +467,7 @@ return v___x_140_;
 else
 {
 lean_object* v___x_141_; lean_object* v___x_142_; 
-v___x_141_ = l_Lake_Hash_hex(v_hash_131_);
+v___x_141_ = l_Lake_lowerHexUInt64(v_hash_131_);
 v___x_142_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_142_, 0, v___x_141_);
 return v___x_142_;
@@ -808,7 +808,7 @@ _start:
 lean_object* v___x_249_; lean_object* v___x_250_; lean_object* v___x_251_; lean_object* v___x_252_; 
 v___x_249_ = lean_obj_once(&l_Lake_instInhabitedArtifact_default___closed__1, &l_Lake_instInhabitedArtifact_default___closed__1_once, _init_l_Lake_instInhabitedArtifact_default___closed__1);
 v___x_250_ = ((lean_object*)(l_Lake_ArtifactDescr_ofFilePath_x3f___closed__2));
-v___x_251_ = lean_obj_once(&l_Lake_instInhabitedArtifactDescr_default___closed__1, &l_Lake_instInhabitedArtifactDescr_default___closed__1_once, _init_l_Lake_instInhabitedArtifactDescr_default___closed__1);
+v___x_251_ = l_Lake_instInhabitedArtifactDescr_default;
 v___x_252_ = lean_alloc_ctor(0, 4, 0);
 lean_ctor_set(v___x_252_, 0, v___x_251_);
 lean_ctor_set(v___x_252_, 1, v___x_250_);

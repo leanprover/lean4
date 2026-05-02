@@ -154,7 +154,7 @@ class Baz (α : Type) where
     let y := 5
     3
 
-instance instBaz (α β : Type) : Baz α where
+@[reducible] def instBaz (α β : Type) : Baz α where
   baz (x : Nat) := 5
 
 

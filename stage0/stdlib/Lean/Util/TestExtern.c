@@ -1068,9 +1068,9 @@ return v___x_313_;
 LEAN_EXPORT lean_object* l_elabTestExtern___lam__0___boxed(lean_object* v___x_316_, lean_object* v___x_317_, lean_object* v___x_318_, lean_object* v___y_319_, lean_object* v___y_320_, lean_object* v___y_321_, lean_object* v___y_322_, lean_object* v___y_323_, lean_object* v___y_324_, lean_object* v___y_325_){
 _start:
 {
-uint8_t v___x_5034__boxed_326_; lean_object* v_res_327_; 
-v___x_5034__boxed_326_ = lean_unbox(v___x_318_);
-v_res_327_ = l_elabTestExtern___lam__0(v___x_316_, v___x_317_, v___x_5034__boxed_326_, v___y_319_, v___y_320_, v___y_321_, v___y_322_, v___y_323_, v___y_324_);
+uint8_t v___x_5035__boxed_326_; lean_object* v_res_327_; 
+v___x_5035__boxed_326_ = lean_unbox(v___x_318_);
+v_res_327_ = l_elabTestExtern___lam__0(v___x_316_, v___x_317_, v___x_5035__boxed_326_, v___y_319_, v___y_320_, v___y_321_, v___y_322_, v___y_323_, v___y_324_);
 lean_dec(v___y_324_);
 lean_dec_ref(v___y_323_);
 lean_dec(v___y_322_);

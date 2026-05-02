@@ -1628,7 +1628,7 @@ return v___x_527_;
 v___jp_377_:
 {
 lean_object* v___x_380_; 
-v___x_380_ = l_Lean_Meta_mkEq(v___y_378_, v___y_379_, v_a_372_, v_a_373_, v_a_374_, v_a_375_);
+v___x_380_ = l_Lean_Meta_mkEq(v___y_379_, v___y_378_, v_a_372_, v_a_373_, v_a_374_, v_a_375_);
 if (lean_obj_tag(v___x_380_) == 0)
 {
 lean_object* v_a_381_; lean_object* v___x_382_; lean_object* v___x_383_; lean_object* v___x_384_; 
@@ -1870,8 +1870,8 @@ if (v___x_430_ == 0)
 lean_dec(v_a_424_);
 lean_dec_ref(v_b_371_);
 lean_dec(v_caseName_x3f_367_);
-v___y_378_ = v_a_427_;
-v___y_379_ = v_a_429_;
+v___y_378_ = v_a_429_;
+v___y_379_ = v_a_427_;
 goto v___jp_377_;
 }
 else
@@ -1883,8 +1883,8 @@ if (v___x_431_ == 0)
 {
 lean_dec(v_a_424_);
 lean_dec(v_caseName_x3f_367_);
-v___y_378_ = v_a_427_;
-v___y_379_ = v_a_429_;
+v___y_378_ = v_a_429_;
+v___y_379_ = v_a_427_;
 goto v___jp_377_;
 }
 else
@@ -4277,8 +4277,8 @@ return v___x_1113_;
 else
 {
 lean_object* v___x_1116_; 
-lean_dec(v_a_1089_);
 lean_dec_ref(v_a_1086_);
+lean_dec(v_a_1089_);
 v___x_1116_ = l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_unifyEq_x3f_substEq(v_mvarId_1063_, v_eqFVarId_1062_, v_subst_1064_, v_acyclic_1065_, v_a_1073_, v___x_1084_, v___x_1087_, v___x_1075_, v___y_1067_, v___y_1068_, v___y_1069_, v___y_1070_);
 lean_dec(v_a_1073_);
 return v___x_1116_;

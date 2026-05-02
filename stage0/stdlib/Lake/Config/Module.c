@@ -954,7 +954,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findModule_x3f(lean_object* v_mod_230_, 
 _start:
 {
 lean_object* v___y_233_; lean_object* v_targetDecls_236_; lean_object* v___x_237_; lean_object* v___x_238_; lean_object* v___x_239_; uint8_t v___x_240_; 
-v_targetDecls_236_ = lean_ctor_get(v_self_231_, 13);
+v_targetDecls_236_ = lean_ctor_get(v_self_231_, 14);
 lean_inc_ref(v_targetDecls_236_);
 v___x_237_ = lean_unsigned_to_nat(0u);
 v___x_238_ = ((lean_object*)(l_Lake_Package_findModule_x3f___closed__0));
@@ -2804,7 +2804,7 @@ if (v_allowImportAll_991_ == 0)
 lean_object* v_pkg_992_; lean_object* v_config_993_; uint8_t v_allowImportAll_994_; 
 v_pkg_992_ = lean_ctor_get(v_lib_989_, 0);
 v_config_993_ = lean_ctor_get(v_pkg_992_, 6);
-v_allowImportAll_994_ = lean_ctor_get_uint8(v_config_993_, sizeof(void*)*26 + 5);
+v_allowImportAll_994_ = lean_ctor_get_uint8(v_config_993_, sizeof(void*)*27 + 5);
 return v_allowImportAll_994_;
 }
 else
@@ -3136,7 +3136,7 @@ lean_inc_ref(v_pkg_1119_);
 lean_dec_ref(v_lib_1118_);
 v_config_1120_ = lean_ctor_get(v_pkg_1119_, 6);
 lean_inc_ref(v_config_1120_);
-v_bootstrap_1121_ = lean_ctor_get_uint8(v_config_1120_, sizeof(void*)*26);
+v_bootstrap_1121_ = lean_ctor_get_uint8(v_config_1120_, sizeof(void*)*27);
 if (v_bootstrap_1121_ == 0)
 {
 lean_object* v___x_1122_; 
@@ -3205,7 +3205,7 @@ lean_object* v_lib_1142_; lean_object* v_pkg_1143_; lean_object* v_config_1144_;
 v_lib_1142_ = lean_ctor_get(v_self_1141_, 0);
 v_pkg_1143_ = lean_ctor_get(v_lib_1142_, 0);
 v_config_1144_ = lean_ctor_get(v_pkg_1143_, 6);
-v_precompileModules_1145_ = lean_ctor_get_uint8(v_config_1144_, sizeof(void*)*26 + 1);
+v_precompileModules_1145_ = lean_ctor_get_uint8(v_config_1144_, sizeof(void*)*27 + 1);
 if (v_precompileModules_1145_ == 0)
 {
 lean_object* v_config_1146_; uint8_t v_precompileModules_1147_; 

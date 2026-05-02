@@ -4294,10 +4294,10 @@ return v___x_1409_;
 LEAN_EXPORT lean_object* l_Lean_Server_registerRpcProcedure___lam__1___boxed(lean_object* v___x_1427_, lean_object* v___x_1428_, lean_object* v___x_1429_, lean_object* v_method_1430_, lean_object* v___x_1431_, lean_object* v___x_1432_, lean_object* v___y_1433_, lean_object* v___y_1434_, lean_object* v___y_1435_, lean_object* v___y_1436_, lean_object* v___y_1437_, lean_object* v___y_1438_, lean_object* v___y_1439_){
 _start:
 {
-uint8_t v___x_6265__boxed_1440_; uint8_t v___x_6269__boxed_1441_; lean_object* v_res_1442_; 
-v___x_6265__boxed_1440_ = lean_unbox(v___x_1427_);
-v___x_6269__boxed_1441_ = lean_unbox(v___x_1432_);
-v_res_1442_ = l_Lean_Server_registerRpcProcedure___lam__1(v___x_6265__boxed_1440_, v___x_1428_, v___x_1429_, v_method_1430_, v___x_1431_, v___x_6269__boxed_1441_, v___y_1433_, v___y_1434_, v___y_1435_, v___y_1436_, v___y_1437_, v___y_1438_);
+uint8_t v___x_6267__boxed_1440_; uint8_t v___x_6271__boxed_1441_; lean_object* v_res_1442_; 
+v___x_6267__boxed_1440_ = lean_unbox(v___x_1427_);
+v___x_6271__boxed_1441_ = lean_unbox(v___x_1432_);
+v_res_1442_ = l_Lean_Server_registerRpcProcedure___lam__1(v___x_6267__boxed_1440_, v___x_1428_, v___x_1429_, v_method_1430_, v___x_1431_, v___x_6271__boxed_1441_, v___y_1433_, v___y_1434_, v___y_1435_, v___y_1436_, v___y_1437_, v___y_1438_);
 lean_dec(v___y_1438_);
 lean_dec(v___y_1436_);
 lean_dec_ref(v___y_1435_);

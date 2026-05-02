@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Array.BinSearch
 public import Init.Data.Stream
 public import Init.System.Promise
+public import Init.System.CancelToken
 public import Lean.Data.NameTrie
 public import Lean.Setup
 public import Lean.LocalContext

@@ -3191,9 +3191,9 @@ v___jp_812_:
 {
 lean_object* v___x_817_; lean_object* v___x_818_; lean_object* v___x_819_; lean_object* v___x_820_; lean_object* v___x_821_; lean_object* v___x_822_; lean_object* v___x_823_; lean_object* v___x_824_; lean_object* v___x_825_; lean_object* v___x_826_; lean_object* v___x_827_; lean_object* v___x_828_; lean_object* v___x_829_; lean_object* v___x_830_; 
 lean_inc(v___y_816_);
-lean_inc_ref(v___y_814_);
+lean_inc_ref(v___y_815_);
 v___x_817_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_817_, 0, v___y_814_);
+lean_ctor_set(v___x_817_, 0, v___y_815_);
 lean_ctor_set(v___x_817_, 1, v___y_816_);
 v___x_818_ = ((lean_object*)(l_IO_FS_Stream_writeLspMessage___closed__8));
 v___x_819_ = lean_alloc_ctor(3, 1, 0);
@@ -3222,7 +3222,7 @@ v___x_829_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_829_, 0, v___x_828_);
 lean_ctor_set(v___x_829_, 1, v___x_821_);
 v___x_830_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v___x_830_, 0, v___y_815_);
+lean_ctor_set(v___x_830_, 0, v___y_814_);
 lean_ctor_set(v___x_830_, 1, v___x_829_);
 v___y_722_ = v___x_830_;
 goto v___jp_721_;
@@ -3242,8 +3242,8 @@ case 0:
 lean_object* v___x_837_; 
 v___x_837_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__15, &l_IO_FS_Stream_writeLspMessage___closed__15_once, _init_l_IO_FS_Stream_writeLspMessage___closed__15);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_837_;
 goto v___jp_812_;
 }
@@ -3252,8 +3252,8 @@ case 1:
 lean_object* v___x_838_; 
 v___x_838_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__19, &l_IO_FS_Stream_writeLspMessage___closed__19_once, _init_l_IO_FS_Stream_writeLspMessage___closed__19);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_838_;
 goto v___jp_812_;
 }
@@ -3262,8 +3262,8 @@ case 2:
 lean_object* v___x_839_; 
 v___x_839_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__23, &l_IO_FS_Stream_writeLspMessage___closed__23_once, _init_l_IO_FS_Stream_writeLspMessage___closed__23);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_839_;
 goto v___jp_812_;
 }
@@ -3272,8 +3272,8 @@ case 3:
 lean_object* v___x_840_; 
 v___x_840_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__27, &l_IO_FS_Stream_writeLspMessage___closed__27_once, _init_l_IO_FS_Stream_writeLspMessage___closed__27);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_840_;
 goto v___jp_812_;
 }
@@ -3282,8 +3282,8 @@ case 4:
 lean_object* v___x_841_; 
 v___x_841_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__31, &l_IO_FS_Stream_writeLspMessage___closed__31_once, _init_l_IO_FS_Stream_writeLspMessage___closed__31);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_841_;
 goto v___jp_812_;
 }
@@ -3292,8 +3292,8 @@ case 5:
 lean_object* v___x_842_; 
 v___x_842_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__35, &l_IO_FS_Stream_writeLspMessage___closed__35_once, _init_l_IO_FS_Stream_writeLspMessage___closed__35);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_842_;
 goto v___jp_812_;
 }
@@ -3302,8 +3302,8 @@ case 6:
 lean_object* v___x_843_; 
 v___x_843_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__39, &l_IO_FS_Stream_writeLspMessage___closed__39_once, _init_l_IO_FS_Stream_writeLspMessage___closed__39);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_843_;
 goto v___jp_812_;
 }
@@ -3312,8 +3312,8 @@ case 7:
 lean_object* v___x_844_; 
 v___x_844_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__43, &l_IO_FS_Stream_writeLspMessage___closed__43_once, _init_l_IO_FS_Stream_writeLspMessage___closed__43);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_844_;
 goto v___jp_812_;
 }
@@ -3322,8 +3322,8 @@ case 8:
 lean_object* v___x_845_; 
 v___x_845_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__47, &l_IO_FS_Stream_writeLspMessage___closed__47_once, _init_l_IO_FS_Stream_writeLspMessage___closed__47);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_845_;
 goto v___jp_812_;
 }
@@ -3332,8 +3332,8 @@ case 9:
 lean_object* v___x_846_; 
 v___x_846_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__51, &l_IO_FS_Stream_writeLspMessage___closed__51_once, _init_l_IO_FS_Stream_writeLspMessage___closed__51);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_846_;
 goto v___jp_812_;
 }
@@ -3342,8 +3342,8 @@ case 10:
 lean_object* v___x_847_; 
 v___x_847_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__55, &l_IO_FS_Stream_writeLspMessage___closed__55_once, _init_l_IO_FS_Stream_writeLspMessage___closed__55);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_847_;
 goto v___jp_812_;
 }
@@ -3352,8 +3352,8 @@ default:
 lean_object* v___x_848_; 
 v___x_848_ = lean_obj_once(&l_IO_FS_Stream_writeLspMessage___closed__59, &l_IO_FS_Stream_writeLspMessage___closed__59_once, _init_l_IO_FS_Stream_writeLspMessage___closed__59);
 v___y_813_ = v___x_835_;
-v___y_814_ = v___x_836_;
-v___y_815_ = v___x_834_;
+v___y_814_ = v___x_834_;
+v___y_815_ = v___x_836_;
 v___y_816_ = v___x_848_;
 goto v___jp_812_;
 }

@@ -4923,8 +4923,8 @@ return v___x_1476_;
 }
 else
 {
-lean_dec_ref(v___x_1476_);
 lean_dec(v_a_1477_);
+lean_dec_ref(v___x_1476_);
 v_p_1452_ = v_p_1475_;
 goto _start;
 }

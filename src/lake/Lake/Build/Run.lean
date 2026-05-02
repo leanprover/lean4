@@ -96,7 +96,9 @@ namespace Monitor
 @[inline] nonrec def flush : MonitorM PUnit := do
   flush (← read).out
 
-def renderProgress (running unfinished : Array OpaqueJob) (h : 0 < unfinished.size) : MonitorM PUnit := do
+def renderProgress
+  (running unfinished : Array OpaqueJob) (h : 0 < unfinished.size)
+: MonitorM PUnit := do
   let {jobNo, totalJobs, ..} ← get
   let {useAnsi, showProgress, ..} ← read
   if showProgress ∧ useAnsi then
@@ -153,9 +155,12 @@ where
     else if ms > 1000 then s!"{(ms) / 1000}.{(ms+50) / 100 % 10}s"
     else s!"{ms}ms"
 
-def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array OpaqueJob) := do
+def drainQueue : MonitorM (Array OpaqueJob) := do
   let newJobs ← (← read).jobs.modifyGet ((·, #[]))
   modify fun s => {s with totalJobs := s.totalJobs + newJobs.size}
+  return newJobs
+
+def scanJobs (new unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array OpaqueJob) := do
   let pollJobs := fun (running, unfinished) job => do
     match (← IO.getTaskState job.task) with
     | .finished =>
@@ -167,7 +172,7 @@ def poll (unfinished : Array OpaqueJob) : MonitorM (Array OpaqueJob × Array Opa
     | .waiting =>
       return (running, unfinished.push job)
   let r ← unfinished.foldlM pollJobs (#[], #[])
-  newJobs.foldlM pollJobs r
+  new.foldlM pollJobs r
 
 def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
@@ -178,15 +183,25 @@ def sleep : MonitorM PUnit := do
   let now ← IO.monoMsNow
   modify fun s => {s with lastUpdate := now}
 
- partial def loop (unfinished : Array OpaqueJob) : MonitorM PUnit := do
-  let (running, unfinished) ← poll unfinished
+ partial def loop
+  (new unfinished : Array OpaqueJob)
+: MonitorM PUnit := do
+  let (running, unfinished) ← scanJobs new unfinished
   if h : 0 < unfinished.size then
     renderProgress running unfinished h
     sleep
-    loop unfinished
+    let new ← drainQueue
+    loop new unfinished
+  else
+    -- Must recheck queue for new tasks before terminating the loop.
+    -- Finished tasks may have registered new tasks.
+    let new ← drainQueue
+    if 0 < new.size then
+      loop new unfinished
 
 def main (init : Array OpaqueJob) : MonitorM PUnit := do
-  loop init
+  let new ← drainQueue
+  loop new init
   let resetCtrl ← modifyGet fun s => (s.resetCtrl, {s with resetCtrl := ""})
   unless resetCtrl.isEmpty do
     print resetCtrl
@@ -210,7 +225,7 @@ def mkMonitorContext (cfg : BuildConfig) (jobs : JobQueue) : BaseIO MonitorConte
   let failLv := cfg.failLv
   let isVerbose := cfg.verbosity = .verbose
   let showProgress := cfg.showProgress
-  let minAction := if isVerbose then .unknown else .fetch
+  let minAction := if isVerbose then .unknown else .unpack
   let showOptional := isVerbose
   let showTime := isVerbose || !useAnsi
   let updateFrequency := 100
@@ -284,11 +299,14 @@ def reportResult (cfg : BuildConfig) (out : IO.FS.Stream) (result : MonitorResul
   if result.failures.isEmpty then
     if cfg.showProgress && cfg.showSuccess then
       let numJobs := result.numJobs
-      let jobs := if numJobs == 1 then "1 job" else s!"{numJobs} jobs"
-      if cfg.noBuild then
-        print! out s!"All targets up-to-date ({jobs}).\n"
+      if numJobs == 0 then
+        print! out "Nothing to build.\n"
       else
-        print! out s!"Build completed successfully ({jobs}).\n"
+        let jobs := if numJobs == 1 then "1 job" else s!"{numJobs} jobs"
+        if cfg.noBuild then
+          print! out s!"All targets up-to-date ({jobs}).\n"
+        else
+          print! out s!"Build completed successfully ({jobs}).\n"
   else
     print! out "Some required targets logged failures:\n"
     result.failures.forM (print! out s!"- {·}\n")

@@ -322,6 +322,19 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   allowImportAll : Bool := false
 
   /--
+  Whether to run Lake's built-in linter on the package.
+
+  * `true` — Always run built-in lints. When a lint driver is also configured,
+    built-in lints run before the driver.
+  * `false` — Never run built-in lints by default. `lake check-lint` will exit
+    with a nonzero code if no lint driver is configured either.
+  * `none` (default) — Currently equivalent to `false`. In a future release, `none`
+    will run built-in lints when no lint driver is configured (i.e., act like `true`
+    as a fallback).
+  -/
+  builtinLint?, builtinLint : Option Bool := none
+
+  /--
   Whether this package is expected to function only on a single toolchain
   (the package's toolchain).
 

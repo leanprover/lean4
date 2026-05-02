@@ -37,16 +37,19 @@ def propagateBetaEqs (lams : Array Expr) (f : Expr) (args : Array Expr) : GoalM 
   for lam in lams do
     let rhs := lam.beta args
     unless rhs.isLambda do
-      let mut gen := Nat.max (← getGeneration lam) (← getGeneration f)
+      let gen := Nat.max (← getGeneration lam) (← getGeneration f)
+      let gen ← args.foldlM (init := gen) fun gen arg => return Nat.max gen (← getGeneration arg)
+      let gen := gen + 1
+      if gen ≥ (← getMaxGeneration) then
+        return ()
       let lhs := mkAppN f args
       if (← hasSameType f lam) then
         let mut h ← mkEqProof f lam
         for arg in args do
-          gen := Nat.max gen (← getGeneration arg)
           h ← mkCongrFun h arg
         let eq ← mkEq lhs rhs
         trace_goal[grind.beta] "{eq}, using {lam}"
-        addNewRawFact h eq (gen+1) (.beta lam)
+        addNewRawFact h eq gen (.beta lam)
 
 private def isPropagateBetaTarget (e : Expr) : GoalM Bool := do
   let .app f _ := e | return false

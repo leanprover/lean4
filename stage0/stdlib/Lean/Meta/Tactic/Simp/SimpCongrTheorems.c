@@ -5176,18 +5176,18 @@ v___jp_1686_:
 {
 lean_object* v_dummy_1693_; lean_object* v_nargs_1694_; lean_object* v___x_1695_; lean_object* v___x_1696_; lean_object* v___x_1697_; lean_object* v___x_1698_; lean_object* v___x_1699_; size_t v_sz_1700_; size_t v___x_1701_; lean_object* v___x_1702_; 
 v_dummy_1693_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_mkSimpCongrTheorem_spec__7___lam__0___closed__0, &l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_mkSimpCongrTheorem_spec__7___lam__0___closed__0_once, _init_l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_mkSimpCongrTheorem_spec__7___lam__0___closed__0);
-v_nargs_1694_ = l_Lean_Expr_getAppNumArgs(v___y_1687_);
+v_nargs_1694_ = l_Lean_Expr_getAppNumArgs(v___y_1688_);
 lean_inc(v_nargs_1694_);
 v___x_1695_ = lean_mk_array(v_nargs_1694_, v_dummy_1693_);
 v___x_1696_ = lean_unsigned_to_nat(1u);
 v___x_1697_ = lean_nat_sub(v_nargs_1694_, v___x_1696_);
 lean_dec(v_nargs_1694_);
-lean_inc_ref(v___y_1687_);
-v___x_1698_ = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(v___y_1687_, v___x_1695_, v___x_1697_);
+lean_inc_ref(v___y_1688_);
+v___x_1698_ = l___private_Lean_Expr_0__Lean_Expr_getAppArgsAux(v___y_1688_, v___x_1695_, v___x_1697_);
 v___x_1699_ = lean_box(0);
 v_sz_1700_ = lean_array_size(v___x_1698_);
 v___x_1701_ = ((size_t)0ULL);
-v___x_1702_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_mkSimpCongrTheorem_spec__4(v_fst_1676_, v___y_1687_, v___x_1698_, v_sz_1700_, v___x_1701_, v___x_1699_, v___y_1689_, v___y_1690_, v___y_1691_, v___y_1692_);
+v___x_1702_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Meta_mkSimpCongrTheorem_spec__4(v_fst_1676_, v___y_1688_, v___x_1698_, v_sz_1700_, v___x_1701_, v___x_1699_, v___y_1689_, v___y_1690_, v___y_1691_, v___y_1692_);
 lean_dec_ref(v___x_1698_);
 if (lean_obj_tag(v___x_1702_) == 0)
 {
@@ -5213,7 +5213,7 @@ v_resetjp_1703_:
 {
 lean_object* v___x_1706_; lean_object* v___x_1708_; 
 v___x_1706_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_1706_, 0, v___y_1688_);
+lean_ctor_set(v___x_1706_, 0, v___y_1687_);
 if (v_isShared_1705_ == 0)
 {
 lean_ctor_set(v___x_1704_, 0, v___x_1706_);
@@ -5237,7 +5237,7 @@ return v___x_1708_;
 else
 {
 lean_object* v_a_1712_; lean_object* v___x_1714_; uint8_t v_isShared_1715_; uint8_t v_isSharedCheck_1719_; 
-lean_dec_ref(v___y_1688_);
+lean_dec_ref(v___y_1687_);
 v_a_1712_ = lean_ctor_get(v___x_1702_, 0);
 v_isSharedCheck_1719_ = !lean_is_exclusive(v___x_1702_);
 if (v_isSharedCheck_1719_ == 0)
@@ -5280,7 +5280,7 @@ return v___x_1717_;
 v___jp_1720_:
 {
 lean_object* v___x_1727_; uint8_t v___x_1728_; 
-v___x_1727_ = l_Lean_Expr_mvarId_x21(v___y_1722_);
+v___x_1727_ = l_Lean_Expr_mvarId_x21(v___y_1721_);
 v___x_1728_ = l_Std_DTreeMap_Internal_Impl_contains___at___00__private_Lean_Meta_Tactic_Simp_SimpCongrTheorems_0__Lean_Meta_mkSimpCongrTheorem_onlyMVarsAt_spec__0___redArg(v___x_1727_, v_fst_1677_);
 lean_dec(v_fst_1677_);
 lean_dec(v___x_1727_);
@@ -5311,8 +5311,8 @@ v___x_1736_ = lean_obj_once(&l___private_Init_Data_Array_Basic_0__Array_forIn_x2
 v___x_1737_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1737_, 0, v___x_1735_);
 lean_ctor_set(v___x_1737_, 1, v___x_1736_);
-lean_inc_ref(v___y_1721_);
-v___x_1738_ = l_Lean_indentExpr(v___y_1721_);
+lean_inc_ref(v___y_1722_);
+v___x_1738_ = l_Lean_indentExpr(v___y_1722_);
 v___x_1739_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1739_, 0, v___x_1737_);
 lean_ctor_set(v___x_1739_, 1, v___x_1738_);
@@ -5404,8 +5404,8 @@ v___x_1764_ = l_Lean_throwError___at___00Lean_Meta_mkSimpCongrTheorem_spec__3___
 if (lean_obj_tag(v___x_1764_) == 0)
 {
 lean_dec_ref(v___x_1764_);
-v___y_1721_ = v___y_1750_;
-v___y_1722_ = v___x_1751_;
+v___y_1721_ = v___x_1751_;
+v___y_1722_ = v___y_1750_;
 v___y_1723_ = v___y_1681_;
 v___y_1724_ = v___y_1682_;
 v___y_1725_ = v___y_1683_;
@@ -5459,8 +5459,8 @@ return v___x_1770_;
 }
 else
 {
-v___y_1721_ = v___y_1750_;
-v___y_1722_ = v___x_1751_;
+v___y_1721_ = v___x_1751_;
+v___y_1722_ = v___y_1750_;
 v___y_1723_ = v___y_1681_;
 v___y_1724_ = v___y_1682_;
 v___y_1725_ = v___y_1683_;

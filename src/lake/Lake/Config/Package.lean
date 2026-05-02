@@ -52,6 +52,8 @@ public structure Package where
   remoteUrl : String
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
+  /-- **For internal use only.** Resolved direct dependences of the package. -/
+  depPkgs : Array Package := #[]
   /-- Target configurations in the order declared by the package. -/
   targetDecls : Array (PConfigDecl keyName) := #[]
   /-- Name-declaration map of target configurations in the package. -/

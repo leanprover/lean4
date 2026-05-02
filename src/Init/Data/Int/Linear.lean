@@ -191,7 +191,7 @@ def Poly.combine' (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
     else
       .add a₂ x₂ (combine' fuel (.add a₁ x₁ p₁) p₂)
 
-@[expose] abbrev hugeFuel := 100000000
+abbrev hugeFuel := 100000000
 
 @[expose]
 def Poly.combine (p₁ p₂ : Poly) : Poly :=

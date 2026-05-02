@@ -1659,10 +1659,10 @@ return v___x_452_;
 LEAN_EXPORT lean_object* l_System_Uri_fileUriToPath_x3f___lam__0___boxed(lean_object* v___y_453_){
 _start:
 {
-uint32_t v___y_1754__boxed_454_; uint32_t v_res_455_; lean_object* v_r_456_; 
-v___y_1754__boxed_454_ = lean_unbox_uint32(v___y_453_);
+uint32_t v___y_1758__boxed_454_; uint32_t v_res_455_; lean_object* v_r_456_; 
+v___y_1758__boxed_454_ = lean_unbox_uint32(v___y_453_);
 lean_dec(v___y_453_);
-v_res_455_ = l_System_Uri_fileUriToPath_x3f___lam__0(v___y_1754__boxed_454_);
+v_res_455_ = l_System_Uri_fileUriToPath_x3f___lam__0(v___y_1758__boxed_454_);
 v_r_456_ = lean_box_uint32(v_res_455_);
 return v_r_456_;
 }
@@ -1730,9 +1730,9 @@ return v_pos_459_;
 LEAN_EXPORT lean_object* l_String_Slice_Pos_skipWhile___at___00System_Uri_fileUriToPath_x3f_spec__1___boxed(lean_object* v___x_475_, lean_object* v_s_476_, lean_object* v_pos_477_){
 _start:
 {
-uint8_t v___x_1769__boxed_478_; lean_object* v_res_479_; 
-v___x_1769__boxed_478_ = lean_unbox(v___x_475_);
-v_res_479_ = l_String_Slice_Pos_skipWhile___at___00System_Uri_fileUriToPath_x3f_spec__1(v___x_1769__boxed_478_, v_s_476_, v_pos_477_);
+uint8_t v___x_1773__boxed_478_; lean_object* v_res_479_; 
+v___x_1773__boxed_478_ = lean_unbox(v___x_475_);
+v_res_479_ = l_String_Slice_Pos_skipWhile___at___00System_Uri_fileUriToPath_x3f_spec__1(v___x_1773__boxed_478_, v_s_476_, v_pos_477_);
 lean_dec_ref(v_s_476_);
 return v_res_479_;
 }

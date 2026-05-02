@@ -5230,9 +5230,9 @@ return v___x_1749_;
 LEAN_EXPORT lean_object* l_Lean_Server_registerLspRequestHandler___redArg___lam__1___boxed(lean_object* v_serialize_x3f_1750_, lean_object* v_a_1751_, lean_object* v_inst_1752_, lean_object* v_r_1753_){
 _start:
 {
-uint8_t v_a_1615__boxed_1754_; lean_object* v_res_1755_; 
-v_a_1615__boxed_1754_ = lean_unbox(v_a_1751_);
-v_res_1755_ = l_Lean_Server_registerLspRequestHandler___redArg___lam__1(v_serialize_x3f_1750_, v_a_1615__boxed_1754_, v_inst_1752_, v_r_1753_);
+uint8_t v_a_1617__boxed_1754_; lean_object* v_res_1755_; 
+v_a_1617__boxed_1754_ = lean_unbox(v_a_1751_);
+v_res_1755_ = l_Lean_Server_registerLspRequestHandler___redArg___lam__1(v_serialize_x3f_1750_, v_a_1617__boxed_1754_, v_inst_1752_, v_r_1753_);
 return v_res_1755_;
 }
 }
@@ -6131,9 +6131,9 @@ return v___x_2057_;
 LEAN_EXPORT lean_object* l_Lean_Server_chainLspRequestHandler___redArg___lam__1___boxed(lean_object* v_inst_2058_, lean_object* v_a_2059_, lean_object* v_r_2060_){
 _start:
 {
-uint8_t v_a_2454__boxed_2061_; lean_object* v_res_2062_; 
-v_a_2454__boxed_2061_ = lean_unbox(v_a_2059_);
-v_res_2062_ = l_Lean_Server_chainLspRequestHandler___redArg___lam__1(v_inst_2058_, v_a_2454__boxed_2061_, v_r_2060_);
+uint8_t v_a_2455__boxed_2061_; lean_object* v_res_2062_; 
+v_a_2455__boxed_2061_ = lean_unbox(v_a_2059_);
+v_res_2062_ = l_Lean_Server_chainLspRequestHandler___redArg___lam__1(v_inst_2058_, v_a_2455__boxed_2061_, v_r_2060_);
 return v_res_2062_;
 }
 }
@@ -7577,7 +7577,7 @@ return v_res_2514_;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__6(lean_object* v_val_2515_, lean_object* v___f_2516_, lean_object* v___f_2517_, lean_object* v___f_2518_, lean_object* v___x_2519_, lean_object* v___f_2520_, lean_object* v___f_2521_, lean_object* v_val_2522_, lean_object* v_param_2523_, lean_object* v___y_2524_){
 _start:
 {
-lean_object* v___f_2526_; lean_object* v___f_2527_; lean_object* v___x_2528_; lean_object* v___x_2529_; lean_object* v___x_6409__overap_2530_; lean_object* v___x_2531_; 
+lean_object* v___f_2526_; lean_object* v___f_2527_; lean_object* v___x_2528_; lean_object* v___x_2529_; lean_object* v___x_6410__overap_2530_; lean_object* v___x_2531_; 
 v___f_2526_ = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__4___boxed), 6, 3);
 lean_closure_set(v___f_2526_, 0, v_val_2515_);
 lean_closure_set(v___f_2526_, 1, v___f_2516_);
@@ -7600,9 +7600,9 @@ lean_closure_set(v___x_2529_, 4, lean_box(0));
 lean_closure_set(v___x_2529_, 5, lean_box(0));
 lean_closure_set(v___x_2529_, 6, v___x_2528_);
 lean_closure_set(v___x_2529_, 7, v___f_2527_);
-v___x_6409__overap_2530_ = l_Std_Mutex_atomically___redArg(v___x_2519_, v___f_2520_, v___f_2521_, v_val_2522_, v___x_2529_);
+v___x_6410__overap_2530_ = l_Std_Mutex_atomically___redArg(v___x_2519_, v___f_2520_, v___f_2521_, v_val_2522_, v___x_2529_);
 lean_inc_ref(v___y_2524_);
-v___x_2531_ = lean_apply_2(v___x_6409__overap_2530_, v___y_2524_, lean_box(0));
+v___x_2531_ = lean_apply_2(v___x_6410__overap_2530_, v___y_2524_, lean_box(0));
 return v___x_2531_;
 }
 }
@@ -7781,7 +7781,7 @@ return v_res_2600_;
 LEAN_EXPORT lean_object* l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__9(lean_object* v_val_2601_, lean_object* v___f_2602_, lean_object* v___f_2603_, lean_object* v___f_2604_, lean_object* v___x_2605_, lean_object* v___f_2606_, lean_object* v___f_2607_, lean_object* v_val_2608_, lean_object* v_param_2609_, lean_object* v___y_2610_){
 _start:
 {
-lean_object* v___f_2612_; lean_object* v___f_2613_; lean_object* v___x_2614_; lean_object* v___x_2615_; lean_object* v___x_6460__overap_2616_; lean_object* v___x_2617_; 
+lean_object* v___f_2612_; lean_object* v___f_2613_; lean_object* v___x_2614_; lean_object* v___x_2615_; lean_object* v___x_6461__overap_2616_; lean_object* v___x_2617_; 
 v___f_2612_ = lean_alloc_closure((void*)(l___private_Lean_Server_Requests_0__Lean_Server_overrideStatefulLspRequestHandler___redArg___lam__7___boxed), 6, 3);
 lean_closure_set(v___f_2612_, 0, v_val_2601_);
 lean_closure_set(v___f_2612_, 1, v___f_2602_);
@@ -7804,9 +7804,9 @@ lean_closure_set(v___x_2615_, 4, lean_box(0));
 lean_closure_set(v___x_2615_, 5, lean_box(0));
 lean_closure_set(v___x_2615_, 6, v___x_2614_);
 lean_closure_set(v___x_2615_, 7, v___f_2613_);
-v___x_6460__overap_2616_ = l_Std_Mutex_atomically___redArg(v___x_2605_, v___f_2606_, v___f_2607_, v_val_2608_, v___x_2615_);
+v___x_6461__overap_2616_ = l_Std_Mutex_atomically___redArg(v___x_2605_, v___f_2606_, v___f_2607_, v_val_2608_, v___x_2615_);
 lean_inc_ref(v___y_2610_);
-v___x_2617_ = lean_apply_2(v___x_6460__overap_2616_, v___y_2610_, lean_box(0));
+v___x_2617_ = lean_apply_2(v___x_6461__overap_2616_, v___y_2610_, lean_box(0));
 return v___x_2617_;
 }
 }

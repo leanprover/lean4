@@ -46,7 +46,7 @@ instCD2._aux_1
 #guard_msgs in
 #print instCD2
 /--
-info: @[implicit_reducible] private def instCD2._aux_1 : C D2 :=
+info: private def instCD2._aux_1 : C D2 :=
 instCI2
 -/
 #guard_msgs in

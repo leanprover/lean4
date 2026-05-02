@@ -2541,8 +2541,8 @@ return v___x_724_;
 else
 {
 lean_dec_ref(v_arg_715_);
-lean_dec_ref(v_e_700_);
 lean_dec_ref(v_fn_714_);
+lean_dec_ref(v_e_700_);
 return v___x_718_;
 }
 }
@@ -4853,8 +4853,8 @@ if (lean_obj_tag(v_a_1428_) == 0)
 {
 uint8_t v_contextDependent_1434_; lean_object* v___x_1435_; lean_object* v___x_1437_; 
 lean_dec_ref(v_arg_1424_);
-lean_dec_ref(v_e_1410_);
 lean_dec_ref(v_fn_1423_);
+lean_dec_ref(v_e_1410_);
 v_contextDependent_1434_ = lean_ctor_get_uint8(v_a_1428_, 1);
 lean_dec_ref(v_a_1428_);
 v___x_1435_ = l_Lean_Meta_Sym_Simp_mkRflResultCD(v_contextDependent_1434_);
@@ -4920,8 +4920,8 @@ else
 {
 lean_dec(v_a_1428_);
 lean_dec_ref(v_arg_1424_);
-lean_dec_ref(v_e_1410_);
 lean_dec_ref(v_fn_1423_);
+lean_dec_ref(v_e_1410_);
 return v___x_1444_;
 }
 }
@@ -4931,8 +4931,8 @@ else
 {
 lean_dec(v___x_1426_);
 lean_dec_ref(v_arg_1424_);
-lean_dec_ref(v_e_1410_);
 lean_dec_ref(v_fn_1423_);
+lean_dec_ref(v_e_1410_);
 return v___x_1427_;
 }
 }

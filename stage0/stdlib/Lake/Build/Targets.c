@@ -182,7 +182,7 @@ LEAN_EXPORT lean_object* l_Lake_KConfigDecl_get___redArg___lam__2(lean_object* v
 _start:
 {
 lean_object* v_packageMap_37_; lean_object* v___x_38_; lean_object* v___x_39_; 
-v_packageMap_37_ = lean_ctor_get(v_x_36_, 6);
+v_packageMap_37_ = lean_ctor_get(v_x_36_, 5);
 lean_inc(v_packageMap_37_);
 lean_dec_ref(v_x_36_);
 v___x_38_ = ((lean_object*)(l_Lake_KConfigDecl_get___redArg___lam__2___closed__0));
@@ -363,7 +363,7 @@ lean_inc_n(v_pkg_129_, 2);
 v_name_130_ = lean_ctor_get(v_self_120_, 1);
 lean_inc(v_name_130_);
 lean_dec_ref(v_self_120_);
-v_packageMap_131_ = lean_ctor_get(v_toContext_128_, 6);
+v_packageMap_131_ = lean_ctor_get(v_toContext_128_, 5);
 v___x_132_ = ((lean_object*)(l_Lake_KConfigDecl_get___redArg___lam__2___closed__0));
 lean_inc(v_packageMap_131_);
 v___x_133_ = l_Std_DTreeMap_Internal_Impl_get_x3f___redArg(v___x_132_, v_packageMap_131_, v_pkg_129_);
@@ -507,7 +507,7 @@ lean_inc(v_pkg_206_);
 v_name_207_ = lean_ctor_get(v_self_197_, 1);
 lean_inc(v_name_207_);
 lean_dec_ref(v_self_197_);
-v_packageMap_208_ = lean_ctor_get(v_toContext_205_, 6);
+v_packageMap_208_ = lean_ctor_get(v_toContext_205_, 5);
 v___x_209_ = l_Std_DTreeMap_Internal_Impl_get_x3f___at___00Lake_TargetDecl_fetchJob_spec__0___redArg(v_packageMap_208_, v_pkg_206_);
 if (lean_obj_tag(v___x_209_) == 1)
 {
@@ -1190,7 +1190,7 @@ goto v_resetjp_535_;
 v_resetjp_535_:
 {
 lean_object* v_packageMap_538_; lean_object* v___x_539_; lean_object* v___x_540_; 
-v_packageMap_538_ = lean_ctor_get(v_toContext_531_, 6);
+v_packageMap_538_ = lean_ctor_get(v_toContext_531_, 5);
 v___x_539_ = ((lean_object*)(l_Lake_KConfigDecl_get___redArg___lam__2___closed__0));
 lean_inc(v_pkg_532_);
 lean_inc(v_packageMap_538_);
@@ -1685,7 +1685,7 @@ goto v_resetjp_760_;
 v_resetjp_760_:
 {
 lean_object* v_packageMap_763_; lean_object* v___x_764_; lean_object* v___x_765_; 
-v_packageMap_763_ = lean_ctor_get(v_toContext_756_, 6);
+v_packageMap_763_ = lean_ctor_get(v_toContext_756_, 5);
 v___x_764_ = ((lean_object*)(l_Lake_KConfigDecl_get___redArg___lam__2___closed__0));
 lean_inc(v_pkg_757_);
 lean_inc(v_packageMap_763_);
@@ -1934,7 +1934,7 @@ goto v_resetjp_876_;
 v_resetjp_876_:
 {
 lean_object* v_packageMap_879_; lean_object* v___x_880_; lean_object* v___x_881_; 
-v_packageMap_879_ = lean_ctor_get(v_toContext_872_, 6);
+v_packageMap_879_ = lean_ctor_get(v_toContext_872_, 5);
 v___x_880_ = ((lean_object*)(l_Lake_KConfigDecl_get___redArg___lam__2___closed__0));
 lean_inc(v_pkg_873_);
 lean_inc(v_packageMap_879_);
@@ -2183,7 +2183,7 @@ goto v_resetjp_992_;
 v_resetjp_992_:
 {
 lean_object* v_packageMap_995_; lean_object* v___x_996_; lean_object* v___x_997_; 
-v_packageMap_995_ = lean_ctor_get(v_toContext_988_, 6);
+v_packageMap_995_ = lean_ctor_get(v_toContext_988_, 5);
 v___x_996_ = ((lean_object*)(l_Lake_KConfigDecl_get___redArg___lam__2___closed__0));
 lean_inc(v_pkg_989_);
 lean_inc(v_packageMap_995_);

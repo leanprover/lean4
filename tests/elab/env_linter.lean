@@ -127,26 +127,35 @@ error: invalid attribute `builtin_env_linter`, linter `dummyBadName` has already
 
 -- Default mode: only isDefault=true linters
 def testGetChecksDefault : CoreM (Array Name) := do
-  let checks ← getChecks (clippy := false) (runOnly := none)
+  let checks ← getChecks (scope := .default) (runOnly := none)
   return checks.map (·.name)
 
--- dummyBadName is default, dummyClippyLinter is not
-/-- info: #[`dummyBadName] -/
+-- dummyBadName and checkUnivs are default, dummyClippyLinter is not
+/-- info: #[`checkUnivs, `defLemma, `dummyBadName] -/
 #guard_msgs in
 #eval testGetChecksDefault
 
--- Clippy mode: all linters
+-- Clippy mode: only non-default linters
 def testGetChecksClippy : CoreM (Array Name) := do
-  let checks ← getChecks (clippy := true) (runOnly := none)
+  let checks ← getChecks (scope := .clippy) (runOnly := none)
   return checks.map (·.name)
 
-/-- info: #[`dummyBadName, `dummyClippyLinter] -/
+/-- info: #[`dummyClippyLinter] -/
 #guard_msgs in
 #eval testGetChecksClippy
 
+-- All mode: all linters
+def testGetChecksAll : CoreM (Array Name) := do
+  let checks ← getChecks (scope := .all) (runOnly := none)
+  return checks.map (·.name)
+
+/-- info: #[`checkUnivs, `defLemma, `dummyBadName, `dummyClippyLinter] -/
+#guard_msgs in
+#eval testGetChecksAll
+
 -- runOnly: only specified linters
 def testGetChecksRunOnly : CoreM (Array Name) := do
-  let checks ← getChecks (clippy := false) (runOnly := some [`dummyClippyLinter])
+  let checks ← getChecks (runOnly := some [`dummyClippyLinter])
   return checks.map (·.name)
 
 /-- info: #[`dummyClippyLinter] -/
@@ -168,17 +177,17 @@ def testDeclsInCurrModule : CoreM Bool := do
 
 -- lintCore should find badDef but not goodDef or badButNolinted
 def testLintCore : CoreM (Array (Name × Nat)) := do
-  let linters ← getChecks (clippy := false) (runOnly := none)
+  let linters ← getChecks (scope := .default) (runOnly := none)
   let results ← lintCore #[`badDef, `goodDef, `badButNolinted] linters
   return results.map fun (linter, msgs) => (linter.name, msgs.size)
 
-/-- info: #[(`dummyBadName, 1)] -/
+/-- info: #[(`checkUnivs, 0), (`defLemma, 0), (`dummyBadName, 1)] -/
 #guard_msgs in
 #eval testLintCore
 
 -- Verify which declaration was flagged
 def testLintCoreDetail : CoreM (Array Name) := do
-  let linters ← getChecks (clippy := false) (runOnly := none)
+  let linters ← getChecks (scope := .default) (runOnly := none)
   let results ← lintCore #[`badDef, `goodDef, `badButNolinted] linters
   let mut flagged := #[]
   for (_, msgs) in results do
@@ -193,15 +202,15 @@ def testLintCoreDetail : CoreM (Array Name) := do
 /-! ## Test: formatLinterResults -/
 
 def testFormatResults : CoreM Format := do
-  let linters ← getChecks (clippy := false) (runOnly := none)
+  let linters ← getChecks (scope := .default) (runOnly := none)
   let results ← lintCore #[`badDef, `goodDef] linters
   let msg ← formatLinterResults results #[`badDef, `goodDef]
-    (groupByFilename := false) (whereDesc := "in test") (runClippyLinters := true)
+    (groupByFilename := false) (whereDesc := "in test") (scope := .all)
     (verbose := .medium) (numLinters := linters.size)
   return (← msg.format)
 
 /--
-info: -- Found 1 error in 2 declarations (plus 0 automatically generated ones) in test with 1 linters
+info: -- Found 1 error in 2 declarations (plus 0 automatically generated ones) in test with 3 linters
 
 /- The `dummyBadName` linter reports:
 found bad names -/
@@ -212,15 +221,47 @@ found bad names -/
 
 -- No errors case
 def testFormatResultsClean : CoreM Format := do
-  let linters ← getChecks (clippy := false) (runOnly := none)
+  let linters ← getChecks (scope := .default) (runOnly := none)
   let results ← lintCore #[`goodDef] linters
   let msg ← formatLinterResults results #[`goodDef]
-    (groupByFilename := false) (whereDesc := "in test") (runClippyLinters := true)
+    (groupByFilename := false) (whereDesc := "in test") (scope := .all)
     (verbose := .medium) (numLinters := linters.size)
   return (← msg.format)
 
 /--
-info: -- Found 0 errors in 1 declarations (plus 0 automatically generated ones) in test with 1 linters
+info: -- Found 0 errors in 1 declarations (plus 0 automatically generated ones) in test with 3 linters
 -/
 #guard_msgs in
 #eval testFormatResultsClean
+
+/-! ## Test: checkUnivs -/
+
+-- Good: each universe parameter occurs alone somewhere
+universe u v in
+def goodUnivs (α : Type u) (β : Type v) : Type (max u v) := α × β
+
+-- Good: one universe dominates the other (max u v where u occurs alone)
+universe u v in
+def goodUnivsDominated (α : Type u) (β : Type (max u v)) : Type (max u v) := α × β
+
+-- Bad: neither u nor v occur alone
+universe u v in
+def badUnivs (α : Type (max u v)) : Type (max u v) := α
+
+def testCheckUnivs (declName : Name) : MetaM Bool := do
+  let some (linterDeclName, _) := (envLinterExt.getState (← getEnv)).find? `checkUnivs
+    | throwError "not found"
+  let linter ← getEnvLinter `checkUnivs linterDeclName
+  return (← linter.test declName).isSome
+
+/-- info: false -/
+#guard_msgs in
+#eval testCheckUnivs `goodUnivs
+
+/-- info: false -/
+#guard_msgs in
+#eval testCheckUnivs `goodUnivsDominated
+
+/-- info: true -/
+#guard_msgs in
+#eval testCheckUnivs `badUnivs

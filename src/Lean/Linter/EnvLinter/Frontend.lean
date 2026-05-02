@@ -32,18 +32,33 @@ inductive LintVerbosity
   | high
   deriving Inhabited, DecidableEq, Repr
 
-/-- `getChecks clippy runOnly` produces a list of linters.
-`runOnly` is an optional list of names that should resolve to declarations with type
-`NamedEnvLinter`. If populated, only these linters are run (regardless of the default
-configuration). Otherwise, it uses all enabled linters in the environment tagged with
-`@[builtin_env_linter]`. If `clippy` is false, it only uses linters with `isDefault = true`. -/
-def getChecks (clippy : Bool) (runOnly : Option (List Name)) :
+/-- Which set of linters to run. -/
+inductive LintScope
+  /-- Run only default linters. -/
+  | default
+  /-- Run only non-default (clippy) linters. -/
+  | clippy
+  /-- Run all linters (default + clippy). -/
+  | all
+  deriving Inhabited, DecidableEq, Repr
+
+/-- `getChecks` produces a list of linters to run.
+
+If `runOnly` is populated, only those named linters are run (regardless of `scope`).
+Otherwise, linter selection depends on `scope`:
+- `default`: only linters with `isDefault = true`
+- `clippy`: only linters with `isDefault = false`
+- `all`: all linters -/
+def getChecks (scope : LintScope := .default) (runOnly : Option (List Name) := none) :
     CoreM (Array NamedEnvLinter) := do
   let mut result := #[]
   for (name, declName, isDefault) in envLinterExt.getState (← getEnv) do
     let shouldRun := match runOnly with
       | some only => only.contains name
-      | none => clippy || isDefault
+      | none => match scope with
+        | .default => isDefault
+        | .clippy => !isDefault
+        | .all => true
     if shouldRun then
       let linter ← getEnvLinter name declName
       result := result.binInsert (·.name.lt ·.name) linter
@@ -133,7 +148,7 @@ def formatLinterResults
     (results : Array (NamedEnvLinter × Std.HashMap Name MessageData))
     (decls : Array Name)
     (groupByFilename : Bool)
-    (whereDesc : String) (runClippyLinters : Bool)
+    (whereDesc : String) (scope : LintScope := .default)
     (verbose : LintVerbosity) (numLinters : Nat) (useErrorFormat : Bool := false) :
     CoreM MessageData := do
   let formattedResults ← results.filterMapM fun (linter, results) => do
@@ -156,7 +171,10 @@ def formatLinterResults
       } in {decls.size - numAutoDecls} declarations (plus {
       numAutoDecls} automatically generated ones) {whereDesc
       } with {numLinters} linters\n\n{s}"
-  unless runClippyLinters do s := m!"{s}-- (non-clippy linters skipped)\n"
+  match scope with
+  | .default => s := m!"{s}-- (non-default linters skipped)\n"
+  | .clippy => s := m!"{s}-- (default linters skipped)\n"
+  | .all => pure ()
   pure s
 
 /-- Get the list of declarations in the current module. -/

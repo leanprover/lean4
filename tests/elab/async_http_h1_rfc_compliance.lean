@@ -1,6 +1,7 @@
-import Std.Internal.Http
+import Std.Http
 
 open Std Http
+open Std.Http.Internal.Test
 open Std.Http.Protocol.H1
 open Std.Http.Protocol.H1.Machine
 
@@ -58,15 +59,15 @@ private def withLastStep
   | some step => k t step
 
 /-- Create a new tester for the given direction. -/
-def new (name : String) (config : Config := {}) : MachineTester dir :=
+def new (name : String) (config : Protocol.H1.Config := {}) : MachineTester dir :=
   { name, machine := { config } }
 
 /-- Create a new server-side tester (receives requests, sends responses). -/
-def receiving (name : String) (config : Config := {}) : MachineTester .receiving :=
+def receiving (name : String) (config : Protocol.H1.Config := {}) : MachineTester .receiving :=
   { name, machine := { config } }
 
 /-- Create a new client-side tester (sends requests, receives responses). -/
-def sending (name : String) (config : Config := {}) : MachineTester .sending :=
+def sending (name : String) (config : Protocol.H1.Config := {}) : MachineTester .sending :=
   { name, machine := { config } }
 
 /-- Feed a UTF-8 string to the machine. -/
@@ -312,20 +313,12 @@ def run (t : MachineTester dir) : IO Unit :=
 
 end MachineTester
 
-/-- Run a named group of tests; wraps any failure with the group name. -/
-private def runGroup (name : String) (tests : IO Unit) : IO Unit := do
-  try tests
-  catch e => throw (IO.userError s!"[{name}]\n{toString e}")
-
 ----------------------------------------------------------------------------------------------------
-
-private def mkGet (path : String := "/") (extra : String := "") : String :=
-  s!"GET {path} HTTP/1.1\r\nHost: example.com\r\n{extra}\r\n"
 
 private def mkGet10 (path : String := "/") : String :=
   s!"GET {path} HTTP/1.0\r\n\r\n"
 
-private def mkPost (path : String) (bodyLen : Nat) (extra : String := "") : String :=
+private def mkPostHead (path : String) (bodyLen : Nat) (extra : String := "") : String :=
   s!"POST {path} HTTP/1.1\r\nHost: example.com\r\nContent-Length: {bodyLen}\r\n{extra}\r\n"
 
 private def mkChunkedPost (path : String) (extra : String := "") : String :=
@@ -432,7 +425,7 @@ private def minimalGetRequest : Request.Head :=
 
   let body := "Hello, World!".toUTF8
   MachineTester.receiving "§6.3: Content-Length body delivered exactly"
-    |>.feed (mkPost "/" body.size ++ String.fromUTF8! body)
+    |>.feed (mkPostHead "/" body.size ++ String.fromUTF8! body)
     |>.step |>.assertNoError |>.assertHasEndHeaders
     |>.drainBody |>.assertPulledBody body |>.assertLastChunkFinal |>.run
 
@@ -461,12 +454,12 @@ private def minimalGetRequest : Request.Head :=
 
   let partialBody := "hello".toUTF8
   MachineTester.receiving "§6.3: noMoreInput mid fixed-length body → connectionClosed"
-    |>.feed (mkPost "/" 10 ++ String.fromUTF8! partialBody)
+    |>.feed (mkPostHead "/" 10 ++ String.fromUTF8! partialBody)
     |>.step |>.assertHasEndHeaders |>.noMoreInput
     |>.drainBody |>.assertFailedWith .connectionClosed |>.run
 
   MachineTester.receiving "§6.3: fixed-length body stops at declared byte count"
-    |>.feed (mkPost "/" 5 ++ "helloworld")
+    |>.feed (mkPostHead "/" 5 ++ "helloworld")
     |>.step |>.assertHasEndHeaders
     |>.drainBody
     |>.assertPulledBody "hello".toUTF8
@@ -475,7 +468,7 @@ private def minimalGetRequest : Request.Head :=
   let part1 := "hel".toUTF8
   let part2 := "lo".toUTF8
   MachineTester.receiving "§6.3: fixed-length body assembled across incremental feeds"
-    |>.feed (mkPost "/" 5) |>.step |>.assertHasEndHeaders
+    |>.feed (mkPostHead "/" 5) |>.step |>.assertHasEndHeaders
     |>.feedBytes part1 |>.pullBody
     |>.feedBytes part2 |>.pullBody
     |>.assertPulledBody (part1 ++ part2) |>.assertLastChunkFinal |>.run
@@ -642,7 +635,7 @@ private def minimalGetRequest : Request.Head :=
   -- accepted: body becomes readable after canContinue .continue
   let body := "hello".toUTF8
   MachineTester.receiving "§15.5.14: Expect:100-continue accepted → body readable"
-    |>.feed (mkPost "/upload" body.size "Expect: 100-continue\r\n")
+    |>.feed (mkPostHead "/upload" body.size "Expect: 100-continue\r\n")
     |>.step |>.assertHasEndHeaders |>.assertHasContinue
     |>.canContinue .«continue»
     |>.feedBytes body |>.step |>.assertCanPullBodyNow
@@ -650,7 +643,7 @@ private def minimalGetRequest : Request.Head :=
 
   -- rejected: reader closed, body not delivered
   MachineTester.receiving "§15.5.14: Expect:100-continue rejected → reader closed"
-    |>.feed (mkPost "/upload" 5 "Expect: 100-continue\r\n")
+    |>.feed (mkPostHead "/upload" 5 "Expect: 100-continue\r\n")
     |>.step |>.assertHasContinue
     |>.canContinue .expectationFailed
     |>.assertReaderClosed
@@ -666,7 +659,7 @@ private def minimalGetRequest : Request.Head :=
   -- §15.5.14: writer completing a non-1xx response while reader is in .continue state
   --           must force-close the reader (body will never arrive after rejection)
   MachineTester.receiving "§15.5.14: non-final send while reader awaits canContinue → .close emitted"
-    |>.feed (mkPost "/upload" 5 "Expect: 100-continue\r\n")
+    |>.feed (mkPostHead "/upload" 5 "Expect: 100-continue\r\n")
     |>.step |>.assertHasContinue
     |>.send { status := .expectationFailed } |>.setKnownSize (.fixed 0) |>.userClosedBody
     |>.step
@@ -690,7 +683,7 @@ private def minimalGetRequest : Request.Head :=
 
   -- §15.2: 1xx responses are valid while awaiting canContinue; writer must remain open
   MachineTester.receiving "§15.2: 1xx interim response while reader awaits canContinue → writer stays open"
-    |>.feed (mkPost "/upload" 5 "Expect: 100-continue\r\n")
+    |>.feed (mkPostHead "/upload" 5 "Expect: 100-continue\r\n")
     |>.step |>.assertHasContinue
     |>.send { status := .processing } |>.step
     |>.assertIsWaitingMessage |>.run

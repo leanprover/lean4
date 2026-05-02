@@ -3230,14 +3230,14 @@ return v_res_1000_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Elab_getFixedParamsInfo_spec__7(lean_object* v_msg_1002_, lean_object* v___y_1003_, lean_object* v___y_1004_, lean_object* v___y_1005_, lean_object* v___y_1006_){
 _start:
 {
-lean_object* v___f_1008_; lean_object* v___x_32801__overap_1009_; lean_object* v___x_1010_; 
+lean_object* v___f_1008_; lean_object* v___x_32928__overap_1009_; lean_object* v___x_1010_; 
 v___f_1008_ = ((lean_object*)(l_panic___at___00Lean_Elab_getFixedParamsInfo_spec__7___closed__0));
-v___x_32801__overap_1009_ = lean_panic_fn_borrowed(v___f_1008_, v_msg_1002_);
+v___x_32928__overap_1009_ = lean_panic_fn_borrowed(v___f_1008_, v_msg_1002_);
 lean_inc(v___y_1006_);
 lean_inc_ref(v___y_1005_);
 lean_inc(v___y_1004_);
 lean_inc_ref(v___y_1003_);
-v___x_1010_ = lean_apply_5(v___x_32801__overap_1009_, v___y_1003_, v___y_1004_, v___y_1005_, v___y_1006_, lean_box(0));
+v___x_1010_ = lean_apply_5(v___x_32928__overap_1009_, v___y_1003_, v___y_1004_, v___y_1005_, v___y_1006_, lean_box(0));
 return v___x_1010_;
 }
 }
@@ -6985,10 +6985,10 @@ goto _start;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_getFixedParamsInfo_spec__4___redArg___boxed(lean_object* v_upperBound_2510_, lean_object* v_val_2511_, lean_object* v_next_2512_, lean_object* v_params_2513_, lean_object* v___x_2514_, lean_object* v_val_2515_, lean_object* v_next_2516_, lean_object* v___x_2517_, lean_object* v_a_2518_, lean_object* v_b_2519_, lean_object* v___y_2520_, lean_object* v___y_2521_, lean_object* v___y_2522_, lean_object* v___y_2523_, lean_object* v___y_2524_){
 _start:
 {
-uint8_t v___x_44556__boxed_2525_; uint8_t v_b_boxed_2526_; lean_object* v_res_2527_; 
-v___x_44556__boxed_2525_ = lean_unbox(v___x_2517_);
+uint8_t v___x_44689__boxed_2525_; uint8_t v_b_boxed_2526_; lean_object* v_res_2527_; 
+v___x_44689__boxed_2525_ = lean_unbox(v___x_2517_);
 v_b_boxed_2526_ = lean_unbox(v_b_2519_);
-v_res_2527_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_getFixedParamsInfo_spec__4___redArg(v_upperBound_2510_, v_val_2511_, v_next_2512_, v_params_2513_, v___x_2514_, v_val_2515_, v_next_2516_, v___x_44556__boxed_2525_, v_a_2518_, v_b_boxed_2526_, v___y_2520_, v___y_2521_, v___y_2522_, v___y_2523_);
+v_res_2527_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_getFixedParamsInfo_spec__4___redArg(v_upperBound_2510_, v_val_2511_, v_next_2512_, v_params_2513_, v___x_2514_, v_val_2515_, v_next_2516_, v___x_44689__boxed_2525_, v_a_2518_, v_b_boxed_2526_, v___y_2520_, v___y_2521_, v___y_2522_, v___y_2523_);
 lean_dec(v___y_2523_);
 lean_dec_ref(v___y_2522_);
 lean_dec(v___y_2521_);
@@ -8013,9 +8013,9 @@ return v___x_2599_;
 LEAN_EXPORT lean_object* l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_getFixedParamsInfo_spec__5___redArg___boxed(lean_object* v_val_2833_, lean_object* v_val_2834_, lean_object* v_upperBound_2835_, lean_object* v_args_2836_, lean_object* v_e_2837_, lean_object* v_next_2838_, lean_object* v_params_2839_, lean_object* v___x_2840_, lean_object* v___x_2841_, lean_object* v_a_2842_, lean_object* v_b_2843_, lean_object* v___y_2844_, lean_object* v___y_2845_, lean_object* v___y_2846_, lean_object* v___y_2847_, lean_object* v___y_2848_){
 _start:
 {
-uint8_t v___x_44793__boxed_2849_; lean_object* v_res_2850_; 
-v___x_44793__boxed_2849_ = lean_unbox(v___x_2841_);
-v_res_2850_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_getFixedParamsInfo_spec__5___redArg(v_val_2833_, v_val_2834_, v_upperBound_2835_, v_args_2836_, v_e_2837_, v_next_2838_, v_params_2839_, v___x_2840_, v___x_44793__boxed_2849_, v_a_2842_, v_b_2843_, v___y_2844_, v___y_2845_, v___y_2846_, v___y_2847_);
+uint8_t v___x_44926__boxed_2849_; lean_object* v_res_2850_; 
+v___x_44926__boxed_2849_ = lean_unbox(v___x_2841_);
+v_res_2850_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_getFixedParamsInfo_spec__5___redArg(v_val_2833_, v_val_2834_, v_upperBound_2835_, v_args_2836_, v_e_2837_, v_next_2838_, v_params_2839_, v___x_2840_, v___x_44926__boxed_2849_, v_a_2842_, v_b_2843_, v___y_2844_, v___y_2845_, v___y_2846_, v___y_2847_);
 lean_dec(v___y_2847_);
 lean_dec_ref(v___y_2846_);
 lean_dec(v___y_2845_);
@@ -8822,10 +8822,10 @@ lean_object* v___y_3186_ = _args[16];
 lean_object* v___y_3187_ = _args[17];
 _start:
 {
-uint8_t v___x_45742__boxed_3188_; uint8_t v_b_boxed_3189_; lean_object* v_res_3190_; 
-v___x_45742__boxed_3188_ = lean_unbox(v___x_3177_);
+uint8_t v___x_45875__boxed_3188_; uint8_t v_b_boxed_3189_; lean_object* v_res_3190_; 
+v___x_45875__boxed_3188_ = lean_unbox(v___x_3177_);
 v_b_boxed_3189_ = lean_unbox(v_b_3181_);
-v_res_3190_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_getFixedParamsInfo_spec__4(v_upperBound_3170_, v_val_3171_, v_next_3172_, v_params_3173_, v___x_3174_, v_val_3175_, v_next_3176_, v___x_45742__boxed_3188_, v_inst_3178_, v_R_3179_, v_a_3180_, v_b_boxed_3189_, v_c_3182_, v___y_3183_, v___y_3184_, v___y_3185_, v___y_3186_);
+v_res_3190_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_getFixedParamsInfo_spec__4(v_upperBound_3170_, v_val_3171_, v_next_3172_, v_params_3173_, v___x_3174_, v_val_3175_, v_next_3176_, v___x_45875__boxed_3188_, v_inst_3178_, v_R_3179_, v_a_3180_, v_b_boxed_3189_, v_c_3182_, v___y_3183_, v___y_3184_, v___y_3185_, v___y_3186_);
 lean_dec(v___y_3186_);
 lean_dec_ref(v___y_3185_);
 lean_dec(v___y_3184_);
@@ -8868,9 +8868,9 @@ lean_object* v___y_3228_ = _args[17];
 lean_object* v___y_3229_ = _args[18];
 _start:
 {
-uint8_t v___x_45777__boxed_3230_; lean_object* v_res_3231_; 
-v___x_45777__boxed_3230_ = lean_unbox(v___x_3219_);
-v_res_3231_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_getFixedParamsInfo_spec__5(v_val_3211_, v_val_3212_, v_upperBound_3213_, v_args_3214_, v_e_3215_, v_next_3216_, v_params_3217_, v___x_3218_, v___x_45777__boxed_3230_, v_inst_3220_, v_R_3221_, v_a_3222_, v_b_3223_, v_c_3224_, v___y_3225_, v___y_3226_, v___y_3227_, v___y_3228_);
+uint8_t v___x_45910__boxed_3230_; lean_object* v_res_3231_; 
+v___x_45910__boxed_3230_ = lean_unbox(v___x_3219_);
+v_res_3231_ = l_WellFounded_opaqueFix_u2083___at___00Lean_Elab_getFixedParamsInfo_spec__5(v_val_3211_, v_val_3212_, v_upperBound_3213_, v_args_3214_, v_e_3215_, v_next_3216_, v_params_3217_, v___x_3218_, v___x_45910__boxed_3230_, v_inst_3220_, v_R_3221_, v_a_3222_, v_b_3223_, v_c_3224_, v___y_3225_, v___y_3226_, v___y_3227_, v___y_3228_);
 lean_dec(v___y_3228_);
 lean_dec_ref(v___y_3227_);
 lean_dec(v___y_3226_);

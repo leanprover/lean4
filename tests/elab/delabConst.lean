@@ -219,18 +219,22 @@ example (x : Nat) : fst (x,x) = NS1.snd (x,x) := by
 end PrvTest
 
 /-!
-The name `IO.CancelToken.ref✝` is a private imported name.
+The name `IO.CancelToken.promise✝` is a private imported name.
 -/
 /--
-info: def IO.CancelToken.isSet : IO.CancelToken → BaseIO Bool :=
-fun tk => ST.Ref.get (IO.CancelToken.ref✝ tk)
+info: def IO.CancelToken.set : IO.CancelToken → BaseIO Unit :=
+fun tk => do
+  ST.Ref.set (IO.CancelToken.setRef✝ tk) true
+  IO.Promise.resolve () (IO.CancelToken.promise✝ tk)
 -/
-#guard_msgs in #print IO.CancelToken.isSet
+#guard_msgs in #print IO.CancelToken.set
 /-!
-Even if `IO` is opened, it won't print as `CancelToken.ref✝`, but the full name.
+Even if `IO` is opened, it won't print as `CancelToken.promise✝`, but the full name.
 -/
 /--
-info: def IO.CancelToken.isSet : CancelToken → BaseIO Bool :=
-fun tk => ST.Ref.get (IO.CancelToken.ref✝ tk)
+info: def IO.CancelToken.set : CancelToken → BaseIO Unit :=
+fun tk => do
+  ST.Ref.set (IO.CancelToken.setRef✝ tk) true
+  Promise.resolve () (IO.CancelToken.promise✝ tk)
 -/
-#guard_msgs in open IO in #print IO.CancelToken.isSet
+#guard_msgs in open IO in #print IO.CancelToken.set

@@ -504,7 +504,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findTargetConfig_x3f(lean_object* v_name
 _start:
 {
 lean_object* v_targetDeclMap_160_; lean_object* v___x_161_; 
-v_targetDeclMap_160_ = lean_ctor_get(v_self_159_, 14);
+v_targetDeclMap_160_ = lean_ctor_get(v_self_159_, 15);
 v___x_161_ = l_Std_DTreeMap_Internal_Impl_get_x3f___at___00Lake_Package_findTargetConfig_x3f_spec__0___redArg(v_targetDeclMap_160_, v_name_158_);
 if (lean_obj_tag(v___x_161_) == 0)
 {

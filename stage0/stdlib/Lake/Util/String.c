@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lake.Util.String
-// Imports: public import Init.Data.ToString.Basic import Init.Data.String.Basic import Init.Data.Nat.Fold
+// Imports: public import Init.Data.ToString.Basic import Init.Data.UInt.Lemmas import Init.Data.String.Basic import Init.Data.Nat.Fold
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,13 +13,20 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+uint8_t lean_uint8_dec_le(uint8_t, uint8_t);
+uint8_t lean_uint8_add(uint8_t, uint8_t);
+uint32_t lean_uint8_to_uint32(uint8_t);
 lean_object* lean_string_utf8_byte_size(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_sub(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
-uint8_t lean_uint8_dec_le(uint8_t, uint8_t);
 lean_object* lean_string_length(lean_object*);
 lean_object* lean_string_push(lean_object*, uint32_t);
+lean_object* lean_mk_empty_byte_array(lean_object*);
+lean_object* lean_string_from_utf8_unchecked(lean_object*);
+uint64_t lean_uint64_shift_right(uint64_t, uint64_t);
+uint64_t lean_uint64_land(uint64_t, uint64_t);
+uint8_t lean_uint64_to_uint8(uint64_t);
 lean_object* lean_string_append(lean_object*, lean_object*);
 lean_object* l_Nat_reprFast(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lake_lpad_spec__0(uint32_t, lean_object*, lean_object*);
@@ -38,6 +45,16 @@ LEAN_EXPORT uint8_t l_Lake_isHex(lean_object*);
 LEAN_EXPORT lean_object* l_Lake_isHex___boxed(lean_object*);
 LEAN_EXPORT uint8_t l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___00Lake_isHex_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Fold_0__Nat_allTR_loop___at___00Lake_isHex_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT uint8_t l___private_Lake_Util_String_0__Lake_lowerHexByte(uint8_t);
+LEAN_EXPORT lean_object* l___private_Lake_Util_String_0__Lake_lowerHexByte___boxed(lean_object*);
+LEAN_EXPORT uint32_t l___private_Lake_Util_String_0__Lake_lowerHexChar(uint8_t);
+LEAN_EXPORT lean_object* l___private_Lake_Util_String_0__Lake_lowerHexChar___boxed(lean_object*);
+static lean_once_cell_t l_Lake_lowerHexUInt64___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lake_lowerHexUInt64___closed__0;
+static lean_once_cell_t l_Lake_lowerHexUInt64___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
+static lean_object* l_Lake_lowerHexUInt64___closed__1;
+LEAN_EXPORT lean_object* l_Lake_lowerHexUInt64(uint64_t);
+LEAN_EXPORT lean_object* l_Lake_lowerHexUInt64___boxed(lean_object*);
 LEAN_EXPORT lean_object* l___private_Init_Data_Nat_Basic_0__Nat_repeatTR_loop___at___00Lake_lpad_spec__0(uint32_t v_c_1_, lean_object* v_x_2_, lean_object* v_x_3_){
 _start:
 {
@@ -264,7 +281,190 @@ v_r_93_ = lean_box(v_res_92_);
 return v_r_93_;
 }
 }
+LEAN_EXPORT uint8_t l___private_Lake_Util_String_0__Lake_lowerHexByte(uint8_t v_n_94_){
+_start:
+{
+uint8_t v___x_95_; uint8_t v___x_96_; 
+v___x_95_ = 9;
+v___x_96_ = lean_uint8_dec_le(v_n_94_, v___x_95_);
+if (v___x_96_ == 0)
+{
+uint8_t v___x_97_; uint8_t v___x_98_; 
+v___x_97_ = 87;
+v___x_98_ = lean_uint8_add(v_n_94_, v___x_97_);
+return v___x_98_;
+}
+else
+{
+uint8_t v___x_99_; uint8_t v___x_100_; 
+v___x_99_ = 48;
+v___x_100_ = lean_uint8_add(v_n_94_, v___x_99_);
+return v___x_100_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Lake_Util_String_0__Lake_lowerHexByte___boxed(lean_object* v_n_101_){
+_start:
+{
+uint8_t v_n_boxed_102_; uint8_t v_res_103_; lean_object* v_r_104_; 
+v_n_boxed_102_ = lean_unbox(v_n_101_);
+v_res_103_ = l___private_Lake_Util_String_0__Lake_lowerHexByte(v_n_boxed_102_);
+v_r_104_ = lean_box(v_res_103_);
+return v_r_104_;
+}
+}
+LEAN_EXPORT uint32_t l___private_Lake_Util_String_0__Lake_lowerHexChar(uint8_t v_n_105_){
+_start:
+{
+uint8_t v___x_106_; uint32_t v___x_107_; 
+v___x_106_ = l___private_Lake_Util_String_0__Lake_lowerHexByte(v_n_105_);
+v___x_107_ = lean_uint8_to_uint32(v___x_106_);
+return v___x_107_;
+}
+}
+LEAN_EXPORT lean_object* l___private_Lake_Util_String_0__Lake_lowerHexChar___boxed(lean_object* v_n_108_){
+_start:
+{
+uint8_t v_n_boxed_109_; uint32_t v_res_110_; lean_object* v_r_111_; 
+v_n_boxed_109_ = lean_unbox(v_n_108_);
+v_res_110_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v_n_boxed_109_);
+v_r_111_ = lean_box_uint32(v_res_110_);
+return v_r_111_;
+}
+}
+static lean_object* _init_l_Lake_lowerHexUInt64___closed__0(void){
+_start:
+{
+lean_object* v___x_112_; lean_object* v___x_113_; 
+v___x_112_ = lean_unsigned_to_nat(16u);
+v___x_113_ = lean_mk_empty_byte_array(v___x_112_);
+return v___x_113_;
+}
+}
+static lean_object* _init_l_Lake_lowerHexUInt64___closed__1(void){
+_start:
+{
+lean_object* v___x_114_; lean_object* v___x_115_; 
+v___x_114_ = lean_obj_once(&l_Lake_lowerHexUInt64___closed__0, &l_Lake_lowerHexUInt64___closed__0_once, _init_l_Lake_lowerHexUInt64___closed__0);
+v___x_115_ = lean_string_from_utf8_unchecked(v___x_114_);
+return v___x_115_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_lowerHexUInt64(uint64_t v_n_116_){
+_start:
+{
+lean_object* v___x_117_; uint64_t v___x_118_; uint64_t v___x_119_; uint64_t v___x_120_; uint64_t v___x_121_; uint8_t v___x_122_; uint32_t v___x_123_; lean_object* v___x_124_; uint64_t v___x_125_; uint64_t v___x_126_; uint64_t v___x_127_; uint8_t v___x_128_; uint32_t v___x_129_; lean_object* v___x_130_; uint64_t v___x_131_; uint64_t v___x_132_; uint64_t v___x_133_; uint8_t v___x_134_; uint32_t v___x_135_; lean_object* v___x_136_; uint64_t v___x_137_; uint64_t v___x_138_; uint64_t v___x_139_; uint8_t v___x_140_; uint32_t v___x_141_; lean_object* v___x_142_; uint64_t v___x_143_; uint64_t v___x_144_; uint64_t v___x_145_; uint8_t v___x_146_; uint32_t v___x_147_; lean_object* v___x_148_; uint64_t v___x_149_; uint64_t v___x_150_; uint64_t v___x_151_; uint8_t v___x_152_; uint32_t v___x_153_; lean_object* v___x_154_; uint64_t v___x_155_; uint64_t v___x_156_; uint64_t v___x_157_; uint8_t v___x_158_; uint32_t v___x_159_; lean_object* v___x_160_; uint64_t v___x_161_; uint64_t v___x_162_; uint64_t v___x_163_; uint8_t v___x_164_; uint32_t v___x_165_; lean_object* v___x_166_; uint64_t v___x_167_; uint64_t v___x_168_; uint64_t v___x_169_; uint8_t v___x_170_; uint32_t v___x_171_; lean_object* v___x_172_; uint64_t v___x_173_; uint64_t v___x_174_; uint64_t v___x_175_; uint8_t v___x_176_; uint32_t v___x_177_; lean_object* v___x_178_; uint64_t v___x_179_; uint64_t v___x_180_; uint64_t v___x_181_; uint8_t v___x_182_; uint32_t v___x_183_; lean_object* v___x_184_; uint64_t v___x_185_; uint64_t v___x_186_; uint64_t v___x_187_; uint8_t v___x_188_; uint32_t v___x_189_; lean_object* v___x_190_; uint64_t v___x_191_; uint64_t v___x_192_; uint64_t v___x_193_; uint8_t v___x_194_; uint32_t v___x_195_; lean_object* v___x_196_; uint64_t v___x_197_; uint64_t v___x_198_; uint64_t v___x_199_; uint8_t v___x_200_; uint32_t v___x_201_; lean_object* v___x_202_; uint64_t v___x_203_; uint64_t v___x_204_; uint64_t v___x_205_; uint8_t v___x_206_; uint32_t v___x_207_; lean_object* v___x_208_; uint64_t v___x_209_; uint8_t v___x_210_; uint32_t v___x_211_; lean_object* v___x_212_; 
+v___x_117_ = lean_obj_once(&l_Lake_lowerHexUInt64___closed__1, &l_Lake_lowerHexUInt64___closed__1_once, _init_l_Lake_lowerHexUInt64___closed__1);
+v___x_118_ = 60ULL;
+v___x_119_ = lean_uint64_shift_right(v_n_116_, v___x_118_);
+v___x_120_ = 15ULL;
+v___x_121_ = lean_uint64_land(v___x_119_, v___x_120_);
+v___x_122_ = lean_uint64_to_uint8(v___x_121_);
+v___x_123_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_122_);
+v___x_124_ = lean_string_push(v___x_117_, v___x_123_);
+v___x_125_ = 56ULL;
+v___x_126_ = lean_uint64_shift_right(v_n_116_, v___x_125_);
+v___x_127_ = lean_uint64_land(v___x_126_, v___x_120_);
+v___x_128_ = lean_uint64_to_uint8(v___x_127_);
+v___x_129_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_128_);
+v___x_130_ = lean_string_push(v___x_124_, v___x_129_);
+v___x_131_ = 52ULL;
+v___x_132_ = lean_uint64_shift_right(v_n_116_, v___x_131_);
+v___x_133_ = lean_uint64_land(v___x_132_, v___x_120_);
+v___x_134_ = lean_uint64_to_uint8(v___x_133_);
+v___x_135_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_134_);
+v___x_136_ = lean_string_push(v___x_130_, v___x_135_);
+v___x_137_ = 48ULL;
+v___x_138_ = lean_uint64_shift_right(v_n_116_, v___x_137_);
+v___x_139_ = lean_uint64_land(v___x_138_, v___x_120_);
+v___x_140_ = lean_uint64_to_uint8(v___x_139_);
+v___x_141_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_140_);
+v___x_142_ = lean_string_push(v___x_136_, v___x_141_);
+v___x_143_ = 44ULL;
+v___x_144_ = lean_uint64_shift_right(v_n_116_, v___x_143_);
+v___x_145_ = lean_uint64_land(v___x_144_, v___x_120_);
+v___x_146_ = lean_uint64_to_uint8(v___x_145_);
+v___x_147_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_146_);
+v___x_148_ = lean_string_push(v___x_142_, v___x_147_);
+v___x_149_ = 40ULL;
+v___x_150_ = lean_uint64_shift_right(v_n_116_, v___x_149_);
+v___x_151_ = lean_uint64_land(v___x_150_, v___x_120_);
+v___x_152_ = lean_uint64_to_uint8(v___x_151_);
+v___x_153_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_152_);
+v___x_154_ = lean_string_push(v___x_148_, v___x_153_);
+v___x_155_ = 36ULL;
+v___x_156_ = lean_uint64_shift_right(v_n_116_, v___x_155_);
+v___x_157_ = lean_uint64_land(v___x_156_, v___x_120_);
+v___x_158_ = lean_uint64_to_uint8(v___x_157_);
+v___x_159_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_158_);
+v___x_160_ = lean_string_push(v___x_154_, v___x_159_);
+v___x_161_ = 32ULL;
+v___x_162_ = lean_uint64_shift_right(v_n_116_, v___x_161_);
+v___x_163_ = lean_uint64_land(v___x_162_, v___x_120_);
+v___x_164_ = lean_uint64_to_uint8(v___x_163_);
+v___x_165_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_164_);
+v___x_166_ = lean_string_push(v___x_160_, v___x_165_);
+v___x_167_ = 28ULL;
+v___x_168_ = lean_uint64_shift_right(v_n_116_, v___x_167_);
+v___x_169_ = lean_uint64_land(v___x_168_, v___x_120_);
+v___x_170_ = lean_uint64_to_uint8(v___x_169_);
+v___x_171_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_170_);
+v___x_172_ = lean_string_push(v___x_166_, v___x_171_);
+v___x_173_ = 24ULL;
+v___x_174_ = lean_uint64_shift_right(v_n_116_, v___x_173_);
+v___x_175_ = lean_uint64_land(v___x_174_, v___x_120_);
+v___x_176_ = lean_uint64_to_uint8(v___x_175_);
+v___x_177_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_176_);
+v___x_178_ = lean_string_push(v___x_172_, v___x_177_);
+v___x_179_ = 20ULL;
+v___x_180_ = lean_uint64_shift_right(v_n_116_, v___x_179_);
+v___x_181_ = lean_uint64_land(v___x_180_, v___x_120_);
+v___x_182_ = lean_uint64_to_uint8(v___x_181_);
+v___x_183_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_182_);
+v___x_184_ = lean_string_push(v___x_178_, v___x_183_);
+v___x_185_ = 16ULL;
+v___x_186_ = lean_uint64_shift_right(v_n_116_, v___x_185_);
+v___x_187_ = lean_uint64_land(v___x_186_, v___x_120_);
+v___x_188_ = lean_uint64_to_uint8(v___x_187_);
+v___x_189_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_188_);
+v___x_190_ = lean_string_push(v___x_184_, v___x_189_);
+v___x_191_ = 12ULL;
+v___x_192_ = lean_uint64_shift_right(v_n_116_, v___x_191_);
+v___x_193_ = lean_uint64_land(v___x_192_, v___x_120_);
+v___x_194_ = lean_uint64_to_uint8(v___x_193_);
+v___x_195_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_194_);
+v___x_196_ = lean_string_push(v___x_190_, v___x_195_);
+v___x_197_ = 8ULL;
+v___x_198_ = lean_uint64_shift_right(v_n_116_, v___x_197_);
+v___x_199_ = lean_uint64_land(v___x_198_, v___x_120_);
+v___x_200_ = lean_uint64_to_uint8(v___x_199_);
+v___x_201_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_200_);
+v___x_202_ = lean_string_push(v___x_196_, v___x_201_);
+v___x_203_ = 4ULL;
+v___x_204_ = lean_uint64_shift_right(v_n_116_, v___x_203_);
+v___x_205_ = lean_uint64_land(v___x_204_, v___x_120_);
+v___x_206_ = lean_uint64_to_uint8(v___x_205_);
+v___x_207_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_206_);
+v___x_208_ = lean_string_push(v___x_202_, v___x_207_);
+v___x_209_ = lean_uint64_land(v_n_116_, v___x_120_);
+v___x_210_ = lean_uint64_to_uint8(v___x_209_);
+v___x_211_ = l___private_Lake_Util_String_0__Lake_lowerHexChar(v___x_210_);
+v___x_212_ = lean_string_push(v___x_208_, v___x_211_);
+return v___x_212_;
+}
+}
+LEAN_EXPORT lean_object* l_Lake_lowerHexUInt64___boxed(lean_object* v_n_213_){
+_start:
+{
+uint64_t v_n_boxed_214_; lean_object* v_res_215_; 
+v_n_boxed_214_ = lean_unbox_uint64(v_n_213_);
+lean_dec_ref(v_n_213_);
+v_res_215_ = l_Lake_lowerHexUInt64(v_n_boxed_214_);
+return v_res_215_;
+}
+}
 lean_object* runtime_initialize_Init_Data_ToString_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Nat_Fold(uint8_t builtin);
 static bool _G_runtime_initialized = false;
@@ -273,6 +473,9 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 res = runtime_initialize_Init_Data_ToString_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_UInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Basic(builtin);
@@ -291,6 +494,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_ToString_Basic(uint8_t builtin);
+lean_object* initialize_Init_Data_UInt_Lemmas(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Nat_Fold(uint8_t builtin);
 static bool _G_initialized = false;
@@ -299,6 +503,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Init_Data_ToString_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_UInt_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Basic(builtin);

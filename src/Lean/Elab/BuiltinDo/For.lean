@@ -23,7 +23,7 @@ open Lean.Meta
   | `(doFor| for $[$_ : ]? $_:ident in $_ do $_) =>
     -- This is the target form of the expander, handled by `elabDoFor` below.
     Macro.throwUnsupported
-  | `(doFor| for $decls:doForDecl,* do $body) =>
+  | `(doFor| for%$tk $decls:doForDecl,* do $body) =>
     let decls := decls.getElems
     let `(doForDecl| $[$h? : ]? $pattern in $xs) := decls[0]! | Macro.throwUnsupported
     let mut doElems := #[]
@@ -74,12 +74,13 @@ open Lean.Meta
           | some ($y, s') =>
             $s:ident := s'
             do $body)
-    doElems := doElems.push (← `(doSeqItem| for $[$h? : ]? $x:ident in $xs do $body))
+    doElems := doElems.push (← `(doSeqItem| for%$tk $[$h? : ]? $x:ident in $xs do $body))
     `(doElem| do $doElems*)
   | _ => Macro.throwUnsupported
 
 @[builtin_doElem_elab Lean.Parser.Term.doFor] def elabDoFor : DoElab := fun stx dec => do
-  let `(doFor| for $[$h? : ]? $x:ident in $xs do $body) := stx | throwUnsupportedSyntax
+  let `(doFor| for%$tk $[$h? : ]? $x:ident in $xs do $body) := stx | throwUnsupportedSyntax
+  let dec ← dec.ensureUnitAt tk
   checkMutVarsForShadowing #[x]
   let uα ← mkFreshLevelMVar
   let uρ ← mkFreshLevelMVar
@@ -123,9 +124,6 @@ open Lean.Meta
     if info.returnsEarly && loopMutVars.isEmpty then
       defs := defs.push (mkConst ``Unit.unit)
     return defs
-
-  unless ← isDefEq dec.resultType (← mkPUnit) do
-    logError m!"Type mismatch. `for` loops have result type {← mkPUnit}, but the rest of the `do` sequence expected {dec.resultType}."
 
   let (preS, σ) ← mkProdMkN (← useLoopMutVars none) mi.u
 

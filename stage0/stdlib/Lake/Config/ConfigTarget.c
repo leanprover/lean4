@@ -231,7 +231,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_configTargets(lean_object* v_kind_73_, l
 _start:
 {
 lean_object* v_targetDecls_75_; lean_object* v___x_76_; lean_object* v___x_77_; lean_object* v___x_78_; lean_object* v___x_79_; uint8_t v___x_80_; 
-v_targetDecls_75_ = lean_ctor_get(v_self_74_, 13);
+v_targetDecls_75_ = lean_ctor_get(v_self_74_, 14);
 lean_inc_ref(v_targetDecls_75_);
 v___x_76_ = lean_unsigned_to_nat(0u);
 v___x_77_ = ((lean_object*)(l_Lake_Package_configTargets___closed__0));

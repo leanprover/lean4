@@ -2919,10 +2919,10 @@ goto v_reusejp_985_;
 }
 v_reusejp_985_:
 {
-lean_object* v___x_987_; lean_object* v___x_988_; lean_object* v___x_16479__overap_989_; lean_object* v___x_990_; 
+lean_object* v___x_987_; lean_object* v___x_988_; lean_object* v___x_16481__overap_989_; lean_object* v___x_990_; 
 v___x_987_ = lean_box(0);
 v___x_988_ = l_instInhabitedOfMonad___redArg(v___x_986_, v___x_987_);
-v___x_16479__overap_989_ = lean_panic_fn_borrowed(v___x_988_, v_msg_906_);
+v___x_16481__overap_989_ = lean_panic_fn_borrowed(v___x_988_, v_msg_906_);
 lean_dec(v___x_988_);
 lean_inc(v___y_912_);
 lean_inc_ref(v___y_911_);
@@ -2930,7 +2930,7 @@ lean_inc(v___y_910_);
 lean_inc_ref(v___y_909_);
 lean_inc(v___y_908_);
 lean_inc_ref(v___y_907_);
-v___x_990_ = lean_apply_7(v___x_16479__overap_989_, v___y_907_, v___y_908_, v___y_909_, v___y_910_, v___y_911_, v___y_912_, lean_box(0));
+v___x_990_ = lean_apply_7(v___x_16481__overap_989_, v___y_907_, v___y_908_, v___y_909_, v___y_910_, v___y_911_, v___y_912_, lean_box(0));
 return v___x_990_;
 }
 }

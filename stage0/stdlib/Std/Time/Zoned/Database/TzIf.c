@@ -3390,7 +3390,7 @@ _start:
 {
 lean_object* v___x_1126_; lean_object* v___x_1127_; lean_object* v___x_1128_; 
 v___x_1126_ = lean_box(0);
-v___x_1127_ = lean_obj_once(&l_Std_Time_TimeZone_TZif_instInhabitedTZifV1_default___closed__1, &l_Std_Time_TimeZone_TZif_instInhabitedTZifV1_default___closed__1_once, _init_l_Std_Time_TimeZone_TZif_instInhabitedTZifV1_default___closed__1);
+v___x_1127_ = l_Std_Time_TimeZone_TZif_instInhabitedTZifV1_default;
 v___x_1128_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1128_, 0, v___x_1127_);
 lean_ctor_set(v___x_1128_, 1, v___x_1126_);

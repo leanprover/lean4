@@ -4289,12 +4289,12 @@ v___jp_1155_:
 {
 lean_object* v___x_1158_; lean_object* v___x_1159_; lean_object* v___x_1160_; lean_object* v___x_1161_; lean_object* v___x_1162_; lean_object* v___x_1163_; lean_object* v___x_1164_; lean_object* v___x_1165_; 
 v___x_1158_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__0));
-v___x_1159_ = lean_string_append(v___x_1158_, v___y_1156_);
-lean_dec_ref(v___y_1156_);
+v___x_1159_ = lean_string_append(v___x_1158_, v___y_1157_);
+lean_dec_ref(v___y_1157_);
 v___x_1160_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__1));
 v___x_1161_ = lean_string_append(v___x_1159_, v___x_1160_);
-v___x_1162_ = lean_string_append(v___x_1161_, v___y_1157_);
-lean_dec_ref(v___y_1157_);
+v___x_1162_ = lean_string_append(v___x_1161_, v___y_1156_);
+lean_dec_ref(v___y_1156_);
 v___x_1163_ = lean_alloc_ctor(3, 1, 0);
 lean_ctor_set(v___x_1163_, 0, v___x_1162_);
 v___x_1164_ = l_Lean_MessageData_ofFormat(v___x_1163_);
@@ -4307,7 +4307,7 @@ if (v___y_1170_ == 0)
 {
 lean_object* v___x_1171_; lean_object* v___x_1172_; lean_object* v___x_1173_; uint8_t v___x_1174_; 
 v___x_1171_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_External_ModelParser_parseHeader___closed__0));
-v___x_1172_ = lean_string_utf8_byte_size(v___y_1167_);
+v___x_1172_ = lean_string_utf8_byte_size(v___y_1169_);
 v___x_1173_ = lean_obj_once(&l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__2, &l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__2_once, _init_l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__2);
 v___x_1174_ = lean_nat_dec_le(v___x_1173_, v___x_1172_);
 if (v___x_1174_ == 0)
@@ -4319,7 +4319,7 @@ goto v___jp_1155_;
 else
 {
 uint8_t v___x_1175_; 
-v___x_1175_ = lean_string_memcmp(v___y_1167_, v___x_1171_, v___y_1168_, v___y_1168_, v___x_1173_);
+v___x_1175_ = lean_string_memcmp(v___y_1169_, v___x_1171_, v___y_1168_, v___y_1168_, v___x_1173_);
 if (v___x_1175_ == 0)
 {
 v___y_1156_ = v___y_1167_;
@@ -4329,9 +4329,9 @@ goto v___jp_1155_;
 else
 {
 lean_object* v___x_1176_; lean_object* v___x_1177_; lean_object* v___x_1178_; 
-lean_dec_ref(v___y_1169_);
+lean_dec_ref(v___y_1167_);
 v___x_1176_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_External_ModelParser_parse), 1, 0);
-v___x_1177_ = lean_string_to_utf8(v___y_1167_);
+v___x_1177_ = lean_string_to_utf8(v___y_1169_);
 v___x_1178_ = l_Std_Internal_Parsec_ByteArray_Parser_run___redArg(v___x_1176_, v___x_1177_);
 if (lean_obj_tag(v___x_1178_) == 0)
 {
@@ -4360,8 +4360,8 @@ v___x_1184_ = lean_string_append(v___x_1183_, v_a_1179_);
 lean_dec(v_a_1179_);
 v___x_1185_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_External_satQuery___closed__4));
 v___x_1186_ = lean_string_append(v___x_1184_, v___x_1185_);
-v___x_1187_ = lean_string_append(v___x_1186_, v___y_1167_);
-lean_dec_ref(v___y_1167_);
+v___x_1187_ = lean_string_append(v___x_1186_, v___y_1169_);
+lean_dec_ref(v___y_1169_);
 if (v_isShared_1182_ == 0)
 {
 lean_ctor_set_tag(v___x_1181_, 3);
@@ -4389,7 +4389,7 @@ return v___x_1191_;
 else
 {
 lean_object* v_a_1194_; lean_object* v___x_1196_; uint8_t v_isShared_1197_; uint8_t v_isSharedCheck_1202_; 
-lean_dec_ref(v___y_1167_);
+lean_dec_ref(v___y_1169_);
 v_a_1194_ = lean_ctor_get(v___x_1178_, 0);
 v_isSharedCheck_1202_ = !lean_is_exclusive(v___x_1178_);
 if (v_isSharedCheck_1202_ == 0)
@@ -4524,9 +4524,9 @@ v___x_1242_ = lean_obj_once(&l_Lean_Elab_Tactic_BVDecide_External_satQuery___clo
 v___x_1243_ = lean_nat_dec_le(v___x_1242_, v___x_1241_);
 if (v___x_1243_ == 0)
 {
-v___y_1167_ = v_stdout_1236_;
+v___y_1167_ = v_stderr_1237_;
 v___y_1168_ = v___x_1224_;
-v___y_1169_ = v_stderr_1237_;
+v___y_1169_ = v_stdout_1236_;
 v___y_1170_ = v___x_1239_;
 goto v___jp_1166_;
 }
@@ -4534,9 +4534,9 @@ else
 {
 uint8_t v___x_1244_; 
 v___x_1244_ = lean_string_memcmp(v_stdout_1236_, v___x_1240_, v___x_1224_, v___x_1224_, v___x_1242_);
-v___y_1167_ = v_stdout_1236_;
+v___y_1167_ = v_stderr_1237_;
 v___y_1168_ = v___x_1224_;
-v___y_1169_ = v_stderr_1237_;
+v___y_1169_ = v_stdout_1236_;
 v___y_1170_ = v___x_1244_;
 goto v___jp_1166_;
 }

@@ -229,8 +229,33 @@ private partial def computeSynthOrder (inst : Expr) (projInfo? : Option Projecti
 
   return synthed
 
+def checkImpossibleInstance (c : Expr) : MetaM Unit := do
+  let cTy ← inferType c
+  forallTelescopeReducing cTy fun args ty => do
+    let argTys ← args.mapM inferType
+    let impossibleArgs ← args.zipIdx.filterMapM fun (arg, i) => do
+      let fv := arg.fvarId!
+      if (← fv.getDecl).binderInfo.isInstImplicit then return none
+      if ty.containsFVar fv then return none
+      if argTys[i+1:].any (·.containsFVar fv) then return none
+      return some m!"{arg} : {← inferType arg}"
+    if impossibleArgs.isEmpty then return
+    let impossibleArgs := MessageData.joinSep impossibleArgs.toList ", "
+    throwError m!"Instance {c} has arguments "
+      ++ impossibleArgs
+      ++ " that are impossible to infer. Those arguments are not instance-implicit and do not appear in another instance-implicit argument or the return type."
+
+def checkNonClassInstance (declName : Name) (c : Expr) : MetaM Unit := do
+  let type ← inferType c
+  forallTelescopeReducing type fun _ target => do
+    unless (← isClass? target).isSome do
+      unless target.isSorry do
+      throwError m!"instance `{declName}` target `{target}` is not a type class."
+
 def addInstance (declName : Name) (attrKind : AttributeKind) (prio : Nat) : MetaM Unit := do
   let c ← mkConstWithLevelParams declName
+  checkImpossibleInstance c
+  checkNonClassInstance declName c
   let keys ← mkInstanceKey c
   let status ← getReducibilityStatus declName
   unless status matches .reducible | .implicitReducible do

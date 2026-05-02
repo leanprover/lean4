@@ -133,12 +133,14 @@ def foldDocumentChanges (changes : Array Lsp.TextDocumentContentChangeEvent) (ol
   changes.foldl applyDocumentChange oldText
 
 /-- Constructs a `textDocument/publishDiagnostics` notification. -/
-def mkPublishDiagnosticsNotification (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic) :
+def mkPublishDiagnosticsNotification (m : DocumentMeta) (diagnostics : Array Lsp.Diagnostic)
+    (isIncremental : Option Bool := none) :
     JsonRpc.Notification Lsp.PublishDiagnosticsParams where
   method := "textDocument/publishDiagnostics"
   param  := {
     uri         := m.uri
     version?    := some m.version
+    isIncremental? := isIncremental
     diagnostics := diagnostics
   }
 

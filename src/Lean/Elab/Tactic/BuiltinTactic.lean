@@ -497,14 +497,21 @@ def forEachVar (hs : Array Syntax) (tac : MVarId → FVarId → MetaM MVarId) : 
 /--
   Searches for a metavariable `g` s.t. `tag` is its exact name.
   If none then searches for a metavariable `g` s.t. `tag` is a suffix of its name.
-  If none, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name. -/
+  If none, then it searches for a metavariable `g` s.t. `tag` is a prefix of its name.
+
+  We erase macro scopes from the metavariable's user name before comparing, so that
+  user-written tags match even when a previous tactic left hygienic macro scopes at
+  the end of the tag (e.g. `e_a.yield._@._internal._hyg.0`, where `yield` is not the
+  literal last component of the name). Case tags written by the user are never
+  macro-scoped, so erasing scopes on the mvar side is sufficient.
+-/
 private def findTag? (mvarIds : List MVarId) (tag : Name) : TacticM (Option MVarId) := do
-  match (← mvarIds.findM? fun mvarId => return tag == (← mvarId.getDecl).userName) with
+  match (← mvarIds.findM? fun mvarId => return tag == (← mvarId.getDecl).userName.eraseMacroScopes) with
   | some mvarId => return mvarId
   | none =>
-  match (← mvarIds.findM? fun mvarId => return tag.isSuffixOf (← mvarId.getDecl).userName) with
+  match (← mvarIds.findM? fun mvarId => return tag.isSuffixOf (← mvarId.getDecl).userName.eraseMacroScopes) with
   | some mvarId => return mvarId
-  | none => mvarIds.findM? fun mvarId => return tag.isPrefixOf (← mvarId.getDecl).userName
+  | none => mvarIds.findM? fun mvarId => return tag.isPrefixOf (← mvarId.getDecl).userName.eraseMacroScopes
 
 private def getCaseGoals (tag : TSyntax ``binderIdent) : TacticM (MVarId × List MVarId) := do
   let gs ← getUnsolvedGoals

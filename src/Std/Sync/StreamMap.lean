@@ -8,12 +8,12 @@ module
 prelude
 public import Std.Data
 public import Init.Data.Queue
-public import Std.Internal.Async.IO
+public import Std.Async.IO
 
 public section
 
-open Std.Internal.Async.IO
-open Std.Internal.IO.Async
+open Std.Async.IO
+open Std.Async
 
 /-!
 This module provides `StreamMap`, a container that maps keys to async streams.

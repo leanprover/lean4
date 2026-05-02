@@ -3401,15 +3401,15 @@ v___jp_1085_:
 if (v___y_1089_ == 0)
 {
 v___y_1081_ = v___y_1086_;
-v___y_1082_ = v___y_1088_;
-v___y_1083_ = v___y_1088_;
+v___y_1082_ = v___y_1087_;
+v___y_1083_ = v___y_1087_;
 goto v___jp_1080_;
 }
 else
 {
 v___y_1081_ = v___y_1086_;
-v___y_1082_ = v___y_1088_;
-v___y_1083_ = v___y_1087_;
+v___y_1082_ = v___y_1087_;
+v___y_1083_ = v___y_1088_;
 goto v___jp_1080_;
 }
 }
@@ -3428,8 +3428,8 @@ if (lean_obj_tag(v___y_1091_) == 0)
 uint8_t v_contextDependent_1094_; 
 v_contextDependent_1094_ = lean_ctor_get_uint8(v___y_1091_, 1);
 v___y_1086_ = v___y_1091_;
-v___y_1087_ = v___y_1093_;
-v___y_1088_ = v___y_1092_;
+v___y_1087_ = v___y_1092_;
+v___y_1088_ = v___y_1093_;
 v___y_1089_ = v_contextDependent_1094_;
 goto v___jp_1085_;
 }
@@ -3438,8 +3438,8 @@ else
 uint8_t v_contextDependent_1095_; 
 v_contextDependent_1095_ = lean_ctor_get_uint8(v___y_1091_, sizeof(void*)*2 + 1);
 v___y_1086_ = v___y_1091_;
-v___y_1087_ = v___y_1093_;
-v___y_1088_ = v___y_1092_;
+v___y_1087_ = v___y_1092_;
+v___y_1088_ = v___y_1093_;
 v___y_1089_ = v_contextDependent_1095_;
 goto v___jp_1085_;
 }

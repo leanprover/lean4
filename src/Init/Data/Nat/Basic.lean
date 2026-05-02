@@ -59,9 +59,9 @@ Examples:
 * `Nat.repeat f 3 a = f <| f <| f <| a`
 * `Nat.repeat (· ++ "!") 4 "Hello" = "Hello!!!!"`
 -/
-@[specialize, expose] def repeat {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
+@[specialize, expose] def «repeat» {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
   | 0,      a => a
-  | succ n, a => f (repeat f n a)
+  | succ n, a => f («repeat» f n a)
 
 /--
 Applies a function to a starting value the specified number of times.
@@ -1221,9 +1221,9 @@ theorem not_lt_eq (a b : Nat) : (¬ (a < b)) = (b ≤ a) :=
 theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   not_lt_eq b a
 
-@[csimp] theorem repeat_eq_repeatTR : @repeat = @repeatTR :=
+@[csimp] theorem repeat_eq_repeatTR : @«repeat» = @repeatTR :=
   funext fun α => funext fun f => funext fun n => funext fun init =>
-  let rec go : ∀ m n, repeatTR.loop f m (repeat f n init) = repeat f (m + n) init
+  let rec go : ∀ m n, repeatTR.loop f m («repeat» f n init) = «repeat» f (m + n) init
     | 0,      n => by simp [repeatTR.loop]
     | succ m, n => by rw [repeatTR.loop, succ_add]; exact go m (succ n)
   (go n 0).symm

@@ -2229,7 +2229,7 @@ return v___x_676_;
 v___jp_677_:
 {
 lean_object* v___x_680_; 
-v___x_680_ = lean_string_append(v___y_679_, v___y_678_);
+v___x_680_ = lean_string_append(v___y_678_, v___y_679_);
 v_rootDir_659_ = v___x_680_;
 goto v___jp_658_;
 }
@@ -2249,8 +2249,8 @@ v___x_687_ = lean_obj_once(&l_Lean_moduleNameOfFileName___closed__4, &l_Lean_mod
 v___x_688_ = lean_nat_dec_le(v___x_687_, v___x_686_);
 if (v___x_688_ == 0)
 {
-v___y_678_ = v___x_685_;
-v___y_679_ = v_a_684_;
+v___y_678_ = v_a_684_;
+v___y_679_ = v___x_685_;
 goto v___jp_677_;
 }
 else
@@ -2262,8 +2262,8 @@ v___x_691_ = lean_string_memcmp(v_a_684_, v___x_685_, v___x_690_, v___x_689_, v_
 lean_dec(v___x_690_);
 if (v___x_691_ == 0)
 {
-v___y_678_ = v___x_685_;
-v___y_679_ = v_a_684_;
+v___y_678_ = v_a_684_;
+v___y_679_ = v___x_685_;
 goto v___jp_677_;
 }
 else

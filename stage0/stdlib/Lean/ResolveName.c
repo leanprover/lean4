@@ -5333,9 +5333,9 @@ return v___x_1652_;
 LEAN_EXPORT lean_object* l_Lean_checkPrivateInPublic___redArg___lam__0___boxed(lean_object* v_____do__lift_1662_, lean_object* v_toApplicative_1663_, lean_object* v_id_1664_, lean_object* v_inst_1665_, lean_object* v_inst_1666_, lean_object* v_inst_1667_, lean_object* v_inst_1668_, lean_object* v_____do__lift_1669_){
 _start:
 {
-uint8_t v_____do__lift_230__boxed_1670_; lean_object* v_res_1671_; 
-v_____do__lift_230__boxed_1670_ = lean_unbox(v_____do__lift_1669_);
-v_res_1671_ = l_Lean_checkPrivateInPublic___redArg___lam__0(v_____do__lift_1662_, v_toApplicative_1663_, v_id_1664_, v_inst_1665_, v_inst_1666_, v_inst_1667_, v_inst_1668_, v_____do__lift_230__boxed_1670_);
+uint8_t v_____do__lift_231__boxed_1670_; lean_object* v_res_1671_; 
+v_____do__lift_231__boxed_1670_ = lean_unbox(v_____do__lift_1669_);
+v_res_1671_ = l_Lean_checkPrivateInPublic___redArg___lam__0(v_____do__lift_1662_, v_toApplicative_1663_, v_id_1664_, v_inst_1665_, v_inst_1666_, v_inst_1667_, v_inst_1668_, v_____do__lift_231__boxed_1670_);
 lean_dec_ref(v_____do__lift_1662_);
 return v_res_1671_;
 }

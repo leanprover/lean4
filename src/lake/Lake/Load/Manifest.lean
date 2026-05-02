@@ -8,6 +8,7 @@ module
 prelude
 public import Lake.Util.Version
 public import Lake.Config.Defaults
+public import Lake.Util.Git
 import Lake.Util.Error
 public import Lake.Util.FilePath
 import Lake.Util.JsonObject
@@ -75,8 +76,8 @@ public inductive PackageEntrySrc
   /-- A remote Git package. -/
   | git
     (url : String)
-    (rev : String)
-    (inputRev? : Option String)
+    (rev : GitRev)
+    (inputRev? : Option GitRev)
     (subDir? : Option FilePath)
   deriving Inhabited
 

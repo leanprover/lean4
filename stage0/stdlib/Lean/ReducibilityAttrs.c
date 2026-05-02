@@ -5077,7 +5077,7 @@ return v___x_1599_;
 LEAN_EXPORT lean_object* l___private_Lean_ReducibilityAttrs_0__Lean_validate___lam__0(lean_object* v_declName_1600_, uint8_t v_status_1601_, lean_object* v_suffix_1602_, uint8_t v_attrKind_1603_, lean_object* v___y_1604_, lean_object* v___y_1605_){
 _start:
 {
-lean_object* v_options_1625_; lean_object* v___x_1626_; uint8_t v___x_1627_; uint8_t v___y_1629_; lean_object* v___y_1630_; lean_object* v___y_1631_; lean_object* v___y_1676_; lean_object* v___y_1677_; uint8_t v___y_1678_; lean_object* v___y_1687_; lean_object* v___y_1688_; 
+lean_object* v_options_1625_; lean_object* v___x_1626_; uint8_t v___x_1627_; uint8_t v___y_1629_; lean_object* v___y_1630_; lean_object* v___y_1631_; uint8_t v___y_1676_; lean_object* v___y_1677_; lean_object* v___y_1678_; lean_object* v___y_1687_; lean_object* v___y_1688_; 
 v_options_1625_ = lean_ctor_get(v___y_1604_, 2);
 v___x_1626_ = l_Lean_allowUnsafeReducibility;
 v___x_1627_ = l_Lean_Option_get___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__0(v_options_1625_, v___x_1626_);
@@ -5404,7 +5404,7 @@ lean_ctor_set(v___x_1683_, 1, v___x_1682_);
 v___x_1684_ = lean_alloc_ctor(7, 2, 0);
 lean_ctor_set(v___x_1684_, 0, v___x_1683_);
 lean_ctor_set(v___x_1684_, 1, v_suffix_1602_);
-v___x_1685_ = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(v___x_1684_, v___y_1677_, v___y_1676_);
+v___x_1685_ = l_Lean_throwError___at___00__private_Lean_ReducibilityAttrs_0__Lean_validate_spec__1___redArg(v___x_1684_, v___y_1677_, v___y_1678_);
 return v___x_1685_;
 }
 v___jp_1686_:
@@ -5430,9 +5430,9 @@ lean_dec_ref(v_env_1693_);
 if (lean_obj_tag(v___x_1694_) == 1)
 {
 lean_dec_ref(v___x_1694_);
-v___y_1676_ = v___y_1688_;
+v___y_1676_ = v___x_1691_;
 v___y_1677_ = v___y_1687_;
-v___y_1678_ = v___x_1691_;
+v___y_1678_ = v___y_1688_;
 goto v___jp_1675_;
 }
 else
@@ -5447,9 +5447,9 @@ goto v___jp_1628_;
 }
 else
 {
-v___y_1676_ = v___y_1688_;
+v___y_1676_ = v___x_1691_;
 v___y_1677_ = v___y_1687_;
-v___y_1678_ = v___x_1691_;
+v___y_1678_ = v___y_1688_;
 goto v___jp_1675_;
 }
 }

@@ -1006,12 +1006,12 @@ return v___x_298_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Conv_evalUnfold___lam__0___boxed(lean_object* v___x_307_, lean_object* v_sz_308_, lean_object* v___x_309_, lean_object* v___x_310_, lean_object* v___y_311_, lean_object* v___y_312_, lean_object* v___y_313_, lean_object* v___y_314_, lean_object* v___y_315_, lean_object* v___y_316_, lean_object* v___y_317_, lean_object* v___y_318_, lean_object* v___y_319_){
 _start:
 {
-size_t v_sz_boxed_320_; size_t v___x_7761__boxed_321_; lean_object* v_res_322_; 
+size_t v_sz_boxed_320_; size_t v___x_7781__boxed_321_; lean_object* v_res_322_; 
 v_sz_boxed_320_ = lean_unbox_usize(v_sz_308_);
 lean_dec(v_sz_308_);
-v___x_7761__boxed_321_ = lean_unbox_usize(v___x_309_);
+v___x_7781__boxed_321_ = lean_unbox_usize(v___x_309_);
 lean_dec(v___x_309_);
-v_res_322_ = l_Lean_Elab_Tactic_Conv_evalUnfold___lam__0(v___x_307_, v_sz_boxed_320_, v___x_7761__boxed_321_, v___x_310_, v___y_311_, v___y_312_, v___y_313_, v___y_314_, v___y_315_, v___y_316_, v___y_317_, v___y_318_);
+v_res_322_ = l_Lean_Elab_Tactic_Conv_evalUnfold___lam__0(v___x_307_, v_sz_boxed_320_, v___x_7781__boxed_321_, v___x_310_, v___y_311_, v___y_312_, v___y_313_, v___y_314_, v___y_315_, v___y_316_, v___y_317_, v___y_318_);
 lean_dec(v___y_318_);
 lean_dec_ref(v___y_317_);
 lean_dec(v___y_316_);

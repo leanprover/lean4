@@ -540,6 +540,7 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
     | some false => addTrace depTrace; addTrace libTrace; addPlatformTrace
     | some true => addTrace depTrace
     let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
+    let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
     return {
       name := mod.name
       isModule := header.isModule
@@ -548,7 +549,7 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
       importArts := info.directArts
       dynlibs := dynlibs.map (·.path)
       plugins := plugins.map (·.path)
-      options := mod.leanOptions
+      options := mod.leanOptions ++ extra
     }
 
 /-- The `ModuleFacetConfig` for the builtin `setupFacet`. -/
@@ -900,8 +901,9 @@ where
     let inputHash := (← getTrace).hash
     let some ltarOrArts ← getArtifacts? inputHash savedTrace mod.pkg
       | return .inr savedTrace
-    match (ltarOrArts : ModuleOutputs)  with
+    match (ltarOrArts : ModuleOutputs) with
     | .ltar ltar =>
+      updateAction .unpack
       mod.clearOutputArtifacts
       mod.unpackLtar ltar.path
       -- Note: This branch implies that only the ltar output is (validly) cached.
@@ -919,7 +921,7 @@ where
       else
         return .inr savedTrace
     | .arts arts =>
-      unless (← savedTrace.replayOrFetchIfUpToDate inputHash) do
+      unless (← savedTrace.replayCachedIfUpToDate inputHash) do
         mod.clearOutputArtifacts
         writeFetchTrace mod.traceFile inputHash (toJson arts.descrs)
       let arts ←

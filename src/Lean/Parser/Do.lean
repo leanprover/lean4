@@ -273,6 +273,13 @@ with debug assertions enabled (see the `debugAssertions` option).
 @[builtin_doElem_parser] def doDebugAssert := leading_parser:leadPrec
   "debug_assert! " >> termParser
 
+@[builtin_doElem_parser] def doRepeat      := leading_parser
+  "repeat " >> doSeq
+@[builtin_doElem_parser] def doWhile       := leading_parser
+  "while " >> withForbidden "do" doIfCond >> " do " >> doSeq
+@[builtin_doElem_parser] def doRepeatUntil := leading_parser
+  "repeat " >> doSeq >> ppDedent ppLine >> "until " >> termParser
+
 /-
 We use `notFollowedBy` to avoid counterintuitive behavior.
 

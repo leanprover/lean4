@@ -289,8 +289,10 @@ instance : ToMarkdown VersoModuleDocs.Snippet where
 
 structure VersoModuleDocs where
   snippets : PersistentArray VersoModuleDocs.Snippet := {}
-  terminalNesting : Option Nat := snippets.findSomeRev? (·.terminalNesting)
 deriving Inhabited
+
+def VersoModuleDocs.terminalNesting : VersoModuleDocs → Option Nat
+  | VersoModuleDocs.mk snippets => snippets.findSomeRev? (·.terminalNesting)
 
 instance : Repr VersoModuleDocs where
   reprPrec v _ :=
@@ -314,10 +316,7 @@ def add (docs : VersoModuleDocs) (snippet : Snippet) : Except String VersoModule
   unless docs.canAdd snippet do
     throw "Can't nest this snippet here"
 
-  return { docs with
-    snippets := docs.snippets.push snippet,
-    terminalNesting := snippet.terminalNesting
-  }
+  return { docs with snippets := docs.snippets.push snippet }
 
 def add! (docs : VersoModuleDocs) (snippet : Snippet) : VersoModuleDocs :=
   let ok :=
@@ -327,10 +326,7 @@ def add! (docs : VersoModuleDocs) (snippet : Snippet) : VersoModuleDocs :=
   if not ok then
     panic! "Can't nest this snippet here"
   else
-    { docs with
-      snippets := docs.snippets.push snippet,
-      terminalNesting := snippet.terminalNesting
-    }
+    { docs with snippets := docs.snippets.push snippet }
 
 
 private structure DocFrame where

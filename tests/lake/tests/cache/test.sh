@@ -102,16 +102,16 @@ test_run exe test
 touch Ignored.lean
 test_run -v build +Ignored
 
-# Verify that fetching from the cache can be disabled
+# Verify that using the cache can be disabled
 test_cmd rm -f .lake/build/lib/lean/Ignored.trace
 test_status $NO_BUILD_CODE -v -f disabled.toml build +Ignored --no-build
 LAKE_ARTIFACT_CACHE=false test_status $NO_BUILD_CODE -v \
   -f unset.toml build +Ignored --no-build
 
-# Verify that fetching from the cache creates a trace file that does not replay
-test_out "Fetched Ignored" -v build +Ignored
+# Verify that using the cache creates a trace file that does not replay
+test_out "Reused Ignored" -v build +Ignored
 test_exp -f .lake/build/lib/lean/Ignored.trace
-test_out "Fetched Ignored" -v build +Ignored
+test_out "Reused Ignored" -v build +Ignored
 
 # Verify that modifications invalidate the cache
 echo "def foo := ()" > Ignored.lean
@@ -162,7 +162,7 @@ check_diff .lake/backup-outputs.txt <(ls "$CACHE_DIR/outputs")
 test_cmd rm -f "$local_art"
 test_out "Replayed Test:c.o" build +Test:o -v --no-build
 test_cmd rm -f "$local_art.trace"
-test_out "Fetched Test:c.o" build +Test:o -v --no-build
+test_out "Reused Test:c.o" build +Test:o -v --no-build
 
 # Verify that if the input cache is missing,
 # the cached artifact is still used via the output hash in the trace

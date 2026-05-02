@@ -99,9 +99,9 @@ def del [Ord α] (d : α) : Raw α → Raw α
 
 /--
 info: equations:
-@[defeq] theorem Raw.del.eq_1.{u_1} : ∀ {α : Type u_1} [inst : Ord α] (d : α), del d nil = nil
-@[defeq] theorem Raw.del.eq_2.{u_1} : ∀ {α : Type u_1} [inst : Ord α] (d d_1 : α) (color : Color) (left_1 : Raw α)
-  (data : α) (right left_3 : Raw α) (data_1 : α) (right_1 : Raw α),
+@[backward_defeq] theorem Raw.del.eq_1.{u_1} : ∀ {α : Type u_1} [inst : Ord α] (d : α), del d nil = nil
+@[backward_defeq] theorem Raw.del.eq_2.{u_1} : ∀ {α : Type u_1} [inst : Ord α] (d d_1 : α) (color : Color)
+  (left_1 : Raw α) (data : α) (right left_3 : Raw α) (data_1 : α) (right_1 : Raw α),
   del d ((left_1.node data Color.black right).node d_1 color (left_3.node data_1 Color.black right_1)) =
     match compare d d_1 with
     | Ordering.lt => baldL d_1 (del d (left_1.node data Color.black right)) (left_3.node data_1 Color.black right_1)

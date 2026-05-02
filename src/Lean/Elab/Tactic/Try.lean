@@ -1042,4 +1042,17 @@ private def evalAndSuggestWithBy (tk : Syntax) (tac : TSyntax `tactic) (original
         evalAndSuggest tk stx originalMaxHeartbeats config
   | _ => throwUnsupportedSyntax
 
+@[builtin_tactic Lean.Parser.Tactic.tryTraceWith] def evalTryTraceWith : Tactic := fun stx => do
+  match stx with
+  | `(tactic| try?%$tk $config:optConfig => $tac:tacticSeq) => Tactic.focus do withMainContext do
+    let config ← elabTryConfig config
+    let originalMaxHeartbeats ← getMaxHeartbeats
+    let tac ← `(tactic| ($tac:tacticSeq))
+    withUnlimitedHeartbeats do
+      if config.wrapWithBy then
+        evalAndSuggestWithBy tk tac originalMaxHeartbeats config
+      else
+        evalAndSuggest tk tac originalMaxHeartbeats config
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Tactic.Try

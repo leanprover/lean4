@@ -8066,8 +8066,8 @@ else
 {
 lean_object* v_a_2861_; lean_object* v___x_2863_; uint8_t v_isShared_2864_; uint8_t v_isSharedCheck_2868_; 
 lean_dec(v_u_2827_);
-lean_dec_ref(v_00_u03b1_2826_);
 lean_dec_ref(v_result_2794_);
+lean_dec_ref(v_00_u03b1_2826_);
 lean_dec_ref(v_e_u2081_2780_);
 v_a_2861_ = lean_ctor_get(v___x_2831_, 0);
 v_isSharedCheck_2868_ = !lean_is_exclusive(v___x_2831_);

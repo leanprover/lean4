@@ -4756,9 +4756,9 @@ return v___x_1896_;
 LEAN_EXPORT lean_object* l_Lean_Meta_ArgsPacker_Mutual_uncurryType___lam__0___boxed(lean_object* v_a_1903_, lean_object* v___x_1904_, lean_object* v___x_1905_, lean_object* v_x_1906_, lean_object* v___y_1907_, lean_object* v___y_1908_, lean_object* v___y_1909_, lean_object* v___y_1910_, lean_object* v___y_1911_){
 _start:
 {
-uint8_t v___x_2052__boxed_1912_; lean_object* v_res_1913_; 
-v___x_2052__boxed_1912_ = lean_unbox(v___x_1905_);
-v_res_1913_ = l_Lean_Meta_ArgsPacker_Mutual_uncurryType___lam__0(v_a_1903_, v___x_1904_, v___x_2052__boxed_1912_, v_x_1906_, v___y_1907_, v___y_1908_, v___y_1909_, v___y_1910_);
+uint8_t v___x_2053__boxed_1912_; lean_object* v_res_1913_; 
+v___x_2053__boxed_1912_ = lean_unbox(v___x_1905_);
+v_res_1913_ = l_Lean_Meta_ArgsPacker_Mutual_uncurryType___lam__0(v_a_1903_, v___x_1904_, v___x_2053__boxed_1912_, v_x_1906_, v___y_1907_, v___y_1908_, v___y_1909_, v___y_1910_);
 lean_dec(v___y_1910_);
 lean_dec_ref(v___y_1909_);
 lean_dec(v___y_1908_);
@@ -8038,14 +8038,14 @@ return v_res_3122_;
 LEAN_EXPORT lean_object* l_panic___at___00Lean_Meta_ArgsPacker_curryProj_spec__0(lean_object* v_msg_3123_, lean_object* v___y_3124_, lean_object* v___y_3125_, lean_object* v___y_3126_, lean_object* v___y_3127_){
 _start:
 {
-lean_object* v___f_3129_; lean_object* v___x_1076__overap_3130_; lean_object* v___x_3131_; 
+lean_object* v___f_3129_; lean_object* v___x_1078__overap_3130_; lean_object* v___x_3131_; 
 v___f_3129_ = ((lean_object*)(l_panic___at___00Lean_Meta_ArgsPacker_Unary_uncurryType_spec__0___closed__0));
-v___x_1076__overap_3130_ = lean_panic_fn_borrowed(v___f_3129_, v_msg_3123_);
+v___x_1078__overap_3130_ = lean_panic_fn_borrowed(v___f_3129_, v_msg_3123_);
 lean_inc(v___y_3127_);
 lean_inc_ref(v___y_3126_);
 lean_inc(v___y_3125_);
 lean_inc_ref(v___y_3124_);
-v___x_3131_ = lean_apply_5(v___x_1076__overap_3130_, v___y_3124_, v___y_3125_, v___y_3126_, v___y_3127_, lean_box(0));
+v___x_3131_ = lean_apply_5(v___x_1078__overap_3130_, v___y_3124_, v___y_3125_, v___y_3126_, v___y_3127_, lean_box(0));
 return v___x_3131_;
 }
 }

@@ -1,8 +1,17 @@
 case succ
 x : Nat
 ih : isEven (2 * x) = true
-⊢ isOdd (Nat.mul 2 x + 1) = true
+⊢ (match 2 * (x + 1) with
+    | 0 => true
+    | n.succ => isOdd n) =
+    true
 case succ
 x : Nat
 ih : isEven (2 * x) = true
-⊢ isEven (Nat.mul 2 x) = true
+⊢ (match 2 * (x + 1) with
+    | 0 => true
+    | n.succ =>
+      match n with
+      | 0 => false
+      | n.succ => isEven n) =
+    true

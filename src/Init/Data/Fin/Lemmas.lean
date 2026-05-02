@@ -123,7 +123,7 @@ For example, for `x : Fin k` and `n : Nat`,
 it causes `x < n` to be elaborated as `x < ↑n` rather than `↑x < n`,
 silently introducing wraparound arithmetic.
 -/
-@[expose, implicit_reducible]
+@[implicit_reducible]
 def instNatCast (n : Nat) [NeZero n] : NatCast (Fin n) where
   natCast a := Fin.ofNat n a
 
@@ -131,7 +131,6 @@ attribute [scoped instance] instNatCast
 
 end NatCast
 
-@[expose]
 def intCast [NeZero n] (a : Int) : Fin n :=
   if 0 ≤ a then
     Fin.ofNat n a.natAbs
@@ -145,7 +144,7 @@ This is not a global instance, but may be activated locally via `open Fin.IntCas
 
 See the doc-string for `Fin.NatCast.instNatCast` for more details.
 -/
-@[expose, implicit_reducible]
+@[implicit_reducible]
 def instIntCast (n : Nat) [NeZero n] : IntCast (Fin n) where
   intCast := Fin.intCast
 
@@ -909,7 +908,7 @@ parameter, `Fin.cases` is the corresponding case analysis operator, and `Fin.rev
 version that starts at the greatest value instead of `0`.
 -/
 -- FIXME: Performance review
-@[elab_as_elim, expose] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
+@[elab_as_elim] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (succ : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :
     ∀ i : Fin (n + 1), motive i
   | ⟨i, hi⟩ => go i hi
@@ -951,7 +950,7 @@ The two cases are:
 
 The corresponding induction principle is `Fin.induction`.
 -/
-@[elab_as_elim, expose] def cases {motive : Fin (n + 1) → Sort _}
+@[elab_as_elim] def cases {motive : Fin (n + 1) → Sort _}
     (zero : motive 0) (succ : ∀ i : Fin n, motive i.succ) :
     ∀ i : Fin (n + 1), motive i := induction zero fun i _ => succ i
 

@@ -63,17 +63,14 @@ def elabAttr [Monad m] [MonadEnv m] [MonadResolveName m] [MonadError m] [MonadMa
       | throwError "Unknown attribute `[{attrName}]`"
     if let .ok impl := getAttributeImpl (← getEnv) attrName then
       if regularInitAttr.getParam? (← getEnv) impl.ref |>.isSome then  -- skip `builtin_initialize` attributes
-        -- Reject attribute uses where the implementation's home module has been reached only as a
-        -- `meta` dep (`irPhases == .comptime`). In that case `metaExt` may not be visible — even if
-        -- the module's own data was loaded (e.g. directly meta-imported), reachable transitive
-        -- modules with `import` from a meta-imported parent are loaded IR-only. Forcing a non-meta
-        -- import keeps shake's recording stable (issue #13599).
+        -- Reject attribute uses where the implementation's module has been loaded for IR only as
+        -- this would make it `inServer`-dependent and confused shake as well (#13599).
         if let some idx := (← getEnv).getModuleIdxFor? impl.ref then
           let env ← getEnv
-          if env.header.modules[idx]?.any (·.irPhases == .comptime) then
+          if env.header.modules[idx]?.any (!·.hasData) then
             let modName := env.header.modules[idx]!.module
-            throwError m!"Cannot use attribute `[{attrName}]`: module `{modName}` is reached only \
-              as a `meta` dependency. Add a non-`meta` `import {modName}`."
+            throwError m!"Cannot use attribute `[{attrName}]`: module `{modName}` is loaded for IR \
+              only (reached as a private `meta` dependency). Add an import of `{modName}`."
         recordExtraModUseFromDecl (isMeta := true) impl.ref
     /- The `AttrM` does not have sufficient information for expanding macros in `args`.
       So, we expand them before here before we invoke the attributer handlers implemented using `AttrM`. -/

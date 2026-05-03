@@ -11,7 +11,7 @@ elaborator now rejects such uses with a clear error pointing at the missing impo
 @[expose] public section
 
 /--
-error: Cannot use attribute `[my_simp]`: module `UserAttr.BlaAttr` is reached only as a `meta` dependency. Add a non-`meta` `import UserAttr.BlaAttr`.
+error: Cannot use attribute `[my_simp]`: module `UserAttr.BlaAttr` is loaded for IR only (reached as a private `meta` dependency). Add an import of `UserAttr.BlaAttr`.
 -/
 #guard_msgs in
 @[my_simp]

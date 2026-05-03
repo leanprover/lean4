@@ -147,6 +147,8 @@ structure ModuleData where
 structure EffectiveImport extends Import where
   /-- Phases for which the import's IR is available. -/
   irPhases : IRPhases
+  /-- Whether the import's `.olean*` data has been loaded (otherwise only the `.ir` is). -/
+  hasData : Bool
 deriving Inhabited
 
 /-- Environment fields that are not used often. -/
@@ -1980,14 +1982,12 @@ private structure ImportedModule extends EffectiveImport where
   parts     : Array (ModuleData × CompactedRegion)
   /-- `.ir` data, if loaded. -/
   irData?   : Option (ModuleData × CompactedRegion)
-  /-- If true, `.olean*` data should be imported. -/
-  needsData : Bool
   /-- If true, IR is loaded transitively. -/
   needsIRTrans : Bool
 
 /-- The main module data that will eventually be used to construct the publicly accessible constants. -/
 private def ImportedModule.publicModule? (self : ImportedModule) : Option ModuleData := do
-  if self.needsData then
+  if self.hasData then
     self.parts[0]?.map (·.1)
   else
     -- (should not have any constants)
@@ -2000,7 +2000,7 @@ private def ImportedModule.getData? (self : ImportedModule) (level : OLeanLevel)
 
 /-- The main module data that will eventually be used to construct the kernel environment. -/
 private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData :=
-  if self.needsData then
+  if self.hasData then
     self.getData? (if self.importAll then .private else .exported)
   else
     self.irData?.map (·.1)
@@ -2150,16 +2150,16 @@ where
         -- when module is already imported, bump flags
         let importAll := importAll || mod.importAll
         let isExported := isExported || mod.isExported
-        let needsData := needsData || mod.needsData
+        let needsData := needsData || mod.hasData
         let needsIRTrans := needsIRTrans || mod.needsIRTrans
         let needsIR := needsIRTrans || importAll
         let irPhases := if irPhases == mod.irPhases then irPhases else .all
         let parts ← if needsData && mod.parts.isEmpty then loadData i else pure mod.parts
         let irData? ← if needsIR && mod.irData?.isNone then loadIR? i else pure mod.irData?
         if importAll != mod.importAll || isExported != mod.isExported ||
-            needsIRTrans != mod.needsIRTrans || needsData != mod.needsData || irPhases != mod.irPhases then
+            needsIRTrans != mod.needsIRTrans || needsData != mod.hasData || irPhases != mod.irPhases then
           modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-            importAll, isExported, irPhases, parts, irData?, needsData, needsIRTrans }}
+            importAll, isExported, irPhases, parts, irData?, hasData := needsData, needsIRTrans }}
           -- bump entire closure
           goRec mod
         continue
@@ -2167,7 +2167,7 @@ where
       -- newly discovered module
       let parts ← if needsData then loadData i else pure #[]
       let irData? ← if needsIR then loadIR? i else pure none
-      let mod := { i with importAll, isExported, irPhases, parts, irData?, needsIRTrans, needsData }
+      let mod := { i with importAll, isExported, irPhases, parts, irData?, needsIRTrans, hasData := needsData }
       goRec mod
       modify fun s => { s with
         moduleNameMap := s.moduleNameMap.insert i.module mod

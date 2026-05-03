@@ -209,3 +209,8 @@ example (b c : Nat) : True := by
   obtain h : b = c ^ 2 := test_sorry
   subst h
   trivial
+
+example (a b : Nat) (h : 0 ≤ a ∧ b = a) : True := by
+  rcases h with ⟨-, rfl⟩
+  fail_if_success have : 0 ≤ b := by assumption
+  trivial

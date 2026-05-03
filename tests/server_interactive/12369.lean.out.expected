@@ -10,3 +10,22 @@
  "position": {"line": 16, "character": 23}}
 {"rendered": "```lean\nb : Nat\nhle : 0 ≤ b + 1\n⊢ True\n```",
  "goals": ["b : Nat\nhle : 0 ≤ b + 1\n⊢ True"]}
+{"textDocument": {"uri": "file:///12369.lean"},
+ "position": {"line": 21, "character": 27}}
+{"rendered":
+ "```lean\ncase zero\nm : Nat\n⊢ True\n```\n---\n```lean\ncase succ\nm n✝ : Nat\n⊢ True\n```",
+ "goals": ["case zero\nm : Nat\n⊢ True", "case succ\nm n✝ : Nat\n⊢ True"]}
+{"textDocument": {"uri": "file:///12369.lean"},
+ "position": {"line": 27, "character": 30}}
+{"rendered":
+ "```lean\ncase inl\nb : Nat\nh1 : b + 1 = 1\n⊢ True\n```\n---\n```lean\ncase inr\nb : Nat\nh2 : b + 1 = 2\n⊢ True\n```",
+ "goals":
+ ["case inl\nb : Nat\nh1 : b + 1 = 1\n⊢ True",
+  "case inr\nb : Nat\nh2 : b + 1 = 2\n⊢ True"]}
+{"textDocument": {"uri": "file:///12369.lean"},
+ "position": {"line": 27, "character": 35}}
+{"rendered":
+ "```lean\ncase inl\nb : Nat\nh1 : b + 1 = 1\n⊢ True\n```\n---\n```lean\ncase inr\nb : Nat\nh2 : b + 1 = 2\n⊢ True\n```",
+ "goals":
+ ["case inl\nb : Nat\nh1 : b + 1 = 1\n⊢ True",
+  "case inr\nb : Nat\nh2 : b + 1 = 2\n⊢ True"]}

@@ -1,0 +1,12 @@
+{"textDocument": {"uri": "file:///12369.lean"},
+ "position": {"line": 6, "character": 29}}
+{"rendered": "```lean\nb : Nat\nhle : 0 ≤ b + 1\n⊢ True\n```",
+ "goals": ["b : Nat\nhle : 0 ≤ b + 1\n⊢ True"]}
+{"textDocument": {"uri": "file:///12369.lean"},
+ "position": {"line": 11, "character": 22}}
+{"rendered": "```lean\nb : Nat\nhle : 0 ≤ b + 1\n⊢ True\n```",
+ "goals": ["b : Nat\nhle : 0 ≤ b + 1\n⊢ True"]}
+{"textDocument": {"uri": "file:///12369.lean"},
+ "position": {"line": 16, "character": 23}}
+{"rendered": "```lean\nb : Nat\nhle : 0 ≤ b + 1\n⊢ True\n```",
+ "goals": ["b : Nat\nhle : 0 ≤ b + 1\n⊢ True"]}

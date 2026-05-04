@@ -57,21 +57,10 @@ private meta def tryForallIntro (goal : MVarId) (target : Expr) :
   return some <| .goals [← introsSimp goal m!"foralls in `solve`"]
 
 /-- Strategy 7a: zeta-substitute (if the bound value is duplicable) or introduce a
-top-level `let` in the target.
-
-When the let binds a `__do_jp` (do-elaborator-emitted shared continuation) and the user
-opted into shared-continuation handling via `(config := { jp := true })`, we currently
-short-circuit with a clear "not yet implemented" error. The plumbing for tracking JPs
-is in place (`Context.useJP`, `State.jps`, `registerJP`, `knownJP?`) but the proof
-construction mirroring `Lean.Elab.Tactic.Do.onJoinPoint`/`onJumpSite` is not yet ported. -/
+top-level `let` in the target. -/
 private meta def tryLetIntro (goal : MVarId) (target : Expr) :
     VCGenM (Option SolveResult) := do
   unless target.isLet do return none
-  if Lean.Elab.Tactic.Do.isJP target.letName! && (← read).useJP then
-    throwError "mvcgen': shared-continuation handling for `__do_jp` is not yet \
-      implemented in `mvcgen'`; remove `(config := \{ jp := true })` to fall back \
-      to the default zeta-unfold behaviour. Detection point reached at \
-      {target.letName!}."
   if isDuplicable target.letValue! then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {target.letName!}"
     let target' ← Sym.instantiateRevBetaS target.letBody! #[target.letValue!]
@@ -238,19 +227,27 @@ public meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext d
 
   trace[Elab.Tactic.Do.vcgen] "📜 Program: {e}"
 
+  -- The four "program-shape" steps below all consume one unit of fuel
+  -- (the `stepLimit` config option) when they make progress, so the calls to
+  -- `VCGen.burnOne` are gathered here rather than scattered inside the helpers.
+
   -- Let-expressions: hoist to top of goal
   if let some r ← tryLetHoist goal head H σs ent args wpConst m ps instWP α e f then
+    VCGen.burnOne
     return r
 
   -- Split ite/dite/match (or iota-reduce if discriminant is concrete)
   if let some r ← trySplit goal head H σs ent args wpConst m ps instWP α e excessArgs then
+    VCGen.burnOne
     return r
 
   -- Zeta-unfold local let bindings on demand
   if let some r ← tryFvarZeta goal head H σs ent args wpConst m ps instWP α e f then
+    VCGen.burnOne
     return r
 
   -- Apply registered specifications, or fall through to `.noStrategyForProgram`.
+  VCGen.burnOne
   applySpec goal e excessArgs m σs ps instWP
 
 end VCGen

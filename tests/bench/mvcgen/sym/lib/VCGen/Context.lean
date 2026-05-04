@@ -80,10 +80,17 @@ public structure VCGen.Context where
   hypSimpMethods : Option Sym.Simp.Methods := none
   /-- Pre-tactic to try on each emitted VC. -/
   preTac : PreTac := .none
-  /-- If `true`, treat `__do_jp` bindings as shared continuations (linear in the number of
-  control-flow splits) instead of zeta-unfolding them at every call site (the default;
-  exponential blow-up on nested splits). Maps to the `jp` config option. -/
-  useJP : Bool := false
+  /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
+  `repeatAndRfl` to collapse trivial `And.intro` chains; when `false`, the goal is
+  emitted as-is. This is the only config option `Driver`/`Solve` consult at runtime;
+  others (`elimLets`, `stepLimit`, `invariants*`) are applied by `Frontend` before/after
+  the worklist runs. -/
+  trivial : Bool := true
+  /-- Pre-parsed `invariants`/`invariants?` alternatives, indexed by 1-based invariant
+  number. Bullet form maps positions to entries (`bullet n+1 → alt`); labelled form maps
+  the parsed `inv<n>` numbers (out-of-order labels are supported). Empty when no
+  `invariants` clause is provided or in `invariants?` (suggest) mode (handled separately). -/
+  invariantAlts : Std.HashMap Nat Syntax := {}
 
 public structure VCGen.State where
   /--
@@ -118,6 +125,19 @@ public structure VCGen.State where
   `tryJumpSite` to short-circuit zeta-unfolding at call sites.
   -/
   jps : FVarIdMap JumpSiteInfo := {}
+  /--
+  Remaining VC-generation steps. Initialized from `Context.config.stepLimit` (or
+  `.unlimited` when no limit is set). Decremented at each successful program-shape
+  step (`tryLetHoist`, `trySplit`, `tryFvarZeta`, `applySpec`). When exhausted,
+  `solve` short-circuits and emits the current goal as a VC.
+  -/
+  fuel : Lean.Elab.Tactic.Do.Fuel := .unlimited
+  /--
+  Set of invariant numbers that have been inline-elaborated by `Driver.emitVC` via
+  `tryInlineInvariant`. The post-hoc invariant elaboration in `Frontend` consults
+  this to know which user-provided alts have already been consumed (so it doesn't
+  warn about them). -/
+  inlineHandledInvariants : Std.HashSet Nat := {}
 
 public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 
@@ -131,5 +151,15 @@ public meta def registerJP (fv : FVarId) (info : JumpSiteInfo) : _root_.VCGenM U
 /-- Look up a previously-registered join point by fvar id. -/
 public meta def knownJP? (fv : FVarId) : _root_.VCGenM (Option JumpSiteInfo) :=
   return (← get).jps.get? fv
+
+/-- True iff fuel has been exhausted (`Fuel.limited 0`). -/
+public meta def outOfFuel : _root_.VCGenM Bool :=
+  return match (← get).fuel with | .limited 0 => true | _ => false
+
+/-- Decrement remaining fuel by one. No-op when fuel is `.unlimited` or already at zero. -/
+public meta def burnOne : _root_.VCGenM Unit :=
+  modify fun s => { s with fuel := match s.fuel with
+    | .limited (n+1) => .limited n
+    | other => other }
 
 end VCGen

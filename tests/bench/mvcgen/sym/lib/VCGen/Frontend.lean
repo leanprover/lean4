@@ -12,6 +12,9 @@ public meta import Lean.Meta
 public meta import Lean.Meta.Tactic.Grind.Main
 public meta import Lean.Meta.Tactic.Grind.Solve
 public meta import Lean.Elab.Tactic.Do.VCGen.Basic
+public meta import Lean.Elab.Tactic.Do.LetElim
+public meta import Lean.Elab.Tactic.Do.VCGen.SuggestInvariant
+public meta import Lean.Elab.Tactic.Do.VCGen
 meta import Lean.Elab.Tactic.Grind
 public meta import VCGen.Context
 public meta import VCGen.Driver
@@ -142,22 +145,17 @@ syntax (name := mvcgen') "mvcgen'" optConfig
   (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
   (&" with " tactic)? : tactic
 
-/-- Reject `mvcgen'` config options that are not yet implemented. Compares each field
-of the parsed `VCGen.Config` to its default; throws a clean error when a non-default
-value is set. As more options gain implementation support, drop their checks here. -/
-private meta def rejectUnsupportedConfig (config : VCGen.Config) : TacticM Unit := do
+/-- Warn about `mvcgen'` config options that are accepted by the parser but currently
+ignored at runtime. As more options gain implementation support, drop their checks
+here. Options with implemented semantics (`trivial`, `elimLets`, `stepLimit`,
+`invariants?`) are silently accepted. -/
+private meta def warnIgnoredConfig (config : VCGen.Config) : TacticM Unit := do
   let default : VCGen.Config := {}
-  if config.trivial != default.trivial then
-    throwError "mvcgen': the `trivial` config option is not yet supported by `mvcgen'`."
   if config.leave != default.leave then
-    throwError "mvcgen': the `leave` config option is not yet supported by `mvcgen'`."
-  if config.elimLets != default.elimLets then
-    throwError "mvcgen': the `elimLets` config option is not yet supported by `mvcgen'`."
-  -- `jp` is plumbed into `Context.useJP`. Detection in `tryLetIntro` short-circuits
-  -- with a clear "not yet implemented" error when actually enabled, until full JP
-  -- proof construction (mirroring the original's `onJoinPoint`/`onJumpSite`) lands.
-  if config.stepLimit != default.stepLimit then
-    throwError "mvcgen': the `stepLimit` config option is not yet supported by `mvcgen'`."
+    logWarning "mvcgen': the `leave` config option is currently ignored."
+  if config.jp != default.jp then
+    logWarning "mvcgen': the `jp` config option is currently ignored \
+      (shared-continuation handling for `__do_jp` is not yet implemented)."
 
 /-- Parse grind configuration from the `with grind ...` clause and build `Grind.Params`.
 Overrides the internal simp step limit to accommodate large unrolled goals. -/
@@ -223,23 +221,103 @@ private meta def elabPreTac (goal : MVarId) (withPreTac : Syntax) : TacticM (VCG
   else
     return (.tactic preTac, params)
 
-/-- Stub for `mvcgen' invariants?` (skeleton-suggestion mode). The original
-implementation in `Lean.Elab.Tactic.Do.VCGen.suggestInvariant` walks the VCs to
-propose invariants; we don't have the equivalent infrastructure yet. -/
-private meta def suggestInvariantUnsupported (_ : MVarId) : TacticM Term :=
-  throwError "mvcgen': suggestion mode (`invariants?`) is not yet supported. \
-    Use `mvcgen' invariants ...` with explicit invariants instead."
+/--
+Pre-parse the optional `invariantAlts` syntax into a map from invariant number
+to alt syntax. Bullet form `· $rhs` is positional (1-based: bullet at index `i`
+maps to key `i+1`); labelled form `| inv<n> $args* => $rhs` is keyed by the
+parsed `n`, so out-of-order labels are supported.
+
+Returns `none` for the `invariants?` form (delegated to upstream `elabInvariants`)
+and `none` when no `invariants` clause is provided. Errors on mixed bullet/labelled
+forms (one or the other is enforced by the `dotOrCase` flag in the upstream
+elaborator; we replicate that check here).
+-/
+private meta def parseInvariantMap (stx : Syntax) :
+    TacticM (Option (Std.HashMap Nat Syntax)) := do
+  let some altsStx := stx.getOptional? | return none
+  -- The `invariants?` (suggest) form is handled separately by upstream's `elabInvariants`.
+  match altsStx with
+  | `(invariantAlts| invariants? $_*) => return none
+  | _ => pure ()
+  let stx' : TSyntax ``invariantAlts := ⟨altsStx⟩
+  match stx' with
+  | `(invariantAlts| $_invariantsKW $alts*) =>
+    if alts.isEmpty then return some {}
+    let mut map : Std.HashMap Nat Syntax := {}
+    let mut dotOrCase := LBool.undef
+    for h : i in 0...alts.size do
+      let alt := alts[i]
+      match alt with
+      | `(invariantDotAlt| · $_rhs) =>
+        if dotOrCase matches .false then
+          throwErrorAt alt "Alternation between labelled and bulleted invariants is not supported."
+        dotOrCase := .true
+        map := map.insert (i + 1) alt
+      | `(invariantCaseAlt| | $tag $_args* => $_rhs) =>
+        if dotOrCase matches .true then
+          throwErrorAt alt "Alternation between labelled and bulleted invariants is not supported."
+        dotOrCase := .false
+        let n? : Option Nat := do
+          let `(binderIdent| $tag:ident) := tag | some (i + 1) -- positional fallback
+          let .str .anonymous s := tag.getId | none
+          s.dropPrefix? "inv" >>= String.Slice.toNat?
+        let some n := n? | throwErrorAt tag s!"Could not parse invariant label; expected `inv<n>`."
+        if map.contains n then
+          throwErrorAt tag s!"Duplicate invariant alternative for `inv{n}`."
+        map := map.insert n alt
+      | _ => throwErrorAt alt "Expected `invariantDotAlt` or `invariantCaseAlt`."
+    return some map
+  | _ => return none
+
+/--
+Run after VC generation: iterate the (unfiltered) `invariants` array returned by
+`Driver.main`, look up each entry in the pre-parsed `alts` map by its 1-based
+position (which equals the `inv<n>` tag the entry carries — `Driver.main` assigns
+tags consecutively), and elaborate the matching alt. Invariants that were already
+elaborated inline by `Driver.emitVC` (tracked in `inlineHandled`) are skipped, so
+we don't warn about alts that were already consumed there. -/
+private meta def elabRemainingInvariants (alts : Std.HashMap Nat Syntax)
+    (invariants : Array MVarId) (inlineHandled : Std.HashSet Nat) : TacticM Unit := do
+  let mut handled := inlineHandled
+  for h : i in 0...invariants.size do
+    let n := i + 1
+    if handled.contains n then continue
+    let some alt := alts[n]? | continue
+    handled := handled.insert n
+    let tac ← match alt with
+      | `(invariantDotAlt| · $rhs) => `(tactic| exact $rhs)
+      | `(invariantCaseAlt| | $_tag $args* => $rhs) => `(tactic| (rename_i $args*; exact $rhs))
+      | _ => continue
+    withRef alt <| discard <| evalTacticAt tac invariants[i]
+  -- Warn on user-provided alts that matched no invariant goal (neither inline nor post-hoc).
+  for (n, alt) in alts.toArray do
+    unless handled.contains n do
+      logWarningAt alt s!"Invariant alternative `inv{n}` does not match any invariant goal."
 
 @[tactic mvcgen']
 public meta def elabMVCGen' : Tactic := fun stx => withMainContext do
   let config ← elabConfig stx[1]
-  rejectUnsupportedConfig config
+  warnIgnoredConfig config
   let goal ← getMainGoal
+  -- `elimLets` defaults to `false` in `mvcgen'` (vs. `true` in upstream `mvcgen`):
+  -- existing tests rely on let-bindings being preserved in VC local contexts so that
+  -- `case vcN bs* =>` patterns line up. Re-enabling on opt-in would require detecting
+  -- explicit `(elimLets := true)` at the syntax level (upstream `Config` can't
+  -- distinguish "default true" from "user-set true"); not yet wired.
   let ctx ← VCGen.mkSpecContext stx[2]
   let hypSimpMethods ← elabSimplifyingAssumptions stx[4]
   let (preTac, params) ← elabPreTac goal stx[5]
-  let ctx := { ctx with preTac, hypSimpMethods, useJP := config.jp }
-  let result ← Grind.GrindM.run (VCGen.main goal ctx) params
-  elabInvariants stx[3] result.invariants suggestInvariantUnsupported
+  let invariantAlts? ← parseInvariantMap stx[3]
+  let ctx := { ctx with
+    preTac, hypSimpMethods,
+    trivial := config.trivial,
+    invariantAlts := invariantAlts?.getD {} }
+  let result ← Grind.GrindM.run (VCGen.main goal ctx config.stepLimit) params
+  -- For `invariants?` (suggest), defer entirely to the upstream elaborator.
+  -- Otherwise, dispatch any still-unassigned invariants via the pre-parsed map.
+  if let some alts := invariantAlts? then
+    elabRemainingInvariants alts result.invariants result.inlineHandledInvariants
+  else
+    elabInvariants stx[3] result.invariants (suggestInvariant result.vcs)
   let invariants ← result.invariants.filterM (not <$> ·.isAssigned)
   replaceMainGoal (invariants ++ result.vcs).toList

@@ -92,8 +92,9 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
   registerSimpleScopedEnvExtension {
     initial  := {}
     addEntry := addInstanceEntry
-    exportEntry? := fun level e =>
-      guard (level == .private || e.globalName?.any (!isPrivateName ·)) *> e
+    exportEntry? := fun _ e =>
+      if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
+      else ⟨none, none, some e⟩
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do

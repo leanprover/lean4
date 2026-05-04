@@ -37,15 +37,6 @@ classical-image-membership analogue of `MonadAttach.CanReturn`, defined at `[Bin
 def MayReturnM {m : Type u → Type v} [Bind m] {α : Type u} (x : m α) (a : α) : Prop :=
   ¬ ∃ y : m {b : α // b ≠ a}, ErasesToM y x
 
-/-- Discharge a postcondition from `MayReturnM`: if `x` erases from `m {b // P b}`, then `P`
-holds at every value `x` may return. (Classical, via the singleton predicate.) -/
-theorem MayReturnM.imp {m : Type u → Type v} [Monad m] [LawfulMonad m] {α : Type u}
-    {x : m α} {P : α → Prop} (a : α) (hCR : MayReturnM x a)
-    (y : m {b // P b}) (hy : ErasesToM y x) : P a :=
-  Classical.byContradiction fun hPa => hCR
-    ⟨y >>= fun b => pure ⟨b.val, fun heq => hPa (heq ▸ b.property)⟩,
-     fun k => by simp only [bind_assoc, pure_bind]; exact hy k⟩
-
 section Definition
 
 variable {α : Type u} {m : Type u → Type v} [Monad m]
@@ -140,7 +131,9 @@ theorem MonadAttach.attach_erases {x : m α} : ErasesToM (MonadAttach.attach x) 
 /-- Bridge from `MayReturnM` back to `MonadAttach.CanReturn`. -/
 theorem MayReturnM.canReturn {x : m α} {a : α} (h : MayReturnM x a) :
     MonadAttach.CanReturn x a :=
-  MayReturnM.imp a h (MonadAttach.attach x) MonadAttach.attach_erases
+  Classical.byContradiction fun hPa => h
+    ⟨MonadAttach.attach x >>= fun b => pure ⟨b.val, fun heq => hPa (heq ▸ b.property)⟩,
+     fun k => by simp only [bind_assoc, pure_bind]; exact MonadAttach.attach_erases k⟩
 
 end LawfulBridges
 

@@ -10,7 +10,7 @@ LLVM_TARBALL="$RADAR_CACHE/llvm/$LLVM_RELEASE.tar.zst"
 
 if [ ! -f "$LLVM_TARBALL" ]; then
     mkdir -p "$RADAR_CACHE/llvm"
-    wget -O "$LLVM_TARBALL" "https://github.com/leanprover/lean-llvm/releases/download/$LLVM_RELEASE/lean-llvm-x86_64-linux-gnu.tar.zst"
+    curl -o "$LLVM_TARBALL" "https://github.com/leanprover/lean-llvm/releases/download/$LLVM_RELEASE/lean-llvm-x86_64-linux-gnu.tar.zst"
     mkdir -p "$LLVM_DIR"
     tar -I zstd -xf "$LLVM_TARBALL" -C "$LLVM_DIR"
 fi

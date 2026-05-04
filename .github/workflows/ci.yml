@@ -240,9 +240,19 @@ jobs:
             console.log(`level: ${level}, fast: ${fast}`);
             // use large runners where available (original repo)
             let large = ${{ github.repository == 'leanprover/lean4' }};
-            const chonk = ${{ steps.runner-fallback.outputs.use-runner }};
             const isPr = "${{ github.event_name }}" == "pull_request";
             const isPushToMaster = "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "master";
+
+            // Only users with write access may use the chonk runners.
+            const permission = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: context.actor,
+            });
+            const trusted = ["admin", "write"].includes(permission.data.permission);
+            const chonk = trusted ? ${{ steps.runner-fallback.outputs.use-runner }} : "nscloud-ubuntu-24.04-amd64-8x16";
+            console.log(`trusted: ${trusted}, chonk: ${chonk}`);
+
             let matrix = [
               /* TODO: to be updated to new LLVM
               {

@@ -19,6 +19,9 @@ fi
 export LD_LIBRARY_PATH="$LLVM_DIR/lib/x86_64-unknown-linux-gnu:$LD_LIBRARY_PATH"
 export PATH="$LLVM_DIR/bin:$PATH"
 
+$LLVM_DIR/clang --help
+$LLVM_DIR/clang++ --help
+
 cmake --preset release -DWFAIL=OFF \
   -DCMAKE_C_COMPILER="$LLVM_DIR/bin/clang" \
   -DCMAKE_CXX_COMPILER="$LLVM_DIR/bin/clang++" \

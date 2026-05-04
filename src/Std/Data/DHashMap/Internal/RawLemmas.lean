@@ -1127,20 +1127,11 @@ theorem nodup_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
 theorem mem_toList_insert_of_contains_eq_false [EquivBEq α] [LawfulHashable α] (h : m.1.WF)
     {k : α} {v : β} {x : α × β} (h' : m.contains k = false) :
     x ∈ (Raw.Const.toList (m.insert k v).1) ↔ x = ⟨k, v⟩ ∨ x ∈ Raw.Const.toList m.1 := by
-  rw [contains_eq_containsₘ] at h'
-  simp only [Raw.Const.toList, insert_eq_insertₘ, insertₘ, h', Bool.false_eq_true, ↓reduceIte,
-    Raw.foldRev_cons_mk, List.append_nil]
-  rw [← List.mem_map_toProd_iff_mem, ← List.mem_map_toProd_iff_mem]
-  rw [List.Perm.mem_iff (toListModel_expandIfNecessary (consₘ m k v))]
-  rw [List.Perm.mem_iff (toListModel_consₘ m (Raw.WF.out h) k v)]
-  simp only [List.mem_cons, Sigma.mk.injEq, heq_eq_eq]
-  have : x.fst = k ∧ x.snd = v ↔ x = (k,v) := by
-    constructor
-    · intro h
-      simp [← h.1, ← h.2]
-    · intro h
-      simp [h]
-  rw [this]
+  have : List.filter (fun x => !k == x.fst) (Raw.Const.toList m.val) = Raw.Const.toList m.val := by
+    simp only [← find?_toList_eq_none_iff_contains_eq_false m h, BEq.comm, List.find?_eq_none,
+      Bool.not_eq_true, Prod.forall] at h'
+    simpa
+  simp [List.Perm.mem_iff (Const.toList_insert_perm m h), this]
 
 end Const
 

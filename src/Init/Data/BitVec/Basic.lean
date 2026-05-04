@@ -559,7 +559,7 @@ As a numeric operation, this is equivalent to `x / 2^s`, rounding down.
 
 SMT-LIB name: `bvlshr` except this operator uses a `Nat` shift value.
 -/
-@[expose, implicit_reducible]
+@[implicit_reducible]
 def ushiftRight (x : BitVec n) (s : Nat) : BitVec n :=
   (x.toNat >>> s)#'(by
   let ⟨x, lt⟩ := x
@@ -577,7 +577,7 @@ As a numeric operation, this is equivalent to `x.toInt >>> s`.
 
 SMT-LIB name: `bvashr` except this operator uses a `Nat` shift value.
 -/
-@[expose, implicit_reducible]
+@[implicit_reducible]
 def sshiftRight (x : BitVec n) (s : Nat) : BitVec n := .ofInt n (x.toInt >>> s)
 
 instance {n} : HShiftLeft  (BitVec m) (BitVec n) (BitVec m) := ⟨fun x y => x <<< y.toNat⟩

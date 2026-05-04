@@ -40,7 +40,7 @@ Examples:
  * `(2 : Fin 3).succ = (3 : Fin 4)`
  * `(2 : Fin 3) + 1 = (0 : Fin 3)`
 -/
-@[expose, instance_reducible] def succ : Fin n → Fin (n + 1)
+@[instance_reducible] def succ : Fin n → Fin (n + 1)
   | ⟨i, h⟩ => ⟨i+1, Nat.succ_lt_succ h⟩
 
 variable {n : Nat}
@@ -276,7 +276,7 @@ Examples:
  * `Fin.last 4 = (4 : Fin 5)`
  * `(Fin.last 0).val = (0 : Nat)`
 -/
-@[inline, implicit_reducible, expose] def last (n : Nat) : Fin (n + 1) := ⟨n, n.lt_succ_self⟩
+@[inline, implicit_reducible] def last (n : Nat) : Fin (n + 1) := ⟨n, n.lt_succ_self⟩
 
 /--
 Replaces the bound with another that is suitable for the value.
@@ -302,14 +302,14 @@ Coarsens a bound to one at least as large.
 See also `Fin.castAdd` for a version that represents the larger bound with addition rather than an
 explicit inequality proof.
 -/
-@[inline, expose, implicit_reducible] def castLE (h : n ≤ m) (i : Fin n) : Fin m := ⟨i, Nat.lt_of_lt_of_le i.2 h⟩
+@[inline, implicit_reducible] def castLE (h : n ≤ m) (i : Fin n) : Fin m := ⟨i, Nat.lt_of_lt_of_le i.2 h⟩
 
 /--
 Uses a proof that two bounds are equal to allow a value bounded by one to be used with the other.
 
 In other words, when `eq : n = m`, `Fin.cast eq i` converts `i : Fin n` into a `Fin m`.
 -/
-@[inline, expose, implicit_reducible] protected def cast (eq : n = m) (i : Fin n) : Fin m := ⟨i, eq ▸ i.2⟩
+@[inline, implicit_reducible] protected def cast (eq : n = m) (i : Fin n) : Fin m := ⟨i, eq ▸ i.2⟩
 
 /--
 Coarsens a bound to one at least as large.
@@ -317,13 +317,13 @@ Coarsens a bound to one at least as large.
 See also `Fin.natAdd` and `Fin.addNat` for addition functions that increase the bound, and
 `Fin.castLE` for a version that uses an explicit inequality proof.
 -/
-@[inline, expose, implicit_reducible] def castAdd (m) : Fin n → Fin (n + m) :=
+@[inline, implicit_reducible] def castAdd (m) : Fin n → Fin (n + m) :=
   castLE <| Nat.le_add_right n m
 
 /--
 Coarsens a bound by one.
 -/
-@[inline, expose, implicit_reducible] def castSucc : Fin n → Fin (n + 1) := castAdd 1
+@[inline, implicit_reducible] def castSucc : Fin n → Fin (n + 1) := castAdd 1
 
 /--
 Adds a natural number to a `Fin`, increasing the bound.

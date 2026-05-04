@@ -6,7 +6,7 @@
 
 LLVM_RELEASE=19.1.2
 LLVM_BASE_DIR="$RADAR_CACHE/llvm/$LLVM_RELEASE"
-LLVM_DIR = "$LLVM_DIR/lean-llvm"
+LLVM_DIR = "$LLVM_BASE_DIR/lean-llvm"
 LLVM_TARBALL="$RADAR_CACHE/llvm/$LLVM_RELEASE.tar.zst"
 
 if [ ! -f "$LLVM_TARBALL" ]; then

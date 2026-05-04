@@ -11,12 +11,13 @@ public meta import Lean.Elab
 public meta import Lean.Meta
 public meta import Lean.Meta.Tactic.Grind.Main
 public meta import Lean.Meta.Tactic.Grind.Solve
+public meta import Lean.Elab.Tactic.Do.VCGen.Basic
 meta import Lean.Elab.Tactic.Grind
 public meta import VCGen.Context
 public meta import VCGen.Driver
 
 open Lean Parser Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do.SpecAttr
+open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.SpecAttr
 open Std.Do
 
 /-!
@@ -135,10 +136,28 @@ public meta def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : Tacti
 
 end VCGen
 
-syntax (name := mvcgen') "mvcgen'"
+syntax (name := mvcgen') "mvcgen'" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (invariantAlts)?
   (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
   (&" with " tactic)? : tactic
+
+/-- Reject `mvcgen'` config options that are not yet implemented. Compares each field
+of the parsed `VCGen.Config` to its default; throws a clean error when a non-default
+value is set. As more options gain implementation support, drop their checks here. -/
+private meta def rejectUnsupportedConfig (config : VCGen.Config) : TacticM Unit := do
+  let default : VCGen.Config := {}
+  if config.trivial != default.trivial then
+    throwError "mvcgen': the `trivial` config option is not yet supported by `mvcgen'`."
+  if config.leave != default.leave then
+    throwError "mvcgen': the `leave` config option is not yet supported by `mvcgen'`."
+  if config.elimLets != default.elimLets then
+    throwError "mvcgen': the `elimLets` config option is not yet supported by `mvcgen'`."
+  -- `jp` is plumbed into `Context.useJP`. Detection in `tryLetIntro` short-circuits
+  -- with a clear "not yet implemented" error when actually enabled, until full JP
+  -- proof construction (mirroring the original's `onJoinPoint`/`onJumpSite`) lands.
+  if config.stepLimit != default.stepLimit then
+    throwError "mvcgen': the `stepLimit` config option is not yet supported by `mvcgen'`."
 
 /-- Parse grind configuration from the `with grind ...` clause and build `Grind.Params`.
 Overrides the internal simp step limit to accommodate large unrolled goals. -/
@@ -204,12 +223,23 @@ private meta def elabPreTac (goal : MVarId) (withPreTac : Syntax) : TacticM (VCG
   else
     return (.tactic preTac, params)
 
+/-- Stub for `mvcgen' invariants?` (skeleton-suggestion mode). The original
+implementation in `Lean.Elab.Tactic.Do.VCGen.suggestInvariant` walks the VCs to
+propose invariants; we don't have the equivalent infrastructure yet. -/
+private meta def suggestInvariantUnsupported (_ : MVarId) : TacticM Term :=
+  throwError "mvcgen': suggestion mode (`invariants?`) is not yet supported. \
+    Use `mvcgen' invariants ...` with explicit invariants instead."
+
 @[tactic mvcgen']
 public meta def elabMVCGen' : Tactic := fun stx => withMainContext do
+  let config ← elabConfig stx[1]
+  rejectUnsupportedConfig config
   let goal ← getMainGoal
-  let ctx ← VCGen.mkSpecContext stx[1]
-  let hypSimpMethods ← elabSimplifyingAssumptions stx[2]
-  let (preTac, params) ← elabPreTac goal stx[3]
-  let ctx := { ctx with preTac, hypSimpMethods }
+  let ctx ← VCGen.mkSpecContext stx[2]
+  let hypSimpMethods ← elabSimplifyingAssumptions stx[4]
+  let (preTac, params) ← elabPreTac goal stx[5]
+  let ctx := { ctx with preTac, hypSimpMethods, useJP := config.jp }
   let result ← Grind.GrindM.run (VCGen.main goal ctx) params
-  replaceMainGoal (result.invariants ++ result.vcs).toList
+  elabInvariants stx[3] result.invariants suggestInvariantUnsupported
+  let invariants ← result.invariants.filterM (not <$> ·.isAssigned)
+  replaceMainGoal (invariants ++ result.vcs).toList

@@ -549,3 +549,70 @@ theorem foldM_eq_sum (xs : Array Nat) {m ps} [Monad m] [LawfulMonad m]
   all_goals grind
 
 end IteratorTests
+
+namespace ConfigSyntaxTests
+
+/-! Tests for the ported `(config := …)` syntax: each unsupported option must
+produce a clear "not yet supported" error. -/
+
+def trivial_test (n : Nat) : Id Nat := pure n
+
+/-- error: mvcgen': the `trivial` config option is not yet supported by `mvcgen'`. -/
+#guard_msgs in
+example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
+  mvcgen' (config := { trivial := false }) [trivial_test]
+
+/-- error: mvcgen': the `leave` config option is not yet supported by `mvcgen'`. -/
+#guard_msgs in
+example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
+  mvcgen' (config := { leave := false }) [trivial_test]
+
+/-- error: mvcgen': the `elimLets` config option is not yet supported by `mvcgen'`. -/
+#guard_msgs in
+example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
+  mvcgen' (config := { elimLets := false }) [trivial_test]
+
+/-- error: mvcgen': the `stepLimit` config option is not yet supported by `mvcgen'`. -/
+#guard_msgs in
+example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
+  mvcgen' (config := { stepLimit := some 5 }) [trivial_test]
+
+/-- An empty `(config := {})` is fine — no options are non-default. -/
+example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
+  mvcgen' (config := {}) [trivial_test]
+
+end ConfigSyntaxTests
+
+namespace InvariantSyntaxTests
+
+/-! Tests for the ported `invariants` syntax (bullet form and labelled form). -/
+
+def check_all (p : Nat → Prop) [DecidablePred p] (n : Nat) : Bool := Id.run do
+  for i in [0:n] do
+    if ¬ p i then
+      return false
+  return true
+
+-- Bullet form: `· …` per invariant.
+example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
+    (∀ i, i < n → p i) ↔ check_all p n := by
+  generalize h : check_all p n = x
+  apply Id.of_wp_run_eq h
+  mvcgen' invariants
+    · Invariant.withEarlyReturnNewDo
+        (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
+        (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
+  all_goals simp_all [-Classical.not_forall]; try grind
+
+-- Labelled form: `| inv1 => …`.
+example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
+    (∀ i, i < n → p i) ↔ check_all p n := by
+  generalize h : check_all p n = x
+  apply Id.of_wp_run_eq h
+  mvcgen' invariants
+    | inv1 => Invariant.withEarlyReturnNewDo
+        (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
+        (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
+  all_goals simp_all [-Classical.not_forall]; try grind
+
+end InvariantSyntaxTests

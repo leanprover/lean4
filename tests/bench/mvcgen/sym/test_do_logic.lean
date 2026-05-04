@@ -552,34 +552,40 @@ end IteratorTests
 
 namespace ConfigSyntaxTests
 
-/-! Tests for the ported `(config := …)` syntax: each unsupported option must
-produce a clear "not yet supported" error. -/
+/-! Tests for the ported `(config := …)` syntax. Implemented options change behavior
+silently; `leave` and `jp` are accepted by the parser but warn that they are
+currently ignored. -/
 
 def trivial_test (n : Nat) : Id Nat := pure n
 
-/-- error: mvcgen': the `trivial` config option is not yet supported by `mvcgen'`. -/
-#guard_msgs in
+/-- An empty `(config := {})` matches the default `mvcgen'` behavior. -/
 example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
-  mvcgen' (config := { trivial := false }) [trivial_test]
+  mvcgen' (config := {}) [trivial_test]
 
-/-- error: mvcgen': the `leave` config option is not yet supported by `mvcgen'`. -/
+-- `trivial := false` skips `repeatAndRfl`, leaving a residual entailment.
+example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
+  mvcgen' (trivial := false) [trivial_test]
+  trivial
+
+-- `elimLets := false` is silently accepted (no preprocessing).
+example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
+  mvcgen' (config := { elimLets := false }) [trivial_test]
+
+-- `stepLimit` is accepted; with a positive limit, simple programs still discharge.
+example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
+  mvcgen' (config := { stepLimit := some 100 }) [trivial_test]
+
+/-- warning: mvcgen': the `leave` config option is currently ignored. -/
 #guard_msgs in
 example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
   mvcgen' (config := { leave := false }) [trivial_test]
 
-/-- error: mvcgen': the `elimLets` config option is not yet supported by `mvcgen'`. -/
+/--
+warning: mvcgen': the `jp` config option is currently ignored (shared-continuation handling for `__do_jp` is not yet implemented).
+-/
 #guard_msgs in
 example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
-  mvcgen' (config := { elimLets := false }) [trivial_test]
-
-/-- error: mvcgen': the `stepLimit` config option is not yet supported by `mvcgen'`. -/
-#guard_msgs in
-example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
-  mvcgen' (config := { stepLimit := some 5 }) [trivial_test]
-
-/-- An empty `(config := {})` is fine — no options are non-default. -/
-example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
-  mvcgen' (config := {}) [trivial_test]
+  mvcgen' (config := { jp := true }) [trivial_test]
 
 end ConfigSyntaxTests
 
@@ -602,6 +608,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     · Invariant.withEarlyReturnNewDo
         (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
         (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
+  -- with (simp_all [-Classical.not_forall]; try grind)
   all_goals simp_all [-Classical.not_forall]; try grind
 
 -- Labelled form: `| inv1 => …`.

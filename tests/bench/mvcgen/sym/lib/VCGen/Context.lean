@@ -11,10 +11,11 @@ public meta import Lean.Meta
 meta import Lean.Meta.Sym.Pattern
 meta import Lean.Meta.Sym.Simp.DiscrTree
 public meta import Lean.Meta.Tactic.Grind.Main
+public meta import Lean.Elab.Tactic.Do.VCGen.Basic
 public meta import VCGen.SpecDB
 
 open Lean Meta Elab Tactic Sym
-open Lean.Elab.Tactic.Do.SpecAttr
+open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.SpecAttr
 open Std.Do
 
 /-!
@@ -79,6 +80,10 @@ public structure VCGen.Context where
   hypSimpMethods : Option Sym.Simp.Methods := none
   /-- Pre-tactic to try on each emitted VC. -/
   preTac : PreTac := .none
+  /-- If `true`, treat `__do_jp` bindings as shared continuations (linear in the number of
+  control-flow splits) instead of zeta-unfolding them at every call site (the default;
+  exponential blow-up on nested splits). Maps to the `jp` config option. -/
+  useJP : Bool := false
 
 public structure VCGen.State where
   /--
@@ -107,5 +112,24 @@ public structure VCGen.State where
   re-simplifying shared subexpressions (e.g., `s + 1 + 1 + ...` chains).
   -/
   simpState : Sym.Simp.State := {}
+  /--
+  Map from `__do_jp` fvar id to its `JumpSiteInfo`. Populated when `tryLetIntro`
+  registers a join point (`Context.useJP = true`); consulted by `tryFvarZeta` /
+  `tryJumpSite` to short-circuit zeta-unfolding at call sites.
+  -/
+  jps : FVarIdMap JumpSiteInfo := {}
 
 public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
+
+namespace VCGen
+
+/-- Register a join-point `JumpSiteInfo` for the given fvar. Called when a
+`let __do_jp := …` is detected as a shared continuation. -/
+public meta def registerJP (fv : FVarId) (info : JumpSiteInfo) : _root_.VCGenM Unit :=
+  modify fun s => { s with jps := s.jps.insert fv info }
+
+/-- Look up a previously-registered join point by fvar id. -/
+public meta def knownJP? (fv : FVarId) : _root_.VCGenM (Option JumpSiteInfo) :=
+  return (← get).jps.get? fv
+
+end VCGen

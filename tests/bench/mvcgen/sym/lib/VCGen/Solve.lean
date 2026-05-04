@@ -57,10 +57,21 @@ private meta def tryForallIntro (goal : MVarId) (target : Expr) :
   return some <| .goals [← introsSimp goal m!"foralls in `solve`"]
 
 /-- Strategy 7a: zeta-substitute (if the bound value is duplicable) or introduce a
-top-level `let` in the target. -/
+top-level `let` in the target.
+
+When the let binds a `__do_jp` (do-elaborator-emitted shared continuation) and the user
+opted into shared-continuation handling via `(config := { jp := true })`, we currently
+short-circuit with a clear "not yet implemented" error. The plumbing for tracking JPs
+is in place (`Context.useJP`, `State.jps`, `registerJP`, `knownJP?`) but the proof
+construction mirroring `Lean.Elab.Tactic.Do.onJoinPoint`/`onJumpSite` is not yet ported. -/
 private meta def tryLetIntro (goal : MVarId) (target : Expr) :
     VCGenM (Option SolveResult) := do
   unless target.isLet do return none
+  if Lean.Elab.Tactic.Do.isJP target.letName! && (← read).useJP then
+    throwError "mvcgen': shared-continuation handling for `__do_jp` is not yet \
+      implemented in `mvcgen'`; remove `(config := \{ jp := true })` to fall back \
+      to the default zeta-unfold behaviour. Detection point reached at \
+      {target.letName!}."
   if isDuplicable target.letValue! then
     trace[Elab.Tactic.Do.vcgen] "let-zeta-dup: {target.letName!}"
     let target' ← Sym.instantiateRevBetaS target.letBody! #[target.letValue!]

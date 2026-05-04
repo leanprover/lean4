@@ -78,7 +78,6 @@ Called when decomposing the goal further did not succeed; in this case we emit a
 public meta def emitVC (goal : Grind.Goal) : VCGenM Unit := do
   let ty ← goal.mvarId.getType
   if isSpecInvariantType (← getEnv) ty then
-    goal.mvarId.setKind .syntheticOpaque
     -- Stable numbering: increment *before* trying inline elaboration so subsequent
     -- invariants see the correct index regardless of whether this one was inline-filled.
     let n := (← get).invariants.size + 1
@@ -87,6 +86,8 @@ public meta def emitVC (goal : Grind.Goal) : VCGenM Unit := do
     -- from the assigned invariant in subsequent iterations.
     if ← tryInlineInvariant n goal.mvarId then
       modify fun s => { s with inlineHandledInvariants := s.inlineHandledInvariants.insert n }
+    else
+      goal.mvarId.setKind .syntheticOpaque
     return
   let goal ← (← read).preTac.processHypotheses goal
   let mut vcs := #[]

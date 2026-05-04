@@ -192,7 +192,7 @@ abbrev Int8.minValue : Int8 := -128
 def Int8.ofIntLE (i : Int) (_hl : Int8.minValue.toInt ≤ i) (_hr : i ≤ Int8.maxValue.toInt) : Int8 :=
   Int8.ofInt i
 /-- Constructs an `Int8` from an `Int`, clamping if the value is too small or too large. -/
-def Int8.ofIntTruncate (i : Int) : Int8 :=
+def Int8.ofIntClamp (i : Int) : Int8 :=
   if hl : Int8.minValue.toInt ≤ i then
     if hr : i ≤ Int8.maxValue.toInt then
       Int8.ofIntLE i hl hr
@@ -200,6 +200,10 @@ def Int8.ofIntTruncate (i : Int) : Int8 :=
       Int8.minValue
   else
     Int8.minValue
+
+@[inherit_doc Int8.ofIntClamp, deprecated Int8.ofIntClamp (since := "2026-05-04")]
+def Int8.ofIntTruncate (i : Int) : Int8 :=
+  Int8.ofIntClamp i
 /--
 Adds two 8-bit signed integers, wrapping around on over- or underflow. Usually accessed via the `+`
 operator.
@@ -560,7 +564,7 @@ abbrev Int16.minValue : Int16 := -32768
 def Int16.ofIntLE (i : Int) (_hl : Int16.minValue.toInt ≤ i) (_hr : i ≤ Int16.maxValue.toInt) : Int16 :=
   Int16.ofInt i
 /-- Constructs an `Int16` from an `Int`, clamping if the value is too small or too large. -/
-def Int16.ofIntTruncate (i : Int) : Int16 :=
+def Int16.ofIntClamp (i : Int) : Int16 :=
   if hl : Int16.minValue.toInt ≤ i then
     if hr : i ≤ Int16.maxValue.toInt then
       Int16.ofIntLE i hl hr
@@ -568,6 +572,10 @@ def Int16.ofIntTruncate (i : Int) : Int16 :=
       Int16.minValue
   else
     Int16.minValue
+
+@[inherit_doc Int16.ofIntClamp, deprecated Int16.ofIntClamp (since := "2026-05-04")]
+def Int16.ofIntTruncate (i : Int) : Int16 :=
+  Int16.ofIntClamp i
 
 /--
 Adds two 16-bit signed integers, wrapping around on over- or underflow.  Usually accessed via the `+`
@@ -945,7 +953,7 @@ abbrev Int32.minValue : Int32 := -2147483648
 def Int32.ofIntLE (i : Int) (_hl : Int32.minValue.toInt ≤ i) (_hr : i ≤ Int32.maxValue.toInt) : Int32 :=
   Int32.ofInt i
 /-- Constructs an `Int32` from an `Int`, clamping if the value is too small or too large. -/
-def Int32.ofIntTruncate (i : Int) : Int32 :=
+def Int32.ofIntClamp (i : Int) : Int32 :=
   if hl : Int32.minValue.toInt ≤ i then
     if hr : i ≤ Int32.maxValue.toInt then
       Int32.ofIntLE i hl hr
@@ -953,6 +961,10 @@ def Int32.ofIntTruncate (i : Int) : Int32 :=
       Int32.minValue
   else
     Int32.minValue
+
+@[inherit_doc Int32.ofIntClamp, deprecated Int32.ofIntClamp (since := "2026-05-04")]
+def Int32.ofIntTruncate (i : Int) : Int32 :=
+  Int32.ofIntClamp i
 
 /--
 Adds two 32-bit signed integers, wrapping around on over- or underflow.  Usually accessed via the
@@ -1350,7 +1362,7 @@ abbrev Int64.minValue : Int64 := -9223372036854775808
 def Int64.ofIntLE (i : Int) (_hl : Int64.minValue.toInt ≤ i) (_hr : i ≤ Int64.maxValue.toInt) : Int64 :=
   Int64.ofInt i
 /-- Constructs an `Int64` from an `Int`, clamping if the value is too small or too large. -/
-def Int64.ofIntTruncate (i : Int) : Int64 :=
+def Int64.ofIntClamp (i : Int) : Int64 :=
   if hl : Int64.minValue.toInt ≤ i then
     if hr : i ≤ Int64.maxValue.toInt then
       Int64.ofIntLE i hl hr
@@ -1358,6 +1370,10 @@ def Int64.ofIntTruncate (i : Int) : Int64 :=
       Int64.minValue
   else
     Int64.minValue
+
+@[inherit_doc Int64.ofIntClamp, deprecated Int64.ofIntClamp (since := "2026-05-04")]
+def Int64.ofIntTruncate (i : Int) : Int64 :=
+  Int64.ofIntClamp i
 
 /--
 Adds two 64-bit signed integers, wrapping around on over- or underflow.  Usually accessed via the
@@ -1738,7 +1754,7 @@ abbrev ISize.minValue : ISize := .ofInt (-2 ^ (System.Platform.numBits - 1))
 def ISize.ofIntLE (i : Int) (_hl : ISize.minValue.toInt ≤ i) (_hr : i ≤ ISize.maxValue.toInt) : ISize :=
   ISize.ofInt i
 /-- Constructs an `ISize` from an `Int`, clamping if the value is too small or too large. -/
-def ISize.ofIntTruncate (i : Int) : ISize :=
+def ISize.ofIntClamp (i : Int) : ISize :=
   if hl : ISize.minValue.toInt ≤ i then
     if hr : i ≤ ISize.maxValue.toInt then
       ISize.ofIntLE i hl hr
@@ -1746,6 +1762,10 @@ def ISize.ofIntTruncate (i : Int) : ISize :=
       ISize.minValue
   else
     ISize.minValue
+
+@[inherit_doc ISize.ofIntClamp, deprecated ISize.ofIntClamp (since := "2026-05-04")]
+def ISize.ofIntTruncate (i : Int) : ISize :=
+  ISize.ofIntClamp i
 
 /--
 Adds two word-sized signed integers, wrapping around on over- or underflow.  Usually accessed via

@@ -25,6 +25,35 @@ open Lean hiding SearchPath
 
 namespace Lake
 
+/--
+Compute the argv for invoking `lean` on a module given its resolved `ModuleSetup`, output
+artifacts, and any extra `leanArgs`. Pure: performs no IO and does not create the setup file.
+Returns `(args, postponeCompile)`; when `postponeCompile` is `true`, `-c` is omitted from `args`
+(the C output is produced by a follow-up `leanir` call instead — see `compileLeanModule`).
+
+Exposed for tooling that needs to reproduce Lake's exact `lean` invocation without running it
+(e.g. static build-graph extraction).
+-/
+public def mkLeanModuleArgs
+  (leanFile : FilePath) (setup : ModuleSetup) (setupFile : FilePath)
+  (arts : ModuleArtifacts) (leanArgs : Array String := #[])
+: Array String × Bool := Id.run do
+  let mut args := leanArgs.push leanFile.toString
+  if let some oleanFile := arts.olean? then
+    args := args ++ #["-o", oleanFile.toString]
+  if let some ileanFile := arts.ilean? then
+    args := args ++ #["-i", ileanFile.toString]
+  let opts := setup.options.toOptions
+  let postponeCompile := setup.isModule && Compiler.compiler.postponeCompile.get opts
+  if !postponeCompile then
+    if let some cFile := arts.c? then
+      args := args ++ #["-c", cFile.toString]
+  if let some bcFile := arts.bc? then
+    args := args ++ #["-b", bcFile.toString]
+  args := args ++ #["--setup", setupFile.toString]
+  args := args.push "--json"
+  return (args, postponeCompile)
+
 public def compileLeanModule
   (leanFile relLeanFile : FilePath)
   (setup : ModuleSetup) (setupFile : FilePath)
@@ -34,26 +63,14 @@ public def compileLeanModule
   (lean : FilePath := "lean")
   (leanir : FilePath := "leanir")
 : LogIO Unit := do
-  let mut args := leanArgs.push leanFile.toString
-  if let some oleanFile := arts.olean? then
-    createParentDirs oleanFile
-    args := args ++ #["-o", oleanFile.toString]
-  if let some ileanFile := arts.ilean? then
-    createParentDirs ileanFile
-    args := args ++ #["-i", ileanFile.toString]
-  let opts := setup.options.toOptions
-  let postponeCompile := setup.isModule && Compiler.compiler.postponeCompile.get opts
+  if let some oleanFile := arts.olean? then createParentDirs oleanFile
+  if let some ileanFile := arts.ilean? then createParentDirs ileanFile
+  let (args, postponeCompile) := mkLeanModuleArgs leanFile setup setupFile arts leanArgs
   if !postponeCompile then
-    if let some cFile := arts.c? then
-      createParentDirs cFile
-      args := args ++ #["-c", cFile.toString]
-  if let some bcFile := arts.bc? then
-    createParentDirs bcFile
-    args := args ++ #["-b", bcFile.toString]
+    if let some cFile := arts.c? then createParentDirs cFile
+  if let some bcFile := arts.bc? then createParentDirs bcFile
   createParentDirs setupFile
   IO.FS.writeFile setupFile (toJson setup).pretty
-  args := args ++ #["--setup", setupFile.toString]
-  args := args.push "--json"
   withLogErrorPos do
   let out ← rawProc {
     args
@@ -98,6 +115,15 @@ public def compileLeanModule
           removeFileIfExists oleanFile
         throw e
 
+/--
+Compute the argv for invoking the C compiler in object-compilation mode. Pure helper exposed for
+tooling that needs to reproduce the invocation without running it.
+-/
+public def mkCcCompileArgs
+  (oFile srcFile : FilePath) (moreArgs : Array String := #[])
+: Array String :=
+  #["-c", "-o", oFile.toString, srcFile.toString] ++ moreArgs
+
 public def compileO
   (oFile srcFile : FilePath)
   (moreArgs : Array String := #[]) (compiler : FilePath := "cc")
@@ -105,8 +131,26 @@ public def compileO
   createParentDirs oFile
   proc {
     cmd := compiler.toString
-    args := #["-c", "-o", oFile.toString, srcFile.toString] ++ moreArgs
+    args := mkCcCompileArgs oFile srcFile moreArgs
   }
+
+private def escapeRspArg (arg : String) : String :=
+  arg.foldl (init := "") fun s c =>
+    if c == '\\' || c == '"' then
+      s.push '\\' |>.push c
+    else
+      s.push c
+
+/--
+Render the contents of a response file in the format `mkArgs` writes: one quoted line per arg,
+with `\\` and `"` escaped. Pure helper exposed for tooling that needs the rsp content without
+materializing it on disk.
+-/
+public def renderRspContents (args : Array String) : String := Id.run do
+  let mut out := ""
+  for arg in args do
+    out := out ++ s!"\"{escapeRspArg arg}\"\n"
+  return out
 
 public def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array String) := do
   -- Use response file to avoid potentially exceeding CLI length limits.
@@ -114,14 +158,7 @@ public def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array Str
   -- projects like Mathlib where the number of object files exceeds ARG_MAX.
   let rspFile := basePath.addExtension "rsp"
   let h ← IO.FS.Handle.mk rspFile .write
-  args.forM fun arg =>
-    -- Escape special characters
-    let arg := arg.foldl (init := "") fun s c =>
-      if c == '\\' || c == '"' then
-        s.push '\\' |>.push c
-      else
-        s.push c
-    h.putStr s!"\"{arg}\"\n"
+  args.forM fun arg => h.putStr s!"\"{escapeRspArg arg}\"\n"
   return #[s!"@{rspFile}"]
 
 public def compileStaticLib

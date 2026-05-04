@@ -5,14 +5,15 @@
 # See also the https://github.com/leanprover/radar readme.
 
 LLVM_RELEASE=19.1.2
-LLVM_DIR="$RADAR_CACHE/llvm/$LLVM_RELEASE"
+LLVM_BASE_DIR="$RADAR_CACHE/llvm/$LLVM_RELEASE"
+LLVM_DIR = "$LLVM_DIR/lean-llvm"
 LLVM_TARBALL="$RADAR_CACHE/llvm/$LLVM_RELEASE.tar.zst"
 
 if [ ! -f "$LLVM_TARBALL" ]; then
     mkdir -p "$RADAR_CACHE/llvm"
-    curl -o "$LLVM_TARBALL" "https://github.com/leanprover/lean-llvm/releases/download/$LLVM_RELEASE/lean-llvm-x86_64-linux-gnu.tar.zst"
-    mkdir -p "$LLVM_DIR"
-    tar -I zstd -xf "$LLVM_TARBALL" -C "$LLVM_DIR"
+    curl --location -o "$LLVM_TARBALL" "https://github.com/leanprover/lean-llvm/releases/download/$LLVM_RELEASE/lean-llvm-x86_64-linux-gnu.tar.zst"
+    mkdir -p "$LLVM_BASE_DIR"
+    tar -I zstd -xf "$LLVM_TARBALL" -C "$LLVM_BASE_DIR"
 fi
 
 export LD_LIBRARY_PATH="$LLVM_DIR/lib/x86_64-unknown-linux-gnu:$LD_LIBRARY_PATH"

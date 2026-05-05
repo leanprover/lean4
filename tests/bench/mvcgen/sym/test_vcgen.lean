@@ -6,6 +6,8 @@ Authors: Sebastian Graf
 import Cases
 import Driver
 
+set_option mvcgen.warning false
+
 /-!
 # VCGen Test Suite
 

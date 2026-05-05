@@ -4,14 +4,14 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public import Lean.Meta
-public meta import Lean.Meta
-meta import Lean.Meta.Sym.Pattern
-meta import Lean.Meta.Sym.Simp.DiscrTree
-public meta import Lean.Meta.Tactic.Grind.Main
-public meta import Lean.Meta.Tactic.Grind.Solve
-public meta import VCGen.Context
-public meta import VCGen.Reduce
+
+prelude
+public import Lean.Meta.Tactic.Grind.Main
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
+public import Lean.Meta.Sym.AlphaShareBuilder
+public import Lean.Meta.Sym.Intro
+public import Lean.Meta.Sym.Simp.Telescope
 
 open Lean Meta Sym
 open Std.Do
@@ -24,7 +24,7 @@ generalization of `applyRflAndAndIntro`. None of these know anything about
 -/
 
 @[inline]
-public meta def _root_.Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
+public def _root_.Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
     (cache : Std.HashMap α β) (key : α) (fallback : m β) : m (β × Std.HashMap α β) := do
   if let some b := cache.get? key then
     return (b, cache)
@@ -37,7 +37,7 @@ open Sym Sym.Internal
 
 -- The following function is vendored until it is made public:
 /-- `mkAppRevRangeS f b e args == mkAppRev f (revArgs.extract b e)` -/
-public meta def mkAppRevRangeS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : m Expr :=
+public partial def mkAppRevRangeS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : m Expr :=
   loop revArgs beginIdx f endIdx
 where
   loop (revArgs : Array Expr) (start : Nat) (b : Expr) (i : Nat) : m Expr := do
@@ -47,10 +47,10 @@ where
     let i := i - 1
     loop revArgs start (← mkAppS b revArgs[i]!) i
 
-public meta def mkAppRevS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (revArgs : Array Expr) : m Expr :=
+public def mkAppRevS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (revArgs : Array Expr) : m Expr :=
   mkAppRevRangeS f 0 revArgs.size revArgs
 
-public meta def mkAppRangeS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (beginIdx endIdx : Nat) (args : Array Expr) : m Expr :=
+public partial def mkAppRangeS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (beginIdx endIdx : Nat) (args : Array Expr) : m Expr :=
   loop args endIdx f beginIdx
 where
   loop (args : Array Expr) (end' : Nat) (b : Expr) (i : Nat) : m Expr := do
@@ -59,25 +59,27 @@ where
   else
     loop args end' (← mkAppS b args[i]!) (i + 1)
 
-public meta def mkAppNS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (args : Array Expr) : m Expr :=
+public def mkAppNS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (args : Array Expr) : m Expr :=
   mkAppRangeS f 0 args.size args
 
-public meta def simpTargetTelescope (mvarId : MVarId) : VCGenM (MVarId × Bool) := do
+public def simpTargetTelescope (mvarId : MVarId) : VCGenM (MVarId × Bool) := do
   let some methods := (← read).hypSimpMethods | return (mvarId, false)
   let target ← mvarId.getType
   let simpState := (← get).simpState
   let methods := { methods with pre := Sym.Simp.simpTelescope }
   let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} simpState
   modify fun s => { s with simpState := simpState' }
-  let mvarId ← match result with
-    | .rfl .. => pure (mvarId, false)
-    | .step newTarget proof .. => pure (← mvarId.replaceTargetEq newTarget proof, true)
+  match result with
+  | .rfl .. => return (mvarId, false)
+  | .step newTarget proof .. =>
+    let mvarId' ← mvarId.replaceTargetEq newTarget proof
+    return (mvarId', true)
 
 /--
 Simplify the forall telescope of the target using `Sym.Simp.simpTelescope`,
 then introduce all binders via `Sym.intros`.
 -/
-public meta def introsSimp (mvarId : MVarId) (errorMsg : MessageData) : VCGenM MVarId := do
+public def introsSimp (mvarId : MVarId) (errorMsg : MessageData) : VCGenM MVarId := do
   let (mvarId, progress) ← simpTargetTelescope mvarId
   match ← Sym.intros mvarId with
   | .failed =>
@@ -94,7 +96,7 @@ contains stale proof data (the contradiction proof targets the parent's mvar, no
 In that case, restore the pre-internalization state so each child can discover the contradiction
 independently and construct its own proof via `closeGoal`.
 -/
-public meta def PreTac.processHypotheses (preTac : PreTac) (goal : Grind.Goal) : VCGenM Grind.Goal := do
+public def PreTac.processHypotheses (preTac : PreTac) (goal : Grind.Goal) : VCGenM Grind.Goal := do
   if preTac.isGrind then
     Grind.processHypotheses goal
   else
@@ -106,7 +108,7 @@ exactly the conjuncts that could not be solved.
 This procedure may assign metavariables in `e₁`/`e₂`, for example for `e = ?m` it will assign
 `?m := e`.
 -/
-public meta partial def repeatAndRfl (goal : MVarId) : VCGenM (Option MVarId) :=
+public partial def repeatAndRfl (goal : MVarId) : VCGenM (Option MVarId) :=
     goal.withContext do
   let ctx ← read
   let ty ← instantiateMVars (← goal.getType)

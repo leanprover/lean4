@@ -4,14 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public import Lean.Elab
-public import Lean.Meta
-public meta import Lean.Elab
-public meta import Lean.Meta
-public meta import Lean.Elab.Tactic.Do.VCGen.Split
-public meta import VCGen.Context
-public meta import VCGen.RuleConstruction
-public meta import VCGen.Util
+
+prelude
+public import Lean.Elab.Tactic.Do.VCGen.Split
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
+public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleConstruction
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
@@ -24,11 +22,11 @@ open Std.Do
 
 namespace VCGen
 
-public meta def SpecTheoremNew.global? (specThm : SpecTheoremNew) : Option Name :=
+public def SpecTheoremNew.global? (specThm : SpecTheoremNew) : Option Name :=
   match specThm.proof with | .global decl => some decl | _ => none
 
 /-- See the documentation for `mkBackwardRuleFromSpec` and `mkBackwardRuleFromSimpSpec`. -/
-public meta def mkBackwardRuleFromSpecCached (specThm : SpecTheoremNew) (m σs ps instWP : Expr)
+public def mkBackwardRuleFromSpecCached (specThm : SpecTheoremNew) (m σs ps instWP : Expr)
     (excessArgs : Array Expr) : VCGenM BackwardRule := do
   let mkRuleSlow := match specThm.kind with
     | .triple _ => mkBackwardRuleFromSpec     specThm m σs ps instWP excessArgs
@@ -41,7 +39,7 @@ public meta def mkBackwardRuleFromSpecCached (specThm : SpecTheoremNew) (m σs p
 
 open Lean.Elab.Tactic.Do in
 /-- Creates and caches a backward rule for splitting `ite`, `dite`, or matchers. -/
-public meta def mkBackwardRuleFromSplitInfoCached (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : _root_.VCGenM BackwardRule := do
+public def mkBackwardRuleFromSplitInfoCached (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : _root_.VCGenM BackwardRule := do
   let cacheKey := match splitInfo with
     | .ite .. => ``ite
     | .dite .. => ``dite

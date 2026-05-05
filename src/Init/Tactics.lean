@@ -2303,6 +2303,13 @@ macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
 /--
+Prototypical Sym-based variant of `mvcgen`; see `mvcgen` for the user-facing
+documentation. Lives under `Lean.Elab.Tactic.Do.Internal` while it stabilises.
+-/
+macro (name := mvcgen'Macro) (priority:=low) "mvcgen'" : tactic =>
+  Macro.throwError "to use `mvcgen'`, please include `import Std.Tactic.Do`"
+
+/--
 `cbv` performs simplification that closely mimics call-by-value evaluation.
 It reduces terms by unfolding definitions using their defining equations and
 applying matcher equations. The unfolding is propositional, so `cbv` also works

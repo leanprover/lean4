@@ -4,12 +4,12 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public import Lean.Elab
-public import Lean.Meta
-public meta import Lean.Elab
-public meta import Lean.Meta
-meta import Lean.Meta.Sym.Pattern
-meta import Lean.Meta.Sym.Simp.DiscrTree
+
+prelude
+public import Lean.Elab.Tactic.Do.Attr
+public import Lean.Meta.Sym.Pattern
+import Lean.Meta.Sym.Simp.DiscrTree
+public import Lean.Meta.DiscrTree.Util
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
@@ -59,7 +59,7 @@ public structure SpecTheoremNew where
   priority : Nat  := eval_prio default
   deriving Inhabited
 
-public meta instance : BEq SpecTheoremNew where
+public instance : BEq SpecTheoremNew where
   beq thm₁ thm₂ := thm₁.proof == thm₂.proof
 
 /--
@@ -72,7 +72,7 @@ This method applies `congrFun` for each leading forall to reduce the equation to
 values of type `m α`, introducing fresh metavariables for the extra arguments.
 The number of extra args is stored in `SpecTheoremKind.simp etaArgs`.
 -/
-public meta def SpecTheoremNew.instantiate (specThm : SpecTheoremNew) :
+public def SpecTheoremNew.instantiate (specThm : SpecTheoremNew) :
     MetaM (Array Expr × Array BinderInfo × Expr × Expr) := do
   let (xs, bs, eqPrf, eqType) ← specThm.proof.instantiate
   let .simp etaArgs := specThm.kind | return (xs, bs, eqPrf, eqType)
@@ -89,12 +89,12 @@ public structure SpecTheoremsNew where
   erased : PHashSet SpecProof := {}
   deriving Inhabited
 
-public meta def mkTriplePatternFromExpr (expr : Expr) (levelParams : List Name := []) : SymM Pattern := do
+public def mkTriplePatternFromExpr (expr : Expr) (levelParams : List Name := []) : SymM Pattern := do
   Prod.fst <$> Sym.mkPatternFromExprWithKey expr levelParams fun type => do
     let_expr Triple _m _ps _inst _α prog _P _Q := type | throwError "conclusion is not a Triple {indentExpr type}"
     return (prog, ())
 
-public meta def mkSpecTheoremNew (proof : SpecProof) (prio : Nat) : SymM SpecTheoremNew := do
+public def mkSpecTheoremNew (proof : SpecProof) (prio : Nat) : SymM SpecTheoremNew := do
   -- cf. mkSimpTheoremCore
   let (levelParams, expr) ← proof.getProof
   let type ← Meta.inferType expr
@@ -130,7 +130,7 @@ This function takes a pattern (keyed on the LHS), the equation type `eqTy`, and:
 
 Returns the eta-expanded pattern and the number of extra args (0 if no expansion needed).
 -/
-private meta def etaExpandEqPattern (pattern : Sym.Pattern) (eqTy : Expr) : Sym.Pattern × Nat :=
+private def etaExpandEqPattern (pattern : Sym.Pattern) (eqTy : Expr) : Sym.Pattern × Nat :=
   if !eqTy.isForall then (pattern, 0)
   else
     -- Collect forall domains from eqTy
@@ -160,7 +160,7 @@ For unfold equations of class projections (e.g., `MonadState.modifyGet.eq_1`), t
 may be between functions rather than values. In that case, the pattern is eta-expanded
 so the discrimination tree key includes all arguments.
 -/
-public meta def mkSpecTheoremNewFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option SpecTheoremNew) := do
+public def mkSpecTheoremNewFromSimpDecl? (declName : Name) (prio : Nat) : MetaM (Option SpecTheoremNew) := do
   let (pattern, (eqTy, rhs)) ← Sym.mkPatternFromDeclWithKey declName fun body => do
     let_expr Eq eqTy lhs rhs := body | throwError "conclusion is not an equality{indentExpr body}"
     return (lhs, (eqTy, rhs))
@@ -174,7 +174,7 @@ public meta def mkSpecTheoremNewFromSimpDecl? (declName : Name) (prio : Nat) : M
   if etaArgs == 0 && pattern.pattern == rhs then return none
   return some { pattern, proof := .global declName, kind := .simp etaArgs, priority := prio }
 
-public meta def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : SimpTheorems) :
+public def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : SimpTheorems) :
     SymM SpecTheoremsNew := do
   let mut specs : DiscrTree SpecTheoremNew := DiscrTree.empty
   for spec in database.specs.values do
@@ -211,12 +211,14 @@ public meta def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms 
 Look up `SpecTheoremNew`s in the `@[spec]` database.
 Takes all specs that match the given program `e` and sorts by descending priority.
 -/
-public meta def SpecTheoremsNew.findSpecs (database : SpecTheoremsNew) (e : Expr) :
+public def SpecTheoremsNew.findSpecs (database : SpecTheoremsNew) (e : Expr) :
     SymM (Except (Array SpecTheoremNew) SpecTheoremNew) := do
   let e ← instantiateMVars e
   let e ← shareCommon e
   let candidates := Sym.getMatch database.specs e
-  if h : candidates.size = 1 then return .ok candidates[0]
+  if h : candidates.size = 1 then
+    have : 0 < candidates.size := h ▸ Nat.zero_lt_one
+    return .ok candidates[0]
   -- It appears that insertion sort is *much* faster than qsort here.
   let candidates := candidates.insertionSort (·.priority > ·.priority)
   for spec in candidates do

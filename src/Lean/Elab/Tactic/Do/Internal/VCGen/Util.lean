@@ -35,33 +35,6 @@ namespace VCGen
 
 open Sym Sym.Internal
 
--- The following function is vendored until it is made public:
-/-- `mkAppRevRangeS f b e args == mkAppRev f (revArgs.extract b e)` -/
-public partial def mkAppRevRangeS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (beginIdx endIdx : Nat) (revArgs : Array Expr) : m Expr :=
-  loop revArgs beginIdx f endIdx
-where
-  loop (revArgs : Array Expr) (start : Nat) (b : Expr) (i : Nat) : m Expr := do
-  if i ≤ start then
-    return b
-  else
-    let i := i - 1
-    loop revArgs start (← mkAppS b revArgs[i]!) i
-
-public def mkAppRevS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (revArgs : Array Expr) : m Expr :=
-  mkAppRevRangeS f 0 revArgs.size revArgs
-
-public partial def mkAppRangeS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (beginIdx endIdx : Nat) (args : Array Expr) : m Expr :=
-  loop args endIdx f beginIdx
-where
-  loop (args : Array Expr) (end' : Nat) (b : Expr) (i : Nat) : m Expr := do
-  if end' ≤ i then
-    return b
-  else
-    loop args end' (← mkAppS b args[i]!) (i + 1)
-
-public def mkAppNS [Monad m] [Internal.MonadShareCommon m] (f : Expr) (args : Array Expr) : m Expr :=
-  mkAppRangeS f 0 args.size args
-
 public def simpTargetTelescope (mvarId : MVarId) : VCGenM (MVarId × Bool) := do
   let some methods := (← read).hypSimpMethods | return (mvarId, false)
   let target ← mvarId.getType

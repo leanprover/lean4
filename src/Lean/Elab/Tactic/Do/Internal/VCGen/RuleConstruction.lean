@@ -18,6 +18,10 @@ open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
 open Std.Do
 
+namespace Lean.Elab.Tactic.Do.Internal
+
+namespace VCGen
+
 /-!
 Construction of `BackwardRule`s from `SpecTheoremNew`s and split info. Pure
 `SymM` — no knowledge of `VCGenM`. The `VCGenM` cache wrappers live in
@@ -348,3 +352,6 @@ public def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Exp
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
+
+end VCGen
+end Lean.Elab.Tactic.Do.Internal

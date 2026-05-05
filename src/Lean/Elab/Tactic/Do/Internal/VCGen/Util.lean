@@ -23,9 +23,7 @@ generalization of `applyRflAndAndIntro`. None of these know anything about
 `SPred` entailment specifically.
 -/
 
-namespace VCGen
-
-open Sym Sym.Internal
+namespace Lean.Elab.Tactic.Do.Internal
 
 @[inline]
 public def Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
@@ -34,6 +32,10 @@ public def Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
     return (b, cache)
   let b ← fallback
   return (b, cache.insert key b)
+
+namespace VCGen
+
+open Sym Sym.Internal
 
 public def simpTargetTelescope (mvarId : MVarId) : VCGenM (MVarId × Bool) := do
   let some methods := (← read).hypSimpMethods | return (mvarId, false)
@@ -116,3 +118,4 @@ public partial def repeatAndRfl (goal : MVarId) : VCGenM (Option MVarId) :=
     return some goal
 
 end VCGen
+end Lean.Elab.Tactic.Do.Internal

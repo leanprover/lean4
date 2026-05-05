@@ -15,6 +15,8 @@ open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.Do.SpecAttr
 open Std.Do
 
+namespace Lean.Elab.Tactic.Do.Internal
+
 
 /-!
 The main `solve` step. Runs once per worklist iteration and either fully
@@ -260,3 +262,5 @@ public def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   applySpec goal e excessArgs m σs ps instWP
 
 end VCGen
+
+end Lean.Elab.Tactic.Do.Internal

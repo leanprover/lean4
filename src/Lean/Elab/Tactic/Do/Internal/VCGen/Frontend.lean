@@ -22,6 +22,8 @@ open Lean Parser Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.SpecAttr
 open Std.Do
 
+namespace Lean.Elab.Tactic.Do.Internal
+
 /-!
 `mvcgen'` tactic frontend: parse the user-facing argument syntax into a
 `VCGen.Context`, run `VCGen.main`, and replace the main goal with the
@@ -316,3 +318,5 @@ public def elabMVCGen' : Tactic := fun stx => withMainContext do
     elabInvariants stx[3] result.invariants (suggestInvariant result.vcs)
   let invariants ← result.invariants.filterM (not <$> ·.isAssigned)
   replaceMainGoal (invariants ++ result.vcs).toList
+
+end Lean.Elab.Tactic.Do.Internal

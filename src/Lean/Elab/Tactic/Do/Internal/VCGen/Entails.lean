@@ -20,13 +20,15 @@ Entailment-shaped goal decomposition: unfolding `Triple.of_entails_wp`, splittin
 that drives `H ⊢ₛ T` to either a closed goal or a residual.
 -/
 
+namespace Lean.Elab.Tactic.Do.Internal
+
 namespace VCGen
 
 /--
 Unfold `⦃P⦄ x ⦃Q⦄` into `P ⊢ₛ wp⟦x⟧ Q` by applying `Tiple.of_wp`, ensuring that `PostShape.args ps`
 is reduced.
 -/
-public def tripleOfWP (goal : MVarId) : _root_.VCGenM MVarId := goal.withContext do
+public def tripleOfWP (goal : MVarId) : VCGenM MVarId := goal.withContext do
   let .goals [goal] ← (← read).tripleOfEntailsWPRule.apply goal
     | throwError "Applying {.ofConstName ``Triple.of_entails_wp} to {goal} failed"
   goal.withContext do
@@ -36,7 +38,7 @@ public def tripleOfWP (goal : MVarId) : _root_.VCGenM MVarId := goal.withContext
     goal.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent σs P Q)
 
 open Lean.Elab.Tactic.Do in
-public def solveExceptCondsEntails (goal : MVarId) : _root_.VCGenM (Option MVarId) := goal.withContext do
+public def solveExceptCondsEntails (goal : MVarId) : VCGenM (Option MVarId) := goal.withContext do
   let target ← goal.getType
   let_expr ent@ExceptConds.entails ps P Q := target | return none
   let P ← reduceHead P
@@ -53,7 +55,7 @@ public def solveExceptCondsEntails (goal : MVarId) : _root_.VCGenM (Option MVarI
   return some goal
 
 open Lean.Elab.Tactic.Do in
-public def solvePostCondEntails (goal : MVarId) : _root_.VCGenM (Option (List MVarId)) := goal.withContext do
+public def solvePostCondEntails (goal : MVarId) : VCGenM (Option (List MVarId)) := goal.withContext do
   let target ← goal.getType
   let_expr PostCond.entails _α _ps _P _Q := target | return none
   -- Try closing the whole entailment by reflexivity first.
@@ -186,3 +188,5 @@ public def solveSPredEntails (goal : MVarId) : VCGenM (Option MVarId) := goal.wi
     return none
 
 end VCGen
+
+end Lean.Elab.Tactic.Do.Internal

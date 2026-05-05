@@ -13,12 +13,15 @@ public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
+open Lean.Elab.Tactic.Do.Internal
 open Std.Do
 
 /-!
 `VCGenM`-level cache wrappers around the `SymM` rule constructors in
 `VCGen.RuleConstruction`. The cache key is `(declName, m, excessArgs.size)`.
 -/
+
+namespace Lean.Elab.Tactic.Do.Internal
 
 namespace VCGen
 
@@ -39,7 +42,7 @@ public def mkBackwardRuleFromSpecCached (specThm : SpecTheoremNew) (m σs ps ins
 
 open Lean.Elab.Tactic.Do in
 /-- Creates and caches a backward rule for splitting `ite`, `dite`, or matchers. -/
-public def mkBackwardRuleFromSplitInfoCached (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : _root_.VCGenM BackwardRule := do
+public def mkBackwardRuleFromSplitInfoCached (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : VCGenM BackwardRule := do
   let cacheKey := match splitInfo with
     | .ite .. => ``ite
     | .dite .. => ``dite
@@ -51,3 +54,5 @@ public def mkBackwardRuleFromSplitInfoCached (splitInfo : SplitInfo) (m σs ps i
   return res
 
 end VCGen
+
+end Lean.Elab.Tactic.Do.Internal

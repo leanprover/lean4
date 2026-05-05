@@ -16,6 +16,8 @@ open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.SpecAttr
 open Std.Do
 
+namespace Lean.Elab.Tactic.Do.Internal
+
 /-!
 The `VCGenM` monad: its read-only `Context` (spec database + a fixed bundle of
 pre-built `BackwardRule`s + user-customisable simp methods + pre-tactic) and
@@ -152,21 +154,23 @@ namespace VCGen
 
 /-- Register a join-point `JumpSiteInfo` for the given fvar. Called when a
 `let __do_jp := …` is detected as a shared continuation. -/
-public def registerJP (fv : FVarId) (info : JumpSiteInfo) : _root_.VCGenM Unit :=
+public def registerJP (fv : FVarId) (info : JumpSiteInfo) : VCGenM Unit :=
   modify fun s => { s with jps := s.jps.insert fv info }
 
 /-- Look up a previously-registered join point by fvar id. -/
-public def knownJP? (fv : FVarId) : _root_.VCGenM (Option JumpSiteInfo) :=
+public def knownJP? (fv : FVarId) : VCGenM (Option JumpSiteInfo) :=
   return (← get).jps.get? fv
 
 /-- True iff fuel has been exhausted (`Fuel.limited 0`). -/
-public def outOfFuel : _root_.VCGenM Bool :=
+public def outOfFuel : VCGenM Bool :=
   return match (← get).fuel with | .limited 0 => true | _ => false
 
 /-- Decrement remaining fuel by one. No-op when fuel is `.unlimited` or already at zero. -/
-public def burnOne : _root_.VCGenM Unit :=
+public def burnOne : VCGenM Unit :=
   modify fun s => { s with fuel := match s.fuel with
     | .limited (n+1) => .limited n
     | other => other }
 
 end VCGen
+
+end Lean.Elab.Tactic.Do.Internal

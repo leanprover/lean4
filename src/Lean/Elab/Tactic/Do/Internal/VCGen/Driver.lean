@@ -15,6 +15,8 @@ open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
 open Std.Do
 
+namespace Lean.Elab.Tactic.Do.Internal
+
 /-!
 Worklist driver for `mvcgen'`. Wraps `solve` with a queue of pending goals,
 emits VCs (or invariant holes) for those `solve` cannot decompose further,
@@ -184,3 +186,5 @@ public partial def main (goal : MVarId) (ctx : Context) (stepLimit? : Option Nat
     inlineHandledInvariants := state.inlineHandledInvariants }
 
 end VCGen
+
+end Lean.Elab.Tactic.Do.Internal

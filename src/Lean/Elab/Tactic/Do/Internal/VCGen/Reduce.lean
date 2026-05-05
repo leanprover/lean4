@@ -11,6 +11,10 @@ public import Lean.Meta.WHNF
 
 open Lean Meta Sym
 
+namespace Lean.Elab.Tactic.Do.Internal
+
+namespace VCGen
+
 /-!
 SymM-level head-redex reducer used throughout VCGen.
 -/
@@ -62,3 +66,6 @@ public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
 
 public def reduceHead (e : Expr) : SymM Expr :=
   return (← reduceHead? e).getD e
+
+end VCGen
+end Lean.Elab.Tactic.Do.Internal

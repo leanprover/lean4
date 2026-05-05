@@ -18,9 +18,11 @@ fi
 mkdir -p build/release
 cd build/release
 eval cmake ../.. \
-    --preset release $(../.././script/prepare-llvm-linux.sh $LLVM_TARBALL) \
+    --preset release $(../../script/prepare-llvm-linux.sh $LLVM_TARBALL) \
     -DWFAIL=OFF
+rm -rf stage2
 cp -r stage1 stage2
+rm -rf stage3
 cp -r stage1 stage3
 cd ../..
 make -C build/release -j"$(nproc)" bench-part1

@@ -135,4 +135,54 @@ def _root_.Lean.Grind.CommRing.Poly.findInvNumeralVar? (p : Poly) : RingM (Optio
     let some r ← m.findInvNumeralVar? | p.findInvNumeralVar?
     return some r
 
+/--
+Result of simplifying a polynomial `p₁` using a polynomial `p₂`.
+
+The simplification rewrites the first monomial of `p₁` that can be divided
+by the leading monomial of `p₂`.
+-/
+structure SimpResult where
+  /-- The resulting simplified polynomial after rewriting. -/
+  p  : Poly := .num 0
+  /-- The integer coefficient multiplied with polynomial `p₁` in the rewriting step. -/
+  k₁ : Int  := 0
+  /-- The integer coefficient multiplied with polynomial `p₂` during rewriting. -/
+  k₂ : Int  := 0
+  /-- The monomial factor applied to polynomial `p₂`. -/
+  m₂ : Mon  := .unit
+
+/--
+Simplifies polynomial `p₁` using polynomial `p₂` by rewriting.
+
+This function attempts to rewrite `p₁` by eliminating the first occurrence of
+the leading monomial of `p₂`.
+-/
+def _root_.Lean.Grind.CommRing.Poly.simpM? (p₁ p₂ : Poly) : RingM (Option SimpResult) := do
+  match p₂ with
+  | .add k₂' m₂ p₂ =>
+    let rec go? (p₁ : Poly) : RingM (Option SimpResult) := do
+      match p₁ with
+      | .add k₁' m₁ p₁ =>
+        if m₂.divides m₁ then
+          let m₂ := m₁.div m₂
+          let g  := Nat.gcd k₁'.natAbs k₂'.natAbs
+          let k₁ := k₂'/g
+          let k₂ := -k₁'/g
+          let p  ← (← p₂.mulMonM k₂ m₂).combineM (← p₁.mulConstM k₁)
+          return some { p, k₁, k₂, m₂ }
+        else if let some r ← go? p₁ then
+          if let some char ← nonzeroChar? then
+            let k := (k₁'*r.k₁) % char
+            if k == 0 then
+              return some r
+            else
+              return some { r with p := .add k m₁ r.p }
+          else
+            return some { r with p := .add (k₁'*r.k₁) m₁ r.p }
+        else
+          return none
+      | .num _ => return none
+    go? p₁
+  | _ => return none
+
 end Lean.Meta.Grind.Arith.CommRing

@@ -23,12 +23,14 @@ private partial def propagateInjEqs (eqs : Expr) (proof : Expr) (generation : Na
     let rhs ← preprocessLight rhs
     internalize lhs generation
     internalize rhs generation
+    let proof := mkExpectedPropHint proof (← mkEq lhs rhs)
     pushEq lhs rhs proof
   | HEq _ lhs _ rhs =>
     let lhs ← preprocessLight lhs
     let rhs ← preprocessLight rhs
     internalize lhs generation
     internalize rhs generation
+    let proof := mkExpectedPropHint proof (← mkHEq lhs rhs)
     pushHEq lhs rhs proof
   | _ =>
    reportIssue! "unexpected injectivity theorem result type{indentExpr eqs}"

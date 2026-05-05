@@ -2,31 +2,29 @@ name: CI
 on:
   push:
     branches:
-      - 'master'
+      - "master"
     tags:
-      - '*'
+      - "*"
   pull_request:
   merge_group:
   schedule:
-    - cron: '0 7 * * *'  # 8AM CET/11PM PT
+    - cron: "0 7 * * *" # 8AM CET/11PM PT
   # for manual re-release of a nightly
   workflow_dispatch:
     inputs:
       action:
-        description: 'Action'
+        description: "Action"
         required: true
-        default: 'release nightly'
+        default: "release nightly"
         type: choice
         options:
-        - release nightly
-
+          - release nightly
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
-
   # This job determines various settings for the following CI runs; see the `outputs` for details
   configure:
     runs-on: ubuntu-latest
@@ -221,6 +219,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      - name: Check self-hosted runner availability
+        id: runner-fallback
+        uses: mikehardy/runner-fallback-action@v1
+        with:
+          github-token: ${{ secrets.READ_RUNNERS_TOKEN }}
+          primary-runner: self-hosted,chonk
+          fallback-runner: nscloud-ubuntu-24.04-amd64-8x16
+          organization: leanprover
+          primaries-required: 1
+
       - name: Configure build matrix
         id: set-matrix
         uses: actions/github-script@v8
@@ -234,6 +242,17 @@ jobs:
             let large = ${{ github.repository == 'leanprover/lean4' }};
             const isPr = "${{ github.event_name }}" == "pull_request";
             const isPushToMaster = "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "master";
+
+            // Only users with write access may use the chonk runners.
+            const permission = await github.rest.repos.getCollaboratorPermissionLevel({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              username: context.actor,
+            });
+            const trusted = ["admin", "write"].includes(permission.data.permission);
+            const chonk = trusted ? ${{ steps.runner-fallback.outputs.use-runner }} : "nscloud-ubuntu-24.04-amd64-8x16";
+            console.log(`trusted: ${trusted}, chonk: ${chonk}`);
+
             let matrix = [
               /* TODO: to be updated to new LLVM
               {
@@ -255,7 +274,7 @@ jobs:
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
                 // usually not a bottleneck so make exclusive to `fast-ci`
-                "os": large && fast ? "nscloud-ubuntu-24.04-amd64-8x16" : "ubuntu-latest",
+                "os": large && fast ? chonk : "ubuntu-latest",
                 "release": true,
                 // Special handling for release jobs. We want:
                 // 1. To run it in PRs so developers get PR toolchains (so secondary without tests is sufficient)
@@ -276,7 +295,7 @@ jobs:
               },
               {
                 "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16" : "ubuntu-latest",
+                "os": large ? chonk : "ubuntu-latest",
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
                 // Done as part of test-bench
@@ -466,23 +485,22 @@ jobs:
     # mark as merely cancelled not failed if builds are cancelled
     if: ${{ !cancelled() }}
     steps:
-    - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && github.ref_name == 'master' }}
-      uses: zulip/github-actions-zulip/send-message@v1
-      with:
-        api-key: ${{ secrets.ZULIP_BOT_KEY }}
-        email: "github-actions-bot@lean-fro.zulipchat.com"
-        organization-url: "https://lean-fro.zulipchat.com"
-        to: "infrastructure"
-        topic: "Github actions"
-        type: "stream"
-        content: |
-          A build of `${{ github.ref_name }}`, triggered by event `${{ github.event_name }}`, [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
-    - if: contains(needs.*.result, 'failure')
-      uses: actions/github-script@v8
-      with:
-        script: |
+      - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && github.ref_name == 'master' }}
+        uses: zulip/github-actions-zulip/send-message@v1
+        with:
+          api-key: ${{ secrets.ZULIP_BOT_KEY }}
+          email: "github-actions-bot@lean-fro.zulipchat.com"
+          organization-url: "https://lean-fro.zulipchat.com"
+          to: "infrastructure"
+          topic: "Github actions"
+          type: "stream"
+          content: |
+            A build of `${{ github.ref_name }}`, triggered by event `${{ github.event_name }}`, [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+      - if: contains(needs.*.result, 'failure')
+        uses: actions/github-script@v8
+        with:
+          script: |
             core.setFailed('Some jobs failed')
-
 
   # This job creates releases from tags
   # (whether they are "unofficial" releases for experiments, or official releases when the tag is "v" followed by a semver string.)

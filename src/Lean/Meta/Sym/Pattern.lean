@@ -331,20 +331,55 @@ def assignLevel (uidx : Nat) (u : Level) : UnifyM Bool := do
     modify fun s => { s with uAssignment := s.uAssignment.set! uidx (some u) }
     return true
 
-/-- Substitute already-assigned universe-level uvars. -/
-def substAssignedUVars (u : Level) : UnifyM Level := do
-  match u with
-  | .param name =>
-    if let some uidx := isUVar? name then
-      if let some v := (← get).uAssignment[uidx]! then
-        return v
-    return u
-  | .max u₁ u₂ => return .max (← substAssignedUVars u₁) (← substAssignedUVars u₂)
-  | .imax u₁ u₂ => return .imax (← substAssignedUVars u₁) (← substAssignedUVars u₂)
-  | .succ u₁ => return .succ (← substAssignedUVars u₁)
-  | _ => return u
+/-- Returns `true` is `u` has assigned uvars. -/
+def hasAssignedUVars (assignment : Array (Option Level)) (u : Level) : Bool :=
+  go u
+where
+  go (u : Level) : Bool := Id.run do
+    unless u.hasParam do return false
+    match u with
+    | .succ u₁ => go u₁
+    | .max u₁ u₂ | .imax u₁ u₂ => go u₁ || go u₂
+    | .param name =>
+      let some uidx := isUVar? name | return false
+      if h : uidx < assignment.size then return assignment[uidx].isSome
+      return false
+    | _ => false
 
-partial def processLevel (u : Level) (v : Level) : UnifyM Bool :=
+/-- Substitutes uvars in `u` with their assignments. -/
+def substAssignedUVars (assignment : Array (Option Level)) (u : Level) : Level :=
+  go u
+where
+  go (u : Level) : Level := Id.run do
+    match u with
+    | .succ u₁    => return .succ (go u₁)
+    | .max u₁ u₂  => return .max (go u₁) (go u₂)
+    | .imax u₁ u₂ => return .imax (go u₁) (go u₂)
+    | .param name =>
+      let some uidx := isUVar? name | return u
+      if h : uidx < assignment.size then
+        let some v := assignment[uidx] | return u
+        return v
+      else
+        return u
+    | _ => return u
+
+/-- Substitutes uvars in `u` with their assignments, and then normalize. -/
+def substAssignedUVarsAndNormalize (u : Level) : UnifyM Level := do
+  let assignment := (← get).uAssignment
+  unless hasAssignedUVars assignment u do return u
+  let v := substAssignedUVars assignment u
+  return v.normalize
+
+def processLevel (u : Level) (v : Level) : UnifyM Bool := do
+  /-
+  **Note**: If new uvars in `u` have been assigned, we continue replace them, and
+  continue the search. The motivation for using `substAssignedUVarsAndNormalize` is
+  `processLevels [_uvar.0, max _uvar.0 _uvar.1] [0, u_1]`
+  which invokes `processLevel _uvar.0 0` and assigns `_uvar.0` before we invoke
+  `processLevel (max _uvar.0 _uvar.1) u_1`
+  -/
+  let u ← substAssignedUVarsAndNormalize u
   go u v.normalize
 where
   go (u : Level) (v : Level) : UnifyM Bool := do
@@ -379,13 +414,7 @@ where
         return true
       else
         return false
-    | _, _ =>
-      -- Substitute already-assigned uvars in the pattern side and retry.
-      -- Example: pattern `max _uvar.0 _uvar.1` where `_uvar.0 := 0` becomes
-      -- `_uvar.1` after substitution + normalization, which then matches `u_1`.
-      let u' ← substAssignedUVars u
-      if u' != u then go u'.normalize v
-      else return false
+    | _, _ => return false
 
 def processLevels (us : List Level) (vs : List Level) : UnifyM Bool := do
   match us, vs with

@@ -92,8 +92,9 @@ builtin_initialize instanceExtension : SimpleScopedEnvExtension InstanceEntry In
   registerSimpleScopedEnvExtension {
     initial  := {}
     addEntry := addInstanceEntry
-    exportEntry? := fun level e =>
-      guard (level == .private || e.globalName?.any (!isPrivateName ·)) *> e
+    exportEntry? := fun _ e =>
+      if e.globalName?.any (!isPrivateName ·) then .uniform (some e)
+      else ⟨none, none, some e⟩
   }
 
 private def mkInstanceKey (e : Expr) : MetaM (Array InstanceKey) := do
@@ -362,6 +363,10 @@ builtin_initialize defaultInstanceExtension : SimplePersistentEnvExtension Defau
   registerSimplePersistentEnvExtension {
     addEntryFn    := addDefaultInstanceEntry
     addImportedFn := fun es => (mkStateFromImportedEntries addDefaultInstanceEntry {} es)
+    exportEntriesFnEx? := some fun env _ entries =>
+      let all := entries.toArray
+      let exported := all.filter ((env.setExporting true).contains (skipRealize := false) ·.instanceName)
+      { exported, server := exported, «private» := all }
   }
 
 def addDefaultInstance (declName : Name) (prio : Nat := 0) : MetaM Unit := do
@@ -390,7 +395,13 @@ builtin_initialize
 def getDefaultInstancesPriorities [Monad m] [MonadEnv m] : m PrioritySet :=
   return defaultInstanceExtension.getState (← getEnv) |>.priorities
 
-def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List (Name × Nat)) :=
-  return defaultInstanceExtension.getState (← getEnv) |>.defaultInstances.find? className |>.getD []
+def getDefaultInstances [Monad m] [MonadEnv m] (className : Name) : m (List (Name × Nat)) := do
+  let env ← getEnv
+  let insts := defaultInstanceExtension.getState env |>.defaultInstances.find? className |>.getD []
+  if env.isExporting then
+    -- private instances must not leak into public scope
+    return insts.filter fun (n, _) => env.contains n
+  else
+    return insts
 
 end Lean.Meta

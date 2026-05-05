@@ -172,19 +172,51 @@ private def setModState [Monad m] [MonadEnv m] (state : ModuleDocstringState) : 
     modDocstringStateExt.setState env state
 
 /--
+Reports errors registered via `Term.registerMVarErrorInfo` for any metavariable still appearing in
+the types or values of fresh local declarations introduced during docstring elaboration. This
+catches unresolved holes from `{given}` and `{givenInstance}` before the term state is rolled back.
+-/
+private def checkUnsolvedDocMVars (initialLctx : LocalContext) (docState : State) :
+    TermElabM Unit := do
+  let mut pending : Array MVarId := #[]
+  for decl in docState.lctx do
+    unless initialLctx.containsFVar (.fvar decl.fvarId) do
+      pending := pending ++ (← Meta.getMVars (← instantiateMVars decl.type))
+      if let some v := decl.value? then
+        pending := pending ++ (← Meta.getMVars (← instantiateMVars v))
+  unless pending.isEmpty do
+    discard <| Term.logUnassignedUsingErrorInfos pending
+
+/--
+Runs a `TermElabM` action, saving and restoring the term elaboration state so that metavariables
+and other state changes do not leak. Messages produced by the action are preserved.
+-/
+private def withSaveRestoreTermState (act : TermElabM α) : TermElabM α := do
+  let termSt ← Term.saveState
+  Core.resetMessageLog
+  try
+    act
+  finally
+    let msgs ← Core.getMessageLog
+    termSt.restore
+    Core.setMessageLog ((← Core.getMessageLog) ++ msgs)
+
+/--
 Runs a documentation elaborator in the module docstring context.
 -/
 def DocM.execForModule (act : DocM α) (suggestionMode : SuggestionMode := .interactive) :
     TermElabM α := withoutModifyingEnv do
   let sc ← scopedEnvExtensionsRef.get
   let st ← getModState
-  try
-    scopedEnvExtensionsRef.set st.scopedExts
-    let ((v, _), _) ←
-      act.run { suggestionMode } |>.run {} |>.run st.toState
-    pure v
-  finally
-    scopedEnvExtensionsRef.set sc
+  withSaveRestoreTermState do
+    try
+      scopedEnvExtensionsRef.set st.scopedExts
+      let ((v, _), docState) ←
+        act.run { suggestionMode } |>.run {} |>.run st.toState
+      checkUnsolvedDocMVars st.toState.lctx docState
+      pure v
+    finally
+      scopedEnvExtensionsRef.set sc
 
 open Lean.Parser.Term in
 /--
@@ -196,24 +228,19 @@ def DocM.exec (declName : Name) (binders : Syntax) (act : DocM α)
     TermElabM α := withoutModifyingEnv do
   let some ci := (← getEnv).constants.find? declName
     | throwError "Unknown constant {declName} when building docstring"
-  let st ← Term.saveState
-  Core.resetMessageLog -- We'll replay the messages after the elab loop
-  try
+  withSaveRestoreTermState do
     let (lctx, localInstances) ← buildContext ci.type binders
     let sc ← scopedEnvExtensionsRef.get
     try
       let openDecls ← getOpenDecls
       let options ← getOptions
       let scopes := [{header := "", isPublic := true}]
-      let ((v, _), _) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
+      let ((v, _), docState) ← withTheReader Meta.Context (fun ρ => { ρ with localInstances }) <|
         act.run { suggestionMode } |>.run {} |>.run { scopes, openDecls, lctx, localInstances, options }
+      checkUnsolvedDocMVars lctx docState
       pure v
     finally
       scopedEnvExtensionsRef.set sc
-  finally
-    let msgs ← Core.getMessageLog
-    st.restore
-    Core.setMessageLog ((← Core.getMessageLog) ++ msgs)
 where
   buildContext (type : Expr) (binders : Syntax) : TermElabM (LocalContext × LocalInstances) := do
     -- Create a local context with all binders. The type will be updated as we introduce parameters.
@@ -685,6 +712,7 @@ Built-in docstring code blocks, for bootstrapping.
 -/
 builtin_initialize
   builtinDocCodeBlocks : IO.Ref (NameMap (Array (Name × DocCodeBlockExpander))) ← IO.mkRef {}
+
 
 /-- Environment extension for docstring directives -/
 builtin_initialize docDirectiveExt : SimpleScopedEnvExtension (Name × Name) (NameMap (Array Name)) ←
@@ -1725,3 +1753,42 @@ public def elabModSnippet
   let s ← fixupSnippet s
   warnUnusedRefs
   return s
+
+/--
+Renders the name of a documentation `extension` (role, code block, directive, or command) for
+user-facing messages. Builtins are designated by their last component because users invoke them by
+that bare name (e.g. `` {given}`x` ``, rather than `` {Lean.Doc.given}`x` ``), regardless of which
+namespaces are open. Non-builtin elements use `MessageData.ofConstName` so they appear in their
+shortest unambiguous form.
+-/
+private def docElementMessage (extension : Name) : BaseIO MessageData := do
+  if (← isBuiltin) then
+    match extension with
+    | .str _ s => return s
+    | _ => return .ofConstName extension
+  else
+    return .ofConstName extension
+where
+  isBuiltin : BaseIO Bool := do
+    return (← builtinDocRoles.get).contains extension ||
+      (← builtinDocCodeBlocks.get).contains extension ||
+      (← builtinDocDirectives.get).contains extension ||
+      (← builtinDocCommands.get).contains extension
+
+/--
+Registers a single `MVarErrorInfo` so that, if any metavariable in `e` remains unresolved at the
+end of document elaboration, one error is emitted at `ref` naming the documentation `extension` (the
+constant implementing the role/code block, e.g. `Lean.Doc.given`) and the supplied `location`
+(e.g. "type of variable `xs`") that contained the hole. The element name is rendered via
+`docElementMessage`. Roles and code blocks use this to attach a diagnostic to the syntax
+that introduced the variable, in addition to the standard placeholder errors that the underlying
+elaborator emits for unsolved metas.
+-/
+public def registerDocMVar (extension : Name) (e : Expr) (ref : Syntax) (location : MessageData) :
+    TermElabM Unit := do
+  unless (← Meta.getMVars e).isEmpty do
+    let elementMsg ← docElementMessage extension
+    let anchor ← Meta.mkFreshExprMVar none
+    anchor.mvarId!.assign e
+    Term.registerMVarErrorCustomInfo anchor.mvarId! ref
+      m!"unresolved metavariable in `{elementMsg}` ({location}):{indentExpr e}"

@@ -2302,10 +2302,7 @@ theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
-/--
-Prototypical Sym-based variant of `mvcgen`; see `mvcgen` for the user-facing
-documentation. Lives under `Lean.Elab.Tactic.Do.Internal` while it stabilises.
--/
+/-- Experimental Sym-based drop-in for `mvcgen`; see `mvcgen` for documentation. -/
 macro (name := mvcgen'Macro) (priority:=low) "mvcgen'" : tactic =>
   Macro.throwError "to use `mvcgen'`, please include `import Std.Tactic.Do`"
 

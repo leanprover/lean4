@@ -20,6 +20,8 @@ cd build/release
 eval cmake ../.. \
     --preset release $(../.././script/prepare-llvm-linux.sh $LLVM_TARBALL) \
     -DWFAIL=OFF
+cp -r stage1 stage2
+cp -r stage1 stage3
 cd ../..
 make -C build/release -j"$(nproc)" bench-part2
 mv tests/part2.measurements.jsonl "$RADAR_OUT"

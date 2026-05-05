@@ -369,6 +369,12 @@ def fetchImportInfo
       logError s!"{fileName}: module imports itself"
       return .error
     let mods ← findModules imp.module
+    if nonModule then
+      if let some mod := mods.find? fun mod =>
+          mod.pkg.requiresModuleSystem && pkgName != mod.pkg.keyName then
+        logWarning s!"{fileName}: imports `{imp.module}` from package \
+          `{mod.pkg.prettyName}`, which is designed for use with the module \
+          system; consider adding `module` to the start of this file"
     let n := mods.size
     if h : n = 0 then
       return s

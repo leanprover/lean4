@@ -1,0 +1,5 @@
+name = "dep"
+requiresModuleSystem = true
+
+[[lean_lib]]
+name = "Dep"

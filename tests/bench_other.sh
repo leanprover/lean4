@@ -1,4 +1,5 @@
-#!/usr/bin/env bash
+#!/usr/bin/env nix
+#! nix shell .#oldGlibc --command /usr/bin/env bash
 
 # This script must be called from the repo root.
 # The radar environment variables must be provided.
@@ -13,8 +14,6 @@ if [ ! -f "$LLVM_TARBALL" ]; then
     mkdir -p "$RADAR_CACHE/llvm"
     curl --location -o "$LLVM_TARBALL" "https://github.com/leanprover/lean-llvm/releases/download/$LLVM_RELEASE/lean-llvm-x86_64-linux-gnu.tar.zst"
 fi
-
-nix develop .#oldGlibc
 
 mkdir -p build/release
 cd build/release

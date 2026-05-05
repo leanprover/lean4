@@ -8,8 +8,6 @@
 LLVM_RELEASE=19.1.2
 LLVM_TARBALL="$RADAR_CACHE/llvm/$LLVM_RELEASE.tar.zst"
 
-rm -rf "$RADAR_CACHE/llvm"
-
 if [ ! -f "$LLVM_TARBALL" ]; then
     mkdir -p "$RADAR_CACHE/llvm"
     curl --location -o "$LLVM_TARBALL" "https://github.com/leanprover/lean-llvm/releases/download/$LLVM_RELEASE/lean-llvm-x86_64-linux-gnu.tar.zst"

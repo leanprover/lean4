@@ -25,14 +25,6 @@ generalization of `applyRflAndAndIntro`. None of these know anything about
 
 namespace Lean.Elab.Tactic.Do.Internal
 
-@[inline]
-public def Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
-    (cache : Std.HashMap α β) (key : α) (fallback : m β) : m (β × Std.HashMap α β) := do
-  if let some b := cache.get? key then
-    return (b, cache)
-  let b ← fallback
-  return (b, cache.insert key b)
-
 namespace VCGen
 
 open Sym Sym.Internal

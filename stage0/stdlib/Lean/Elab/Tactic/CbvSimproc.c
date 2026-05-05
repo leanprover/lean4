@@ -2168,8 +2168,8 @@ goto v___jp_605_;
 }
 else
 {
-lean_dec(v_pre_622_);
 lean_dec_ref(v_pre_621_);
+lean_dec(v_pre_622_);
 lean_dec_ref(v_pre_620_);
 lean_dec_ref(v_pre_619_);
 lean_dec_ref(v_declName_618_);

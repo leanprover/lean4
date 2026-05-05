@@ -9,6 +9,7 @@ public import Lean.Meta.Sym.Simp.SimpM
 import Lean.Meta.Sym.AlphaShareBuilder
 import Lean.Meta.Sym.InferType
 import Lean.Meta.Sym.Simp.App
+import Lean.Meta.Sym.Util
 import Lean.Meta.WHNF
 import Lean.Meta.AppBuilder
 import Init.Sym.Lemmas
@@ -121,7 +122,12 @@ Simplifies a `match`-expression.
 -/
 def simpMatch (declName : Name) : Simproc := fun e => do
   if let some e' ← reduceRecMatcher? e then
-    return .step e' (← mkEqRefl e')
+    -- Iota-reduction may expose kernel `Expr.proj` terms via struct-eta,
+    -- which the structural simplifier cannot consume directly.
+    let mut e'' ← Sym.foldProjs e'
+    unless isSameExpr e' e'' do
+      e'' ← share e''
+    return .step e'' (← mkEqRefl e'')
   let some info ← getMatcherInfo? declName
     | return .rfl
   -- **Note**: Simplify only the discriminants

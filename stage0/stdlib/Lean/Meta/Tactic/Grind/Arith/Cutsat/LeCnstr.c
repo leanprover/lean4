@@ -12918,7 +12918,7 @@ goto v_resetjp_3934_;
 v_resetjp_3934_:
 {
 uint8_t v_lia_3937_; 
-v_lia_3937_ = lean_ctor_get_uint8(v_a_3933_, sizeof(void*)*11 + 23);
+v_lia_3937_ = lean_ctor_get_uint8(v_a_3933_, sizeof(void*)*12 + 23);
 lean_dec(v_a_3933_);
 if (v_lia_3937_ == 0)
 {
@@ -13770,7 +13770,7 @@ goto v_resetjp_4178_;
 v_resetjp_4178_:
 {
 uint8_t v_lia_4181_; 
-v_lia_4181_ = lean_ctor_get_uint8(v_a_4177_, sizeof(void*)*11 + 23);
+v_lia_4181_ = lean_ctor_get_uint8(v_a_4177_, sizeof(void*)*12 + 23);
 lean_dec(v_a_4177_);
 if (v_lia_4181_ == 0)
 {

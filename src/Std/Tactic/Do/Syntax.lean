@@ -45,6 +45,13 @@ structure Config where
   This is helpful for bisecting bugs in `mvcgen` and tracing its execution.
   -/
   stepLimit : Option Nat := none
+  /--
+  If `true` (the default), report a hard error when no `@[spec]` theorem matches the
+  current program head. If `false`, leave such goals as unsolved VCs for the user to
+  discharge manually. This is the behaviour that `mvcgen` exhibits implicitly;
+  the new prototypical `mvcgen'` opts into it via `(errorOnMissingSpec := false)`.
+  -/
+  errorOnMissingSpec : Bool := true
 end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser

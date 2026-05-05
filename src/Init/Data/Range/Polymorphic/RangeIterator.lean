@@ -279,7 +279,6 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LE α] [Decid
           · cases h
   subrelation := id
 
-@[no_expose]
 instance Iterator.instFinite [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [Rxc.IsAlwaysFinite α] :
     Finite (Rxc.Iterator α) Id :=
@@ -300,7 +299,6 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LE α] [D
       · cases h
       · cases h
 
-@[no_expose]
 instance Iterator.instProductive [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] :
     Productive (Rxc.Iterator α) Id :=
@@ -861,7 +859,6 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LT α] [Decid
           · cases h
   subrelation := id
 
-@[no_expose]
 instance Iterator.instFinite [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] :
     Finite (Rxo.Iterator α) Id :=
@@ -882,7 +879,6 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LT α] [D
       · cases h
       · cases h
 
-@[no_expose]
 instance Iterator.instProductive [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] :
     Productive (Rxo.Iterator α) Id :=
@@ -1374,7 +1370,6 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α]
           exact ih
   subrelation := id
 
-@[no_expose]
 instance Iterator.instFinite [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     Finite (Rxi.Iterator α) Id :=
@@ -1391,7 +1386,6 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α]
       Iterator.IsPlausibleStep, Monadic.step, instIteratorIteratorIdOfUpwardEnumerable] at h -- TODO
     split at h <;> cases h
 
-@[no_expose]
 instance Iterator.instProductive [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] :
     Productive (Rxi.Iterator α) Id :=

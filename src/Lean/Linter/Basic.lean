@@ -65,11 +65,26 @@ register_builtin_option linter.all : Bool := {
   descr := "enable all linters"
 }
 
+register_builtin_option linter.extra : Bool := {
+  defValue := false
+  descr := "enables the set of extra linters — linters that are turned off by default and \
+    only available via `lake lint`. An extra linter early-returns unless this option is true."
+}
+
+def getLinterExtra (o : LinterOptions) (defValue := linter.extra.defValue) : Bool :=
+  o.get linter.extra.name defValue
+
 def getLinterAll (o : LinterOptions) (defValue := linter.all.defValue) : Bool :=
     o.get linter.all.name defValue
 
 def getLinterValue (opt : Lean.Option Bool) (o : LinterOptions) : Bool :=
   o.get opt.name (getLinterAll o <| (o.getSet opt).any (o.get? · == some true) || opt.defValue)
+
+/--
+Like `getLinterValue`, but the cross-linter fallback is `linter.extra` instead of `linter.all`.
+-/
+def getLinterValueExtra (opt : Lean.Option Bool) (o : LinterOptions) : Bool :=
+  o.get opt.name (getLinterExtra o opt.defValue)
 
 def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
@@ -90,3 +105,12 @@ Whether a linter option is enabled or not is determined by the following sequenc
 def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadEnv m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit := do
   if getLinterValue linterOption (← getLinterOptions) then logLint linterOption stx msg
+
+/--
+Like `logLintIf`, but uses `getLinterValueExtra` to gate emission on the extra fallback.
+Use for extra linters: emits the warning iff `linterOption` is on under the extra
+selection rules described on `getLinterValueExtra`.
+-/
+def logLintIfExtra [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadEnv m]
+    (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit := do
+  if getLinterValueExtra linterOption (← getLinterOptions) then logLint linterOption stx msg

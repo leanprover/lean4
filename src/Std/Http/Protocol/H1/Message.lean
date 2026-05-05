@@ -44,7 +44,6 @@ deriving BEq
 /--
 Inverts the message direction.
 -/
-@[expose]
 abbrev Direction.swap : Direction → Direction
   | .receiving => .sending
   | .sending => .receiving

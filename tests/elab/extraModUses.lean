@@ -326,3 +326,16 @@ info: Entries: [public import Init.Tactics]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses
+
+/-! `inferInstanceAs` inputs not included in output. -/
+
+#eval resetExtraModUses
+
+def MyNat := Nat
+instance : Max MyNat := inferInstanceAs (Max Nat)
+
+/--
+info: Entries: [import Init.Data.Nat.Basic]
+Is rev mod use: false
+-/
+#guard_msgs in #eval showExtraModUses

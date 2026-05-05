@@ -3046,8 +3046,8 @@ v___jp_816_:
 lean_object* v___x_820_; 
 v___x_820_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_820_, 0, v_a_819_);
-v___y_805_ = v___y_817_;
-v___y_806_ = v___y_818_;
+v___y_805_ = v___y_818_;
+v___y_806_ = v___y_817_;
 v_a_807_ = v___x_820_;
 goto v___jp_804_;
 }
@@ -3059,8 +3059,8 @@ lean_object* v_a_825_;
 v_a_825_ = lean_ctor_get(v___y_824_, 0);
 lean_inc(v_a_825_);
 lean_dec_ref(v___y_824_);
-v___y_817_ = v___y_822_;
-v___y_818_ = v___y_823_;
+v___y_817_ = v___y_823_;
+v___y_818_ = v___y_822_;
 v_a_819_ = v_a_825_;
 goto v___jp_816_;
 }
@@ -3398,8 +3398,8 @@ v_a_937_ = lean_ctor_get(v___x_936_, 0);
 lean_inc(v_a_937_);
 lean_dec_ref(v___x_936_);
 v___x_938_ = l_List_reverse___redArg(v_a_937_);
-v___y_817_ = v_a_836_;
-v___y_818_ = v___x_890_;
+v___y_817_ = v___x_890_;
+v___y_818_ = v_a_836_;
 v_a_819_ = v___x_938_;
 goto v___jp_816_;
 }

@@ -36,12 +36,8 @@ remove the following code without breaking the do block's type.
   Term.withMacroExpansion stx expanded <|
     withRef expanded <| elabDoElem ⟨expanded⟩ dec
 
-@[builtin_macro Lean.Parser.Term.doWhileH] def expandDoWhileH : Macro
-  | `(doElem| while%$tk $h : $cond do $seq) => `(doElem| repeat%$tk if $h:ident : $cond then $seq else break)
-  | _ => Macro.throwUnsupported
-
 @[builtin_macro Lean.Parser.Term.doWhile] def expandDoWhile : Macro
-  | `(doElem| while%$tk $cond do $seq) => `(doElem| repeat%$tk if $cond then $seq else break)
+  | `(doElem| while%$tk $cond:doIfCond do $seq) => `(doElem| repeat%$tk if $cond:doIfCond then $seq else break)
   | _ => Macro.throwUnsupported
 
 @[builtin_macro Lean.Parser.Term.doRepeatUntil] def expandDoRepeatUntil : Macro

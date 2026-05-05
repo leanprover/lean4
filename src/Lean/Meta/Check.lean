@@ -326,16 +326,36 @@ where
       check b
 
 /--
-Throw an exception if `e` is not type correct.
+Throw an exception if `e` is not type correct at the given transparency.
 -/
-def check (e : Expr) : MetaM Unit :=
+def check (e : Expr) (transparency : TransparencyMode := .all) : MetaM Unit :=
   withTraceNode `Meta.check (fun _ =>
       return m!"{e}") do
     try
-      withTransparency TransparencyMode.all $ checkAux e
+      withTransparency transparency $ checkAux e
     catch ex =>
       trace[Meta.check] ex.toMessageData
       throw ex
+
+/--
+Runs `x` and, on any error, lazily checks whether `e` is type-correct at `instances` transparency.
+If not, appends an explanatory note to the error message.
+
+This is useful for tactics like `rw` and `simp` whose failure modes can be caused by
+prior tactics (such as `unfold`) leaving the goal in a state that's type-correct only at
+`.default` transparency, preventing unification etc at `.instances`.
+-/
+def withInstancesTypeCheckNote [MonadControlT MetaM m] [Monad m] (e : Expr) (x : m α) : m α := do
+  let typeCheckNote := MessageData.ofLazyM (es := #[e]) do
+    try
+      check e .instances
+      return .nil
+    catch _ =>
+      return MessageData.note m!"The target expression is not type-correct \
+        under the `instances` transparency level, which may have triggered the failure. \
+        This is usually caused by unfolding of semireducible definitions in prior tactic steps. \
+        Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue."
+  Meta.mapError x (· ++ typeCheckNote)
 
 /--
 Return true if `e` is type correct.

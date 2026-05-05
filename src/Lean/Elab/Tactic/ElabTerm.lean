@@ -7,8 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Constructor
-public import Lean.Meta.Tactic.Assert
-public import Lean.Meta.Tactic.Cleanup
+public import Lean.Meta.Tactic.Replace
 public import Lean.Meta.Tactic.Rename
 public import Lean.Elab.Tactic.Config
 
@@ -234,13 +233,10 @@ def refineCore (stx : Syntax) (tagSuffix : Name) (allowNaturalHoles : Bool) : Ta
   match stx with
   | `(tactic| specialize $e:term) =>
     let (e, mvarIds') ← elabTermWithHoles e none `specialize (allowNaturalHoles := true)
-    let h := e.getAppFn
-    if h.isFVar then
-      let localDecl ← h.fvarId!.getDecl
-      let mvarId ← (← getMainGoal).assert localDecl.userName (← inferType e).headBeta e
-      let (_, mvarId) ← mvarId.intro1P
-      let mvarId ← mvarId.tryClear h.fvarId!
-      replaceMainGoal (mvarIds' ++ [mvarId])
+    if let Expr.fvar fvarId := e.getLambdaBody.getAppFn then
+      let mvarId ← getMainGoal
+      let result ← mvarId.replace fvarId e (← inferType e).headBeta
+      replaceMainGoal (mvarIds' ++ [result.mvarId])
     else
       throwError "'specialize' requires a term of the form `h x_1 .. x_n` where `h` appears in the local context"
   | _ => throwUnsupportedSyntax

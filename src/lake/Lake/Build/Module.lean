@@ -219,38 +219,61 @@ def computeModuleDeps
     plugins := plugins.push (← getLakeInstall).sharedDynlib
   return {dynlibs, plugins}
 
+structure TransImportEntry where
+  mod : Module
+  /-- Whether to include all module artifacts and traverse the module's direct imports. -/
+  importAll : Bool
+  /-- Whether this module has been transitively imported by a `meta import`. -/
+  needsMeta : Bool
+
 partial def fetchTransImportArts
   (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (nonModule : Bool)
 : FetchM (NameMap ImportArtifacts) := do
-  let q ← directImports.foldlM (init := #[]) fun q imp => do
+  let q ← directImports.foldrM (init := #[]) fun imp q => do
     let some mod := imp.module? | return q
     let input ← (← mod.input.fetch).await
     let importAll := strictOr nonModule imp.importAll
-    return enqueue importAll input q
-  walk directArts q
+    return enqueue importAll imp.isMeta input q
+  walk directArts {} q
 where
-  walk s q := do
+  walk s (metaVisited : NameSet) (q : Array TransImportEntry) := do
     if h : 0 < q.size then
-      let (mod, importAll) := q.back
+      let {mod, importAll, needsMeta} := q.back
       let q := q.pop
       if let some arts := s.find? mod.name then
-        -- may need to promote a module system `import` to an `import all`
-        -- size of 1 = non-module, 3 = module system `import`, 4 = `import all`
-        unless importAll && arts.size == 3 do
-          return ← walk s q
+        /-
+        A module system `import` may need to be promoted to a
+        wider import (`meta import`, `import all`) on another branch.
+
+        The size of import artifacts implies the following:
+        * `1`: non-module `import` (`.olean` only)
+        * `3`: module `import` (`.olean`, `.olean.server`, `.ir`)
+        * `4`: `import all` (module + `.olean.private`)
+
+        Sizes `1` and `4` imply all imports were already enqueued,
+        so re-visiting them for `meta import` or `import all` is redundant.
+        A module already visited with `needsMeta` need not be re-visited.
+        -/
+        let needsMeta := needsMeta && !metaVisited.contains mod.name
+        unless (importAll || needsMeta) && arts.size == 3 do
+          return ← walk s metaVisited q
       let info ← (← mod.exportInfo.fetch).await
       let arts := if importAll then info.allArts else info.arts
       let s := s.insert mod.name arts
+      let metaVisited := if importAll || needsMeta then metaVisited.insert mod.name else metaVisited
       let input ← (← mod.input.fetch).await
-      let q := enqueue importAll input q
-      walk s q
+      let q := enqueue importAll needsMeta input q
+      walk s metaVisited q
     else
       return s
-  enqueue importAll input q :=
+  enqueue importAll needsMeta input q :=
     input.imports.foldr (init := q) fun imp q =>
       if let some mod := imp.module? then
-        if importAll || imp.isExported then
-          q.push (mod, nonModule || (importAll && imp.importAll))
+        let reachable := importAll || imp.isExported
+        let importAll := nonModule || (importAll && imp.importAll)
+        let needsMeta := needsMeta || (reachable && imp.isMeta)
+        if reachable || needsMeta then
+          q.push {mod, importAll, needsMeta}
         else q
       else q
 
@@ -497,9 +520,20 @@ Recursively build a module's dependencies, including:
 * `extraDepTargets` of its library
 -/
 def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob do
-  let extraDepJob ← mod.lib.extraDep.fetch
-  let headerJob ← mod.header.fetch
+  /-
+  Remark: Await extra target dependencies (e.g., cloud releases, `needs`) before any
+  other module processing. This both enables the dependencies to effect these elements
+  and prevents them from racing with the processing here ([1]).
 
+  An `await` is used here rather than `bindM` because keeping import graph processing on
+  a single thread is simpler and the build would need to block on this regardless.
+
+  [1]: https://github.com/leanprover/lean4/issues/13598
+  -/
+  let extraDepJob ← mod.lib.extraDep.fetch
+  discard extraDepJob.await
+
+  let headerJob ← mod.header.fetch
   /-
   Remark: We must build direct imports before we fetch the transitive
   precompiled imports so that errors in the import block of transitive imports
@@ -523,7 +557,6 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
   let pluginsJob ← mod.plugins.fetchIn mod.pkg "module plugins"
 
   headerJob.bindM (sync := true) fun header => do
-  extraDepJob.bindM (sync := true) fun _ => do
   impInfoJob.bindM (sync := true) fun info => do
   newTrace
   impLibsJob.bindM (sync := true) fun impLibs => do
@@ -540,6 +573,7 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
     | some false => addTrace depTrace; addTrace libTrace; addPlatformTrace
     | some true => addTrace depTrace
     let {dynlibs, plugins} ← computeModuleDeps impLibs externLibs dynlibs plugins
+    let extra := (← getLeanOptOverrides).find? mod.pkg.baseName |>.getD {}
     return {
       name := mod.name
       isModule := header.isModule
@@ -548,7 +582,7 @@ def Module.recFetchSetup (mod : Module) : FetchM (Job ModuleSetup) := ensureJob 
       importArts := info.directArts
       dynlibs := dynlibs.map (·.path)
       plugins := plugins.map (·.path)
-      options := mod.leanOptions
+      options := mod.leanOptions ++ extra
     }
 
 /-- The `ModuleFacetConfig` for the builtin `setupFacet`. -/

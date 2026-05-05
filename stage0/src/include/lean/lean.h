@@ -1312,6 +1312,10 @@ static inline lean_obj_res lean_task_get_own(lean_obj_arg t) {
 LEAN_EXPORT bool lean_io_check_canceled_core(void);
 /* primitive for implementing `IO.cancel : Task a -> IO Unit` */
 LEAN_EXPORT void lean_io_cancel_core(b_lean_obj_arg t);
+/* Task state values returned by `lean_io_get_task_state_core`, matching `IO.TaskState`. */
+#define LEAN_TASK_STATE_WAITING  0
+#define LEAN_TASK_STATE_RUNNING  1
+#define LEAN_TASK_STATE_FINISHED 2
 /* primitive for implementing `IO.getTaskState : Task a -> IO TaskState` */
 LEAN_EXPORT uint8_t lean_io_get_task_state_core(b_lean_obj_arg t);
 /* primitive for implementing `IO.waitAny : List (Task a) -> IO (Task a)` */

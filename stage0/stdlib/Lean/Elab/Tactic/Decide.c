@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Decide
-// Imports: public import Lean.Elab.Tactic.Basic import Lean.Meta.Native import Lean.Elab.Tactic.ElabTerm
+// Imports: public import Lean.Elab.Tactic.Basic public import Lean.Meta.Tactic.Cleanup import Lean.Meta.Native import Lean.Elab.Tactic.ElabTerm
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -151,7 +151,7 @@ lean_object* l_Lean_Elab_Tactic_saveState___redArg(lean_object*, lean_object*, l
 lean_object* l_Lean_collectLevelParams(lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Tactic_SavedState_restore___redArg(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_async;
-lean_object* l_Lean_Meta_mkAuxLemma(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkAuxLemma(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Level_param___override(lean_object*);
 lean_object* l_Lean_Meta_mkDecide(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_nativeEqTrue(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -7659,7 +7659,7 @@ lean_ctor_set_uint8(v___x_2575_, sizeof(void*)*14, v___x_2557_);
 lean_ctor_set_uint8(v___x_2575_, sizeof(void*)*14 + 1, v_suppressElabErrors_2570_);
 lean_inc_ref(v_expectedType_2485_);
 lean_inc(v___x_2526_);
-v___x_2576_ = l_Lean_Meta_mkAuxLemma(v___x_2526_, v_expectedType_2485_, v_a_2495_, v___x_2527_, v___x_2528_, v___x_2529_, v___x_2529_, v_a_2489_, v_a_2490_, v___x_2575_, v___y_2572_);
+v___x_2576_ = l_Lean_Meta_mkAuxLemma(v___x_2526_, v_expectedType_2485_, v_a_2495_, v___x_2527_, v___x_2528_, v___x_2529_, v___x_2529_, v___x_2529_, v_a_2489_, v_a_2490_, v___x_2575_, v___y_2572_);
 lean_dec_ref(v___x_2575_);
 if (lean_obj_tag(v___x_2576_) == 0)
 {
@@ -10576,6 +10576,7 @@ return v_res_3748_;
 }
 }
 lean_object* runtime_initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Meta_Tactic_Cleanup(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Native(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_ElabTerm(uint8_t builtin);
 static bool _G_runtime_initialized = false;
@@ -10584,6 +10585,9 @@ lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
 res = runtime_initialize_Lean_Elab_Tactic_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Meta_Tactic_Cleanup(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Native(builtin);
@@ -10614,6 +10618,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Meta_Tactic_Cleanup(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Native(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_ElabTerm(uint8_t builtin);
 static bool _G_initialized = false;
@@ -10622,6 +10627,9 @@ lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
 res = initialize_Lean_Elab_Tactic_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Meta_Tactic_Cleanup(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Meta_Native(builtin);

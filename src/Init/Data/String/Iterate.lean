@@ -82,7 +82,6 @@ private def finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-@[no_expose]
 instance [Pure m] : Std.Iterators.Finite (PosIterator s) m :=
   .of_finitenessRelation finitenessRelation
 
@@ -170,7 +169,6 @@ private def finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-@[no_expose]
 instance [Pure m] : Std.Iterators.Finite (RevPosIterator s) m :=
   .of_finitenessRelation finitenessRelation
 
@@ -247,7 +245,6 @@ private def finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-@[no_expose]
 instance [Pure m] : Std.Iterators.Finite ByteIterator m :=
   .of_finitenessRelation finitenessRelation
 
@@ -325,7 +322,6 @@ private def finitenessRelation [Pure m] :
     · cases h'
     · cases h
 
-@[no_expose]
 instance [Pure m] : Std.Iterators.Finite RevByteIterator m :=
   .of_finitenessRelation finitenessRelation
 

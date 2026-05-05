@@ -70,7 +70,7 @@ structure Context where
   metaConfig        : ConfigWithKey := default
   indexConfig       : ConfigWithKey := default
   /-- `maxDischargeDepth` from `config` as an `UInt32`. -/
-  maxDischargeDepth : UInt32 := UInt32.ofNatTruncate config.maxDischargeDepth
+  maxDischargeDepth : UInt32 := UInt32.ofNatClamp config.maxDischargeDepth
   simpTheorems      : SimpTheoremsArray := {}
   congrTheorems     : SimpCongrTheorems := {}
   /--

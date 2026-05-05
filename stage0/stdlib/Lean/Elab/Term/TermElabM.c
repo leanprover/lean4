@@ -60943,8 +60943,8 @@ return v___x_21848_;
 else
 {
 lean_object* v_a_21851_; lean_object* v___x_21853_; uint8_t v_isShared_21854_; uint8_t v_isSharedCheck_21858_; 
-lean_dec(v_val_21836_);
 lean_dec_ref(v_ident_21826_);
+lean_dec(v_val_21836_);
 v_a_21851_ = lean_ctor_get(v___x_21838_, 0);
 v_isSharedCheck_21858_ = !lean_is_exclusive(v___x_21838_);
 if (v_isSharedCheck_21858_ == 0)

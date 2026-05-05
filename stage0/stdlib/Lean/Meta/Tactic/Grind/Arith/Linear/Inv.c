@@ -9558,7 +9558,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_Arith_Linear_checkInvariants(lean_obj
 _start:
 {
 uint8_t v_debug_3549_; 
-v_debug_3549_ = lean_ctor_get_uint8(v_a_3540_, sizeof(void*)*7 + 2);
+v_debug_3549_ = lean_ctor_get_uint8(v_a_3540_, sizeof(void*)*8 + 2);
 if (v_debug_3549_ == 0)
 {
 lean_object* v___x_3550_; lean_object* v___x_3551_; 

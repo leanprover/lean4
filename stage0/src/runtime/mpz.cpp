@@ -320,11 +320,16 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 
 static void *mpz_alloc(size_t size) {
 #ifdef LEAN_SMALL_ALLOCATOR
+    // the small allocator already panics on memory exhaustion
     return alloc(size);
 #elif defined(LEAN_MIMALLOC)
-    return mi_malloc(size);
+    void * r = mi_malloc(size);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
 #else
-    return malloc(size);
+    void * r = malloc(size);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
 #endif
 }
 

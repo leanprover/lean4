@@ -311,6 +311,8 @@ structure State where
   `ncstypeIdOf[type]` is `some id`, then `id < ncSemirings.size`. -/
   ncstypeIdOf : PHashMap ExprPtr (Option Nat) := {}
   steps := 0
+  /-- `true` if solver has already reported max degree issue. -/
+  reportedMaxDegreeIssue : Bool := false
   deriving Inhabited
 
 builtin_initialize ringExt : SolverExtension State ← registerSolverExtension (return {})

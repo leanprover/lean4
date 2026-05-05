@@ -1248,7 +1248,12 @@ extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
 }
 
 obj_res lean_promise_new() {
-    lean_always_assert(g_task_manager);
+    if (!g_task_manager) {
+        lean_internal_panic(
+            "`IO.Promise.new` called before the task manager is running; this typically "
+            "happens when called (directly or transitively, e.g. via `IO.CancelToken.new`) "
+            "from an `initialize` block. Construct lazily on first use instead.");
+    }
 
     bool keep_alive = false;
     unsigned prio = 0;

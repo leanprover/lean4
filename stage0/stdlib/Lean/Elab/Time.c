@@ -482,13 +482,13 @@ lean_ctor_set(v___x_127_, 1, v_openDecls_112_);
 v___x_128_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_128_, 0, v___x_127_);
 lean_ctor_set(v___x_128_, 1, v___y_95_);
-lean_inc_ref(v___y_97_);
 lean_inc_ref(v___y_96_);
+lean_inc_ref(v___y_99_);
 v___x_129_ = lean_alloc_ctor(0, 5, 3);
-lean_ctor_set(v___x_129_, 0, v___y_96_);
-lean_ctor_set(v___x_129_, 1, v___y_99_);
-lean_ctor_set(v___x_129_, 2, v___y_98_);
-lean_ctor_set(v___x_129_, 3, v___y_97_);
+lean_ctor_set(v___x_129_, 0, v___y_99_);
+lean_ctor_set(v___x_129_, 1, v___y_98_);
+lean_ctor_set(v___x_129_, 2, v___y_97_);
+lean_ctor_set(v___x_129_, 3, v___y_96_);
 lean_ctor_set(v___x_129_, 4, v___x_128_);
 lean_ctor_set_uint8(v___x_129_, sizeof(void*)*5, v___y_101_);
 lean_ctor_set_uint8(v___x_129_, sizeof(void*)*5 + 1, v___y_100_);
@@ -549,8 +549,8 @@ else
 {
 lean_object* v_a_141_; lean_object* v___x_143_; uint8_t v_isShared_144_; uint8_t v_isSharedCheck_148_; 
 lean_dec(v_a_104_);
-lean_dec_ref(v___y_99_);
-lean_dec(v___y_98_);
+lean_dec_ref(v___y_98_);
+lean_dec(v___y_97_);
 lean_dec_ref(v___y_95_);
 v_a_141_ = lean_ctor_get(v___x_105_, 0);
 v_isSharedCheck_148_ = !lean_is_exclusive(v___x_105_);
@@ -594,8 +594,8 @@ return v___x_146_;
 else
 {
 lean_object* v_a_149_; lean_object* v___x_151_; uint8_t v_isShared_152_; uint8_t v_isSharedCheck_156_; 
-lean_dec_ref(v___y_99_);
-lean_dec(v___y_98_);
+lean_dec_ref(v___y_98_);
+lean_dec(v___y_97_);
 lean_dec_ref(v___y_95_);
 v_a_149_ = lean_ctor_get(v___x_103_, 0);
 v_isSharedCheck_156_ = !lean_is_exclusive(v___x_103_);
@@ -675,10 +675,10 @@ if (v_suppressElabErrors_165_ == 0)
 {
 lean_del_object(v___x_170_);
 v___y_95_ = v_a_168_;
-v___y_96_ = v_fileName_163_;
-v___y_97_ = v___x_175_;
-v___y_98_ = v___x_174_;
-v___y_99_ = v___x_172_;
+v___y_96_ = v___x_175_;
+v___y_97_ = v___x_174_;
+v___y_98_ = v___x_172_;
+v___y_99_ = v_fileName_163_;
 v___y_100_ = v___y_160_;
 v___y_101_ = v___y_161_;
 v___y_102_ = v___y_92_;
@@ -724,10 +724,10 @@ else
 {
 lean_del_object(v___x_170_);
 v___y_95_ = v_a_168_;
-v___y_96_ = v_fileName_163_;
-v___y_97_ = v___x_175_;
-v___y_98_ = v___x_174_;
-v___y_99_ = v___x_172_;
+v___y_96_ = v___x_175_;
+v___y_97_ = v___x_174_;
+v___y_98_ = v___x_172_;
+v___y_99_ = v_fileName_163_;
 v___y_100_ = v___y_160_;
 v___y_101_ = v___y_161_;
 v___y_102_ = v___y_92_;

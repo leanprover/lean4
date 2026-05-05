@@ -1878,7 +1878,7 @@ goto v_resetjp_596_;
 v_resetjp_596_:
 {
 uint8_t v_ac_599_; uint8_t v___y_601_; 
-v_ac_599_ = lean_ctor_get_uint8(v_a_595_, sizeof(void*)*11 + 24);
+v_ac_599_ = lean_ctor_get_uint8(v_a_595_, sizeof(void*)*12 + 24);
 lean_dec(v_a_595_);
 if (v_ac_599_ == 0)
 {

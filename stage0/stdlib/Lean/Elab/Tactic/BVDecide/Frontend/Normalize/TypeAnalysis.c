@@ -1748,8 +1748,8 @@ goto v___jp_341_;
 else
 {
 lean_object* v___x_439_; 
-lean_dec_ref(v_declName_385_);
 lean_dec(v_pre_386_);
+lean_dec_ref(v_declName_385_);
 lean_dec_ref(v_binderType_379_);
 lean_dec_ref(v_body_380_);
 lean_del_object(v___x_370_);
@@ -1762,8 +1762,8 @@ goto v___jp_341_;
 else
 {
 lean_object* v___x_440_; 
-lean_dec(v_declName_385_);
 lean_dec_ref(v_binderType_379_);
+lean_dec(v_declName_385_);
 lean_dec_ref(v_body_380_);
 lean_del_object(v___x_370_);
 v___x_440_ = l_WellFounded_opaqueFix_u2083___at___00__private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_TypeAnalysis_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_isSupportedMatch_trySimpleEnum_spec__1___redArg___lam__0(v_snd_372_, v___x_384_, v___y_331_, v___y_332_, v___y_333_, v___y_334_);

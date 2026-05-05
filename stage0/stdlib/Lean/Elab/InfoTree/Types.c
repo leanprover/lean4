@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.InfoTree.Types
-// Imports: public import Lean.Data.DeclarationRange public import Lean.Data.OpenDecl public import Lean.MetavarContext public import Lean.Environment public import Lean.Widget.Types
+// Imports: public import Lean.Data.DeclarationRange public import Lean.Data.OpenDecl public import Lean.Data.PPContext public import Lean.MetavarContext public import Lean.Environment public import Lean.Widget.Types
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -2092,6 +2092,7 @@ return v___x_664_;
 }
 lean_object* runtime_initialize_Lean_Data_DeclarationRange(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Data_OpenDecl(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Data_PPContext(uint8_t builtin);
 lean_object* runtime_initialize_Lean_MetavarContext(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Environment(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Widget_Types(uint8_t builtin);
@@ -2104,6 +2105,9 @@ res = runtime_initialize_Lean_Data_DeclarationRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Data_OpenDecl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Data_PPContext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_MetavarContext(builtin);
@@ -2158,6 +2162,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Data_DeclarationRange(uint8_t builtin);
 lean_object* initialize_Lean_Data_OpenDecl(uint8_t builtin);
+lean_object* initialize_Lean_Data_PPContext(uint8_t builtin);
 lean_object* initialize_Lean_MetavarContext(uint8_t builtin);
 lean_object* initialize_Lean_Environment(uint8_t builtin);
 lean_object* initialize_Lean_Widget_Types(uint8_t builtin);
@@ -2170,6 +2175,9 @@ res = initialize_Lean_Data_DeclarationRange(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Data_OpenDecl(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Data_PPContext(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_MetavarContext(builtin);

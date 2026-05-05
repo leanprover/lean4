@@ -122,11 +122,9 @@ theorem fib_triple : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n�
     ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝
   all_goals grind
 
--- `fib_triple_step` from doLogicTests uses `mvcgen (stepLimit := some 14)`.
--- BLOCKED: mvcgen' does not support `optConfig` (no `stepLimit`).
 theorem fib_triple_step : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   unfold fib_impl
-  mvcgen (stepLimit := some 14)
+  mvcgen' (stepLimit := some 14)
   case inv1 => exact ⇓ ⟨xs, a, b⟩ =>
     ⌜a = fib_spec xs.pos ∧ b = fib_spec (xs.pos + 1)⌝
   all_goals simp_all +zetaDelta [Nat.sub_one_add_one]
@@ -135,12 +133,9 @@ attribute [local spec] fib_triple in
 theorem fib_triple_attr : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
   mvcgen'
 
--- BLOCKED: mvcgen' throws a hard error ("No spec found") when the spec is erased
--- via `[-fib_triple]`. The legacy mvcgen keeps an unsolved VC; mvcgen' aborts.
--- TODO: Implement a -errorOnMissingSpec flag (default true).
 attribute [local spec] fib_triple in
 theorem fib_triple_erase : ⦃⌜True⌝⦄ fib_impl n ⦃⇓ r => ⌜r = fib_spec n⌝⦄ := by
-  mvcgen [-fib_triple]
+  mvcgen' (errorOnMissingSpec := false) [-fib_triple]
   fail_if_success done
   admit
 
@@ -169,14 +164,12 @@ theorem mkFreshNat_spec [Monad m] [WPMonad m sh] :
   mvcgen' [mkFreshNat]
   simp_all +zetaDelta
 
--- BLOCKED: `mvcgen' [-modify]` errors with "No spec found" instead of leaving an
--- unsolved VC. Same blocker as `fib_triple_erase`.
 theorem erase_unfold [Monad m] [WPMonad m sh] :
   ⦃fun s => ⌜s.1 = n ∧ s.2 = o⌝⦄
   (mkFreshNat : StateT AppState m Nat)
   ⦃⇓ r s => ⌜r = n ∧ s.1 = n + 1 ∧ s.2 = o⌝⦄ := by
   unfold mkFreshNat
-  mvcgen [-modify]
+  mvcgen' (errorOnMissingSpec := false) [-modify]
   simp_all [-WP.modify_MonadStateOf]
   fail_if_success done
   admit
@@ -385,15 +378,16 @@ def mergeWithAll (m₁ m₂ : ExtTreeMap α β cmp) (f : α → Option β → Op
           r := r.insert a b
     return r
 
--- BLOCKED: mvcgen' errors with "No spec found for program forIn m₁ ..." on the
--- universe-polymorphic `ExtTreeMap` traversal. The legacy mvcgen leaves an
--- unsolved VC instead. This was originally a demo that `Id.of_wp_run_eq` applies
--- despite universe polymorphism.
+-- Originally a demo that `Id.of_wp_run_eq` applies despite universe polymorphism.
+-- Neither `mvcgen` nor `mvcgen'` can find a triple spec for `forIn` on the
+-- universe-polymorphic `ExtTreeMap`; both fall back to simp, which simplifies
+-- the body but doesn't fully discharge. With `(errorOnMissingSpec := false)`,
+-- `mvcgen'` matches legacy `mvcgen`'s behaviour of leaving an unsolved VC.
 theorem mem_mergeWithAll [LawfulEqCmp cmp] {m₁ m₂ : ExtTreeMap α β cmp} {f : α → Option β → Option β → Option β} {a : α} :
     a ∈ mergeWithAll m₁ m₂ f ↔ (a ∈ m₁ ∨ a ∈ m₂) ∧ (f a m₁[a]? m₂[a]?).isSome := by
   generalize h : mergeWithAll m₁ m₂ f = x
   apply Id.of_wp_run_eq h
-  mvcgen
+  mvcgen' (errorOnMissingSpec := false) [mergeWithAll]
   admit
 
 end KimsUnivPolyUseCase
@@ -580,10 +574,10 @@ example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
 example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
   mvcgen' (config := { leave := false }) [trivial_test]
 
-/--
-warning: mvcgen': the `jp` config option is currently ignored (shared-continuation handling for `__do_jp` is not yet implemented).
--/
-#guard_msgs in
+-- `jp := true` is accepted and wired through `Context.useJP`; the actual
+-- shared-continuation construction (Phase 6 of the plan) is not yet ported,
+-- so enabling it on a program containing `__do_jp` errors at the detection
+-- point. Programs without `__do_jp` (like this trivial example) are unaffected.
 example : ⦃⌜True⌝⦄ trivial_test 0 ⦃⇓r => ⌜r = 0⌝⦄ := by
   mvcgen' (config := { jp := true }) [trivial_test]
 
@@ -599,7 +593,9 @@ def check_all (p : Nat → Prop) [DecidablePred p] (n : Nat) : Bool := Id.run do
       return false
   return true
 
--- Bullet form: `· …` per invariant.
+-- Bullet form: `· …` per invariant. Uses the `with` clause to discharge the
+-- emitted VCs in one go (preTac runs after all invariants are inline-elaborated,
+-- so the `with` tactic sees the assigned invariant values).
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     (∀ i, i < n → p i) ↔ check_all p n := by
   generalize h : check_all p n = x
@@ -608,8 +604,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     · Invariant.withEarlyReturnNewDo
         (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
         (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
-  -- with (simp_all [-Classical.not_forall]; try grind)
-  all_goals simp_all [-Classical.not_forall]; try grind
+  with (simp_all [-Classical.not_forall]; try grind)
 
 -- Labelled form: `| inv1 => …`.
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
@@ -620,6 +615,6 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     | inv1 => Invariant.withEarlyReturnNewDo
         (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
         (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
-  all_goals simp_all [-Classical.not_forall]; try grind
+  with (simp_all [-Classical.not_forall]; try grind)
 
 end InvariantSyntaxTests

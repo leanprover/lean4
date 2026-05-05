@@ -72,23 +72,32 @@ private meta def tryInlineInvariant (n : Nat) (mv : MVarId) : VCGenM Bool := do
   catch _ =>
     return false
 
+/-- Pull invariant subgoals out of `subgoals` and handle them eagerly: register
+each in `State.invariants` (1-based stable index) and try to inline-elaborate
+its matching user alt. Returns the remaining non-invariant subgoals for `work`
+to enqueue. Eager handling here ensures dependent VCs see `?inv` assigned by
+the time they reach `emitVC`/`preTac`. -/
+private meta def handleInvariantSubgoals (subgoals : List MVarId) : VCGenM (Array MVarId) := do
+  let env ← getEnv
+  let mut others : Array MVarId := #[]
+  for sg in subgoals do
+    if isSpecInvariantType env (← sg.getType) then
+      let n := (← get).invariants.size + 1
+      modify fun s => { s with invariants := s.invariants.push sg }
+      if ← tryInlineInvariant n sg then
+        modify fun s => { s with inlineHandledInvariants := s.inlineHandledInvariants.insert n }
+      else
+        sg.setKind .syntheticOpaque
+    else
+      others := others.push sg
+  return others
+
 /--
 Called when decomposing the goal further did not succeed; in this case we emit a VC for the goal.
+Invariant subgoals are handled separately by `handleInvariantSubgoals` directly inside `work`,
+so they never reach this path.
 -/
 public meta def emitVC (goal : Grind.Goal) : VCGenM Unit := do
-  let ty ← goal.mvarId.getType
-  if isSpecInvariantType (← getEnv) ty then
-    -- Stable numbering: increment *before* trying inline elaboration so subsequent
-    -- invariants see the correct index regardless of whether this one was inline-filled.
-    let n := (← get).invariants.size + 1
-    modify fun s => { s with invariants := s.invariants.push goal.mvarId }
-    -- Try to elaborate the matching bullet inline, allowing VC generation to benefit
-    -- from the assigned invariant in subsequent iterations.
-    if ← tryInlineInvariant n goal.mvarId then
-      modify fun s => { s with inlineHandledInvariants := s.inlineHandledInvariants.insert n }
-    else
-      goal.mvarId.setKind .syntheticOpaque
-    return
   let goal ← (← read).preTac.processHypotheses goal
   let mut vcs := #[]
   -- `trivial`: when false, skip `repeatAndRfl` (which collapses And-chains via rfl);
@@ -108,12 +117,9 @@ public meta def emitVC (goal : Grind.Goal) : VCGenM Unit := do
 public meta def work (goal : Grind.Goal) : VCGenM Unit := do
   let mvarId ← preprocessMVar goal.mvarId
   let goal := { goal with mvarId }
-  let mut worklist := #[goal]
-  repeat do
-    let mut some goal := worklist.back? | break
+  let mut worklist := #[goal] -- worklist is LIFO (popped from the back)
+  while let some goal := worklist.back? do
     worklist := worklist.pop
-    -- `stepLimit`: when fuel is exhausted, emit the current goal as a VC and continue
-    -- with the rest of the worklist instead of decomposing further.
     if ← outOfFuel then
       emitVC goal
       continue
@@ -121,18 +127,29 @@ public meta def work (goal : Grind.Goal) : VCGenM Unit := do
     match res with
     | .noEntailment .. | .noProgramFoundInTarget .. =>
       emitVC goal
-    | .noSpecFoundForProgram prog _ #[] => goal.mvarId.withContext do
-      throwError "No spec found for program {prog}."
-    | .noSpecFoundForProgram prog monad thms => goal.mvarId.withContext do
-      throwError "No spec matching the monad {monad} found for program {prog}. Candidates were {thms.map (·.proof)}."
+    | .noSpecFoundForProgram prog monad thms =>
+      if (← read).errorOnMissingSpec then goal.mvarId.withContext do
+        if thms.isEmpty then
+          throwError "No spec found for program {prog}."
+        else
+          throwError "No spec matching the monad {monad} found for program {prog}. Candidates were {thms.map (·.proof)}."
+      else
+        emitVC goal
     | .noStrategyForProgram prog => goal.mvarId.withContext do
       throwError "Did not know how to decompose weakest precondition for {prog}"
     | .goals subgoals =>
+      -- Handle invariant subgoals eagerly here, so that VC subgoals popped
+      -- from the worklist later see the invariant MVar already assigned.
+      -- Non-invariant subgoals go to the worklist as usual and will eventually go through `emitVC`.
+      let subgoals ← handleInvariantSubgoals subgoals
       -- In grind mode with multiple subgoals, preprocess pending hypotheses
       -- to share E-graph context before forking.
-      if subgoals.length > 1 then
-        goal ← (← read).preTac.processHypotheses goal
-      worklist := worklist ++ (subgoals |>.map ({ goal with mvarId := · }) |>.reverse)
+      let goal ←
+        if subgoals.size > 1 then
+          (← read).preTac.processHypotheses goal
+        else
+          pure goal
+      worklist := worklist ++ subgoals.reverse.map (fun sg => { goal with mvarId := sg })
 
 public structure Result where
   /-- All invariant goals emitted during VC generation, in emit order. The MVarId at

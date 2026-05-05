@@ -89,6 +89,12 @@ public structure VCGen.Context where
   zeta-unfolding. When `false` (default, matching original `mvcgen`), every call
   site of the JP zeta-unfolds, leading to exponential blow-up on nested splits. -/
   useJP : Bool := false
+  /-- The `errorOnMissingSpec` config option: when `true` (default), `Driver.work`
+  raises a hard error when `solve` returns `.noSpecFoundForProgram`. When `false`,
+  the goal is emitted as an unsolved VC for the user to discharge — useful with
+  `mvcgen' [-some_spec]` patterns where the user knows the spec is intentionally
+  removed and wants to handle the residual goal by hand. -/
+  errorOnMissingSpec : Bool := true
   /-- Pre-parsed `invariants`/`invariants?` alternatives, indexed by 1-based invariant
   number. Bullet form maps positions to entries (`bullet n+1 → alt`); labelled form maps
   the parsed `inv<n>` numbers (out-of-order labels are supported). Empty when no

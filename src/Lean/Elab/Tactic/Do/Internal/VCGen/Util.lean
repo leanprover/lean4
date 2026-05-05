@@ -12,6 +12,7 @@ public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
 public import Lean.Meta.Sym.AlphaShareBuilder
 public import Lean.Meta.Sym.Intro
 public import Lean.Meta.Sym.Simp.Telescope
+public import Lean.Meta.Sym.Util
 
 open Lean Meta Sym
 open Std.Do
@@ -25,9 +26,51 @@ generalization of `applyRflAndAndIntro`. None of these know anything about
 
 namespace Lean.Elab.Tactic.Do.Internal
 
+/--
+`VCGenM` wrapper around `BackwardRule.apply`. Behaves identically to
+`rule.apply goal` unless the application fails and `Context.debug` is on.
+In that case it retries on a fresh metavariable whose type is the
+`unfoldReducible`-normalized goal type. If the retry succeeds, an earlier
+step forgot a normalization; we throw a hard error pointing at the rule and
+the missing reduction.
+
+`ruleDesc?` describes the rule for debug output. When `none`, the description
+is reconstructed from `rule.expr.getAppFn` — works for the common case of a
+constant rule. Pass a custom message for dynamically-built rules.
+
+Designed for dot notation: `rule.applyChecked goal`. Requires
+`open Lean.Elab.Tactic.Do.Internal` in scope so that the dot lookup resolves.
+-/
+public def Lean.Meta.Sym.BackwardRule.applyChecked (rule : BackwardRule) (goal : MVarId)
+    (ruleDesc? : Option MessageData := none) : VCGenM ApplyResult := do
+  let r ← rule.apply goal
+  match r with
+  | .goals _ => return r
+  | .failed =>
+    unless (← read).debug do return r
+    let originalType ← goal.getType
+    let normalized ← unfoldReducible originalType
+    if normalized == originalType then return r
+    let succeeded ← Lean.Meta.withoutModifyingMCtx do
+      let goal' ← Meta.mkFreshExprSyntheticOpaqueMVar normalized
+      match ← rule.apply goal'.mvarId! with
+      | .goals _ => return true
+      | .failed => return false
+    if succeeded then
+      let ruleDesc := ruleDesc?.getD <|
+        match rule.expr.getAppFn with
+        | .const declName _ => m!"`{.ofConstName declName}`"
+        | _ => m!"<rule constructed from expression>"
+      throwError m!"[mvcgen' +debug] BackwardRule {ruleDesc} failed to \
+        apply to:{indentExpr originalType}\nbut succeeded after `unfoldReducible`-\
+        normalization to:{indentExpr normalized}\nAn earlier step is missing a normalization. \
+        Re-run with `set_option pp.all true` to see the structural difference."
+    return r
+
 namespace VCGen
 
 open Sym Sym.Internal
+open Lean.Elab.Tactic.Do.Internal
 
 public def simpTargetTelescope (mvarId : MVarId) : VCGenM (MVarId × Bool) := do
   let some methods := (← read).hypSimpMethods | return (mvarId, false)
@@ -83,7 +126,7 @@ public partial def repeatAndRfl (goal : MVarId) : VCGenM (Option MVarId) :=
     goal.assign (mkConst ``True.intro)
     return none
   else if ty.isAppOf ``And then
-    let .goals [g₁, g₂] ← ctx.andIntroRule.apply goal
+    let .goals [g₁, g₂] ← ctx.andIntroRule.applyChecked goal
       | throwError "repeatAndRfl: failed to apply {.ofConstName ``And.intro} to{indentExpr ty}"
     match ← repeatAndRfl g₁, ← repeatAndRfl g₂ with
     | none,    none    => return none

@@ -13,6 +13,7 @@ public import Lean.Meta.Sym.InstantiateS
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.Do.SpecAttr
+open Lean.Elab.Tactic.Do.Internal
 open Std.Do
 
 namespace Lean.Elab.Tactic.Do.Internal
@@ -91,7 +92,7 @@ private def tryTripleUnfold (goal : MVarId) (target : Expr) :
 private def tryTargetLambdaIntro (goal : MVarId) (T : Expr) :
     VCGenM (Option SolveResult) := do
   unless T.isLambda do return none
-  let .goals [goal] ← (← read).entailsConsIntroRule.apply goal
+  let .goals [goal] ← (← read).entailsConsIntroRule.applyChecked goal
     | throwError "Applying {.ofConstName ``SPred.entails_cons_intro} to {← goal.getType} failed. It should not."
   return some <| .goals [goal]
 
@@ -148,7 +149,7 @@ private def trySplit (goal : MVarId) (head H σs ent : Expr) (args : Array Expr)
     return some <| .goals [← replaceProgDefEq goal head H σs ent args wpConst m ps instWP α
                               (← shareCommonInc e')]
   let rule ← mkBackwardRuleFromSplitInfoCached info m σs ps instWP excessArgs
-  let ApplyResult.goals goals ← rule.apply goal
+  let ApplyResult.goals goals ← rule.applyChecked goal m!"split rule for{indentExpr e}"
     | throwError "Failed to apply split rule for {indentExpr e}"
   return some <| .goals goals
 
@@ -178,7 +179,7 @@ private def applySpec (goal : MVarId) (e : Expr) (excessArgs : Array Expr)
       return .goals [goal]
     let rule ← mkBackwardRuleFromSpecCached thm m σs ps instWP excessArgs
     trace[Elab.Tactic.Do.vcgen] "Rule type: {← Meta.inferType rule.expr}"
-    let ApplyResult.goals goals ← rule.apply goal
+    let ApplyResult.goals goals ← rule.applyChecked goal m!"spec rule for{indentExpr e}"
       | throwError "Failed to apply rule {rule.expr} for {indentExpr e}"
     return .goals goals
   return .noStrategyForProgram e

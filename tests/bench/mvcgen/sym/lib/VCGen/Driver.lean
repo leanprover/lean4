@@ -121,11 +121,11 @@ public meta def work (goal : Grind.Goal) : VCGenM Unit := do
     match res with
     | .noEntailment .. | .noProgramFoundInTarget .. =>
       emitVC goal
-    | .noSpecFoundForProgram prog _ #[] =>
+    | .noSpecFoundForProgram prog _ #[] => goal.mvarId.withContext do
       throwError "No spec found for program {prog}."
-    | .noSpecFoundForProgram prog monad thms =>
+    | .noSpecFoundForProgram prog monad thms => goal.mvarId.withContext do
       throwError "No spec matching the monad {monad} found for program {prog}. Candidates were {thms.map (·.proof)}."
-    | .noStrategyForProgram prog =>
+    | .noStrategyForProgram prog => goal.mvarId.withContext do
       throwError "Did not know how to decompose weakest precondition for {prog}"
     | .goals subgoals =>
       -- In grind mode with multiple subgoals, preprocess pending hypotheses

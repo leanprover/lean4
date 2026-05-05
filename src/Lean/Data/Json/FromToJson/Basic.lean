@@ -46,7 +46,7 @@ The following encoding strategy is employed by auto-generated instances:
       which are encoded as JSON strings.
       This is because, although JSON numbers proper have unbounded range,
       in JavaScript they are parsed as [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)s
-      and these can only represent integers up to $`2^{53}` safely;
+      and these can only represent integers up to $`2^{53} - 1` safely;
       so a roundtrip through JavaScript would result in truncation on these types.
       (We use these types in the JavaScript-based Lean infoview.)
     - Special {name}`Float`s which are encoded as JSON strings:

@@ -11,17 +11,66 @@ public import Lean.Data.Json.Printer
 public import Init.Data.ToString.Macro
 import Init.Data.Array.GetLit
 
+set_option doc.verso true
+
 public section
 
 namespace Lean
 
 universe u
 
+/--
+Types that can be decoded from JSON.
+
+Use `deriving FromJson`
+to {manual section "deriving-instances"}[automatically generate] an instance.
+See {name (scope := "Lean.Data.Json.FromToJson.Basic")}`ToJson`
+for details of auto-generated instances.
+-/
 class FromJson (α : Type u) where
   fromJson? : Json → Except String α
 
 export FromJson (fromJson?)
 
+/--
+Types that can be encoded as JSON.
+
+Use `deriving ToJson`
+to {manual section "deriving-instances"}[automatically generate] an instance.
+The following encoding strategy is employed by auto-generated instances:
+- Basic types corresponding to JSON values are encoded as these values.
+  - {name}`Bool` is encoded as {lit}`true`/{lit}`false`.
+  - {name}`String`s are encoded as JSON strings.
+  - Numeric types are encoded as JSON numbers, with the exception of:
+    - {name}`UInt64` and {name}`USize`
+      which are encoded as JSON strings.
+      This is because, although JSON numbers proper have unbounded range,
+      in JavaScript they are parsed as [Number](https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Number)s
+      and these can only represent integers up to $`2^{53}` safely;
+      so a roundtrip through JavaScript would result in truncation on these types.
+      (We use these types in the JavaScript-based Lean infoview.)
+    - Special {name}`Float`s which are encoded as JSON strings:
+      {lit}`"NaN"`/{lit}`"Infinity"`/{lit}`"-Infinity"`.
+- {name}`Unit` is encoded as {lit}`{}` (empty JSON object).
+- {name}`Array`s and {name}`List`s are encoded as JSON arrays.
+- {name}`Option.none` is encoded as {lit}`null`,
+  whereas {lit}`some a` has the same encoding as {lit}`a`.
+  Note that this implies {lean}`Option (Option α)` does not roundtrip,
+  since {lean}`none` and {lean}`some none` both become {lit}`null`.
+- General `structure`s are encoded as JSON objects in the obvious way.
+  - {name}`Option` fields whose names end with `?` have special support:
+    the question mark is omitted from the JSON field name,
+    and such a field is omitted from the JSON object when its value is {name}`none`
+    (as opposed to being encoded as {lit}`{ "someField": null }`).
+- General `inductive` types are encoded on a per-constructor basis.
+  - An argument-free constructor is encoded as its name (a JSON string).
+  - A constructor with named arguments only is encoded as the JSON object
+    {lit}`{ "ctorName": { "arg1": argVal1, ..., "argN": argValN } }`.
+  - A constructor with one unnamed argument is encoded as the JSON object
+    {lit}`{ "ctorName": argVal }`.
+  - A constructor with more than one unnamed argument is encoded as the JSON object
+    {lit}`{ "ctorName": [argVal1, ..., argValN] }`.
+- Certain other types have special handling: see the instances below. -/
 class ToJson (α : Type u) where
   toJson : α → Json
 
@@ -33,8 +82,11 @@ instance : ToJson Json := ⟨id⟩
 instance : FromJson JsonNumber := ⟨Json.getNum?⟩
 instance : ToJson JsonNumber := ⟨Json.num⟩
 
-instance : FromJson Unit := ⟨fun _ => .ok ()⟩
-instance : ToJson Unit := ⟨fun _ => Json.null⟩
+instance : FromJson Unit :=
+  ⟨fun
+    | .obj .empty => .ok ()
+    | json => .error s!"expected \{} to decode Unit, got {json}"⟩
+instance : ToJson Unit := ⟨fun _ => Json.obj {}⟩
 instance : FromJson Empty where
   fromJson? j := throw (s!"type Empty has no constructor to match JSON value '{j}'. \
                            This occurs when deserializing a value for type Empty, \
@@ -147,7 +199,7 @@ protected def NameMap.toJson [ToJson α] (m : NameMap α) : Json :=
 instance [ToJson α] : ToJson (NameMap α) where
   toJson := NameMap.toJson
 
-/-- Note that `USize`s and `UInt64`s are stored as strings because JavaScript
+/-- Note that {name}`USize`s and {name}`UInt64`s are stored as strings because JavaScript
 cannot represent 64-bit numbers. -/
 def bignumFromJson? (j : Json) : Except String Nat := do
   let s ← j.getStr?
@@ -271,7 +323,7 @@ def parseTagged
 
 /--
 Parses a JSON-encoded `structure` or `inductive` constructor, assuming the tag has already been
-checked and `nFields` is nonzero. Used mostly by `deriving FromJson`.
+checked and {name}`nFields` is nonzero. Used mostly by `deriving FromJson`.
 -/
 def parseCtorFields
     (json : Json)

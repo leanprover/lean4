@@ -17,7 +17,7 @@ fi
 mkdir -p build/release
 cd build/release
 eval cmake ../.. \
-    --preset release $(../.././script/prepare-llvm-linux.sh /tmp/llvm/19.1.2.tar.zst) \
+    --preset release $(../.././script/prepare-llvm-linux.sh $LLVM_TARBALL) \
     -DWFAIL=OFF
 cd ../..
 make -C build/release -j"$(nproc)" bench-part1

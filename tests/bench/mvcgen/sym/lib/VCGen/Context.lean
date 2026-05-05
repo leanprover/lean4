@@ -82,10 +82,13 @@ public structure VCGen.Context where
   preTac : PreTac := .none
   /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
   `repeatAndRfl` to collapse trivial `And.intro` chains; when `false`, the goal is
-  emitted as-is. This is the only config option `Driver`/`Solve` consult at runtime;
-  others (`elimLets`, `stepLimit`, `invariants*`) are applied by `Frontend` before/after
-  the worklist runs. -/
+  emitted as-is. -/
   trivial : Bool := true
+  /-- The `jp` config option: when `true`, `tryLetIntro` recognises `__do_jp` lets
+  whose body is a splitter and sets up shared-continuation handling instead of
+  zeta-unfolding. When `false` (default, matching original `mvcgen`), every call
+  site of the JP zeta-unfolds, leading to exponential blow-up on nested splits. -/
+  useJP : Bool := false
   /-- Pre-parsed `invariants`/`invariants?` alternatives, indexed by 1-based invariant
   number. Bullet form maps positions to entries (`bullet n+1 → alt`); labelled form maps
   the parsed `inv<n>` numbers (out-of-order labels are supported). Empty when no

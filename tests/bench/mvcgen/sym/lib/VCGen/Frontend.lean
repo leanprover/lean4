@@ -153,9 +153,6 @@ private meta def warnIgnoredConfig (config : VCGen.Config) : TacticM Unit := do
   let default : VCGen.Config := {}
   if config.leave != default.leave then
     logWarning "mvcgen': the `leave` config option is currently ignored."
-  if config.jp != default.jp then
-    logWarning "mvcgen': the `jp` config option is currently ignored \
-      (shared-continuation handling for `__do_jp` is not yet implemented)."
 
 /-- Parse grind configuration from the `with grind ...` clause and build `Grind.Params`.
 Overrides the internal simp step limit to accommodate large unrolled goals. -/
@@ -311,6 +308,7 @@ public meta def elabMVCGen' : Tactic := fun stx => withMainContext do
   let ctx := { ctx with
     preTac, hypSimpMethods,
     trivial := config.trivial,
+    useJP := config.jp,
     invariantAlts := invariantAlts?.getD {} }
   let result ← Grind.GrindM.run (VCGen.main goal ctx config.stepLimit) params
   -- For `invariants?` (suggest), defer entirely to the upstream elaborator.

@@ -1,5 +1,5 @@
 #!/usr/bin/env nix
-#! nix develop .#oldGlibc --command /usr/bin/env bash
+#! nix develop ..#oldGlibc --command /usr/bin/env bash
 
 # This script must be called from the repo root.
 # The radar environment variables must be provided.

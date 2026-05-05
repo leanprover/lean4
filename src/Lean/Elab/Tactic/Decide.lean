@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Tactic.Basic
+public import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Native
 import Lean.Elab.Tactic.ElabTerm
 

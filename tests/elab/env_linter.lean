@@ -140,7 +140,7 @@ def testGetChecksClippy : CoreM (Array Name) := do
   let checks ← getChecks (scope := .clippy) (runOnly := none)
   return checks.map (·.name)
 
-/-- info: #[`dummyClippyLinter] -/
+/-- info: #[`dummyClippyLinter, `dupNamespace] -/
 #guard_msgs in
 #eval testGetChecksClippy
 
@@ -149,7 +149,7 @@ def testGetChecksAll : CoreM (Array Name) := do
   let checks ← getChecks (scope := .all) (runOnly := none)
   return checks.map (·.name)
 
-/-- info: #[`checkUnivs, `defLemma, `dummyBadName, `dummyClippyLinter] -/
+/-- info: #[`checkUnivs, `defLemma, `dummyBadName, `dummyClippyLinter, `dupNamespace] -/
 #guard_msgs in
 #eval testGetChecksAll
 

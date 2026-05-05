@@ -206,7 +206,7 @@ def diffHypothesesBundle (useAfter : Bool) (ctx₀  : LocalContext) (h₁ : Inte
     if !(ctx₀.contains fvid) then
       if let some decl₀ := ctx₀.findFromUserName? (.mkSimple ppName) then
         -- on ctx₀ there is an fvar with the same name as this one.
-        let t₀ := decl₀.type
+        let t₀ ← instantiateMVars decl₀.type
         return ← withTypeDiff t₀ h₁
       else
         if useAfter then
@@ -219,7 +219,7 @@ where
   withTypeDiff (t₀ : Expr) (h₁ : InteractiveHypothesisBundle) : MetaM InteractiveHypothesisBundle := do
     let some x₁ := h₁.fvarIds[0]?
       | throwError "internal error: empty fvar list!"
-    let t₁ ← inferType <| Expr.fvar x₁
+    let t₁ ← instantiateMVars =<< inferType (Expr.fvar x₁)
     let tδ ← exprDiff t₀ t₁ useAfter
     let c₁ ← addDiffTags useAfter tδ h₁.type
     return {h₁ with type := c₁}

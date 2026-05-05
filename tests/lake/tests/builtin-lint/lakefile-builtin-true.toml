@@ -1,4 +1,5 @@
 name = "lint"
+builtinLint = true
 defaultTargets = ["Main", "Clean", "Linters", "ClippyViolations", "TextLints"]
 
 [[require]]

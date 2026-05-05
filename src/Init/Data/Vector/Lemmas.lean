@@ -970,7 +970,6 @@ theorem eq_push_append_of_mem {xs : Vector α n} {x : α} (h : x ∈ xs) :
       xs = (as.push x ++ bs).cast h ∧ x ∉ as:= by
   rcases xs with ⟨xs, rfl⟩
   obtain ⟨as, bs, h, w⟩ := Array.eq_push_append_of_mem (by simpa using h)
-  simp only at h
   obtain rfl := h
   exact ⟨_, _, as.toVector, bs.toVector, by simp, by simp, by simpa using w⟩
 

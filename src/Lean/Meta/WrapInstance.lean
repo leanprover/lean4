@@ -30,8 +30,10 @@ Given an instance `i : I` and expected type `I'` (where `I'` must be mvar-free),
    (controlled by `backward.inferInstanceAs.wrap.instances`).
 3. Reduce `i` to whnf.
 4. If `i` is not a constructor application: if `I` is already defeq to `I'`,
-   return `i`; otherwise wrap it in an auxiliary definition of type `I'` and return it
-   (controlled by `backward.inferInstanceAs.wrap.instances`).
+   return `i`; otherwise (if `backward.inferInstanceAs.wrap.reuseSubInstances` is set) try
+   (recursive) eta-expansion and wrapping of `i` to see if any sub-instances can be reused;
+   otherwise wrap `i` in an auxiliary definition of type `I'` and return it (controlled by
+   `backward.inferInstanceAs.wrap.instances`).
 5. Otherwise, if `i` is an application of `ctor` of class `C`:
    - Unify the conclusion of the type of `ctor` with `I'` to obtain adjusted field type `Fᵢ'` for
      each field.
@@ -115,12 +117,38 @@ def getParentStructType? (structName parentStructName : Name) (structType : Expr
       failure
     return projTy
 
+def etaStructExpand? (e : Expr) : MetaM (Option Expr) := OptionT.run do
+  guard <| (← liftM <| isConstructorApp? e).isNone
+  let eType ← instantiateMVars (← whnf (← inferType e))
+  let .const inductName us := eType.getAppFn | failure
+  let env ← getEnv
+  guard <| isStructure env inductName
+  guard <| isNonRecStructure env inductName
+  guard <| !(← isProp eType)
+  let iv ← getConstInfoInduct inductName
+  let some ctorName := iv.ctors.head? | failure
+  let ctorInfo ← getConstInfoCtor ctorName
+  let params := eType.getAppArgs.shrink ctorInfo.numParams
+  let structInfo? := getStructureInfo? env inductName
+  let mut result := mkAppN (mkConst ctorName us) params
+  for i in *...ctorInfo.numFields do
+    let proj := match structInfo?.bind (·.getProjFn? i) with
+      | some projFn => mkApp (mkAppN (mkConst projFn us) params) e
+      | none => mkProj inductName i e
+    result := mkApp result proj
+  return result
+
 /--
 Wrap an instance value so its type matches the expected type exactly.
 See the module docstring for the full algorithm specification.
 -/
 public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := true)
-    (logCompileErrors : Bool := true) (isMeta : Bool := false) : MetaM Expr := withTransparency .instances do
+    (logCompileErrors : Bool := true) (isMeta : Bool := false) : MetaM Expr :=
+  withTransparency .instances do
+    return (← go (isEta := false) inst expectedType).get!
+-- If `isEta` is true, will return `none` if no sub-instance was found, i.e. eta-expansion had no
+-- effect.
+where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
   withTraceNode `Meta.wrapInstance
       (fun _ => return m!"type: {expectedType}") do
   let some className ← isClass? expectedType
@@ -137,21 +165,26 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
   (← whnf inst).withApp fun f args => do
     let some (.ctorInfo ci) ← f.constName?.mapM getConstInfo
       | do
-        trace[Meta.wrapInstance] "did not reduce to constructor application, returning/wrapping as is: {inst}"
-        if backward.inferInstanceAs.wrap.instances.get (← getOptions) then
-          let instType ← inferType inst
-          if ← isDefEq expectedType instType then
-            return inst
-          else
-            let name ← mkAuxDeclName
-            let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
-            if isMeta then modifyEnv (markMeta · name)
-            if compile then
-              compileDecls (logErrors := logCompileErrors) #[name]
-            enableRealizationsForConst name
-            return wrapped
-        else
+        trace[Meta.wrapInstance] "did not reduce to constructor application: {inst}"
+        let instType ← inferType inst
+        if ← isDefEq expectedType instType then
           return inst
+
+        if backward.inferInstanceAs.wrap.reuseSubInstances.get (← getOptions) then
+          if let some inst ← etaStructExpand? inst then
+            if let some inst ← go (isEta := true) inst expectedType then
+              return inst
+
+        if backward.inferInstanceAs.wrap.instances.get (← getOptions) then
+          let name ← mkAuxDeclName
+          let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
+          if isMeta then modifyEnv (markMeta · name)
+          if compile then
+            compileDecls (logErrors := logCompileErrors) #[name]
+          enableRealizationsForConst name
+          return wrapped
+
+        return inst
     let (mvars, _, cls) ← forallMetaTelescope (← inferType f)
     if h₁ : args.size ≠ mvars.size then
       throwError "wrapInstance: incorrect number of arguments for \
@@ -160,6 +193,7 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
       unless ← isDefEq expectedType cls do
         throwError "wrapInstance: `{expectedType}` does not unify with the conclusion of \
           `{.ofConstName ci.name}`"
+      let mut isEta := isEta
       for h₂ : i in ci.numParams...args.size do
         have : i < mvars.size := by
           simp only [ne_eq, Decidable.not_not] at h₁
@@ -186,14 +220,28 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
             -- semireducible transparency.
             try
               if let .some new ← trySynthInstance argExpectedType then
-                trace[Meta.wrapInstance] "using existing instance {new}"
-                mvarId.assign new
-                continue
+                -- ignore instances from non-defeq diamonds
+                if (← withDefault <| isDefEq new arg) then
+                  trace[Meta.wrapInstance] "using existing instance {new}"
+                  mvarId.assign new
+                  isEta := false
+                  continue
             catch _ => pure ()
 
-          mvarId.assign (← wrapInstance arg argExpectedType (compile := compile)
-            (logCompileErrors := logCompileErrors) (isMeta := isMeta))
+          -- continue eta-expansion recursively so we know whether any sub-instance was found
+          if isEta then
+            if let some arg ← etaStructExpand? arg then
+              if let some inst ← go (isEta := true) arg argExpectedType then
+                mvarId.assign inst
+                isEta := false
+                continue
+
+          mvarId.assign (← go (isEta := false) arg argExpectedType).get!
           continue
+
+        -- If we hit a data field without having found any sub-instances, we can stop early
+        if isEta then
+          return none
 
         if backward.inferInstanceAs.wrap.reuseSubInstances.get (← getOptions) then
           let (baseClassName, fieldInfo) ← getFieldOrigin className mvarDecl.userName
@@ -202,9 +250,12 @@ public partial def wrapInstance (inst expectedType : Expr) (compile : Bool := tr
             if let some baseClassType ← getParentStructType? className baseClassName expectedType then
               try
                 if let .some existingBaseClassInst ← trySynthInstance baseClassType then
-                  trace[Meta.wrapInstance] "using projection of existing instance `{existingBaseClassInst}`"
-                  mvarId.assign (← mkProjection existingBaseClassInst fieldInfo.fieldName)
-                  continue
+                  let proj ← mkProjection existingBaseClassInst fieldInfo.fieldName
+                  -- ignore instances from non-defeq diamonds
+                  if (← withDefault <| isDefEq proj arg) then
+                    trace[Meta.wrapInstance] "using projection of existing instance `{existingBaseClassInst}`"
+                    mvarId.assign proj
+                    continue
                 trace[Meta.wrapInstance] "did not find existing instance for `{baseClassName}`"
               catch e =>
                 trace[Meta.wrapInstance] "error when attempting to reuse existing instance for `{baseClassName}`: {e.toMessageData}"

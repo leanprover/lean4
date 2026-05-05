@@ -131,7 +131,7 @@ def internalize (e : Expr) (_ : Option Expr) : GoalM Unit := do
         let thm := mkAppN (mkConst thmName us) e.getAppArgs
         let pred ← Meta.inferType thm
         trace[homo.pred] "{pred}"
-        addNewRawFact thm (← Meta.inferType thm) (← getGeneration e) .input
+        addNewRawFact thm (← Meta.inferType thm) (← getGeneration e) .input .other
         return ()
   unless (← isTarget e) do return ()
   if !(← alreadyInternalized e) then

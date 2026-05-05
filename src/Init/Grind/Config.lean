@@ -116,6 +116,10 @@ structure Config where
   -/
   ringSteps := 100000
   /--
+  Maximum degree of polynomials processed by the `ring` solver.
+  -/
+  ringMaxDegree := 1024
+  /--
   When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
   `CommRing`.
   -/
@@ -257,6 +261,9 @@ structure NoopConfig extends Config where
   lia       := false
   ac        := false
   order     := false
+
+  -- Disable model-based theory combination
+  mbtc      := false
 
 /--
 A `grind` configuration that only uses `cutsat` and splitting.

@@ -128,7 +128,7 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       let u ← getLevel α
       let prop := mkApp2 (mkConst ``Exists [u]) α (mkLambda n bi α (mkNot p))
       let proof := mkApp3 (mkConst ``Grind.of_forall_eq_false [u]) α (mkLambda n bi α p) (← mkEqFalseProof e)
-      addNewRawFact proof prop (← getGeneration e) (.forallProp e)
+      addNewRawFact proof prop (← getGeneration e) (.forallProp e) .other
     else
       let h ← mkEqFalseProof e
       pushEqTrue a <| mkApp3 (mkConst ``Grind.eq_true_of_imp_eq_false) a b h
@@ -138,7 +138,7 @@ def propagateForallPropDown (e : Expr) : GoalM Unit := do
       trace_goal[grind.eqResolution] "{e}, {e'}"
       let h := mkOfEqTrueCore e (← mkEqTrueProof e)
       let h' := mkApp h' h
-      addNewRawFact h' e' (← getGeneration e) (.forallProp e)
+      addNewRawFact h' e' (← getGeneration e) (.forallProp e) .other
     if b.hasLooseBVars then
       unless (← isProp a) do
         /-
@@ -163,7 +163,7 @@ builtin_grind_propagator propagateExistsDown ↓Exists := fun e => do
     let notP := mkApp (mkConst ``Not) (mkApp p (.bvar 0) |>.headBeta)
     let prop := mkForall `x .default α notP
     let proof := mkApp3 (mkConst ``forall_not_of_not_exists u) α p (mkOfEqFalseCore e (← mkEqFalseProof e))
-    addNewRawFact proof prop (← getGeneration e) (.existsProp e)
+    addNewRawFact proof prop (← getGeneration e) (.existsProp e) .other
 
 private def isForallOrNot? (e : Expr) : Option (Name × Expr × Expr) :=
   if let .forallE n d b _ := e then

@@ -22,29 +22,34 @@ def checkVars : ACM Unit := do
     num := num + 1
   assert! s.vars.size == num
 
-def checkSeq (s : AC.Seq) : ACM Unit := do
+/-
+**Note**: Elements in the todo queue are not fully simplified.
+Recall that we only (fully) simplify them when adding them to the basis.
+-/
+def checkSeq (s : AC.Seq) (simplified : Bool) : ACM Unit := do
   if (← isCommutative) then
     assert! s.isSorted
   if (← hasNeutral) then
     assert! !s.contains 0 || s == .var 0
-  if (← isIdempotent) then
-    assert! s.noAdjacentDuplicates
+  if simplified then
+    if (← isIdempotent) then
+      assert! s.noAdjacentDuplicates
 
-def checkLhsRhs (lhs rhs : AC.Seq) : ACM Unit := do
-  checkSeq lhs; checkSeq rhs
+def checkLhsRhs (lhs rhs : AC.Seq) (simplified : Bool) : ACM Unit := do
+  checkSeq lhs simplified; checkSeq rhs simplified
 
 def checkBasis : ACM Unit := do
   for c in (← getStruct).basis do
     assert! compare c.lhs c.rhs == .gt
-    checkLhsRhs c.lhs c.rhs
+    checkLhsRhs c.lhs c.rhs (simplified := true)
 
 def checkQueue : ACM Unit := do
   for c in (← getStruct).queue do
-    checkLhsRhs c.lhs c.rhs
+    checkLhsRhs c.lhs c.rhs (simplified := false)
 
 def checkDiseqs : ACM Unit := do
   for c in (← getStruct).diseqs do
-    checkLhsRhs c.lhs c.rhs
+    checkLhsRhs c.lhs c.rhs (simplified := true)
 
 def checkStructInvs : ACM Unit := do
   checkVars

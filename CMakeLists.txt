@@ -52,7 +52,8 @@ if(NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
       # Use same platform flags as for Lean executables, in particular from `prepare-llvm-linux.sh`,
       # but not Lean-specific `LEAN_EXTRA_CXX_FLAGS` such as fsanitize.
       set(CADICAL_CXXFLAGS "${CMAKE_CXX_FLAGS}")
-      set(CADICAL_LDFLAGS "-Wl,-rpath=\\$$ORIGIN/../lib")
+      string(REPLACE "ROOT" "${CMAKE_BINARY_DIR}/stage1" CADICAL_INTERNAL_LINKER_FLAGS "${LEANC_INTERNAL_LINKER_FLAGS}")
+      set(CADICAL_LDFLAGS "${CADICAL_INTERNAL_LINKER_FLAGS} -Wl,-rpath=\\$$ORIGIN/../lib")
     endif()
     find_program(CCACHE ccache)
     if(CCACHE)

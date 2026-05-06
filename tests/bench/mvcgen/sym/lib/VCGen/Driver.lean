@@ -68,7 +68,15 @@ private meta def tryInlineInvariant (n : Nat) (mv : MVarId) : VCGenM Bool := do
     let _ ← Lean.Elab.runTactic mv tac {} {}
     -- The tactic runs without throwing even when it fails to close the goal;
     -- check explicitly that the MVar got assigned.
-    mv.isAssigned
+    if ← mv.isAssigned then
+      -- Preprocess the assignment to `mv` because it will interact with the `SymM` world
+      if let some val ← getExprMVarAssignment? mv then
+        let val ← unfoldReducible val
+        let val ← shareCommon val
+        mv.assign val
+      return true
+    else
+      return false
   catch _ =>
     return false
 

@@ -6208,7 +6208,6 @@ LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___0
 _start:
 {
 lean_object* v___x_1754_; 
-lean_inc_ref(v_b_1748_);
 v___x_1754_ = l_Lean_Meta_reduceRecMatcher_x3f(v_b_1748_, v___y_1749_, v___y_1750_, v___y_1751_, v___y_1752_);
 if (lean_obj_tag(v___x_1754_) == 0)
 {

@@ -131,9 +131,19 @@ def internalize (e : Expr) (_ : Option Expr) : GoalM Unit := do
         let thm := mkAppN (mkConst thmName us) e.getAppArgs
         let pred ← Meta.inferType thm
         trace[homo.pred] "{pred}"
-        addNewRawFact thm (← Meta.inferType thm) (← getGeneration e) .input
+        addNewRawFact thm (← Meta.inferType thm) (← getGeneration e) .input .other
         return ()
   unless (← isTarget e) do return ()
+  if !(← alreadyInternalized e) then
+    /-
+    The `grind` core has an optimization: it does not internalize top-level equalities
+    since they can be merged immediately. A satellite solver may implement the `newEq` handler,
+    but this is too inconvenient. It is easier to force `e` to be internalized.
+    -/
+    let_expr Eq _ lhs rhs := e | return ()
+    let gen := max (← getGeneration lhs) (← getGeneration rhs)
+    Grind.internalize e gen
+    return ()
   let .step e₁ h₁ _ ← applyHomo e | return ()
   let r ← preprocess e₁
   let h ← mkEqTrans h₁ (← r.getProof)

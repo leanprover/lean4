@@ -289,6 +289,7 @@ def assertNext : Action := fun goal kna kp => do
     | kna goal
   let goal := { goal with newRawFacts }
   withSplitSource fact.splitSource do
+  withEmatchDiagSource fact.ematchDiagSource do
     assertAt fact.proof fact.prop fact.generation goal kna kp
 
 /--

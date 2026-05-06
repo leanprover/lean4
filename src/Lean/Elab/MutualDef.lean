@@ -1184,6 +1184,11 @@ register_builtin_option warn.exposeOnPrivate : Bool := {
   descr    := "warn about uses of `@[expose]` on private declarations"
 }
 
+register_builtin_option warn.redundantExpose : Bool := {
+  defValue := true
+  descr    := "warn about redundant `@[expose]`/`@[no_expose]` attributes"
+}
+
 def elabMutualDef (vars : Array Expr) (sc : Command.Scope) (views : Array DefView) : TermElabM Unit :=
   if isExample views then
     withoutModifyingEnv do
@@ -1328,35 +1333,49 @@ where
     applyAttributesAt declId.declName view.modifiers.attrs .afterCompilation
   finishElab headers := withFunLocalDecls headers fun funFVars => do
     let env ← getEnv
-    if warn.exposeOnPrivate.get (← getOptions) then
-      if env.header.isModule && !env.isExporting then
-        for header in headers do
-          for attr in header.modifiers.attrs do
-            if attr.name == `expose then
-              logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
-                definitions only"
+    let inExposeSection := sc.attrs.any (· matches `(attrInstance| expose))
+    -- Determine whether each header would be exposed without any explicit `@[expose]`/`@[no_expose]`
+    let wouldBeExposed ← headers.mapM fun header => do
+      if header.kind == .abbrev then return true
+      if header.kind == .instance then
+        if !(← isProp header.type) then return true
+      if header.kind == .def && (!header.modifiers.isMeta || sc.isMeta) && inExposeSection then return true
+      return false
+    let hasExpose (header : DefViewElabHeader) := header.modifiers.attrs.any (·.name == `expose)
+    let hasNoExpose (header : DefViewElabHeader) := header.modifiers.attrs.any (·.name == `no_expose)
 
-    -- Switch to private scope if...
+    let opts ← getOptions
+    let warnExposeOnPrivate := warn.exposeOnPrivate.get opts
+    let warnRedundantExpose := warn.redundantExpose.get opts
+    for header in headers, exposed in wouldBeExposed do
+      for attr in header.modifiers.attrs do
+        -- skip macro-generated attributes
+        unless attr.stx.getHeadInfo matches .original .. do continue
+        match attr.name with
+        | `expose =>
+          if warnExposeOnPrivate && env.header.isModule && !env.isExporting then
+            logWarningAt attr.stx m!"Redundant `[expose]` attribute, it is meaningful on public \
+              definitions only"
+          if warnRedundantExpose then
+            if !env.header.isModule then
+              logWarningAt attr.stx m!"`@[expose]` has no effect outside a `module` file"
+            else if env.isExporting && exposed then
+              logWarningAt attr.stx m!"`@[expose]` has no effect; this declaration would be exposed by default"
+        | `no_expose =>
+          if warnRedundantExpose then
+            if !env.header.isModule then
+              logWarningAt attr.stx m!"`@[no_expose]` has no effect outside a `module` file"
+            else if env.isExporting && !exposed && !hasExpose header then
+              logWarningAt attr.stx m!"`@[no_expose]` has no effect; this declaration would not \
+                be exposed by default"
+        | _ => pure ()
+
     withoutExporting (when :=
-      (← headers.allM (fun header => do
-        -- ... there is a `@[no_expose]` attribute
-        if header.modifiers.attrs.any (·.name == `no_expose) then
-          return true
-        -- ... or NONE of the following:
-        -- ... this is a non-`meta` `def` inside a `@[expose] section`
-        if header.kind == .def && (!header.modifiers.isMeta || sc.isMeta) && sc.attrs.any (· matches `(attrInstance| expose)) then
-          return false
-        -- ... there is an `@[expose]` attribute directly on the def (of any kind or phase)
-        if header.modifiers.attrs.any (·.name == `expose) then
-          return false
-        -- ... this is an `abbrev`
-        if header.kind == .abbrev then
-          return false
-        -- ... this is a data instance
-        if header.kind == .instance then
-          if !(← isProp header.type) then
-            return false
+      (← (headers.zip wouldBeExposed).allM (fun (header, exposed) => do
+        if hasNoExpose header then return true
+        if exposed || hasExpose header then return false
         return true))) do
+
     -- Never export private decls from theorem bodies to make sure they stay irrelevant for rebuilds
     withOptions (fun opts =>
       if headers.any (·.kind.isTheorem) then ResolveName.backward.privateInPublic.set opts false else opts) do

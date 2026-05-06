@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.Simp
 public import Lean.Meta.Tactic.Simp.LoopProtection
 public import Lean.Elab.BuiltinNotation
 public import Lean.Elab.Tactic.Location
+import Lean.Meta.Check
 
 public section
 
@@ -667,6 +668,7 @@ def simpLocation (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (discharge
 where
   go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Simp.Stats := do
     let mvarId ← getMainGoal
+    withInstancesTypeCheckNote (← mvarId.getType) do
     let (result?, stats) ← simpGoal mvarId ctx (simprocs := simprocs) (simplifyTarget := simplifyTarget) (discharge? := discharge?) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []
@@ -696,6 +698,7 @@ def withSimpDiagnostics (x : TacticM Simp.Diagnostics) : TacticM Unit := do
   return stats.diag
 
 @[builtin_tactic Lean.Parser.Tactic.simpAll] def evalSimpAll : Tactic := fun stx => withMainContext do withSimpDiagnostics do
+  withInstancesTypeCheckNote (← getMainTarget) do
   let r@{ ctx, simprocs, dischargeWrapper := _, simpArgs } ← mkSimpContext stx (eraseLocal := true) (kind := .simpAll) (ignoreStarArg := true)
   if ctx.config.suggestions then
     throwError "+suggestions requires using simp_all? instead of simp_all"
@@ -724,6 +727,7 @@ def dsimpLocation (ctx : Simp.Context) (simprocs : Simp.SimprocsArray) (loc : Lo
 where
   go (fvarIdsToSimp : Array FVarId) (simplifyTarget : Bool) : TacticM Unit := withSimpDiagnostics do
     let mvarId ← getMainGoal
+    withInstancesTypeCheckNote (← mvarId.getType) do
     let (result?, stats) ← dsimpGoal mvarId ctx simprocs (simplifyTarget := simplifyTarget) (fvarIdsToSimp := fvarIdsToSimp)
     match result? with
     | none => replaceMainGoal []

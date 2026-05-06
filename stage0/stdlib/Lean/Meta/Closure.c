@@ -151,7 +151,7 @@ lean_object* l_Array_reverse___redArg(lean_object*);
 lean_object* l_Lean_LocalDecl_toExpr(lean_object*);
 lean_object* lean_expr_abstract(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instInhabitedMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* l_Lean_Meta_mkAuxLemma(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_Lean_Meta_mkAuxLemma(lean_object*, lean_object*, lean_object*, lean_object*, uint8_t, uint8_t, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l_Nat_foldRev___redArg(lean_object*, lean_object*, lean_object*);
@@ -14066,7 +14066,7 @@ lean_inc_ref(v_exprArgs_4414_);
 lean_dec(v_a_4409_);
 v___x_4415_ = lean_array_to_list(v_levelParams_4410_);
 v___x_4416_ = 0;
-v___x_4417_ = l_Lean_Meta_mkAuxLemma(v___x_4415_, v_type_4411_, v_value_4412_, v_kind_x3f_4401_, v_cache_4402_, v___x_4416_, v___x_4416_, v_a_4403_, v_a_4404_, v_a_4405_, v_a_4406_);
+v___x_4417_ = l_Lean_Meta_mkAuxLemma(v___x_4415_, v_type_4411_, v_value_4412_, v_kind_x3f_4401_, v_cache_4402_, v___x_4416_, v___x_4416_, v___x_4416_, v_a_4403_, v_a_4404_, v_a_4405_, v_a_4406_);
 if (lean_obj_tag(v___x_4417_) == 0)
 {
 lean_object* v_a_4418_; lean_object* v___x_4420_; uint8_t v_isShared_4421_; uint8_t v_isSharedCheck_4428_; 

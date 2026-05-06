@@ -1622,6 +1622,15 @@ def getNumHeadLambdas : Expr → Nat
   | _ => 0
 
 /--
+Returns the "body" of a nested lambda expression, like in `Expr.getForallBody`.
+The number of skipped lambdas is given by `Expr.getNumHeadLambdas`.
+-/
+def getLambdaBody : Expr → Expr
+  | .lam _ _ b _ => getLambdaBody b
+  | .mdata _ b => getLambdaBody b
+  | e => e
+
+/--
 Return true if the given expression is the function of an expression that is target for (head) beta reduction.
 If `useZeta = true`, then `let`-expressions are visited. That is, it assumes
 that zeta-reduction (aka let-expansion) is going to be used.

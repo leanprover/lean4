@@ -331,7 +331,55 @@ def assignLevel (uidx : Nat) (u : Level) : UnifyM Bool := do
     modify fun s => { s with uAssignment := s.uAssignment.set! uidx (some u) }
     return true
 
-def processLevel (u : Level) (v : Level) : UnifyM Bool :=
+/-- Returns `true` is `u` has assigned uvars. -/
+def hasAssignedUVars (assignment : Array (Option Level)) (u : Level) : Bool :=
+  go u
+where
+  go (u : Level) : Bool := Id.run do
+    unless u.hasParam do return false
+    match u with
+    | .succ u₁ => go u₁
+    | .max u₁ u₂ | .imax u₁ u₂ => go u₁ || go u₂
+    | .param name =>
+      let some uidx := isUVar? name | return false
+      if h : uidx < assignment.size then return assignment[uidx].isSome
+      return false
+    | _ => false
+
+/-- Substitutes uvars in `u` with their assignments. -/
+def substAssignedUVars (assignment : Array (Option Level)) (u : Level) : Level :=
+  go u
+where
+  go (u : Level) : Level := Id.run do
+    match u with
+    | .succ u₁    => return .succ (go u₁)
+    | .max u₁ u₂  => return .max (go u₁) (go u₂)
+    | .imax u₁ u₂ => return .imax (go u₁) (go u₂)
+    | .param name =>
+      let some uidx := isUVar? name | return u
+      if h : uidx < assignment.size then
+        let some v := assignment[uidx] | return u
+        return v
+      else
+        return u
+    | _ => return u
+
+/-- Substitutes uvars in `u` with their assignments, and then normalize. -/
+def substAssignedUVarsAndNormalize (u : Level) : UnifyM Level := do
+  let assignment := (← get).uAssignment
+  unless hasAssignedUVars assignment u do return u
+  let v := substAssignedUVars assignment u
+  return v.normalize
+
+def processLevel (u : Level) (v : Level) : UnifyM Bool := do
+  /-
+  **Note**: If new uvars in `u` have been assigned, we continue replace them, and
+  continue the search. The motivation for using `substAssignedUVarsAndNormalize` is
+  `processLevels [_uvar.0, max _uvar.0 _uvar.1] [0, u_1]`
+  which invokes `processLevel _uvar.0 0` and assigns `_uvar.0` before we invoke
+  `processLevel (max _uvar.0 _uvar.1) u_1`
+  -/
+  let u ← substAssignedUVarsAndNormalize u
   go u v.normalize
 where
   go (u : Level) (v : Level) : UnifyM Bool := do

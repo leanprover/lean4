@@ -108,7 +108,7 @@ def _root_.Lean.Grind.CommRing.Poly.findSimp? (p : Poly) : RingM (Option EqCnstr
 
 /-- Simplifies `d.p` using `c`, and returns an extended polynomial derivation. -/
 def PolyDerivation.simplifyWith (d : PolyDerivation) (c : EqCnstr) : RingM PolyDerivation := do
-  let some r := d.p.simp? c.p (← nonzeroChar?) | return d
+  let some r ← d.p.simpM? c.p | return d
   incSteps r.p.numTerms
   trace_goal[grind.ring.simp] "{← r.p.denoteExpr}"
   return .step r.p r.k₁ d r.k₂ r.m₂ c
@@ -132,7 +132,7 @@ def PolyDerivation.simplify (d : PolyDerivation) : RingM PolyDerivation := do
 
 /-- Simplifies `c₁` using `c₂`. -/
 def EqCnstr.simplifyWithCore (c₁ c₂ : EqCnstr) : RingM (Option EqCnstr) := do
-  let some r := c₁.p.simp? c₂.p (← nonzeroChar?) | return none
+  let some r ← c₁.p.simpM? c₂.p | return none
   let c := { c₁ with
     p := r.p
     h := .simp r.k₁ c₁ r.k₂ r.m₂ c₂
@@ -221,6 +221,7 @@ def addToBasisCore (c : EqCnstr) : RingM Unit := do
 def EqCnstr.addToQueue (c : EqCnstr) : RingM Unit := do
   if (← checkMaxSteps) then return ()
   trace_goal[grind.ring.assert.queue] "{← c.denoteExpr}"
+  if (← checkMaxDegree c.p) then return () -- discard
   modifyCommRing fun s => { s with queue := s.queue.insert c }
 
 def EqCnstr.superposeWith (c : EqCnstr) : RingM Unit := do
@@ -307,6 +308,7 @@ private def checkNumEq0Updated : RingM Unit := do
     checkNumEq0Updated
 
 def EqCnstr.addToBasis (c : EqCnstr) : RingM Unit := do
+  if (← checkMaxDegree c.p) then return () -- discard
   withCheckingNumEq0 do
     let some c ← c.simplifyAndCheck | return ()
     c.addToBasisAfterSimp

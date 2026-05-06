@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Sync.StreamMap
-// Imports: public import Std.Data public import Init.Data.Queue public import Std.Internal.Async.IO
+// Imports: public import Std.Data public import Init.Data.Queue public import Std.Async.IO
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -33,13 +33,13 @@ lean_object* l_Id_instMonad___lam__1___boxed(lean_object*, lean_object*, lean_ob
 lean_object* l_Id_instMonad___lam__0(lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_anyMUnsafe_any(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t);
 size_t lean_array_size(lean_object*);
-lean_object* l_Std_Internal_IO_Async_Selectable_combine___redArg(lean_object*);
+lean_object* l_Std_Async_Selectable_combine___redArg(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l_Std_Internal_IO_Async_Selectable_tryOne___redArg(lean_object*);
-lean_object* l_Std_Internal_IO_Async_Selectable_one___redArg(lean_object*);
+lean_object* l_Std_Async_Selectable_tryOne___redArg(lean_object*);
+lean_object* l_Std_Async_Selectable_one___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_AnyAsyncStream_getSelector___redArg(lean_object*);
 LEAN_EXPORT lean_object* l_Std_AnyAsyncStream_getSelector(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instCoeDepAnyAsyncStreamOfAsyncStream___redArg(lean_object*, lean_object*);
@@ -564,7 +564,7 @@ lean_object* v_val_170_; size_t v_sz_172_; size_t v___x_173_; lean_object* v_sel
 v_sz_172_ = lean_array_size(v_stream_167_);
 v___x_173_ = ((size_t)0ULL);
 v_selectables_174_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_StreamMap_selector_spec__0___redArg(v_sz_172_, v___x_173_, v_stream_167_);
-v___x_175_ = l_Std_Internal_IO_Async_Selectable_combine___redArg(v_selectables_174_);
+v___x_175_ = l_Std_Async_Selectable_combine___redArg(v_selectables_174_);
 if (lean_obj_tag(v___x_175_) == 0)
 {
 lean_object* v_a_176_; lean_object* v___x_178_; uint8_t v_isShared_179_; uint8_t v_isSharedCheck_183_; 
@@ -711,7 +711,7 @@ size_t v_sz_221_; size_t v___x_222_; lean_object* v_selectables_223_; lean_objec
 v_sz_221_ = lean_array_size(v_stream_219_);
 v___x_222_ = ((size_t)0ULL);
 v_selectables_223_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_StreamMap_selector_spec__0___redArg(v_sz_221_, v___x_222_, v_stream_219_);
-v___x_224_ = l_Std_Internal_IO_Async_Selectable_one___redArg(v_selectables_223_);
+v___x_224_ = l_Std_Async_Selectable_one___redArg(v_selectables_223_);
 return v___x_224_;
 }
 }
@@ -746,7 +746,7 @@ size_t v_sz_240_; size_t v___x_241_; lean_object* v_selectables_242_; lean_objec
 v_sz_240_ = lean_array_size(v_stream_238_);
 v___x_241_ = ((size_t)0ULL);
 v_selectables_242_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Std_StreamMap_selector_spec__0___redArg(v_sz_240_, v___x_241_, v_stream_238_);
-v___x_243_ = l_Std_Internal_IO_Async_Selectable_tryOne___redArg(v_selectables_242_);
+v___x_243_ = l_Std_Async_Selectable_tryOne___redArg(v_selectables_242_);
 return v___x_243_;
 }
 }
@@ -1620,7 +1620,7 @@ return v_res_629_;
 }
 lean_object* runtime_initialize_Std_Data(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Queue(uint8_t builtin);
-lean_object* runtime_initialize_Std_Internal_Async_IO(uint8_t builtin);
+lean_object* runtime_initialize_Std_Async_IO(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Sync_StreamMap(uint8_t builtin) {
 lean_object * res;
@@ -1632,7 +1632,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Queue(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Std_Internal_Async_IO(builtin);
+res = runtime_initialize_Std_Async_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -1646,7 +1646,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Std_Data(uint8_t builtin);
 lean_object* initialize_Init_Data_Queue(uint8_t builtin);
-lean_object* initialize_Std_Internal_Async_IO(uint8_t builtin);
+lean_object* initialize_Std_Async_IO(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Sync_StreamMap(uint8_t builtin) {
 lean_object * res;
@@ -1658,7 +1658,7 @@ lean_dec_ref(res);
 res = initialize_Init_Data_Queue(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Std_Internal_Async_IO(builtin);
+res = initialize_Std_Async_IO(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Sync_StreamMap(builtin);

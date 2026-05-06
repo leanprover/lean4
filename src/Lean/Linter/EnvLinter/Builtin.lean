@@ -97,6 +97,18 @@ a higher universe level than `α`. -/
     if bad.isEmpty then return none
     return m!"universes {bad} only occur together."
 
+/-- A linter for checking whether a declaration has a namespace twice consecutively in its name. -/
+@[builtin_env_linter clippy] def dupNamespace : EnvLinter where
+  noErrorsFound := "No declarations have a duplicate namespace."
+  errorsFound := "DUPLICATED NAMESPACES IN NAME:"
+  test declName := do
+    if ← isAutoDecl declName then return none
+    if ← isImplicitReducible declName then return none
+    let nm := declName.components
+    let some (dup, _) := nm.zip nm.tail! |>.find? fun (x, y) => x == y
+      | return none
+    return m!"The namespace {dup} is duplicated in the name"
+
 end Lean.Linter.EnvLinter
 
 end

@@ -2191,34 +2191,6 @@ theorem Spec.forIn_stringSlice
       next b => simp [ih _ _ hsp.next]
   | endPos => simpa using Triple.pure _ (by simp)
 
-/-!
-# Repeat loop specification infrastructure
--/
-
-/--
-Cursor type for `Repeat` loop invariants.
-Represents either a loop iteration in progress or a completed loop.
--/
-inductive RepeatCursor (β : Type u) where
-  /-- The loop is in progress with the current accumulator state `s`. -/
-  | «repeat» (s : β) : RepeatCursor β
-  /-- The loop has finished with the final accumulator state `s`. -/
-  | done (s : β) : RepeatCursor β
-
-/--
-An invariant for a `Repeat` loop. A postcondition over `RepeatCursor β` capturing both
-the in-progress and completed states.
--/
-@[spec_invariant_type]
-abbrev RepeatInvariant (β : Type u) (ps : PostShape.{u}) := PostCond (RepeatCursor β) ps
-
-/--
-A variant (termination measure) for a `Repeat` loop.
-Maps the accumulator state to a natural number that decreases with each iteration.
--/
-@[spec_invariant_type]
-abbrev RepeatVariant (β : Type u) := β → Nat
-
 section ErasesTo
 
 variable {α : Type u₁} {m : Type u₁ → Type v} {ps : PostShape.{u₁}}
@@ -2271,6 +2243,10 @@ open Std.Do
 variable {α β : Type u} {m : Type u → Type v} {ps : PostShape.{u}}
 variable [Monad m] [WP m ps] [WPAdequate m ps]
 
+/--
+A `wp`-provable measure that strictly decreases on `.inl` witnesses an `Acc` chain at `init`,
+unblocking `whileM_eq`.
+-/
 theorem _root_.whileM.IsPlausibleStep.acc_of_wp
     {f : α → m (α ⊕ β)} {P : α ⊕ β → Prop} (measure : α → Nat) (init : α) (hP : P (.inl init))
     (h : ∀ a, ⦃⌜P (.inl a)⌝⦄ f a ⦃⇓ r => ⌜P r ∧ ∀ a', r = .inl a' → measure a' < measure a⌝⦄) :
@@ -2287,11 +2263,9 @@ theorem _root_.whileM.IsPlausibleStep.acc_of_wp
   exact ih _ (hn ▸ hpost.2 a' rfl) _ hpost.1 rfl
 
 /--
-An invariant for a `whileM`.
-The `.inl` case signals the `continue` case while the `.inr` case signals the `break` case.
-In contrast to `Invariant`, while invariants are `Prop`-valued and
-thus cannot range over internal state.
-This is a fundamental limitation of how `whileM` is implemented.
+An invariant for a `whileM` loop: `.inl` is the `continue` case, `.inr` is the `break` case.
+Unlike `Invariant`, this is `Prop`-valued and cannot range over internal state — a fundamental
+limitation of how `whileM` is implemented.
 -/
 @[spec_invariant_type]
 abbrev WhileInvariant (α β : Type u) := α ⊕ β → Prop
@@ -2305,7 +2279,7 @@ variable [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] [WPMona
 
 /--
 Specification for `whileM`. The user supplies a termination measure `μ`, an invariant, and a step
-proof whose post both preserves the invariant and shows the variant strictly decreases on yield.
+proof whose post preserves the invariant and shows `μ` strictly decreases on `.inl`.
 -/
 @[spec]
 theorem Spec.whileM
@@ -2346,8 +2320,8 @@ theorem Spec.whileM
 
 /--
 Specification for `forIn` over a `Lean.Loop`. The user supplies a termination measure `μ`, an
-invariant, and a step proof whose post both preserves the invariant and shows the variant
-strictly decreases on yield.
+invariant, and a step proof whose post preserves the invariant and shows `μ` strictly decreases
+on `.yield`.
 -/
 @[spec]
 theorem Spec.forIn_loop

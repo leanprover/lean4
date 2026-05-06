@@ -261,6 +261,7 @@ instance : LawfulMonad Id := by
 
 end Id
 
+/-- An `ErasesTo`-witnessed refinement `x` of `y` recovers `y` by projecting out the property. -/
 public theorem Internal.ErasesTo.map_eq {α : Type u} {m : Type u → Type v} {P : α → Prop}
     {x : m {b : α // P b}} {y : m α} [Monad m] [LawfulMonad m] (h : Internal.ErasesTo x y) :
     Subtype.val <$> x = y := by

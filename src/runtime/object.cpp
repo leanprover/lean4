@@ -416,9 +416,6 @@ static void lean_del_core(object * o, object * & todo) {
     if (LEAN_LIKELY(tag <= LeanMaxCtorTag)) {
         object ** it  = lean_ctor_obj_cptr(o);
         object ** end = it + lean_ctor_num_objs(o);
-        for (object** itp = it; itp != end; ++itp) {
-            __builtin_prefetch(itp, 1, 0);
-        }
         for (; it != end; ++it) dec(*it, todo);
         lean_free_small_object(o);
     } else {

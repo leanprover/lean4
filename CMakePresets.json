@@ -33,14 +33,14 @@
       "binaryDir": "${sourceDir}/build/debug"
     },
     {
-      "name": "reldebug",
+      "name": "relwithassert",
       "displayName": "Release with assertions enabled",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithAssert",
         "STRIP_BINARIES": "OFF"
       },
       "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/build/reldebug"
+      "binaryDir": "${sourceDir}/build/relwithassert"
     },
     {
       "name": "sanitize",
@@ -79,8 +79,8 @@
       "configurePreset": "debug"
     },
     {
-      "name": "reldebug",
-      "configurePreset": "reldebug"
+      "name": "relwithassert",
+      "configurePreset": "relwithassert"
     },
     {
       "name": "sanitize",
@@ -108,8 +108,8 @@
       "inherits": "release"
     },
     {
-      "name": "reldebug",
-      "configurePreset": "reldebug",
+      "name": "relwithassert",
+      "configurePreset": "relwithassert",
       "inherits": "release"
     },
     {

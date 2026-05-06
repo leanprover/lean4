@@ -301,11 +301,11 @@ jobs:
                 "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
               },
               {
-                "name": "Linux Reldebug",
+                "name": "Linux RelWithAssert",
                 "os": "ubuntu-latest",
                 "enabled": level >= 2,
                 "test": true,
-                "CMAKE_PRESET": "reldebug",
+                "CMAKE_PRESET": "relwithassert",
                 // * `elab_bench/big_do` crashes with exit code 134
                 // * `compile_bench/channel` randomly segfaults
                 "CTEST_OPTIONS": "-E 'elab_bench/big_do|compile_bench/channel'",

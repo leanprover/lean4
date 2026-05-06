@@ -192,40 +192,36 @@ elab_rules : tactic
   dbg_trace "blocked!"
   log "blocked"
 
-/-! ## Helpers for end-to-end testing of parallel subtask cancellation -/
+/-! ## Helpers for end-to-end testing of cancellation propagation -/
 
-meta initialize checkCancelRefs : IO.Ref (Std.HashMap String (Task Unit × IO.CancelToken)) ← IO.mkRef {}
+meta initialize blockUntilCancelledOnce : IO.Ref (Std.HashMap String (Task Unit)) ← IO.mkRef {}
 
 /--
-Tests whether the cancel token is properly set on re-elaboration. On first invocation with a
-given label, loops checking `Core.checkSystem` and waiting for a signal from the second
-invocation. If the loop completes without interruption (i.e. the cancel token was not propagated),
-prints `"{label}: leaked!"` to stderr. Second invocation signals the first and waits for it to
-complete (so the server doesn't exit prematurely).
+Tactic for testing cancellation propagation. On the first invocation for a given `<label>`,
+prints `<label>: blocked` to stderr and loops on `Core.checkInterrupted` until the tactic's
+cancel token fires (at which point the loop throws and `finally` resolves the shared promise).
+Subsequent invocations (e.g. on re-elaboration) wait on that promise: they return as soon as
+the first invocation has actually exited the loop, and hang otherwise. So if cancellation
+propagates correctly, the test completes; if propagation is broken, the second invocation's
+`IO.wait` blocks forever and the test hangs (timeout = failure).
 -/
-scoped syntax "check_cancel" ident : tactic
+scoped syntax "block_until_cancelled" str : tactic
 elab_rules : tactic
-| `(tactic| check_cancel $id) => do
-  let label := id.getId.toString (escape := false)
+| `(tactic| block_until_cancelled $label) => do
+  let lbl := label.getString
   let prom ← IO.Promise.new
-  let signal ← IO.CancelToken.new
-  let prior ← checkCancelRefs.modifyGet fun m =>
-    match m.get? label with
-    | some entry => (some entry, m)
-    | none       => (none, m.insert label (prom.result!, signal))
-  if let some (t, sig) := prior then
-    sig.set
+  let prior ← blockUntilCancelledOnce.modifyGet fun m =>
+    match m[lbl]? with
+    | some t => (some t, m)
+    | none   => (none, m.insert lbl prom.result!)
+  if let some t := prior then
     IO.wait t
     return
+  IO.eprintln s!"{lbl}: blocked"
   try
     while true do
-      Core.checkSystem "check_cancel"
-      if (← signal.isSet) then break
+      Core.checkInterrupted
       IO.sleep 10
-    let ctx ← readThe Core.Context
-    let some cancelTk := ctx.cancelTk? | unreachable!
-    if !(← cancelTk.isSet) then
-      IO.eprintln s!"{label}: leaked!"
   finally
     prom.resolve ()
 

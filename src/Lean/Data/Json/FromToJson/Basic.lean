@@ -54,7 +54,7 @@ The following encoding strategy is employed by auto-generated instances:
 - {name}`Unit` is encoded as {lit}`{}` (empty JSON object).
 - {name}`Array`s and {name}`List`s are encoded as JSON arrays.
 - {name}`Option.none` is encoded as {lit}`null`,
-  whereas {lit}`some a` has the same encoding as {lit}`a`.
+  whereas {given -show}`a : α` {lean}`some a` has the same encoding as {name}`a`.
   Note that this implies {lean}`Option (Option α)` does not roundtrip,
   since {lean}`none` and {lean}`some none` both become {lit}`null`.
 - General `structure`s are encoded as JSON objects in the obvious way.

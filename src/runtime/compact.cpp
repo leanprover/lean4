@@ -348,7 +348,8 @@ bool object_compactor::insert_ref(object * o) {
     size_t sz = sizeof(lean_ref_object);
     object * r = copy_object(o, sz);
     lean_to_ref(r)->m_value = c;
-    save_max_sharing(o, r, sz);
+    // must NOT be max-shared
+    save(o, r);
     return true;
 }
 

@@ -30,7 +30,7 @@ Unfold `⦃P⦄ x ⦃Q⦄` into `P ⊢ₛ wp⟦x⟧ Q` by applying `Tiple.of_wp`
 is reduced.
 -/
 public meta def tripleOfWP (goal : MVarId) : _root_.VCGenM MVarId := goal.withContext do
-  let .goals [goal] ← (← read).tripleOfEntailsWPRule.apply goal
+  let .goals [goal] ← (← read).tripleOfEntailsWPRule.applyChecked goal
     | throwError "Applying {.ofConstName ``Triple.of_entails_wp} to {goal} failed"
   goal.withContext do
     let target ← goal.getType
@@ -45,13 +45,13 @@ public meta def solveExceptCondsEntails (goal : MVarId) : _root_.VCGenM (Option 
   let P ← reduceHead P
   let Q ← reduceHead Q
   let goal ← goal.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent ps P Q)
-  if let .goals [] ← (← read).exceptCondsEntailsPureRule.apply goal then
+  if let .goals [] ← (← read).exceptCondsEntailsPureRule.applyChecked goal then
     return none
-  if let .goals [] ← (← read).exceptCondsEntailsFalseRule.apply goal then
+  if let .goals [] ← (← read).exceptCondsEntailsFalseRule.applyChecked goal then
     return none
-  if let .goals [] ← (← read).exceptCondsEntailsTrueRule.apply goal then
+  if let .goals [] ← (← read).exceptCondsEntailsTrueRule.applyChecked goal then
     return none
-  if let .goals [] ← (← read).exceptCondsEntailsRflRule.apply goal then
+  if let .goals [] ← (← read).exceptCondsEntailsRflRule.applyChecked goal then
     return none
   return some goal
 
@@ -60,10 +60,10 @@ public meta def solvePostCondEntails (goal : MVarId) : _root_.VCGenM (Option (Li
   let target ← goal.getType
   let_expr PostCond.entails _α _ps _P _Q := target | return none
   -- Try closing the whole entailment by reflexivity first.
-  if let .goals [] ← (← read).postCondEntailsRflRule.apply goal then
+  if let .goals [] ← (← read).postCondEntailsRflRule.applyChecked goal then
     return some []
   -- Otherwise, decompose with `PostCond.entails.mk` into success + exception subgoals.
-  let .goals [goal₁, goal₂] ← (← read).postCondEntailsMkRule.apply goal
+  let .goals [goal₁, goal₂] ← (← read).postCondEntailsMkRule.applyChecked goal
     | throwError "Applying {.ofConstName ``PostCond.entails} to {target} failed. It should not."
   -- Try to discharge the exception subgoal by reflexivity. If that fails, leave it
   -- as a subgoal so it is emitted as a VC by the surrounding worklist loop.
@@ -90,11 +90,11 @@ so the goal stays in canonical form throughout the eta-expansion loop.
 -/
 public meta def consIntroAndSimpStep (goal : MVarId) : VCGenM (Option MVarId) := do
   let ctx ← read
-  let .goals [g'] ← ctx.entailsConsIntroRule.apply goal | return none
+  let .goals [g'] ← ctx.entailsConsIntroRule.applyChecked goal | return none
   let mut goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_cons_intro}"
-  if let .goals [g''] ← ctx.applyPureConsEntailsLRule.apply goal then
+  if let .goals [g''] ← ctx.applyPureConsEntailsLRule.applyChecked goal then
     goal := g''
-  if let .goals [g''] ← ctx.applyPureConsEntailsRRule.apply goal then
+  if let .goals [g''] ← ctx.applyPureConsEntailsRRule.applyChecked goal then
     goal := g''
   return some goal
 
@@ -140,13 +140,13 @@ public meta def solveSPredEntails (goal : MVarId) : VCGenM (Option MVarId) := go
     | none => pure false
     | some h => not <$> isDefEqS h (mkConst ``True)
       if pureHNonTrue then
-    let .goals [g'] ← (← read).pureElimRule.apply goal
+    let .goals [g'] ← (← read).pureElimRule.applyChecked goal
       | throwError "Failed to apply {.ofConstName ``SPred.pure_elim'} to {← goal.getType}"
     progress := true
     goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.pure_elim'}"
 
   if pureH.isSome && pureT.isSome then
-    let .goals [g'] ← (← read).pureIntroRule.apply goal
+    let .goals [g'] ← (← read).pureIntroRule.applyChecked goal
       | throwError "Failed to apply {.ofConstName ``SPred.pure_intro} to {← goal.getType}"
     progress := true
     return some g'
@@ -167,19 +167,19 @@ public meta def solveSPredEntails (goal : MVarId) : VCGenM (Option MVarId) := go
   if let some (_, h) := H.app2? ``SPred.pure then
     -- If `H` is `⌜True⌝`, we avoid introducing `h : True`.
     unless h matches .const ``True _ do
-      if let .goals [g'] ← (← read).pureElimRule.apply goal then
+      if let .goals [g'] ← (← read).pureElimRule.applyChecked goal then
         progress := true
         goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.pure_elim'}"
-    if let .goals [g'] ← (← read).pureIntroRule.apply goal then
+    if let .goals [g'] ← (← read).pureIntroRule.applyChecked goal then
       progress := true
       goal := g'
   else
-    if let .goals [g'] ← (← read).entailsNilIntroRule.apply goal then
+    if let .goals [g'] ← (← read).entailsNilIntroRule.applyChecked goal then
       progress := true
       goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_nil_intro}"
 
   -- Finally, if `T` is pure `⌜φ₂⌝`, we turn `T.down` into `φ₂`.
-  if let .goals [g'] ← (← read).downPureIntroRule.apply goal then
+  if let .goals [g'] ← (← read).downPureIntroRule.applyChecked goal then
     progress := true
     goal := g'
 

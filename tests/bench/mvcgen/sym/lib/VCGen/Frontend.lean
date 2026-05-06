@@ -310,6 +310,7 @@ public meta def elabMVCGen' : Tactic := fun stx => withMainContext do
     trivial := config.trivial,
     useJP := config.jp,
     errorOnMissingSpec := config.errorOnMissingSpec,
+    debug := config.debug,
     invariantAlts := invariantAlts?.getD {} }
   let result ← Grind.GrindM.run (VCGen.main goal ctx config.stepLimit) params
   -- For `invariants?` (suggest), defer entirely to the upstream elaborator.

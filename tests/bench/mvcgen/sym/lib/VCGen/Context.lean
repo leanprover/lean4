@@ -95,6 +95,10 @@ public structure VCGen.Context where
   `mvcgen' [-some_spec]` patterns where the user knows the spec is intentionally
   removed and wants to handle the residual goal by hand. -/
   errorOnMissingSpec : Bool := true
+  /-- The `debug` config option: when `true`, `tryApplyRule` retries failed
+  `BackwardRule.apply` calls after `unfoldReducible` and reports an error when the
+  retry succeeds, pinpointing missing normalization steps in `mvcgen'`. -/
+  debug : Bool := false
   /-- Pre-parsed `invariants`/`invariants?` alternatives, indexed by 1-based invariant
   number. Bullet form maps positions to entries (`bullet n+1 → alt`); labelled form maps
   the parsed `inv<n>` numbers (out-of-order labels are supported). Empty when no

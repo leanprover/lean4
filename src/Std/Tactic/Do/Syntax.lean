@@ -52,6 +52,13 @@ structure Config where
   the new prototypical `mvcgen'` opts into it via `(errorOnMissingSpec := false)`.
   -/
   errorOnMissingSpec : Bool := true
+  /--
+  If `true`, `mvcgen'` checks failed `BackwardRule.apply` calls by retrying after
+  `unfoldReducible`-normalizing the goal. If the rule then succeeds, an earlier step
+  forgot a normalization; `mvcgen'` raises a hard error pointing at the offending
+  rule and the missing reduction. Off by default; only consulted by `mvcgen'`.
+  -/
+  debug : Bool := false
 end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser

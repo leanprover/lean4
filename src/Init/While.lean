@@ -141,16 +141,15 @@ public theorem whileM_eq [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] [
 namespace Lean
 
 /-!
-# ForIn instance for `repeat`/`while` syntax
+# `Loop` type backing `repeat`/`while`/`repeat ... until`
 
-This section provides a `ForIn` instance for `Loop`, which is implemented via `whileM`.
-This `ForIn` instance is used to implement `repeat`/`while` syntax.
+The parsers and elaborators for `repeat`, `while`, and `repeat ... until` live in
+`Lean.Parser.Do` and `Lean.Elab.BuiltinDo.Repeat`. This module only provides the
+`Loop` type (and `ForIn` instance) that those elaborators expand to.
 -/
 
-/-- The `Loop` type backing `repeat`/`while`. Its `ForIn` instance is `Loop.forIn`. -/
 public structure Loop
 
-/-- Iterate `f` until it returns `.done`, threading the accumulator through `.yield`. -/
 @[inline, expose] public protected def Loop.forIn {β : Type u} {m : Type u → Type v} [Monad m]
     (_ : Loop) (init : β) (f : Unit → β → m (ForInStep β)) : m β :=
   haveI : Nonempty β := ⟨init⟩

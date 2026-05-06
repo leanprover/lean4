@@ -519,12 +519,12 @@ def canUnfoldAtMatcher (cfg : Config) (info : ConstantInfo) : CoreM Bool := do
    || info.name == ``HMod.hMod || info.name == ``Mod.mod
 
 private def whnfMatcher (e : Expr) : MetaM Expr := do
-  /- When reducing `match` expressions at `.reducible` or `.instances` transparency,
+  /- When reducing `match` expressions at `.reducible`, `.instances` or `.implicit` transparency,
      we use a custom `canUnfoldAtMatcher` predicate that additionally allows unfolding
      class projections (e.g., `OfNat.ofNat`, `NatCast.natCast`) and a few other specific
      definitions. This ensures match discriminants like `OfNat.ofNat α n inst` can be
      reduced to expose constructors, without bumping the overall transparency level.  -/
-  if (← getTransparency) matches .instances | .reducible then
+  if (← getTransparency) matches .reducible | .instances | .implicit then
     -- Also unfold some default-reducible constants; see `canUnfoldAtMatcher`
     withCanUnfoldPred canUnfoldAtMatcher do
       whnf e
@@ -545,7 +545,7 @@ def reduceMatcher? (e : Expr) : MetaM ReduceMatcherResult := do
     return ReduceMatcherResult.partialApp
   let constInfo ← getConstInfo declName
   let mut f ← instantiateValueLevelParams constInfo declLevels
-  if (← getTransparency) matches .instances | .reducible then
+  if (← getTransparency) matches .reducible | .instances | .implicit then
     f ← unfoldNestedDIte f
   let auxApp := mkAppN f args[*...prefixSz]
   let auxAppType ← inferType auxApp
@@ -812,7 +812,7 @@ in "reducible canonical form".
 See `unfoldProjInst?`
 -/
 partial def unfoldProjInstWhenInstances? (e : Expr) : MetaM (Option Expr) := do
-  if (← getTransparency) matches .instances then
+  if (← getTransparency) matches .instances | .implicit then
     unfoldProjInst? e
   else
     return none
@@ -822,10 +822,10 @@ When `true`, unfolding a `[reducible]` class field at `TransparencyMode.reducibl
 the associated instance projection at `TransparencyMode.instances`.
 
 **Motivation:** Consider `a ≤ b` where `a b : Nat` and `LE.le` is `[reducible]`. Unfolding `LE.le`
-gives `instLENat.1 a b`, which is stuck because `instLENat` is `[implicit_reducible]` (not
+gives `instLENat.1 a b`, which is stuck because `instLENat` is `[instance_reducible]` (not
 `[reducible]`). Similarly, `stM m (ExceptT ε m) α` unfolds to an instance projection that is stuck
 at `.reducible`. Without this option, marking a class field as `[reducible]` is pointless when the
-instance providing it is only `[implicit_reducible]`. This option makes the `[reducible]` annotation
+instance providing it is only `[instance_reducible]`. This option makes the `[reducible]` annotation
 on class fields work as the user expects by temporarily bumping to `.instances` for the projection.
 
 See `unfoldDefault` for the implementation.
@@ -841,9 +841,9 @@ This function has special support for unfolding class fields.
 The support is particularly important when the user marks a class field as `[reducible]` and
 the transparency mode is `.reducible`. For example, suppose `e` is `a ≤ b` where `a b : Nat`,
 and `LE.le` is marked as `[reducible]`. Simply unfolding `LE.le` would give `instLENat.1 a b`,
-which would be stuck because `instLENat` has transparency `[implicit_reducible]`. To avoid this, when we unfold
+which would be stuck because `instLENat` has transparency `[instance_reducible]`. To avoid this, when we unfold
 a `[reducible]` class field, we also unfold the associated projection `instLENat.1` using
-`.instances` reducibility, ultimately returning `Nat.le a b`.
+`withReducibleAndInstances` (i.e. `.instances` transparency), ultimately returning `Nat.le a b`.
 -/
 private def unfoldDefault (fInfo : ConstantInfo) (us : List Level) (e : Expr) : MetaM (Option Expr) := do
   if fInfo.hasValue then

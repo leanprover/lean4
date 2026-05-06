@@ -40,20 +40,25 @@ too many definitions is a performance footgun. This is why `.reducible` exists.
 
 ## The transparency hierarchy
 
-The levels form a linear order: `none < reducible < instances < default < all`.
+The levels form a linear order: `none < reducible < instances < implicit < default < all`.
 Each level unfolds everything the previous level does, plus more:
 
 - **`reducible`**: Only unfolds `[reducible]` definitions. Used for speculative `isDefEq` checks
   (e.g., discrimination tree lookups in `simp`, type class resolution). Think of `[reducible]` as
   `[inline]` for type checking and indexing.
 
-- **`instances`**: Also unfolds `[implicit_reducible]` definitions. Instance diamonds are common:
-  for example, `Add Nat` can come from a direct instance or via `Semiring`. These instances are all
-  definitionally equal but structurally different, so `isDefEq` must unfold them to confirm equality.
-  This level also handles definitions used in types that appear in implicit arguments (e.g.,
-  `Nat.add`, `Array.size`). However, these definitions must not be *eagerly* reduced (instances
-  become huge terms), and discrimination trees do not index them. This makes `.instances` safe for
-  speculative checks involving implicit arguments without the performance cost of `.default`.
+- **`instances`**: Also unfolds `[instance_reducible]` definitions (auto-applied to type class
+  instances by the `instance` command). Used during type class synthesis so that instance
+  diamonds (e.g., `Add Nat` from a direct instance vs via `Semiring`) can be resolved: instances
+  are definitionally equal but structurally different, and `isDefEq` must unfold them to confirm
+  equality. Crucially, this level does **not** unfold user-written `[implicit_reducible]` —
+  marking a Mathlib functor `[implicit_reducible]` does not affect type class search.
+
+- **`implicit`**: Also unfolds `[implicit_reducible]` definitions. Used when checking implicit
+  *value* arguments — e.g., a `Vector α (n+1)` vs `Vector α (Nat.succ n)` mismatch needs
+  `Nat.add`/`Array.size`-style definitions to unfold. Discrimination trees do not index these
+  definitions, so `.implicit` is still safe for speculative checks involving implicit arguments
+  without the performance cost of `.default`.
 
 - **`default`**: Also unfolds `[semireducible]` definitions (anything not `[irreducible]`).
   Used for type checking user input where we want to try hard.
@@ -68,12 +73,14 @@ user — if a lemma fails to apply because of an implicit argument mismatch, the
 Historically, Lean bumped transparency to `.default` for implicit arguments, but this eventually
 became a performance bottleneck in Mathlib. The option `backward.isDefEq.respectTransparency`
 (default: `true`) disables this bump. Instead, instance-implicit arguments (`[..]`) are checked at
-`.instances`, and other implicit arguments are checked at the caller's transparency.
+`.instances` (so instance diamonds resolve), and other implicit arguments are checked at
+`.implicit` (so user-marked `[implicit_reducible]` arithmetic unfolds), or at the caller's
+transparency when `backward.isDefEq.implicitBump` is `false`.
 
 See also: `ReducibilityStatus`, `backward.isDefEq.respectTransparency`,
 `backward.whnf.reducibleClassField`.
 -/
--- Note: the constructors below are not in the `none < reducible < instances < default < all`
+-- Note: the constructors below are not in the `none < reducible < instances < implicit < default < all`
 -- order described in the docstring above. Reordering them induces a bootstrap problem that is
 -- non-trivial to repair.
 inductive TransparencyMode where
@@ -86,14 +93,19 @@ inductive TransparencyMode where
   `isDefEq` in proof automation (`simp`, `rw`, type class resolution) where most checks fail
   and we must not try too hard. -/
   | reducible
-  /-- Unfolds reducible constants and constants tagged with `@[implicit_reducible]`.
-  Used for checking implicit arguments during proof automation, and for unfolding
-  class projections applied to instances. Instance diamonds (e.g., `Add Nat` from a direct instance
-  vs from `Semiring`) are definitionally equal but structurally different, so `isDefEq` must unfold
-  them. Also handles definitions used in types of implicit arguments (e.g., `Nat.add`, `Array.size`). -/
+  /-- Unfolds reducible constants and constants tagged with `@[instance_reducible]` (i.e. type
+  class instances). Used during type class synthesis to resolve instance diamonds (e.g., `Add Nat`
+  from a direct instance vs from `Semiring`). Does *not* unfold `[implicit_reducible]`. -/
   | instances
   /-- Do not unfold anything. -/
   | none
+  /-- Unfolds reducible constants, `[instance_reducible]`, and `[implicit_reducible]` constants.
+  Used for checking definitional equality of implicit *value* arguments (e.g., `Nat.add`,
+  `Array.size`, Mathlib functors). Strictly above `.instances` in the unfolding lattice.
+
+  NOTE: this constructor is appended at the end (not in unfolding order) to preserve olean
+  compatibility with the pre-existing constructor indices. -/
+  | implicit
   deriving Inhabited, BEq
 
 /-- Which structure types should eta be used with? -/

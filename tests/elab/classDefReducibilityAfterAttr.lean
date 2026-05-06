@@ -11,13 +11,13 @@ class Foo where
   x : Nat
 
 /-! Warning should fire when no reducibility attribute is present. -/
-/-- warning: Definition `baz` of class type must be marked with `@[reducible]` or `@[implicit_reducible]` -/
+/-- warning: Definition `baz` of class type must be marked with `@[reducible]` or `@[instance_reducible]` -/
 #guard_msgs in
 def baz : Foo := ⟨42⟩
 
 /-! No warning with direct `implicit_reducible`. -/
 #guard_msgs in
-@[implicit_reducible]
+@[instance_reducible]
 def qux : Foo := ⟨42⟩
 
 /-! No warning with `reducible`. -/

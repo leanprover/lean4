@@ -68,6 +68,8 @@ def addPreDefAttributes (preDefs : Array PreDefinition) : TermElabM Unit := do
           a.name = `reducible || a.name = `semireducible ||
           a.name = `instance_reducible || a.name = `implicit_reducible do
         setIrreducibleAttribute preDef.declName
+  -- (Note: `instance_reducible` and `implicit_reducible` are now distinct tiers; both
+  -- suppress the irreducibility default.)
 
   for preDef in preDefs do
     saveEqnAffectingOptions preDef.declName

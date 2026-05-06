@@ -9,7 +9,7 @@ warning: `myId_eq` is a `[defeq]` simp theorem, but its left-hand side
   myId n
 is not definitionally equal to the right-hand side
   n
-at `.instances` transparency. Possible solutions:
+at `.implicit` transparency. Possible solutions:
 1- use `(rfl)` as the proof
 2- mark constants occurring in the lhs and rhs as `[implicit_reducible]`
 -/
@@ -19,14 +19,14 @@ at `.instances` transparency. Possible solutions:
 #guard_msgs in
 @[simp] theorem myId_eq' (n : Nat) : myId n = n := (rfl)
 
-attribute [implicit_reducible] myId
+attribute [instance_reducible] myId
 
 #guard_msgs in
 @[simp] theorem myId_eq'' (n : Nat) : myId n = n := rfl
 
 
 -- `implicit_reducible` version should be fine
-@[implicit_reducible] def myId2 (n : Nat) : Nat := n
+@[instance_reducible] def myId2 (n : Nat) : Nat := n
 
 #guard_msgs in
 @[simp] theorem myId2_eq (n : Nat) : myId2 n = n := rfl
@@ -36,7 +36,7 @@ warning: `add_zero` is a `[defeq]` simp theorem, but its left-hand side
   n + 0
 is not definitionally equal to the right-hand side
   n
-at `.instances` transparency. Possible solutions:
+at `.implicit` transparency. Possible solutions:
 1- use `(rfl)` as the proof
 2- mark constants occurring in the lhs and rhs as `[implicit_reducible]`
 -/

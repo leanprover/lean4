@@ -11,13 +11,13 @@ instances like `instX a` vs `instX b` are stuck at `.reducible`.
 
 namespace SimpReducibleClassField
 
-@[implicit_reducible] def a := 0
-@[implicit_reducible] def b := 0
+@[instance_reducible] def a := 0
+@[instance_reducible] def b := 0
 
 class X where
   x : Nat
 
-@[implicit_reducible]
+@[instance_reducible]
 def instX (n : Nat) : X where
   x := n
 

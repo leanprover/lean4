@@ -29,12 +29,12 @@ public inductive VCGen.PreTac where
   /-- No pre-tactic; VCs are returned as-is. -/
   | none
   /-- Use grind with the given hypothesis simplification methods. -/
-  | grind
+  | grind (silent : Bool := false)
   /-- Use a user-provided tactic syntax. -/
   | tactic (tac : Syntax)
 
 public def VCGen.PreTac.isGrind : VCGen.PreTac → Bool
-  | .grind => true
+  | .grind .. => true
   | _ => false
 
 public structure VCGen.Context where
@@ -151,6 +151,8 @@ public structure VCGen.State where
   this to know which user-provided alts have already been consumed (so it doesn't
   warn about them). -/
   inlineHandledInvariants : Std.HashSet Nat := {}
+  /-- Set when a pre-tactic failed on some VC; `elabMVCGen'` throws if true. -/
+  preTacFailed : Bool := false
 
 public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 

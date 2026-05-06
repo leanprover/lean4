@@ -40,9 +40,8 @@ private def checkMissingFormatter (stx : Syntax) : CommandElabM Unit := do
   let text ← getFileMap
   let opts ← getOptions
   let infoState ← Elab.getInfoState
-  -- Forced only when the formatter hits a `choice` node whose alternatives render differently.
-  -- `runLintersAsync` hands linters an already substituted info state, so forcing this waits on
-  -- nothing there.
+  -- Forced only when the command has a `choice` node. `runLintersAsync` hands linters an already
+  -- substituted info state, so forcing this waits on nothing there.
   let infoTrees : Thunk (PersistentArray Elab.InfoTree) :=
     .mk fun _ => infoState.substituteLazy.get.trees
   let lineInfos := Fmt.collectSyntaxLineInfos stx
@@ -55,7 +54,7 @@ private def checkMissingFormatter (stx : Syntax) : CommandElabM Unit := do
   }
   -- An aborting error hides all missing formatters of the command, so it is reported as well.
   let r ←
-    match FmtM.run ctx (Fmt.fmt stx) with
+    match FmtM.run ctx (Fmt.fmt (Fmt.resolveChoiceNodes ctx stx)) with
     | .ok r => pure r
     | .error e =>
       let ref := e.ref? |>.getD stx
@@ -79,6 +78,15 @@ private def checkMissingFormatter (stx : Syntax) : CommandElabM Unit := do
       m!"Auto-formatter {fmtName}for syntax kind {Expr.const kind []} is incomplete.\n"
         ++ m!"The syntax at the location has the following form:\n\n"
         ++ toString partialFormatter.stx
+  for (range, missingChoiceResolution) in r.missingChoiceResolutions do
+    let kinds := missingChoiceResolution.alternativeKinds
+    if kinds.all (isIgnoredKind opts) then continue
+    let kinds := MessageData.andList <| kinds.toList.map fun kind => m!"{Expr.const kind []}"
+    logLint linter.fmt.missing (.ofRange range) <|
+      m!"The parser reads the syntax at the location in several ways, with the syntax kinds \
+        {kinds}, and the elaborator did not record which of them it picked \
+        (`Lean.Elab.ChoiceResolutionInfo`). The auto-formatter keeps the layout of such syntax, \
+        unless all of its readings have an auto-formatter and are formatted in the same way."
 
 /--
 Linter that warns about syntax nodes for which no auto-formatter is registered.

@@ -26,7 +26,7 @@ variable {shape : RangeShape} {α : Type u}
 structure SubarrayIterator (α : Type u) where
   xs : Subarray α
 
-@[inline, expose, implicit_reducible]
+@[inline, expose, instance_reducible]
 def SubarrayIterator.step :
     IterM (α := SubarrayIterator α) Id α → IterStep (IterM (α := SubarrayIterator α) m α) α
   | ⟨⟨xs⟩⟩ =>
@@ -56,7 +56,7 @@ instance SubarrayIterator.instFinite : Finite (SubarrayIterator α) Id :=
 
 instance [Monad m] : IteratorLoop (SubarrayIterator α) Id m := .defaultImplementation
 
-@[inline, expose, implicit_reducible]
+@[inline, expose, instance_reducible]
 def Subarray.instToIterator :=
   ToIterator.of (γ := Slice (Internal.SubarrayData α)) (β := α) (SubarrayIterator α) (⟨⟨·⟩⟩)
 attribute [instance] Subarray.instToIterator

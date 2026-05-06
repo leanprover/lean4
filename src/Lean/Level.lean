@@ -216,7 +216,7 @@ def isAlwaysZero : Level → Bool
   | max l₁ l₂    => isAlwaysZero l₁ && isAlwaysZero l₂
   | imax _  l₂   => isAlwaysZero l₂
 
-@[expose, implicit_reducible] def ofNat : Nat → Level
+@[expose, instance_reducible] def ofNat : Nat → Level
   | 0   => Level.zero
   | n+1 => mkLevelSucc (ofNat n)
 

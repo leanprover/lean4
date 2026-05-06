@@ -23,7 +23,7 @@ preferring `a` over `b` when in doubt.
 
 Has a `LawfulOrderLeftLeaningMin α` instance.
 -/
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 public def _root_.Min.leftLeaningOfLE (α : Type u) [LE α] [DecidableLE α] : Min α where
   min a b := if a ≤ b then a else b
 
@@ -33,7 +33,7 @@ preferring `a` over `b` when in doubt.
 
 Has a `LawfulOrderLeftLeaningMax α` instance.
 -/
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 public def _root_.Max.leftLeaningOfLE (α : Type u) [LE α] [DecidableLE α] : Max α where
   max a b := if b ≤ a then a else b
 
@@ -196,7 +196,7 @@ Creates a *total* `LE α` instance from an `LT α` instance.
 
 This only makes sense for asymmetric `LT α` instances (see `Std.Asymm`).
 -/
-@[inline, implicit_reducible, expose]
+@[inline, instance_reducible, expose]
 public def _root_.LE.ofLT (α : Type u) [LT α] : LE α where
   le a b := ¬ b < a
 

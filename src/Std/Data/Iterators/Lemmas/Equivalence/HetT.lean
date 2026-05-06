@@ -28,7 +28,7 @@ class ComputableSmall (α : Type v) where
 class Small (α : Type v) : Prop where
   h : Nonempty (ComputableSmall.{u} α)
 
-@[implicit_reducible]
+@[instance_reducible]
 noncomputable def ComputableSmall.choose (α : Type v) [small : Small.{u} α] : ComputableSmall.{u} α :=
   haveI : Nonempty (ComputableSmall.{u} α) := Small.h
   Classical.ofNonempty (α := ComputableSmall.{u} α)

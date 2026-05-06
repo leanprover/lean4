@@ -9,6 +9,6 @@ prelude
 public import Std.Do.WP.Basic
 public import Std.Do.WP.Monad
 public import Std.Do.WP.SimpLemmas
-public import Std.Do.WP.Adequacy
+public import Std.Do.WP.Adequate
 
 set_option linter.missingDocs true

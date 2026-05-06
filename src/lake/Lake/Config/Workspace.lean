@@ -65,6 +65,13 @@ public structure Workspace.Raw.WF (ws : Workspace.Raw) : Prop where
 /-- A Lake workspace -- the top-level package directory. -/
 public structure Workspace extends raw : Workspace.Raw, wf : raw.WF
 
+/-
+PLOG(ofSize):
+Had to extract and manually prove a side condition.
+If anyone ever imports `Init.Data.Range.Polymorphic.NatLemmas`, the condition will need to be
+rewritten to `i < n` because of the `Nat.size_rco` simp lemma becoming available.
+-/
+
 /-- Constructs an arbitrary well-formed workspace with {lean}`n` packages. -/
 noncomputable def Workspace.ofSize (n : Nat) (h : 0 < n) : Workspace := {
   lakeEnv := default
@@ -75,7 +82,8 @@ noncomputable def Workspace.ofSize (n : Nat) (h : 0 < n) : Workspace := {
   size_packages_pos := by
     simp [Std.Rco.size, Std.Rxo.HasSize.size, Std.Rxc.HasSize.size, h]
   packages_wsIdx {i} h := by
-    simp [Std.Rco.getElem_toArray_eq, Std.PRange.succMany?]
+    have : i < (0...n).size := by simpa using h
+    simp [Std.Rco.getElemV_toArray_eq, Std.PRange.succMany?, Array.getElemV_map, this]
 }
 
 theorem Workspace.size_packages_ofSize :

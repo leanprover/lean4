@@ -824,15 +824,15 @@ section filter
 variable {m : ExtHashSet α}
 
 theorem filter_eq_empty_iff [EquivBEq α] [LawfulHashable α] {f : α → Bool} :
-    m.filter f = ∅ ↔ ∀ (k : α) (_ : k ∈ m), f (m.getV k) = false :=
+    m.filter f = ∅ ↔ ∀ (k : α), k ∈ m → f (m.getV k) = false :=
   ext_iff.trans ExtHashMap.filter_eq_empty_iff
 
 @[simp, grind =]
 theorem mem_filter [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} {k : α} :
     haveI : Nonempty α := ⟨k⟩
-    k ∈ m.filter f ↔ ∃ (_ : k ∈ m), f (m.getV k) :=
-  ExtHashMap.mem_filter
+    k ∈ m.filter f ↔ k ∈ m ∧ f (m.getV k) :=
+  ExtHashMap.mem_filter.trans exists_prop
 
 theorem mem_filter_iff_get [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} {k : α} :
@@ -858,7 +858,7 @@ grind_pattern size_filter_le_size => (m.filter f).size
 
 theorem size_filter_eq_size_iff [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} :
-    (m.filter f).size = m.size ↔ ∀ (k : α) (_ : k ∈ m), f (m.getV k) :=
+    (m.filter f).size = m.size ↔ ∀ (k : α), k ∈ m → f (m.getV k) :=
   ExtHashMap.size_filter_eq_size_iff
 
 theorem filter_eq_self_iff [EquivBEq α] [LawfulHashable α]

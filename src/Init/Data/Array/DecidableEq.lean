@@ -26,7 +26,9 @@ namespace Array
 private theorem rel_of_isEqvAux
     {r : α → α → Bool} {xs ys : Array α} (hsz : xs.size = ys.size) {i : Nat} (hi : i ≤ xs.size)
     (heqv : Array.isEqvAux xs ys hsz r i hi)
-    {j : Nat} (hj : j < i) : r (xs[j]'(Nat.lt_of_lt_of_le hj hi)) (ys[j]'(Nat.lt_of_lt_of_le hj (hsz ▸ hi))) := by
+    {j : Nat} (hj : j < i) :
+    haveI : Nonempty α := ⟨xs[j]'(Nat.lt_of_lt_of_le hj hi)⟩
+    r xs｢j｣ ys｢j｣ := by
   induction i with
   | zero => contradiction
   | succ i ih =>
@@ -37,33 +39,37 @@ private theorem rel_of_isEqvAux
     next =>
       replace hj' : j = i := Nat.eq_of_le_of_lt_succ (Nat.not_lt.mp hj') hj
       subst hj'
-      exact heqv.left
+      simpa using heqv.left
 
 private theorem isEqvAux_of_rel {r : α → α → Bool} {xs ys : Array α} (hsz : xs.size = ys.size) {i : Nat} (hi : i ≤ xs.size)
-    (w : ∀ j, (hj : j < i) → r (xs[j]'(Nat.lt_of_lt_of_le hj hi)) (ys[j]'(Nat.lt_of_lt_of_le hj (hsz ▸ hi)))) : Array.isEqvAux xs ys hsz r i hi := by
+    (w : ∀ j, (hj : j < i) →
+      haveI : Nonempty α := ⟨xs[j]'(Nat.lt_of_lt_of_le hj hi)⟩
+      r xs｢j｣ ys｢j｣) : Array.isEqvAux xs ys hsz r i hi := by
   induction i with
   | zero => simp [Array.isEqvAux]
   | succ i ih =>
-    simp only [isEqvAux, Bool.and_eq_true]
+    simp only [isEqvAux, getElem_eq_getElemV, Bool.and_eq_true]
     exact ⟨w i (Nat.lt_add_one i), ih _ fun j hj => w j (Nat.lt_add_right 1 hj)⟩
 
 -- This is private as the forward direction of `isEqv_iff_rel` may be used.
 private theorem rel_of_isEqv {r : α → α → Bool} {xs ys : Array α} :
-    Array.isEqv xs ys r → ∃ h : xs.size = ys.size, ∀ (i : Nat) (h' : i < xs.size), r (xs[i]) (ys[i]'(h ▸ h')) := by
+    Array.isEqv xs ys r → xs.size = ys.size ∧
+        ∀ (i : Nat) (h' : i < xs.size), haveI : Nonempty α := ⟨xs[i]⟩; r xs｢i｣ ys｢i｣ := by
   simp only [isEqv]
   split <;> rename_i h
   · exact fun h' => ⟨h, fun i => rel_of_isEqvAux h (Nat.le_refl ..) h'⟩
   · intro; contradiction
 
-theorem isEqv_iff_rel {xs ys : Array α} {r} :
-    Array.isEqv xs ys r ↔ ∃ h : xs.size = ys.size, ∀ (i : Nat) (h' : i < xs.size), r (xs[i]) (ys[i]'(h ▸ h')) :=
-  ⟨rel_of_isEqv, fun ⟨h, w⟩ => by
+theorem isEqv_iff_rel {xs ys : Array α} {r : α → α → Bool} :
+    Array.isEqv xs ys r ↔ xs.size = ys.size ∧
+        ∀ (i : Nat), (hi : i < xs.size) → haveI : Nonempty α := ⟨xs[i]⟩; r xs｢i｣ ys｢i｣ := by
+  exact ⟨rel_of_isEqv, fun ⟨h, w⟩ => by
     simp only [isEqv, ← h, ↓reduceDIte]
     exact isEqvAux_of_rel h (by simp [h]) w⟩
 
-theorem isEqv_iff_relV [Nonempty α] {xs ys : Array α} {r : α → α → Bool} :
-    Array.isEqv xs ys r ↔ ∃ h : xs.size = ys.size, ∀ (i : Nat), i < xs.size → r xs｢i｣ ys｢i｣ := by
-  simp only [isEqv_iff_rel, getElem_eq_getElemV]
+theorem isEqv_iff_rel_getElem {xs ys : Array α} {r} :
+    Array.isEqv xs ys r ↔ ∃ h : xs.size = ys.size, ∀ (i : Nat) (h' : i < xs.size), r (xs[i]) (ys[i]'(h ▸ h')) := by
+  simpa [← exists_prop] using isEqv_iff_rel
 
 theorem isEqv_eq_decide (xs ys : Array α) (r) :
     Array.isEqv xs ys r =

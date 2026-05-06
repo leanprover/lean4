@@ -7200,13 +7200,13 @@ theorem isEmpty_filter_eq_false_iff [TransCmp cmp] [LawfulEqCmp cmp]
 theorem isEmpty_filter_key_iff [TransCmp cmp]
     {f : α → Bool} (h : t.WF) :
     (t.filter (fun a _ => f a)).isEmpty ↔
-      ∀ (k : α) (_h : k ∈ t), f (t.getKeyV k) = false :=
+      ∀ (k : α), k ∈ t → f (t.getKeyV k) = false :=
   Impl.isEmpty_filter!_key_iff h
 
 theorem isEmpty_filter_key_eq_false_iff [TransCmp cmp]
     {f : α → Bool} (h : t.WF) :
     (t.filter (fun a _ => f a)).isEmpty = false ↔
-      ∃ (k : α) (_h : k ∈ t), f (t.getKeyV k) :=
+      ∃ (k : α), k ∈ t ∧ f (t.getKeyV k) :=
   Impl.isEmpty_filter!_key_eq_false_iff h
 
 @[grind =]
@@ -7269,7 +7269,7 @@ theorem filter_key_equiv_self_iff [TransCmp cmp]
 
 theorem size_filter_key_eq_size_iff [TransCmp cmp]
     {f : α → Bool} (h : t.WF) :
-    (t.filter fun k _ => f k).size = t.size ↔ ∀ (k : α) (_h : k ∈ t), f (t.getKeyV k) :=
+    (t.filter fun k _ => f k).size = t.size ↔ ∀ (k : α), k ∈ t → f (t.getKeyV k) :=
   Impl.size_filter!_key_eq_size_iff h
 
 @[simp, grind =]

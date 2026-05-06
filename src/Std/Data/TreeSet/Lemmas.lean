@@ -2927,13 +2927,14 @@ theorem toArray_filter {f : α → Bool} :
 
 @[grind =] theorem isEmpty_filter_iff [TransCmp cmp]
     {f : α → Bool} :
-    (t.filter f).isEmpty ↔ ∀ (k : α) (_ : k ∈ t), f (t.getV k) = false :=
+    (t.filter f).isEmpty ↔ ∀ (k : α), k ∈ t → f (t.getV k) = false :=
   TreeMap.isEmpty_filter_iff
 
 theorem isEmpty_filter_eq_false_iff [TransCmp cmp]
     {f : α → Bool} :
-    (t.filter f).isEmpty = false ↔ ∃ (k : α) (_ : k ∈ t), f (t.getV k) :=
-  TreeMap.isEmpty_filter_eq_false_iff
+    (t.filter f).isEmpty = false ↔ ∃ (k : α), k ∈ t ∧ f (t.getV k) := by
+  rw [← Bool.not_eq_true, isEmpty_filter_iff]
+  simp only [Classical.not_forall, Bool.not_eq_false, exists_prop]
 
 -- TODO: `contains_filter` is missing.
 
@@ -2941,8 +2942,8 @@ theorem isEmpty_filter_eq_false_iff [TransCmp cmp]
 theorem mem_filter [TransCmp cmp]
     {f : α → Bool} {k : α} :
     haveI : Nonempty α := ⟨k⟩
-    k ∈ t.filter f ↔ ∃ (_ : k ∈ t), f (t.getV k) :=
-  TreeMap.mem_filter
+    k ∈ t.filter f ↔ k ∈ t ∧ f (t.getV k) :=
+  TreeMap.mem_filter.trans exists_prop
 
 theorem mem_filter_iff_get [TransCmp cmp]
     {f : α → Bool} {k : α} :
@@ -2968,7 +2969,7 @@ grind_pattern size_filter_le_size => (t.filter f).size
 
 theorem size_filter_eq_size_iff [TransCmp cmp]
     {f : α → Bool} :
-    (t.filter f).size = t.size ↔ ∀ (k : α) (_ : k ∈ t), f (t.getV k) :=
+    (t.filter f).size = t.size ↔ ∀ (k : α), k ∈ t → f (t.getV k) :=
   TreeMap.size_filter_eq_size_iff
 
 theorem filter_equiv_self_iff [TransCmp cmp]

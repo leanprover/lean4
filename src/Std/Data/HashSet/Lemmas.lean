@@ -1659,13 +1659,14 @@ theorem toList_filter {f : α → Bool} :
 
 @[grind =] theorem isEmpty_filter_iff [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} :
-    (m.filter f).isEmpty ↔ ∀ (k : α) (_ : k ∈ m), f (m.getV k) = false :=
+    (m.filter f).isEmpty ↔ ∀ (k : α), k ∈ m → f (m.getV k) = false :=
   HashMap.isEmpty_filter_iff
 
 theorem isEmpty_filter_eq_false_iff [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} :
-    (m.filter f).isEmpty = false ↔ ∃ (k : α) (_ : k ∈ m), f (m.getV k) :=
-  HashMap.isEmpty_filter_eq_false_iff
+    (m.filter f).isEmpty = false ↔ ∃ (k : α), k ∈ m ∧ f (m.getV k) := by
+  rw [← Bool.not_eq_true, isEmpty_filter_iff]
+  simp only [Classical.not_forall, Bool.not_eq_false, exists_prop]
 
 -- TODO: `contains_filter` is missing.
 
@@ -1673,8 +1674,8 @@ theorem isEmpty_filter_eq_false_iff [EquivBEq α] [LawfulHashable α]
 theorem mem_filter [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} {k : α} :
     haveI : Nonempty α := ⟨k⟩
-    k ∈ m.filter f ↔ ∃ (_ : k ∈ m), f (m.getV k) :=
-  HashMap.mem_filter
+    k ∈ m.filter f ↔ k ∈ m ∧ f (m.getV k) :=
+  HashMap.mem_filter.trans exists_prop
 
 theorem mem_filter_iff_get [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} {k : α} :
@@ -1700,7 +1701,7 @@ grind_pattern size_filter_le_size => (m.filter f).size
 
 theorem size_filter_eq_size_iff [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} :
-    (m.filter f).size = m.size ↔ ∀ (k : α) (_ : k ∈ m), f (m.getV k) :=
+    (m.filter f).size = m.size ↔ ∀ (k : α), k ∈ m → f (m.getV k) :=
   HashMap.size_filter_eq_size_iff
 
 theorem filter_equiv_self_iff [EquivBEq α] [LawfulHashable α]

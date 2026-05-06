@@ -12052,14 +12052,14 @@ theorem isEmpty_filter!_key_iff [TransOrd α]
 theorem isEmpty_filter_key_eq_false_iff [TransOrd α]
     {f : α → Bool} (h : t.WF) :
     (t.filter (fun a _ => f a) h.balanced).1.isEmpty = false ↔
-      ∃ (k : α) (_h : t.contains k = true), f (t.getKeyV k) := by
+      ∃ (k : α), t.contains k = true ∧ f (t.getKeyV k) := by
   rw [← Bool.not_eq_true, isEmpty_filter_key_iff h]
-  simp only [Classical.not_forall, Bool.not_eq_false]
+  simp only [Classical.not_forall, Bool.not_eq_false, exists_prop]
 
 theorem isEmpty_filter!_key_eq_false_iff [TransOrd α]
     {f : α → Bool} (h : t.WF) :
     (t.filter! (fun a _ => f a)).isEmpty = false ↔
-      ∃ (k : α) (_h : t.contains k = true), f (t.getKeyV k) := by
+      ∃ (k : α), t.contains k = true ∧ f (t.getKeyV k) := by
   simpa only [filter_eq_filter!] using isEmpty_filter_key_eq_false_iff h
 
 theorem contains_filter [TransOrd α] [LawfulEqOrd α]

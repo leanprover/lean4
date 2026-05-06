@@ -7075,7 +7075,7 @@ theorem filter_eq_empty_iff [TransCmp cmp] [LawfulEqCmp cmp]
   isEmpty_iff.symm.trans <| t.inductionOn fun _ => DTreeMap.isEmpty_filter_iff
 
 theorem filter_key_eq_empty_iff [TransCmp cmp] {f : α → Bool} :
-    t.filter (fun a _ => f a) = ∅ ↔ ∀ (k : α) (_ : k ∈ t), f (t.getKeyV k) = false :=
+    t.filter (fun a _ => f a) = ∅ ↔ ∀ (k : α), k ∈ t → f (t.getKeyV k) = false :=
   isEmpty_iff.symm.trans <| t.inductionOn fun _ => DTreeMap.isEmpty_filter_key_iff
 
 @[grind =]
@@ -7087,9 +7087,9 @@ theorem contains_filter [TransCmp cmp] [LawfulEqCmp cmp]
 @[grind =]
 theorem mem_filter [TransCmp cmp] [LawfulEqCmp cmp]
     {f : (a : α) → β a → Bool} {k : α} :
-    k ∈ t.filter f ↔ ∃ h, f k (t.get k h) := by
-  simp only [mem_iff_contains, contains_filter, Option.any_eq_true_iff_get,
-    ← contains_eq_isSome_get?, get_get?]
+    k ∈ t.filter f ↔ ∃ (h : k ∈ t), haveI : Nonempty (β k) := ⟨t.get k h⟩; f k (t.getV k) := by
+  simp only [mem_iff_contains, contains_filter, Option.any_eq_true_iff_getV,
+    ← contains_eq_isSome_get?, getV_get?]
 
 theorem mem_filter_key [TransCmp cmp]
     {f : α → Bool} {k : α} :
@@ -7139,7 +7139,7 @@ theorem filter_key_equiv_self_iff [TransCmp cmp]
 
 theorem size_filter_key_eq_size_iff [TransCmp cmp]
     {f : α → Bool} :
-    (t.filter fun k _ => f k).size = t.size ↔ ∀ (k : α) (h : k ∈ t), f (t.getKeyV k) :=
+    (t.filter fun k _ => f k).size = t.size ↔ ∀ (k : α), k ∈ t → f (t.getKeyV k) :=
   t.inductionOn fun _ => DTreeMap.size_filter_key_eq_size_iff
 
 @[simp, grind =]

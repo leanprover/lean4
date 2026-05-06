@@ -144,8 +144,10 @@ theorem CNF.unsat_of_convertLRAT_unsat (cnf : CNF Nat) :
   · next heq =>
     rw [← heq] at hrclause2
     simp only [Option.some.injEq] at hrclause2
-    rw [Array.mem_iff_getElem] at hrclause1
-    rcases hrclause1 with ⟨i, h, rfl⟩
+    rw [Array.mem_iff_getElemV] at hrclause1
+    rcases hrclause1 with ⟨i, h, hi⟩
+    rw [← hi] at hrclause2
+    simp only [getElem_eq_getElemV] at h2
     simp [CNF.Clause.convertLRAT_sat_of_sat _ hrclause2, h2 i h]
   · contradiction
 

@@ -6460,14 +6460,14 @@ theorem isEmpty_filter_eq_false_iff [LawfulBEq α]
 theorem isEmpty_filter_key_iff [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} (h : m.WF) :
     (m.filter (fun a _ => f a)).isEmpty ↔
-      ∀ (k : α) (_ : k ∈ m), f (m.getKeyV k) = false := by
+      ∀ (k : α), k ∈ m → f (m.getKeyV k) = false := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.isEmpty_filter_key_iff
 
 theorem isEmpty_filter_key_eq_false_iff [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} (h : m.WF) :
     (m.filter (fun a _ => f a)).isEmpty = false ↔
-      ∃ (k : α) (_ : k ∈ m), f (m.getKeyV k) := by
+      ∃ (k : α), k ∈ m ∧ f (m.getKeyV k) := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.isEmpty_filter_key_eq_false_iff
 
@@ -6539,7 +6539,7 @@ theorem filter_key_equiv_self_iff [EquivBEq α] [LawfulHashable α]
 
 theorem size_filter_key_eq_size_iff [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} (h : m.WF) :
-    (m.filter fun k _ => f k).size = m.size ↔ ∀ (k : α) (_ : k ∈ m), f (m.getKeyV k) := by
+    (m.filter fun k _ => f k).size = m.size ↔ ∀ (k : α), k ∈ m → f (m.getKeyV k) := by
   simp only [mem_iff_contains]
   simp_to_raw using Raw₀.size_filter_key_eq_size_iff
 

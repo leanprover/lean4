@@ -4745,7 +4745,7 @@ theorem filter_eq_empty_iff [LawfulBEq α]
   isEmpty_iff.symm.trans <| m.inductionOn fun _ => DHashMap.isEmpty_filter_iff
 
 theorem filter_key_eq_empty_iff [EquivBEq α] [LawfulHashable α] {f : α → Bool} :
-    m.filter (fun a _ => f a) = ∅ ↔ ∀ (k : α) (_ : k ∈ m), f (m.getKeyV k) = false :=
+    m.filter (fun a _ => f a) = ∅ ↔ ∀ (k : α), k ∈ m → f (m.getKeyV k) = false :=
   isEmpty_iff.symm.trans <| m.inductionOn fun _ => DHashMap.isEmpty_filter_key_iff
 
 @[grind =] theorem contains_filter [LawfulBEq α] {f : (a : α) → β a → Bool} {k : α} :
@@ -4799,7 +4799,7 @@ theorem filter_key_equiv_self_iff [EquivBEq α] [LawfulHashable α] {f : (a : α
   m.inductionOn fun _ => Iff.trans ⟨exact, sound⟩ DHashMap.filter_key_equiv_self_iff
 
 theorem size_filter_key_eq_size_iff [EquivBEq α] [LawfulHashable α] {f : α → Bool} :
-    (m.filter fun k _ => f k).size = m.size ↔ ∀ (k : α) (_ : k ∈ m), f (m.getKeyV k) :=
+    (m.filter fun k _ => f k).size = m.size ↔ ∀ (k : α), k ∈ m → f (m.getKeyV k) :=
   m.inductionOn fun _ => DHashMap.size_filter_key_eq_size_iff
 
 @[simp, grind =]

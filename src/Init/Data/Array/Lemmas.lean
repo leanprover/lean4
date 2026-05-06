@@ -3447,32 +3447,33 @@ rather than `(arr.push a).size` as the argument.
 
 @[grind =] theorem foldr_empty {f : α → β → β} {init : β} : (#[].foldr f init) = init := rfl
 
-theorem foldl_induction
+theorem foldl_induction -- TODO: think about backward compatibility here?
     {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive 0 init) {f : β → α → β}
-    (hf : ∀ i : Fin as.size, ∀ b, motive i.1 b → motive (i.1 + 1) (f b as[i])) :
+    (hf : ∀ (i : Nat) (hi : i < as.size), ∀ b, motive i b → motive (i + 1) (f b as｢i｣)) :
     motive as.size (as.foldl f init) := by
   let rec go {i j b} (h₁ : j ≤ as.size) (h₂ : as.size ≤ i + j) (H : motive j b) :
     (motive as.size) (foldlM.loop (m := Id) f as as.size (Nat.le_refl _) i j b) := by
     unfold foldlM.loop; split
+    simp only [getElem_eq_getElemV]
     next hj =>
       split
       · cases Nat.not_le_of_gt (by simp [hj]) h₂
-      · exact go hj (by rwa [Nat.succ_add] at h₂) (hf ⟨j, hj⟩ b H)
+      · exact go hj (by rwa [Nat.succ_add] at h₂) (hf j hj b H)
     next hj => exact Nat.le_antisymm h₁ (Nat.ge_of_not_lt hj) ▸ H
   simpa [foldl, foldlM] using go (Nat.zero_le _) (Nat.le_refl _) h0
 
 theorem foldr_induction
     {as : Array α} (motive : Nat → β → Prop) {init : β} (h0 : motive as.size init) {f : α → β → β}
-    (hf : ∀ i : Fin as.size, ∀ b, motive (i.1 + 1) b → motive i.1 (f as[i] b)) :
+    (hf : ∀ (i : Nat) (hi : i < as.size), ∀ b, motive (i + 1) b → motive i (f as｢i｣ b)) :
     motive 0 (as.foldr f init) := by
   let rec go {i b} (hi : i ≤ as.size) (H : motive i b) :
     (motive 0) (foldrM.fold (m := Id) f as 0 i hi b) := by
-    unfold foldrM.fold; simp only [beq_iff_eq]; split
+    unfold foldrM.fold; simp only [beq_iff_eq, getElem_eq_getElemV]; split
     next hi => exact (hi ▸ H)
     next hi =>
       split; {simp at hi}
       next i hi' =>
-        exact go _ (hf ⟨i, hi'⟩ b H)
+        exact go _ (hf i hi' b H)
   simp [foldr, foldrM]; split; {exact go _ h0}
   next h => exact (Nat.eq_zero_of_not_pos h ▸ h0)
 

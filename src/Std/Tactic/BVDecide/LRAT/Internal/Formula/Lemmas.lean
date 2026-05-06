@@ -41,7 +41,7 @@ lenient `AssignmentsInvariant` defined below).
 -/
 def StrongAssignmentsInvariant {n : Nat} (f : DefaultFormula n) : Prop :=
   ∃ hsize : f.assignments.size = n, ∀ i : PosFin n, ∀ b : Bool,
-    hasAssignment b (f.assignments[i.1]'(by rw [hsize]; exact i.2.2)) →
+    hasAssignment b (f.assignments｢i.val｣) →
     (unit (i, b)) ∈ toList f
 
 /--
@@ -54,7 +54,7 @@ to contain assignment `b` at index `i`, but the `StrongAssignmentsInvariant` wou
 -/
 def AssignmentsInvariant {n : Nat} (f : DefaultFormula n) : Prop :=
   ∃ hsize : f.assignments.size = n, ∀ i : PosFin n, ∀ b : Bool,
-    hasAssignment b (f.assignments[i.1]'(by rw [hsize]; exact i.2.2)) →
+    hasAssignment b (f.assignments｢i.val｣) →
     Limplies (PosFin n) f (i, b)
 
 theorem assignmentsInvariant_of_strongAssignmentsInvariant {n : Nat} (f : DefaultFormula n) :
@@ -76,7 +76,7 @@ theorem limplies_of_assignmentsInvariant {n : Nat} (f : DefaultFormula n)
   simp only [(· ⊨ ·), Bool.not_eq_true]
   intro i
   specialize f_AssignmentsInvariant i (decide (p i = false))
-  by_cases hasAssignment (decide (p i = false)) (f.assignments[i.1]'(by rw [hsize]; exact i.2.2))
+  by_cases hasAssignment (decide (p i = false)) (f.assignments｢i.val｣)
   next h =>
     specialize f_AssignmentsInvariant h p pf
     by_cases hpi : p i <;> simp [hpi, Entails.eval] at f_AssignmentsInvariant
@@ -244,7 +244,7 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
       apply DefaultClause.ext
       simp only [unit, hc]
     next ib_ne_c =>
-      have hb' : hasAssignment b f.assignments[i.1] := by
+      have hb' : hasAssignment b f.assignments｢i.val｣ := by
         by_cases l.1 = i.1
         next l_eq_i =>
           have b_eq_false : b = false := by
@@ -252,7 +252,8 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
             next b_eq_true =>
               simp only [b_eq_true, Subtype.ext l_eq_i, not_true] at ib_ne_c
             next b_eq_false => grind
-          simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElem_modify_self, ite_false, hasNeg_addPos, reduceCtorEq] at hb
+          simp only [hasAssignment, b_eq_false, l_eq_i, Array.getElemV_modify_self,
+            ite_false, hasNeg_addPos, reduceCtorEq, i_in_bounds] at hb
           grind [hasAssignment]
         next l_ne_i => grind
       specialize hf hb'
@@ -275,7 +276,7 @@ theorem readyForRupAdd_insert {n : Nat} (f : DefaultFormula n) (c : DefaultClaus
       apply DefaultClause.ext
       simp only [unit, hc]
     next ib_ne_c =>
-      have hb' : hasAssignment b f.assignments[i.1] := by
+      have hb' : hasAssignment b f.assignments｢i.val｣ := by
         by_cases l.1 = i.1
         next l_eq_i =>
           have b_eq_false : b = true := by
@@ -386,11 +387,11 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
       simp only [deleteOne, heq, hl] at hb
       by_cases l.1.1 = i.1
       next l_eq_i =>
-        simp only [l_eq_i, Array.getElem_modify_self] at hb
+        simp only [l_eq_i, Array.getElemV_modify_self, i_in_bounds] at hb
         have l_ne_b : l.2 ≠ b := by grind [not_has_remove]
         replace l_ne_b := Bool.eq_not_of_ne l_ne_b
         simp only [l_ne_b] at hb
-        have hb := has_remove_irrelevant f.assignments[i.1] b hb
+        have hb := has_remove_irrelevant f.assignments｢i.val｣ b hb
         specialize hf i b hb
         simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
           exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool] at hf
@@ -408,7 +409,7 @@ theorem deleteOne_preserves_strongAssignmentsInvariant {n : Nat} (f : DefaultFor
           · exact hf
         · exact Or.inr hf
       next l_ne_i =>
-        simp only [Array.getElem_modify_of_ne l_ne_i] at hb
+        simp only [Array.getElemV_modify_of_ne l_ne_i] at hb
         specialize hf i b hb
         simp only [toList, List.append_assoc, List.mem_append, List.mem_filterMap, id_eq,
           exists_eq_right, List.mem_map, Prod.exists, Bool.exists_bool] at hf

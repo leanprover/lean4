@@ -7943,13 +7943,13 @@ theorem isEmpty_filter_eq_false_iff [TransCmp cmp] [LawfulEqCmp cmp]
 theorem isEmpty_filter_key_iff [TransCmp cmp]
     {f : α → Bool} :
     (t.filter (fun a _ => f a)).isEmpty ↔
-      ∀ (k : α) (h : k ∈ t), f (t.getKeyV k) = false :=
+      ∀ (k : α), k ∈ t → f (t.getKeyV k) = false :=
   Impl.isEmpty_filter_key_iff t.wf
 
 theorem isEmpty_filter_key_eq_false_iff [TransCmp cmp]
     {f : α → Bool} :
     (t.filter (fun a _ => f a)).isEmpty = false ↔
-      ∃ (k : α) (h : k ∈ t), f (t.getKeyV k) :=
+      ∃ (k : α), k ∈ t ∧ f (t.getKeyV k) :=
   Impl.isEmpty_filter_key_eq_false_iff t.wf
 
 @[grind =]
@@ -7961,9 +7961,9 @@ theorem contains_filter [TransCmp cmp] [LawfulEqCmp cmp]
 @[grind =]
 theorem mem_filter [TransCmp cmp] [LawfulEqCmp cmp]
     {f : (a : α) → β a → Bool} {k : α} :
-    k ∈ t.filter f ↔ ∃ h, f k (t.get k h) := by
-  simp only [mem_iff_contains, contains_filter, Option.any_eq_true_iff_get,
-    ← contains_eq_isSome_get?, get_get?]
+    k ∈ t.filter f ↔ ∃ (h : k ∈ t), haveI : Nonempty (β k) := ⟨t.get k h⟩; f k (t.getV k) := by
+  simp only [mem_iff_contains, contains_filter, Option.any_eq_true_iff_getV,
+    ← contains_eq_isSome_get?, getV_get?]
 
 theorem mem_filter_key [TransCmp cmp]
     {f : α → Bool} {k : α} :
@@ -8015,7 +8015,7 @@ theorem filter_key_equiv_self_iff [TransCmp cmp]
 
 theorem size_filter_key_eq_size_iff [TransCmp cmp]
     {f : α → Bool} :
-    (t.filter fun k _ => f k).size = t.size ↔ ∀ (k : α) (h : k ∈ t), f (t.getKeyV k) :=
+    (t.filter fun k _ => f k).size = t.size ↔ ∀ (k : α), k ∈ t → f (t.getKeyV k) :=
   Impl.size_filter_key_eq_size_iff t.wf
 
 @[simp, grind =]

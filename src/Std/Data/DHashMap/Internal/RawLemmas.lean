@@ -5459,9 +5459,9 @@ theorem isEmpty_filter_key_iff [EquivBEq α] [LawfulHashable α]
 theorem isEmpty_filter_key_eq_false_iff [EquivBEq α] [LawfulHashable α]
     {f : α → Bool} (h : m.1.WF) :
     (m.filter (fun a _ => f a)).1.isEmpty = false ↔
-      ∃ (k : α) (_ : m.contains k = true), f (m.getKeyV k) := by
+      ∃ (k : α), m.contains k = true ∧ f (m.getKeyV k) := by
   rw [← Bool.not_eq_true, isEmpty_filter_key_iff m h]
-  simp only [Classical.not_forall, Bool.not_eq_false]
+  simp only [Classical.not_forall, Bool.not_eq_false, exists_prop]
 
 theorem contains_filter [LawfulBEq α]
     {f : (a : α) → β a → Bool} {k : α} (h : m.1.WF) :

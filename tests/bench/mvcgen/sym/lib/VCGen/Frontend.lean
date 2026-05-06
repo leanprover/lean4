@@ -212,9 +212,15 @@ private meta def elabPreTac (goal : MVarId) (withPreTac : Syntax) : TacticM (VCG
   let mut params ← Grind.mkDefaultParams {}
   if withPreTac.getNumArgs == 0 then return (.none, params)
   let preTac := withPreTac[1]
+  -- Look through `try` so `with (try grind)` still uses the `.grind` path.
+  let (silent, preTac) :=
+    if preTac.getKind == ``Lean.Parser.Tactic.tacticTry_ then
+      (true, preTac[1][0][0][0])
+    else
+      (false, preTac)
   if preTac.getKind == ``Lean.Parser.Tactic.grind then
     params ← elabGrindParams preTac goal
-    return (.grind, params)
+    return (.grind silent, params)
   else
     return (.tactic preTac, params)
 
@@ -320,3 +326,5 @@ public meta def elabMVCGen' : Tactic := fun stx => withMainContext do
     elabInvariants stx[3] result.invariants (suggestInvariant result.vcs)
   let invariants ← result.invariants.filterM (not <$> ·.isAssigned)
   replaceMainGoal (invariants ++ result.vcs).toList
+  if result.preTacFailed then
+    throwError "pre-tactic failed on at least one VC; see errors above"

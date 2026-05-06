@@ -29,24 +29,26 @@ namespace VCGen
 /--
 Runs the `preTac` on the VC:
 - `.grind`: tries to solve the VC using the accumulated `Grind.Goal` state via `Grind.Goal.grind`.
+  Reports failure via `Lean.logError` unless `silent` is set.
 - `.tactic`: runs the user-provided tactic on the VC, potentially emitting multiple subgoals.
 - `.none`: returns the VC as-is.
 -/
 public meta def PreTac.run : PreTac →  Grind.Goal → VCGenM (List MVarId)
   | .none, goal => return [goal.mvarId]
-  | .grind, goal => do
+  | .grind silent, goal => do
     let savedMCtx ← getMCtx
     match ← goal.grind with
     | .closed => return []
     | .failed .. =>
       setMCtx savedMCtx
+      unless silent do
+        goal.mvarId.withContext do
+          Lean.logError m!"`grind` failed on goal:{indentD (MessageData.ofGoal goal.mvarId)}"
+        modify fun s => { s with preTacFailed := true }
       return [goal.mvarId]
-  | .tactic tac, goal =>
-    try
-      let (gs, _) ← Lean.Elab.runTactic goal.mvarId tac {} {}
-      pure gs
-    catch _ =>
-      pure [goal.mvarId]
+  | .tactic tac, goal => do
+    let (gs, _) ← Lean.Elab.runTactic goal.mvarId tac {} {}
+    pure gs
 
 /--
 Try to elaborate the user's invariant alt for invariant number `n` inline,
@@ -171,6 +173,8 @@ public structure Result where
   avoid spurious "alt does not match any invariant" warnings for inline-consumed
   alts. -/
   inlineHandledInvariants : Std.HashSet Nat := {}
+  /-- True iff some non-silent pre-tactic failed during VC generation. -/
+  preTacFailed : Bool := false
 
 /--
 Generate verification conditions for a goal of the form `P ⊢ₛ wp⟦e⟧ Q s₁ ... sₙ` by repeatedly
@@ -192,6 +196,7 @@ public meta partial def main (goal : MVarId) (ctx : Context) (stepLimit? : Optio
   return {
     invariants := state.invariants,
     vcs,
-    inlineHandledInvariants := state.inlineHandledInvariants }
+    inlineHandledInvariants := state.inlineHandledInvariants,
+    preTacFailed := state.preTacFailed }
 
 end VCGen

@@ -1448,6 +1448,8 @@ public partial def elabBlock (stx : TSyntax `block) : DocM (Block ElabInline Ela
   match stx with
   | `(block|para[$inls*]) =>
     .para <$> inls.mapM elabInline
+  | `(block| > $blocks*) =>
+    .blockquote <$> blocks.mapM elabBlock
   | `(block|ul{$[* $itemss*]*}) =>
     .ul <$> itemss.mapM fun items =>
       .mk <$> items.mapM elabBlock

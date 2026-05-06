@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Elab.BuiltinDo.Basic
 meta import Lean.Parser.Do
-public import Lean.Elab.Do.Switch
+import Lean.Elab.BuiltinDo.For
 
 public section
 
@@ -19,25 +19,16 @@ open Lean.Parser.Term
 /--
 Builtin do-element elaborator for `repeat` (syntax kind `Lean.Parser.Term.doRepeat`).
 
-When `backward.do.while` is `false` (the default), expands to `for _ in Lean.Repeat.mk do ...`,
-which uses `WellFounded.extrinsicFix` and admits verification.
-When `backward.do.while` is `true`, expands to `for _ in Lean.Loop.mk do ...`, which uses a
-`partial` fixed point and is opaque to the proof system but does not require a `MonadAttach`
-instance on the ambient monad.
-
-When the body cannot `break` and the surrounding do block's result type does not unify with
-`PUnit`, appends an `unreachable!` so the continuation has a polymorphic value of any type.
-The `unreachable!` is never actually executed (the loop never terminates normally), and any
-dead-code warning that fires on the surrounding continuation is actionable — the user can
-remove the following code without breaking the do block's type.
+Expands to `for _ in Lean.Loop.mk do ...`. When the body cannot `break` and the surrounding
+do block's result type does not unify with `PUnit`, appends an `unreachable!` so the
+continuation has a polymorphic value of any type. The `unreachable!` is never actually
+executed (the loop never terminates normally), and any dead-code warning that fires on the
+surrounding continuation is actionable — the user can remove the following code without
+breaking the do block's type.
 -/
 @[builtin_doElem_elab Lean.Parser.Term.doRepeat] def elabDoRepeat : DoElab := fun stx dec => do
   let `(doElem| repeat%$tk $seq) := stx | throwUnsupportedSyntax
-  let mut expanded ←
-    if Lean.Elab.Term.backward.do.while.get (← getOptions) then
-      `(doElem| for%$tk _ in Lean.Loop.mk do $seq)
-    else
-      `(doElem| for%$tk _ in Lean.Repeat.mk do $seq)
+  let mut expanded ← `(doElem| for%$tk _ in Lean.Loop.mk do $seq)
   let info ← inferControlInfoSeq seq
   if !info.breaks then
     if !(← Meta.isDefEqGuarded dec.resultType (← mkPUnit)) then

@@ -2237,12 +2237,7 @@ theorem Spec.of_erasesTo
   simp only [WPMonad.wp_map]
   rw [PredTrans.apply_Functor_map]
   apply (wp y).mono
-  constructor
-  · intro ⟨a, hP⟩
-    dsimp only []
-    rw [SPred.forall_prop_of_true hP]
-  · dsimp only []
-    exact ExceptConds.entails.refl _
+  refine ⟨fun ⟨a, hP⟩ => SPred.forall_elim hP, ExceptConds.entails.refl _⟩
 
 /--
 Specification for an `Internal.IsAttach`-witnessed attach: the precondition is the weakest

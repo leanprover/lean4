@@ -3,7 +3,6 @@ module
 import Std
 
 set_option mvcgen.warning false
-set_option backward.do.while true
 
 open Std.Do
 

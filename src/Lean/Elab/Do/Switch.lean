@@ -19,13 +19,6 @@ register_builtin_option backward.do.legacy : Bool := {
   descr    := "Use the legacy `do` elaborator instead of the new, extensible implementation."
 }
 
-register_builtin_option backward.do.while : Bool := {
-  defValue := false
-  descr    := "Use the legacy partial `Lean.Loop` type for `repeat`/`while` loops instead of the \
-well-founded `Lean.Repeat` type. Useful as a workaround when the monad lacks a `MonadAttach` \
-instance."
-}
-
 private def toDoElem (newKind : SyntaxNodeKind) : Macro := fun stx => do
   let stx := stx.setKind newKind
   withRef stx `(do $(⟨stx⟩):doElem)

@@ -293,11 +293,10 @@ static inline lean_object * get_next(lean_object * o) {
 
 static inline void set_next(lean_object * o, lean_object * n) {
     if (sizeof(void*) == 8) {
-        size_t new_header = (size_t)n;
-        LEAN_BYTE(new_header, 7) = o->m_tag;
-        LEAN_BYTE(new_header, 6) = o->m_other;
-        ((size_t*)o)[0] = new_header;
-        lean_assert(get_next(o) == n);
+        uint16_t hi;
+        memcpy(&hi, (char*)o + 6, 2);
+        size_t header = ((size_t)hi << 48) | (size_t)n;
+        memcpy(o, &header, 8);
     } else {
         // 32-bit version
         ((lean_object**)o)[0] = n;

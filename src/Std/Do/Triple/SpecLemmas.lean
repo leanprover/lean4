@@ -2277,19 +2277,25 @@ variable {α β : Type u} {m : Type u → Type v} {ps : PostShape.{u}}
 variable [Monad m] [WP m ps] [WPAdequate m ps]
 
 theorem _root_.whileM.IsPlausibleStep.acc_of_wp
-    {f : α → m (α ⊕ β)} {P : α ⊕ β → Prop} (measure : α → Nat) (init : α) (hP : P (.inl init))
-    (h : ∀ a, ⦃⌜P (.inl a)⌝⦄ f a ⦃⇓ r => ⌜P r ∧ ∀ a', r = .inl a' → measure a' < measure a⌝⦄) :
+    {γ : Type w} [WellFoundedRelation γ]
+    {f : α → m (α ⊕ β)} {P : α ⊕ β → Prop} (measure : α → γ) (init : α) (hP : P (.inl init))
+    (h : ∀ a, ⦃⌜P (.inl a)⌝⦄ f a ⦃⇓ r => ⌜P r ∧ ∀ a', r = .inl a' →
+        WellFoundedRelation.rel (measure a') (measure a)⌝⦄) :
     Acc (whileM.IsPlausibleStep f) init := by
-  have (eq := hn) n := measure init
-  induction n using Nat.strongRecOn generalizing init with
-  | _ n ih =>
+  suffices key : ∀ c init, P (.inl init) → measure init = c →
+      Acc (whileM.IsPlausibleStep f) init from key _ init hP rfl
+  intro c
+  induction c using (WellFoundedRelation.wf (α := γ)).induction with
+  | _ c ih =>
+  intro init hP hμ
   refine Acc.intro _ fun a' hStep => ?_
   have hwp : ⊢ₛ wp⟦f init⟧
-      (⇓? r => ⌜P r ∧ ∀ a', r = .inl a' → measure a' < measure init⌝) := by
+      (⇓? r => ⌜P r ∧ ∀ a', r = .inl a' →
+          WellFoundedRelation.rel (measure a') (measure init)⌝) := by
     apply SPred.entails.trans (by simpa [hP] using h init)
     apply (wp _).mono; simp [PostCond.entails]
   have hpost := hStep.imp (WPAdequate.ensures_of_wp hwp)
-  exact ih _ (hn ▸ hpost.2 a' rfl) _ hpost.1 rfl
+  exact ih _ (hμ ▸ hpost.2 a' rfl) _ hpost.1 rfl
 
 /--
 An invariant for a `whileM`.
@@ -2301,9 +2307,10 @@ This is a fundamental limitation of how `whileM` is implemented.
 @[spec_invariant_type]
 abbrev WhileInvariant (α β : Type u) := α ⊕ β → Prop
 
-/-- A variant (termination measure) for a `whileM` loop. -/
+/-- A variant (termination measure) for a `whileM` loop, mapping into an arbitrary
+well-founded relation. -/
 @[spec_invariant_type]
-abbrev WhileVariant (α : Type u) := α → Nat
+abbrev WhileVariant (α : Type u) (γ : Type w) := α → γ
 
 variable {α β : Type u} {m : Type u → Type v} {ps : PostShape.{u}}
 variable [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] [WPMonad m ps] [WPAdequate m ps]
@@ -2314,13 +2321,14 @@ proof whose post both preserves the invariant and shows the variant strictly dec
 -/
 @[spec]
 theorem Spec.whileM
+    {γ : Type w} [WellFoundedRelation γ]
     {init : α} {f : α → m (α ⊕ β)} [Nonempty β]
-    (μ : WhileVariant α)
+    (measure : WhileVariant α γ)
     (inv : WhileInvariant α β)
     (step : ∀ a,
       Triple (f a) (⌜inv (.inl a)⌝)
         (⇓ r => match r with
-          | .inl a' => spred(⌜inv (.inl a') ∧ μ a' < μ a⌝)
+          | .inl a' => spred(⌜inv (.inl a') ∧ WellFoundedRelation.rel (measure a') (measure a)⌝)
           | .inr b => ⌜inv (.inr b)⌝)) :
     Triple (whileM f init) (⌜inv (.inl init)⌝)
         (⇓ b => ⌜inv (.inr b)⌝) := by
@@ -2329,11 +2337,11 @@ theorem Spec.whileM
       ⊢ₛ wp⟦(_root_.whileM f a : m β)⟧ (PostCond.noThrow fun b => ⌜inv (.inr b)⌝) from
     key init hInv
   intro a hInv'
-  have (eq := hn) n := μ a
-  induction n using Nat.strongRecOn generalizing a with
-  | _ n ih =>
+  have (eq := hμ_eq) c := measure a
+  induction c using (WellFoundedRelation.wf (α := γ)).induction generalizing a with
+  | _ c ih =>
   have hacc : Acc (whileM.IsPlausibleStep f) a := by
-    refine whileM.IsPlausibleStep.acc_of_wp μ a hInv' fun y =>
+    refine whileM.IsPlausibleStep.acc_of_wp measure a hInv' fun y =>
       Triple.iff.mpr <| (Triple.iff.mp (step y)).trans <| (wp _).mono _ _ ⟨fun r => ?_, by simp⟩
     cases r with
     | inl _ => exact SPred.pure_mono fun ⟨hI, hM⟩ =>
@@ -2346,31 +2354,33 @@ theorem Spec.whileM
   apply Triple.bind _ _
     (Triple.iff.mpr (Triple.entails_wp_of_pre (step a) (SPred.pure_intro hInv')))
   rintro (a' | b)
-  · exact Triple.iff.mpr <| SPred.pure_elim' fun ⟨hI, hM⟩ => ih (μ a') (hn ▸ hM) a' hI rfl
+  · exact Triple.iff.mpr <| SPred.pure_elim' fun ⟨hI, hM⟩ =>
+      ih (measure a') (hμ_eq ▸ hM) a' hI rfl
   · exact Triple.pure b (by simp)
 
 /--
-Specification for `forIn` over a `Lean.Loop`. The user supplies a termination measure `μ`, an
+Specification for `forIn` over a `Lean.Loop`. The user supplies a termination measure `measure`, an
 invariant, and a step proof whose post both preserves the invariant and shows the variant
 strictly decreases on yield.
 -/
 @[spec]
 theorem Spec.forIn_loop
+    {γ : Type w} [WellFoundedRelation γ]
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
-    (μ : WhileVariant β)
+    (measure : WhileVariant β γ)
     (inv : WhileInvariant β β)
     (step : ∀ b,
       Triple
         (f () b)
         (⌜inv (.inl b)⌝)
         (⇓ r => match r with
-          | .yield b' => spred(⌜inv (.inl b') ∧ μ b' < μ b⌝)
+          | .yield b' => spred(⌜inv (.inl b') ∧ WellFoundedRelation.rel (measure b') (measure b)⌝)
           | .done b' => ⌜inv (.inr b')⌝)) :
     Triple (forIn l init f) (⌜inv (.inl init)⌝) (⇓ b => ⌜inv (.inr b)⌝) := by
   change Triple (_root_.Lean.Loop.forIn l init f) _ _
   simp only [_root_.Lean.Loop.forIn]
   have : Nonempty β := ⟨init⟩
-  apply Spec.whileM μ inv
+  apply Spec.whileM measure inv
   intro a
   apply Triple.bind
   · apply step a

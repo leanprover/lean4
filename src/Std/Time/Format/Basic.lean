@@ -442,7 +442,7 @@ inductive Modifier
 It takes a constructor function to build the `Modifier` and a classify function that maps the pattern length to a specific type.
 -/
 private def parseMod (constructor : α → Modifier) (classify : Nat → Option α) (p : String) : Parser Modifier :=
-  let len := p.length
+  let len := p.positions.length
   match classify len with
   | some res => pure (constructor res)
   | none => fail s!"invalid quantity of characters for '{p.front}'"
@@ -617,16 +617,16 @@ private def specParse (s : String) : Except String FormatString :=
 -- Pretty printer
 
 private def leftPad (n : Nat) (a : Char) (s : String) : String :=
-  "".pushn a (n -  s.length) ++ s
+  "".pushn a (n -  s.positions.length) ++ s
 
 private def rightPad (n : Nat) (a : Char) (s : String) : String :=
-  s ++ "".pushn a (n - s.length)
+  s ++ "".pushn a (n - s.positions.length)
 
 private def pad (size : Nat)  (n : Int) (cut : Bool := false) : String :=
   let (sign, n) := if n < 0 then ("-", -n) else ("", n)
 
   let numStr := toString n
-  if numStr.length > size then
+  if numStr.positions.length > size then
     sign ++ if cut then numStr.drop (numStr.length - size) |>.copy else numStr
   else
     sign ++ leftPad size '0' numStr

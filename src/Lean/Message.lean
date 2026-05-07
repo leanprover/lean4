@@ -689,7 +689,7 @@ def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
     (fun ctx => do
       let msg := MessageData.ofExpr e
       let render ← msg.formatExpensively ctx
-      if render.length > maxInlineLength || render.any (· == '\n') then
+      if render.positions.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg ++ "\n"
       else
         return " `" ++ msg ++ "` ")
@@ -705,7 +705,7 @@ def inlineExprTrailing (e : Expr) (maxInlineLength := 30) : MessageData :=
     (fun ctx => do
       let msg := MessageData.ofExpr e
       let render ← msg.formatExpensively ctx
-      if render.length > maxInlineLength || render.any (· == '\n') then
+      if render.positions.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg
       else
         return " `" ++ msg ++ "`")

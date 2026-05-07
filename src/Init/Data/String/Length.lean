@@ -25,7 +25,6 @@ Examples:
 def length (b : @& String) : Nat :=
   b.toList.length
 
-
 @[simp]
 theorem Internal.size_toArray {b : String} : (String.Internal.toArray b).size = b.length :=
   (rfl)

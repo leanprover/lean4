@@ -90,8 +90,16 @@ private theorem whileM.body_eq_fix
     · exact whileM.body_eq_fix f h.2 (whileM.impl f) h.1
     · trivial⟩
 
+/--
+An erased version of `whileM.impl` that eta-expands better in the compiler.
+Can be removed once `whileM.impl` optimizes to the same code.
+-/
+@[specialize] private partial def whileM.erased [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
+  whileM.body f (whileM.erased f ·) a
+
 /-- `whileM f a` iterates `f` at `a`, recursing on `.inl` and terminating on `.inr`. -/
-@[inline] public def whileM [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
+@[inline, implemented_by whileM.erased] -- See comment above `whileM.erased`.
+public def whileM [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
   (whileM.impl f a).val
 
 /-- Under `Acc (whileM.IsPlausibleStep f) a`, `whileM f a` unfolds to one step. -/

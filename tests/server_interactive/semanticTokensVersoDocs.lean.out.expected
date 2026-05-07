@@ -1,17 +1,7 @@
 {"version": 1,
  "uri": "file:///semanticTokensVersoDocs.lean",
  "isIncremental": false,
- "diagnostics":
- [{"source": "Lean 4",
-   "severity": 1,
-   "range":
-   {"start": {"line": 21, "character": 0},
-    "end": {"line": 21, "character": 45}},
-   "message":
-   "Unsupported syntax: failed to pretty print term (use 'set_option pp.rawOnError true' for raw representation)",
-   "fullRange":
-   {"start": {"line": 21, "character": 0},
-    "end": {"line": 21, "character": 45}}}]}
+ "diagnostics": []}
 {"textDocument": {"uri": "file:///semanticTokensVersoDocs.lean"},
  "position": {"line": 51, "character": 2}}
 {"data":

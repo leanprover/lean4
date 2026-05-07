@@ -31,52 +31,34 @@ def invAtPrec (x : Dyadic) (prec : Int) : Dyadic :=
 /-- For a positive dyadic `x`, `invAtPrec x prec * x ≤ 1`. -/
 theorem invAtPrec_mul_le_one {x : Dyadic} (hx : 0 < x) (prec : Int) :
     invAtPrec x prec * x ≤ 1 := by
-  rw [← toRat_le_toRat_iff]
-  rw [toRat_mul]
-  rw [show (1 : Dyadic).toRat = (1 : Rat) from rfl]
+  have hxr : (0 : Rat) < x.toRat := by rwa [← toRat_lt_toRat_iff, toRat_zero] at hx
+  rw [← toRat_le_toRat_iff, toRat_mul, show (1 : Dyadic).toRat = (1 : Rat) from rfl]
   unfold invAtPrec
   cases x with
-  | zero =>
-    exfalso
-    contradiction
+  | zero => exfalso; contradiction
   | ofOdd n k hn =>
     simp only
-    have h_le : ((ofOdd n k hn).toRat.inv.toDyadic prec).toRat ≤ (ofOdd n k hn).toRat.inv := Rat.toRat_toDyadic_le
-    have h_pos : 0 ≤ (ofOdd n k hn).toRat := by
-      rw [← toRat_lt_toRat_iff, toRat_zero] at hx
-      exact Rat.le_of_lt hx
     calc ((ofOdd n k hn).toRat.inv.toDyadic prec).toRat * (ofOdd n k hn).toRat
-        ≤ (ofOdd n k hn).toRat.inv * (ofOdd n k hn).toRat := Rat.mul_le_mul_of_nonneg_right h_le h_pos
-      _ = 1 := by
-        apply Rat.inv_mul_cancel
-        rw [← toRat_lt_toRat_iff, toRat_zero] at hx
-        exact Rat.ne_of_gt hx
+        ≤ (ofOdd n k hn).toRat.inv * (ofOdd n k hn).toRat :=
+          Rat.mul_le_mul_of_nonneg_right Rat.toRat_toDyadic_le (Rat.le_of_lt hxr)
+      _ = 1 := Rat.inv_mul_cancel _ (Rat.ne_of_gt hxr)
 
 /-- For a positive dyadic `x`, `1 < (invAtPrec x prec + 2^(-prec)) * x`. -/
 theorem one_lt_invAtPrec_add_inc_mul {x : Dyadic} (hx : 0 < x) (prec : Int) :
     1 < (invAtPrec x prec + ofIntWithPrec 1 prec) * x := by
-  rw [← toRat_lt_toRat_iff]
-  rw [toRat_mul]
-  rw [show (1 : Dyadic).toRat = (1 : Rat) from rfl]
+  have hxr : (0 : Rat) < x.toRat := by rwa [← toRat_lt_toRat_iff, toRat_zero] at hx
+  rw [← toRat_lt_toRat_iff, toRat_mul, show (1 : Dyadic).toRat = (1 : Rat) from rfl]
   unfold invAtPrec
   cases x with
-  | zero =>
-    exfalso
-    contradiction
+  | zero => exfalso; contradiction
   | ofOdd n k hn =>
     simp only
-    have h_le : (ofOdd n k hn).toRat.inv < ((ofOdd n k hn).toRat.inv.toDyadic prec + ofIntWithPrec 1 prec).toRat :=
-      Rat.lt_toRat_toDyadic_add
-    have h_pos : 0 < (ofOdd n k hn).toRat := by
-      rwa [← toRat_lt_toRat_iff, toRat_zero] at hx
-    calc
-      1 = (ofOdd n k hn).toRat.inv * (ofOdd n k hn).toRat := by
-        symm
-        apply Rat.inv_mul_cancel
-        rw [← toRat_lt_toRat_iff, toRat_zero] at hx
-        exact Rat.ne_of_gt hx
-      _ < ((ofOdd n k hn).toRat.inv.toDyadic prec + ofIntWithPrec 1 prec).toRat * (ofOdd n k hn).toRat :=
-           Rat.mul_lt_mul_of_pos_right h_le h_pos
+    calc (1 : Rat)
+        = (ofOdd n k hn).toRat.inv * (ofOdd n k hn).toRat :=
+          (Rat.inv_mul_cancel _ (Rat.ne_of_gt hxr)).symm
+      _ < ((ofOdd n k hn).toRat.inv.toDyadic prec + ofIntWithPrec 1 prec).toRat
+            * (ofOdd n k hn).toRat :=
+          Rat.mul_lt_mul_of_pos_right Rat.lt_toRat_toDyadic_add hxr
 
 /--
 If `y : Dyadic` has precision at most `prec` and a rational `q` lies in the half-open
@@ -162,54 +144,34 @@ def divAtPrec (a b : Dyadic) (prec : Int) : Dyadic :=
 /-- For a positive dyadic `b`, `divAtPrec a b prec * b ≤ a`. -/
 theorem divAtPrec_mul_le {a b : Dyadic} (hb : 0 < b) (prec : Int) :
     divAtPrec a b prec * b ≤ a := by
-  rw [← toRat_le_toRat_iff]
-  rw [toRat_mul]
+  have hbr : (0 : Rat) < b.toRat := by rwa [← toRat_lt_toRat_iff, toRat_zero] at hb
+  rw [← toRat_le_toRat_iff, toRat_mul]
   unfold divAtPrec
   cases b with
-  | zero =>
-    exfalso
-    contradiction
+  | zero => exfalso; contradiction
   | ofOdd n k hn =>
     simp only
-    have h_le : ((a.toRat / (ofOdd n k hn).toRat).toDyadic prec).toRat ≤
-        a.toRat / (ofOdd n k hn).toRat := Rat.toRat_toDyadic_le
-    have h_pos : 0 ≤ (ofOdd n k hn).toRat := by
-      rw [← toRat_lt_toRat_iff, toRat_zero] at hb
-      exact Rat.le_of_lt hb
     calc ((a.toRat / (ofOdd n k hn).toRat).toDyadic prec).toRat * (ofOdd n k hn).toRat
         ≤ a.toRat / (ofOdd n k hn).toRat * (ofOdd n k hn).toRat :=
-            Rat.mul_le_mul_of_nonneg_right h_le h_pos
-      _ = a.toRat := by
-        apply Rat.div_mul_cancel
-        rw [← toRat_lt_toRat_iff, toRat_zero] at hb
-        exact Rat.ne_of_gt hb
+          Rat.mul_le_mul_of_nonneg_right Rat.toRat_toDyadic_le (Rat.le_of_lt hbr)
+      _ = a.toRat := Rat.div_mul_cancel (Rat.ne_of_gt hbr)
 
 /-- For a positive dyadic `b`, `a < (divAtPrec a b prec + 2^(-prec)) * b`. -/
 theorem lt_divAtPrec_add_inc_mul {a b : Dyadic} (hb : 0 < b) (prec : Int) :
     a < (divAtPrec a b prec + ofIntWithPrec 1 prec) * b := by
-  rw [← toRat_lt_toRat_iff]
-  rw [toRat_mul]
+  have hbr : (0 : Rat) < b.toRat := by rwa [← toRat_lt_toRat_iff, toRat_zero] at hb
+  rw [← toRat_lt_toRat_iff, toRat_mul]
   unfold divAtPrec
   cases b with
-  | zero =>
-    exfalso
-    contradiction
+  | zero => exfalso; contradiction
   | ofOdd n k hn =>
     simp only
-    have h_lt : a.toRat / (ofOdd n k hn).toRat <
-        ((a.toRat / (ofOdd n k hn).toRat).toDyadic prec + ofIntWithPrec 1 prec).toRat :=
-      Rat.lt_toRat_toDyadic_add
-    have h_pos : 0 < (ofOdd n k hn).toRat := by
-      rwa [← toRat_lt_toRat_iff, toRat_zero] at hb
-    calc
-      a.toRat = a.toRat / (ofOdd n k hn).toRat * (ofOdd n k hn).toRat := by
-        symm
-        apply Rat.div_mul_cancel
-        rw [← toRat_lt_toRat_iff, toRat_zero] at hb
-        exact Rat.ne_of_gt hb
-      _ < ((a.toRat / (ofOdd n k hn).toRat).toDyadic prec + ofIntWithPrec 1 prec).toRat *
-            (ofOdd n k hn).toRat :=
-          Rat.mul_lt_mul_of_pos_right h_lt h_pos
+    calc a.toRat
+        = a.toRat / (ofOdd n k hn).toRat * (ofOdd n k hn).toRat :=
+          (Rat.div_mul_cancel (Rat.ne_of_gt hbr)).symm
+      _ < ((a.toRat / (ofOdd n k hn).toRat).toDyadic prec + ofIntWithPrec 1 prec).toRat
+            * (ofOdd n k hn).toRat :=
+          Rat.mul_lt_mul_of_pos_right Rat.lt_toRat_toDyadic_add hbr
 
 /--
 For positive `b`, `divAtPrec a b prec` is the unique dyadic with precision at most `prec`

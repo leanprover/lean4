@@ -10645,7 +10645,7 @@ lean_object* v_a_3343_; uint8_t v_trace_3344_;
 v_a_3343_ = lean_ctor_get(v___x_3342_, 0);
 lean_inc(v_a_3343_);
 lean_dec_ref(v___x_3342_);
-v_trace_3344_ = lean_ctor_get_uint8(v_a_3343_, sizeof(void*)*11);
+v_trace_3344_ = lean_ctor_get_uint8(v_a_3343_, sizeof(void*)*12);
 lean_dec(v_a_3343_);
 if (v_trace_3344_ == 0)
 {
@@ -16260,7 +16260,7 @@ lean_object* v_a_5279_; uint8_t v_trace_5280_; lean_object* v_mvarId_5281_; lean
 v_a_5279_ = lean_ctor_get(v___x_5278_, 0);
 lean_inc_n(v_a_5279_, 2);
 lean_dec_ref(v___x_5278_);
-v_trace_5280_ = lean_ctor_get_uint8(v_a_5277_, sizeof(void*)*11);
+v_trace_5280_ = lean_ctor_get_uint8(v_a_5277_, sizeof(void*)*12);
 lean_dec(v_a_5277_);
 v_mvarId_5281_ = lean_ctor_get(v_goal_5264_, 1);
 lean_inc(v_mvarId_5281_);

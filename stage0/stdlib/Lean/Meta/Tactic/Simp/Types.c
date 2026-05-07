@@ -150,7 +150,7 @@ lean_object* l_Lean_Meta_mkEqSymm(lean_object*, lean_object*, lean_object*, lean
 lean_object* l_Lean_Expr_constName_x21(lean_object*);
 uint8_t lean_is_matcher(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_mkAppM(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-uint32_t l_UInt32_ofNatTruncate(lean_object*);
+uint32_t l_UInt32_ofNatClamp(lean_object*);
 lean_object* l_ReaderT_pure___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instMonadControlTOfPure___redArg(lean_object*);
 lean_object* l_Lean_Meta_withTrackingZetaDeltaSet___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -1788,7 +1788,7 @@ _start:
 {
 lean_object* v___x_252_; uint32_t v___x_253_; 
 v___x_252_ = lean_unsigned_to_nat(2u);
-v___x_253_ = l_UInt32_ofNatTruncate(v___x_252_);
+v___x_253_ = l_UInt32_ofNatClamp(v___x_252_);
 return v___x_253_;
 }
 }
@@ -2510,7 +2510,7 @@ v_resetjp_493_:
 {
 lean_object* v_maxDischargeDepth_496_; uint32_t v___x_497_; lean_object* v___x_498_; lean_object* v___x_499_; uint32_t v___x_500_; uint8_t v___x_501_; lean_object* v___x_502_; lean_object* v___x_504_; 
 v_maxDischargeDepth_496_ = lean_ctor_get(v_config_487_, 1);
-v___x_497_ = l_UInt32_ofNatTruncate(v_maxDischargeDepth_496_);
+v___x_497_ = l_UInt32_ofNatClamp(v_maxDischargeDepth_496_);
 v___x_498_ = lean_box(0);
 v___x_499_ = lean_unsigned_to_nat(0u);
 v___x_500_ = 0;
@@ -15182,7 +15182,7 @@ _start:
 lean_object* v___x_4915_; lean_object* v___x_4916_; lean_object* v___x_4917_; lean_object* v___x_4918_; lean_object* v___x_4919_; lean_object* v___x_4920_; 
 v___x_4915_ = ((lean_object*)(l_Lean_Meta_Simp_mkImpCongr___closed__2));
 v___x_4916_ = lean_unsigned_to_nat(24u);
-v___x_4917_ = lean_unsigned_to_nat(1904u);
+v___x_4917_ = lean_unsigned_to_nat(1913u);
 v___x_4918_ = ((lean_object*)(l_Lean_Meta_Simp_mkImpCongr___closed__1));
 v___x_4919_ = ((lean_object*)(l_Lean_Meta_Simp_mkImpCongr___closed__0));
 v___x_4920_ = l_mkPanicMessageWithDecl(v___x_4919_, v___x_4918_, v___x_4917_, v___x_4916_, v___x_4915_);
@@ -17722,7 +17722,7 @@ _start:
 lean_object* v___x_5671_; lean_object* v___x_5672_; lean_object* v___x_5673_; lean_object* v___x_5674_; lean_object* v___x_5675_; lean_object* v___x_5676_; 
 v___x_5671_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_Types_0__Lean_Meta_Simp_mkCongrFun_x27___closed__5));
 v___x_5672_ = lean_unsigned_to_nat(18u);
-v___x_5673_ = lean_unsigned_to_nat(1829u);
+v___x_5673_ = lean_unsigned_to_nat(1838u);
 v___x_5674_ = ((lean_object*)(l___private_Lean_Meta_Tactic_Simp_Types_0__Lean_Meta_Simp_mkCongrFun_x27___closed__4));
 v___x_5675_ = ((lean_object*)(l_Lean_Meta_Simp_mkImpCongr___closed__0));
 v___x_5676_ = l_mkPanicMessageWithDecl(v___x_5675_, v___x_5674_, v___x_5673_, v___x_5672_, v___x_5671_);

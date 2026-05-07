@@ -6326,8 +6326,8 @@ else
 {
 lean_object* v_a_1945_; lean_object* v___x_1947_; uint8_t v_isShared_1948_; uint8_t v_isSharedCheck_1952_; 
 lean_dec_ref(v_code_1693_);
-lean_dec_ref(v_toSignature_1690_);
 lean_dec_ref(v_value_1689_);
+lean_dec_ref(v_toSignature_1690_);
 lean_dec_ref(v_decl_1683_);
 v_a_1945_ = lean_ctor_get(v___x_1694_, 0);
 v_isSharedCheck_1952_ = !lean_is_exclusive(v___x_1694_);

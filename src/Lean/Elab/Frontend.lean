@@ -144,7 +144,7 @@ def runFrontend
     (ileanFileName? : Option System.FilePath := none)
     (jsonOutput : Bool := false)
     (errorOnKinds : Array Name := #[])
-    (plugins : Array System.FilePath := #[])
+    (plugins : Array Plugin := #[])
     (printStats : Bool := false)
     (setup? : Option ModuleSetup := none)
     : IO (Option Environment) := do

@@ -632,7 +632,7 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_SpecExtension_addSpecThe
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_SpecExtension_addSpecTheoremFromConst___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_SpecExtension_addSpecTheoremFromLocal(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_SpecExtension_addSpecTheoremFromLocal___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecExt___lam__0(uint8_t, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecExt___lam__0(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecExt___lam__0___boxed(lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecExt___lam__1(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecExt___lam__1___boxed(lean_object*);
@@ -9054,21 +9054,26 @@ lean_dec_ref(v_a_2888_);
 return v_res_2893_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecExt___lam__0(uint8_t v_x_2894_, lean_object* v___y_2895_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecExt___lam__0(lean_object* v_x_2894_, lean_object* v_a_2895_){
 _start:
 {
-lean_object* v___x_2896_; 
+lean_object* v___x_2896_; lean_object* v___x_2897_; 
 v___x_2896_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_2896_, 0, v___y_2895_);
-return v___x_2896_;
+lean_ctor_set(v___x_2896_, 0, v_a_2895_);
+lean_inc_ref_n(v___x_2896_, 2);
+v___x_2897_ = lean_alloc_ctor(0, 3, 0);
+lean_ctor_set(v___x_2897_, 0, v___x_2896_);
+lean_ctor_set(v___x_2897_, 1, v___x_2896_);
+lean_ctor_set(v___x_2897_, 2, v___x_2896_);
+return v___x_2897_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecExt___lam__0___boxed(lean_object* v_x_2897_, lean_object* v___y_2898_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecExt___lam__0___boxed(lean_object* v_x_2898_, lean_object* v_a_2899_){
 _start:
 {
-uint8_t v_x_31__boxed_2899_; lean_object* v_res_2900_; 
-v_x_31__boxed_2899_ = lean_unbox(v_x_2897_);
-v_res_2900_ = l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecExt___lam__0(v_x_31__boxed_2899_, v___y_2898_);
+lean_object* v_res_2900_; 
+v_res_2900_ = l_Lean_Elab_Tactic_Do_SpecAttr_mkSpecExt___lam__0(v_x_2898_, v_a_2899_);
+lean_dec_ref(v_x_2898_);
 return v_res_2900_;
 }
 }

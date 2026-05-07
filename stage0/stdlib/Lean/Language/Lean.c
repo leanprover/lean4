@@ -5433,7 +5433,7 @@ lean_object* v___y_1831_; lean_object* v___y_1832_; lean_object* v_snapshotTasks
 if (lean_obj_tag(v_next_x3f_1828_) == 0)
 {
 lean_object* v___x_2059_; 
-lean_dec(v_parseCancelTk_1827_);
+lean_dec_ref(v_parseCancelTk_1827_);
 v___x_2059_ = lean_box(0);
 v___y_2006_ = v___x_2059_;
 goto v___jp_2005_;
@@ -5492,7 +5492,7 @@ return v___x_1844_;
 else
 {
 lean_object* v___x_1845_; 
-lean_dec(v___y_1835_);
+lean_dec_ref(v___y_1835_);
 lean_dec_ref(v___y_1832_);
 lean_dec(v_next_x3f_1828_);
 lean_dec_ref(v_fst_1805_);
@@ -5738,7 +5738,7 @@ lean_object* v___x_1975_; lean_object* v___x_1976_; lean_object* v___x_1977_; le
 v___x_1975_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1975_, 0, v___y_1974_);
 lean_ctor_set(v___x_1975_, 1, v_val_1812_);
-lean_inc(v___y_1969_);
+lean_inc_ref(v___y_1969_);
 lean_inc_n(v_pos_1821_, 2);
 lean_inc(v_fst_1822_);
 v___x_1976_ = l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_doElab(v_fst_1822_, v_cmdState_1823_, v_pos_1821_, v___x_1975_, v___y_1969_, v_a_1807_);
@@ -6013,7 +6013,7 @@ lean_inc(v_fst_1811_);
 v___x_2033_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_2033_, 0, v_fst_1811_);
 v___x_2034_ = l_Lean_Language_SnapshotTask_defaultReportingRange(v___x_2033_);
-lean_inc(v___x_2008_);
+lean_inc_ref(v___x_2008_);
 v___x_2035_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_2035_, 0, v___x_2008_);
 v___x_2036_ = l_IO_Promise_result_x21___redArg(v_val_1812_);
@@ -6235,7 +6235,7 @@ else
 lean_object* v___x_2110_; 
 lean_dec_ref(v___y_2100_);
 lean_dec(v___y_2097_);
-lean_dec(v___y_2094_);
+lean_dec_ref(v___y_2094_);
 lean_dec_ref(v_fst_2071_);
 v___x_2110_ = lean_box(0);
 return v___x_2110_;
@@ -6490,7 +6490,7 @@ lean_object* v___x_2249_; lean_object* v___x_2250_; lean_object* v___x_2251_; le
 v___x_2249_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_2249_, 0, v___y_2248_);
 lean_ctor_set(v___x_2249_, 1, v___x_2089_);
-lean_inc(v___y_2233_);
+lean_inc_ref(v___y_2233_);
 lean_inc_n(v_pos_2082_, 2);
 lean_inc(v_fst_2083_);
 v___x_2250_ = l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_doElab(v_fst_2083_, v_cmdState_2084_, v_pos_2082_, v___x_2249_, v___y_2233_, v_a_2073_);
@@ -6775,7 +6775,7 @@ lean_inc(v___y_2280_);
 v___x_2312_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_2312_, 0, v___y_2280_);
 v___x_2313_ = l_Lean_Language_SnapshotTask_defaultReportingRange(v___x_2312_);
-lean_inc(v___x_2286_);
+lean_inc_ref(v___x_2286_);
 v___x_2314_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_2314_, 0, v___x_2286_);
 v___x_2315_ = l_IO_Promise_result_x21___redArg(v___x_2089_);
@@ -6981,7 +6981,7 @@ goto v___jp_2279_;
 else
 {
 lean_object* v___x_2356_; 
-lean_dec(v_parseCancelTk_2087_);
+lean_dec_ref(v_parseCancelTk_2087_);
 v___x_2356_ = lean_box(0);
 v___y_2280_ = v___y_2339_;
 v___y_2281_ = v___x_2356_;
@@ -7181,7 +7181,7 @@ lean_inc_ref_n(v_parserState_2642_, 2);
 lean_inc(v_stx_2641_);
 lean_inc_ref(v_toSnapshot_2640_);
 lean_dec_ref(v_old_x3f_2400_);
-lean_dec(v_parseCancelTk_2405_);
+lean_dec_ref(v_parseCancelTk_2405_);
 lean_dec_ref(v_cmdState_2402_);
 lean_dec_ref(v_parserState_2401_);
 v_toSnapshot_2409_ = v_toSnapshot_2640_;
@@ -7246,7 +7246,7 @@ v_resetjp_2419_:
 lean_object* v___x_2422_; lean_object* v___f_2423_; lean_object* v___x_2424_; uint8_t v___x_2425_; lean_object* v___x_2426_; lean_object* v_toProcessingContext_2427_; lean_object* v_pos_2428_; lean_object* v_endPos_2429_; lean_object* v___x_2430_; lean_object* v___x_2431_; lean_object* v___x_2432_; lean_object* v___x_2433_; lean_object* v___x_2434_; lean_object* v___x_2436_; 
 v___x_2422_ = lean_box(v_sync_2404_);
 lean_inc_ref(v_a_2406_);
-lean_inc(v___x_2416_);
+lean_inc_ref(v___x_2416_);
 lean_inc(v___x_2415_);
 lean_inc_ref(v_newParserState_2414_);
 v___f_2423_ = lean_alloc_closure((void*)(l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_parseCmd___lam__3___boxed), 8, 6);
@@ -7686,7 +7686,7 @@ lean_dec_ref(v___y_2570_);
 lean_dec(v___y_2569_);
 lean_dec(v___y_2568_);
 lean_dec_ref(v___y_2567_);
-lean_dec(v_parseCancelTk_2405_);
+lean_dec_ref(v_parseCancelTk_2405_);
 if (lean_obj_tag(v_old_x3f_2400_) == 1)
 {
 lean_object* v_val_2591_; lean_object* v___x_2592_; lean_object* v_children_2593_; lean_object* v___x_2594_; lean_object* v___x_2595_; uint8_t v___x_2596_; 
@@ -7864,7 +7864,7 @@ lean_dec(v_snd_2621_);
 lean_dec(v_fst_2619_);
 lean_dec_ref(v_old_x3f_2400_);
 lean_dec_ref(v_opts_2609_);
-lean_dec(v_parseCancelTk_2405_);
+lean_dec_ref(v_parseCancelTk_2405_);
 lean_dec_ref(v_cmdState_2402_);
 if (lean_obj_tag(v_nextCmdSnap_x3f_2627_) == 1)
 {
@@ -8712,7 +8712,7 @@ goto v_reusejp_2903_;
 v_reusejp_2903_:
 {
 lean_object* v___x_2905_; lean_object* v___x_2906_; lean_object* v___x_2907_; lean_object* v___x_2908_; lean_object* v___x_2909_; lean_object* v___x_2910_; lean_object* v___x_2911_; lean_object* v___x_2912_; size_t v___x_2913_; lean_object* v___x_2914_; lean_object* v_size_2915_; lean_object* v___x_2916_; lean_object* v___x_2917_; lean_object* v___x_2918_; lean_object* v___x_2919_; lean_object* v___x_2920_; lean_object* v___x_2921_; lean_object* v___x_2922_; lean_object* v___x_2923_; lean_object* v___x_2924_; lean_object* v___x_2925_; uint64_t v___x_2926_; lean_object* v___x_2927_; lean_object* v___x_2928_; lean_object* v___x_2929_; lean_object* v___x_2930_; lean_object* v___x_2931_; lean_object* v___x_2932_; lean_object* v___x_2933_; lean_object* v___x_2934_; uint8_t v___x_2935_; 
-lean_inc(v___x_2865_);
+lean_inc_ref(v___x_2865_);
 lean_inc(v___x_2864_);
 lean_inc_ref(v___x_2904_);
 v___x_2905_ = l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_parseCmd(v___x_2879_, v_parserState_2796_, v___x_2904_, v___x_2864_, v___x_2827_, v___x_2865_, v_a_2797_);
@@ -9083,7 +9083,7 @@ v___x_3085_ = l_IO_CancelToken_new();
 v___x_3086_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_3086_, 0, v_oldCmd_3082_);
 v___x_3087_ = 1;
-lean_inc(v___x_3085_);
+lean_inc_ref(v___x_3085_);
 lean_inc(v___x_3084_);
 lean_inc_ref(v_cmdState_3078_);
 v___x_3088_ = l___private_Lean_Language_Lean_0__Lean_Language_Lean_process_parseCmd(v___x_3086_, v_newParserState_3077_, v_cmdState_3078_, v___x_3084_, v___x_3087_, v___x_3085_, v_a_3079_);

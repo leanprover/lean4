@@ -14,6 +14,8 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #include <fstream>
 #include <algorithm>
 #include <sys/stat.h>
+#include <cerrno>
+#include <cstring>
 #include "runtime/thread.h"
 #include "runtime/interrupt.h"
 #include "runtime/sstream.h"
@@ -47,6 +49,25 @@ Authors: Leonardo de Moura, Gabriel Ebner, Sebastian Ullrich
 #endif
 
 namespace lean {
+
+namespace {
+/** Read up to `n` bytes from `fd` into `buf`, handling `EINTR`. */
+ssize_t readn(int fd, void * buf, size_t n) {
+    size_t bytes_read_total = 0;
+    while (bytes_read_total < n) {
+        ssize_t bytes_read = read(fd, static_cast<char*>(buf) + bytes_read_total, n - bytes_read_total);
+        if (bytes_read < 0) {
+            if (errno == EINTR) continue;
+            return -1;
+        }
+        if (bytes_read == 0) {
+            break;
+        }
+        bytes_read_total += bytes_read;
+    }
+    return bytes_read_total;
+}
+}
 
 /** Trivial RAII wrapper for file descriptors so we don't have to worry about `close` management. */
 class file_descriptor {
@@ -243,7 +264,11 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
 
             olean_header default_header = {};
             olean_header header;
-            if (read(fd.get(), &header, sizeof(header)) != sizeof(header)
+            ssize_t read_size = readn(fd.get(), &header, sizeof(header));
+            if (read_size < 0) {
+                return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "': " << strerror(errno)).str());
+            }
+            if (read_size != sizeof(header)
                 || memcmp(header.marker, default_header.marker, sizeof(header.marker)) != 0) {
                 return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "', invalid header").str());
             }
@@ -319,7 +344,7 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
 
     // if *any* file failed to mmap, read all of them into a single big allocation so that offsets
     // between them are unchanged
-    if (!is_mmap) {
+    if (!is_mmap && !files.empty()) {
         for (auto & file : files) {
             if (file.m_free_data) {
                 file.m_free_data();
@@ -329,12 +354,19 @@ extern "C" LEAN_EXPORT object * lean_read_module_data_parts(b_obj_arg ofnames, o
 
         size_t big_size = files[files.size()-1].m_base_addr + files[files.size()-1].m_size - files[0].m_base_addr;
         char * big_buffer = static_cast<char *>(malloc(big_size));
+        if (!big_buffer) {
+            return io_result_mk_error(decode_io_error(ENOMEM, nullptr));
+        }
         for (auto & file : files) {
             std::string const & olean_fn = file.m_fname;
             try {
                 file.m_buffer = big_buffer + (file.m_base_addr - files[0].m_base_addr);
-                if (read(file.m_fd.get(), file.m_buffer, file.m_size) != static_cast<ssize_t>(file.m_size)) {
-                    return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "'").str());
+                ssize_t read_size = readn(file.m_fd.get(), file.m_buffer, file.m_size);
+                if (read_size < 0) {
+                    return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "': " << strerror(errno)).str());
+                }
+                if (read_size != static_cast<ssize_t>(file.m_size)) {
+                    return io_result_mk_error((sstream() << "failed to read file '" << olean_fn << "': unexpected EOF").str());
                 }
             } catch (exception & ex) {
                 return io_result_mk_error((sstream() << "failed to read '" << olean_fn << "': " << ex.what()).str());

@@ -8974,7 +8974,7 @@ goto v_resetjp_2955_;
 v_resetjp_2955_:
 {
 uint8_t v_trace_2958_; 
-v_trace_2958_ = lean_ctor_get_uint8(v_a_2954_, sizeof(void*)*11);
+v_trace_2958_ = lean_ctor_get_uint8(v_a_2954_, sizeof(void*)*12);
 lean_dec(v_a_2954_);
 if (v_trace_2958_ == 0)
 {

@@ -17,7 +17,7 @@ namespace Lake.BuiltinLint
 
 /-- Arguments for builtin linting via `lake lint --builtin-lint`. -/
 public structure Args where
-  /-- Which set of linters to run (set by `--clippy` / `--lint-all`; default if neither). -/
+  /-- Which set of linters to run (set by `--extra` / `--lint-all`; default if neither). -/
   scope : Linter.EnvLinter.LintScope := .default
   /-- Run only the specified linters. -/
   only : Array Name := #[]
@@ -26,13 +26,13 @@ public structure Args where
 
 public def leanOptOverrides (args : Args) : LeanOptions :=
   let enableAll : Array LeanOption :=
-    #[⟨`linter.clippy, .ofBool true⟩, ⟨`linter.all, .ofBool true⟩]
+    #[⟨`linter.extra, .ofBool true⟩, ⟨`linter.all, .ofBool true⟩]
   if !args.only.isEmpty then
     LeanOptions.ofArray enableAll
   else
     match args.scope with
     | .default => {}
-    | .clippy  => LeanOptions.ofArray #[⟨`linter.clippy, .ofBool true⟩]
+    | .extra   => LeanOptions.ofArray #[⟨`linter.extra, .ofBool true⟩]
     | .all     => LeanOptions.ofArray enableAll
 
 private def collectTextLints
@@ -42,8 +42,8 @@ private def collectTextLints
   let matchScope (linter : Name) : Bool :=
     if !args.only.isEmpty then true
     else match args.scope with
-      | .default => !(`linter.clippy).isPrefixOf linter
-      | .clippy  => (`linter.clippy).isPrefixOf linter
+      | .default => !(`linter.extra).isPrefixOf linter
+      | .extra   => true
       | .all     => true
   Linter.getAllLints env |>.foldl (init := #[]) fun acc (mod, entries) =>
     if pkgRoot.isPrefixOf mod then

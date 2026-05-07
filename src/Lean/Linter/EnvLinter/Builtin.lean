@@ -98,7 +98,7 @@ a higher universe level than `α`. -/
     return m!"universes {bad} only occur together."
 
 /-- A linter for checking whether a declaration has a namespace twice consecutively in its name. -/
-@[builtin_env_linter clippy] def dupNamespace : EnvLinter where
+@[builtin_env_linter extra] def dupNamespace : EnvLinter where
   noErrorsFound := "No declarations have a duplicate namespace."
   errorsFound := "DUPLICATED NAMESPACES IN NAME:"
   test declName := do

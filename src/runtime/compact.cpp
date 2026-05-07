@@ -277,7 +277,7 @@ void object_compactor::insert_mpz(object * o) {
     size_t data_sz = lean_usize_mul_checked(sizeof(mp_limb_t), nlimbs);
     size_t sz = lean_usize_add_checked(sizeof(mpz_object), data_sz);
     mpz_object * new_o = (mpz_object *)alloc(sz);
-    memcpy(new_o, to_mpz(o), sizeof(mpz_object));
+    memcpy((void*)new_o, to_mpz(o), sizeof(mpz_object));
     lean_set_non_heap_header((lean_object*)new_o, sz, LeanMPZ, 0);
     __mpz_struct & m = new_o->m_value.m_val[0];
     // we assume the limb array is the only indirection in an `__mpz_struct` and everything else can be bitcopied

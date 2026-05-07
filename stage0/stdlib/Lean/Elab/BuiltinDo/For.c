@@ -8970,8 +8970,8 @@ else
 lean_dec_ref(v___x_3006_);
 lean_dec(v_a_3001_);
 lean_dec(v_snd_2987_);
-lean_dec_ref(v___y_2945_);
 lean_dec(v_fst_2986_);
+lean_dec_ref(v___y_2945_);
 lean_dec(v___y_2956_);
 lean_dec_ref(v___y_2954_);
 lean_dec_ref(v___y_2951_);

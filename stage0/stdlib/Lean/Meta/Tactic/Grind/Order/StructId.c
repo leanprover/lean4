@@ -2918,7 +2918,7 @@ goto v_resetjp_842_;
 v_resetjp_842_:
 {
 uint8_t v_order_845_; 
-v_order_845_ = lean_ctor_get_uint8(v_a_841_, sizeof(void*)*11 + 27);
+v_order_845_ = lean_ctor_get_uint8(v_a_841_, sizeof(void*)*12 + 27);
 lean_dec(v_a_841_);
 if (v_order_845_ == 0)
 {

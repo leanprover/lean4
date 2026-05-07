@@ -24518,7 +24518,7 @@ goto v_resetjp_6828_;
 v_resetjp_6828_:
 {
 uint8_t v_lia_6831_; 
-v_lia_6831_ = lean_ctor_get_uint8(v_a_6827_, sizeof(void*)*11 + 23);
+v_lia_6831_ = lean_ctor_get_uint8(v_a_6827_, sizeof(void*)*12 + 23);
 lean_dec(v_a_6827_);
 if (v_lia_6831_ == 0)
 {
@@ -26513,7 +26513,7 @@ goto v_resetjp_7339_;
 v_resetjp_7339_:
 {
 uint8_t v_lia_7342_; 
-v_lia_7342_ = lean_ctor_get_uint8(v_a_7338_, sizeof(void*)*11 + 23);
+v_lia_7342_ = lean_ctor_get_uint8(v_a_7338_, sizeof(void*)*12 + 23);
 lean_dec(v_a_7338_);
 if (v_lia_7342_ == 0)
 {
@@ -37111,7 +37111,7 @@ goto v_resetjp_10534_;
 v_resetjp_10534_:
 {
 uint8_t v_lia_10537_; 
-v_lia_10537_ = lean_ctor_get_uint8(v_a_10533_, sizeof(void*)*11 + 23);
+v_lia_10537_ = lean_ctor_get_uint8(v_a_10533_, sizeof(void*)*12 + 23);
 lean_dec(v_a_10533_);
 if (v_lia_10537_ == 0)
 {

@@ -53,5 +53,12 @@ lean --run test.lean $ENV_PLUGIN >/dev/null 2>&1 && {
   fail "Loading environment plugin without importing succeeded unexpectedly."
 } || true
 
+# Test loading plugin with a provided initialization function
+echo "Testing plugin load with a provided initialization function ..."
+INIT_PLUGIN=.lake/libUserPlugin.$SHLIB_EXT
+INIT_PLUGIN_FN=initialize_${PKG}_UserPlugin
+cp $PLUGIN $INIT_PLUGIN
+echo | lean --plugin=$INIT_PLUGIN:$INIT_PLUGIN_FN --stdin 2>&1 | diff <(echo "$EXPECTED_OUT") -
+
 # Print success
 echo "Tests completed successfully."

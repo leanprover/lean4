@@ -2594,7 +2594,7 @@ lean_object* v_a_801_; uint8_t v_lia_802_;
 v_a_801_ = lean_ctor_get(v___x_800_, 0);
 lean_inc(v_a_801_);
 lean_dec_ref(v___x_800_);
-v_lia_802_ = lean_ctor_get_uint8(v_a_801_, sizeof(void*)*11 + 23);
+v_lia_802_ = lean_ctor_get_uint8(v_a_801_, sizeof(void*)*12 + 23);
 lean_dec(v_a_801_);
 if (v_lia_802_ == 0)
 {
@@ -6436,7 +6436,7 @@ lean_object* v_a_3245_; uint8_t v_ring_3246_; lean_object* v___f_3247_; lean_obj
 v_a_3245_ = lean_ctor_get(v___x_3244_, 0);
 lean_inc(v_a_3245_);
 lean_dec_ref(v___x_3244_);
-v_ring_3246_ = lean_ctor_get_uint8(v_a_3245_, sizeof(void*)*11 + 21);
+v_ring_3246_ = lean_ctor_get_uint8(v_a_3245_, sizeof(void*)*12 + 21);
 lean_dec(v_a_3245_);
 lean_inc_ref(v_type_2519_);
 v___f_3247_ = lean_alloc_closure((void*)(l___private_Lean_Meta_Tactic_Grind_Arith_Linear_StructId_0__Lean_Meta_Grind_Arith_Linear_getStructId_x3f_go_x3f___lam__0), 2, 1);
@@ -6578,7 +6578,7 @@ lean_object* v_a_3271_; uint8_t v_ring_3272_;
 v_a_3271_ = lean_ctor_get(v___x_3270_, 0);
 lean_inc(v_a_3271_);
 lean_dec_ref(v___x_3270_);
-v_ring_3272_ = lean_ctor_get_uint8(v_a_3271_, sizeof(void*)*11 + 21);
+v_ring_3272_ = lean_ctor_get_uint8(v_a_3271_, sizeof(void*)*12 + 21);
 lean_dec(v_a_3271_);
 if (v_ring_3272_ == 0)
 {
@@ -7083,8 +7083,8 @@ goto v___jp_3302_;
 else
 {
 lean_object* v_a_3376_; lean_object* v___x_3378_; uint8_t v_isShared_3379_; uint8_t v_isSharedCheck_3383_; 
-lean_dec_ref(v_a_3131_);
 lean_dec(v_a_3368_);
+lean_dec_ref(v_a_3131_);
 lean_dec_ref(v_a_2613_);
 lean_dec_ref(v___x_3364_);
 lean_dec_ref(v___x_3363_);
@@ -12019,7 +12019,7 @@ goto v_resetjp_3674_;
 v_resetjp_3674_:
 {
 uint8_t v_linarith_3677_; 
-v_linarith_3677_ = lean_ctor_get_uint8(v_a_3673_, sizeof(void*)*11 + 22);
+v_linarith_3677_ = lean_ctor_get_uint8(v_a_3673_, sizeof(void*)*12 + 22);
 lean_dec(v_a_3673_);
 if (v_linarith_3677_ == 0)
 {
@@ -14567,7 +14567,7 @@ goto v_resetjp_4369_;
 v_resetjp_4369_:
 {
 uint8_t v_linarith_4372_; 
-v_linarith_4372_ = lean_ctor_get_uint8(v_a_4368_, sizeof(void*)*11 + 22);
+v_linarith_4372_ = lean_ctor_get_uint8(v_a_4368_, sizeof(void*)*12 + 22);
 lean_dec(v_a_4368_);
 if (v_linarith_4372_ == 0)
 {

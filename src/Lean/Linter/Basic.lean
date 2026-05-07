@@ -65,14 +65,14 @@ register_builtin_option linter.all : Bool := {
   descr := "enable all linters"
 }
 
-register_builtin_option linter.clippy : Bool := {
+register_builtin_option linter.extra : Bool := {
   defValue := false
-  descr := "enables the set of clippy linters — linters that are turned off by default and \
-    only available via `lake lint`. A clippy linter early-returns unless this option is true."
+  descr := "enables the set of extra linters — linters that are turned off by default and \
+    only available via `lake lint`. An extra linter early-returns unless this option is true."
 }
 
-def getLinterClippy (o : LinterOptions) (defValue := linter.clippy.defValue) : Bool :=
-  o.get linter.clippy.name defValue
+def getLinterExtra (o : LinterOptions) (defValue := linter.extra.defValue) : Bool :=
+  o.get linter.extra.name defValue
 
 def getLinterAll (o : LinterOptions) (defValue := linter.all.defValue) : Bool :=
     o.get linter.all.name defValue
@@ -81,10 +81,10 @@ def getLinterValue (opt : Lean.Option Bool) (o : LinterOptions) : Bool :=
   o.get opt.name (getLinterAll o <| (o.getSet opt).any (o.get? · == some true) || opt.defValue)
 
 /--
-Like `getLinterValue`, but the cross-linter fallback is `linter.clippy` instead of `linter.all`.
+Like `getLinterValue`, but the cross-linter fallback is `linter.extra` instead of `linter.all`.
 -/
-def getLinterValueClippy (opt : Lean.Option Bool) (o : LinterOptions) : Bool :=
-  o.get opt.name (getLinterClippy o opt.defValue)
+def getLinterValueExtra (opt : Lean.Option Bool) (o : LinterOptions) : Bool :=
+  o.get opt.name (getLinterExtra o opt.defValue)
 
 def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
@@ -107,10 +107,10 @@ def logLintIf [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [Mon
   if getLinterValue linterOption (← getLinterOptions) then logLint linterOption stx msg
 
 /--
-Like `logLintIf`, but uses `getLinterValueClippy` to gate emission on the clippy fallback.
-Use for clippy linters: emits the warning iff `linterOption` is on under the clippy
-selection rules described on `getLinterValueClippy`.
+Like `logLintIf`, but uses `getLinterValueExtra` to gate emission on the extra fallback.
+Use for extra linters: emits the warning iff `linterOption` is on under the extra
+selection rules described on `getLinterValueExtra`.
 -/
-def logLintIfClippy [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadEnv m]
+def logLintIfExtra [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [MonadEnv m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit := do
-  if getLinterValueClippy linterOption (← getLinterOptions) then logLint linterOption stx msg
+  if getLinterValueExtra linterOption (← getLinterOptions) then logLint linterOption stx msg

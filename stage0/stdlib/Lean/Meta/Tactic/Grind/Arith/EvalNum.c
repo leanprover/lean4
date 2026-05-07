@@ -237,7 +237,7 @@ goto v_resetjp_26_;
 v_resetjp_26_:
 {
 lean_object* v_exp_29_; uint8_t v___x_30_; 
-v_exp_29_ = lean_ctor_get(v_a_25_, 7);
+v_exp_29_ = lean_ctor_get(v_a_25_, 8);
 lean_inc(v_exp_29_);
 lean_dec(v_a_25_);
 v___x_30_ = lean_nat_dec_lt(v_exp_29_, v_k_12_);
@@ -295,7 +295,7 @@ goto v___jp_21_;
 else
 {
 lean_object* v_exp_40_; lean_object* v___x_41_; lean_object* v___x_42_; lean_object* v___x_43_; lean_object* v___x_44_; lean_object* v___x_45_; lean_object* v___x_46_; lean_object* v___x_47_; lean_object* v___x_48_; lean_object* v___x_49_; lean_object* v___x_50_; lean_object* v___x_51_; lean_object* v___x_52_; lean_object* v___x_53_; lean_object* v___x_54_; 
-v_exp_40_ = lean_ctor_get(v_a_36_, 7);
+v_exp_40_ = lean_ctor_get(v_a_36_, 8);
 lean_inc(v_exp_40_);
 lean_dec(v_a_36_);
 v___x_41_ = lean_obj_once(&l_Lean_Meta_Grind_Arith_checkExp___redArg___closed__2, &l_Lean_Meta_Grind_Arith_checkExp___redArg___closed__2_once, _init_l_Lean_Meta_Grind_Arith_checkExp___redArg___closed__2);

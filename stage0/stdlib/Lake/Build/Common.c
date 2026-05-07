@@ -4683,7 +4683,7 @@ if (v___x_1296_ == 0)
 lean_object* v_toBuildConfig_1297_; uint8_t v_oldMode_1298_; 
 lean_dec_ref(v_inst_1283_);
 v_toBuildConfig_1297_ = lean_ctor_get(v_a_1289_, 0);
-v_oldMode_1298_ = lean_ctor_get_uint8(v_toBuildConfig_1297_, sizeof(void*)*2);
+v_oldMode_1298_ = lean_ctor_get_uint8(v_toBuildConfig_1297_, sizeof(void*)*3);
 if (v_oldMode_1298_ == 0)
 {
 uint8_t v___x_1299_; lean_object* v___x_1300_; lean_object* v___x_1301_; 
@@ -5379,7 +5379,7 @@ lean_object* v_toBuildConfig_1600_; uint8_t v_oldMode_1601_;
 lean_dec(v_savedTrace_1540_);
 lean_dec_ref(v_inst_1536_);
 v_toBuildConfig_1600_ = lean_ctor_get(v_a_1546_, 0);
-v_oldMode_1601_ = lean_ctor_get_uint8(v_toBuildConfig_1600_, sizeof(void*)*2);
+v_oldMode_1601_ = lean_ctor_get_uint8(v_toBuildConfig_1600_, sizeof(void*)*3);
 if (v_oldMode_1601_ == 0)
 {
 uint8_t v___x_1602_; lean_object* v___x_1603_; lean_object* v___x_1604_; 
@@ -6320,7 +6320,7 @@ return v___x_1996_;
 v_resetjp_2003_:
 {
 uint8_t v_noBuild_2006_; uint8_t v___x_2007_; lean_object* v___x_2008_; lean_object* v___x_2009_; 
-v_noBuild_2006_ = lean_ctor_get_uint8(v_toBuildConfig_1997_, sizeof(void*)*2 + 2);
+v_noBuild_2006_ = lean_ctor_get_uint8(v_toBuildConfig_1997_, sizeof(void*)*3 + 2);
 v___x_2007_ = l_Lake_JobAction_merge(v_action_1999_, v_action_1974_);
 v___x_2008_ = ((lean_object*)(l_Lake_buildAction___redArg___closed__2));
 lean_inc_ref(v_traceFile_1972_);
@@ -8122,7 +8122,7 @@ _start:
 {
 lean_object* v_toBuildConfig_2574_; uint8_t v_trustHash_2575_; lean_object* v___x_2576_; lean_object* v_hashFile_2577_; uint8_t v___y_2579_; lean_object* v___y_2580_; uint8_t v___y_2581_; lean_object* v___y_2582_; lean_object* v___y_2583_; lean_object* v___y_2584_; lean_object* v___y_2617_; 
 v_toBuildConfig_2574_ = lean_ctor_get(v_a_2571_, 0);
-v_trustHash_2575_ = lean_ctor_get_uint8(v_toBuildConfig_2574_, sizeof(void*)*2 + 1);
+v_trustHash_2575_ = lean_ctor_get_uint8(v_toBuildConfig_2574_, sizeof(void*)*3 + 1);
 v___x_2576_ = ((lean_object*)(l_Lake_writeFileHash___closed__0));
 lean_inc_ref(v_file_2569_);
 v_hashFile_2577_ = lean_string_append(v_file_2569_, v___x_2576_);
@@ -8720,7 +8720,7 @@ return v___x_2795_;
 v_resetjp_2802_:
 {
 uint8_t v_noBuild_2805_; uint8_t v___x_2806_; lean_object* v___x_2807_; lean_object* v___x_2808_; 
-v_noBuild_2805_ = lean_ctor_get_uint8(v_toBuildConfig_2796_, sizeof(void*)*2 + 2);
+v_noBuild_2805_ = lean_ctor_get_uint8(v_toBuildConfig_2796_, sizeof(void*)*3 + 2);
 v___x_2806_ = l_Lake_JobAction_merge(v_action_2798_, v_action_2774_);
 v___x_2807_ = ((lean_object*)(l_Lake_buildAction___redArg___closed__2));
 lean_inc_ref(v_traceFile_2773_);
@@ -9360,7 +9360,7 @@ if (v___x_2978_ == 0)
 {
 lean_object* v_toBuildConfig_2979_; uint8_t v_oldMode_2980_; 
 v_toBuildConfig_2979_ = lean_ctor_get(v_a_2972_, 0);
-v_oldMode_2980_ = lean_ctor_get_uint8(v_toBuildConfig_2979_, sizeof(void*)*2);
+v_oldMode_2980_ = lean_ctor_get_uint8(v_toBuildConfig_2979_, sizeof(void*)*3);
 if (v_oldMode_2980_ == 0)
 {
 uint8_t v___x_2981_; lean_object* v___x_2982_; lean_object* v___x_2983_; 
@@ -9659,7 +9659,7 @@ else
 lean_object* v_toBuildConfig_3068_; uint8_t v_oldMode_3069_; 
 lean_dec(v_savedTrace_3009_);
 v_toBuildConfig_3068_ = lean_ctor_get(v_a_3014_, 0);
-v_oldMode_3069_ = lean_ctor_get_uint8(v_toBuildConfig_3068_, sizeof(void*)*2);
+v_oldMode_3069_ = lean_ctor_get_uint8(v_toBuildConfig_3068_, sizeof(void*)*3);
 if (v_oldMode_3069_ == 0)
 {
 uint8_t v___x_3070_; lean_object* v___x_3071_; lean_object* v___x_3072_; 
@@ -13381,7 +13381,7 @@ return v___x_4441_;
 v_resetjp_4448_:
 {
 uint8_t v_noBuild_4451_; uint8_t v___x_4452_; lean_object* v___x_4453_; lean_object* v___x_4454_; 
-v_noBuild_4451_ = lean_ctor_get_uint8(v_toBuildConfig_4442_, sizeof(void*)*2 + 2);
+v_noBuild_4451_ = lean_ctor_get_uint8(v_toBuildConfig_4442_, sizeof(void*)*3 + 2);
 v___x_4452_ = l_Lake_JobAction_merge(v_action_4444_, v_action_4420_);
 v___x_4453_ = ((lean_object*)(l_Lake_buildAction___redArg___closed__2));
 lean_inc_ref(v_traceFile_4419_);

@@ -2153,7 +2153,7 @@ goto v_resetjp_624_;
 v_resetjp_624_:
 {
 uint8_t v_linarith_627_; 
-v_linarith_627_ = lean_ctor_get_uint8(v_a_623_, sizeof(void*)*11 + 22);
+v_linarith_627_ = lean_ctor_get_uint8(v_a_623_, sizeof(void*)*12 + 22);
 lean_dec(v_a_623_);
 if (v_linarith_627_ == 0)
 {

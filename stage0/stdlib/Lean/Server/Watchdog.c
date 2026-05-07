@@ -22711,7 +22711,7 @@ if (v___x_5372_ == 0)
 {
 lean_object* v___x_5373_; 
 lean_dec_ref(v_a_5366_);
-lean_dec(v_val_5365_);
+lean_dec_ref(v_val_5365_);
 v___x_5373_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_5373_, 0, v_b_5370_);
 return v___x_5373_;
@@ -22723,7 +22723,7 @@ v_a_5374_ = lean_array_uget_borrowed(v_as_5367_, v_i_5369_);
 lean_inc(v_a_5374_);
 v___f_5375_ = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_Watchdog_handleQueryModule_spec__1___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_5375_, 0, v_a_5374_);
-lean_inc(v_val_5365_);
+lean_inc_ref(v_val_5365_);
 v___x_5376_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_5376_, 0, v_val_5365_);
 lean_inc_ref(v_a_5366_);
@@ -22766,7 +22766,7 @@ LEAN_EXPORT lean_object* l_Lean_Server_Watchdog_handleQueryModule___lam__0(lean_
 _start:
 {
 lean_object* v___x_5412_; 
-lean_inc(v_val_5403_);
+lean_inc_ref(v_val_5403_);
 v___x_5412_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Server_Watchdog_handleQueryModule_spec__1(v_val_5403_, v_a_5404_, v_queries_5405_, v_sz_5406_, v___x_5407_, v___x_5408_);
 if (lean_obj_tag(v___x_5412_) == 0)
 {
@@ -22775,7 +22775,7 @@ v_a_5413_ = lean_ctor_get(v___x_5412_, 0);
 lean_inc(v_a_5413_);
 lean_dec_ref(v___x_5412_);
 v___x_5414_ = l_IO_CancelToken_isSet(v_val_5403_);
-lean_dec(v_val_5403_);
+lean_dec_ref(v_val_5403_);
 if (v___x_5414_ == 0)
 {
 lean_object* v___x_5415_; lean_object* v___x_5416_; 
@@ -22853,7 +22853,7 @@ else
 lean_object* v_a_5431_; lean_object* v___x_5433_; uint8_t v_isShared_5434_; uint8_t v_isSharedCheck_5438_; 
 lean_dec_ref(v_fw_5410_);
 lean_dec(v_id_5409_);
-lean_dec(v_val_5403_);
+lean_dec_ref(v_val_5403_);
 v_a_5431_ = lean_ctor_get(v___x_5412_, 0);
 v_isSharedCheck_5438_ = !lean_is_exclusive(v___x_5412_);
 if (v_isSharedCheck_5438_ == 0)
@@ -22978,7 +22978,7 @@ v___x_5475_ = ((lean_object*)(l_Lean_Server_Watchdog_handleQueryModule___closed_
 v_sz_5476_ = lean_array_size(v_queries_5471_);
 v___x_5477_ = lean_box_usize(v_sz_5476_);
 v___x_5478_ = ((lean_object*)(l_Lean_Server_Watchdog_handleQueryModule___boxed__const__1));
-lean_inc(v___x_5465_);
+lean_inc_ref(v___x_5465_);
 v___f_5479_ = lean_alloc_closure((void*)(l_Lean_Server_Watchdog_handleQueryModule___lam__0___boxed), 9, 8);
 lean_closure_set(v___f_5479_, 0, v___x_5465_);
 lean_closure_set(v___f_5479_, 1, v_a_5467_);
@@ -23035,7 +23035,7 @@ return v___x_5486_;
 else
 {
 lean_object* v_a_5492_; lean_object* v___x_5494_; uint8_t v_isShared_5495_; uint8_t v_isSharedCheck_5499_; 
-lean_dec(v___x_5465_);
+lean_dec_ref(v___x_5465_);
 lean_dec_ref(v_params_5462_);
 lean_dec(v_id_5461_);
 lean_dec_ref(v_fw_5460_);

@@ -79,85 +79,96 @@ match_pat 'missing doc string for public def undocumentedInSub' produced.out
 # Clean module has no violations; exit code should be 0
 test_run lint --builtin-only Clean
 
-# Without --clippy, the clippy linters (both the env linter and the dummy clippy
-# text linter in Linters.lean) must not run.
-lake_out lint --builtin-only ClippyViolations || true
-no_match_pat 'badNameClippy' produced.out
-no_match_pat 'clippy text linter saw a declaration' produced.out
-# Builtin clippy text linter `unnecessarySeqFocus` is non-default, so silent.
+# Without --extra, the extra linters (both the env linter and the dummy extra
+# text linter in Linters.lean) must not run. Default linters still do, so the
+# `defLemma` violation in this file fires.
+lake_out lint --builtin-only ExtraViolations || true
+no_match_pat 'badNameExtra' produced.out
+no_match_pat 'extra text linter saw a declaration' produced.out
+# Builtin extra text linter `unnecessarySeqFocus` is non-default, so silent.
 no_match_pat 'tac1 <;> tac2' produced.out
-# Builtin clippy env linter `dupNamespace` is non-default, so it stays silent.
+# Builtin extra env linter `dupNamespace` is non-default, so it stays silent.
 no_match_pat 'Dup.Dup.violation' produced.out
+# Builtin extra text linter `unreachableTactic` is non-default, so silent.
+no_match_pat 'this tactic is never executed' produced.out
+# Default env linter `defLemma` runs and flags the def-of-Prop in this file.
+match_pat 'shouldBeTheoremUnderExtra' produced.out
 
-# --clippy should run only non-default (clippy) linters, including the clippy
-# text linter which tags its warnings with `linter.clippy`.
-lake_out lint --clippy ClippyViolations || true
-match_pat 'badNameClippy' produced.out
-match_pat "declaration name ends with 'Clippy'" produced.out
-match_pat 'clippy text linter saw a declaration' produced.out
-# Builtin clippy text linter `unnecessarySeqFocus` fires under --clippy: its
-# tag `linter.clippy.unnecessarySeqFocus` is matched by the `linter.clippy`
+# --extra should run default linters together with the non-default (extra)
+# ones, including the extra text linter which tags warnings with `linter.extra`.
+lake_out lint --extra ExtraViolations || true
+match_pat 'badNameExtra' produced.out
+match_pat "declaration name ends with 'Extra'" produced.out
+match_pat 'extra text linter saw a declaration' produced.out
+# Builtin extra text linter `unnecessarySeqFocus` fires under --extra: its
+# tag `linter.extra.unnecessarySeqFocus` is matched by the `linter.extra`
 # prefix filter.
 match_pat 'tac1 <;> tac2' produced.out
-# Builtin `dupNamespace` env linter fires under --clippy.
+# Builtin `dupNamespace` env linter fires under --extra.
 match_pat 'Dup.Dup.violation' produced.out
 match_pat "namespace .*Dup.* is duplicated" produced.out
-# --clippy should not run default linters
-no_match_pat 'shouldBeTheorem' produced.out
+# Builtin `unreachableTactic` extra text linter fires under --extra.
+match_pat 'this tactic is never executed' produced.out
+# --extra also runs default linters, so `defLemma` flags this file's violation.
+match_pat 'shouldBeTheoremUnderExtra' produced.out
 
-# --clippy on TextLints: the default `linter.unusedVariables` entry is filtered
-# out because its tag is not `linter.clippy`. The file has no clippy-tagged
-# linter, so the clippy-scope text-linter output should be empty.
-lake_out lint --clippy TextLints || true
-no_match_pat 'unused variable' produced.out
+# --extra on TextLints: default `linter.unusedVariables` fires (default
+# linters run under --extra). `linter.missingDocs` is still off-by-default
+# and only enabled by `--lint-all`/`--lint-only`.
+lake_out lint --extra TextLints || true
+match_pat 'unused variable `unusedLet`' produced.out
 no_match_pat 'missing doc string' produced.out
 
-# --lint-all should run both default and clippy linters, for both the
-# declaration-linter flow (badNameClippy from `dummyClippy`) and the text-linter
-# flow (the `linter.clippy`-tagged warning from `dummyClippyTextLinter`).
-lake_out lint --lint-all ClippyViolations || true
-match_pat 'badNameClippy' produced.out
-match_pat 'clippy text linter saw a declaration' produced.out
+# --lint-all should run both default and extra linters, for both the
+# declaration-linter flow (badNameExtra from `dummyExtra`) and the text-linter
+# flow (the `linter.extra`-tagged warning from `dummyExtraTextLinter`).
+lake_out lint --lint-all ExtraViolations || true
+match_pat 'badNameExtra' produced.out
+match_pat 'extra text linter saw a declaration' produced.out
 match_pat 'tac1 <;> tac2' produced.out
+match_pat 'this tactic is never executed' produced.out
 
-# --lint-only unnecessarySeqFocus runs only the clippy text linter.
-lake_out lint --lint-only unnecessarySeqFocus ClippyViolations || true
+# --lint-only unnecessarySeqFocus runs only the extra text linter.
+lake_out lint --lint-only unnecessarySeqFocus ExtraViolations || true
 match_pat 'tac1 <;> tac2' produced.out
-no_match_pat 'badNameClippy' produced.out
+no_match_pat 'badNameExtra' produced.out
 no_match_pat 'Dup.Dup.violation' produced.out
 
-# --lint-only dupNamespace runs only the builtin clippy `dupNamespace` env linter.
-lake_out lint --lint-only dupNamespace ClippyViolations || true
+# --lint-only dupNamespace runs only the builtin extra `dupNamespace` env linter.
+lake_out lint --lint-only dupNamespace ExtraViolations || true
 match_pat 'Dup.Dup.violation' produced.out
-no_match_pat 'badNameClippy' produced.out
+no_match_pat 'badNameExtra' produced.out
 no_match_pat 'shouldBeTheorem' produced.out
 
 # Multiple --lint-only flags accumulate: both named linters should run
 lake_out lint --lint-only defLemma --lint-only checkUnivs || true
 match_pat 'shouldBeTheorem' produced.out
 match_pat 'badUnivDecl' produced.out
-no_match_pat 'badNameClippy' produced.out
+no_match_pat 'badNameExtra' produced.out
 
-# Last-wins: --clippy overrides a prior --lint-all and clears --lint-only
-lake_out lint --lint-all --lint-only defLemma --clippy || true
-match_pat 'badNameClippy' produced.out
-no_match_pat 'shouldBeTheorem' produced.out
-no_match_pat 'badUnivDecl' produced.out
+# Last-wins: --extra overrides a prior --lint-all and clears --lint-only.
+# Since --extra runs both default and extra linters, the default `defLemma`
+# violation in ExtraViolations.lean fires too.
+lake_out lint --lint-all --lint-only defLemma --extra || true
+match_pat 'badNameExtra' produced.out
+match_pat 'shouldBeTheoremUnderExtra' produced.out
 
-# Last-wins: --lint-all overrides a prior --clippy (both default and clippy run)
-lake_out lint --clippy --lint-all || true
-match_pat 'badNameClippy' produced.out
+# Last-wins: --lint-all overrides a prior --extra (default + extra still run,
+# plus any disabled-by-default linters via `linter.all=true`).
+lake_out lint --extra --lint-all || true
+match_pat 'badNameExtra' produced.out
 match_pat 'shouldBeTheorem' produced.out
 
-# Last-wins: --clippy clears a previously accumulated --lint-only
-lake_out lint --lint-only defLemma --clippy || true
-match_pat 'badNameClippy' produced.out
-no_match_pat 'shouldBeTheorem' produced.out
+# Last-wins: --extra clears a previously accumulated --lint-only. Default
+# linters still run under --extra, so `defLemma` fires on its file's violation.
+lake_out lint --lint-only defLemma --extra || true
+match_pat 'badNameExtra' produced.out
+match_pat 'shouldBeTheoremUnderExtra' produced.out
 
-# --lint-only after --clippy: the named linter runs (selection ignores scope)
-lake_out lint --clippy --lint-only defLemma || true
+# --lint-only after --extra: the named linter runs (selection ignores scope)
+lake_out lint --extra --lint-only defLemma || true
 match_pat 'shouldBeTheorem' produced.out
-no_match_pat 'badNameClippy' produced.out
+no_match_pat 'badNameExtra' produced.out
 
 # --builtin-only should skip the lint driver
 lake_out lint -f with-driver.lean --builtin-only Main || true
@@ -177,9 +188,9 @@ match_pat 'no lint driver configured' produced.out
 lake_out lint --builtin-lint || true
 match_pat 'shouldBeTheorem' produced.out
 
-# --clippy implicitly enables builtin lint
-lake_out lint --clippy ClippyViolations || true
-match_pat 'badNameClippy' produced.out
+# --extra implicitly enables builtin lint
+lake_out lint --extra ExtraViolations || true
+match_pat 'badNameExtra' produced.out
 
 # --lint-only implicitly enables builtin lint
 lake_out lint --lint-only defLemma || true

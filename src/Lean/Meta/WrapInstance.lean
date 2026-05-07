@@ -11,6 +11,7 @@ public import Lean.Meta.SynthInstance
 public import Lean.Meta.CtorRecognizer
 public import Lean.Meta.AppBuilder
 import Lean.Structure
+import Lean.ExtraModUses
 
 /-!
 # Instance Wrapping
@@ -160,6 +161,10 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
       return (← mkAuxTheorem expectedType inst (zetaDelta := true))
     else
       return inst
+
+  -- record inferred instance as elab dependency before `whnf` may remove it
+  if let .const n .. := inst.getAppFn then
+    recordExtraModUseFromDecl n isMeta
 
   -- Try to reduce it to a constructor.
   (← whnf inst).withApp fun f args => do

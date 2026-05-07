@@ -15,7 +15,7 @@ public import Lean.Linter.Basic
 
 public section
 
-namespace Lean.Linter.Clippy
+namespace Lean.Linter.Extra
 open Elab Command
 
 /--
@@ -41,7 +41,7 @@ example : True := by
   | unit => trivial
 ```
 -/
-register_builtin_option linter.clippy.unnecessarySeqFocus : Bool := {
+register_builtin_option linter.extra.unnecessarySeqFocus : Bool := {
   defValue := false
   descr := "enable the 'unnecessary <;>' linter"
 }
@@ -163,9 +163,9 @@ partial def markUsedTactics {ω} : InfoTree → M ω Unit
 
 end
 
-@[inherit_doc Lean.Linter.Clippy.linter.clippy.unnecessarySeqFocus]
+@[inherit_doc Lean.Linter.Extra.linter.extra.unnecessarySeqFocus]
 def unnecessarySeqFocusLinter : Linter where run := withSetOptionIn fun stx => do
-  unless getLinterValueClippy linter.clippy.unnecessarySeqFocus (← getLinterOptions)
+  unless getLinterValueExtra linter.extra.unnecessarySeqFocus (← getLinterOptions)
       && (← getInfoState).enabled do
     return
   if (← get).messages.hasErrors then
@@ -182,7 +182,7 @@ def unnecessarySeqFocusLinter : Linter where run := withSetOptionIn fun stx => d
   let mut last : Lean.Syntax.Range := ⟨0, 0⟩
   for (r, stx) in let _ := @lexOrd; let _ := @ltOfOrd.{0}; unused.qsort (key ·.1 < key ·.1) do
     if last.start ≤ r.start && r.stop ≤ last.stop then continue
-    Linter.logLint linter.clippy.unnecessarySeqFocus stx
+    logLintIfExtra linter.extra.unnecessarySeqFocus stx
       "Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice"
     last := r
 
@@ -190,4 +190,4 @@ end UnnecessarySeqFocus
 
 builtin_initialize addLinter UnnecessarySeqFocus.unnecessarySeqFocusLinter
 
-end Lean.Linter.Clippy
+end Lean.Linter.Extra

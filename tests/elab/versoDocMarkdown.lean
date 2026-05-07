@@ -18,10 +18,9 @@ open Lean Elab Command Term
 
 private def toMarkdown : VersoDocString → String
   | .mk bs ps => Doc.MarkdownM.run' do
-      for b in bs do
-        Doc.ToMarkdown.toMarkdown b
-      for p in ps do
-        Doc.ToMarkdown.toMarkdown p
+      let blockLines ← bs.mapM Doc.ToMarkdown.toMarkdown
+      let partLines ← ps.mapM Doc.ToMarkdown.toMarkdown
+      return Doc.joinBlocks (blockLines ++ partLines)
 
 private def manualRw (md : String) : String := md.replace manualRoot "$MANUAL_ROOT/"
 
@@ -158,7 +157,7 @@ Because {assert}`assertTests 2 4 = 6`, it must certainly be addition.
 -/
 def assertTests (x y : Nat) := x + y
 
-/-- info: Because `assertTests 2 4 = 6`, it must certainly be addition\. -/
+/-- info: Because `assertTests 2 4 = 6`, it must certainly be addition. -/
 #guard_msgs in
 #verso_to_markdown assertTests
 
@@ -169,7 +168,7 @@ The attribute {attr}`simp` registers a simp lemma. Use {attr}`@[simp]`.
 -/
 def attrTests (x y : Nat) := x + y
 
-/-- info: The attribute `simp` registers a simp lemma\. Use `@[simp]`\. -/
+/-- info: The attribute `simp` registers a simp lemma. Use `@[simp]`. -/
 #guard_msgs in
 #verso_to_markdown attrTests
 
@@ -208,7 +207,7 @@ def givenInstanceTests (x y : Nat) : Nat := x - y
 info:  ⏎
 Invisible:  ⏎
 
-There is an `addInst : Add β` and an `inferInstance : Add α`, and `x + y + z`\.
+There is an `addInst : Add β` and an `inferInstance : Add α`, and `x + y + z`.
 
 Visible: `Add γ`&`addInst : OfNat γ 5`
 
@@ -222,13 +221,13 @@ info: Invisible: ⏎
 
 Visible:
 
-* For `n`, `givenTests n n = n - n`\.
+* For `n`, `givenTests n n = n - n`.
 
-* For `n`, `k : Nat`, `givenTests n k = n - k`\.
+* For `n`, `k : Nat`, `givenTests n k = n - k`.
 
-* For `n`, `k`, `givenTests n k = n - k`\.
+* For `n`, `k`, `givenTests n k = n - k`.
 
-* For `k`, `givenTests m k = m - k`\.
+* For `k`, `givenTests m k = m - k`.
 -/
 #guard_msgs in
 #verso_to_markdown givenTests

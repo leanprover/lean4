@@ -8094,8 +8094,8 @@ v___x_3036_ = l_Lean_isStructure(v_env_3035_, v_pre_3033_);
 if (v___x_3036_ == 0)
 {
 lean_object* v___x_3037_; lean_object* v___x_3038_; 
-lean_dec(v_pre_3033_);
 lean_dec_ref(v_declName_3025_);
+lean_dec(v_pre_3033_);
 v___x_3037_ = lean_box(0);
 v___x_3038_ = lean_alloc_ctor(0, 1, 0);
 lean_ctor_set(v___x_3038_, 0, v___x_3037_);

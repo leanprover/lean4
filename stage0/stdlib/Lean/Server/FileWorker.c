@@ -10053,7 +10053,7 @@ _start:
 {
 lean_object* v_res_2427_; 
 v_res_2427_ = l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots_handleTasks(v_ctx_2421_, v_doc_2422_, v_cancelTk_2423_, v_ts_2424_, v_a_2425_);
-lean_dec(v_cancelTk_2423_);
+lean_dec_ref(v_cancelTk_2423_);
 return v_res_2427_;
 }
 }
@@ -10587,7 +10587,7 @@ uint32_t v___x_1546__boxed_2599_; lean_object* v_res_2600_;
 v___x_1546__boxed_2599_ = lean_unbox_uint32(v___x_2591_);
 lean_dec(v___x_2591_);
 v_res_2600_ = l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots___lam__1(v___x_1546__boxed_2599_, v_doc_2592_, v_chanOut_2593_, v_ctx_2594_, v___f_2595_, v_cancelTk_2596_, v___f_2597_);
-lean_dec(v_cancelTk_2596_);
+lean_dec_ref(v_cancelTk_2596_);
 return v_res_2600_;
 }
 }
@@ -12819,7 +12819,7 @@ lean_ctor_set(v___x_3300_, 0, v_doc_3256_);
 lean_ctor_set(v___x_3300_, 1, v___x_3290_);
 lean_ctor_set(v___x_3300_, 2, v___x_3298_);
 lean_ctor_set(v___x_3300_, 3, v___x_3296_);
-lean_inc(v___x_3297_);
+lean_inc_ref(v___x_3297_);
 lean_inc_ref(v___x_3300_);
 lean_inc_ref(v___x_3299_);
 v___x_3301_ = l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots(v___x_3299_, v___x_3300_, v___x_3297_);
@@ -14643,10 +14643,10 @@ _start:
 lean_object* v___x_3789_; lean_object* v_reporterCancelTk_3790_; lean_object* v___x_3791_; lean_object* v_maxDocVersionRef_3792_; lean_object* v_processor_3793_; lean_object* v___x_3794_; lean_object* v___x_3795_; lean_object* v___x_3796_; lean_object* v_doc_3797_; lean_object* v_toEditableDocumentCore_3798_; lean_object* v___x_3800_; uint8_t v_isShared_3801_; uint8_t v_isSharedCheck_3827_; 
 v___x_3789_ = lean_st_ref_get(v_a_3787_);
 v_reporterCancelTk_3790_ = lean_ctor_get(v___x_3789_, 1);
-lean_inc(v_reporterCancelTk_3790_);
+lean_inc_ref(v_reporterCancelTk_3790_);
 lean_dec(v___x_3789_);
 v___x_3791_ = l_IO_CancelToken_set(v_reporterCancelTk_3790_);
-lean_dec(v_reporterCancelTk_3790_);
+lean_dec_ref(v_reporterCancelTk_3790_);
 v_maxDocVersionRef_3792_ = lean_ctor_get(v_a_3786_, 1);
 v_processor_3793_ = lean_ctor_get(v_a_3786_, 7);
 lean_inc_ref(v_meta_3785_);
@@ -14681,7 +14681,7 @@ v_resetjp_3799_:
 lean_object* v___x_3802_; lean_object* v___x_3803_; lean_object* v___x_3804_; lean_object* v___x_3805_; lean_object* v_importCachingTask_x3f_3806_; lean_object* v_pendingRequests_3807_; lean_object* v_rpcSessions_3808_; lean_object* v___x_3810_; uint8_t v_isShared_3811_; uint8_t v_isSharedCheck_3824_; 
 v___x_3802_ = l_Lean_Server_FileWorker_EditableDocumentCore_update(v_toEditableDocumentCore_3798_, v_meta_3785_, v___x_3795_);
 v___x_3803_ = l_IO_CancelToken_new();
-lean_inc(v___x_3803_);
+lean_inc_ref(v___x_3803_);
 lean_inc_ref(v___x_3802_);
 lean_inc_ref(v_a_3786_);
 v___x_3804_ = l___private_Lean_Server_FileWorker_0__Lean_Server_FileWorker_reportSnapshots(v_a_3786_, v___x_3802_, v___x_3803_);
@@ -15213,7 +15213,7 @@ lean_del_object(v___x_3949_);
 lean_dec(v_rpcSessions_3947_);
 lean_dec(v_pendingRequests_3946_);
 lean_dec(v_importCachingTask_x3f_3945_);
-lean_dec(v_reporterCancelTk_3944_);
+lean_dec_ref(v_reporterCancelTk_3944_);
 lean_dec_ref(v_doc_3943_);
 lean_dec(v_p_3939_);
 v___x_3967_ = lean_box(0);
@@ -18609,7 +18609,7 @@ lean_object* v___x_5011_; lean_object* v___x_5013_;
 lean_del_object(v___x_5006_);
 lean_dec(v_rpcSessions_5004_);
 lean_dec(v_pendingRequests_5003_);
-lean_dec(v_reporterCancelTk_5002_);
+lean_dec_ref(v_reporterCancelTk_5002_);
 lean_dec(v_a_4998_);
 lean_dec_ref(v_doc_4994_);
 lean_dec(v_id_4968_);
@@ -28562,7 +28562,7 @@ lean_object* v_a_7677_; lean_object* v___x_7679_; uint8_t v_isShared_7680_; uint
 lean_del_object(v___x_7626_);
 lean_dec(v_rpcSessions_7624_);
 lean_dec(v_importCachingTask_x3f_7622_);
-lean_dec(v_reporterCancelTk_7621_);
+lean_dec_ref(v_reporterCancelTk_7621_);
 lean_dec_ref(v_doc_7620_);
 lean_dec(v_a_7619_);
 lean_dec_ref(v_hIn_7602_);

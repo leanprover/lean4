@@ -2942,8 +2942,8 @@ return v___x_803_;
 }
 else
 {
-lean_dec_ref(v_a_773_);
 lean_dec(v_tail_788_);
+lean_dec_ref(v_a_773_);
 lean_del_object(v___x_775_);
 v___y_778_ = v___y_762_;
 v___y_779_ = v___y_763_;

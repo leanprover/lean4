@@ -1344,8 +1344,8 @@ lean_inc(v_a_313_);
 lean_dec_ref(v___x_312_);
 v_root_314_ = lean_ctor_get(v_a_313_, 2);
 lean_inc_ref(v_root_314_);
-v_interpreted_315_ = lean_ctor_get_uint8(v_a_313_, sizeof(void*)*11 + 1);
-v_ctor_316_ = lean_ctor_get_uint8(v_a_313_, sizeof(void*)*11 + 2);
+v_interpreted_315_ = lean_ctor_get_uint8(v_a_313_, sizeof(void*)*12 + 1);
+v_ctor_316_ = lean_ctor_get_uint8(v_a_313_, sizeof(void*)*12 + 2);
 lean_dec(v_a_313_);
 v___x_333_ = lean_obj_once(&l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_Goal_ppENodeDecl___closed__9, &l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_Goal_ppENodeDecl___closed__9_once, _init_l___private_Lean_Meta_Tactic_Grind_PP_0__Lean_Meta_Grind_Goal_ppENodeDecl___closed__9);
 v___x_334_ = lean_alloc_ctor(7, 2, 0);
@@ -9615,7 +9615,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_goalToMessageData(lean_object* v_goal
 _start:
 {
 uint8_t v_verbose_3198_; lean_object* v_mvarId_3199_; uint8_t v___x_3200_; lean_object* v___x_3201_; lean_object* v___x_3202_; lean_object* v___y_3203_; lean_object* v___x_3204_; 
-v_verbose_3198_ = lean_ctor_get_uint8(v_config_3192_, sizeof(void*)*11 + 15);
+v_verbose_3198_ = lean_ctor_get_uint8(v_config_3192_, sizeof(void*)*12 + 15);
 v_mvarId_3199_ = lean_ctor_get(v_goal_3191_, 1);
 lean_inc_n(v_mvarId_3199_, 2);
 v___x_3200_ = 1;

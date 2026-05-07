@@ -1,6 +1,8 @@
 import Cases.GetThrowSet
 import Driver
 
+set_option mvcgen.warning false
+
 open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
 open GetThrowSet
 

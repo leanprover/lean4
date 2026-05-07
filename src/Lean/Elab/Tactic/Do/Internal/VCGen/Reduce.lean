@@ -4,11 +4,16 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public import Lean.Meta
-public meta import Lean.Meta
-meta import Lean.Meta.Sym.Pattern
+
+prelude
+public import Lean.Meta.Sym.SymM
+public import Lean.Meta.WHNF
 
 open Lean Meta Sym
+
+namespace Lean.Elab.Tactic.Do.Internal
+
+namespace VCGen
 
 /-!
 SymM-level head-redex reducer used throughout VCGen.
@@ -27,7 +32,7 @@ no further progress is made:
 
 Returns `none` when no reduction was possible. Maintains maximal sharing via `shareCommonInc`.
 -/
-public meta partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
+public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
   withReducible <| go none e.getAppFn e.getAppRevArgs
   where
     go lastReduction f rargs := do
@@ -59,5 +64,8 @@ public meta partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
         | none    => pure lastReduction
       | _ => pure lastReduction
 
-public meta def reduceHead (e : Expr) : SymM Expr :=
+public def reduceHead (e : Expr) : SymM Expr :=
   return (← reduceHead? e).getD e
+
+end VCGen
+end Lean.Elab.Tactic.Do.Internal

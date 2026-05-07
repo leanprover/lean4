@@ -4,9 +4,6 @@ open System Lake DSL
 package mvcgen_bench where
   precompileModules := true
 
-lean_lib VCGen where
-  srcDir := "lib"
-
 lean_lib Baseline where
   srcDir := "lib"
 

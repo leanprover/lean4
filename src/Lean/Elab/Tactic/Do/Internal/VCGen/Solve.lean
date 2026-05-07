@@ -4,21 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public import Lean.Elab
-public import Lean.Meta
-public meta import Lean.Elab
-public meta import Lean.Meta
-public meta import Lean.Meta.Match.Rewrite
-public meta import Lean.Elab.Tactic.Do.VCGen.Split
-public meta import VCGen.Context
-public meta import VCGen.Reduce
-public meta import VCGen.Util
-public meta import VCGen.RuleCache
-public meta import VCGen.Entails
+
+prelude
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
+public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleCache
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Entails
+public import Lean.Meta.Sym.InstantiateS
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.Do.SpecAttr
+open Lean.Elab.Tactic.Do.Internal
 open Std.Do
+
+namespace Lean.Elab.Tactic.Do.Internal
 
 
 /-!
@@ -44,14 +42,14 @@ public inductive SolveResult where
   /-- Successfully decomposed the goal. These are the subgoals. -/
   | goals (subgoals : List MVarId)
 
-private meta def isDuplicable (e : Expr) : Bool := match e with
+private def isDuplicable (e : Expr) : Bool := match e with
   | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
   | .mdata _ e | .proj _ _ e => isDuplicable e
   | .lam .. | .forallE .. | .letE .. => false
   | .app .. => e.isAppOf ``OfNat.ofNat
 
 /-- Strategy 1: introduce binders if the target is a `∀`. -/
-private meta def tryForallIntro (goal : MVarId) (target : Expr) :
+private def tryForallIntro (goal : MVarId) (target : Expr) :
     VCGenM (Option SolveResult) := do
   unless target.isForall do return none
   return some <| .goals [← introsSimp goal m!"foralls in `solve`"]
@@ -65,7 +63,7 @@ at the point where the upstream `mvcgen.onJoinPoint` would set up shared-continu
 proof construction. That port (Phase 6 of the plan) is not yet done; we throw an
 explicit error here so that enabling `jp := true` is honest about the gap rather
 than silently ignored. -/
-private meta def tryLetIntro (goal : MVarId) (target : Expr) :
+private def tryLetIntro (goal : MVarId) (target : Expr) :
     VCGenM (Option SolveResult) := do
   unless target.isLet do return none
   if (← read).useJP && Lean.Elab.Tactic.Do.isJP target.letName! then
@@ -84,14 +82,14 @@ private meta def tryLetIntro (goal : MVarId) (target : Expr) :
     return some <| .goals [← introsSimp goal m!"let-intro: {target.letName!}"]
 
 /-- Strategy 2: unfold a `Triple` target into the underlying `P ⊢ₛ wp⟦x⟧ Q`. -/
-private meta def tryTripleUnfold (goal : MVarId) (target : Expr) :
+private def tryTripleUnfold (goal : MVarId) (target : Expr) :
     VCGenM (Option SolveResult) := do
   unless target.getAppFn.isConstOf ``Triple do return none
   let goal ← tripleOfWP goal
   return some <| .goals [goal]
 
 /-- Strategy 4: eta-expand a lambda RHS via `entails_cons_intro`. -/
-private meta def tryTargetLambdaIntro (goal : MVarId) (T : Expr) :
+private def tryTargetLambdaIntro (goal : MVarId) (T : Expr) :
     VCGenM (Option SolveResult) := do
   unless T.isLambda do return none
   let .goals [goal] ← (← read).entailsConsIntroRule.applyChecked goal
@@ -99,7 +97,7 @@ private meta def tryTargetLambdaIntro (goal : MVarId) (T : Expr) :
   return some <| .goals [goal]
 
 /-- Strategy 5: head-reduce `H` and/or `T` and replace the target if either side reduced. -/
-private meta def tryHeadReduceHT (goal : MVarId) (ent σs H T : Expr) :
+private def tryHeadReduceHT (goal : MVarId) (ent σs H T : Expr) :
     VCGenM (Option SolveResult) := do
   let H? ← reduceHead? H
   let T? ← reduceHead? T
@@ -110,7 +108,7 @@ private meta def tryHeadReduceHT (goal : MVarId) (ent σs H T : Expr) :
 /-- Strategy 6: when the target's RHS isn't `wp⟦e⟧ Q s₁ ... sₙ`, attempt syntactic
 reflexivity, fall back to `solveSPredEntails`, otherwise classify as
 `.noProgramFoundInTarget`. -/
-private meta def tryRflOrSPred (goal : MVarId) (ent σs H T : Expr) :
+private def tryRflOrSPred (goal : MVarId) (ent σs H T : Expr) :
     VCGenM SolveResult := do
   trace[Elab.Tactic.Do.vcgen] "Trying rfl {goal}"
   if ← withAssignableSyntheticOpaque <| isDefEqS H T then
@@ -122,7 +120,7 @@ private meta def tryRflOrSPred (goal : MVarId) (ent σs H T : Expr) :
   return .noProgramFoundInTarget T
 
 /-- Replace the program in `goal`'s target with `e'` (which must be definitionally equal). -/
-private meta def replaceProgDefEq (goal : MVarId) (head H σs ent : Expr) (args : Array Expr)
+private def replaceProgDefEq (goal : MVarId) (head H σs ent : Expr) (args : Array Expr)
     (wpConst m ps instWP α e' : Expr) : VCGenM MVarId := do
   let wp ← Sym.Internal.mkAppS₅ wpConst m ps instWP α e'
   let T ← mkAppNS head (args.set! 2 wp)
@@ -130,7 +128,7 @@ private meta def replaceProgDefEq (goal : MVarId) (head H σs ent : Expr) (args 
   goal.replaceTargetDefEq target
 
 /-- Hoist a `letE` from the program head to the goal target. -/
-private meta def tryLetHoist (goal : MVarId) (head H σs ent : Expr) (args : Array Expr)
+private def tryLetHoist (goal : MVarId) (head H σs ent : Expr) (args : Array Expr)
     (wpConst m ps instWP α e f : Expr) : VCGenM (Option SolveResult) := do
   let .letE x ty val body nonDep := f | return none
   trace[Elab.Tactic.Do.vcgen] "let-hoist: {x}"
@@ -143,7 +141,7 @@ private meta def tryLetHoist (goal : MVarId) (head H σs ent : Expr) (args : Arr
 
 /-- Split an `ite`/`dite`/match program head, or iota-reduce if the discriminant is
 constructor-shaped. Returns `none` when the program isn't a split. -/
-private meta def trySplit (goal : MVarId) (head H σs ent : Expr) (args : Array Expr)
+private def trySplit (goal : MVarId) (head H σs ent : Expr) (args : Array Expr)
     (wpConst m ps instWP α e : Expr) (excessArgs : Array Expr) : VCGenM (Option SolveResult) := do
   let some info ← liftMetaM <| Lean.Elab.Tactic.Do.getSplitInfo? e | return none
   -- Try iota reduction first (reduces matcher/recursor with concrete discriminant)
@@ -156,7 +154,7 @@ private meta def trySplit (goal : MVarId) (head H σs ent : Expr) (args : Array 
   return some <| .goals goals
 
 /-- Zeta-unfold a local `let`-bound fvar that appears as the program head. -/
-private meta def tryFvarZeta (goal : MVarId) (head H σs ent : Expr) (args : Array Expr)
+private def tryFvarZeta (goal : MVarId) (head H σs ent : Expr) (args : Array Expr)
     (wpConst m ps instWP α e f : Expr) : VCGenM (Option SolveResult) := do
   let some fvarId := f.fvarId? | return none
   let some val ← fvarId.getValue? | return none
@@ -167,7 +165,7 @@ private meta def tryFvarZeta (goal : MVarId) (head H σs ent : Expr) (args : Arr
 /-- Look up a registered `@[spec]` theorem for the program head and apply its cached
 backward rule. Falls back to `.noSpecFoundForProgram` / `.noStrategyForProgram` when no
 spec applies. -/
-private meta def applySpec (goal : MVarId) (e : Expr) (excessArgs : Array Expr)
+private def applySpec (goal : MVarId) (e : Expr) (excessArgs : Array Expr)
     (m σs ps instWP : Expr) : VCGenM SolveResult := do
   let f := e.getAppFn
   if f.isConst || f.isFVar then
@@ -210,7 +208,7 @@ The function performs the following steps in order:
 10. **Spec application**: Look up a registered `@[spec]` theorem (triple or simp) and apply
     its cached backward rule.
 -/
-public meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
+public def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
   let target ← goal.getType
   trace[Elab.Tactic.Do.vcgen] "🎯 Target: {target}"
   -- Phase 1: simplify `target` until it is of the form `H ⊢ₛ T`.
@@ -265,3 +263,5 @@ public meta def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext d
   applySpec goal e excessArgs m σs ps instWP
 
 end VCGen
+
+end Lean.Elab.Tactic.Do.Internal

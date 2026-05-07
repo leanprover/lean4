@@ -425,3 +425,12 @@ A hint tactic that expands to `mvcgen invariants?`.
 -/
 syntax (name := mvcgenHint) "mvcgen?" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")? : tactic
+
+-- Prototypical Sym-based variant of `mvcgen`; see `mvcgen` for documentation.
+-- Same surface syntax modulo `vcAlts`, replaced by `simplifying_assumptions … with …`.
+@[tactic_alt Lean.Parser.Tactic.mvcgen'Macro]
+syntax (name := mvcgen') "mvcgen'" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (invariantAlts)?
+  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
+  (&" with " tactic)? : tactic

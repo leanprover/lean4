@@ -1157,19 +1157,6 @@ theorem ISize.toInt8_ofIntLE {n} (h₁ h₂) : (ISize.ofIntLE n h₁ h₂).toInt
   simp only [toInt_toInt8, toInt_ofInt, Nat.reducePow, Int8.toInt_ofInt]
   exact Int.bmod_bmod_of_dvd UInt8.size_dvd_usizeSize
 
-set_option allowUnsafeReducibility true in
-attribute [local implicit_reducible]
-  BitVec.neg BitVec.ofNat BitVec.toFin BitVec.toInt BitVec.toNat
-  Bool.decEq
-  Fin.Internal.ofNat
-  Int.add Int.neg Int.negOfNat Int.pow Int.sub Int.subNatNat
-  Int8.neg Int8.ofNat Int8.toBitVec Int8.toInt
-  Int16.neg Int16.ofNat Int16.toBitVec Int16.toInt
-  Int32.neg Int32.ofNat Int32.toBitVec Int32.toInt
-  Int64.neg Int64.ofNat Int64.toBitVec Int64.toInt
-  -- Nat.ble Nat.decLe Nat.decLt
-  dite ite
-
 @[simp] theorem Int16.toInt8_ofNat {n} : toInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toInt8_ofNat'
 @[simp] theorem Int32.toInt8_ofNat {n} : toInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toInt8_ofNat'
 @[simp] theorem Int64.toInt8_ofNat {n} : toInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toInt8_ofNat'

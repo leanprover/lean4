@@ -1,7 +1,7 @@
 /-
-Copyright (c) 2026 Moritz Roos. All rights reserved.
+Copyright (c) 2026 Thomas Murrils. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
-Authors: Moritz Roos
+Authors: Thomas Murrils
 -/
 module
 

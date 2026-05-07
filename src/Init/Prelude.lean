@@ -407,7 +407,7 @@ definitionally sometimes there isn't anything better you can do.
 
 For more information: [Equality](https://lean-lang.org/theorem_proving_in_lean4/quantifiers_and_equality.html#equality)
 -/
-@[macro_inline] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
+@[macro_inline, implicit_reducible] def cast {α β : Sort u} (h : Eq α β) (a : α) : β :=
   h.rec a
 
 /--
@@ -3055,6 +3055,7 @@ Examples:
  * `["spring", "summer", "fall", "winter"].get (2 : Fin 4) = "fall"`
  * `["spring", "summer", "fall", "winter"].get (0 : Fin 4) = "spring"`
 -/
+@[implicit_reducible]
 def List.get {α : Type u} : (as : List α) → Fin as.length → α
   | cons a _,  ⟨0, _⟩ => a
   | cons _ as, ⟨Nat.succ i, h⟩ => get as ⟨i, Nat.le_of_succ_le_succ h⟩
@@ -3256,7 +3257,7 @@ This function does not use `get_elem_tactic` to automatically find the proof tha
 the index is in bounds. This is because the tactic itself needs to look up values in
 arrays.
 -/
-@[extern "lean_array_fget"]
+@[extern "lean_array_fget", implicit_reducible]
 def Array.getInternal {α : Type u} (a : @& Array α) (i : @& Nat) (h : LT.lt i a.size) : α :=
   a.toList.get ⟨i, h⟩
 

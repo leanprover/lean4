@@ -134,6 +134,10 @@ theorem pmap_eq_map_attach {p : α → Prop} {f : ∀ a, p a → β} {l : List �
     pmap f l H = l.attach.map fun x => f x.1 (H _ x.2) := by
   rw [attach, attachWith, map_pmap]; exact pmap_congr_left l fun _ _ _ _ => rfl
 
+theorem attachWith_eq_map_attach {xs : List α} {P : α → Prop} {H : ∀ (a : α), a ∈ xs → P a} :
+    xs.attachWith P H = xs.attach.map fun ⟨x, h⟩ => ⟨x, H _ h⟩ := by
+  induction xs <;> simp_all
+
 @[simp]
 theorem pmap_eq_attachWith {p q : α → Prop} {f : ∀ a, p a → q a} {l : List α} (H) :
     pmap (fun a h => ⟨a, f a h⟩) l H = l.attachWith q (fun x h => f x (H x h)) := by

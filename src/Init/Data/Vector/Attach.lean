@@ -145,18 +145,6 @@ theorem mk_congr {xs ys : Array α} (h : xs = ys) {h' : xs.size = n} :
   subst h
   simp
 
-/-
-TODO: Correctly place the following lemmas
--/
-
-theorem _root_.List.attachWith_eq_map_attach {xs : List α} {P : α → Prop} {H : ∀ (a : α), a ∈ xs → P a} :
-    xs.attachWith P H = xs.attach.map fun ⟨x, h⟩ => ⟨x, H _ h⟩ := by
-  induction xs <;> simp_all
-
-theorem _root_.Array.attachWith_eq_map_attach {xs : Array α} {P : α → Prop} {H : ∀ (a : α), a ∈ xs → P a} :
-    xs.attachWith P H = xs.attach.map fun ⟨x, h⟩ => ⟨x, H _ h⟩ := by
-  cases xs <;> simp_all [List.attachWith_eq_map_attach]
-
 @[simp] theorem attach_push {a : α} {xs : Vector α n} :
     (xs.push a).attach =
       (xs.attach.map (fun ⟨x, h⟩ => ⟨x, mem_push_of_mem a h⟩)).push ⟨a, by simp⟩ := by

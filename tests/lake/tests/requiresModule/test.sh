@@ -21,12 +21,21 @@ test_not_out "designed for use with the module system" build Test.ModuleConsumer
 test_out "Test/NonModuleConsumer.lean: imports \`Dep\` from package \`dep\`, which is designed for use with the module system" \
   build Test.NonModuleConsumer
 
-# Opt out of the warning by setting `silenceRequiresModuleSystemWarning` on the
-# importing package. After a clean rebuild, the warning must not appear.
-sed_i '1a silenceRequiresModuleSystemWarning = true' lakefile.toml
-test_run clean
-test_not_out "designed for use with the module system" build Test.NonModuleConsumer
+# Same-package non-module file: dep itself contains DepLegacy.lean (no module
+# header) which imports another module of dep. The warning must fire here too,
+# since `requiresModuleSystem` applies within the package.
+test_out "DepLegacy.lean: missing \`module\` header as required by \`requiresModuleSystem\` package option" \
+  build "@dep/DepLegacy"
 
-# Restore the lakefile and clean up.
-sed_i '/^silenceRequiresModuleSystemWarning = true$/d' lakefile.toml
+# Opt out of the warning by setting `allowNonModules` on the importing package.
+# After a clean rebuild, neither the cross-package nor the intra-package warning
+# should appear.
+sed_i '1a allowNonModules = true' lakefile.toml
+sed_i '1a allowNonModules = true' dep/lakefile.toml
+test_run clean
+test_not_out "module system" build Test.NonModuleConsumer "@dep/DepLegacy"
+
+# Restore the lakefiles and clean up.
+sed_i '/^allowNonModules = true$/d' lakefile.toml
+sed_i '/^allowNonModules = true$/d' dep/lakefile.toml
 rm -f produced*

@@ -324,30 +324,31 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   /--
   Whether this package is designed for use with the module system.
 
-  If enabled, Lake emits a warning whenever a module from another package
-  imports a module of this package without itself using the module system
-  (i.e., without a `module` header). This signals to downstream users that
-  the package's API expects the visibility and elaboration semantics of the
-  module system.
+  If enabled, Lake emits a warning whenever a module imports a module of
+  this package without itself using the module system (i.e., without a
+  `module` header). This applies both to downstream consumers and to
+  non-module files within this package, signalling that the package's
+  API expects the visibility and elaboration semantics of the module system.
 
-  Downstream packages can opt out of the warning by setting
-  `silenceRequiresModuleSystemWarning := true` on their own package.
+  Importing packages can opt out of the warning by setting
+  `allowNonModules := true` on their own package.
 
   Defaults to `false`.
   -/
   requiresModuleSystem : Bool := false
 
   /--
-  Whether to silence the warnings produced when this package imports modules
-  from a dependency that has set `requiresModuleSystem` while not using the
-  module system itself.
+  Whether this package permits non-module-system files without warning.
 
-  Use this to opt out of the migration nudge after deciding the package is
-  knowingly going to keep importing such dependencies without `module`.
+  By default, when a non-module-system file in this package imports a module
+  from a package that has set `requiresModuleSystem` (which may include this
+  package itself), Lake emits a warning. Setting this to `true` suppresses
+  those warnings, declaring that the package is knowingly mixing
+  non-module-system files with module-system dependencies.
 
   Defaults to `false`.
   -/
-  silenceRequiresModuleSystemWarning : Bool := false
+  allowNonModules : Bool := false
 
   /--
   Whether to run Lake's built-in linter on the package.

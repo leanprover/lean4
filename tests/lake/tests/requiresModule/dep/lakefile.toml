@@ -3,3 +3,6 @@ requiresModuleSystem = true
 
 [[lean_lib]]
 name = "Dep"
+
+[[lean_lib]]
+name = "DepLegacy"

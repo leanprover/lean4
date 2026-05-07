@@ -371,11 +371,14 @@ def fetchImportInfo
       return .error
     let mods ← findModules imp.module
     if nonModule && !silenceWarning then
-      if let some mod := mods.find? fun mod =>
-          mod.pkg.requiresModuleSystem && pkgName != mod.pkg.keyName then
-        logWarning s!"{fileName}: imports `{imp.module}` from package \
-          `{mod.pkg.prettyName}`, which is designed for use with the module \
-          system; consider adding `module` to the start of this file"
+      if let some mod := mods.find? (·.pkg.requiresModuleSystem) then
+        if pkgName == mod.pkg.keyName then
+          logWarning s!"{fileName}: missing `module` header as required \
+            by `requiresModuleSystem` package option"
+        else
+          logWarning s!"{fileName}: imports `{imp.module}` from package \
+            `{mod.pkg.prettyName}`, which is designed for use with the module \
+            system; consider adding `module` to the start of this file"
     let n := mods.size
     if h : n = 0 then
       return s
@@ -428,7 +431,7 @@ public def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
   mkFacetJobConfig fun mod => do
     let header ← (← mod.header.fetch).await
     fetchImportInfo mod.relLeanFile.toString mod.pkg.keyName mod.name header
-      (silenceWarning := mod.pkg.silenceRequiresModuleSystemWarning)
+      (silenceWarning := mod.pkg.allowNonModules)
 
 def noServerOLeanError :=
   "No server olean generated. Ensure the module system is enabled."
@@ -1240,7 +1243,7 @@ def setupEditedModule
   let fileName := mod.relLeanFile.toString
   let localImports := directImports.filterMap (·.module?)
   let impInfoJob ← fetchImportInfo fileName mod.pkg.keyName mod.name header
-    (silenceWarning := mod.pkg.silenceRequiresModuleSystemWarning)
+    (silenceWarning := mod.pkg.allowNonModules)
   let precompileImports ←
     if mod.shouldPrecompile then
       (← computeTransImportsAux fileName localImports).await

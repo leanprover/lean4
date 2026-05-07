@@ -44,12 +44,12 @@ private noncomputable def whileM.fix {β : Type u} (f : α → m (α ⊕ β))
 
 /-- Pinning predicate for `whileM.impl`: trivial unless we have both an `Acc` and
 an attach for `m`, in which case `v` is pinned to the value computed by `whileM.fix`. -/
-private noncomputable abbrev whileM.Pred (f : α → m (α ⊕ β)) (a : α) : m β → Prop :=
+private noncomputable abbrev whileM.Pred (f : α → m (α ⊕ β)) (a : α) (r : m β) : Prop :=
   open scoped Classical in
   if h : Acc (whileM.IsPlausibleStep f) a ∧ Exists Internal.IsAttach then
-    fun v => v = whileM.fix f h.2 h.1
+    r = whileM.fix f h.2 h.1
   else
-    fun _ => True
+    True
 
 private noncomputable instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
     Nonempty (Subtype (whileM.Pred f a)) :=

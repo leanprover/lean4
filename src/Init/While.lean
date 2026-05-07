@@ -31,31 +31,53 @@ variable {α : Type u} {m : Type u → Type v} [Monad m]
 public abbrev whileM.IsPlausibleStep (f : α → m (α ⊕ β)) : α → α → Prop :=
   fun a' a => Internal.MayReturn (f a) (.inl a')
 
+/-- The classical `Acc`-induction defining `whileM`, factored out so it can be referenced from
+`whileM.Pred`, `whileM.impl`, and `whileM_eq` without duplicating the recursion. -/
+private noncomputable def whileM.fix {β : Type u} (f : α → m (α ⊕ β))
+    (hAttach : Exists (Internal.IsAttach (m := m))) {a : α}
+    (h_a : Acc (whileM.IsPlausibleStep f) a) : m β :=
+  h_a.recOn (motive := fun _ _ => m β) (fun x _ ih => do
+    let ⟨s, hp⟩ ← hAttach.choose (f x)
+    match s, hp with
+    | .inl x', hp => ih x' hp
+    | .inr b, _ => pure b)
+
 /-- Pinning predicate for `whileM.impl`: trivial unless we have both an `Acc` and
-an attach for `m`, in which case `v` is pinned to the value computed by `Acc`-induction. -/
-noncomputable abbrev whileM.Pred (f : α → m (α ⊕ β)) (a : α) : m β → Prop :=
+an attach for `m`, in which case `v` is pinned to the value computed by `whileM.fix`. -/
+private noncomputable abbrev whileM.Pred (f : α → m (α ⊕ β)) (a : α) : m β → Prop :=
   open scoped Classical in
   if h : Acc (whileM.IsPlausibleStep f) a ∧ Exists Internal.IsAttach then
-    fun v => v = h.1.recOn (motive := fun _ _ => m β) (fun x _ ih => do
-      let ⟨s, hp⟩ ← h.2.choose (f x)
-      match s, hp with
-      | .inl x', hp => ih x' hp
-      | .inr b, _ => pure b)
+    fun v => v = whileM.fix f h.2 h.1
   else
     fun _ => True
 
-noncomputable instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
+private noncomputable instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
     Nonempty (Subtype (whileM.Pred f a)) :=
   open scoped Classical in
   if h : Acc (whileM.IsPlausibleStep f) a ∧ Exists Internal.IsAttach then
-    ⟨⟨h.1.recOn (motive := fun x _ => m β) (fun x _ ih => do
-        let ⟨s, hp⟩ ← h.2.choose (f x)
-        match s, hp with
-        | .inl x', hp => ih x' hp
-        | .inr b, _ => pure b),
-      by simp only [whileM.Pred, dif_pos h]⟩⟩
+    ⟨⟨whileM.fix f h.2 h.1, by simp only [whileM.Pred, dif_pos h]⟩⟩
   else
     ⟨⟨pure (Classical.choice inferInstance), by simp only [whileM.Pred, dif_neg h]⟩⟩
+
+/-- The body of `whileM` at any `Subtype (whileM.Pred f ·)`-valued recursive call agrees with
+`whileM.fix`, by `Acc` cases plus `Pred`-unfolding at the recursive step. -/
+private theorem whileM.body_eq_fix
+    (f : α → m (α ⊕ β)) (hAttach : Exists (Internal.IsAttach (m := m)))
+    (g : (a : α) → Subtype (whileM.Pred f a))
+    {x : α} (h_x : Acc (whileM.IsPlausibleStep f) x) :
+    whileM.body f (g · |>.val) x = whileM.fix f hAttach h_x := by
+  cases h_x with | intro x next =>
+  simp only [whileM.body, whileM.fix]
+  rw [← ((hAttach.choose_spec.erases (f x)).bind_eq)]
+  apply bind_congr
+  intro ⟨s, hp⟩
+  cases s with
+  | inr b => rfl
+  | inl x' =>
+    have hp_x' := (g x').property
+    simp only [whileM.Pred,
+      dif_pos (show Acc _ x' ∧ _ from ⟨next x' hp, hAttach⟩)] at hp_x'
+    exact hp_x'
 
 /-- Computational core of `whileM`: returns the loop value paired with its
 `whileM.Pred` proof. -/
@@ -65,29 +87,8 @@ noncomputable instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
   ⟨whileM.body f (whileM.impl f · |>.val) a, by
     simp only [whileM.Pred]
     split <;> rename_i h
-    · suffices key : ∀ x (h_x : Acc (whileM.IsPlausibleStep f) x),
-          whileM.body f (whileM.impl f · |>.val) x =
-          h_x.recOn (motive := fun _ _ => m β) (fun x _ ih => do
-            let ⟨s, hp⟩ ← h.2.choose (f x)
-            match s, hp with
-            | .inl x', hp => ih x' hp
-            | .inr b, _ => pure b) from key a h.1
-      intro x h_x
-      induction h_x with
-      | intro x next ih =>
-        simp only [whileM.body]
-        rw [← ((h.2.choose_spec.erases (f x)).bind_eq)]
-        congr
-        funext ⟨s, hp⟩
-        cases s with
-        | inr b => rfl
-        | inl x' =>
-          show (whileM.impl f x').val = _
-          have h_x' : Acc (whileM.IsPlausibleStep f) x' ∧ _ := ⟨next x' hp, h.2⟩
-          have hp_x' := (whileM.impl f x').property
-          simp only [whileM.Pred, dif_pos h_x'] at hp_x'
-          rw [hp_x']
-    · exact True.intro⟩
+    · exact whileM.body_eq_fix f h.2 (whileM.impl f) h.1
+    · trivial⟩
 
 /-- `whileM f a` iterates `f` at `a`, recursing on `.inl` and terminating on `.inr`. -/
 @[inline] public def whileM [Nonempty β] (f : α → m (α ⊕ β)) (a : α) : m β :=
@@ -101,42 +102,12 @@ noncomputable instance [Nonempty β] {f : α → m (α ⊕ β)} {a : α} :
 public theorem whileM_eq [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] [Nonempty β]
     {f : α → m (α ⊕ β)} (a : α) (h : Acc (whileM.IsPlausibleStep f) a) :
     whileM f a = whileM.body f (whileM f) a := by
-  have hExAttach : Exists (Internal.IsAttach (m := m)) := by
-    refine ⟨fun _ x =>
-      (fun ⟨s, hCR⟩ => ⟨s, Internal.MayReturn.of_canReturn hCR⟩) <$> MonadAttach.attach x, ?_⟩
-    refine ⟨fun {_} x => ⟨fun {β'} k => ?_⟩⟩
-    rw [bind_map_left]
-    exact Internal.ErasesTo.of_attach.bind_eq k
-  have hGate : Acc (whileM.IsPlausibleStep f) a ∧ Exists Internal.IsAttach :=
-    ⟨h, hExAttach⟩
+  have hAttach : Exists (Internal.IsAttach (m := m)) := ⟨_, Internal.IsAttach.of_attach⟩
   have hp_a := (whileM.impl f a).property
-  simp only [whileM.Pred, dif_pos hGate] at hp_a
+  simp only [whileM.Pred, dif_pos (⟨h, hAttach⟩ : _ ∧ _)] at hp_a
   show (whileM.impl f a).val = _
   rw [hp_a]
-  suffices key : ∀ x (h_x : Acc (whileM.IsPlausibleStep f) x),
-      whileM.body f (whileM.impl f · |>.val) x =
-      h_x.recOn (motive := fun _ _ => m β) (fun x _ ih => do
-        let ⟨s, hp⟩ ← hGate.2.choose (f x)
-        match s, hp with
-        | .inl x', hp => ih x' hp
-        | .inr b, _ => pure b) from (key a hGate.1).symm
-  intro x h_x
-  induction h_x with
-  | intro x next ih =>
-    simp only [whileM.body]
-    rw [← ((hGate.2.choose_spec.erases (f x)).bind_eq)]
-    apply bind_congr
-    intro ⟨s, hp⟩
-    cases s with
-    | inr b => rfl
-    | inl x' =>
-      show (whileM.impl f x').val = _
-      have h_x' : Acc (whileM.IsPlausibleStep f) x' ∧
-          Exists Internal.IsAttach :=
-        ⟨next x' hp, hGate.2⟩
-      have hp_x' := (whileM.impl f x').property
-      simp only [whileM.Pred, dif_pos h_x'] at hp_x'
-      rw [hp_x']
+  exact (whileM.body_eq_fix f hAttach (whileM.impl f) h).symm
 
 namespace Lean
 

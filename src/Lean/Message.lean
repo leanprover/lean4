@@ -14,6 +14,7 @@ public import Lean.Util.Sorry
 import Init.Data.String.Search
 import Init.Data.Format.Macro
 import Init.Data.Iterators.Consumers.Collect
+import Init.Data.String.Length
 
 public section
 

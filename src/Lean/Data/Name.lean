@@ -11,6 +11,7 @@ import Init.Data.String.TakeDrop
 import Init.Data.Ord.String
 import Init.Data.Ord.UInt
 import Init.Data.String.Search
+import Init.Data.String.Length
 
 public section
 namespace Lean

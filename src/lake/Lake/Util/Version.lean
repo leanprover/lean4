@@ -13,6 +13,7 @@ import Init.Data.String.TakeDrop
 import Lean.Data.Trie
 import Init.Data.String.Search
 import Init.Omega
+import Init.Data.String.Length
 
 /-! # Version
 

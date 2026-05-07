@@ -10,6 +10,7 @@ public import Init.Data.ToString.Basic
 import Init.Data.UInt.Lemmas
 import Init.Data.String.Basic
 import Init.Data.Nat.Fold
+import Init.Data.String.Length
 
 namespace Lake
 

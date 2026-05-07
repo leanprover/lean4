@@ -11,6 +11,7 @@ prelude
 public import Lean.DocString.Types
 public import Init.Data.String.TakeDrop
 public import Init.Data.String.Search
+public import Init.Data.String.Length
 import Init.Data.ToString.Macro
 import Init.While
 

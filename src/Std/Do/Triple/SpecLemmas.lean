@@ -2249,7 +2249,7 @@ unblocking `whileM_eq`.
 -/
 theorem _root_.whileM.IsPlausibleStep.acc_of_wp
     {f : α → m (α ⊕ β)} {P : α ⊕ β → Prop} (measure : α → Nat) (init : α) (hP : P (.inl init))
-    (h : ∀ a, ⦃⌜P (.inl a)⌝⦄ f a ⦃⇓ r => ⌜P r ∧ ∀ a', r = .inl a' → measure a' < measure a⌝⦄) :
+    (h : ∀ a, ⦃⌜P (.inl a)⌝⦄ f a ⦃(fun r => ⌜P r ∧ ∀ a', r = .inl a' → measure a' < measure a⌝, exc)⦄) :
     Acc (whileM.IsPlausibleStep f) init := by
   have (eq := hn) n := measure init
   induction n using Nat.strongRecOn generalizing init with
@@ -2286,16 +2286,17 @@ theorem Spec.whileM
     {init : α} {f : α → m (α ⊕ β)} [Nonempty β]
     (μ : WhileVariant α)
     (inv : WhileInvariant α β)
+    {exc : ExceptConds ps}
     (step : ∀ a,
       Triple (f a) (⌜inv (.inl a)⌝)
-        (⇓ r => match r with
+        (fun r => match r with
           | .inl a' => spred(⌜inv (.inl a') ∧ μ a' < μ a⌝)
-          | .inr b => ⌜inv (.inr b)⌝)) :
+          | .inr b => ⌜inv (.inr b)⌝, exc)) :
     Triple (whileM f init) (⌜inv (.inl init)⌝)
-        (⇓ b => ⌜inv (.inr b)⌝) := by
+        (fun b => ⌜inv (.inr b)⌝, exc) := by
   refine Triple.iff.mpr <| SPred.pure_elim' fun hInv => ?_
   suffices key : ∀ a, inv (.inl a) →
-      ⊢ₛ wp⟦(_root_.whileM f a : m β)⟧ (PostCond.noThrow fun b => ⌜inv (.inr b)⌝) from
+      ⊢ₛ wp⟦(_root_.whileM f a : m β)⟧ (fun b => ⌜inv (.inr b)⌝, exc) from
     key init hInv
   intro a hInv'
   have (eq := hn) n := μ a
@@ -2303,7 +2304,7 @@ theorem Spec.whileM
   | _ n ih =>
   have hacc : Acc (whileM.IsPlausibleStep f) a := by
     refine whileM.IsPlausibleStep.acc_of_wp μ a hInv' fun y =>
-      Triple.iff.mpr <| (Triple.iff.mp (step y)).trans <| (wp _).mono _ _ ⟨fun r => ?_, by simp⟩
+      Triple.iff.mpr <| (Triple.iff.mp (step y)).trans <| (wp _).mono _ _ ⟨fun r => ?_, ExceptConds.entails.refl _⟩
     cases r with
     | inl _ => exact SPred.pure_mono fun ⟨hI, hM⟩ =>
         ⟨hI, fun _ h => by injection h with h; exact h ▸ hM⟩
@@ -2328,14 +2329,15 @@ theorem Spec.forIn_loop
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
     (μ : WhileVariant β)
     (inv : WhileInvariant β β)
+    {exc : ExceptConds ps}
     (step : ∀ b,
       Triple
         (f () b)
         (⌜inv (.inl b)⌝)
-        (⇓ r => match r with
+        (fun r => match r with
           | .yield b' => spred(⌜inv (.inl b') ∧ μ b' < μ b⌝)
-          | .done b' => ⌜inv (.inr b')⌝)) :
-    Triple (forIn l init f) (⌜inv (.inl init)⌝) (⇓ b => ⌜inv (.inr b)⌝) := by
+          | .done b' => ⌜inv (.inr b')⌝, exc)) :
+    Triple (forIn l init f) (⌜inv (.inl init)⌝) (fun b => ⌜inv (.inr b)⌝, exc) := by
   change Triple (_root_.Lean.Loop.forIn l init f) _ _
   simp only [_root_.Lean.Loop.forIn]
   have : Nonempty β := ⟨init⟩

@@ -21,6 +21,12 @@ public theorem Internal.ErasesTo.of_attach [Monad m] [LawfulMonad m]
   refine ⟨fun {β} k =>?_⟩
   rw [← bind_map_left, WeaklyLawfulMonadAttach.map_attach]
 
+/-- Every value returned by `x` satisfies `MonadAttach.CanReturn x`. -/
+public theorem Internal.Ensures.canReturn [Monad m] [LawfulMonad m]
+    [MonadAttach m] [WeaklyLawfulMonadAttach m] {α} {x : m α} :
+    Internal.Ensures (MonadAttach.CanReturn x) x :=
+  ⟨⟨MonadAttach.attach x, Internal.ErasesTo.of_attach⟩⟩
+
 /-- `MonadAttach.CanReturn` implies `Internal.MayReturn` for `LawfulMonadAttach` instances. -/
 public theorem Internal.MayReturn.of_canReturn [Monad m] [LawfulMonad m]
     [MonadAttach m] [LawfulMonadAttach m] {x : m α} {a : α}

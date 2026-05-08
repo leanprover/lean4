@@ -454,7 +454,7 @@ private def parseFraction (constructor : Fraction → Modifier) (p : String) : P
   parseMod constructor Fraction.classify p
 
 private def parseNumber (constructor : Number → Modifier) (p : String) : Parser Modifier :=
-  pure (constructor ⟨p.length⟩)
+  pure (constructor ⟨p.positions.length⟩)
 
 private def parseYear (constructor : Year → Modifier) (p : String) : Parser Modifier :=
   parseMod constructor Year.classify p
@@ -616,20 +616,20 @@ private def specParse (s : String) : Except String FormatString :=
 
 -- Pretty printer
 
-private def leftPad (n : Nat) (a : Char) (s : String) : String :=
+private def leftPadAscii (n : Nat) (a : Char) (s : String) : String :=
   "".pushn a (n -  s.positions.length) ++ s
 
-private def rightPad (n : Nat) (a : Char) (s : String) : String :=
+private def rightPadAscii (n : Nat) (a : Char) (s : String) : String :=
   s ++ "".pushn a (n - s.positions.length)
 
-private def pad (size : Nat)  (n : Int) (cut : Bool := false) : String :=
+private def pad (size : Nat) (n : Int) (cut : Bool := false) : String :=
   let (sign, n) := if n < 0 then ("-", -n) else ("", n)
 
   let numStr := toString n
-  if numStr.positions.length > size then
-    sign ++ if cut then numStr.drop (numStr.length - size) |>.copy else numStr
+  if numStr.utf8ByteSize > size then
+    sign ++ if cut then numStr.drop (numStr.utf8ByteSize - size) |>.copy else numStr
   else
-    sign ++ leftPad size '0' numStr
+    sign ++ leftPadAscii size '0' numStr
 
 private def rightTruncate (size : Nat)  (n : Int) (cut : Bool := false) : String :=
   let (sign, n) := if n < 0 then ("-", -n) else ("", n)
@@ -638,7 +638,7 @@ private def rightTruncate (size : Nat)  (n : Int) (cut : Bool := false) : String
   if numStr.length > size then
     sign ++ if cut then numStr.take size |>.copy else numStr
   else
-    sign ++ rightPad size '0' numStr
+    sign ++ rightPadAscii size '0' numStr
 
 private def formatMonthLong : Month.Ordinal → String
   | ⟨1, _⟩ => "January"
@@ -760,7 +760,7 @@ private def toSigned (data : Int) : String :=
 private def toIsoString (offset : Offset) (withMinutes : Bool) (withSeconds : Bool) (colon : Bool) : String :=
   let (sign, time) := if offset.second.val ≥ 0 then ("+", offset.second) else ("-", -offset.second)
   let time := PlainTime.ofSeconds time
-  let pad := leftPad 2 '0' ∘ toString
+  let pad := leftPadAscii 2 '0' ∘ toString
 
   let data := s!"{sign}{pad time.hour.val}"
   let data := if withMinutes then s!"{data}{if colon then ":" else ""}{pad time.minute.val}" else data
@@ -1107,7 +1107,7 @@ private def parseFlexibleNum (size : Nat) : Parser Nat :=
   if size = 1 then parseAtLeastNum 1 else parseNum size
 
 private def parseFractionNum (size : Nat) (pad : Nat) : Parser Nat :=
-  String.toNat! <$> rightPad pad '0' <$> exactlyChars (satisfy Char.isDigit) size
+  String.toNat! <$> rightPadAscii pad '0' <$> exactlyChars (satisfy Char.isDigit) size
 
 private def parseIdentifier : Parser String :=
   many1Chars (satisfy (fun x => x.isAlpha ∨ x.isDigit ∨ x = '_' ∨ x = '-' ∨ x = '/'))

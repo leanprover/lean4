@@ -1197,9 +1197,9 @@ def delabOfScientific : Delab := whenNotPPOption getPPExplicit <| whenPPOption g
     | Expr.const ``Bool.false _ => pure false
     | _ => failure
   let str  := toString m
-  if s && e == str.length then
+  if s && e == str.utf8ByteSize then
     return Syntax.mkScientificLit ("0." ++ str)
-  else if s && e < str.length then
+  else if s && e < str.utf8ByteSize then
     let mStr := String.Pos.Raw.extract str 0 ⟨str.length - e⟩
     let eStr := String.Pos.Raw.extract str ⟨str.length - e⟩ ⟨str.length⟩
     return Syntax.mkScientificLit (mStr ++ "." ++ eStr)

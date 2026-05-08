@@ -278,8 +278,9 @@ where
         let (pre, post) := go more
         (s ++ pre, post)
       else
-        let s1 := s.takeWhile Char.isWhitespace |>.copy
-        let s2 := s.drop s1.length |>.copy
+        let afterWhitespace := s.skipPrefixWhile Char.isWhitespace
+        let s1 := s.sliceTo afterWhitespace |>.copy
+        let s2 := s.sliceFrom afterWhitespace |>.copy
         (s1, .text s2 ++ .concat more.toArray)
     | .concat xs :: more => go (xs.toList ++ more)
     | here :: more => ("", here ++ .concat more.toArray)
@@ -392,7 +393,7 @@ partial def blockMarkdown [MarkdownInline i] [MarkdownBlock i b] :
     let mut n := max 1 start.toNat
     for item in items do
       let head := s!"{n}. "
-      let cont := "".pushn ' ' head.length
+      let cont := "".pushn ' ' head.utf8ByteSize
       let inner ← item.contents.mapM blockMarkdown
       out := out.push (prefixListLines head cont (joinBlocks inner))
       n := n + 1

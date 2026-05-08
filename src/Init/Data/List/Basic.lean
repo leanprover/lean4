@@ -702,6 +702,7 @@ Creates a list that contains `n` copies of `a`.
 * `List.replicate 0 "zero" = []`
 * `List.replicate 2 ' ' = [' ', ' ']`
 -/
+@[implicit_reducible]
 def replicate : (n : Nat) → (a : α) → List α
   | 0,   _ => []
   | n+1, a => a :: replicate n a

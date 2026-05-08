@@ -29,7 +29,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_add"]
+@[extern "lean_uint8_add", implicit_reducible]
 protected def UInt8.add (a b : UInt8) : UInt8 := ⟨a.toBitVec + b.toBitVec⟩
 /--
 Subtracts one 8-bit unsigned integer from another, wrapping around on underflow. Usually accessed
@@ -37,7 +37,7 @@ via the `-` operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_sub"]
+@[extern "lean_uint8_sub", implicit_reducible]
 protected def UInt8.sub (a b : UInt8) : UInt8 := ⟨a.toBitVec - b.toBitVec⟩
 /--
 Multiplies two 8-bit unsigned integers, wrapping around on overflow.  Usually accessed via the `*`
@@ -45,7 +45,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_mul"]
+@[extern "lean_uint8_mul", implicit_reducible]
 protected def UInt8.mul (a b : UInt8) : UInt8 := ⟨a.toBitVec * b.toBitVec⟩
 /--
 Unsigned division for 8-bit unsigned integers, discarding the remainder. Usually accessed
@@ -55,7 +55,7 @@ This operation is sometimes called “floor division.” Division by zero is def
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_div"]
+@[extern "lean_uint8_div", implicit_reducible]
 protected def UInt8.div (a b : UInt8) : UInt8 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 /--
 The power operation, raising an 8-bit unsigned integer to a natural number power,
@@ -81,7 +81,7 @@ Examples:
 * `UInt8.mod 4 2 = 0`
 * `UInt8.mod 4 0 = 4`
 -/
-@[extern "lean_uint8_mod"]
+@[extern "lean_uint8_mod", implicit_reducible]
 protected def UInt8.mod (a b : UInt8) : UInt8 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 
 -- Note: This is deprecated, but still used in the `HMod` instance below.
@@ -95,7 +95,7 @@ Each bit of the resulting integer is set if the corresponding bits of both input
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_land"]
+@[extern "lean_uint8_land", implicit_reducible]
 protected def UInt8.land (a b : UInt8) : UInt8 := ⟨a.toBitVec &&& b.toBitVec⟩
 /--
 Bitwise or for 8-bit unsigned integers. Usually accessed via the `|||` operator.
@@ -200,7 +200,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_add"]
+@[extern "lean_uint16_add", implicit_reducible]
 protected def UInt16.add (a b : UInt16) : UInt16 := ⟨a.toBitVec + b.toBitVec⟩
 /--
 Subtracts one 16-bit unsigned integer from another, wrapping around on underflow. Usually accessed
@@ -208,7 +208,7 @@ via the `-` operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_sub"]
+@[extern "lean_uint16_sub", implicit_reducible]
 protected def UInt16.sub (a b : UInt16) : UInt16 := ⟨a.toBitVec - b.toBitVec⟩
 /--
 Multiplies two 16-bit unsigned integers, wrapping around on overflow.  Usually accessed via the `*`
@@ -216,7 +216,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_mul"]
+@[extern "lean_uint16_mul", implicit_reducible]
 protected def UInt16.mul (a b : UInt16) : UInt16 := ⟨a.toBitVec * b.toBitVec⟩
 /--
 Unsigned division for 16-bit unsigned integers, discarding the remainder. Usually accessed
@@ -226,7 +226,7 @@ This operation is sometimes called “floor division.” Division by zero is def
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_div"]
+@[extern "lean_uint16_div", implicit_reducible]
 protected def UInt16.div (a b : UInt16) : UInt16 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 /--
 The power operation, raising a 16-bit unsigned integer to a natural number power,
@@ -252,7 +252,7 @@ Examples:
 * `UInt16.mod 4 2 = 0`
 * `UInt16.mod 4 0 = 4`
 -/
-@[extern "lean_uint16_mod"]
+@[extern "lean_uint16_mod", implicit_reducible]
 protected def UInt16.mod (a b : UInt16) : UInt16 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 
 -- Note: This is deprecated, but still used in the `HMod` instance below.
@@ -410,7 +410,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint32_mul"]
+@[extern "lean_uint32_mul", implicit_reducible]
 protected def UInt32.mul (a b : UInt32) : UInt32 := ⟨a.toBitVec * b.toBitVec⟩
 /--
 Unsigned division for 32-bit unsigned integers, discarding the remainder. Usually accessed
@@ -420,7 +420,7 @@ This operation is sometimes called “floor division.” Division by zero is def
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint32_div"]
+@[extern "lean_uint32_div", implicit_reducible]
 protected def UInt32.div (a b : UInt32) : UInt32 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 /--
 The power operation, raising a 32-bit unsigned integer to a natural number power,
@@ -446,7 +446,7 @@ Examples:
 * `UInt32.mod 4 2 = 0`
 * `UInt32.mod 4 0 = 4`
 -/
-@[extern "lean_uint32_mod"]
+@[extern "lean_uint32_mod", implicit_reducible]
 protected def UInt32.mod (a b : UInt32) : UInt32 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 
 -- Note: This is deprecated, but still used in the `HMod` instance below.
@@ -565,7 +565,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_add"]
+@[extern "lean_uint64_add", implicit_reducible]
 protected def UInt64.add (a b : UInt64) : UInt64 := ⟨a.toBitVec + b.toBitVec⟩
 /--
 Subtracts one 64-bit unsigned integer from another, wrapping around on underflow. Usually accessed
@@ -573,7 +573,7 @@ via the `-` operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_sub"]
+@[extern "lean_uint64_sub", implicit_reducible]
 protected def UInt64.sub (a b : UInt64) : UInt64 := ⟨a.toBitVec - b.toBitVec⟩
 /--
 Multiplies two 64-bit unsigned integers, wrapping around on overflow.  Usually accessed via the `*`
@@ -581,7 +581,7 @@ operator.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_mul"]
+@[extern "lean_uint64_mul", implicit_reducible]
 protected def UInt64.mul (a b : UInt64) : UInt64 := ⟨a.toBitVec * b.toBitVec⟩
 /--
 Unsigned division for 64-bit unsigned integers, discarding the remainder. Usually accessed
@@ -591,7 +591,7 @@ This operation is sometimes called “floor division.” Division by zero is def
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_div"]
+@[extern "lean_uint64_div", implicit_reducible]
 protected def UInt64.div (a b : UInt64) : UInt64 := ⟨BitVec.udiv a.toBitVec b.toBitVec⟩
 /--
 The power operation, raising a 64-bit unsigned integer to a natural number power,
@@ -617,7 +617,7 @@ Examples:
 * `UInt64.mod 4 2 = 0`
 * `UInt64.mod 4 0 = 4`
 -/
-@[extern "lean_uint64_mod"]
+@[extern "lean_uint64_mod", implicit_reducible]
 protected def UInt64.mod (a b : UInt64) : UInt64 := ⟨BitVec.umod a.toBitVec b.toBitVec⟩
 
 -- Note: This is deprecated, but still used in the `HMod` instance below.

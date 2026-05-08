@@ -73,6 +73,7 @@ protected def zero (n : Nat) : BitVec n := .ofNatLT 0 (Nat.two_pow_pos n)
 instance : Inhabited (BitVec n) where default := .zero n
 
 /-- Returns a bitvector of size `n` where all bits are `1`. -/
+@[implicit_reducible]
 def allOnes (n : Nat) : BitVec n :=
   .ofNatLT (2^n - 1) (Nat.le_of_eq (Nat.sub_add_cancel (Nat.two_pow_pos n)))
 
@@ -83,7 +84,7 @@ section getXsb
 /--
 Returns the `i`th least significant bit.
 -/
-@[inline] def getLsb (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
+@[inline, implicit_reducible] def getLsb (x : BitVec w) (i : Fin w) : Bool := x.toNat.testBit i
 
 /-- Returns the `i`th least significant bit, or `none` if `i ≥ w`. -/
 @[inline] def getLsb? (x : BitVec w) (i : Nat) : Option Bool :=
@@ -99,15 +100,15 @@ Returns the `i`th most significant bit.
   if h : i < w then some (getMsb x ⟨i, h⟩) else none
 
 /-- Returns the `i`th least significant bit or `false` if `i ≥ w`. -/
-@[inline] def getLsbD (x : BitVec w) (i : Nat) : Bool :=
+@[inline, implicit_reducible] def getLsbD (x : BitVec w) (i : Nat) : Bool :=
   x.toNat.testBit i
 
 /-- Returns the `i`th most significant bit, or `false` if `i ≥ w`. -/
-@[inline] def getMsbD (x : BitVec w) (i : Nat) : Bool :=
+@[inline, implicit_reducible] def getMsbD (x : BitVec w) (i : Nat) : Bool :=
   i < w && x.getLsbD (w-1-i)
 
 /-- Returns the most significant bit in a bitvector. -/
-@[inline] protected def msb (x : BitVec n) : Bool := getMsbD x 0
+@[inline, implicit_reducible] protected def msb (x : BitVec n) : Bool := getMsbD x 0
 
 end getXsb
 
@@ -153,6 +154,7 @@ over- and underflowing as needed.
 The underlying `Nat` is `(2^n + (i mod 2^n)) mod 2^n`. Converting the bitvector back to an `Int`
 with `BitVec.toInt` results in the value `i.bmod (2^n)`.
 -/
+@[implicit_reducible]
 protected def ofInt (n : Nat) (i : Int) : BitVec n := .ofNatLT (i % (Int.ofNat (2^n))).toNat (by
   apply (Int.toNat_lt _).mpr
   · apply Int.emod_lt_of_pos
@@ -234,6 +236,7 @@ instance : Neg (BitVec n) := ⟨.neg⟩
 /--
 Returns the absolute value of a signed bitvector.
 -/
+@[implicit_reducible]
 protected def abs (x : BitVec n) : BitVec n := if x.msb then .neg x else x
 
 /--
@@ -242,6 +245,7 @@ modulo `2^n`. Usually accessed via the `*` operator.
 
 SMT-LIB name: `bvmul`.
 -/
+@[implicit_reducible]
 protected def mul (x y : BitVec n) : BitVec n := BitVec.ofNat n (x.toNat * y.toNat)
 instance : Mul (BitVec n) := ⟨.mul⟩
 
@@ -263,6 +267,7 @@ instance : Pow (BitVec n) Nat where
 Unsigned division of bitvectors using the Lean convention where division by zero returns zero.
 Usually accessed via the `/` operator.
 -/
+@[implicit_reducible]
 def udiv (x y : BitVec n) : BitVec n :=
   (x.toNat / y.toNat)#'(by exact Nat.lt_of_le_of_lt (Nat.div_le_self _ _) x.isLt)
 instance : Div (BitVec n) := ⟨.udiv⟩
@@ -272,6 +277,7 @@ Unsigned modulo for bitvectors. Usually accessed via the `%` operator.
 
 SMT-LIB name: `bvurem`.
 -/
+@[implicit_reducible]
 def umod (x y : BitVec n) : BitVec n :=
   (x.toNat % y.toNat)#'(by exact Nat.lt_of_le_of_lt (Nat.mod_le _ _) x.isLt)
 instance : Mod (BitVec n) := ⟨.umod⟩
@@ -283,6 +289,7 @@ where division by zero returns `BitVector.allOnes n`.
 
 SMT-LIB name: `bvudiv`.
 -/
+@[implicit_reducible]
 def smtUDiv (x y : BitVec n) : BitVec n := if y = 0 then allOnes n else udiv x y
 
 /--
@@ -295,6 +302,7 @@ Examples:
 * `(5#4).sdiv -2 = -2#4`
 * `(-7#4).sdiv (-2) = 3#4`
 -/
+@[implicit_reducible]
 def sdiv (x y : BitVec n) : BitVec n :=
   match x.msb, y.msb with
   | false, false => udiv x y
@@ -311,6 +319,7 @@ Specifically, `x.smtSDiv 0 = if x >= 0 then -1 else 1`
 
 SMT-LIB name: `bvsdiv`.
 -/
+@[implicit_reducible]
 def smtSDiv (x y : BitVec n) : BitVec n :=
   match x.msb, y.msb with
   | false, false => smtUDiv x y
@@ -323,6 +332,7 @@ Remainder for signed division rounding to zero.
 
 SMT-LIB name: `bvsrem`.
 -/
+@[implicit_reducible]
 def srem (x y : BitVec n) : BitVec n :=
   match x.msb, y.msb with
   | false, false => umod x y
@@ -335,6 +345,7 @@ Remainder for signed division rounded to negative infinity.
 
 SMT-LIB name: `bvsmod`.
 -/
+@[implicit_reducible]
 def smod (x y : BitVec m) : BitVec m :=
   match x.msb, y.msb with
   | false, false => umod x y
@@ -369,6 +380,7 @@ Unsigned less-than for bitvectors.
 
 SMT-LIB name: `bvult`.
 -/
+@[implicit_reducible]
 protected def ult (x y : BitVec n) : Bool := x.toNat < y.toNat
 
 /--
@@ -376,6 +388,7 @@ Unsigned less-than-or-equal-to for bitvectors.
 
 SMT-LIB name: `bvule`.
 -/
+@[implicit_reducible]
 protected def ule (x y : BitVec n) : Bool := x.toNat ≤ y.toNat
 
 /--
@@ -387,6 +400,7 @@ Examples:
  * `BitVec.slt 6#4 7 = true`
  * `BitVec.slt 7#4 8 = false`
 -/
+@[implicit_reducible]
 protected def slt (x y : BitVec n) : Bool := x.toInt < y.toInt
 
 /--
@@ -394,6 +408,7 @@ Signed less-than-or-equal-to for bitvectors.
 
 SMT-LIB name: `bvsle`.
 -/
+@[implicit_reducible]
 protected def sle (x y : BitVec n) : Bool := x.toInt ≤ y.toInt
 
 end relations
@@ -407,7 +422,7 @@ width `m`.
 Using `x.cast eq` should be preferred over `eq ▸ x` because there are special-purpose `simp` lemmas
 that can more consistently simplify `BitVec.cast` away.
 -/
-@[inline] protected def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLT x.toNat (eq ▸ x.isLt)
+@[inline, implicit_reducible] protected def cast (eq : n = m) (x : BitVec n) : BitVec m := .ofNatLT x.toNat (eq ▸ x.isLt)
 
 @[simp, grind =] theorem cast_ofNat {n m : Nat} (h : n = m) (x : Nat) :
     (BitVec.ofNat n x).cast h = BitVec.ofNat m x := by
@@ -423,6 +438,7 @@ that can more consistently simplify `BitVec.cast` away.
 Extracts the bits `start` to `start + len - 1` from a bitvector of size `n` to yield a
 new bitvector of size `len`. If `start + len > n`, then the bitvector is zero-extended.
 -/
+@[implicit_reducible]
 def extractLsb' (start len : Nat) (x : BitVec n) : BitVec len := .ofNat _ (x.toNat >>> start)
 
 /--
@@ -441,6 +457,7 @@ Increases the width of a bitvector to one that is at least as large by zero-exte
 This is a constant-time operation because the underlying `Nat` is unmodified; because the new width
 is at least as large as the old one, no overflow is possible.
 -/
+@[implicit_reducible]
 def setWidth' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
   x.toNat#'(by
     apply Nat.lt_of_lt_of_le x.isLt
@@ -449,6 +466,7 @@ def setWidth' {n w : Nat} (le : n ≤ w) (x : BitVec n) : BitVec w :=
 /--
 Returns `zeroExtend (w+n) x <<< n` without needing to compute `x % 2^(2+n)`.
 -/
+@[implicit_reducible]
 def shiftLeftZeroExtend (msbs : BitVec w) (m : Nat) : BitVec (w + m) :=
   let shiftLeftLt {x : Nat} (p : x < 2^w) (m : Nat) : x <<< m < 2^(w + m) := by
         simp [Nat.shiftLeft_eq, Nat.pow_add]
@@ -471,6 +489,7 @@ The specific behavior depends on the relationship between the starting width `w`
 
 SMT-LIB name: `zero_extend`.
 -/
+@[implicit_reducible]
 def setWidth (v : Nat) (x : BitVec w) : BitVec v :=
   if h : w ≤ v then
     setWidth' h x
@@ -491,6 +510,7 @@ If `x` is an empty bitvector, then the sign is treated as zero.
 
 SMT-LIB name: `sign_extend`.
 -/
+@[implicit_reducible]
 def signExtend (v : Nat) (x : BitVec w) : BitVec v := .ofInt v x.toInt
 
 end cast
@@ -505,6 +525,7 @@ SMT-LIB name: `bvand`.
 Example:
  * `0b1010#4 &&& 0b0110#4 = 0b0010#4`
 -/
+@[implicit_reducible]
 protected def and (x y : BitVec n) : BitVec n :=
   (x.toNat &&& y.toNat)#'(by exact Nat.and_lt_two_pow x.toNat y.isLt)
 instance : AndOp (BitVec w) := ⟨.and⟩
@@ -517,6 +538,7 @@ SMT-LIB name: `bvor`.
 Example:
  * `0b1010#4 ||| 0b0110#4 = 0b1110#4`
 -/
+@[implicit_reducible]
 protected def or (x y : BitVec n) : BitVec n :=
   (x.toNat ||| y.toNat)#'(by exact Nat.or_lt_two_pow x.isLt y.isLt)
 instance : OrOp (BitVec w) := ⟨.or⟩
@@ -529,6 +551,7 @@ SMT-LIB name: `bvxor`.
 Example:
  * `0b1010#4 ^^^ 0b0110#4 = 0b1100#4`
 -/
+@[implicit_reducible]
 protected def xor (x y : BitVec n) : BitVec n :=
   (x.toNat ^^^ y.toNat)#'(by exact Nat.xor_lt_two_pow x.isLt y.isLt)
 instance : XorOp (BitVec w) := ⟨.xor⟩
@@ -541,6 +564,7 @@ SMT-LIB name: `bvnot`.
 Example:
  * `~~~(0b0101#4) == 0b1010`
 -/
+@[implicit_reducible]
 protected def not (x : BitVec n) : BitVec n := allOnes n ^^^ x
 instance : Complement (BitVec w) := ⟨.not⟩
 
@@ -550,6 +574,7 @@ equivalent to `x * 2^s`, modulo `2^n`.
 
 SMT-LIB name: `bvshl` except this operator uses a `Nat` shift value.
 -/
+@[implicit_reducible]
 protected def shiftLeft (x : BitVec n) (s : Nat) : BitVec n := BitVec.ofNat n (x.toNat <<< s)
 instance : HShiftLeft (BitVec w) Nat (BitVec w) := ⟨.shiftLeft⟩
 
@@ -597,6 +622,7 @@ def sshiftRight' (a : BitVec n) (s : BitVec m) : BitVec n := a.sshiftRight s.toN
 
 /-- Auxiliary function for `rotateLeft`, which does not take into account the case where
 the rotation amount is greater than the bitvector width. -/
+@[implicit_reducible]
 def rotateLeftAux (x : BitVec w) (n : Nat) : BitVec w :=
   x <<< n ||| x >>> (w - n)
 
@@ -611,6 +637,7 @@ SMT-LIB name: `rotate_left`, except this operator uses a `Nat` shift amount.
 Example:
  * `(0b0011#4).rotateLeft 3 = 0b1001`
 -/
+@[implicit_reducible]
 def rotateLeft (x : BitVec w) (n : Nat) : BitVec w := rotateLeftAux x (n % w)
 
 
@@ -618,6 +645,7 @@ def rotateLeft (x : BitVec w) (n : Nat) : BitVec w := rotateLeftAux x (n % w)
 Auxiliary function for `rotateRight`, which does not take into account the case where
 the rotation amount is greater than the bitvector width.
 -/
+@[implicit_reducible]
 def rotateRightAux (x : BitVec w) (n : Nat) : BitVec w :=
   x >>> n ||| x <<< (w - n)
 
@@ -632,6 +660,7 @@ SMT-LIB name: `rotate_right`, except this operator uses a `Nat` shift amount.
 Example:
  * `rotateRight 0b01001#5 1 = 0b10100`
 -/
+@[implicit_reducible]
 def rotateRight (x : BitVec w) (n : Nat) : BitVec w := rotateRightAux x (n % w)
 
 /--
@@ -643,6 +672,7 @@ SMT-LIB name: `concat`.
 Example:
  * `0xAB#8 ++ 0xCD#8 = 0xABCD#16`.
 -/
+@[implicit_reducible]
 def append (msbs : BitVec n) (lsbs : BitVec m) : BitVec (n+m) :=
   shiftLeftZeroExtend msbs m ||| setWidth' (Nat.le_add_left m n) lsbs
 
@@ -650,6 +680,7 @@ instance : HAppend (BitVec w) (BitVec v) (BitVec (w + v)) := ⟨.append⟩
 
 -- TODO: write this using multiplication
 /-- Concatenates `i` copies of `x` into a new vector of length `w * i`. -/
+@[implicit_reducible]
 def replicate : (i : Nat) → BitVec w → BitVec (w*i)
   | 0,   _ => 0#0
   | n+1, x =>
@@ -827,12 +858,14 @@ def smulOverflow {w : Nat} (x y : BitVec w) : Bool :=
 /-- Count the number of leading zeros downward from the `n`-th bit to the `0`-th bit for the bitblaster.
   This builds a tree of `if-then-else` lookups whose length is linear in the bitwidth,
   and an efficient circuit for bitblasting `clz`. -/
+@[implicit_reducible]
 def clzAuxRec {w : Nat} (x : BitVec w) (n : Nat) : BitVec w :=
   match n with
   | 0 => if x.getLsbD 0 then BitVec.ofNat w (w - 1) else BitVec.ofNat w w
   | n' + 1 => if x.getLsbD n then BitVec.ofNat w (w - 1 - n) else clzAuxRec x n'
 
 /-- Count the number of leading zeros. -/
+@[implicit_reducible]
 def clz (x : BitVec w) : BitVec w := clzAuxRec x (w - 1)
 
 /-- Count the number of trailing zeros. -/
@@ -840,6 +873,7 @@ def ctz (x : BitVec w) : BitVec w := (x.reverse).clz
 
 /-- Count the number of bits with value `1` downward from the `pos`-th bit to the
   `0`-th bit of `x`, storing the result in `acc`. -/
+@[implicit_reducible]
 def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
   match pos with
   | 0 => acc
@@ -848,7 +882,7 @@ def cpopNatRec (x : BitVec w) (pos acc : Nat) : Nat :=
 /-- Population count operation, to count the number of bits with value `1` in `x`.
   Also known as `popcount`, `popcnt`.
 -/
-@[suggest_for BitVec.popcount BitVec.popcnt]
+@[suggest_for BitVec.popcount BitVec.popcnt, implicit_reducible]
 def cpop (x : BitVec w) : BitVec w := BitVec.ofNat w (cpopNatRec x w 0)
 
 end BitVec

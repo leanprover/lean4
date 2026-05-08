@@ -255,7 +255,7 @@ public inductive FirstByte where
   | twoMore : FirstByte
   | threeMore : FirstByte
 
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 public def parseFirstByte (b : UInt8) : FirstByte :=
   if b &&& 0x80 == 0 then
     .done
@@ -468,7 +468,7 @@ theorem helper₅ {w : UInt8} (h : parseFirstByte w = .done) : w < 128 := by
   rw [BitVec.toNat_append]
   simpa using Nat.mod_lt _ (by decide)
 
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 public def assemble₁ (w : UInt8) (h : parseFirstByte w = .done) : Option Char :=
   some ⟨w.toUInt32, ?done⟩
 where finally
@@ -1004,7 +1004,7 @@ Decodes and returns the `Char` whose UTF-8 encoding begins at `i` in `bytes`.
 
 Returns `none` if `i` is not the start of a valid UTF-8 encoding of a character.
 -/
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 public def ByteArray.utf8DecodeChar? (bytes : ByteArray) (i : Nat) : Option Char :=
   if h₀ : i < bytes.size then
     match h : parseFirstByte bytes[i] with

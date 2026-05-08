@@ -980,7 +980,7 @@ Converts a decidable proposition into a `Bool`.
 If `p : Prop` is decidable, then `decide p : Bool` is the Boolean value
 that is `true` if `p` is true and `false` if `p` is false.
 -/
-@[inline_if_reduce, nospecialize] def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
+@[inline_if_reduce, nospecialize, implicit_reducible] def Decidable.decide (p : Prop) [h : Decidable p] : Bool :=
   h.casesOn (fun _ => false) (fun _ => true)
 
 export Decidable (isTrue isFalse decide)
@@ -1194,7 +1194,7 @@ operator.
 The Boolean `or` is a `@[macro_inline]` function in order to give it short-circuiting evaluation:
 if `x` is `true` then `y` is not evaluated at runtime.
 -/
-@[macro_inline] def Bool.or (x y : Bool) : Bool :=
+@[macro_inline, implicit_reducible] def Bool.or (x y : Bool) : Bool :=
   match x with
   | true  => true
   | false => y
@@ -1208,7 +1208,7 @@ operator.
 The Boolean `and` is a `@[macro_inline]` function in order to give it short-circuiting evaluation:
 if `x` is `false` then `y` is not evaluated at runtime.
 -/
-@[macro_inline] def Bool.and (x y : Bool) : Bool :=
+@[macro_inline, implicit_reducible] def Bool.and (x y : Bool) : Bool :=
   match x with
   | false => false
   | true  => y
@@ -1219,7 +1219,7 @@ Boolean negation, also known as Boolean complement. `not x` can be written `!x`.
 This is a function that maps the value `true` to `false` and the value `false` to `true`. The
 propositional connective is `Not : Prop → Prop`.
 -/
-@[inline] def Bool.not : Bool → Bool
+@[inline, implicit_reducible] def Bool.not : Bool → Bool
   | true  => false
   | false => true
 
@@ -2373,6 +2373,7 @@ This should be used via the instance `DecidableEq (BitVec w)`.
 -- We manually derive the `DecidableEq` instances for `BitVec` because
 -- we want to have builtin support for bit-vector literals, and we
 -- need a name for this function to implement `canUnfoldAtMatcher` at `WHNF.lean`.
+@[implicit_reducible]
 def BitVec.decEq (x y : BitVec w) : Decidable (Eq x y) :=
   match x, y with
   | ⟨n⟩, ⟨m⟩ =>
@@ -2383,14 +2384,14 @@ def BitVec.decEq (x y : BitVec w) : Decidable (Eq x y) :=
 instance : DecidableEq (BitVec w) := BitVec.decEq
 
 /-- The `BitVec` with value `i`, given a proof that `i < 2^w`. -/
-@[match_pattern]
+@[match_pattern, implicit_reducible]
 protected def BitVec.ofNatLT {w : Nat} (i : Nat) (p : LT.lt i (hPow 2 w)) : BitVec w where
   toFin := ⟨i, p⟩
 
 /--
 The bitvector with value `i mod 2^n`.
 -/
-@[match_pattern]
+@[match_pattern, implicit_reducible]
 protected def BitVec.ofNat (n : Nat) (i : Nat) : BitVec n where
   toFin := Fin.Internal.ofNat (HPow.hPow 2 n) (Nat.pow_pos (Nat.zero_lt_succ _)) i
 
@@ -2438,7 +2439,7 @@ enough to be representable without overflow; it must be smaller than `2^8`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint8_of_nat"]
+@[extern "lean_uint8_of_nat", implicit_reducible]
 def UInt8.ofNatLT (n : @& Nat) (h : LT.lt n UInt8.size) : UInt8 where
   toBitVec := BitVec.ofNatLT n h
 
@@ -2454,7 +2455,7 @@ Examples:
  * `UInt8.ofNat 259 = 3`
  * `UInt8.ofNat 32770 = 2`
 -/
-@[extern "lean_uint8_of_nat"]
+@[extern "lean_uint8_of_nat", implicit_reducible]
 def UInt8.ofNat (n : @& Nat) : UInt8 := ⟨BitVec.ofNat 8 n⟩
 
 set_option bootstrap.genMatcherCode false in
@@ -2469,7 +2470,7 @@ Examples:
  * `(if (6 : UInt8) = 7 then "yes" else "no") = "no"`
  * `show (7 : UInt8) = 7 by decide`
 -/
-@[extern "lean_uint8_dec_eq"]
+@[extern "lean_uint8_dec_eq", implicit_reducible]
 def UInt8.decEq (a b : UInt8) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -2556,7 +2557,7 @@ enough to be representable without overflow; it must be smaller than `2^16`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint16_of_nat"]
+@[extern "lean_uint16_of_nat", implicit_reducible]
 def UInt16.ofNatLT (n : @& Nat) (h : LT.lt n UInt16.size) : UInt16 where
   toBitVec := BitVec.ofNatLT n h
 
@@ -2573,7 +2574,7 @@ Examples:
  * `(if (6 : UInt16) = 7 then "yes" else "no") = "no"`
  * `show (7 : UInt16) = 7 by decide`
 -/
-@[extern "lean_uint16_dec_eq"]
+@[extern "lean_uint16_dec_eq", implicit_reducible]
 def UInt16.decEq (a b : UInt16) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -2614,7 +2615,7 @@ enough to be representable without overflow; it must be smaller than `2^32`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint32_of_nat"]
+@[extern "lean_uint32_of_nat", implicit_reducible]
 def UInt32.ofNatLT (n : @& Nat) (h : LT.lt n UInt32.size) : UInt32 where
   toBitVec := BitVec.ofNatLT n h
 
@@ -2623,7 +2624,7 @@ Converts a 32-bit unsigned integer to an arbitrary-precision natural number.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint32_to_nat"]
+@[extern "lean_uint32_to_nat", implicit_reducible]
 def UInt32.toNat (n : UInt32) : Nat := n.toBitVec.toNat
 
 set_option bootstrap.genMatcherCode false in
@@ -2638,7 +2639,7 @@ Examples:
  * `(if (6 : UInt32) = 7 then "yes" else "no") = "no"`
  * `show (7 : UInt32) = 7 by decide`
 -/
-@[extern "lean_uint32_dec_eq"]
+@[extern "lean_uint32_dec_eq", implicit_reducible]
 def UInt32.decEq (a b : UInt32) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -2719,7 +2720,7 @@ enough to be representable without overflow; it must be smaller than `2^64`.
 
 This function is overridden at runtime with an efficient implementation.
 -/
-@[extern "lean_uint64_of_nat"]
+@[extern "lean_uint64_of_nat", implicit_reducible]
 def UInt64.ofNatLT (n : @& Nat) (h : LT.lt n UInt64.size) : UInt64 where
   toBitVec := BitVec.ofNatLT n h
 
@@ -2736,7 +2737,7 @@ Examples:
  * `(if (6 : UInt64) = 7 then "yes" else "no") = "no"`
  * `show (7 : UInt64) = 7 by decide`
 -/
-@[extern "lean_uint64_dec_eq"]
+@[extern "lean_uint64_dec_eq", implicit_reducible]
 def UInt64.decEq (a b : UInt64) : Decidable (Eq a b) :=
   match a, b with
   | ⟨n⟩, ⟨m⟩ =>
@@ -2853,7 +2854,7 @@ private theorem isValidChar_UInt32 {n : Nat} (h : n.isValidChar) : LT.lt n UInt3
 Pack a `Nat` encoding a valid codepoint into a `Char`.
 This function is overridden with a native implementation.
 -/
-@[extern "lean_uint32_of_nat"]
+@[extern "lean_uint32_of_nat", implicit_reducible]
 def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char where
   val := ⟨BitVec.ofNatLT n
     -- We would conventionally use `by exact` here to enter a private context, but `exact` does not
@@ -2865,7 +2866,7 @@ def Char.ofNatAux (n : @& Nat) (h : n.isValidChar) : Char where
 Converts a `Nat` into a `Char`. If the `Nat` does not encode a valid Unicode scalar value, `'\0'` is
 returned instead.
 -/
-@[noinline, match_pattern]
+@[noinline, match_pattern, implicit_reducible]
 def Char.ofNat (n : Nat) : Char :=
   dite (n.isValidChar)
     (fun h => Char.ofNatAux n h)
@@ -2890,6 +2891,7 @@ instance : DecidableEq Char :=
     | isFalse h => isFalse (Char.ne_of_val_ne h)
 
 /-- Returns the number of bytes required to encode this `Char` in UTF-8. -/
+@[implicit_reducible]
 def Char.utf8Size (c : Char) : Nat :=
   let v := c.val
   ite (LE.le v (UInt32.ofNatLT 0x7F (of_decide_eq_true rfl))) 1
@@ -3100,6 +3102,7 @@ Examples:
  * `List.concat [1, 2, 3] 4 = [1, 2, 3, 4]`
  * `List.concat [] () = [()]`
 -/
+@[implicit_reducible]
 def List.concat {α : Type u} : List α → α → List α
   | nil,       b => cons b nil
   | cons a as, b => cons a (concat as b)
@@ -3114,6 +3117,7 @@ Examples:
   * `[] ++ [4, 5] = [4, 5]`.
   * `[1, 2, 3] ++ [] = [1, 2, 3]`.
 -/
+@[implicit_reducible]
 protected def List.append : (xs ys : List α) → List α
   | nil,       bs => bs
   | cons a as, bs => cons a (List.append as bs)
@@ -3127,6 +3131,7 @@ Examples:
 * `[["a"], ["b", "c"]].flatten = ["a", "b", "c"]`
 * `[["a"], [], ["b", "c"], ["d", "e", "f"]].flatten = ["a", "b", "c", "d", "e", "f"]`
 -/
+@[implicit_reducible]
 noncomputable def List.flatten : List (List α) → List α
   | nil      => nil
   | cons l L => List.append l (flatten L)
@@ -3142,7 +3147,7 @@ Examples:
 * `["one", "two", "three"].map (·.length) = [3, 3, 5]`
 * `["one", "two", "three"].map (·.reverse) = ["eno", "owt", "eerht"]`
 -/
-@[specialize] def List.map (f : α → β) : (l : List α) → List β
+@[specialize, implicit_reducible] def List.map (f : α → β) : (l : List α) → List β
   | nil       => nil
   | cons a as => cons (f a) (map f as)
 
@@ -3154,7 +3159,7 @@ Examples:
 * `[2, 3, 2].flatMap List.range = [0, 1, 0, 1, 2, 0, 1]`
 * `["red", "blue"].flatMap String.toList = ['r', 'e', 'd', 'b', 'l', 'u', 'e']`
 -/
-@[inline] noncomputable def List.flatMap {α : Type u} {β : Type v} (b : α → List β) (as : List α) : List β := flatten (map b as)
+@[inline, implicit_reducible] noncomputable def List.flatMap {α : Type u} {β : Type v} (b : α → List β) (as : List α) : List β := flatten (map b as)
 
 /--
 `Array α` is the type of [dynamic arrays](https://en.wikipedia.org/wiki/Dynamic_array) with elements
@@ -3218,7 +3223,7 @@ def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α where
 /--
 Constructs a new empty array with initial capacity `c`.
 -/
-@[extern "lean_mk_empty_array_with_capacity"]
+@[extern "lean_mk_empty_array_with_capacity", implicit_reducible]
 def Array.emptyWithCapacity {α : Type u} (c : @& Nat) : Array α where
   toList := List.nil
 
@@ -3227,7 +3232,7 @@ Constructs a new empty array with initial capacity `0`.
 
 Use `Array.emptyWithCapacity` to create an array with a greater initial capacity.
 -/
-@[inline]
+@[inline, implicit_reducible]
 def Array.empty {α : Type u} : Array α := emptyWithCapacity 0
 
 /--
@@ -3292,7 +3297,7 @@ Use the indexing notation `a[i]!` instead.
 
 Access an element from an array, or panic if the index is out of bounds.
 -/
-@[extern "lean_array_get"]
+@[extern "lean_array_get", implicit_reducible]
 def Array.get!Internal {α : Type u} [@&Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 
@@ -3306,7 +3311,7 @@ Examples:
 * `#[].push "apple" = #["apple"]`
 * `#["apple"].push "orange" = #["apple", "orange"]`
 -/
-@[extern "lean_array_push"]
+@[extern "lean_array_push", implicit_reducible]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α where
   toList := List.concat a.toList v
 
@@ -3409,7 +3414,7 @@ attribute [extern "lean_byte_array_data"] ByteArray.data
 /--
 Constructs a new empty byte array with initial capacity `c`.
 -/
-@[extern "lean_mk_empty_byte_array"]
+@[extern "lean_mk_empty_byte_array", implicit_reducible]
 def ByteArray.emptyWithCapacity (c : @& Nat) : ByteArray :=
   { data := Array.empty }
 
@@ -3418,6 +3423,7 @@ Constructs a new empty byte array with initial capacity `0`.
 
 Use `ByteArray.emptyWithCapacity` to create an array with a greater initial capacity.
 -/
+@[implicit_reducible]
 def ByteArray.empty : ByteArray := emptyWithCapacity 0
 
 /--
@@ -3426,15 +3432,16 @@ array. If there are no other references to the array, then it is modified in-pla
 
 This takes amortized `O(1)` time because `ByteArray` is represented by a dynamic array.
 -/
-@[extern "lean_byte_array_push"]
+@[extern "lean_byte_array_push", implicit_reducible]
 def ByteArray.push : ByteArray → UInt8 → ByteArray
   | ⟨bs⟩, b => ⟨bs.push b⟩
 
 /--
 Converts a list of bytes into a `ByteArray`.
 -/
+@[implicit_reducible]
 def List.toByteArray (bs : List UInt8) : ByteArray :=
-  let rec loop
+  let rec @[implicit_reducible] loop
     | nil,        r => r
     | cons b bs,  r => loop bs (r.push b)
   loop bs ByteArray.empty
@@ -3452,6 +3459,7 @@ def ByteArray.size : (@& ByteArray) → Nat
 /--
 Returns the sequence of bytes in a character's UTF-8 encoding.
 -/
+@[implicit_reducible]
 def String.utf8EncodeChar (c : Char) : List UInt8 :=
   let v := c.val.toNat
   ite (LE.le v 0x7f)
@@ -3482,6 +3490,7 @@ def String.utf8EncodeChar (c : Char) : List UInt8 :=
 
 /-- Encode a list of characters (Unicode scalar value) in UTF-8. This is an inefficient model
 implementation. Use `List.asString` instead. -/
+@[implicit_reducible]
 noncomputable def List.utf8Encode (l : List Char) : ByteArray :=
   l.flatMap String.utf8EncodeChar |>.toByteArray
 
@@ -3524,7 +3533,7 @@ Examples:
  * `String.ofList [] = ""`
  * `String.ofList ['a', 'a', 'a'] = "aaa"`
 -/
-@[extern "lean_string_mk"]
+@[extern "lean_string_mk", implicit_reducible]
 def String.ofList (data : List Char) : String :=
   ⟨List.utf8Encode data, .intro data rfl⟩
 
@@ -3534,7 +3543,7 @@ Decides whether two strings are equal. Normally used via the `DecidableEq String
 
 At runtime, this function is overridden with an efficient native implementation.
 -/
-@[extern "lean_string_dec_eq"]
+@[extern "lean_string_dec_eq", implicit_reducible]
 def String.decEq (s₁ s₂ : @& String) : Decidable (Eq s₁ s₂) :=
   match s₁, s₂ with
   | ⟨⟨⟨s₁⟩⟩, _⟩, ⟨⟨⟨s₂⟩⟩, _⟩ =>

@@ -385,7 +385,7 @@ theorem and_or_inj_left_iff :
 /--
 Converts `true` to `1` and `false` to `0`.
 -/
-@[expose] def toNat (b : Bool) : Nat := cond b 1 0
+@[expose, implicit_reducible] def toNat (b : Bool) : Nat := cond b 1 0
 
 @[simp, bitvec_to_nat, grind =] theorem toNat_false : false.toNat = 0 := rfl
 

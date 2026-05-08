@@ -1076,6 +1076,10 @@ theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     (Raw.Const.toList m.1).map Prod.fst = m.1.keys := by
   simp_to_model [keys, Const.toList] using List.map_fst_map_toProd_eq_keys
 
+theorem map_snd_toList_eq_values [EquivBEq α] [LawfulHashable α] :
+    (Raw.Const.toList m.1).map Prod.snd = m.1.values := by
+  simp_to_model [values, Const.toList] using List.map_snd_map_toProd_eq_values
+
 theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     (Raw.Const.toList m.1).length = m.1.size := by
   simp_to_model [size, Const.toList] using List.length_map
@@ -1233,6 +1237,10 @@ theorem toList_toArray_eq_toList :
 theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
     (Raw.Const.toArray m.1).map Prod.fst = m.1.keysArray := by
   simp [← toArray_toList_eq_toArray, List.map_toArray, ← toArray_keys_eq_keysArray, map_fst_toList_eq_keys]
+
+theorem map_snd_toArray_eq_valuesArray [EquivBEq α] [LawfulHashable α] :
+    (Raw.Const.toArray m.1).map Prod.snd = m.1.valuesArray := by
+  simp [← toArray_toList_eq_toArray, List.map_toArray, ← toArray_values_eq_valuesArray, map_snd_toList_eq_values]
 
 theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.1.WF) :
     (Raw.Const.toArray m.1).size = m.1.size := by

@@ -250,20 +250,11 @@ set(PART2 "")
 # toolchain: requires elan to download toolchain
 # online: downloads remote repositories
 option(LAKE_CI "Enable full Lake test suite (use `lake-ci` label on PRs)" OFF)
-if(LAKE_CI)
-  file(
-    GLOB_RECURSE LEANLAKETESTS
-    "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
-    "${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
-  )
-else()
-  file(
-    GLOB_RECURSE LEANLAKETESTS
-    "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
-    "${LEAN_SOURCE_DIR}/../tests/lake/tests/shake/test.sh"
-    "${LEAN_SOURCE_DIR}/../tests/lake/tests/builtin-lint/test.sh"
-  )
-endif()
+file(
+  GLOB_RECURSE LEANLAKETESTS
+  "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
+  "${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
+)
 foreach(T ${LEANLAKETESTS})
   if(NOT T MATCHES ".*(lake-packages|bootstrap|toolchain|online).*")
     get_filename_component(T_DIR ${T} DIRECTORY)

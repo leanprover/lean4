@@ -769,7 +769,7 @@ the `BEq` typeclass.
 Unlike `x ≠ y` (which is notation for `Ne x y`), this is `Bool` valued instead of
 `Prop` valued. It is mainly intended for programming applications.
 -/
-@[inline] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
+@[inline, implicit_reducible] def bne {α : Type u} [BEq α] (a b : α) : Bool :=
   !(a == b)
 
 @[inherit_doc] infix:50 " != " => bne

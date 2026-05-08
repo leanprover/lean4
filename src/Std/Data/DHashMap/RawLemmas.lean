@@ -1375,6 +1375,11 @@ theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     (Raw.Const.toList m).map Prod.fst = m.keys := by
   apply Raw₀.Const.map_fst_toList_eq_keys ⟨m, h.size_buckets_pos⟩
 
+@[simp, grind _=_]
+theorem map_snd_toList_eq_values [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toList m).map Prod.snd = m.values := by
+  apply Raw₀.Const.map_snd_toList_eq_values ⟨m, h.size_buckets_pos⟩
+
 @[simp, grind =]
 theorem length_toList [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     (Raw.Const.toList m).length = m.size := by
@@ -1489,6 +1494,11 @@ theorem toList_toArray (h : m.WF) :
 theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
     (Raw.Const.toArray m).map Prod.fst = m.keysArray :=
   Raw₀.Const.map_fst_toArray_eq_keysArray ⟨m, h.size_buckets_pos⟩
+
+@[simp]
+theorem map_snd_toArray_eq_valuesArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :
+    (Raw.Const.toArray m).map Prod.snd = m.valuesArray := by
+  apply Raw₀.Const.map_snd_toArray_eq_valuesArray ⟨m, h.size_buckets_pos⟩
 
 @[simp]
 theorem size_toArray [EquivBEq α] [LawfulHashable α] (h : m.WF) :

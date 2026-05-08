@@ -963,6 +963,11 @@ theorem map_fst_toList_eq_keys [EquivBEq α] [LawfulHashable α] :
     m.toList.map Prod.fst = m.keys :=
   DHashMap.Const.map_fst_toList_eq_keys
 
+@[simp, grind _=_]
+theorem map_snd_toList_eq_values [EquivBEq α] [LawfulHashable α] :
+    m.toList.map Prod.snd = m.values :=
+  DHashMap.Const.map_snd_toList_eq_values
+
 @[simp, grind =]
 theorem length_toList [EquivBEq α] [LawfulHashable α] :
     m.toList.length = m.size :=
@@ -1025,6 +1030,11 @@ theorem toList_toArray :
 theorem map_fst_toArray_eq_keysArray [EquivBEq α] [LawfulHashable α] :
     m.toArray.map Prod.fst = m.keysArray :=
   DHashMap.Const.map_fst_toArray_eq_keysArray
+
+@[simp]
+theorem map_snd_toArray_eq_valuesArray [EquivBEq α] [LawfulHashable α] :
+    m.toArray.map Prod.snd = m.valuesArray :=
+  DHashMap.Const.map_snd_toArray_eq_valuesArray
 
 @[simp]
 theorem size_toArray [EquivBEq α] [LawfulHashable α] :

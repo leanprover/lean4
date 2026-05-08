@@ -2617,6 +2617,14 @@ theorem map_fst_map_toProd_eq_keys {β : Type v} {l : List ((_ : α) × β)} :
     simp only [List.map_cons, keys]
     congr
 
+theorem map_snd_map_toProd_eq_values {β : Type v} {l : List ((_ : α) × β)} :
+    List.map Prod.snd (List.map (fun x => (x.fst, x.snd)) l) = List.values l := by
+  induction l with
+  | nil => simp
+  | cons hd tl ih =>
+    simp only [List.map_cons, values]
+    congr
+
 theorem find?_map_eq_none_iff_containsKey_eq_false [BEq α] [PartialEquivBEq α]
     {β : Type v} {l : List ((_ : α) × β)} {k : α} :
     List.find? (fun x => x.fst == k) (l.map (fun x => (x.fst, x.snd))) = none ↔

@@ -70,11 +70,11 @@ theorem ByteArray.isValidUTF8_utf8Encode_singleton_append_iff {b : ByteArray} {c
 Decodes a sequence of characters from their UTF-8 representation. Returns `none` if the bytes are
 not a sequence of Unicode scalar values.
 -/
-@[inline, expose, implicit_reducible]
+@[inline, expose]
 def ByteArray.utf8Decode? (b : ByteArray) : Option (Array Char) :=
   go 0 #[] (by simp)
 where
-  @[semireducible, implicit_reducible]
+  @[semireducible]
   go (i : Nat) (acc : Array Char) (hi : i ≤ b.size) : Option (Array Char) :=
     if i < b.size then
       match h : utf8DecodeChar? b i with
@@ -218,7 +218,7 @@ theorem List.asString_append {l₁ l₂ : List Char} :
     String.ofList (l₁ ++ l₂) = String.ofList l₁ ++ String.ofList l₂ :=
   String.ofList_append
 
-@[expose, implicit_reducible]
+@[expose]
 def String.Internal.toArray (b : String) : Array Char :=
   b.toByteArray.utf8Decode?.get (b.toByteArray.isSome_utf8Decode?_iff.2 b.isValidUTF8)
 
@@ -237,7 +237,7 @@ Examples:
  * `"".toList = []`
  * `"\n".toList = ['\n']`
 -/
-@[extern "lean_string_data", expose, implicit_reducible]
+@[extern "lean_string_data", expose]
 def String.toList (s : String) : List Char :=
   (String.Internal.toArray s).toList
 

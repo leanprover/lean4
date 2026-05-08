@@ -376,7 +376,7 @@ Examples:
 /--
 Extracts the value from an option that can be proven to be `some`.
 -/
-@[inline, implicit_reducible] def get {α : Type u} : (o : Option α) → isSome o → α
+@[inline] def get {α : Type u} : (o : Option α) → isSome o → α
   | some x, _ => x
 
 @[simp, grind =] theorem some_get : ∀ {x : Option α} (h : isSome x), some (x.get h) = x

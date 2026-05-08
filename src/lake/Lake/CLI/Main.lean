@@ -1273,9 +1273,8 @@ protected def profile : CliM PUnit := do
   let ws ← loadWorkspace config
   let exe ← parseExeTargetSpec ws exeSpec
   let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
-  let _ ← Profile.run exeFile.toString opts.subArgs.toArray opts.profileOutput? opts.profileRate
+  discard <| Profile.run exeFile.toString opts.subArgs.toArray opts.profileOutput? opts.profileRate
     (raw := opts.profileRaw) (serve := !opts.profileNoServe)
-  exit 0
 
 protected def lean : CliM PUnit := do
   processOptions lakeOption

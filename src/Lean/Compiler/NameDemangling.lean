@@ -61,14 +61,6 @@ shows `spec at <context>` after the flags. The context may carry its own flags:
 * `<apply/N>` — Lean runtime apply function (N arguments)
 * `.cold.N` suffix — LLVM cold-path clone
 * `(pkg)` suffix — function from package `pkg`
-
-## Standalone CLI tool
-
-`script/profiler/lean_demangle_cli.lean` is a `c++filt`-like filter:
-
-```
-echo "l_Lean_Meta_Sym_main" | lean --run script/profiler/lean_demangle_cli.lean
-```
 -/
 
 namespace Lean.Name.Demangle

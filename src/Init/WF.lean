@@ -475,7 +475,6 @@ variable (h : α → Nat)
 variable (F : (x : α) → ((y : α) → InvImage (· < ·) h y x → motive y) → motive x)
 
 /-- Helper gadget that prevents reduction of `Nat.eager n` unless `n` evaluates to a ground term. -/
-@[implicit_reducible]
 def Nat.eager (n : Nat) : Nat :=
   if Nat.beq n n = true then n else n
 
@@ -490,16 +489,12 @@ In contrast to `WellFounded.fix`, this fixpoint operator reduces on closed terms
 when `h x` evaluates to a ground value)
 
 -/
-@[implicit_reducible]
 def Nat.fix : (x : α) → motive x :=
   let rec go : ∀ (fuel : Nat) (x : α), (h x < fuel) → motive x :=
     Nat.rec
       (fun _ hfuel => (Nat.not_succ_le_zero _ hfuel).elim)
       (fun _ ih x hfuel => F x (fun y hy => ih y (by exact Nat.lt_of_lt_of_le hy (Nat.le_of_lt_add_one hfuel))))
   fun x => go (Nat.eager (h x + 1)) x (Nat.eager_eq _ ▸ Nat.lt_add_one _)
-
--- Workaround: `@[implicit_reducible]` causes inlining as if it was an instance
-attribute [implicit_reducible] Nat.fix.go
 
 protected theorem Nat.fix.go_congr (x : α) (fuel₁ fuel₂ : Nat) (h₁ : h x < fuel₁) (h₂ : h x < fuel₂) :
     Nat.fix.go h F fuel₁ x h₁ = Nat.fix.go h F fuel₂ x h₂ := by

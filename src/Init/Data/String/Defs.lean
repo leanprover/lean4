@@ -90,7 +90,7 @@ Examples:
  * `"abc" ++ "def" = "abcdef"`
  * `"" ++ "" = ""`
 -/
-@[extern "lean_string_append", expose, implicit_reducible]
+@[extern "lean_string_append", expose]
 def String.append (s : String) (t : @& String) : String where
   toByteArray := s.toByteArray ++ t.toByteArray
   isValidUTF8 := s.isValidUTF8.append t.isValidUTF8

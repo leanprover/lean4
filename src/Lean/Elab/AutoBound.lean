@@ -68,7 +68,7 @@ def checkValidAutoBoundImplicitName (n : Name) (allowed : Bool) (relaxed : Bool)
 
 def isValidAutoBoundLevelName (n : Name) (relaxed : Bool) : Bool :=
   match n with
-  | .str .anonymous s => relaxed || (s.front?.any Char.isLower && isValidAutoBoundSuffix s)
+  | .str .anonymous s => !s.isEmpty && (relaxed || (s.front.isLower && isValidAutoBoundSuffix s))
   | _ => false
 
 /--

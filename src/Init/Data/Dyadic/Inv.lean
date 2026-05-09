@@ -23,8 +23,9 @@ Inverts a dyadic number at a given (maximum) precision.
 Returns the greatest dyadic number with precision at most `prec` which is less than or equal to `1/x`.
 For `x = 0`, returns `0`.
 
-This is definitionally `divAtPrec 1 x prec`, but is kept separate to avoid the unnecessary
-`1 *`-by-numerator step in `Rat`'s division at runtime; see `invAtPrec_eq_divAtPrec_one`.
+This agrees with `divAtPrec 1 x prec` (see `invAtPrec_eq_divAtPrec_one`), but is kept as a
+separate definition to avoid the unnecessary `1 *`-by-numerator step in `Rat`'s division at
+runtime.
 -/
 def invAtPrec (x : Dyadic) (prec : Int) : Dyadic :=
   match x with
@@ -180,10 +181,11 @@ theorem eq_invAtPrec {x : Dyadic} (hx : 0 < x) {prec : Int} {y : Dyadic}
 /--
 The equality `divAtPrec a b prec = a * invAtPrec b prec` does *not* hold in general:
 `a * invAtPrec b prec` rounds `1/b` first and then multiplies, whereas `divAtPrec a b prec`
-rounds `a/b` directly. They can differ by up to `a * 2 ^ (-prec)` in either direction;
-the next two theorems make this precise.
+rounds `a/b` directly. The next two theorems pin the gap asymmetrically:
 
-For nonneg `a` and positive `b`, `a * invAtPrec b prec` is at most `2 ^ (-prec)` smaller
+  `divAtPrec a b prec - a * 2 ^ (-prec) < a * invAtPrec b prec < divAtPrec a b prec + 2 ^ (-prec)`.
+
+For nonneg `a` and positive `b`, `a * invAtPrec b prec` is less than `2 ^ (-prec)` larger
 than `divAtPrec a b prec`.
 -/
 theorem mul_invAtPrec_lt_divAtPrec_add {a b : Dyadic} (ha : 0 ≤ a) (hb : 0 < b) (prec : Int) :
@@ -204,9 +206,8 @@ theorem mul_invAtPrec_lt_divAtPrec_add {a b : Dyadic} (ha : 0 ≤ a) (hb : 0 < b
       Rat.not_le.mpr Rat.lt_toRat_toDyadic_add (Rat.le_trans h h_le)
 
 /--
-For positive `a` and `b`, `a * invAtPrec b prec` is at most `a * 2 ^ (-prec)` larger than
-`divAtPrec a b prec`. Equivalently, `divAtPrec a b prec` exceeds `a * invAtPrec b prec` by
-less than `a * 2 ^ (-prec)`.
+For positive `a` and `b`, `divAtPrec a b prec` exceeds `a * invAtPrec b prec` by less than
+`a * 2 ^ (-prec)`.
 -/
 theorem divAtPrec_sub_mul_lt_mul_invAtPrec {a b : Dyadic}
     (ha : 0 < a) (hb : 0 < b) (prec : Int) :

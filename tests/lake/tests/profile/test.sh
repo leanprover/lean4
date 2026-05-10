@@ -19,7 +19,7 @@ test_out "--raw" help profile
 test_out "--no-serve" help profile
 
 # Test --raw mode (records profile, skips symbolication/demangling)
-lake_out profile --raw --output raw.json.gz hello || true
+lake_out profile --raw -o raw.json.gz hello || true
 if match_text "samply record failed" produced.out 2>/dev/null; then
   echo "SKIP: samply cannot record (missing perf permissions?)"
   exit 0
@@ -36,7 +36,7 @@ print(f'raw profile: {len(d[\"threads\"])} threads, {len(d[\"libs\"])} libs')
 "
 
 # Test full pipeline (record + symbolicate + demangle, no serve)
-test_run profile --no-serve --output demangled.json.gz hello
+test_run profile --no-serve -o demangled.json.gz hello
 test_exp -f demangled.json.gz
 
 # Verify demangled output structure

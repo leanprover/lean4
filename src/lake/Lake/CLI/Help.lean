@@ -846,7 +846,7 @@ JSON file.
 
 OPTIONS:
   --rate N              sampling rate in Hz (default: 1000)
-  --output FILE         output path (default: current directory)
+  -o FILE               output path (default: current directory)
   --raw                 skip symbolication and demangling
   --no-serve            write output file and exit (don't start server)
 

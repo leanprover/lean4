@@ -88,7 +88,6 @@ public structure LakeOptions where
   /-- Whether `lake lint` should skip the lint driver (via `--builtin-only`). -/
   builtinOnly : Bool := false
   profileRate : Nat := 1000
-  profileOutput? : Option String := none
   profileRaw : Bool := false
   profileNoServe : Bool := false
 
@@ -395,9 +394,6 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--rate" => do
   let r ← takeOptArg "--rate" "sampling rate"
   modifyThe LakeOptions ({· with profileRate := r.toNat?.getD 1000})
-| "--output" => do
-  let p ← takeOptArg "--output" "output path"
-  modifyThe LakeOptions ({· with profileOutput? := some p})
 | "--raw" => modifyThe LakeOptions ({· with profileRaw := true})
 | "--no-serve" => modifyThe LakeOptions ({· with profileNoServe := true})
 -- Shared options
@@ -1273,8 +1269,8 @@ protected def profile : CliM PUnit := do
   let ws ← loadWorkspace config
   let exe ← parseExeTargetSpec ws exeSpec
   let exeFile ← ws.runBuild exe.fetch (mkBuildConfig opts)
-  discard <| Profile.run exeFile.toString opts.subArgs.toArray opts.profileOutput? opts.profileRate
-    (raw := opts.profileRaw) (serve := !opts.profileNoServe)
+  discard <| Profile.run exeFile.toString opts.subArgs.toArray (opts.outputsFile?.map (·.toString))
+    opts.profileRate (raw := opts.profileRaw) (serve := !opts.profileNoServe)
 
 protected def lean : CliM PUnit := do
   processOptions lakeOption

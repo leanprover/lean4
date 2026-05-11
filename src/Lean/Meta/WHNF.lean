@@ -571,14 +571,67 @@ def projectCore? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
     else
       return none
 
+/--
+Tag attribute `@[reducible_proj]` for structure projection functions.
+
+When reducing a projection `s.field` whose projection function `field` is tagged
+`@[reducible_proj]`, projection reduction retries the structure-argument WHNF at a
+transparency of at least `.default` if the configured projection strategy fails to
+expose a constructor. This lets a `[semireducible]` definition that produces the
+structure unfold just enough for the projection to reduce, without making the whole
+definition behave as `[implicit_reducible]` everywhere.
+
+The implementation lives in `tryReducibleProjBump?`, called from both `reduceProj?`
+and the `.proj` arm of `whnfCore`.
+
+Class-field projections are rejected by the validator: they already have orthogonal
+support via `unfoldProjInst?` and `backward.whnf.reducibleClassField`.
+-/
+builtin_initialize reducibleProjAttr : TagAttribute ←
+  registerTagAttribute `reducible_proj
+    "When reducing this structure projection, retry the structure-argument WHNF at \
+     a transparency of at least `.default` to expose the constructor."
+    (validate := fun declName => do
+      let env ← getEnv
+      let some info := env.getProjectionFnInfo? declName |
+        throwError m!"`@[reducible_proj]` can only be applied to structure projection functions, \
+          but `{.ofConstName declName}` is not one"
+      if info.fromClass then
+        throwError m!"`@[reducible_proj]` does not apply to class-field projections; \
+          mark the underlying instance `[implicit_reducible]` or rely on the existing \
+          `unfoldProjInst?` / `backward.whnf.reducibleClassField` mechanism")
+
+/--
+If the projection function for field `i` of `structName` is tagged `@[reducible_proj]`,
+re-whnf the structure argument `c` at a transparency of at least `.default` and retry
+the projection. Returns `none` if the projection is not tagged or if the bumped WHNF
+still does not expose a constructor.
+
+This is the shared implementation of the `@[reducible_proj]` mechanism, called from
+both `reduceProj?` and the `.proj` arm of `whnfCore`. Using `withAtLeastTransparency`
+(rather than `withTransparency .default`) ensures the bump only raises transparency,
+never lowers it when invoked under e.g. `.all`.
+-/
+private def tryReducibleProjBump? (structName : Name) (i : Nat) (c : Expr) :
+    MetaM (Option Expr) := do
+  let env ← getEnv
+  let some sinfo := getStructureInfo? env structName | return none
+  let some projFn := sinfo.getProjFn? i | return none
+  unless reducibleProjAttr.hasTag env projFn do return none
+  withAtLeastTransparency .default do
+    projectCore? (← whnf c) i
+
 def project? (e : Expr) (i : Nat) : MetaM (Option Expr) := do
   projectCore? (← whnf e) i
 
 /-- Reduce kernel projection `Expr.proj ..` expression. -/
 def reduceProj? (e : Expr) : MetaM (Option Expr) := do
   match e with
-  | .proj _ i c => project? c i
-  | _           => return none
+  | .proj structName i c =>
+    match (← project? c i) with
+    | some r => return some r
+    | none   => tryReducibleProjBump? structName i c
+  | _ => return none
 
 /--
   Auxiliary method for reducing terms of the form `?m t_1 ... t_n` where `?m` is delayed assigned.
@@ -642,26 +695,6 @@ partial def consumeUnusedLet (e : Expr) (consumeNondep : Bool := false) : Expr :
   | _ => e
 
 /--
-Tag attribute `@[reducible_proj]` for structure projection functions.
-
-When reducing a projection `s.field` whose projection function `field` is tagged
-`@[reducible_proj]`, `whnfCore` bumps transparency to `.default` for the structure
-argument `s`. This lets a `[semireducible]` definition that produces the structure
-unfold just enough for the projection to reduce, without making the whole definition
-behave as `[implicit_reducible]` everywhere.
-
-See the `.proj` arm of `whnfCore` for the implementation.
--/
-builtin_initialize reducibleProjAttr : TagAttribute ←
-  registerTagAttribute `reducible_proj
-    "When reducing this structure projection, bump transparency to `.default` to expose the constructor."
-    (validate := fun declName => do
-      let env ← getEnv
-      unless (env.getProjectionFnInfo? declName).isSome do
-        throwError m!"`@[reducible_proj]` can only be applied to structure projection functions, but \
-          `{.ofConstName declName}` is not one")
-
-/--
 Apply beta-reduction, zeta-reduction (i.e., unfold let local-decls), iota-reduction,
 expand let-expressions, expand assigned meta-variables, unfold aux declarations.
 -/
@@ -722,29 +755,17 @@ where
             | .axiomInfo val => recordUnfoldAxiom val.name; return e
             | _ => return e
       | .proj structName i c =>
-        /- Per-projection opt-in: if the projection function is tagged
-           `@[reducible_proj]`, retry the structure-argument reduction
-           at `.default` transparency when the configured projection
-           reduction strategy fails to expose a constructor. This lets
-           a `[semireducible]` definition that produces the structure
-           unfold just enough for the projection to reduce. -/
+        /- If the configured projection strategy fails to expose a constructor and
+           the projection function is tagged `@[reducible_proj]`,
+           `tryReducibleProjBump?` retries at a transparency of at least `.default`.
+           See the docstring of `reducibleProjAttr` for the rationale. -/
         let k (c : Expr) := do
           match (← projectCore? c i) with
           | some e => go e
           | none =>
-            let env ← getEnv
-            let isTagged := match getStructureInfo? env structName with
-              | some info => match info.getProjFn? i with
-                | some projFn => reducibleProjAttr.hasTag env projFn
-                | none => false
-              | none => false
-            if isTagged then
-              let c' ← withTransparency .default <| whnf c
-              match (← projectCore? c' i) with
-              | some e => go e
-              | none => return e
-            else
-              return e
+            match (← tryReducibleProjBump? structName i c) with
+            | some e => go e
+            | none   => return e
         match (← getConfig).proj with
         | .no => return e
         | .yes => k (← go c)

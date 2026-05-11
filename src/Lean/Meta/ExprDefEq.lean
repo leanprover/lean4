@@ -365,7 +365,7 @@ so both `[instance_reducible]` and `[implicit_reducible]` unfold. Used for non-i
 arguments where definitions like `Nat.add` / `Array.size` need to reduce to make types match.
 -/
 @[inline] def withImplicitConfig (x : MetaM α) : MetaM α :=
-  withAtLeastTransparency .instances do
+  withAtLeastTransparency .implicit do
     let cfg ← getConfig
     if cfg.beta && cfg.iota && cfg.zeta && cfg.zetaHave && cfg.zetaDelta && cfg.proj == .yesWithDelta then
       x

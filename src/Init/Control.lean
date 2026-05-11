@@ -16,6 +16,7 @@ public import Init.Control.Option
 public import Init.Control.Lawful
 public import Init.Control.StateCps
 public import Init.Control.ExceptCps
+public import Init.Control.Ensures
 public import Init.Control.MonadAttach
 public import Init.Control.EState
 public import Init.Control.Do

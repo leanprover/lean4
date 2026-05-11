@@ -2302,6 +2302,10 @@ theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
 
+/-- Experimental Sym-based drop-in for `mvcgen`; see `mvcgen` for documentation. -/
+macro (name := mvcgen'Macro) (priority:=low) "mvcgen'" : tactic =>
+  Macro.throwError "to use `mvcgen'`, please include `import Std.Tactic.Do`"
+
 /--
 `cbv` performs simplification that closely mimics call-by-value evaluation.
 It reduces terms by unfolding definitions using their defining equations and

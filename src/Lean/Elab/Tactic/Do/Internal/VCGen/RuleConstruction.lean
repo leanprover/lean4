@@ -4,20 +4,23 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public import Lean.Elab
-public import Lean.Meta
-public import Lean.Expr
-public meta import Lean.Elab
-public meta import Lean.Meta
-public meta import Lean.Meta.Match.Rewrite
-public meta import Lean.Elab.Tactic.Do.VCGen.Split
-meta import Lean.Meta.Sym.Pattern
-public meta import VCGen.Reduce
-public meta import VCGen.SpecDB
+
+prelude
+public import Lean.Elab.Tactic.Do.VCGen.Split
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
+public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
+public import Lean.Meta.Sym.AlphaShareBuilder
+public import Lean.Meta.Sym.Apply
+public import Lean.Meta.Sym.InstantiateMVarsS
+public import Lean.Meta.Sym.Util
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
 open Std.Do
+
+namespace Lean.Elab.Tactic.Do.Internal
+
+namespace VCGen
 
 /-!
 Construction of `BackwardRule`s from `SpecTheoremNew`s and split info. Pure
@@ -26,13 +29,13 @@ Construction of `BackwardRule`s from `SpecTheoremNew`s and split info. Pure
 -/
 
 /-- Build goal: `P ⊢ₛ wp⟦prog⟧ Q ss...`. Meant to be partially applied for convenience. -/
-private meta def mkGoal (u v : Level) (m σs ps instWP α : Expr) (ss : Array Expr) (P Q : Expr) (prog : Expr) : Expr :=
+private def mkGoal (u v : Level) (m σs ps instWP α : Expr) (ss : Array Expr) (P Q : Expr) (prog : Expr) : Expr :=
   mkApp3 (mkConst ``SPred.entails [u]) σs P
     (mkAppN (mkApp4 (mkConst ``PredTrans.apply [u]) ps α
       (mkApp5 (mkConst ``WP.wp [u, v]) m ps instWP α prog) Q) ss)
 
 /-- Extract the program from a goal built by `mkGoal`. -/
-private meta def extractProgFromGoal (goal : Expr) : Expr :=
+private def extractProgFromGoal (goal : Expr) : Expr :=
   goal.getArg! 2 |>.getArg! 2 |>.getArg! 4
 
 /--
@@ -121,7 +124,7 @@ prf : ∀ (α : Type) (x : StateT Nat Id α) (β : Type) (f : α → StateT Nat 
 We are still investigating how to get rid of more kernel unfolding overhead, such as for `wp` and
 `List.rec`.
 -/
-public meta def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
+public def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
   -- Create a backward rule for the spec we look up in the database.
   -- In order for the backward rule to apply, we need to instantiate both `m` and `ps` with the ones
@@ -236,7 +239,7 @@ For example, `MonadState.get.eq_1 : get = self.1` with `m = StateT σ m'` yields
 that rewrites `wp⟦get⟧` to `wp⟦MonadStateOf.get⟧` (after instance synthesis + projection
 reduction + unfoldReducible).
 -/
-public meta def mkBackwardRuleFromSimpSpec (specThm : SpecTheoremNew) (m σs ps instWP : Expr)
+public def mkBackwardRuleFromSimpSpec (specThm : SpecTheoremNew) (m σs ps instWP : Expr)
     (excessArgs : Array Expr) : SymM BackwardRule := do
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
   let wpType ← liftMetaM <| Meta.inferType instWP
@@ -303,7 +306,7 @@ Uses `SplitInfo.withAbstract` to open fvars for the split, then `SplitInfo.split
 to build the splitting proof. Hypothesis types are discovered via `rwIfOrMatcher` inside
 the splitter telescope.
 -/
-public meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
+public def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP : Expr) (excessArgs : Array Expr) : SymM BackwardRule := do
   let preprocessExpr : Expr → SymM Expr := shareCommon <=< liftMetaM ∘ unfoldReducible
   let wpType ← liftMetaM <| Meta.inferType instWP
   let us := wpType.getAppFn.constLevels!
@@ -349,3 +352,6 @@ public meta def mkBackwardRuleForSplit (splitInfo : SplitInfo) (m σs ps instWP 
   let prf ← instantiateMVars prf
   let res ← abstractMVars prf
   mkBackwardRuleFromExpr res.expr res.paramNames.toList
+
+end VCGen
+end Lean.Elab.Tactic.Do.Internal

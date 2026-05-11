@@ -4,6 +4,8 @@ MWE: `mvcgen'` loses precondition facts in postcondition entailment VCs.
 import Cases
 import Driver
 
+set_option mvcgen.warning false
+
 open Lean Std Do
 
 @[irreducible] def myFun (n : Nat) : StateM Nat Nat := return n

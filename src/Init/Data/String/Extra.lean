@@ -11,6 +11,7 @@ public import Init.Data.String.Basic
 import all Init.Data.String.Basic
 import Init.Data.String.Search
 import Init.Data.String.Termination
+import Init.Data.String.Length
 
 public section
 

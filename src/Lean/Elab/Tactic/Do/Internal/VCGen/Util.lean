@@ -4,15 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public import Lean.Meta
-public meta import Lean.Meta
-meta import Lean.Meta.Sym.Pattern
-meta import Lean.Meta.Sym.Simp.DiscrTree
-public meta import Lean.Meta.Sym.Util
-public meta import Lean.Meta.Tactic.Grind.Main
-public meta import Lean.Meta.Tactic.Grind.Solve
-public meta import VCGen.Context
-public meta import VCGen.Reduce
+
+prelude
+public import Lean.Meta.Tactic.Grind.Main
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
+public import Lean.Meta.Sym.AlphaShareBuilder
+public import Lean.Meta.Sym.Intro
+public import Lean.Meta.Sym.Simp.Telescope
+public import Lean.Meta.Sym.Util
 
 open Lean Meta Sym
 open Std.Do
@@ -23,6 +23,8 @@ Generic `VCGenM` helpers: small-cap operations on `MVarId`s, telescope-aware
 generalization of `applyRflAndAndIntro`. None of these know anything about
 `SPred` entailment specifically.
 -/
+
+namespace Lean.Elab.Tactic.Do.Internal
 
 /--
 `VCGenM` wrapper around `BackwardRule.apply`. Behaves identically to
@@ -35,8 +37,11 @@ the missing reduction.
 `ruleDesc?` describes the rule for debug output. When `none`, the description
 is reconstructed from `rule.expr.getAppFn` — works for the common case of a
 constant rule. Pass a custom message for dynamically-built rules.
+
+Designed for dot notation: `rule.applyChecked goal`. Requires
+`open Lean.Elab.Tactic.Do.Internal` in scope so that the dot lookup resolves.
 -/
-public meta def _root_.Lean.Meta.Sym.BackwardRule.applyChecked (rule : BackwardRule) (goal : MVarId)
+public def Lean.Meta.Sym.BackwardRule.applyChecked (rule : BackwardRule) (goal : MVarId)
     (ruleDesc? : Option MessageData := none) : VCGenM ApplyResult := do
   let r ← rule.apply goal
   match r with
@@ -65,23 +70,26 @@ public meta def _root_.Lean.Meta.Sym.BackwardRule.applyChecked (rule : BackwardR
 namespace VCGen
 
 open Sym Sym.Internal
+open Lean.Elab.Tactic.Do.Internal
 
-public meta def simpTargetTelescope (mvarId : MVarId) : VCGenM (MVarId × Bool) := do
+public def simpTargetTelescope (mvarId : MVarId) : VCGenM (MVarId × Bool) := do
   let some methods := (← read).hypSimpMethods | return (mvarId, false)
   let target ← mvarId.getType
   let simpState := (← get).simpState
   let methods := { methods with pre := Sym.Simp.simpTelescope }
   let (result, simpState') ← Sym.Simp.SimpM.run (Sym.Simp.simp target) methods {} simpState
   modify fun s => { s with simpState := simpState' }
-  let mvarId ← match result with
-    | .rfl .. => pure (mvarId, false)
-    | .step newTarget proof .. => pure (← mvarId.replaceTargetEq newTarget proof, true)
+  match result with
+  | .rfl .. => return (mvarId, false)
+  | .step newTarget proof .. =>
+    let mvarId' ← mvarId.replaceTargetEq newTarget proof
+    return (mvarId', true)
 
 /--
 Simplify the forall telescope of the target using `Sym.Simp.simpTelescope`,
 then introduce all binders via `Sym.intros`.
 -/
-public meta def introsSimp (mvarId : MVarId) (errorMsg : MessageData) : VCGenM MVarId := do
+public def introsSimp (mvarId : MVarId) (errorMsg : MessageData) : VCGenM MVarId := do
   let (mvarId, progress) ← simpTargetTelescope mvarId
   match ← Sym.intros mvarId with
   | .failed =>
@@ -98,7 +106,7 @@ contains stale proof data (the contradiction proof targets the parent's mvar, no
 In that case, restore the pre-internalization state so each child can discover the contradiction
 independently and construct its own proof via `closeGoal`.
 -/
-public meta def PreTac.processHypotheses (preTac : PreTac) (goal : Grind.Goal) : VCGenM Grind.Goal := do
+public def PreTac.processHypotheses (preTac : PreTac) (goal : Grind.Goal) : VCGenM Grind.Goal := do
   if preTac.isGrind then
     Grind.processHypotheses goal
   else
@@ -110,7 +118,7 @@ exactly the conjuncts that could not be solved.
 This procedure may assign metavariables in `e₁`/`e₂`, for example for `e = ?m` it will assign
 `?m := e`.
 -/
-public meta partial def repeatAndRfl (goal : MVarId) : VCGenM (Option MVarId) :=
+public partial def repeatAndRfl (goal : MVarId) : VCGenM (Option MVarId) :=
     goal.withContext do
   let ctx ← read
   let ty ← instantiateMVars (← goal.getType)
@@ -145,3 +153,4 @@ public meta partial def repeatAndRfl (goal : MVarId) : VCGenM (Option MVarId) :=
     return some goal
 
 end VCGen
+end Lean.Elab.Tactic.Do.Internal

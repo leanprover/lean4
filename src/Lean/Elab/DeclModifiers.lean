@@ -345,4 +345,21 @@ def expandDeclId (currNamespace : Name) (currLevelNames : List Name) (declId : S
 
 end Methods
 
+namespace Term
+
+/--
+If `attrs` contains an `@[deprecated]` attribute, runs the action with `Term.Context.checkDeprecated`
+disabled, suppressing the `linter.deprecated` warning that would otherwise fire when a deprecated
+constant is referenced. Otherwise, runs the action unchanged.
+
+This implements the suppression rule from RFC #8942: deprecation warnings should not fire inside
+the body of a declaration that is itself marked `@[deprecated]`, since the references will go away
+along with the declaration.
+-/
+@[inline] def withDeprecationContextFromAttrs [MonadWithReaderOf Term.Context m]
+    (attrs : Array Attribute) : m α → m α :=
+  if attrs.any (·.name == `deprecated) then withoutCheckDeprecated else id
+
+end Term
+
 end Lean.Elab

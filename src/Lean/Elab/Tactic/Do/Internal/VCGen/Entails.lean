@@ -4,17 +4,15 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public import Lean.Elab
-public import Lean.Meta
-public meta import Lean.Elab
-public meta import Lean.Meta
-public meta import Lean.Elab.Tactic.Do.VCGen.Split
-public meta import VCGen.Context
-public meta import VCGen.Reduce
-public meta import VCGen.Util
+
+prelude
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
+public import Lean.Meta.Sym.Util
 
 open Lean Meta Elab Tactic Sym Sym.Internal
 open Lean.Elab.Tactic.Do.SpecAttr
+open Lean.Elab.Tactic.Do.Internal
 open Std.Do
 
 /-!
@@ -23,13 +21,15 @@ Entailment-shaped goal decomposition: unfolding `Triple.of_entails_wp`, splittin
 that drives `H ⊢ₛ T` to either a closed goal or a residual.
 -/
 
+namespace Lean.Elab.Tactic.Do.Internal
+
 namespace VCGen
 
 /--
 Unfold `⦃P⦄ x ⦃Q⦄` into `P ⊢ₛ wp⟦x⟧ Q` by applying `Tiple.of_wp`, ensuring that `PostShape.args ps`
 is reduced.
 -/
-public meta def tripleOfWP (goal : MVarId) : _root_.VCGenM MVarId := goal.withContext do
+public def tripleOfWP (goal : MVarId) : VCGenM MVarId := goal.withContext do
   let .goals [goal] ← (← read).tripleOfEntailsWPRule.applyChecked goal
     | throwError "Applying {.ofConstName ``Triple.of_entails_wp} to {goal} failed"
   goal.withContext do
@@ -39,7 +39,7 @@ public meta def tripleOfWP (goal : MVarId) : _root_.VCGenM MVarId := goal.withCo
     goal.replaceTargetDefEq (← Sym.Internal.mkAppS₃ ent σs P Q)
 
 open Lean.Elab.Tactic.Do in
-public meta def solveExceptCondsEntails (goal : MVarId) : _root_.VCGenM (Option MVarId) := goal.withContext do
+public def solveExceptCondsEntails (goal : MVarId) : VCGenM (Option MVarId) := goal.withContext do
   let target ← goal.getType
   let_expr ent@ExceptConds.entails ps P Q := target | return none
   let P ← reduceHead P
@@ -56,7 +56,7 @@ public meta def solveExceptCondsEntails (goal : MVarId) : _root_.VCGenM (Option 
   return some goal
 
 open Lean.Elab.Tactic.Do in
-public meta def solvePostCondEntails (goal : MVarId) : _root_.VCGenM (Option (List MVarId)) := goal.withContext do
+public def solvePostCondEntails (goal : MVarId) : VCGenM (Option (List MVarId)) := goal.withContext do
   let target ← goal.getType
   let_expr PostCond.entails _α _ps _P _Q := target | return none
   -- Try closing the whole entailment by reflexivity first.
@@ -88,7 +88,7 @@ then peel a leading `SPred.pure (σ::σs) φ s` from each side of `⊢ₛ` via
 Performs the pure-cons cleanup at the exact iteration the state variable is introduced,
 so the goal stays in canonical form throughout the eta-expansion loop.
 -/
-public meta def consIntroAndSimpStep (goal : MVarId) : VCGenM (Option MVarId) := do
+public def consIntroAndSimpStep (goal : MVarId) : VCGenM (Option MVarId) := do
   let ctx ← read
   let .goals [g'] ← ctx.entailsConsIntroRule.applyChecked goal | return none
   let mut goal ← introsSimp g' m!"after applying {.ofConstName ``SPred.entails_cons_intro}"
@@ -98,7 +98,7 @@ public meta def consIntroAndSimpStep (goal : MVarId) : VCGenM (Option MVarId) :=
     goal := g''
   return some goal
 
-public meta def neededStateIntro (thm : SpecTheoremNew) (goal : MVarId) (excessArgs : Array Expr) : VCGenM (Option MVarId) := do
+public def neededStateIntro (thm : SpecTheoremNew) (goal : MVarId) (excessArgs : Array Expr) : VCGenM (Option MVarId) := do
   let .triple potential := thm.kind | return none
   let mut n := potential - excessArgs.size
   if n = 0 then return none
@@ -121,7 +121,7 @@ Break down `H ⊢ₛ T` as far as possible, reporting `none` when no progress wa
 5. If either `T` was pure `⌜φ₂⌝` (and `H` was not), we turn `T.down` into `φ₂`.
    (NB: If `H` was pure, then we have already lifted `φ₁` to the local context.)
 -/
-public meta def solveSPredEntails (goal : MVarId) : VCGenM (Option MVarId) := goal.withContext do
+public def solveSPredEntails (goal : MVarId) : VCGenM (Option MVarId) := goal.withContext do
   let_expr SPred.entails _σs H T := (← goal.getType) | return none
   let mut progress := false
   let mut goal := goal
@@ -189,3 +189,5 @@ public meta def solveSPredEntails (goal : MVarId) : VCGenM (Option MVarId) := go
     return none
 
 end VCGen
+
+end Lean.Elab.Tactic.Do.Internal

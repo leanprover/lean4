@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.String.TakeDrop
 public import Init.Data.String.Search
+public import Init.Data.String.Length
 
 namespace Lake
 

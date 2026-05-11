@@ -301,8 +301,8 @@ This implies that the notion of match and longest match coincide.
 class NoPrefixPatternModel {ρ : Type} (pat : ρ) [PatternModel pat] : Prop where
   eq_empty (s t) : PatternModel.Matches pat s → PatternModel.Matches pat (s ++ t) → t = ""
 
-theorem NoPrefixPatternModel.of_length_eq {ρ : Type} {pat : ρ} [PatternModel pat]
-    (h : ∀ s t, PatternModel.Matches pat s → PatternModel.Matches pat t → s.length = t.length) :
+theorem NoPrefixPatternModel.of_length_toList_eq {ρ : Type} {pat : ρ} [PatternModel pat]
+    (h : ∀ s t, PatternModel.Matches pat s → PatternModel.Matches pat t → s.toList.length = t.toList.length) :
     NoPrefixPatternModel pat where
   eq_empty s t hs ht := by simpa using h s _ hs ht
 
@@ -322,8 +322,8 @@ This implies that the notion of reverse match and longest reverse match coincide
 class NoSuffixPatternModel {ρ : Type} (pat : ρ) [PatternModel pat] : Prop where
   eq_empty (s t) : PatternModel.Matches pat t → PatternModel.Matches pat (s ++ t) → s = ""
 
-theorem NoSuffixPatternModel.of_length_eq {ρ : Type} {pat : ρ} [PatternModel pat]
-    (h : ∀ s t, PatternModel.Matches pat s → PatternModel.Matches pat t → s.length = t.length) :
+theorem NoSuffixPatternModel.of_length_toList_eq {ρ : Type} {pat : ρ} [PatternModel pat]
+    (h : ∀ s t, PatternModel.Matches pat s → PatternModel.Matches pat t → s.toList.length = t.toList.length) :
     NoSuffixPatternModel pat where
   eq_empty s t hs ht := by simpa using h t _ hs ht
 

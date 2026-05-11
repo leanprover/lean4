@@ -4,19 +4,19 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public import Lean.Elab
-public import Lean.Meta
-public meta import Lean.Elab
-public meta import Lean.Meta
-meta import Lean.Meta.Sym.Pattern
-meta import Lean.Meta.Sym.Simp.DiscrTree
-public meta import Lean.Meta.Tactic.Grind.Main
-public meta import Lean.Elab.Tactic.Do.VCGen.Basic
-public meta import VCGen.SpecDB
+
+prelude
+public import Lean.Elab.Tactic.Do.VCGen.Basic
+public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
+public import Lean.Meta.Sym.Apply
+public import Lean.Meta.Sym.Simp.SimpM
+public import Lean.Meta.Tactic.Grind.Types
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.SpecAttr
 open Std.Do
+
+namespace Lean.Elab.Tactic.Do.Internal
 
 /-!
 The `VCGenM` monad: its read-only `Context` (spec database + a fixed bundle of
@@ -33,7 +33,7 @@ public inductive VCGen.PreTac where
   /-- Use a user-provided tactic syntax. -/
   | tactic (tac : Syntax)
 
-public meta def VCGen.PreTac.isGrind : VCGen.PreTac → Bool
+public def VCGen.PreTac.isGrind : VCGen.PreTac → Bool
   | .grind .. => true
   | _ => false
 
@@ -160,21 +160,23 @@ namespace VCGen
 
 /-- Register a join-point `JumpSiteInfo` for the given fvar. Called when a
 `let __do_jp := …` is detected as a shared continuation. -/
-public meta def registerJP (fv : FVarId) (info : JumpSiteInfo) : _root_.VCGenM Unit :=
+public def registerJP (fv : FVarId) (info : JumpSiteInfo) : VCGenM Unit :=
   modify fun s => { s with jps := s.jps.insert fv info }
 
 /-- Look up a previously-registered join point by fvar id. -/
-public meta def knownJP? (fv : FVarId) : _root_.VCGenM (Option JumpSiteInfo) :=
+public def knownJP? (fv : FVarId) : VCGenM (Option JumpSiteInfo) :=
   return (← get).jps.get? fv
 
 /-- True iff fuel has been exhausted (`Fuel.limited 0`). -/
-public meta def outOfFuel : _root_.VCGenM Bool :=
+public def outOfFuel : VCGenM Bool :=
   return match (← get).fuel with | .limited 0 => true | _ => false
 
 /-- Decrement remaining fuel by one. No-op when fuel is `.unlimited` or already at zero. -/
-public meta def burnOne : _root_.VCGenM Unit :=
+public def burnOne : VCGenM Unit :=
   modify fun s => { s with fuel := match s.fuel with
     | .limited (n+1) => .limited n
     | other => other }
 
 end VCGen
+
+end Lean.Elab.Tactic.Do.Internal

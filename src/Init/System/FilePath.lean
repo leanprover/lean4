@@ -11,6 +11,7 @@ import Init.Data.String.Search
 public import Init.Data.ToString.Basic
 import Init.Data.Iterators.Consumers.Collect
 import Init.System.Platform
+import Init.Data.String.Length
 
 public section
 

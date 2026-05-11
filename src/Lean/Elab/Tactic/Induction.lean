@@ -1024,7 +1024,7 @@ Elaborates the `foo args` of `fun_induction` or `fun_cases`, inferring the args 
 def elabFunTargetCall (cases : Bool) (stx : Syntax) : TacticM Expr := do
   match stx with
   | `($id:ident) =>
-    let fnName ← realizeGlobalConstNoOverload id
+    let fnName ← realizeGlobalConstNoOverloadWithInfo id
     let unfolding := tactic.fun_induction.unfolding.get (← getOptions)
     let some funIndInfo ← getFunIndInfo? (cases := cases) (unfolding := unfolding) fnName |
       let theoremKind := if cases then "cases" else "induction"

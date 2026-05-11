@@ -4,16 +4,18 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Sebastian Graf
 -/
 module
-public meta import VCGen.Reduce
-public meta import VCGen.SpecDB
-public meta import VCGen.RuleConstruction
-public meta import VCGen.Context
-public meta import VCGen.Util
-public meta import VCGen.RuleCache
-public meta import VCGen.Entails
-public meta import VCGen.Solve
-public meta import VCGen.Driver
-public meta import VCGen.Frontend
+
+prelude
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Reduce
+public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
+public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleConstruction
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Context
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Util
+public import Lean.Elab.Tactic.Do.Internal.VCGen.RuleCache
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Entails
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Solve
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Driver
+public import Lean.Elab.Tactic.Do.Internal.VCGen.Frontend
 
 /-!
 The `mvcgen'` tactic, split across the modules above.

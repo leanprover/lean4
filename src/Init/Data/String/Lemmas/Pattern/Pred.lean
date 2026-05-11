@@ -33,10 +33,10 @@ instance {p : Char → Bool} : StrictPatternModel p where
   not_matches_empty := by simp [PatternModel.Matches]
 
 instance {p : Char → Bool} : NoPrefixPatternModel p :=
-  .of_length_eq (by simp +contextual [PatternModel.Matches])
+  .of_length_toList_eq (by simp +contextual [PatternModel.Matches])
 
 instance {p : Char → Bool} : NoSuffixPatternModel p :=
-  .of_length_eq (by simp +contextual [PatternModel.Matches])
+  .of_length_toList_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff {p : Char → Bool} {s : Slice} {pos : s.Pos} :
     IsMatch p pos ↔

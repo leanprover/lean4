@@ -91,6 +91,76 @@ example {X Y : C} (f : X ⟶ Y) : (F ⋙ G).map f = G.map (F.map f) := by
 
 end ReducibleProjTest
 
+-- Regression for the `reduceProj?` path used by `grind` canonicalization (and
+-- by `simp`, `cbv`, vcgen, `unfoldProjInst?`). The bump must fire here too, not
+-- just in `whnfCore`'s `.proj` arm.
+--
+-- Without the bump being routed through `reduceProj?`, `grind` cannot discharge
+-- naturality below: ematch produces `(F ⋙ H).obj X = H.obj (F.obj X)` but
+-- canon collapses both sides without recording the eqc edge, and
+-- `NatTrans.naturality` never matches against `(F ⋙ H).map f ≫ β.app _`.
+
+namespace ReducibleProjGrindTest
+
+class Category (obj : Type) : Type 1 where
+  Hom : obj → obj → Type
+  comp : ∀ {X Y Z : obj}, Hom X Y → Hom Y Z → Hom X Z
+  assoc : ∀ {W X Y Z : obj} (f : Hom W X) (g : Hom X Y) (h : Hom Y Z),
+    comp (comp f g) h = comp f (comp g h)
+
+scoped infixr:10 " ⟶ " => Category.Hom
+scoped infixr:80 " ≫ " => Category.comp
+attribute [grind _=_] Category.assoc
+
+structure Functor (C : Type) [Category C] (D : Type) [Category D] : Type where
+  obj : C → D
+  map : ∀ {X Y : C}, (X ⟶ Y) → ((obj X) ⟶ (obj Y))
+  map_comp : ∀ {X Y Z : C} (f : X ⟶ Y) (g : Y ⟶ Z),
+    map (f ≫ g) = map f ≫ map g := by grind
+
+scoped infixr:26 " ⥤ " => Functor
+
+attribute [grind _=_] Functor.map_comp
+
+variable {C : Type} [Category C] {D : Type} [Category D] {E : Type} [Category E]
+
+def Functor.comp (F : C ⥤ D) (G : D ⥤ E) : C ⥤ E where
+  obj X := G.obj (F.obj X)
+  map f := G.map (F.map f)
+
+scoped infixr:80 " ⋙ " => Functor.comp
+
+@[grind =]
+theorem Functor.comp_obj (F : C ⥤ D) (G : D ⥤ E) (X : C) :
+    (F ⋙ G).obj X = G.obj (F.obj X) := rfl
+
+@[grind =]
+theorem Functor.comp_map (F : C ⥤ D) (G : D ⥤ E) {X Y : C} (f : X ⟶ Y) :
+    (F ⋙ G).map f = G.map (F.map f) := rfl
+
+structure NatTrans (F G : C ⥤ D) : Type where
+  app (X : C) : F.obj X ⟶ G.obj X
+  naturality ⦃X Y : C⦄ (f : X ⟶ Y) :
+    F.map f ≫ app Y = app X ≫ G.map f := by grind
+
+attribute [grind _=_] NatTrans.naturality
+
+attribute [reducible_proj] Functor.obj
+
+variable {F G : C ⥤ D}
+
+-- This `grind` call exercises the `Sym.canon` → `reduceProjFn?` → `reduceProj?`
+-- chain, which prior to this PR's fix bypassed the `[reducible_proj]` bump.
+-- Without the fix, ematch produces `(F ⋙ H).obj _ = H.obj (F.obj _)`
+-- equalities but canon collapses them silently, so `NatTrans.naturality` never
+-- fires on terms like `(F ⋙ H).map f ≫ β.app (F.obj Y)` and grind fails.
+def hcomp {H I : D ⥤ E} (α : NatTrans F G) (β : NatTrans H I) :
+    NatTrans (F ⋙ H) (G ⋙ I) where
+  app := fun X : C => β.app (F.obj X) ≫ I.map (α.app X)
+  naturality := by grind
+
+end ReducibleProjGrindTest
+
 -- The attribute rejects non-projection functions.
 def notAProjection : Nat := 0
 
@@ -99,3 +169,14 @@ error: `@[reducible_proj]` can only be applied to structure projection functions
 -/
 #guard_msgs in
 attribute [reducible_proj] notAProjection
+
+-- The attribute rejects class-field projections (they have orthogonal support
+-- via `unfoldProjInst?` and `backward.whnf.reducibleClassField`).
+class MyClass (α : Type) where
+  field : α
+
+/--
+error: `@[reducible_proj]` does not apply to class-field projections; mark the underlying instance `[implicit_reducible]` or rely on the existing `unfoldProjInst?` / `backward.whnf.reducibleClassField` mechanism
+-/
+#guard_msgs in
+attribute [reducible_proj] MyClass.field

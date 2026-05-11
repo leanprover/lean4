@@ -215,7 +215,7 @@ def reduceProjFn? (info : ProjectionFunctionInfo) (e : Expr) : SymM (Option Expr
     return none
   let some e ← unfoldDefinition? e | return none
   match (← reduceProj? e.getAppFn) with
-  | some f => return some <| mkAppN f e.getAppArgs
+  | some f => return some <| (mkAppN f e.getAppArgs).headBeta
   | none   => return none
 
 def isNat (e : Expr) := e.isConstOf ``Nat

@@ -183,14 +183,14 @@ add_decl_doc IterM.mk
 Converts a pure iterator (`Iter β`) into a monadic iterator (`IterM Id β`) in the
 identity monad `Id`.
 -/
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def Iter.toIterM {α : Type w} {β : Type w} (it : Iter (α := α) β) : IterM (α := α) Id β :=
   ⟨it.internalState⟩
 
 /--
 Converts a monadic iterator (`IterM Id β`) over `Id` into a pure iterator (`Iter β`).
 -/
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def IterM.toIter {α : Type w} {β : Type w} (it : IterM (α := α) Id β) : Iter (α := α) β :=
   ⟨it.internalState⟩
 

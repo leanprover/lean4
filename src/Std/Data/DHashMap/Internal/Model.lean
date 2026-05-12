@@ -45,7 +45,7 @@ open Std.Internal
 /-! # Setting up the infrastructure -/
 
 /-- Internal implementation detail of the hash map -/
-@[implicit_reducible]
+@[instance_reducible]
 def bucket [Hashable α] (self : Array (AssocList α β)) (h : 0 < self.size) (k : α) :
     AssocList α β :=
   let ⟨i, h⟩ := mkIdx self.size h (hash k)
@@ -290,7 +290,7 @@ def getKey?ₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Option α :=
   (bucket m.1.buckets m.2 a).getKey? a
 
 /-- Internal implementation detail of the hash map -/
-@[implicit_reducible]
+@[instance_reducible]
 def containsₘ [BEq α] [Hashable α] (m : Raw₀ α β) (a : α) : Bool :=
   (bucket m.1.buckets m.2 a).contains a
 

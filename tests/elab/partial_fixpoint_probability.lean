@@ -46,7 +46,7 @@ end
 
 
 /-- Distributions (not normalized, which is curcial, else we don't have ⊥.) -/
-@[implicit_reducible]
+@[instance_reducible]
 def Distr (α : Type) : Type := α → ENNReal
 
 noncomputable def Distr.join : Distr (Distr α) → Distr α := fun dd x =>

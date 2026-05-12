@@ -276,7 +276,7 @@ Examples:
  * `Fin.last 4 = (4 : Fin 5)`
  * `(Fin.last 0).val = (0 : Nat)`
 -/
-@[inline, implicit_reducible] def last (n : Nat) : Fin (n + 1) := ⟨n, n.lt_succ_self⟩
+@[inline, instance_reducible] def last (n : Nat) : Fin (n + 1) := ⟨n, n.lt_succ_self⟩
 
 /--
 Replaces the bound with another that is suitable for the value.
@@ -302,14 +302,14 @@ Coarsens a bound to one at least as large.
 See also `Fin.castAdd` for a version that represents the larger bound with addition rather than an
 explicit inequality proof.
 -/
-@[inline, implicit_reducible] def castLE (h : n ≤ m) (i : Fin n) : Fin m := ⟨i, Nat.lt_of_lt_of_le i.2 h⟩
+@[inline, instance_reducible] def castLE (h : n ≤ m) (i : Fin n) : Fin m := ⟨i, Nat.lt_of_lt_of_le i.2 h⟩
 
 /--
 Uses a proof that two bounds are equal to allow a value bounded by one to be used with the other.
 
 In other words, when `eq : n = m`, `Fin.cast eq i` converts `i : Fin n` into a `Fin m`.
 -/
-@[inline, implicit_reducible] protected def cast (eq : n = m) (i : Fin n) : Fin m := ⟨i, eq ▸ i.2⟩
+@[inline, instance_reducible] protected def cast (eq : n = m) (i : Fin n) : Fin m := ⟨i, eq ▸ i.2⟩
 
 /--
 Coarsens a bound to one at least as large.
@@ -317,13 +317,13 @@ Coarsens a bound to one at least as large.
 See also `Fin.natAdd` and `Fin.addNat` for addition functions that increase the bound, and
 `Fin.castLE` for a version that uses an explicit inequality proof.
 -/
-@[inline, implicit_reducible] def castAdd (m) : Fin n → Fin (n + m) :=
+@[inline, instance_reducible] def castAdd (m) : Fin n → Fin (n + m) :=
   castLE <| Nat.le_add_right n m
 
 /--
 Coarsens a bound by one.
 -/
-@[inline, implicit_reducible] def castSucc : Fin n → Fin (n + 1) := castAdd 1
+@[inline, instance_reducible] def castSucc : Fin n → Fin (n + 1) := castAdd 1
 
 /--
 Adds a natural number to a `Fin`, increasing the bound.

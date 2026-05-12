@@ -769,7 +769,7 @@ Examples:
 * `["grape"].isEmpty = false`
 * `["apple", "banana"].isEmpty = false`
 -/
-@[implicit_reducible]
+@[instance_reducible]
 def isEmpty : List α → Bool
   | []     => true
   | _ :: _ => false

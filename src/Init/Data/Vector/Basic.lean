@@ -64,7 +64,7 @@ recommended_spelling "empty" for "#v[]" in [Vector.mk, «term#v[_,]»]
 recommended_spelling "singleton" for "#v[x]" in [Vector.mk, «term#v[_,]»]
 
 /-- Convert a vector to a list. -/
-@[expose, implicit_reducible]
+@[expose, instance_reducible]
 def toList (xs : Vector α n) : List α := xs.toArray.toList
 
 /-- Custom eliminator for `Vector α n` through `Array α` -/
@@ -238,7 +238,7 @@ We immediately simplify this to the `extract` operation, so there is no verifica
   simp [shrink, take]
 
 /-- Maps elements of a vector using the function `f`. -/
-@[inline, expose, implicit_reducible] def map (f : α → β) (xs : Vector α n) : Vector β n :=
+@[inline, expose, instance_reducible] def map (f : α → β) (xs : Vector α n) : Vector β n :=
   ⟨xs.toArray.map f, by simp⟩
 
 /-- Maps elements of a vector using the function `f`, which also receives the index of the element. -/

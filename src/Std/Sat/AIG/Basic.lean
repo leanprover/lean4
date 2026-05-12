@@ -321,7 +321,7 @@ structure Ref (aig : AIG α) where
 /--
 A `Ref` into `aig1` is also valid for `aig2` if `aig1` is smaller than `aig2`.
 -/
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 def Ref.cast {aig1 aig2 : AIG α} (ref : Ref aig1) (h : aig1.decls.size ≤ aig2.decls.size) :
     Ref aig2 :=
   { ref with hgate := by have := ref.hgate; omega }

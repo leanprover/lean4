@@ -34,7 +34,7 @@ def emptyWithCapacity (c : Nat) : RefVec aig 0 where
 theorem emptyWithCapacity_eq : emptyWithCapacity (aig := aig) c = empty := by
   rfl
 
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 def cast' {aig1 aig2 : AIG α} (s : RefVec aig1 len)
     (h :
       (∀ {i : Nat} (h : i < len), s.refs[i].gate < aig1.decls.size)
@@ -48,7 +48,7 @@ def cast' {aig1 aig2 : AIG α} (s : RefVec aig1 len)
       apply s.hrefs
   }
 
-@[inline, implicit_reducible]
+@[inline, instance_reducible]
 def cast {aig1 aig2 : AIG α} (s : RefVec aig1 len) (h : aig1.decls.size ≤ aig2.decls.size) :
     RefVec aig2 len :=
   s.cast' <| by

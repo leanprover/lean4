@@ -279,7 +279,7 @@ namespace AESArm
 open BitVec
 
 def WordSize := 32
-@[implicit_reducible]
+@[instance_reducible]
 def BlockSize := 128
 
 def Rcon : List (BitVec WordSize) :=
@@ -307,7 +307,7 @@ structure KBR where
   h : block_size = BlockSize
 deriving DecidableEq, Repr
 
-@[implicit_reducible]
+@[instance_reducible]
 def AES128KBR : KBR :=
   {key_len := 128, block_size := BlockSize, Nr := 10, h := by decide}
 def AES192KBR : KBR :=

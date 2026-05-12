@@ -8,7 +8,7 @@ import Lean
 Basic functionality
 -/
 /--
-info: @[implicit_reducible] def Nat.pred : Nat → Nat :=
+info: @[instance_reducible] def Nat.pred : Nat → Nat :=
 fun x =>
   match x with
   | 0 => 0

@@ -40,7 +40,7 @@ Examples:
  * `(2 : Fin 3).succ = (3 : Fin 4)`
  * `(2 : Fin 3) + 1 = (0 : Fin 3)`
 -/
-@[implicit_reducible] def succ : Fin n → Fin (n + 1)
+@[instance_reducible] def succ : Fin n → Fin (n + 1)
   | ⟨i, h⟩ => ⟨i+1, Nat.succ_lt_succ h⟩
 
 variable {n : Nat}

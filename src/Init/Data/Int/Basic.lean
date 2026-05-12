@@ -182,7 +182,7 @@ Examples:
  * `(6 : Int) * (-6 : Int) = -36`
  * `(7 : Int) * (0 : Int) = 0`
 -/
-@[extern "lean_int_mul"]
+@[extern "lean_int_mul", implicit_reducible]
 protected def mul (m n : @& Int) : Int :=
   match m, n with
   | ofNat m, ofNat n => ofNat (m * n)
@@ -252,7 +252,7 @@ Examples:
 * `if (6 : Int) = (3 : Int) * (2 : Int) then "yes" else "no" = "yes"`
 * `(¬ (6 : Int) = (3 : Int)) = true`
 -/
-@[extern "lean_int_dec_eq"]
+@[extern "lean_int_dec_eq", implicit_reducible]
 protected def decEq (a b : @& Int) : Decidable (a = b) :=
   match a, b with
   | ofNat a, ofNat b => match decEq a b with
@@ -277,7 +277,7 @@ set_option bootstrap.genMatcherCode false in
   ```
 
   Implemented by efficient native code. -/
-@[extern "lean_int_dec_nonneg"]
+@[extern "lean_int_dec_nonneg", implicit_reducible]
 def decNonneg (m : @& Int) : Decidable (NonNeg m) :=
   match m with
   | ofNat m => isTrue <| NonNeg.mk m
@@ -363,6 +363,7 @@ Examples:
 * `(0 : Int).toNat = 0`
 * `(-7 : Int).toNat = 0`
 -/
+@[implicit_reducible]
 def toNat : Int → Nat
   | ofNat n   => n
   | negSucc _ => 0

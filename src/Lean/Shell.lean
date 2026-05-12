@@ -177,6 +177,10 @@ def displayHelp (useStderr : Bool) : IO Unit := do
   out.putStrLn    "      --print-libdir     print the installation directory for Lean's built-in libraries and exit"
   out.putStrLn    "      --profile          display elaboration/type checking time for each definition/theorem"
   out.putStrLn    "      --stats            display environment statistics"
+  out.putStrLn    "      --incr-save=file   EXPERIMENTAL: save a full incremental snapshot of post-elaboration state at end of run"
+  out.putStrLn    "      --incr-load=file   EXPERIMENTAL: reuse a snapshot saved by `--incr-(header-)save` at start of run"
+  out.putStrLn    "      --incr-header-save=file"
+  out.putStrLn    "                         EXPERIMENTAL: like `--incr-save`, but save only the header (state after importing)"
   if Internal.isDebug () then
     out.putStrLn  "      --debug=tag        enable assertions with the given tag"
   out.putStrLn    "      -D name=value      set a configuration option (see set_option command)"
@@ -248,6 +252,9 @@ structure ShellOptions where
   errorOnKinds : Array Name := #[]
   printStats : Bool := false
   run : Bool := false
+  incrSaveFileName? : Option System.FilePath := none
+  incrLoadFileName? : Option System.FilePath := none
+  incrHeaderSaveFileName? : Option System.FilePath := none
 
 @[export lean_shell_options_mk]
 def mkShellOptions (_ : Unit) : ShellOptions := {}
@@ -434,6 +441,12 @@ def ShellOptions.process (opts : ShellOptions)
     let arg ← checkOptArg "E" optArg?
     let errorOnKinds := opts.errorOnKinds.push arg.toName
     return {opts with errorOnKinds}
+  | 'Y' => -- `--incr-save=file`
+    return {opts with incrSaveFileName? := ← checkOptArg "Y" optArg?}
+  | 'Z' => -- `--incr-load=file`
+    return {opts with incrLoadFileName? := ← checkOptArg "Z" optArg?}
+  | 'H' => -- `--incr-header-save=file`
+    return {opts with incrHeaderSaveFileName? := ← checkOptArg "H" optArg?}
   | _ =>
     pure ()
   eprint "Unknown command line option\n"
@@ -545,6 +558,9 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
   let env? ← Elab.runFrontend contents opts.leanOpts fileName mainModuleName
     opts.trustLevel opts.oleanFileName? opts.ileanFileName? opts.jsonOutput opts.errorOnKinds
     #[] opts.printStats setup?
+    (incrSaveFileName? := opts.incrSaveFileName?)
+    (incrLoadFileName? := opts.incrLoadFileName?)
+    (incrHeaderSaveFileName? := opts.incrHeaderSaveFileName?)
   if let some env := env? then
     if opts.run then
       return ← runMain env opts.leanOpts args

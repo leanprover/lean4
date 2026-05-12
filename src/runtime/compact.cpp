@@ -230,8 +230,8 @@ object_offset object_compactor::to_offset(object * o) {
     }
 }
 
-object * object_compactor::copy_object(object * o) {
-    size_t sz  = lean_object_byte_size(o);
+object * object_compactor::copy_object(object * o, size_t sz) {
+    if (sz == 0) sz = lean_object_byte_size(o);
     void * mem = alloc(sz);
     memcpy(mem, o, sz);
     object * r = static_cast<object*>(mem);
@@ -239,7 +239,6 @@ object * object_compactor::copy_object(object * o) {
     lean_assert(!lean_has_rc(r));
     lean_assert(lean_ptr_tag(r) == lean_ptr_tag(o));
     lean_assert(lean_ptr_other(r) == lean_ptr_other(o));
-    lean_assert(lean_object_byte_size(r) == sz);
     return r;
 }
 
@@ -334,9 +333,10 @@ bool object_compactor::insert_thunk(object * o) {
     object_offset c = to_offset(v);
     if (c == g_null_offset)
         return false;
-    object * r = copy_object(o);
+    size_t sz = sizeof(lean_thunk_object);
+    object * r = copy_object(o, sz);
     lean_to_thunk(r)->m_value = c;
-    save_max_sharing(o, r, lean_object_byte_size(o));
+    save_max_sharing(o, r, sz);
     return true;
 }
 
@@ -345,9 +345,10 @@ bool object_compactor::insert_ref(object * o) {
     object_offset c = to_offset(v);
     if (c == g_null_offset)
         return false;
-    object * r = copy_object(o);
+    size_t sz = sizeof(lean_ref_object);
+    object * r = copy_object(o, sz);
     lean_to_ref(r)->m_value = c;
-    save_max_sharing(o, r, lean_object_byte_size(o));
+    save_max_sharing(o, r, sz);
     return true;
 }
 
@@ -356,10 +357,11 @@ bool object_compactor::insert_task(object * o) {
     object_offset c = to_offset(v);
     if (c == g_null_offset)
         return false;
-    object * r = copy_object(o);
+    size_t sz = sizeof(lean_task_object);
+    object * r = copy_object(o, sz);
     lean_assert(lean_to_task(r)->m_imp == nullptr);
     lean_to_task(r)->m_value = c;
-    save_max_sharing(o, r, lean_object_byte_size(o));
+    save_max_sharing(o, r, sz);
     return true;
 }
 
@@ -395,9 +397,10 @@ bool object_compactor::insert_promise(object * o) {
     object_offset c = to_offset(t);
     if (c == g_null_offset)
         return false;
-    object * r = copy_object(o);
+    size_t sz = sizeof(lean_promise_object);
+    object * r = copy_object(o, sz);
     lean_to_promise(r)->m_result = (lean_task_object *)c;
-    save_max_sharing(o, r, lean_object_byte_size(o));
+    save_max_sharing(o, r, sz);
     return true;
 }
 

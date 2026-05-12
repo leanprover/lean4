@@ -64,7 +64,7 @@ class LEAN_EXPORT object_compactor {
     void save_max_sharing(object * o, object * new_o, size_t new_o_sz);
     object_offset to_offset(object * o);
     void insert_terminator(object * o);
-    object * copy_object(object * o);
+    object * copy_object(object * o, size_t sz = 0);
     bool insert_constructor(object * o);
     bool insert_array(object * o);
     void insert_sarray(object * o);
@@ -107,6 +107,9 @@ class LEAN_EXPORT region_reader {
     void * m_begin;
     void * m_next;
     void * m_end;
+    // Path of the file this region was loaded from (empty when constructed in-memory rather
+    // than read from disk). Lets snapshot save re-derive its dep paths from `env.header.regions`.
+    std::string m_fname;
     // Dependency regions for cross-region pointer fixup
     std::vector<region_view> m_dep_regions;
     // Sorted (old_base, delta) pairs for closure function pointer relocation

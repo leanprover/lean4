@@ -2270,6 +2270,8 @@ private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
+  if t == s then
+    return true
   withTraceNodeBefore `Meta.isDefEq (fun _ => return m!"{t} =?= {s}") do
   checkSystem "isDefEq"
   whenUndefDo (isDefEqQuick t s) do

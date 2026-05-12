@@ -262,12 +262,12 @@ structure Environment where
   /--
   Environment extensions. It also includes user-defined extensions.
   -/
-  private extensions      : Array EnvExtensionState
+  private extensions      : PArray EnvExtensionState
   /--
   Additional imported environment extension state for the interpreter. Access via
   `getModuleIREntries`.
   -/
-  private irBaseExts      : Array EnvExtensionState
+  private irBaseExts      : PArray EnvExtensionState
   /-- The header contains additional information that is set at import time. -/
   header                  : EnvironmentHeader := private_decl% {}
 deriving Nonempty
@@ -449,7 +449,7 @@ private structure AsyncConst where
   Reported extension state eventually fulfilled by promise; may be missing for tasks (e.g. kernel
   checking, synchronous decl addition) that can eagerly guarantee they will not report any state.
   -/
-  exts?       : Option (Task (Array EnvExtensionState))
+  exts?       : Option (Task (PArray EnvExtensionState))
   /--
   `Task AsyncConsts` except for problematic recursion. The set of nested constants created while
   elaborating this constant.
@@ -581,7 +581,7 @@ structure Environment where
   identical to `base.extensions` in other contexts. Access via
   `getModuleEntries (level := .server)`.
   -/
-  private serverBaseExts : Array EnvExtensionState := private_decl% base.private.extensions
+  private serverBaseExts : PArray EnvExtensionState := private_decl% base.private.extensions
   /--
   Kernel environment task that is fulfilled when all asynchronously elaborated declarations are
   finished, containing the resulting environment. Also collects the environment extension state of
@@ -960,7 +960,7 @@ def PromiseCheckedResult.commitChecked (res : PromiseCheckedResult) (env : Envir
 private structure ConstPromiseVal where
   privateConstInfo     : ConstantInfo
   exportedConstInfo    : ConstantInfo
-  exts                 : Array EnvExtensionState
+  exts                 : PArray EnvExtensionState
   nestedConsts         : VisibilityMap AsyncConsts
 deriving Nonempty
 
@@ -1317,10 +1317,10 @@ private builtin_initialize envExtensionsRef : IO.Ref (Array (EnvExtension EnvExt
   user-defined environment extensions. When this happens, we must adjust the size of the `env.extensions`.
   This method is invoked when processing `import`s.
 -/
-partial def ensureExtensionsArraySize (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
+partial def ensureExtensionsArraySize (exts : PArray EnvExtensionState) : IO (PArray EnvExtensionState) := do
   loop exts.size exts
 where
-  loop (i : Nat) (exts : Array EnvExtensionState) : IO (Array EnvExtensionState) := do
+  loop (i : Nat) (exts : PArray EnvExtensionState) : IO (PArray EnvExtensionState) := do
     let envExtensions ← envExtensionsRef.get
     if h : i < envExtensions.size then
       let s ← envExtensions[i].mkInitial
@@ -1331,15 +1331,15 @@ where
 
 private def invalidExtMsg := "invalid environment extension has been accessed"
 
-private unsafe def setStateImpl {σ} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (s : σ) : Array EnvExtensionState :=
-  if h : ext.idx < exts.size then
+private unsafe def setStateImpl {σ} (ext : EnvExtension σ) (exts : PArray EnvExtensionState) (s : σ) : PArray EnvExtensionState :=
+  if ext.idx < exts.size then
     exts.set ext.idx (unsafeCast s)
   else
     -- do not return an empty array on panic, avoiding follow-up out-of-bounds accesses
-    have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
+    have : Inhabited (PArray EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : Array EnvExtensionState) (f : σ → σ) : Array EnvExtensionState :=
+private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : PArray EnvExtensionState) (f : σ → σ) : PArray EnvExtensionState :=
   if ext.idx < exts.size then
     exts.modify ext.idx fun s =>
       let s : σ := unsafeCast s
@@ -1347,18 +1347,18 @@ private unsafe def modifyStateImpl {σ : Type} (ext : EnvExtension σ) (exts : A
       unsafeCast s
   else
     -- do not return an empty array on panic, avoiding follow-up out-of-bounds accesses
-    have : Inhabited (Array EnvExtensionState) := ⟨exts⟩
+    have : Inhabited (PArray EnvExtensionState) := ⟨exts⟩
     panic! invalidExtMsg
 
-private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : Array EnvExtensionState) : σ :=
+private unsafe def getStateImpl {σ} [Inhabited σ] (ext : EnvExtension σ) (exts : PArray EnvExtensionState) : σ :=
   if h : ext.idx < exts.size then
     unsafeCast exts[ext.idx]
   else
     panic! invalidExtMsg
 
-def mkInitialExtStates : IO (Array EnvExtensionState) := do
+def mkInitialExtStates : IO (PArray EnvExtensionState) := do
   let exts ← envExtensionsRef.get
-  exts.mapM fun ext => ext.mkInitial
+  return (← exts.mapM fun ext => ext.mkInitial).toPArray'
 
 /--
 Checks whether `modifyState (asyncDecl := declName)` may be called on an async environment
@@ -1507,7 +1507,7 @@ def registerEnvExtension {σ : Type} (mkInitial : IO σ)
   EnvExtension.envExtensionsRef.modify fun exts => exts.push (unsafe unsafeCast ext)
   pure ext
 
-private def mkInitialExtensionStates : IO (Array EnvExtensionState) := EnvExtension.mkInitialExtStates
+private def mkInitialExtensionStates : IO (PArray EnvExtensionState) := EnvExtension.mkInitialExtStates
 
 @[export lean_mk_empty_environment]
 def mkEmptyEnvironment (trustLevel : UInt32 := 0) : IO Environment := do
@@ -1901,8 +1901,8 @@ def mkExtNameMap (startingAt : Nat) : IO (Std.HashMap Name Nat) := do
     result := result.insert descr.name i
   return result
 
-private def setImportedEntries (states : Array EnvExtensionState) (mods : Array ModuleData)
-    (startingAt : Nat := 0) : IO (Array EnvExtensionState) := do
+private def setImportedEntries (states : PArray EnvExtensionState) (mods : Array ModuleData)
+    (startingAt : Nat := 0) : IO (PArray EnvExtensionState) := do
   let mut states := states
   let extDescrs ← persistentEnvExtensionsRef.get
   /- For extensions starting at `startingAt`, ensure their `importedEntries` array have size `mods.size`. -/

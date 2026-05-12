@@ -5,6 +5,10 @@ set_option pp.proofs true
 -- set_option trace.split.debug true
 
 /--
+warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType
+---
 error: Tactic `split` failed: Could not split an `if` or `match` expression in the goal
 
 Hint: Use `set_option trace.split.failure true` to display additional diagnostic information
@@ -24,6 +28,10 @@ example (n : Nat) : Fin.last n = match (motive := ∀ n, Fin (n+1)) id n with
 -- This is the type-incorrect target after generalization
 
 /--
+warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType
+---
 error: Type mismatch
   match n with
   | 0 => Fin.last 0
@@ -68,6 +76,11 @@ example (n : Nat) (h : n > 0): Fin.last n = match (motive := ∀ n _, Fin (n+1))
 -- This failed, non-FVar discr.
 -- Succeeds now
 
+/--
+warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType
+-/
 #guard_msgs(pass trace, all) in
 example (n : Nat) (hpos : n > 0): Fin.last n = match (motive := ∀ n _, Fin (n+1)) n, id hpos with
   | 0, hpos0 => by contradiction

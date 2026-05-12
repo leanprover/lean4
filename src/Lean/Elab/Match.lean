@@ -74,11 +74,25 @@ abbrev TermMatchAltView := MatchAltView `term
 
 structure ElabMatchTypeAndDiscrsResult where
   discrs    : Array Discr
+  /-- The match type as a type family (lambda).
+     For example, `fun (b : Bool) => Nat` for a match on a Bool returning Nat.
+     This was originally the Expr for a Pi type. We are in the process of deprecating that syntax.
+  -/
   matchType : Expr
   /-- `true` when performing dependent elimination. We use this to decide whether we optimize the "match unit" case.
      See `isMatchUnit?`. -/
   isDep     : Bool
   alts      : Array TermMatchAltView
+
+/--
+Convert a Pi type to a lambda (type family).
+For example: `(b : Bool) → Nat` becomes `fun (b : Bool) => Nat`.
+
+This function is used when the motive is provided as a Pi type.
+After the deprecation period for Pi type motives, this function can be deleted.
+-/
+private def piTypeToTypeFamily (matchType : Expr) (numDiscrs : Nat) : MetaM Expr :=
+  forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType
 
 private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptMotive : Syntax) (matchAltViews : Array TermMatchAltView) (expectedType : Expr)
       : TermElabM ElabMatchTypeAndDiscrsResult := do
@@ -87,12 +101,16 @@ private partial def elabMatchTypeAndDiscrs (discrStxs : Array Syntax) (matchOptM
   else
     -- motive := leading_parser atomic ("(" >> nonReservedSymbol "motive" >> " := ") >> termParser >> ")"
     let matchTypeStx := matchOptMotive[0][3]
-    let matchType ← elabType matchTypeStx
-    let (discrs, isDep) ← elabDiscrsWithMatchType matchType
-    return { discrs := discrs, matchType := matchType, isDep := isDep, alts := matchAltViews }
+    let matchTypeExpr ← elabTerm matchTypeStx none
+    let matchTypeWhnf ← whnf matchTypeExpr
+    if matchTypeWhnf.isLambda then
+      let (discrs, isDep) ← elabDiscrsWithTypeFamily matchTypeExpr
+      return { discrs := discrs, matchType := matchTypeExpr, isDep := isDep, alts := matchAltViews }
+    else
+      throwError "Invalid motive: expected a type family (lambda) with arity {discrStxs.size}"
 where
-  /-- Easy case: elaborate discriminant when the match-type has been explicitly provided by the user.  -/
-  elabDiscrsWithMatchType (matchType : Expr) : TermElabM (Array Discr × Bool) := do
+  /-- Elaborate discriminants when the motive is a type family (lambda). -/
+  elabDiscrsWithTypeFamily (matchType : Expr) : TermElabM (Array Discr × Bool) := do
     let mut discrs := #[]
     let mut i := 0
     let mut matchType := matchType
@@ -101,7 +119,7 @@ where
       i := i + 1
       matchType ← whnf matchType
       match matchType with
-      | Expr.forallE _ d b _ =>
+      | Expr.lam _ d b _ =>
         let discr ← fullApproxDefEq <| elabTermEnsuringType discrStx[1] d
         trace[Elab.match] "discr #{i} {discr} : {d}"
         if b.hasLooseBVars then
@@ -109,7 +127,7 @@ where
         matchType := b.instantiate1 discr
         discrs := discrs.push { expr := discr }
       | _ =>
-        throwError "Invalid motive provided to match-expression: Function type with arity {discrStxs.size} expected"
+        throwError "Invalid motive: type family with arity {discrStxs.size} expected"
     return (discrs, isDep)
 
   markIsDep (r : ElabMatchTypeAndDiscrsResult) :=
@@ -146,7 +164,7 @@ where
         the term to the kernel.
       -/
       let discrType ← transform (usedLetOnly := true) (← instantiateMVars (← inferType discr))
-      let matchType := Lean.mkForall userName BinderInfo.default discrType matchTypeBody
+      let matchType := Lean.mkLambda userName BinderInfo.default discrType matchTypeBody
       return { result with matchType }
     else
       return { discrs, alts := matchAltViews, isDep := false, matchType := expectedType }
@@ -375,7 +393,7 @@ private def elabPatterns (patternStxs : Array Syntax) (numDiscrs : Nat) (matchTy
       let patternStx := patternStxs[idx]
       matchType ← whnf matchType
       match matchType with
-      | Expr.forallE _ d b _ =>
+      | Expr.lam _ d b _ =>
         let pattern ← do
           let s ← saveState
           try
@@ -888,11 +906,11 @@ private def generalize (discrs : Array Discr) (matchType : Expr) (altViews : Arr
       return { discrs, matchType, altViews }
     else
       let ys := ysFVarIds.map mkFVar
-      let matchType' ← forallBoundedTelescope matchType discrs.size fun ds type => do
-        let type ← mkForallFVars ys type
+      let matchType' ← lambdaBoundedTelescope matchType discrs.size fun ds type => do
+        let type ← mkLambdaFVars ys type
         let (discrs', ds') := Array.unzip <| Array.zip discrExprs ds |>.filter fun (di, _) => di.isFVar
         let type := type.replaceFVars discrs' ds'
-        mkForallFVars ds type
+        mkLambdaFVars ds type
       if (← isTypeCorrect matchType') then
         let discrs := discrs ++  ys.map fun y => { expr := y : Discr }
         let altViews ← altViews.mapM fun altView => do
@@ -1016,7 +1034,7 @@ where
       let indexType ← inferType index
       let matchTypeBody ← kabstract matchType index
       let userName ← mkUserNameFor index
-      return Lean.mkForall userName BinderInfo.default indexType matchTypeBody
+      return Lean.mkLambda userName BinderInfo.default indexType matchTypeBody
     check matchType
     return matchType
 
@@ -1154,13 +1172,12 @@ private def elabMatchAux (generalizing? : Option Bool) (discrStxs : Array Syntax
   if let some r ← if isDep then pure none else isMatchUnit? altLHSS rhss then
     return r
   else
-    let numDiscrs := discrs.size
     let matcherName ← mkAuxName `match
     let matcherResult ← mkMatcher { matcherName, matchType, discrInfos := discrs.map fun discr => { hName? := discr.h?.map (·.getId) }, lhss := altLHSS }
     reportMatcherResultErrors altLHSS matcherResult
     matcherResult.addMatcher
-    let motive ← forallBoundedTelescope matchType numDiscrs fun xs matchType => mkLambdaFVars xs matchType
-    let r := mkApp matcherResult.matcher motive
+    -- matchType is already a type family (lambda), so use it directly as the motive
+    let r := mkApp matcherResult.matcher matchType
     let r := mkAppN r (discrs.map (·.expr))
     let r := mkAppN r rhss
     trace[Elab.match] "result: {r}"

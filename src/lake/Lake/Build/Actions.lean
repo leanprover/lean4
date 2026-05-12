@@ -81,7 +81,7 @@ public def compileLeanModule
     logInfo s!"stderr:\n{out.stderr.trimAscii}"
   if out.exitCode ≠ 0 then
     error s!"Lean exited with code {out.exitCode}"
-  if postponeCompile then
+  if true then --postponeCompile then
     if let (some irFile, some cFile) := (arts.ir?, arts.c?) then
       createParentDirs irFile
       createParentDirs cFile

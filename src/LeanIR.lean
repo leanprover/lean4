@@ -56,6 +56,8 @@ def setConfigOption (opts : Options) (arg : String) : IO Options := do
       throw <| .userError s!"unknown option '{name}'"
 
 public def main (args : List String) : IO UInt32 := do
+  return 0
+#exit
   let setupFile::irFile::c::optArgs := args | do
     IO.println s!"usage: leanir <setup.json> <output.ir> <output.c> [--stat] <-Dopt=val>..."
     return 1
@@ -84,6 +86,8 @@ public def main (args : List String) : IO UInt32 := do
     let s := { s with moduleNameMap := s.moduleNameMap.modify modName fun m => if m.module == modName then { m with irPhases := .runtime } else { m with irPhases := .all } }
     -- level exported because otherwise we would try to load the current module's `.ir`
     finalizeImport (leakEnv := true) (loadExts := false) (level := .exported) s imports opts
+  return 0
+#exit
   let env := env.setMainModule modName
 
   let initExt {α β σ} [Inhabited σ] (ext : PersistentEnvExtension α β σ) (env : Environment) : IO Environment := do

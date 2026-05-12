@@ -56,14 +56,20 @@ align save and load sites. Mismatched types between save and load yield undefine
 not be re-serialized. `prev`, when present, likewise allows for reuse of objects from prior saves
 in the same session.
 
+If `allowClosures` is `true`, closures in the compacted data are tolerated and the file is written
+in the extended `v3` olean format (which may become the default in the future). This is an
+EXPERIMENTAL option. The saving and loading process must be using identical executables, including
+dependent libraries. When `false`, encountering a closure is an error and the file is written in the
+old `v2` format.
+
 Returns a `Compactor` that may be passed as `prev` to subsequent saves. Unsafe because the
 returned `Compactor` carries thread-safety and `depRegions` lifetime contracts the type system
 cannot enforce; see `Compactor`.
 -/
 @[extern "lean_compacted_region_save"]
 public unsafe opaque CompactedRegion.save {α : Type} (fname : @& System.FilePath) (key : @& Name)
-    (data : @& α) (depRegions : @& Array CompactedRegion) (prev : Option Compactor) :
-    IO Compactor
+    (data : @& α) (depRegions : @& Array CompactedRegion) (prev : Option Compactor)
+    (allowClosures := false) : IO Compactor
 
 /--
 Reads a compacted region from disk.

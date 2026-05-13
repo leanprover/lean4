@@ -492,25 +492,110 @@ partial def collectSyntaxBasedSemanticTokens (text : FileMap) : (stx : Syntax) �
       return tokens
     return tokens.push { stx, type := keywordSemanticTokenMap.getD val .keyword }
 
+private partial def forallBody : Expr → Expr
+  | .forallE _ _ body _ => forallBody body
+  | type => type
+
+private def typeForSortResult? (type : Expr) : Option SemanticTokenType :=
+  match forallBody type with
+  | .sort u =>
+    if u.isAlwaysZero then
+      some .enum
+    else
+      some .type
+  | _ => none
+
+private partial def typeExprResult? (env : Environment) (lctx : LocalContext) (type : Expr) :
+    Option SemanticTokenType :=
+  match typeForSortResult? type with
+  | some tokenType => some tokenType
+  | none =>
+    match type.getAppFn with
+    | .const declName us =>
+      match env.find? declName with
+      | some info => typeForSortResult? (info.instantiateTypeLevelParams us)
+      | none => none
+    | .fvar fvarId =>
+      match lctx.find? fvarId with
+      | some localDecl => typeForSortResult? localDecl.type
+      | none => none
+    | _ => none
+
+private def classifyLocal (env : Environment) (ti : Elab.TermInfo) (localDecl : LocalDecl) :
+    Option SemanticTokenType := Id.run do
+  -- Recall that `isAuxDecl` is an auxiliary declaration used to elaborate a recursive definition.
+  if localDecl.isAuxDecl then
+    if ti.isBinder then
+      return some .function
+    else
+      return none
+  if localDecl.isImplementationDetail then
+    return none
+  let localType := localDecl.type
+  if let some tokenType := typeForSortResult? localType then
+    if localType.isSort && tokenType == .type then
+      return some .typeParameter
+    else
+      return some tokenType
+  if typeExprResult? env ti.lctx localType == some .enum then
+    return some .variable
+  if ti.isBinder then
+    return some .parameter
+  return some .variable
+
+private def classifyConstant (env : Environment) (declName : Name) (info : ConstantInfo) (expr : Expr) :
+    SemanticTokenType :=
+  if env.isProjectionFn declName then
+    .property
+  else match info with
+  | .ctorInfo _ => .enumMember
+  | .inductInfo info =>
+    if isClass env info.name then
+      .interface
+    else if isStructure env info.name then
+      .struct
+    else if let some tokenType := typeExprResult? env {} expr then
+      tokenType
+    else
+      .type
+  | .thmInfo _ | .recInfo _ => .function
+  | _ =>
+    if let some tokenType := typeExprResult? env {} expr then
+      tokenType
+    else
+      .function
+
+private def collectTermInfoBasedSemanticToken (ctx : Elab.ContextInfo) (ti : Elab.TermInfo) :
+    Option LeanSemanticToken := Id.run do
+  let .original .. := ti.stx.getHeadInfo
+    | return none
+  if ti.expr.isSort then
+    return some { stx := ti.stx, type := .class }
+  if ti.stx.getKind == Parser.Term.identProjKind then
+    return some { stx := ti.stx, type := .property }
+  if let `($_:ident) := ti.stx then
+    match ti.expr with
+    | Expr.fvar fvarId .. =>
+      match ti.lctx.find? fvarId with
+      | some localDecl =>
+        let tokenType? := classifyLocal ctx.env ti localDecl
+        return tokenType?.map fun tokenType => ⟨ti.stx, tokenType, 5⟩
+      | none => return none
+    | _ =>
+      match ti.expr.getAppFn with
+      | Expr.const declName .. =>
+        match ctx.env.find? declName with
+        | some info => return some ⟨ti.stx, classifyConstant ctx.env declName info ti.expr, 5⟩
+        | none => return none
+      | _ => return none
+  return none
+
 /-- Collects all semantic tokens from the given `Elab.InfoTree`. -/
 def collectInfoBasedSemanticTokens (i : Elab.InfoTree) : Array LeanSemanticToken :=
-  List.toArray <| i.deepestNodes fun _ info _ => do
+  List.toArray <| i.deepestNodes fun ctx info _ => do
     let .ofTermInfo ti := info
       | none
-    let .original .. := ti.stx.getHeadInfo
-      | none
-    if let `($_:ident) := ti.stx then
-      if let Expr.fvar fvarId .. := ti.expr then
-        if let some localDecl := ti.lctx.find? fvarId then
-          -- Recall that `isAuxDecl` is an auxiliary declaration used to elaborate a recursive definition.
-          if localDecl.isAuxDecl then
-            if ti.isBinder then
-              return { stx := ti.stx, type := SemanticTokenType.function }
-          else if ! localDecl.isImplementationDetail then
-            return { stx := ti.stx, type := SemanticTokenType.variable }
-    if ti.stx.getKind == Parser.Term.identProjKind then
-      return {stx := ti.stx, type := SemanticTokenType.property }
-    none
+    collectTermInfoBasedSemanticToken ctx ti
 
 /--
 A debugging utility for inspecting sets of collected tokens, classified by line and sorted by

@@ -20,6 +20,10 @@ def SemanticTokenPredicate (A : Type u) (a : A) : Prop := a = a
 
 def semanticTokenValue : Nat := 1
 
+def semanticTokenRecursive : Nat → Nat
+  | 0 => 0
+  | n + 1 => semanticTokenRecursive n
+
 theorem semanticTokenProof (A : Type u) (a : A) : SemanticTokenPredicate A a := rfl
 
 def semanticTokenUse (A : Type u) [SemanticTokenInterface A] (a : A)

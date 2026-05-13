@@ -21,6 +21,15 @@ open Meta
 A **very** simple `try?` tactic implementation.
 -/
 
+register_builtin_option debug.tactic.try.onlyUserSuggestions : Bool := {
+  defValue := false
+  descr    := "if set, `try?` skips its built-in suggestion branches \
+    (simple, simp, grind, simp_all, induction/fun_induction, exact?) and only \
+    runs tactics produced by user-registered `@[try_suggestion]` generators. \
+    Primarily intended for tests that want to exercise the `try?` machinery \
+    without paying for library search and other expensive default branches."
+}
+
 declare_config_elab elabTryConfig Try.Config
 
 namespace Try
@@ -966,18 +975,7 @@ private def mkAllIndStx (info : Try.Info) (cont : TSyntax `tactic) : MetaM (TSyn
 
 /-- Returns tactic for `evalAndSuggest` (unsafe version that can evaluate user generators) -/
 private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) : MetaM (TSyntax `tactic) := do
-  let simple ← mkSimpleTacStx
-  let simp ← mkSimpStx
-  let grind ← mkGrindStx info
-
-  let atomic ← `(tactic| attempt_all_par | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
-  let atomicSuggestions ← mkAtomicWithSuggestionsStx
-  let atomicOrSuggestions ← `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic)
-  let funInds ← mkAllFunIndStx info atomicOrSuggestions
-  let inds ← mkAllIndStx info atomicOrSuggestions
-  let extra ← `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))
-
-  -- Collect user-defined suggestions (runs after built-in tactics)
+  -- Collect user-defined suggestions.
   let userEntries := trySuggestionExtension.getState (← getEnv)
   let mut userTactics := #[]
   for entry in userEntries do
@@ -990,6 +988,25 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
         userTactics := userTactics ++ expandedTacs
     catch e =>
       logWarning m!"try_suggestion generator {entry.name} failed: {e.toMessageData}"
+
+  if debug.tactic.try.onlyUserSuggestions.get (← getOptions) then
+    -- Bypass built-in branches entirely; only run user-registered tactics.
+    if userTactics.isEmpty then
+      return ← `(tactic|
+        fail "debug.tactic.try.onlyUserSuggestions is set but no user suggestions were produced")
+    else
+      return ← `(tactic| attempt_all_par $[| $userTactics:tactic]*)
+
+  let simple ← mkSimpleTacStx
+  let simp ← mkSimpStx
+  let grind ← mkGrindStx info
+
+  let atomic ← `(tactic| attempt_all_par | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
+  let atomicSuggestions ← mkAtomicWithSuggestionsStx
+  let atomicOrSuggestions ← `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic)
+  let funInds ← mkAllFunIndStx info atomicOrSuggestions
+  let inds ← mkAllIndStx info atomicOrSuggestions
+  let extra ← `(tactic| (intros; first | $simple:tactic | $simp:tactic | exact?))
 
   -- Build final tactic: built-ins first, then user suggestions as fallback
   if userTactics.isEmpty then

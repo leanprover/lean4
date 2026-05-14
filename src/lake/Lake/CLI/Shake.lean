@@ -143,6 +143,11 @@ instance : Union Needs where
 -/
 abbrev Edits := Std.HashMap Name (Array Import × Array Import)
 
+/-- Reasons for why a module dependency was added that are not captured by
+constant references (which `getExplanations` already tracks). Keyed by the
+`(j, k)` entry written into `deps`. -/
+abbrev Reasons := Std.HashMap (ModuleIdx × NeedsKind) String
+
 /-- The main state of the checker, containing information on all loaded modules. -/
 structure State where
   env  : Environment
@@ -428,17 +433,25 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
     (!args.onlyMods.isEmpty && !args.onlyMods.contains modName) ||
     module?.any (·.raw.getTrailing?.any (·.toString.contains "shake: keep-all"))
   let mut deps := needs
+  let mut reasons : Reasons := {}
 
   -- Add additional preserved imports
   for impStx in imports do
     let imp := decodeImport impStx
     let j : Nat := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
-    if addOnly ||
+    let reason? :=
+      if impStx.raw.getTrailing?.any (·.toString.contains "shake: keep") then
+        some "`shake: keep`"
+      else if args.keepPublic && imp.isExported && !(`Init).isPrefixOf modName then
         -- TODO: allow per-library configuration instead of hardcoding `Init`
-        args.keepPublic && imp.isExported && !(`Init).isPrefixOf modName ||
-        impStx.raw.getTrailing?.any (·.toString.contains "shake: keep") then
+        some "`--keep-public`"
+      else if addOnly then
+        some "`--add-only` / `--only` / `shake: keep-all`"
+      else none
+    if let some msg := reason? then
       deps := deps.union k {j}
+      reasons := reasons.insert (j, k) msg
       if args.trace then
         IO.eprintln s!"Adding `{imp}` as additional dependency"
   for j in [0:s.mods.size] do
@@ -448,7 +461,9 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
       if s.transDepsOrig[i]!.has k j &&
           (s.preserve.has { k with isMeta := false, isExported := false } j ||
            s.preserve.has { k with isMeta := false, isExported := true } j) then
-        deps := deps.union { k with isMeta := false, isExported := k.isExported && args.addPublic } {j}
+        let k' := { k with isMeta := false, isExported := k.isExported && args.addPublic }
+        deps := deps.union k' {j}
+        reasons := reasons.insert (j, k') s!"`--keep-downstream`/extra rev use in `{s.modNames[j]!}`"
 
   -- Do transitive reduction of `needs` in `deps`.
   if !addOnly then
@@ -472,8 +487,11 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
     let j : Nat := s.env.getModuleIdx? imp.module |>.get!
     let k := NeedsKind.ofImport imp
     if deps.has k j || imp.importAll then
+      let wasInDeps := deps.has k j
       transDeps := addTransitiveImps transDeps imp j s.transDeps[j]!
       deps := deps.union k {j}
+      if !wasInDeps && imp.importAll then
+        reasons := reasons.insert (j, k) "`import all` always being preserved"
     -- skip folder-nested `public (meta)? import`s but remove `meta`
     else if modName.isPrefixOf imp.module then
       let imp := { imp with isMeta := false }
@@ -482,6 +500,7 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
         IO.eprintln s!"`{imp}` is preserved as folder-nested import"
       transDeps := addTransitiveImps transDeps imp j s.transDeps[j]!
       deps := deps.union k {j}
+      reasons := reasons.insert (j, k) "folder-nested import"
       if !s.mods[i]!.imports.contains imp then
         alwaysAdd := alwaysAdd.push imp
 
@@ -507,6 +526,7 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
           imp := { imp with isExported := true }
           if args.trace then
             IO.eprintln s!"* upgrading to `{imp}` because of `--add-public`"
+          reasons := reasons.insert (j, k) "`--add-public`"
         if args.keepPrefix then
           let rec tryPrefix : Name → Option ModuleIdx
             | .str p _ => tryPrefix p <|> (do
@@ -519,11 +539,13 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
               return j')
             | _ => none
           if let some j' := tryPrefix imp.module then
+            let origModule := imp.module
             imp := { imp with module := s.modNames[j']! }
             j := j'
             keptPrefix := true
             if args.trace then
               IO.eprintln s!"* upgrading to `{imp}` because of `--keep-prefix`"
+            reasons := reasons.insert (j, k) s!"`--keep-prefix` upgrade from `{origModule}`"
         if !s.mods[i]!.imports.contains imp then
           toAdd := toAdd.push imp
         deps := deps.union k {j}
@@ -621,13 +643,18 @@ def visitModule (pkgs : Array Name) (srcSearchPath : SearchPath)
     let sanitize n := if n.hasMacroScopes then (sanitizeName n).run' { options := {} } else n
     let run (imp : Import) := do
       let j := s.env.getModuleIdx? imp.module |>.get!
-      let mut k := NeedsKind.ofImport imp
-      if let some exp? := explanation[(j, k)]? <|> guard args.addPublic *> explanation[(j, { k with isExported := false})]? then
-        println! "  note: `{imp}` required"
-        if let some (n, c) := exp? then
-          println! "    because `{sanitize n}` refers to `{sanitize c}`"
+      let k := NeedsKind.ofImport imp
+      println! "  note: `{imp}` required"
+      match explanation[(j, k)]? <|> guard args.addPublic *> explanation[(j, { k with isExported := false})]? with
+      | some (some (n, c)) =>
+        println! "    because `{sanitize n}` refers to `{sanitize c}`"
+      | some none =>
+        println! "    because of additional compile-time dependencies"
+      | none =>
+        if let some msg := reasons[(j, k)]? then
+          println! "    because of {msg}"
         else
-          println! "    because of additional compile-time dependencies"
+          println! "    (no traced reason)"
     for j in s.mods[i]!.imports do
       if !toRemove.contains j then
         run j

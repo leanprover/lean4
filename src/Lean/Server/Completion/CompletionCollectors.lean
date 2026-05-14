@@ -509,7 +509,8 @@ affect the set of eligible completion candidates.
 -/
 private def trailingDotCompletion [ForIn Id Coll (Name × α)]
     (entries : Coll) (stx : Syntax) (caps : ClientCapabilities) (ctx : ContextInfo)
-    (mkItem : Name → α → Option InsertReplaceEdit → ResolvableCompletionItem) :
+    (mkItem : Name → α → Option InsertReplaceEdit → ResolvableCompletionItem)
+    (filterMapName? : Name → Option Name := some) :
     Array ResolvableCompletionItem := Id.run do
   let (partialName, trailingDot) :=
     match stx.getSubstring? (withLeading := false) (withTrailing := false) with
@@ -522,17 +523,18 @@ private def trailingDotCompletion [ForIn Id Coll (Name × α)]
         (ss.toString, false)
   let mut items := #[]
   for (name, value) in entries do
-    if partialName.charactersIn name.toString then
-      let textEdit? :=
-        if !caps.textDocument?.any (·.completion?.any (·.completionItem?.any (·.insertReplaceSupport?.any (·)))) then
-          none -- InsertReplaceEdit not supported by client
-        else if let some ⟨start, stop⟩ := stx.getRange? then
-          let stop := if trailingDot then stop + ' ' else stop
-          let range := ⟨ctx.fileMap.utf8PosToLspPos start, ctx.fileMap.utf8PosToLspPos stop⟩
-          some { newText := name.toString, insert := range, replace := range : InsertReplaceEdit }
-        else
-          none
-      items := items.push (mkItem name value textEdit?)
+    if let some name' := filterMapName? name then
+      if partialName.charactersIn name'.toString then
+        let textEdit? :=
+          if !caps.textDocument?.any (·.completion?.any (·.completionItem?.any (·.insertReplaceSupport?.any (·)))) then
+            none -- InsertReplaceEdit not supported by client
+          else if let some ⟨start, stop⟩ := stx.getRange? then
+            let stop := if trailingDot then stop + ' ' else stop
+            let range := ⟨ctx.fileMap.utf8PosToLspPos start, ctx.fileMap.utf8PosToLspPos stop⟩
+            some { newText := name'.toString, insert := range, replace := range : InsertReplaceEdit }
+          else
+            none
+        items := items.push (mkItem name value textEdit?)
   return items
 
 def optionCompletion
@@ -541,14 +543,21 @@ def optionCompletion
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
     (stx               : Syntax)
+    (optionPrefix      : Name)
     (caps              : ClientCapabilities)
     : IO (Array ResolvableCompletionItem) :=
   ctx.runMetaM {} do
     -- HACK(WN): unfold the type so ForIn works
-    let (decls : Std.TreeMap _ _ _) ← getOptionDecls
+    let mut (decls : Std.TreeMap _ _ _) ← getOptionDecls
     let opts ← getOptions
+    let filterMap? := -- filter/map for `optionPrefix` feature
+      if optionPrefix.isAnonymous then some
+      else fun name : Name =>
+        if optionPrefix.isPrefixOf name then
+          name.replacePrefix optionPrefix .anonymous
+        else none
     -- `stx` is from `"set_option " >> ident`
-    return trailingDotCompletion decls stx[1] caps ctx fun name decl textEdit? => {
+    return trailingDotCompletion decls stx[1] caps ctx (fun name decl textEdit? => {
       label := name.toString
       detail? := s!"({opts.get name decl.defValue}), {decl.descr}"
       documentation? := none,
@@ -560,7 +569,7 @@ def optionCompletion
         cPos? := completionInfoPos
         id? := none : ResolvableCompletionItemData
       }
-    }
+    }) filterMap?
 
 def errorNameCompletion
     (uri               : DocumentUri)

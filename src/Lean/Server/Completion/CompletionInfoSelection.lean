@@ -36,8 +36,8 @@ where
       stx₁.eqWithInfo stx₂ && id₁? == id₂? && structName₁ == structName₂
     | .namespaceId stx₁, .namespaceId stx₂ =>
       stx₁.eqWithInfo stx₂
-    | .option stx₁, .option stx₂ =>
-      stx₁.eqWithInfo stx₂
+    | .option stx₁ pre₁, .option stx₂ pre₂=>
+      stx₁.eqWithInfo stx₂ && pre₁ == pre₂
     | .errorName stx₁ .., .errorName stx₂ .. =>
       stx₁.eqWithInfo stx₂
     | .endSection stx₁ .., .endSection stx₂ .. =>
@@ -84,7 +84,7 @@ where
       return best
     return best.push { hoverInfo, ctx, info := completionInfo }
   containsHoverPos (i : CompletionInfo) : Bool := Id.run do
-    if let .option stx := i then
+    if let .option stx _ := i then
       if stx[1].isMissing then
         let some range := stx.getRangeWithTrailing? (canonicalOnly := true)
           | return false

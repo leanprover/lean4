@@ -52,8 +52,8 @@ partial def find?
           dotIdCompletion uri pos completionInfoPos i.ctx lctx id expectedType?
         | .fieldId _ id lctx structName =>
           fieldIdCompletion uri pos completionInfoPos i.ctx lctx id structName
-        | .option stx =>
-          optionCompletion uri pos completionInfoPos i.ctx stx caps
+        | .option stx optionPrefix =>
+          optionCompletion uri pos completionInfoPos i.ctx stx optionPrefix caps
         | .errorName _ partialId =>
           errorNameCompletion uri pos completionInfoPos i.ctx partialId caps
         | .endSection _ id? danglingDot scopeNames =>

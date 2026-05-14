@@ -111,7 +111,10 @@ inductive CompletionInfo where
   | dotId (stx : Syntax) (id : Name) (lctx : LocalContext) (expectedType? : Option Expr)
   | fieldId (stx : Syntax) (id : Option Name) (lctx : LocalContext) (structName : Name)
   | namespaceId (stx : Syntax)
-  | option (stx : Syntax)
+  /-- Completion of global options. `stx[1]` is the option to complete and `stx[0]` is a keyword prefixing it.
+  The `optionPrefix` is generally `Name.anonymous`; setting `optionPrefix` restricts to the "namespace" of
+  those options beginning with the prefix. Completions will not include `optionPrefix` in the result. -/
+  | option (stx : Syntax) (optionPrefix : Name)
   | errorName (stx partialId : Syntax)
   | endSection (stx : Syntax) (id? : Option Name) (danglingDot : Bool) (scopeNames : List String)
   | tactic (stx : Syntax)

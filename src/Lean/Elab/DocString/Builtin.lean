@@ -1155,7 +1155,7 @@ def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
           -- Here it's important to get the partial syntax in order to add completion info,
           -- but then abort processing.
           let (stx, err) ← parseStrLit' (nodeFn nullKind identWithPartialTrailingDot.fn) s
-          addCompletionInfo <| CompletionInfo.option stx[0]
+          addCompletionInfo <| CompletionInfo.option stx[0] .anonymous
           if err then throw e1 else pure (Sum.inr stx[0])
         catch
         | e2 =>
@@ -1165,7 +1165,7 @@ def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
       let (id, val) ← optionNameAndVal stx
       -- For completion purposes, we discard `val` and any later arguments. We include the first
       -- argument (the keyword) for position information in case `id` is `missing`.
-      addCompletionInfo <| CompletionInfo.option (stx.setArgs (stx.getArgs[*...3]))
+      addCompletionInfo <| CompletionInfo.option (stx.setArgs (stx.getArgs[*...3])) .anonymous
       let optionName := id.getId.eraseMacroScopes
       try
         let decl ← getOptionDecl optionName
@@ -1283,7 +1283,7 @@ Sets the specified option to the specified value for the remainder of the commen
 -/
 @[builtin_doc_command]
 def «set_option» (option : Ident) (value : DataValue) : DocM (Block ElabInline ElabBlock) := do
-  addCompletionInfo <| CompletionInfo.option option
+  addCompletionInfo <| CompletionInfo.option option .anonymous
   let optionName := option.getId
   let decl ← withRef option <| getOptionDecl optionName
   pushInfoLeaf <| .ofOptionInfo { stx := option, optionName, declName := decl.declName }

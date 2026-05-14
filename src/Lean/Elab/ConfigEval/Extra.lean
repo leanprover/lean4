@@ -20,8 +20,7 @@ Assumes that `item` is shifted, with the rest of the item being the option name 
 -/
 def EvalConfigItem.evalSetOptions (optionPrefix : Name) (opts : Options) (item : ConfigItem) : TermElabM Options := do
   let optName := optionPrefix ++ item.getCurrOptionName
-  -- TODO(kmill): record `optionPrefix` so that LSP can make correct suggestions
-  addCompletionInfo <| CompletionInfo.option (mkNullNode #[item.prevRoot, mkNullNode item.optionComps.toArray])
+  addCompletionInfo <| CompletionInfo.option (mkNullNode #[item.prevRoot, mkNullNode item.optionComps.toArray]) optionPrefix
   let decl ← getOptionDecl optName
   pushInfoLeaf <| .ofOptionInfo { stx := item.option, optionName := optName, declName := decl.declName }
   let set (α : Type) [EvalTerm α] [EvalExpr α] [KVMap.Value α] : TermElabM Options := do

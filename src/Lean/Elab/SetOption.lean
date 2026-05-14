@@ -60,7 +60,7 @@ def elabSetOption (id : Syntax) (val : Syntax) (addInfo := true) : m (Options ×
   let ref ← getRef
   -- For completion purposes, we discard `val` and any later arguments.
   -- We include the first argument (the keyword) for position information in case `id` is `missing`.
-  if addInfo then addCompletionInfo <| CompletionInfo.option (ref.setArgs (ref.getArgs[*...3]))
+  if addInfo then addCompletionInfo <| CompletionInfo.option (ref.setArgs (ref.getArgs[*...3])) .anonymous
   let optionName := id.getId.eraseMacroScopes
   let decl ← IO.toEIO (fun (ex : IO.Error) => Exception.error ref ex.toString) (getOptionDecl optionName)
   if addInfo then pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }

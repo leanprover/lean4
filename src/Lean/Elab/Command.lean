@@ -29,6 +29,7 @@ structure State where
   infoState      : InfoState := {}
   traceState     : TraceState := {}
   snapshotTasks  : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
+  newDecls       : Array Name := #[]
   deriving Nonempty
 
 structure Context where
@@ -203,6 +204,7 @@ private def runCore (x : CoreM α) : CommandElabM α := do
     infoState.lazyAssignment := coreS.infoState.lazyAssignment
     traceState.traces        := coreS.traceState.traces.map fun t => { t with ref := replaceRef t.ref ctx.ref }
     snapshotTasks            := coreS.snapshotTasks
+    newDecls                 := s.newDecls ++ coreS.newDecls
     messages                 := s.messages ++ coreS.messages
   }
   return ea
@@ -219,6 +221,14 @@ instance : MonadLiftT IO CommandElabM where
 
 /-- Return the current scope. -/
 def getScope : CommandElabM Scope := do pure (← get).scopes.head!
+
+/--
+Returns the names of declarations added to the environment during elaboration of the
+current command so far. Intended for interactive linters that need to inspect the
+constants produced by a command without traversing info trees.
+-/
+def getNewDecls : CommandElabM (Array Name) :=
+  return (← get).newDecls
 
 instance : MonadResolveName CommandElabM where
   getCurrNamespace := return (← getScope).currNamespace
@@ -835,6 +845,7 @@ private def liftCommandElabMCore (cmd : CommandElabM α) (throwOnError : Bool) :
     ngen := commandState.ngen
     auxDeclNGen := commandState.auxDeclNGen
     traceState.traces := coreState.traceState.traces ++ commandState.traceState.traces
+    newDecls := coreState.newDecls ++ commandState.newDecls
   }
   if throwOnError then
     if let some err := commandState.messages.toArray.find? (·.severity matches .error) then

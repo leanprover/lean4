@@ -812,11 +812,11 @@ lean_object* v___x_266_; lean_object* v___x_267_; size_t v_sz_268_; size_t v___x
 v___x_266_ = lean_box(0);
 v___x_267_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_267_, 0, v___x_266_);
-lean_ctor_set(v___x_267_, 1, v___y_265_);
-v_sz_268_ = lean_array_size(v___y_264_);
+lean_ctor_set(v___x_267_, 1, v___y_264_);
+v_sz_268_ = lean_array_size(v___y_265_);
 v___x_269_ = ((size_t)0ULL);
-v___x_270_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Syntax_instForInTopDownOfMonad_loop___at___00Lean_Elab_Term_Quotation_getAntiquotationIds_spec__1_spec__2(v_firstChoiceOnly_249_, v___y_264_, v_sz_268_, v___x_269_, v___x_267_, v___y_252_, v___y_253_, v___y_254_, v___y_255_, v___y_256_, v___y_257_);
-lean_dec_ref(v___y_264_);
+v___x_270_ = l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_Syntax_instForInTopDownOfMonad_loop___at___00Lean_Elab_Term_Quotation_getAntiquotationIds_spec__1_spec__2(v_firstChoiceOnly_249_, v___y_265_, v_sz_268_, v___x_269_, v___x_267_, v___y_252_, v___y_253_, v___y_254_, v___y_255_, v___y_256_, v___y_257_);
+lean_dec_ref(v___y_265_);
 if (lean_obj_tag(v___x_270_) == 0)
 {
 lean_object* v_a_271_; lean_object* v___x_273_; uint8_t v_isShared_274_; uint8_t v_isSharedCheck_281_; 
@@ -931,8 +931,8 @@ lean_object* v_args_292_;
 v_args_292_ = lean_ctor_get(v_stx_250_, 2);
 lean_inc_ref(v_args_292_);
 lean_dec_ref(v_stx_250_);
-v___y_264_ = v_args_292_;
-v___y_265_ = v_a_291_;
+v___y_264_ = v_a_291_;
+v___y_265_ = v_args_292_;
 goto v___jp_263_;
 }
 else
@@ -948,8 +948,8 @@ v___x_296_ = lean_name_eq(v_kind_293_, v___x_295_);
 lean_dec(v_kind_293_);
 if (v___x_296_ == 0)
 {
-v___y_264_ = v_args_294_;
-v___y_265_ = v_a_291_;
+v___y_264_ = v_a_291_;
+v___y_265_ = v_args_294_;
 goto v___jp_263_;
 }
 else

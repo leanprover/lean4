@@ -93,6 +93,9 @@ def addDecl (decl : Declaration) (forceExpose := false) : CoreM Unit :=
   -- NOTE: we do not use `getTopLevelNames` here so that inductive types are registered as
   -- namespaces
   modifyEnv (decl.getNames.foldl registerNamePrefixes)
+  -- record the new declarations for interactive linters; if `addDecl` later throws, callers
+  -- using `SavedState.restore` will revert these entries together with the environment
+  modify fun s => { s with newDecls := s.newDecls ++ decl.getNames.toArray }
 
   -- convert `Declaration` to `ConstantInfo` to use as a preliminary value in the environment until
   -- kernel checking has finished; not all cases are supported yet

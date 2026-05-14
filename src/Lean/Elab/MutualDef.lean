@@ -1269,6 +1269,8 @@ where
         guard (!isPrivateName declId.declName || (← ResolveName.backward.privateInPublic.getM)) *>
         some .axiom)
     setEnv async.mainEnv
+    -- theorems take the async commit path and bypass `addDecl`; record the name for linters
+    modifyThe Core.State fun s => { s with newDecls := s.newDecls.push declId.declName }
 
     -- TODO: parallelize header elaboration as well? Would have to refactor auto implicits catch,
     -- makes `@[simp]` etc harder?

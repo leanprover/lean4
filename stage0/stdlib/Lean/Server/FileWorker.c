@@ -10400,13 +10400,13 @@ v___jp_2522_:
 {
 lean_object* v___x_2526_; lean_object* v___x_2527_; lean_object* v___x_2528_; 
 v___x_2526_ = lean_alloc_ctor(1, 2, 0);
-lean_ctor_set(v___x_2526_, 0, v___y_2524_);
+lean_ctor_set(v___x_2526_, 0, v___y_2523_);
 lean_ctor_set(v___x_2526_, 1, v___y_2525_);
 v___x_2527_ = l_Lean_Server_FileWorker_OutputMessage_ofMsg(v___x_2526_);
 lean_inc_ref(v_chanOut_2478_);
 v___x_2528_ = l_Std_Channel_send___redArg(v_chanOut_2478_, v___x_2527_);
 lean_dec_ref(v___x_2528_);
-v___y_2510_ = v___y_2523_;
+v___y_2510_ = v___y_2524_;
 goto v___jp_2509_;
 }
 v___jp_2533_:
@@ -10521,8 +10521,8 @@ v___x_2568_ = l_Lean_Json_toStructured_x3f___at___00__private_Lean_Server_FileWo
 if (lean_obj_tag(v___x_2568_) == 0)
 {
 lean_dec_ref(v___x_2568_);
-v___y_2523_ = v_snd_2549_;
-v___y_2524_ = v_method_2566_;
+v___y_2523_ = v_method_2566_;
+v___y_2524_ = v_snd_2549_;
 v___y_2525_ = v___x_2532_;
 goto v___jp_2522_;
 }
@@ -10563,8 +10563,8 @@ goto v_reusejp_2573_;
 }
 v_reusejp_2573_:
 {
-v___y_2523_ = v_snd_2549_;
-v___y_2524_ = v_method_2566_;
+v___y_2523_ = v_method_2566_;
+v___y_2524_ = v_snd_2549_;
 v___y_2525_ = v___x_2574_;
 goto v___jp_2522_;
 }

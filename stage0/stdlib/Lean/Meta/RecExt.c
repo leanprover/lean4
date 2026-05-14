@@ -94,7 +94,7 @@ return v___x_16_;
 LEAN_EXPORT lean_object* l_Lean_Meta_markAsRecursive___redArg(lean_object* v_declName_17_, lean_object* v_a_18_){
 _start:
 {
-lean_object* v___x_20_; lean_object* v_env_21_; lean_object* v_nextMacroScope_22_; lean_object* v_ngen_23_; lean_object* v_auxDeclNGen_24_; lean_object* v_traceState_25_; lean_object* v_messages_26_; lean_object* v_infoState_27_; lean_object* v_snapshotTasks_28_; lean_object* v___x_30_; uint8_t v_isShared_31_; uint8_t v_isSharedCheck_41_; 
+lean_object* v___x_20_; lean_object* v_env_21_; lean_object* v_nextMacroScope_22_; lean_object* v_ngen_23_; lean_object* v_auxDeclNGen_24_; lean_object* v_traceState_25_; lean_object* v_messages_26_; lean_object* v_infoState_27_; lean_object* v_snapshotTasks_28_; lean_object* v_newDecls_29_; lean_object* v___x_31_; uint8_t v_isShared_32_; uint8_t v_isSharedCheck_42_; 
 v___x_20_ = lean_st_ref_take(v_a_18_);
 v_env_21_ = lean_ctor_get(v___x_20_, 0);
 v_nextMacroScope_22_ = lean_ctor_get(v___x_20_, 1);
@@ -104,18 +104,20 @@ v_traceState_25_ = lean_ctor_get(v___x_20_, 4);
 v_messages_26_ = lean_ctor_get(v___x_20_, 6);
 v_infoState_27_ = lean_ctor_get(v___x_20_, 7);
 v_snapshotTasks_28_ = lean_ctor_get(v___x_20_, 8);
-v_isSharedCheck_41_ = !lean_is_exclusive(v___x_20_);
-if (v_isSharedCheck_41_ == 0)
+v_newDecls_29_ = lean_ctor_get(v___x_20_, 9);
+v_isSharedCheck_42_ = !lean_is_exclusive(v___x_20_);
+if (v_isSharedCheck_42_ == 0)
 {
-lean_object* v_unused_42_; 
-v_unused_42_ = lean_ctor_get(v___x_20_, 5);
-lean_dec(v_unused_42_);
-v___x_30_ = v___x_20_;
-v_isShared_31_ = v_isSharedCheck_41_;
-goto v_resetjp_29_;
+lean_object* v_unused_43_; 
+v_unused_43_ = lean_ctor_get(v___x_20_, 5);
+lean_dec(v_unused_43_);
+v___x_31_ = v___x_20_;
+v_isShared_32_ = v_isSharedCheck_42_;
+goto v_resetjp_30_;
 }
 else
 {
+lean_inc(v_newDecls_29_);
 lean_inc(v_snapshotTasks_28_);
 lean_inc(v_infoState_27_);
 lean_inc(v_messages_26_);
@@ -125,121 +127,122 @@ lean_inc(v_ngen_23_);
 lean_inc(v_nextMacroScope_22_);
 lean_inc(v_env_21_);
 lean_dec(v___x_20_);
-v___x_30_ = lean_box(0);
-v_isShared_31_ = v_isSharedCheck_41_;
-goto v_resetjp_29_;
+v___x_31_ = lean_box(0);
+v_isShared_32_ = v_isSharedCheck_42_;
+goto v_resetjp_30_;
 }
-v_resetjp_29_:
+v_resetjp_30_:
 {
-lean_object* v___x_32_; lean_object* v___x_33_; lean_object* v___x_34_; lean_object* v___x_36_; 
-v___x_32_ = l_Lean_Meta_recExt;
-v___x_33_ = l_Lean_TagDeclarationExtension_tag(v___x_32_, v_env_21_, v_declName_17_);
-v___x_34_ = lean_obj_once(&l_Lean_Meta_markAsRecursive___redArg___closed__2, &l_Lean_Meta_markAsRecursive___redArg___closed__2_once, _init_l_Lean_Meta_markAsRecursive___redArg___closed__2);
-if (v_isShared_31_ == 0)
+lean_object* v___x_33_; lean_object* v___x_34_; lean_object* v___x_35_; lean_object* v___x_37_; 
+v___x_33_ = l_Lean_Meta_recExt;
+v___x_34_ = l_Lean_TagDeclarationExtension_tag(v___x_33_, v_env_21_, v_declName_17_);
+v___x_35_ = lean_obj_once(&l_Lean_Meta_markAsRecursive___redArg___closed__2, &l_Lean_Meta_markAsRecursive___redArg___closed__2_once, _init_l_Lean_Meta_markAsRecursive___redArg___closed__2);
+if (v_isShared_32_ == 0)
 {
-lean_ctor_set(v___x_30_, 5, v___x_34_);
-lean_ctor_set(v___x_30_, 0, v___x_33_);
-v___x_36_ = v___x_30_;
-goto v_reusejp_35_;
+lean_ctor_set(v___x_31_, 5, v___x_35_);
+lean_ctor_set(v___x_31_, 0, v___x_34_);
+v___x_37_ = v___x_31_;
+goto v_reusejp_36_;
 }
 else
 {
-lean_object* v_reuseFailAlloc_40_; 
-v_reuseFailAlloc_40_ = lean_alloc_ctor(0, 9, 0);
-lean_ctor_set(v_reuseFailAlloc_40_, 0, v___x_33_);
-lean_ctor_set(v_reuseFailAlloc_40_, 1, v_nextMacroScope_22_);
-lean_ctor_set(v_reuseFailAlloc_40_, 2, v_ngen_23_);
-lean_ctor_set(v_reuseFailAlloc_40_, 3, v_auxDeclNGen_24_);
-lean_ctor_set(v_reuseFailAlloc_40_, 4, v_traceState_25_);
-lean_ctor_set(v_reuseFailAlloc_40_, 5, v___x_34_);
-lean_ctor_set(v_reuseFailAlloc_40_, 6, v_messages_26_);
-lean_ctor_set(v_reuseFailAlloc_40_, 7, v_infoState_27_);
-lean_ctor_set(v_reuseFailAlloc_40_, 8, v_snapshotTasks_28_);
-v___x_36_ = v_reuseFailAlloc_40_;
-goto v_reusejp_35_;
+lean_object* v_reuseFailAlloc_41_; 
+v_reuseFailAlloc_41_ = lean_alloc_ctor(0, 10, 0);
+lean_ctor_set(v_reuseFailAlloc_41_, 0, v___x_34_);
+lean_ctor_set(v_reuseFailAlloc_41_, 1, v_nextMacroScope_22_);
+lean_ctor_set(v_reuseFailAlloc_41_, 2, v_ngen_23_);
+lean_ctor_set(v_reuseFailAlloc_41_, 3, v_auxDeclNGen_24_);
+lean_ctor_set(v_reuseFailAlloc_41_, 4, v_traceState_25_);
+lean_ctor_set(v_reuseFailAlloc_41_, 5, v___x_35_);
+lean_ctor_set(v_reuseFailAlloc_41_, 6, v_messages_26_);
+lean_ctor_set(v_reuseFailAlloc_41_, 7, v_infoState_27_);
+lean_ctor_set(v_reuseFailAlloc_41_, 8, v_snapshotTasks_28_);
+lean_ctor_set(v_reuseFailAlloc_41_, 9, v_newDecls_29_);
+v___x_37_ = v_reuseFailAlloc_41_;
+goto v_reusejp_36_;
 }
-v_reusejp_35_:
+v_reusejp_36_:
 {
-lean_object* v___x_37_; lean_object* v___x_38_; lean_object* v___x_39_; 
-v___x_37_ = lean_st_ref_set(v_a_18_, v___x_36_);
-v___x_38_ = lean_box(0);
-v___x_39_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_39_, 0, v___x_38_);
-return v___x_39_;
+lean_object* v___x_38_; lean_object* v___x_39_; lean_object* v___x_40_; 
+v___x_38_ = lean_st_ref_set(v_a_18_, v___x_37_);
+v___x_39_ = lean_box(0);
+v___x_40_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_40_, 0, v___x_39_);
+return v___x_40_;
 }
 }
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_markAsRecursive___redArg___boxed(lean_object* v_declName_43_, lean_object* v_a_44_, lean_object* v_a_45_){
+LEAN_EXPORT lean_object* l_Lean_Meta_markAsRecursive___redArg___boxed(lean_object* v_declName_44_, lean_object* v_a_45_, lean_object* v_a_46_){
 _start:
 {
-lean_object* v_res_46_; 
-v_res_46_ = l_Lean_Meta_markAsRecursive___redArg(v_declName_43_, v_a_44_);
-lean_dec(v_a_44_);
-return v_res_46_;
+lean_object* v_res_47_; 
+v_res_47_ = l_Lean_Meta_markAsRecursive___redArg(v_declName_44_, v_a_45_);
+lean_dec(v_a_45_);
+return v_res_47_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_markAsRecursive(lean_object* v_declName_47_, lean_object* v_a_48_, lean_object* v_a_49_){
+LEAN_EXPORT lean_object* l_Lean_Meta_markAsRecursive(lean_object* v_declName_48_, lean_object* v_a_49_, lean_object* v_a_50_){
 _start:
 {
-lean_object* v___x_51_; 
-v___x_51_ = l_Lean_Meta_markAsRecursive___redArg(v_declName_47_, v_a_49_);
-return v___x_51_;
+lean_object* v___x_52_; 
+v___x_52_ = l_Lean_Meta_markAsRecursive___redArg(v_declName_48_, v_a_50_);
+return v___x_52_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_markAsRecursive___boxed(lean_object* v_declName_52_, lean_object* v_a_53_, lean_object* v_a_54_, lean_object* v_a_55_){
+LEAN_EXPORT lean_object* l_Lean_Meta_markAsRecursive___boxed(lean_object* v_declName_53_, lean_object* v_a_54_, lean_object* v_a_55_, lean_object* v_a_56_){
 _start:
 {
-lean_object* v_res_56_; 
-v_res_56_ = l_Lean_Meta_markAsRecursive(v_declName_52_, v_a_53_, v_a_54_);
-lean_dec(v_a_54_);
-lean_dec_ref(v_a_53_);
-return v_res_56_;
+lean_object* v_res_57_; 
+v_res_57_ = l_Lean_Meta_markAsRecursive(v_declName_53_, v_a_54_, v_a_55_);
+lean_dec(v_a_55_);
+lean_dec_ref(v_a_54_);
+return v_res_57_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_isRecursiveDefinition___redArg(lean_object* v_declName_57_, lean_object* v_a_58_){
+LEAN_EXPORT lean_object* l_Lean_Meta_isRecursiveDefinition___redArg(lean_object* v_declName_58_, lean_object* v_a_59_){
 _start:
 {
-lean_object* v___x_60_; lean_object* v_env_61_; lean_object* v___x_62_; lean_object* v_toEnvExtension_63_; lean_object* v_asyncMode_64_; uint8_t v___x_65_; lean_object* v___x_66_; lean_object* v___x_67_; 
-v___x_60_ = lean_st_ref_get(v_a_58_);
-v_env_61_ = lean_ctor_get(v___x_60_, 0);
-lean_inc_ref(v_env_61_);
-lean_dec(v___x_60_);
-v___x_62_ = l_Lean_Meta_recExt;
-v_toEnvExtension_63_ = lean_ctor_get(v___x_62_, 0);
-v_asyncMode_64_ = lean_ctor_get(v_toEnvExtension_63_, 2);
-v___x_65_ = l_Lean_TagDeclarationExtension_isTagged(v___x_62_, v_env_61_, v_declName_57_, v_asyncMode_64_);
-v___x_66_ = lean_box(v___x_65_);
-v___x_67_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_67_, 0, v___x_66_);
-return v___x_67_;
+lean_object* v___x_61_; lean_object* v_env_62_; lean_object* v___x_63_; lean_object* v_toEnvExtension_64_; lean_object* v_asyncMode_65_; uint8_t v___x_66_; lean_object* v___x_67_; lean_object* v___x_68_; 
+v___x_61_ = lean_st_ref_get(v_a_59_);
+v_env_62_ = lean_ctor_get(v___x_61_, 0);
+lean_inc_ref(v_env_62_);
+lean_dec(v___x_61_);
+v___x_63_ = l_Lean_Meta_recExt;
+v_toEnvExtension_64_ = lean_ctor_get(v___x_63_, 0);
+v_asyncMode_65_ = lean_ctor_get(v_toEnvExtension_64_, 2);
+v___x_66_ = l_Lean_TagDeclarationExtension_isTagged(v___x_63_, v_env_62_, v_declName_58_, v_asyncMode_65_);
+v___x_67_ = lean_box(v___x_66_);
+v___x_68_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_68_, 0, v___x_67_);
+return v___x_68_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_isRecursiveDefinition___redArg___boxed(lean_object* v_declName_68_, lean_object* v_a_69_, lean_object* v_a_70_){
+LEAN_EXPORT lean_object* l_Lean_Meta_isRecursiveDefinition___redArg___boxed(lean_object* v_declName_69_, lean_object* v_a_70_, lean_object* v_a_71_){
 _start:
 {
-lean_object* v_res_71_; 
-v_res_71_ = l_Lean_Meta_isRecursiveDefinition___redArg(v_declName_68_, v_a_69_);
-lean_dec(v_a_69_);
-return v_res_71_;
+lean_object* v_res_72_; 
+v_res_72_ = l_Lean_Meta_isRecursiveDefinition___redArg(v_declName_69_, v_a_70_);
+lean_dec(v_a_70_);
+return v_res_72_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_isRecursiveDefinition(lean_object* v_declName_72_, lean_object* v_a_73_, lean_object* v_a_74_){
+LEAN_EXPORT lean_object* l_Lean_Meta_isRecursiveDefinition(lean_object* v_declName_73_, lean_object* v_a_74_, lean_object* v_a_75_){
 _start:
 {
-lean_object* v___x_76_; 
-v___x_76_ = l_Lean_Meta_isRecursiveDefinition___redArg(v_declName_72_, v_a_74_);
-return v___x_76_;
+lean_object* v___x_77_; 
+v___x_77_ = l_Lean_Meta_isRecursiveDefinition___redArg(v_declName_73_, v_a_75_);
+return v___x_77_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Meta_isRecursiveDefinition___boxed(lean_object* v_declName_77_, lean_object* v_a_78_, lean_object* v_a_79_, lean_object* v_a_80_){
+LEAN_EXPORT lean_object* l_Lean_Meta_isRecursiveDefinition___boxed(lean_object* v_declName_78_, lean_object* v_a_79_, lean_object* v_a_80_, lean_object* v_a_81_){
 _start:
 {
-lean_object* v_res_81_; 
-v_res_81_ = l_Lean_Meta_isRecursiveDefinition(v_declName_77_, v_a_78_, v_a_79_);
-lean_dec(v_a_79_);
-lean_dec_ref(v_a_78_);
-return v_res_81_;
+lean_object* v_res_82_; 
+v_res_82_ = l_Lean_Meta_isRecursiveDefinition(v_declName_78_, v_a_79_, v_a_80_);
+lean_dec(v_a_80_);
+lean_dec_ref(v_a_79_);
+return v_res_82_;
 }
 }
 lean_object* runtime_initialize_Lean_Attributes(uint8_t builtin);

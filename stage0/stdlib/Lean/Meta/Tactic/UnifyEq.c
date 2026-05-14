@@ -2955,12 +2955,12 @@ return v_res_778_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__3___redArg___boxed(lean_object* v_x_779_, lean_object* v_x_780_, lean_object* v_x_781_, lean_object* v_x_782_, lean_object* v_x_783_){
 _start:
 {
-size_t v_x_9334__boxed_784_; size_t v_x_9335__boxed_785_; lean_object* v_res_786_; 
-v_x_9334__boxed_784_ = lean_unbox_usize(v_x_780_);
+size_t v_x_9335__boxed_784_; size_t v_x_9336__boxed_785_; lean_object* v_res_786_; 
+v_x_9335__boxed_784_ = lean_unbox_usize(v_x_780_);
 lean_dec(v_x_780_);
-v_x_9335__boxed_785_ = lean_unbox_usize(v_x_781_);
+v_x_9336__boxed_785_ = lean_unbox_usize(v_x_781_);
 lean_dec(v_x_781_);
-v_res_786_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__3___redArg(v_x_779_, v_x_9334__boxed_784_, v_x_9335__boxed_785_, v_x_782_, v_x_783_);
+v_res_786_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__3___redArg(v_x_779_, v_x_9335__boxed_784_, v_x_9336__boxed_785_, v_x_782_, v_x_783_);
 return v_res_786_;
 }
 }
@@ -4062,9 +4062,9 @@ return v___x_962_;
 LEAN_EXPORT lean_object* l_Lean_Meta_unifyEq_x3f___lam__0___boxed(lean_object* v___x_1044_, lean_object* v_mvarId_1045_, lean_object* v_a_1046_, lean_object* v_a_1047_, lean_object* v_b_1048_, lean_object* v___y_1049_, lean_object* v___y_1050_, lean_object* v___y_1051_, lean_object* v___y_1052_, lean_object* v___y_1053_){
 _start:
 {
-uint8_t v___x_9563__boxed_1054_; lean_object* v_res_1055_; 
-v___x_9563__boxed_1054_ = lean_unbox(v___x_1044_);
-v_res_1055_ = l_Lean_Meta_unifyEq_x3f___lam__0(v___x_9563__boxed_1054_, v_mvarId_1045_, v_a_1046_, v_a_1047_, v_b_1048_, v___y_1049_, v___y_1050_, v___y_1051_, v___y_1052_);
+uint8_t v___x_9564__boxed_1054_; lean_object* v_res_1055_; 
+v___x_9564__boxed_1054_ = lean_unbox(v___x_1044_);
+v_res_1055_ = l_Lean_Meta_unifyEq_x3f___lam__0(v___x_9564__boxed_1054_, v_mvarId_1045_, v_a_1046_, v_a_1047_, v_b_1048_, v___y_1049_, v___y_1050_, v___y_1051_, v___y_1052_);
 lean_dec(v___y_1052_);
 lean_dec_ref(v___y_1051_);
 lean_dec(v___y_1050_);
@@ -4277,8 +4277,8 @@ return v___x_1113_;
 else
 {
 lean_object* v___x_1116_; 
-lean_dec_ref(v_a_1086_);
 lean_dec(v_a_1089_);
+lean_dec_ref(v_a_1086_);
 v___x_1116_ = l___private_Lean_Meta_Tactic_UnifyEq_0__Lean_Meta_unifyEq_x3f_substEq(v_mvarId_1063_, v_eqFVarId_1062_, v_subst_1064_, v_acyclic_1065_, v_a_1073_, v___x_1084_, v___x_1087_, v___x_1075_, v___y_1067_, v___y_1068_, v___y_1069_, v___y_1070_);
 lean_dec(v_a_1073_);
 return v___x_1116_;
@@ -4749,12 +4749,12 @@ return v___x_1248_;
 LEAN_EXPORT lean_object* l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__3___boxed(lean_object* v_00_u03b2_1249_, lean_object* v_x_1250_, lean_object* v_x_1251_, lean_object* v_x_1252_, lean_object* v_x_1253_, lean_object* v_x_1254_){
 _start:
 {
-size_t v_x_10272__boxed_1255_; size_t v_x_10273__boxed_1256_; lean_object* v_res_1257_; 
-v_x_10272__boxed_1255_ = lean_unbox_usize(v_x_1251_);
+size_t v_x_10273__boxed_1255_; size_t v_x_10274__boxed_1256_; lean_object* v_res_1257_; 
+v_x_10273__boxed_1255_ = lean_unbox_usize(v_x_1251_);
 lean_dec(v_x_1251_);
-v_x_10273__boxed_1256_ = lean_unbox_usize(v_x_1252_);
+v_x_10274__boxed_1256_ = lean_unbox_usize(v_x_1252_);
 lean_dec(v_x_1252_);
-v_res_1257_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__3(v_00_u03b2_1249_, v_x_1250_, v_x_10272__boxed_1255_, v_x_10273__boxed_1256_, v_x_1253_, v_x_1254_);
+v_res_1257_ = l_Lean_PersistentHashMap_insertAux___at___00Lean_PersistentHashMap_insert___at___00Lean_MVarId_assign___at___00Lean_Meta_unifyEq_x3f_spec__1_spec__1_spec__3(v_00_u03b2_1249_, v_x_1250_, v_x_10273__boxed_1255_, v_x_10274__boxed_1256_, v_x_1253_, v_x_1254_);
 return v_res_1257_;
 }
 }

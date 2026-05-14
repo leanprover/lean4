@@ -118,9 +118,9 @@ return v___x_32_;
 LEAN_EXPORT lean_object* l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler___lam__0___boxed(lean_object* v_____do__lift_33_, lean_object* v___y_34_, lean_object* v___y_35_, lean_object* v___y_36_){
 _start:
 {
-uint8_t v_____do__lift_1887__boxed_37_; lean_object* v_res_38_; 
-v_____do__lift_1887__boxed_37_ = lean_unbox(v_____do__lift_33_);
-v_res_38_ = l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler___lam__0(v_____do__lift_1887__boxed_37_, v___y_34_, v___y_35_);
+uint8_t v_____do__lift_1888__boxed_37_; lean_object* v_res_38_; 
+v_____do__lift_1888__boxed_37_ = lean_unbox(v_____do__lift_33_);
+v_res_38_ = l_Lean_Elab_Deriving_SizeOf_mkSizeOfHandler___lam__0(v_____do__lift_1888__boxed_37_, v___y_34_, v___y_35_);
 lean_dec(v___y_35_);
 lean_dec_ref(v___y_34_);
 return v_res_38_;

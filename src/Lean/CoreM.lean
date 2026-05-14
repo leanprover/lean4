@@ -211,6 +211,10 @@ structure State where
   `CommandParsedSnapshot` need to be adjusted.
   -/
   snapshotTasks : Array (Language.SnapshotTask Language.SnapshotTree) := #[]
+  /--
+    Newly added declarations during the elaboration of the current command
+  -/
+  newDecls : Array Name := #[]
   deriving Nonempty
 
 /-- Context for the CoreM monad. -/
@@ -328,8 +332,8 @@ instance : Elab.MonadInfoTree CoreM where
   modifyInfoState f := modify fun s => { s with infoState := f s.infoState }
 
 @[inline] def modifyCache (f : Cache → Cache) : CoreM Unit :=
-  modify fun ⟨env, next, ngen, auxDeclNGen, trace, cache, messages, infoState, snaps⟩ =>
-   ⟨env, next, ngen, auxDeclNGen, trace, f cache, messages, infoState, snaps⟩
+  modify fun ⟨env, next, ngen, auxDeclNGen, trace, cache, messages, infoState, snaps, newDecls⟩ =>
+   ⟨env, next, ngen, auxDeclNGen, trace, f cache, messages, infoState, snaps, newDecls⟩
 
 @[inline] def modifyInstLevelTypeCache (f : InstantiateLevelCache → InstantiateLevelCache) : CoreM Unit :=
   modifyCache fun ⟨c₁, c₂⟩ => ⟨f c₁, c₂⟩
@@ -407,7 +411,7 @@ itself after calling `act` as well as by reuse-handling code such as the one sup
 def SavedState.restore (b : SavedState) : CoreM Unit :=
   modify fun s => { s with
       env := b.env, messages := b.messages, infoState := b.infoState
-      snapshotTasks := b.snapshotTasks }
+      snapshotTasks := b.snapshotTasks, newDecls := b.newDecls }
 
 private def mkFreshNameImp (n : Name) : CoreM Name := do
   withFreshMacroScope do
@@ -508,6 +512,14 @@ def resetMessageLog : CoreM Unit :=
 
 def getMessageLog : CoreM MessageLog :=
   return (← get).messages
+
+/--
+Returns the names of declarations added to the environment during the current `CoreM` action.
+For accumulation across an entire command (including across multiple `liftCoreM` calls), use
+the `CommandElabM` version of this getter instead.
+-/
+def getNewDecls : CoreM (Array Name) :=
+  return (← get).newDecls
 
 /--
 Returns the current log and then resets its messages while adjusting `MessageLog.hadErrors`. Used

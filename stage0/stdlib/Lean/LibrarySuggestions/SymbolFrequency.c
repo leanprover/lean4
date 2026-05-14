@@ -1886,7 +1886,7 @@ v___x_639_ = lean_obj_once(&l___private_Lean_LibrarySuggestions_SymbolFrequency_
 v___x_640_ = lean_obj_once(&l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__33, &l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__33_once, _init_l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__33);
 v___x_641_ = lean_obj_once(&l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__34, &l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__34_once, _init_l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__34);
 v___x_642_ = lean_obj_once(&l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__35, &l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__35_once, _init_l___private_Lean_LibrarySuggestions_SymbolFrequency_0__Lean_Environment_unsafeRunMetaM___redArg___closed__35);
-v___x_643_ = lean_alloc_ctor(0, 9, 0);
+v___x_643_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_643_, 0, v_env_585_);
 lean_ctor_set(v___x_643_, 1, v___x_636_);
 lean_ctor_set(v___x_643_, 2, v___x_637_);
@@ -1896,6 +1896,7 @@ lean_ctor_set(v___x_643_, 5, v___x_640_);
 lean_ctor_set(v___x_643_, 6, v___x_641_);
 lean_ctor_set(v___x_643_, 7, v___x_642_);
 lean_ctor_set(v___x_643_, 8, v___x_631_);
+lean_ctor_set(v___x_643_, 9, v___x_631_);
 v___x_644_ = lean_alloc_closure((void*)(l_Lean_Core_CoreM_run_x27___boxed), 5, 4);
 lean_closure_set(v___x_644_, 0, lean_box(0));
 lean_closure_set(v___x_644_, 1, v___x_634_);

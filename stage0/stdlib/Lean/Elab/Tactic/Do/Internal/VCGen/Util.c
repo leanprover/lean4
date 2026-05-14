@@ -701,10 +701,10 @@ lean_object* v___y_183_ = _args[15];
 lean_object* v___y_184_ = _args[16];
 _start:
 {
-uint8_t v___x_43892__boxed_185_; uint8_t v_debug_boxed_186_; lean_object* v_res_187_; 
-v___x_43892__boxed_185_ = lean_unbox(v___x_171_);
+uint8_t v___x_43893__boxed_185_; uint8_t v_debug_boxed_186_; lean_object* v_res_187_; 
+v___x_43893__boxed_185_ = lean_unbox(v___x_171_);
 v_debug_boxed_186_ = lean_unbox(v_debug_172_);
-v_res_187_ = l_Lean_Elab_Tactic_Do_Internal_Lean_Meta_Sym_BackwardRule_applyChecked___lam__0(v_a_168_, v___x_169_, v_rule_170_, v___x_43892__boxed_185_, v_debug_boxed_186_, v___y_173_, v___y_174_, v___y_175_, v___y_176_, v___y_177_, v___y_178_, v___y_179_, v___y_180_, v___y_181_, v___y_182_, v___y_183_);
+v_res_187_ = l_Lean_Elab_Tactic_Do_Internal_Lean_Meta_Sym_BackwardRule_applyChecked___lam__0(v_a_168_, v___x_169_, v_rule_170_, v___x_43893__boxed_185_, v_debug_boxed_186_, v___y_173_, v___y_174_, v___y_175_, v___y_176_, v___y_177_, v___y_178_, v___y_179_, v___y_180_, v___y_181_, v___y_182_, v___y_183_);
 lean_dec(v___y_183_);
 lean_dec_ref(v___y_182_);
 lean_dec(v___y_181_);

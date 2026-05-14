@@ -3331,8 +3331,8 @@ return v___x_653_;
 else
 {
 lean_object* v_a_669_; lean_object* v___x_671_; uint8_t v_isShared_672_; uint8_t v_isSharedCheck_677_; 
-lean_dec_ref(v_fst_636_);
 lean_dec(v_tail_640_);
+lean_dec_ref(v_fst_636_);
 lean_del_object(v___x_638_);
 v_a_669_ = lean_ctor_get(v___x_644_, 0);
 v_isSharedCheck_677_ = !lean_is_exclusive(v___x_644_);

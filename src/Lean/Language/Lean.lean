@@ -753,7 +753,7 @@ where
     let scope := cmdState.scopes.head!
     -- reset per-command state
     let cmdStateRef ← IO.mkRef { cmdState with
-      messages := .empty, traceState := {}, snapshotTasks := #[] }
+      messages := .empty, traceState := {}, snapshotTasks := #[], newDecls := #[] }
     let cmdCtx : Elab.Command.Context := { ctx with
       cmdPos       := beginPos
       snap?        := if internal.cmdlineSnapshots.get scope.opts then none else snap

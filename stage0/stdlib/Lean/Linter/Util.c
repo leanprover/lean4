@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.Util
-// Imports: public import Lean.Server.InfoUtils public import Lean.Linter.Basic
+// Imports: public import Lean.Server.InfoUtils public import Lean.Linter.Init
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -395,7 +395,7 @@ return v___x_121_;
 }
 }
 lean_object* runtime_initialize_Lean_Server_InfoUtils(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter_Init(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Linter_Util(uint8_t builtin) {
 lean_object * res;
@@ -404,7 +404,7 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Lean_Server_InfoUtils(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Linter_Basic(builtin);
+res = runtime_initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -417,7 +417,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Server_InfoUtils(uint8_t builtin);
-lean_object* initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Linter_Init(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Linter_Util(uint8_t builtin) {
 lean_object * res;
@@ -426,7 +426,7 @@ _G_initialized = true;
 res = initialize_Lean_Server_InfoUtils(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Linter_Basic(builtin);
+res = initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter_Util(builtin);

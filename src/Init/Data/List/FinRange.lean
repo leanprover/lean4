@@ -30,14 +30,29 @@ Examples:
 @[simp, grind =] theorem length_finRange {n : Nat} : (List.finRange n).length = n := by
   simp [List.finRange]
 
-@[simp, grind =] theorem getElem_finRange {i : Nat} (h : i < (List.finRange n).length) :
+theorem getElem_finRange {i : Nat} (h : i < (List.finRange n).length) :
     (finRange n)[i] = Fin.cast length_finRange ⟨i, h⟩ := by
-  simp [List.finRange]
+  simp [List.finRange, List.getElemV_ofFn (by simpa using h)]
+
+/-
+PLOG(getElemV_finRange):
+two-level simpa
+-/
+
+@[simp, grind =] theorem getElemV_finRange {i : Nat} (h : i < n) :
+    haveI : i < (finRange n).length := by simpa
+    (finRange n)｢i｣ = Fin.cast length_finRange ⟨i, this⟩ := by
+  have := getElem_finRange (i := i) (n := n) (by simpa)
+  simpa
 
 @[simp, grind =] theorem finRange_zero : finRange 0 = [] := by simp [finRange]
 
+/-
+PLOG(finRange_succ):
+`+contextual`
+-/
 theorem finRange_succ {n} : finRange (n+1) = 0 :: (finRange n).map Fin.succ := by
-  apply List.ext_getElem; simp; intro i; cases i <;> simp
+  apply List.ext_getElemV; simp; intro i; cases i <;> simp +contextual
 
 theorem finRange_succ_last {n} :
     finRange (n+1) = (finRange n).map Fin.castSucc ++ [Fin.last n] := by

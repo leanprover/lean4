@@ -52,7 +52,7 @@ theorem Workspace.packages_addFacetDecls :
 := by
   simp only [addFacetDecls]
   apply Array.foldl_induction (fun _ (s : Workspace) => s.packages = ws.packages) rfl
-  intro i s h
+  intro i hi s h
   simp only [packages_addFacetConfig, h]
 
 /--

@@ -38,8 +38,8 @@ namespace Array
   ext l h₁ h₂
   · simp
     omega
-  · simp only [size_extract] at h₁ h₂
-    simp
+  · simp only [getElem_eq_getElemV]
+    rw [getElemV_extract (by simp at h₁; omega), getElemV_extract (by simp at h₂; omega)]
 
 theorem size_extract_le {as : Array α} {i j : Nat} :
     (as.extract i j).size ≤ j - i := by
@@ -96,14 +96,20 @@ theorem extract_push_of_le {as : Array α} {b : α} {start stop : Nat} (h : stop
     (as.push b).extract start stop = as.extract start stop := by
   rw [extract_push, if_pos h]
 
+/-
+PLOG(extract_eq_pop):
+Manual `getElem_pop` and `getElem_extract` side condition proofs
+-/
+
 @[simp, grind =]
 theorem extract_eq_pop {as : Array α} {stop : Nat} (h : stop = as.size - 1) :
     as.extract 0 stop = as.pop := by
-  ext i h₁ h₂
+  apply ext_getElemV
   · simp
     omega
-  · simp only [size_extract, size_pop] at h₁ h₂
-    simp [getElem_extract, getElem_pop]
+  · intro i h
+    rw [getElemV_pop (by simp at h ⊢; omega), getElemV_extract (by simp at h; omega)]
+    simp
 
 @[simp, grind _=_]
 theorem extract_append_extract {as : Array α} {i j k : Nat} :
@@ -169,6 +175,25 @@ theorem extract_size_left {as : Array α} :
   simp
   omega
 
+/-
+PLOG(push_extract_getElemV):
+I was quite confused when rewriting `getElemV_extract` that I could not prove the side condition
+until I noticed that the rewrite was in an `ite` arm. Now we split before rewriting.
+-/
+
+@[simp]
+theorem push_extract_getElemV {as : Array α} {i j : Nat} (h : j < as.size) :
+    (as.extract i j).push as｢j｣ = as.extract (min i j) (j + 1) := by
+  apply Array.ext_getElemV
+  · simp
+    omega
+  · intro i hi
+    simp only [size_push, size_extract] at hi
+    simp only [getElemV_push, size_extract, hi]
+    split
+    · rw [getElemV_extract, getElemV_extract] <;> (congr; omega)
+    · rw [getElemV_extract] <;> (congr; omega)
+
 @[simp]
 theorem push_extract_getElem {as : Array α} {i j : Nat} (h : j < as.size) :
     (as.extract i j).push as[j] = as.extract (min i j) (j + 1) := by
@@ -177,7 +202,9 @@ theorem push_extract_getElem {as : Array α} {i j : Nat} (h : j < as.size) :
     omega
   · simp only [size_push, size_extract] at h₁ h₂
     simp only [getElem_push, size_extract, getElem_extract]
-    split <;>
+    split
+    · congr
+      omega
     · congr
       omega
 
@@ -202,20 +229,36 @@ theorem extract_sub_one {as : Array α} {i j : Nat} (h : j < as.size) :
 @[simp]
 theorem getElem?_extract_of_lt {as : Array α} {i j k : Nat} (h : k < min j as.size - i) :
     (as.extract i j)[k]? = some (as[i + k]'(by omega)) := by
-  simp [h]
+  simp only [h,
+    size_extract, getElem?_eq_some_getElemV, getElem_eq_getElemV, Option.some.injEq]
+  rw [getElemV_extract (by omega)]
 
 theorem getElem?_extract_of_succ {as : Array α} {j : Nat} :
     (as.extract 0 (j + 1))[j]? = as[j]? := by
   simp [getElem?_extract]
   omega
 
+/-
+PLOG(extract_extract):
+Here I again have the situation that repeated usage of `getElemV_extract` only rewrites inside a
+proof term, never getting to the RHS. `simp`, in turn, feels the need to automatically discharge
+and fails.
+In this case, I'm lucky that there's the right hypothesis for the usage needed on the right
+so that this gives `rw` a hint where to look.
+Moreover, some of the hypotheses actually require combinations of `simp` and `omega`.
+-/
+
 @[simp] theorem extract_extract {as : Array α} {i j k l : Nat} :
     (as.extract i j).extract k l = as.extract (i + k) (min (i + l) j) := by
   ext m h₁ h₂
   · simp
     omega
-  · simp only [size_extract] at h₁ h₂
-    simp [Nat.add_assoc]
+  · simp only [getElem_eq_getElemV]
+    rw [getElemV_extract, getElemV_extract, getElemV_extract (by simp at h₂; omega), Nat.add_assoc]
+    · simp only [size_extract] at h₁ ⊢
+      omega
+    · simp only [size_extract] at h₁ ⊢
+      omega
 
 grind_pattern extract_extract => (as.extract i j).extract k l where
   as =/= #[]
@@ -227,6 +270,11 @@ theorem extract_eq_empty_of_eq_empty {as : Array α} {i j : Nat} (h : as = #[]) 
 theorem ne_empty_of_extract_ne_empty {as : Array α} {i j : Nat} (h : as.extract i j ≠ #[]) :
     as ≠ #[] :=
   mt extract_eq_empty_of_eq_empty h
+
+/-
+PLOG(extract_set):
+Some manual side condition proofs are necessary
+-/
 
 @[grind =]
 theorem extract_set {as : Array α} {i j k : Nat} (h : k < as.size) {a : α} :
@@ -240,8 +288,11 @@ theorem extract_set {as : Array α} {i j k : Nat} (h : k < as.size) {a : α} :
   · ext l h₁ h₂
     · simp
     · simp at h₁ h₂
-      simp [getElem_set]
-      omega
+      simp only [getElem_eq_getElemV]
+      rw [getElemV_extract, getElemV_set, getElemV_extract]
+      · simp at *; omega
+      · omega
+      · omega
   · split
     · ext l h₁ h₂
       · simp
@@ -252,15 +303,24 @@ theorem extract_set {as : Array α} {i j k : Nat} (h : k < as.size) {a : α} :
     · ext l h₁ h₂
       · simp
       · simp at h₁ h₂
-        simp [getElem_set]
-        omega
+        simp only [getElem_eq_getElemV]
+        rw [getElemV_extract, getElemV_set, getElemV_extract]
+        · simp at *; omega
+        · omega
+        · omega
 
 @[grind =]
 theorem set_extract {as : Array α} {i j k : Nat} (h : k < (as.extract i j).size) {a : α} :
     (as.extract i j).set k a = (as.set (i + k) a (by simp at h; omega)).extract i j := by
   ext l h₁ h₂
   · simp
-  · simp_all [getElem_set]
+  · simp only [getElem_eq_getElemV]
+    rw [getElemV_set, getElemV_extract, getElemV_extract, getElemV_set]
+    · simp
+    · simp only [size_set, size_extract] at *
+      omega
+    · simp only [size_set, size_extract] at *
+      omega
 
 @[simp, grind =]
 theorem extract_append {as bs : Array α} {i j : Nat} :

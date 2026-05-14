@@ -10,6 +10,7 @@ prelude
 public import Init.BinderPredicates
 public import Init.Ext
 public import Init.PropLemmas
+public import Init.Data.List.BasicAux
 import Init.Data.Bool
 import Init.Data.List.Lemmas
 import Init.Data.List.TakeDrop
@@ -323,8 +324,24 @@ grind_pattern Sublist.filter => l₁ <+ l₂, l₂.filter p where
 theorem head_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).head h ∈ xs :=
   filter_sublist.head_mem h
 
+theorem headV_filter_mem (xs : List α) (p : α → Bool) (h : xs.filter p ≠ []) :
+    haveI : Nonempty α := ⟨(xs.filter p).head h⟩
+    (xs.filter p).headV ∈ xs := by
+  simpa using head_filter_mem xs p h
+
 theorem getLast_filter_mem (xs : List α) (p : α → Bool) (h) : (xs.filter p).getLast h ∈ xs :=
   filter_sublist.getLast_mem h
+
+/-
+PLOG(getLastV_filter_mem)
+I'm fixing lots of lemmas using `simpa` and the `getElem` lemmas because it's convenient,
+but it doesn't reflect the way we expect proofs to be done *outside* these core modules.
+-/
+
+theorem getLastV_filter_mem (xs : List α) (p : α → Bool) (h : xs.filter p ≠ []) :
+    haveI : Nonempty α := ⟨(xs.filter p).head h⟩
+    (xs.filter p).getLastV ∈ xs := by
+  simpa using getLast_filter_mem xs p h
 
 @[grind =]
 theorem sublist_filterMap_iff {l₁ : List β} {f : α → Option β} :
@@ -577,6 +594,13 @@ theorem sublist_flatten_of_mem {L : List (List α)} {l} (h : l ∈ L) : l <+ L.f
     · simp
     · simp [ih h, flatten_cons, sublist_append_of_sublist_right]
 
+/-
+PLOG(sublist_flatten_iff):
+Had to add an explicit add_one_lt_add_one_iff argument.
+This also required me to actually do the case split instead of `<;> simp_all`.
+Same for flatten_sublist_iff
+-/
+
 theorem sublist_flatten_iff {L : List (List α)} {l} :
     l <+ L.flatten ↔
       ∃ L' : List (List α), l = L'.flatten ∧ ∀ i (_ : i < L'.length), L'[i] <+ L[i]?.getD [] := by
@@ -597,7 +621,10 @@ theorem sublist_flatten_iff {L : List (List α)} {l} :
     · rintro ⟨l₁, l₂, rfl, s, L', rfl, h⟩
       refine ⟨l₁ :: L', by simp, ?_⟩
       intro i lt
-      cases i <;> simp_all
+      cases i
+      · simp_all
+      · simp only [length_cons, add_one_lt_add_one_iff] at lt
+        simp_all
     · rintro ⟨L', rfl, h⟩
       cases L' with
       | nil =>
@@ -622,7 +649,10 @@ theorem flatten_sublist_iff {L : List (List α)} {l} :
     · rintro ⟨l₁, l₂, rfl, s, L', rfl, h⟩
       refine ⟨l₁ :: L', by simp, ?_⟩
       intro i lt
-      cases i <;> simp_all
+      cases i
+      · simp_all
+      · simp only [length_cons, add_one_lt_add_one_iff] at lt
+        simp_all
     · rintro ⟨L', rfl, h⟩
       cases L' with
       | nil =>
@@ -1009,6 +1039,16 @@ theorem prefix_iff_getElem {l₁ l₂ : List α} :
         simp only [length_cons, Nat.add_le_add_iff_right] at hl h
         simp only [cons_prefix_cons]
         exact ⟨h 0 (zero_lt_succ _), tail_ih hl fun a ha ↦ h a.succ (succ_lt_succ ha)⟩
+
+/-
+PLOG(prefix_iff_getElemV):
+A spurious dependency prevents me from simplifying `∃` to `∧`.
+-/
+
+theorem prefix_iff_getElemV [Nonempty α] {l₁ l₂ : List α} :
+    l₁ <+: l₂ ↔ ∃ (_ : l₁.length ≤ l₂.length),
+      ∀ i, i < l₁.length → l₁｢i｣ = l₂｢i｣ := by
+  simpa [prefix_iff_getElem] using ⟨fun ⟨h₁, h₂⟩ => ⟨h₁, h₂⟩, fun ⟨h₁, h₂⟩ => ⟨h₁, h₂⟩⟩
 
 theorem cons_prefix_iff {a : α} {l₁ l₂ : List α} :
     a :: l₁ <+: l₂ ↔ ∃ l', l₂ = a :: l' ∧ l₁ <+: l' := by

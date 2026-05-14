@@ -62,19 +62,21 @@ termination_by newWidth - curr
 
 theorem go_decl_eq (aig : AIG α) (w : Nat) (input : AIG.RefVec aig w) (newWidth curr : Nat)
     (hcurr : curr ≤ newWidth) (s : AIG.RefVec aig curr) :
-    ∀ (idx : Nat) (h1) (h2),
-       (go aig w input newWidth curr hcurr s).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat), (h : idx < aig.decls.size) →
+       (go aig w input newWidth curr hcurr s).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hgo : go aig w input newWidth curr hcurr s = res
   unfold go at hgo
   split at hgo
   · dsimp only at hgo
     split at hgo
     · rw [← hgo]
-      intro idx h1 h2
+      intro idx h1
       rw [go_decl_eq]
+      assumption
     · rw [← hgo]
-      intro idx h1 h2
+      intro idx h1
       rw [go_decl_eq]
+      assumption
   · simp [← hgo]
 termination_by newWidth - curr
 
@@ -89,6 +91,7 @@ instance : AIG.LawfulVecOperator α AIG.ExtendTarget blastZeroExtend where
     intros
     unfold blastZeroExtend
     apply blastZeroExtend.go_decl_eq
+    assumption
 
 end bitblast
 end BVExpr

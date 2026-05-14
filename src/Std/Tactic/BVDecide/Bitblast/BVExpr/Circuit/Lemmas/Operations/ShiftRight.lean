@@ -79,9 +79,10 @@ theorem go_denote_mem_prefix (aig : AIG α) (distance : Nat) (input : AIG.RefVec
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
-    apply go_decl_eq
-  · intros
     apply go_le_size
+  · intros
+    apply go_decl_eq
+    assumption
 
 theorem go_denote_eq (aig : AIG α) (distance : Nat) (input : AIG.RefVec aig w)
     (assign : α → Bool) (curr : Nat) (hcurr : curr ≤ w) (s : AIG.RefVec aig curr) :
@@ -429,10 +430,10 @@ theorem twoPowShift_eq (aig : AIG α) (target : TwoPowShiftTarget aig w) (lhs : 
       split
       next hlt =>
         rw [hleft]
-        simp [hmod, BitVec.getElem_sshiftRight, hlt, hidx]
+        simp [hmod, BitVec.getElemV_sshiftRight, hlt, hidx]
       next hlt =>
         rw [hleft]
-        simp [BitVec.getElem_sshiftRight, hmod, hlt, hidx, BitVec.msb_eq_getLsbD_last]
+        simp [BitVec.getElemV_sshiftRight, hmod, hlt, hidx, BitVec.msb_eq_getLsbD_last]
     next hif1 =>
       simp only [Bool.not_eq_true] at hif1
       rw [← hg]

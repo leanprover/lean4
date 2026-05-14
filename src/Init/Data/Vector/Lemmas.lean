@@ -36,7 +36,7 @@ namespace Array
 theorem toVector_inj {xs ys : Array α} (h₁ : xs.size = ys.size) (h₂ : xs.toVector.cast h₁ = ys.toVector) : xs = ys := by
   ext i ih₁ ih₂
   · exact h₁
-  · simpa using congrArg (fun xs => xs[i]) h₂
+  · simpa using congrArg (fun xs => xs｢i｣) h₂
 
 end Array
 
@@ -49,13 +49,27 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 @[simp] theorem mk_toArray {xs : Vector α n} : mk xs.toArray xs.2 = xs := by
   rfl
 
-@[simp] theorem getElem_mk {xs : Array α} {size : xs.size = n} {i : Nat} (h : i < n) :
+theorem getElem_mk {xs : Array α} {size : xs.size = n} {i : Nat} (h : i < n) :
     (Vector.mk xs size)[i] = xs[i] := rfl
+
+instance : LawfulGetElemV (Vector α n) Nat α _ where
+  getElemV_def := by
+    intro _ xs i
+    rcases xs with ⟨xs, rfl⟩
+    simp only [getElemV, getD, Array.getD_eq_getD_getElem?]
+    simp only [getElem?_def, getElem_eq_getElemV]
+    split
+    · simp [getElem_mk]
+    · simp
 
 @[simp] theorem getElem?_mk {xs : Array α} {size : xs.size = n} {i : Nat} :
     (Vector.mk xs size)[i]? = xs[i]? := by
   subst size
-  simp [getElem?_def]
+  simp [getElem?_def, - getElem_eq_getElemV, getElem_mk]
+
+@[simp] theorem getElemV_mk {_ : Nonempty α} {xs : Array α} {size : xs.size = n} {i : Nat} :
+    (Vector.mk xs size)｢i｣ = xs｢i｣ := by
+  simp [getElemV_def]
 
 @[simp] theorem mem_mk {xs : Array α} {size : xs.size = n} {a : α} :
     a ∈ Vector.mk xs size ↔ a ∈ xs :=
@@ -85,8 +99,18 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 @[simp] theorem back?_mk {xs : Array α} (h : xs.size = n) :
     (Vector.mk xs h).back? = xs.back? := rfl
 
+@[simp] theorem backV_mk [Nonempty α] {xs : Array α} (h : xs.size = n) :
+    (Vector.mk xs h).backV = xs.backV := (rfl)
+
+/-
+PLOG(back_mk):
+nontrivial side condition
+-/
+
 @[simp] theorem back_mk [NeZero n] {xs : Array α} (h : xs.size = n) :
     (Vector.mk xs h).back = xs.back (by have : 0 ≠ n := NeZero.ne' n; omega) := by
+  have : 0 ≠ n := NeZero.ne' n
+  have : n - 1 < n := by omega
   simp [back, Array.back, h]
 
 @[simp] theorem foldlM_mk [Monad m] {f : β → α → m β} {b : β} {xs : Array α} (h : xs.size = n) :
@@ -294,9 +318,13 @@ theorem toArray_mk {xs : Array α} (h : xs.size = n) : (Vector.mk xs h).toArray 
 
 /-! ### toArray lemmas -/
 
-@[simp, grind =] theorem getElem_toArray {α n} {xs : Vector α n} {i : Nat} (h : i < xs.toArray.size) :
-    xs.toArray[i] = xs[i]'(by simpa using h) := by
+@[simp, grind =] theorem getElemV_toArray {α n} {_ : Nonempty α} {xs : Vector α n} {i : Nat} :
+    xs.toArray｢i｣ = xs｢i｣ := by
   cases xs
+  simp
+
+theorem getElem_toArray {α n} {xs : Vector α n} {i : Nat} (h : i < xs.toArray.size) :
+    xs.toArray[i] = xs[i]'(by simpa using h) := by
   simp
 
 @[simp, grind =] theorem getElem?_toArray {α n} {xs : Vector α n} {i : Nat} :
@@ -511,11 +539,11 @@ theorem toArray_swapAt! {xs : Vector α n} {i x} :
 Vectors `a` and `b` are equal to each other if their elements are equal for each valid index.
 -/
 @[ext, grind ext]
-protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → xs[i] = ys[i]) : xs = ys := by
+protected theorem ext {xs ys : Vector α n} (h : (i : Nat) → (_ : i < n) → xs｢i｣ = ys｢i｣) : xs = ys := by
   apply Vector.toArray_inj.1
-  apply Array.ext
+  apply Array.ext_getElemV
   · rw [xs.size_toArray, ys.size_toArray]
-  · intro i hi _
+  · intro i hi
     rw [xs.size_toArray] at hi
     exact h i hi
 
@@ -561,9 +589,13 @@ theorem toArray_toList {xs : Vector α n} : xs.toList.toArray = xs.toArray := rf
     xs.toList.prod = xs.prod := by
   rw [← toList_toArray, Array.prod_toList, prod_toArray]
 
-@[simp] theorem getElem_toList {xs : Vector α n} {i : Nat} (h : i < xs.toList.length) :
-    xs.toList[i] = xs[i]'(by simpa using h) := by
+@[simp] theorem getElemV_toList {_ : Nonempty α} {xs : Vector α n} {i : Nat} :
+    xs.toList｢i｣ = xs｢i｣ := by
   cases xs
+  simp
+
+theorem getElem_toList {xs : Vector α n} {i : Nat} (h : i < xs.toList.length) :
+    xs.toList[i] = xs[i]'(by simpa using h) := by
   simp
 
 @[simp] theorem getElem?_toList {xs : Vector α n} {i : Nat} :
@@ -797,9 +829,14 @@ theorem singleton_inj : #v[a] = #v[b] ↔ a = b := by
 
 /-! ### cast -/
 
-@[simp] theorem getElem_cast {xs : Vector α n} {h : n = m} {i : Nat} (hi : i < m) :
+@[simp] theorem getElemV_cast {_ : Nonempty α} {xs : Vector α n} {h : n = m} {i : Nat} :
+    (xs.cast h)｢i｣ = xs｢i｣ := by
+  cases h
+  rcases xs with ⟨xs, rfl⟩
+  simp
+
+theorem getElem_cast {xs : Vector α n} {h : n = m} {i : Nat} (hi : i < m) :
     (xs.cast h)[i] = xs[i] := by
-  cases xs
   simp
 
 @[simp] theorem getElem?_cast {xs : Vector α n} {w : n = m} {i : Nat} :
@@ -866,7 +903,11 @@ theorem getElem?_eq_none {xs : Vector α n} (h : n ≤ i) : xs[i]? = none := by
 grind_pattern Vector.getElem?_eq_none => xs[i]? where
   guard n ≤ i
 
-@[simp] theorem getElem?_eq_getElem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i]? = some xs[i] :=
+@[simp] theorem getElem?_eq_some_getElemV {xs : Vector α n} {i : Nat} (h : i < n) :
+    xs[i]? = some xs｢i｣ :=
+  _root_.getElem?_eq_some_getElemV xs i h
+
+theorem getElem?_eq_getElem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i]? = some xs[i] :=
   getElem?_pos ..
 
 theorem getElem?_eq_some_iff {xs : Vector α n} : xs[i]? = some b ↔ ∃ h : i < n, xs[i] = b :=
@@ -878,21 +919,39 @@ theorem getElem_of_getElem? {xs : Vector α n} : xs[i]? = some a → ∃ h : i <
 theorem some_eq_getElem?_iff {xs : Vector α n} : some b = xs[i]? ↔ ∃ h : i < n, xs[i] = b :=
   _root_.some_eq_getElem?_iff
 
+theorem some_getElemV_eq_getElem?_iff {xs : Vector α n} {i : Nat} (h : i < n) :
+    (some xs｢i｣ = xs[i]?) ↔ True := by
+  simp [h]
+
 theorem some_getElem_eq_getElem?_iff {xs : Vector α n} {i : Nat} (h : i < n) :
     (some xs[i] = xs[i]?) ↔ True := by
-  simp
+  simpa using some_getElemV_eq_getElem?_iff h
+
+theorem getElem?_eq_some_getElemV_iff {xs : Vector α n} {i : Nat} (h : i < n) :
+    (xs[i]? = some xs｢i｣) ↔ True := by
+  simp [h]
 
 theorem getElem?_eq_some_getElem_iff {xs : Vector α n} {i : Nat} (h : i < n) :
     (xs[i]? = some xs[i]) ↔ True := by
-  simp
+  simpa using getElem?_eq_some_getElemV_iff h
 
-theorem getElem_eq_iff {xs : Vector α n} {i : Nat} {h : i < n} : xs[i] = x ↔ xs[i]? = some x := by
-  simp only [getElem?_eq_some_iff]
+theorem getElemV_eq_iff {xs : Vector α n} {i : Nat} (h : i < n) : xs｢i｣ = x ↔ xs[i]? = some x := by
+  simp only [getElem?_eq_some_iff_getElemV]
   exact ⟨fun w => ⟨h, w⟩, fun h => h.2⟩
 
-theorem getElem_eq_getElem?_get {xs : Vector α n} {i : Nat} (h : i < n) :
+theorem getElem_eq_iff {xs : Vector α n} {i : Nat} {h : i < n} : xs[i] = x ↔ xs[i]? = some x := by
+  simpa using getElemV_eq_iff (h := h)
+
+theorem getElem_eq_getV_getElem? {_ : Nonempty α} {xs : Vector α n} {i : Nat} :
+    xs｢i｣ = xs[i]?.getV := by
+  simp
+
+theorem getElem_eq_get_getElem? {xs : Vector α n} {i : Nat} (h : i < n) :
     xs[i] = xs[i]?.get (by simp [h]) := by
   simp
+
+@[deprecated getElem_eq_get_getElem? (since := "2025-04-10")]
+def getElem_eq_getElem?_get := @getElem_eq_get_getElem?
 
 theorem getD_getElem? {xs : Vector α n} {i : Nat} {d : α} :
     xs[i]?.getD d = if p : i < n then xs[i]'p else d := by
@@ -904,33 +963,66 @@ theorem getD_getElem? {xs : Vector α n} {i : Nat} {d : α} :
 
 @[simp] theorem getElem?_empty {i : Nat} : (#v[] : Vector α 0)[i]? = none := rfl
 
-@[simp] theorem getElem_push_lt {xs : Vector α n} {x : α} {i : Nat} (h : i < n) :
-    (xs.push x)[i] = xs[i] := by
+/-
+PLOG(getElemV_push_lt):
+manual bounds proof
+-/
+
+@[simp] theorem getElemV_push_lt {xs : Vector α n} {x : α} {i : Nat} (h : i < n) :
+    (xs.push x)｢i｣ = xs｢i｣ := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_push_lt, h]
+  have : i < xs.size + 1 := by omega
+  simp [Array.getElemV_push_lt, h]
+
+theorem getElem_push_lt {xs : Vector α n} {x : α} {i : Nat} (h : i < n) :
+    (xs.push x)[i] = xs[i] := by
+  simpa using getElemV_push_lt h
+
+@[simp] theorem getElemV_push_eq {_ : Nonempty α} {xs : Vector α n} {x : α} :
+    (xs.push x)｢n｣ = x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.getElemV_push]
 
 set_option linter.indexVariables false in
-@[simp] theorem getElem_push_eq {xs : Vector α n} {x : α} : (xs.push x)[n] = x := by
-  rcases xs with ⟨xs, rfl⟩
+theorem getElem_push_eq {xs : Vector α n} {x : α} : (xs.push x)[n] = x := by
   simp
 
 @[grind =]
+theorem getElemV_push {xs : Vector α n} {x : α} {i : Nat} (h : i < n + 1) :
+    haveI : Nonempty α := ⟨x⟩
+    (xs.push x)｢i｣ = if i < n then xs｢i｣ else x := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.getElemV_push, h]
+
 theorem getElem_push {xs : Vector α n} {x : α} {i : Nat} (h : i < n + 1) :
     (xs.push x)[i] = if h : i < n then xs[i] else x := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.getElem_push]
+  simpa using getElemV_push h
 
 @[grind =]
-theorem getElem?_push {xs : Vector α n} {x : α} {i : Nat} : (xs.push x)[i]? = if i = n then some x else xs[i]? := by
-  simp [getElem?_def, getElem_push]
+theorem getElem?_push {xs : Vector α n} {x : α} {i : Nat} :
+    (xs.push x)[i]? = if i = n then some x else xs[i]? := by
+  simp +contextual only [getElem?_def, getElem_eq_getElemV, getElemV_push, dite_eq_ite]
   (repeat' split) <;> first | rfl | omega
 
 set_option linter.indexVariables false in
 theorem getElem?_push_size {xs : Vector α n} {x : α} : (xs.push x)[n]? = some x := by
   simp
 
+/-
+PLOG(getElemV_singleton):
+bounds proof of a very peculiar form involving `[].length`
+-/
+
+@[simp]
+theorem getElemV_singleton {a : α} (h : i < 1) :
+    haveI : Nonempty α := ⟨a⟩
+    #v[a]｢i｣ = a := by
+  have : i ≤ ([] : List α).length := by simpa using h
+  have : i = 0 := by simpa using this
+  simp [List.getElemV_cons, *]
+
 theorem getElem_singleton {a : α} (h : i < 1) : #v[a][i] = a := by
-  simp
+  simp [h]
 
 @[grind =]
 theorem getElem?_singleton {a : α} {i : Nat} : #v[a][i]? = if i = 0 then some a else none := by
@@ -938,12 +1030,15 @@ theorem getElem?_singleton {a : α} {i : Nat} : #v[a][i]? = if i = 0 then some a
 
 /-! ### mem -/
 
-@[simp] theorem getElem_mem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i] ∈ xs := by
+@[simp] theorem getElemV_mem {xs : Vector α n} {i : Nat} (h : i < n) :
+    xs｢i｣ ∈ xs := by
   rcases xs with ⟨xs, rfl⟩
-  simp
+  simp [h]
 
-grind_pattern getElem_mem => xs[i] ∈ xs
+grind_pattern getElemV_mem => xs｢i｣ ∈ xs
 
+theorem getElem_mem {xs : Vector α n} {i : Nat} (h : i < n) : xs[i] ∈ xs := by
+  simp [h]
 
 @[grind ←]
 theorem not_mem_empty (a : α) : ¬ a ∈ #v[] := nofun
@@ -1069,6 +1164,12 @@ theorem not_mem_push_of_ne_of_not_mem {a y : α} {xs : Vector α n} : a ≠ y �
 theorem ne_and_not_mem_of_not_mem_push {a y : α} {xs : Vector α n} : a ∉ xs.push y → a ≠ y ∧ a ∉ xs := by
   simp +contextual
 
+theorem getElemV_of_mem {a} {xs : Vector α n} (h : a ∈ xs) :
+    haveI : Nonempty α := ⟨a⟩
+    ∃ i : Nat, i < xs.size ∧ xs｢i｣ = a := by
+  rcases xs with ⟨xs, rfl⟩
+  simpa using Array.getElemV_of_mem (by simpa using h)
+
 theorem getElem_of_mem {a} {xs : Vector α n} (h : a ∈ xs) : ∃ (i : Nat) (h : i < n), xs[i]'h = a := by
   rcases xs with ⟨xs, rfl⟩
   simpa using Array.getElem_of_mem (by simpa using h)
@@ -1076,9 +1177,18 @@ theorem getElem_of_mem {a} {xs : Vector α n} (h : a ∈ xs) : ∃ (i : Nat) (h 
 theorem getElem?_of_mem {a} {xs : Vector α n} (h : a ∈ xs) : ∃ i : Nat, xs[i]? = some a :=
   let ⟨n, _, e⟩ := getElem_of_mem h; ⟨n, e ▸ getElem?_eq_getElem _⟩
 
+/-
+PLOG(mem_of_getElemV):
+not a real problem, but `subst` fails to work since the nonemptyness proof uses `a`
+-/
+
+theorem mem_of_getElemV {xs : Vector α n} {i : Nat} {h : i < xs.size} {a : α} (e : xs｢i｣ = a) :
+    a ∈ xs := by
+  rw [← e]
+  simp [h]
+
 theorem mem_of_getElem {xs : Vector α n} {i : Nat} {h} {a : α} (e : xs[i] = a) : a ∈ xs := by
-  subst e
-  simp
+  simpa using mem_of_getElemV (h := h) (by simpa using e)
 
 theorem mem_of_getElem? {xs : Vector α n} {i : Nat} {a : α} (e : xs[i]? = some a) : a ∈ xs :=
   let ⟨_, e⟩ := getElem?_eq_some_iff.1 e; e ▸ getElem_mem ..
@@ -1296,18 +1406,26 @@ instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ 
 
 /-! ### set -/
 
-@[grind =] theorem getElem_set {xs : Vector α n} {i : Nat} {x : α} (hi : i < n) {j : Nat} (hj : j < n) :
-    (xs.set i x hi)[j] = if i = j then x else xs[j] := by
+@[grind =] theorem getElemV_set {_ : Nonempty α} {xs : Vector α n} {i : Nat} {x : α} (hi : i < n) {j : Nat} :
+    (xs.set i x hi)｢j｣ = if i = j then x else xs｢j｣ := by
   cases xs
   split <;> simp_all
 
-@[simp] theorem getElem_set_self {xs : Vector α n} {i : Nat} {x : α} (hi : i < n) :
-    (xs.set i x hi)[i] = x := by simp [getElem_set]
+theorem getElem_set {xs : Vector α n} {i : Nat} {x : α} (hi : i < n) {j : Nat} (hj : j < n) :
+    (xs.set i x hi)[j] = if i = j then x else xs[j] := by
+  simpa using getElemV_set hi
 
+@[simp] theorem getElemV_set_self {xs : Vector α n} {i : Nat} {x : α} (hi : i < n) :
+    (xs.set i x hi)｢i｣ = x := by simp [getElemV_set]
 
+theorem getElem_set_self {xs : Vector α n} {i : Nat} {x : α} (hi : i < n) :
+    (xs.set i x hi)[i] = x := by simp
 
-@[simp] theorem getElem_set_ne {xs : Vector α n} {x : α} (hi : i < n) (hj : j < n) (h : i ≠ j) :
-    (xs.set i x hi)[j] = xs[j] := by simp [getElem_set, h]
+@[simp] theorem getElemV_set_ne {xs : Vector α n} {x : α} (hi : i < n) (h : i ≠ j) :
+    (xs.set i x hi)｢j｣ = xs｢j｣ := by simp [getElemV_set, h]
+
+theorem getElem_set_ne {xs : Vector α n} {x : α} (hi : i < n) (hj : j < n) (h : i ≠ j) :
+    (xs.set i x hi)[j] = xs[j] := by simp [h]
 
 @[grind =] theorem getElem?_set {xs : Vector α n} {x : α} (hi : i < n) :
     (xs.set i x hi)[j]? = if i = j then some x else xs[j]? := by
@@ -1321,9 +1439,13 @@ instance [BEq α] [LawfulBEq α] (a : α) (as : Vector α n) : Decidable (a ∈ 
     (xs.set i x hi)[j]? = xs[j]? := by
   simp [getElem?_set, h]
 
-@[simp] theorem set_getElem_self {xs : Vector α n} (hi : i < n) :
-    xs.set i xs[i] hi = xs := by
+@[simp] theorem set_getElemV_self {xs : Vector α n} (hi : i < n) :
+    xs.set i xs｢i｣ hi = xs := by
   cases xs
+  simp
+
+theorem set_getElem_self {xs : Vector α n} (hi : i < n) :
+    xs.set i xs[i] hi = xs := by
   simp
 
 theorem set_push {xs : Vector α n} {x y : α} {h} :
@@ -1357,18 +1479,35 @@ grind_pattern mem_or_eq_of_mem_set => a ∈ xs.set i b
 @[simp, grind =] theorem setIfInBounds_empty {i : Nat} {a : α} :
     #v[].setIfInBounds i a = #v[] := rfl
 
-@[grind =] theorem getElem_setIfInBounds {xs : Vector α n} {x : α} (hj : j < n) :
-    (xs.setIfInBounds i x)[j] = if i = j then x else xs[j] := by
+@[grind =] theorem getElemV_setIfInBounds {xs : Vector α n} {x : α} {j : Nat} :
+    (xs.setIfInBounds i x)｢j｣ = if i = j ∧ j < xs.size then x else xs｢j｣ := by
   cases xs
-  split <;> simp_all
+  split
+  · simp_all
+  · rename_i h
+    simp only [not_and, Nat.not_lt] at h
+    simp only [setIfInBounds_mk, getElemV_mk, Array.getElemV_setIfInBounds, ite_eq_right_iff,
+      and_imp]
+    intro hij hj
+    simp_all [Vector.size]; omega
 
-@[simp] theorem getElem_setIfInBounds_self {xs : Vector α n} {x : α} (hi : i < n) :
-    (xs.setIfInBounds i x)[i] = x := by simp [getElem_setIfInBounds]
+theorem getElem_setIfInBounds {xs : Vector α n} {x : α} (hj : j < n) :
+    (xs.setIfInBounds i x)[j] = if i = j then x else xs[j] := by
+  simpa [hj] using getElemV_setIfInBounds (xs := xs) (j := j)
 
+@[simp] theorem getElemV_setIfInBounds_self {xs : Vector α n} {x : α} (hi : i < n) :
+    (xs.setIfInBounds i x)｢i｣ = x := by
+  simp [getElemV_setIfInBounds, hi]
 
+theorem getElem_setIfInBounds_self {xs : Vector α n} {x : α} (hi : i < n) :
+    (xs.setIfInBounds i x)[i] = x := by
+  simpa using getElemV_setIfInBounds_self hi
 
-@[simp] theorem getElem_setIfInBounds_ne {xs : Vector α n} {x : α} (hj : j < n) (h : i ≠ j) :
-    (xs.setIfInBounds i x)[j] = xs[j] := by simp [getElem_setIfInBounds, h]
+@[simp] theorem getElemV_setIfInBounds_ne {xs : Vector α n} {x : α} (h : i ≠ j) :
+    (xs.setIfInBounds i x)｢j｣ = xs｢j｣ := by simp [getElemV_setIfInBounds, h]
+
+theorem getElem_setIfInBounds_ne {xs : Vector α n} {x : α} (hj : j < n) (h : i ≠ j) :
+    (xs.setIfInBounds i x)[j] = xs[j] := by simp [getElemV_setIfInBounds_ne, h]
 
 @[grind =] theorem getElem?_setIfInBounds {xs : Vector α n} {x : α} :
     (xs.setIfInBounds i x)[j]? = if i = j then if i < n then some x else none else xs[j]? := by
@@ -1403,7 +1542,7 @@ theorem setIfInBound_comm (a b : α) {i j : Nat} {xs : Vector α n} (h : i ≠ j
 theorem mem_setIfInBounds {xs : Vector α n} {a : α} (hi : i < n) :
     a ∈ xs.setIfInBounds i a := by
   simp [mem_iff_getElem]
-  exact ⟨i, (by simpa using hi), by simp⟩
+  exact ⟨i, (by simpa using hi), by simp [hi]⟩
 
 /-! ### BEq -/
 
@@ -1467,12 +1606,25 @@ theorem mem_setIfInBounds {xs : Vector α n} {a : α} (hi : i < n) :
 
 /-! ### back -/
 
-@[grind =] theorem back_singleton {a : α} : #v[a].back = a := by simp
+@[grind =] theorem backV_singleton {a : α} :
+    haveI : Nonempty α := ⟨a⟩; #v[a].backV = a := by
+  simp
 
-@[grind =]
-theorem back_eq_getElem [NeZero n] {xs : Vector α n} : xs.back = xs[n - 1]'(by have := NeZero.ne n; omega) := by
+theorem back_singleton {a : α} : #v[a].back = a := by simp
+
+@[grind =] theorem backV_eq_getElemV {_ : Nonempty α} {xs : Vector α n} :
+    xs.backV = xs｢n - 1｣ := by
   rcases xs with ⟨xs, rfl⟩
-  simp [Array.back_eq_getElem]
+  simp [Array.backV_eq_getElemV]
+
+@[simp, grind norm]
+theorem back_eq_backV [NeZero n] {xs : Vector α n} :
+    haveI : Nonempty α := ⟨xs.back⟩; xs.back = xs.backV := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [Array.back_eq_backV]
+
+theorem back_eq_getElem [NeZero n] {xs : Vector α n} : xs.back = xs[n - 1]'(by have := NeZero.ne n; omega) := by
+  simpa using backV_eq_getElemV
 
 @[grind =] theorem back?_empty : (#v[] : Vector α 0).back? = none := by simp
 
@@ -1480,17 +1632,32 @@ theorem back_eq_getElem [NeZero n] {xs : Vector α n} : xs.back = xs[n - 1]'(by 
   rcases xs with ⟨xs, rfl⟩
   simp [Array.back?_eq_getElem?]
 
-@[simp] theorem back_mem [NeZero n] {xs : Vector α n} : xs.back ∈ xs := by
+/-
+PLOG(backV_mem):
+Had to add very specific lemmas to discharge the side condition
+-/
+
+@[simp] theorem backV_mem [NeZero n] {xs : Vector α n} :
+    haveI : Nonempty α := ⟨xs.back⟩
+    xs.backV ∈ xs := by
   cases xs
+  simp [Array.backV_mem, *, NeZero.ne, ← Nat.ne_zero_iff_zero_lt]
+
+theorem back_mem [NeZero n] {xs : Vector α n} : xs.back ∈ xs := by
   simp
 
 /-! ### map -/
 
 -- The argument `f : α → β` is explicit, to facilitate rewriting from right to left.
+@[simp, grind =] theorem getElemV_map (f : α → β) {xs : Vector α n} (hi : i < n) :
+    (xs.map f)｢i｣ = f xs｢i｣ := by
+  cases xs
+  simp [Array.getElemV_map, *]
+
+-- The argument `f : α → β` is explicit, to facilitate rewriting from right to left.
 @[simp, grind =] theorem getElem_map (f : α → β) {xs : Vector α n} (hi : i < n) :
     (xs.map f)[i] = f xs[i] := by
-  cases xs
-  simp
+  simpa using getElemV_map f hi
 
 @[simp, grind =] theorem getElem?_map {f : α → β} {xs : Vector α n} {i : Nat}:
     (xs.map f)[i]? = xs[i]?.map f := by
@@ -1723,17 +1890,30 @@ theorem append_empty {xs : Vector α n} : xs ++ (#v[] : Vector α 0) = xs := by
   rw [← toArray_inj, toArray_append, Array.append_empty]
 
 @[grind =]
-theorem getElem_append {xs : Vector α n} {ys : Vector α m} (hi : i < n + m) :
-    (xs ++ ys)[i] = if h : i < n then xs[i] else ys[i - n] := by
+theorem getElemV_append {_ : Nonempty α} {xs : Vector α n} {ys : Vector α m} :
+    (xs ++ ys)｢i｣ = if i < n then xs｢i｣ else ys｢i - n｣ := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
-  simp [Array.getElem_append]
+  simp [Array.getElemV_append]
+
+theorem getElem_append {xs : Vector α n} {ys : Vector α m} (hi : i < n + m) :
+    (xs ++ ys)[i] = if h : i < n then xs[i] else ys[i - n] := by
+  simpa using getElemV_append
 
 @[simp]
+theorem getElemV_append_left {xs : Vector α n} {ys : Vector α m} (hi : i < n) :
+    (xs ++ ys)｢i｣ = xs｢i｣ := by
+  simp [getElemV_append, hi]
+
 theorem getElem_append_left {xs : Vector α n} {ys : Vector α m} (hi : i < n) :
-    (xs ++ ys)[i] = xs[i] := by simp [getElem_append, hi]
+    (xs ++ ys)[i] = xs[i] := by
+  simp [hi]
 
 @[simp]
+theorem getElemV_append_right {_ : Nonempty α} {xs : Vector α n} {ys : Vector α m} (hi : n ≤ i) :
+    (xs ++ ys)｢i｣ = ys｢i - n｣ := by
+  simp [getElemV_append, Nat.not_lt_of_ge hi]
+
 theorem getElem_append_right {xs : Vector α n} {ys : Vector α m} (h : i < n + m) (hi : n ≤ i) :
     (xs ++ ys)[i] = ys[i - n] := by
   rw [getElem_append, dif_neg (by omega)]
@@ -1756,15 +1936,34 @@ theorem getElem?_append {xs : Vector α n} {ys : Vector α m} {i : Nat} :
   · exact getElem?_append_left h
   · exact getElem?_append_right (by simpa using h)
 
+/-- Variant of `getElemV_append_left` useful for rewriting from the small array to the big array. -/
+theorem getElemV_append_left' {xs : Vector α m} (hi : i < m) (ys : Vector α n) :
+    xs｢i｣ = (xs ++ ys)｢i｣ := by
+  rw [getElemV_append_left] <;> simp [hi]
+
 /-- Variant of `getElem_append_left` useful for rewriting from the small array to the big array. -/
 theorem getElem_append_left' {xs : Vector α m} (hi : i < m) (ys : Vector α n) :
     xs[i] = (xs ++ ys)[i] := by
   rw [getElem_append_left] <;> simp
 
 /-- Variant of `getElem_append_right` useful for rewriting from the small array to the big array. -/
+theorem getElemV_append_right' {_ : Nonempty α} (xs : Vector α m) {ys : Vector α n} :
+    ys｢i｣ = (xs ++ ys)｢i + m｣ := by
+  rw [getElemV_append_right] <;> simp [*, Nat.le_add_left]
+
+/-- Variant of `getElem_append_right` useful for rewriting from the small array to the big array. -/
 theorem getElem_append_right' (xs : Vector α m) {ys : Vector α n} (hi : i < n) :
     ys[i] = (xs ++ ys)[i + m] := by
   rw [getElem_append_right] <;> simp [*, Nat.le_add_left]
+
+set_option linter.indexVariables false in
+theorem getElemV_of_append {xs : Vector α n} {xs₁ : Vector α m} {xs₂ : Vector α k}
+    (w : m + 1 + k = n) (eq : xs = (xs₁.push a ++ xs₂).cast w) :
+    xs｢m｣ = a := Option.some.inj <| by
+  have : Nonempty α := ⟨xs[m]⟩
+  rw [← getElem?_eq_some_getElemV, eq, getElem?_cast, getElem?_append_left (by simp)]
+  · simp
+  · omega
 
 set_option linter.indexVariables false in
 theorem getElem_of_append {xs : Vector α n} {xs₁ : Vector α m} {xs₂ : Vector α k}
@@ -1914,24 +2113,25 @@ set_option linter.listVariables false in
       mk (xss.map toArray).flatten (by simp [Function.comp_def, Array.map_const', h]) := by
   simp [flatten]
 
-@[simp] theorem getElem_flatten {xss : Vector (Vector β m) n} {i : Nat} (hi : i < n * m) :
-    xss.flatten[i] =
+@[simp]
+theorem getElemV_flatten {xss : Vector (Vector β m) n} {i : Nat} (hi : i < n * m) :
+    xss.flatten｢i｣ =
       haveI : i / m < n := by rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
       haveI : i % m < m := Nat.mod_lt _ (Nat.pos_of_lt_mul_left hi)
-      xss[i / m][i % m] := by
+      xss｢i / m｣｢i % m｣ := by
   rcases xss with ⟨⟨l⟩, rfl⟩
-  simp only [flatten_mk, List.map_toArray, getElem_mk, List.getElem_toArray, Array.flatten_toArray]
+  simp only [flatten_mk, List.map_toArray, getElemV_mk, List.getElemV_toArray, Array.flatten_toArray]
   induction l generalizing i with
   | nil => simp at hi
   | cons xs l ih =>
     simp only [List.map_cons, List.map_map, List.flatten_cons, toList_toArray]
     by_cases h : i < m
-    · rw [List.getElem_append_left (by simpa)]
+    · rw [List.getElemV_append_left (by simpa)]
       have h₁ : i / m = 0 := Nat.div_eq_of_lt h
       have h₂ : i % m = i := Nat.mod_eq_of_lt h
       simp [h₁, h₂]
     · have h₁ : xs.toList.length ≤ i := by simp; omega
-      rw [List.getElem_append_right h₁]
+      rw [List.getElemV_append_right h₁]
       simp only [length_toList]
       specialize ih (i := i - m) (by simp_all [Nat.add_one_mul]; omega)
       have h₂ : i / m = (i - m) / m + 1 := by
@@ -1942,15 +2142,23 @@ set_option linter.listVariables false in
       have h₃ : (i - m) % m = i % m := (Nat.mod_eq_sub_mod h₁).symm
       simp_all
 
+theorem getElem_flatten {xss : Vector (Vector β m) n} {i : Nat} (hi : i < n * m) :
+    xss.flatten[i] =
+      haveI : i / m < n := by rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
+      haveI : i % m < m := Nat.mod_lt _ (Nat.pos_of_lt_mul_left hi)
+      xss[i / m][i % m] := by
+  simpa using getElemV_flatten hi
+
 theorem getElem?_flatten {xss : Vector (Vector β m) n} {i : Nat} :
     xss.flatten[i]? =
       if hi : i < n * m then
+        haveI : Nonempty β := ⟨xss.flatten[i]⟩
         haveI : i / m < n := by rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
         haveI : i % m < m := Nat.mod_lt _ (Nat.pos_of_lt_mul_left hi)
-        some xss[i / m][i % m]
+        some xss｢i / m｣｢i % m｣
       else
         none := by
-  simp [getElem?_def]
+  simp +contextual [getElem?_def, getElemV_flatten]
 
 @[simp, grind =] theorem flatten_singleton {xs : Vector α n} : #v[xs].flatten = xs.cast (by simp) := by
   simp [flatten]
@@ -2002,6 +2210,13 @@ theorem flatten_flatten {xss : Vector (Vector (Vector α n) m) k} :
     -- simp [Array.flatten_flatten] -- FIXME: `simp` produces a bad proof here!
     simp [Array.map_attach_eq_pmap, Array.flatten_flatten, Array.map_pmap]
 
+/-
+PLOG(eq_iff_flatten_eq):
+Had to manually prove `i < xss.size` and `i < xss'.size`.
+I was surprised that `simp [*]` didn't make progress. Problem was that `h₁` and `h₁'` made
+`simp` non-confluent and it failed to discharge on level 1.
+-/
+
 set_option linter.listVariables false in
 /-- Two vectors of constant length vectors are equal iff their flattens coincide. -/
 theorem eq_iff_flatten_eq {xss xss' : Vector (Vector α n) m} :
@@ -2019,10 +2234,12 @@ theorem eq_iff_flatten_eq {xss xss' : Vector (Vector α n) m} :
     simpa [Option.map_pmap] using h
   · intro h
     have w : xss.map Array.size = xss'.map Array.size := by
-      ext i h h'
+      apply Array.ext_getElemV
       · simp_all
-      · simp only [Array.getElem_map]
-        rw [h₂ _ (by simp), h₂' _ (by simp)]
+      · intro i h
+        have hi : i < xss.size := by simpa [Array.size_map] using h
+        have hi' : i < xss'.size := by simpa [h₁, ← h₁'] using hi
+        simp [Array.getElemV_map, hi, hi', h₂, h₂']
     have := Array.eq_iff_flatten_eq.mpr ⟨h, w⟩
     subst this
     rfl
@@ -2047,7 +2264,16 @@ theorem flatMap_def {xs : Vector α n} {f : α → Vector β m} : xs.flatMap f =
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem getElem_flatMap {xs : Vector α n} {f : α → Vector β m} {i : Nat} (hi : i < n * m) :
+@[simp] theorem getElemV_flatMap {_ : Nonempty β} {xs : Vector α n} {f : α → Vector β m}
+    {i : Nat} (hi : i < n * m) :
+    (xs.flatMap f)｢i｣ =
+      (haveI : i / m < n := by rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
+       (f xs｢i / m｣))｢i % m｣ := by
+  rw [flatMap_def, getElemV_flatten, getElemV_map]
+  · rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
+  · exact hi
+
+theorem getElem_flatMap {xs : Vector α n} {f : α → Vector β m} {i : Nat} (hi : i < n * m) :
     (xs.flatMap f)[i] =
       haveI : i / m < n := by rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
       haveI : i % m < m := Nat.mod_lt _ (Nat.pos_of_lt_mul_left hi)
@@ -2059,10 +2285,10 @@ theorem getElem?_flatMap {xs : Vector α n} {f : α → Vector β m} {i : Nat} :
       if hi : i < n * m then
         haveI : i / m < n := by rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
         haveI : i % m < m := Nat.mod_lt _ (Nat.pos_of_lt_mul_left hi)
-        some ((f (xs[i / m]))[i % m])
+        some ((f (xs｢i / m｣))｢i % m｣)
       else
         none := by
-  simp [getElem?_def]
+  simp +contextual [getElem?_def]
 
 @[simp] theorem flatMap_id {xss : Vector (Vector α m) n} : xss.flatMap id = xss.flatten := by simp [flatMap_def]
 
@@ -2136,12 +2362,16 @@ theorem forall_mem_replicate {p : α → Prop} {a : α} {n} :
     (∀ b, b ∈ replicate n a → p b) ↔ n = 0 ∨ p a := by
   cases n <;> simp [mem_replicate]
 
-@[simp, grind =] theorem getElem_replicate {a : α} (h : i < n) : (replicate n a)[i] = a := by
-  rw [replicate_eq_mk_replicate, getElem_mk]
-  simp
+@[simp, grind =] theorem getElemV_replicate {a : α} (h : i < n) : (replicate n a)｢i｣ = a := by
+  rw [replicate_eq_mk_replicate, getElemV_mk]
+  simp [h]
 
-@[grind =] theorem getElem?_replicate {a : α} {n i : Nat} : (replicate n a)[i]? = if i < n then some a else none := by
-  simp [getElem?_def]
+@[simp, grind =] theorem getElem_replicate {a : α} (h : i < n) : (replicate n a)[i] = a := by
+  simpa using getElemV_replicate h
+
+@[grind =] theorem getElem?_replicate {a : α} {n i : Nat} :
+    (replicate n a)[i]? = if i < n then some a else none := by
+  simp +contextual [getElem?_def]
 
 @[simp] theorem getElem?_replicate_of_lt {n : Nat} {i : Nat} (h : i < n) : (replicate n a)[i]? = some a := by
   simp [h]
@@ -2199,17 +2429,33 @@ theorem replicate_eq_append_iff {xs : Vector α n} {ys : Vector α m} {a : α} :
   rw [← toArray_inj]
   simp
 
+/-
+PLOG(flatten_replicate_singleton):
+`simp [getElemV_flatten, *]` failed to discharge because the hypothesis `_ < n * 1` wasn't in
+simp normal form.
+-/
+
 @[simp] theorem flatten_replicate_singleton : (replicate n #v[a]).flatten = (replicate n a).cast (by simp) := by
-  ext i h
-  simp
+  ext
+  simp (discharger := omega)
+
+/-
+PLOG(flatten_replicate_replicate):
+Had to repeat the nontrivial bounds proofs already done in `getElemV_flatten`.
+Same in `flatMap_replicate`.
+-/
 
 @[simp] theorem flatten_replicate_replicate : (replicate n (replicate m a)).flatten = replicate (n * m) a := by
-  ext i h
-  simp
+  ext i hi
+  have : i / m < n := by rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
+  have : i % m < m := Nat.mod_lt _ (Nat.pos_of_lt_mul_left hi)
+  simp (discharger := omega)
 
 theorem flatMap_replicate {f : α → Vector β m} : (replicate n a).flatMap f = (replicate n (f a)).flatten := by
-  ext i h
-  simp
+  ext i hi
+  have : i / m < n := by rwa [Nat.div_lt_iff_lt_mul (Nat.pos_of_lt_mul_left hi)]
+  have : i % m < m := Nat.mod_lt _ (Nat.pos_of_lt_mul_left hi)
+  simp (discharger := omega)
 
 /-! ### reverse -/
 
@@ -2224,16 +2470,25 @@ theorem reverse_empty : reverse (#v[] : Vector α 0) = #v[] := rfl
   cases as
   simp
 
-@[simp, grind =] theorem getElem_reverse {xs : Vector α n} {i : Nat} (hi : i < n) :
-    (xs.reverse)[i] = xs[n - 1 - i] := by
+@[simp, grind =] theorem getElemV_reverse {xs : Vector α n} {i : Nat} (hi : i < n) :
+    (xs.reverse)｢i｣ = xs｢n - 1 - i｣ := by
   rcases xs with ⟨xs, rfl⟩
-  simp
+  simp [*]
+
+theorem getElem_reverse {xs : Vector α n} {i : Nat} (hi : i < n) :
+    (xs.reverse)[i] = xs[n - 1 - i] := by
+  simpa using getElemV_reverse hi
+
+theorem getElemV_eq_getElemV_reverse {_ : Nonempty α} {xs : Vector α n} {i : Nat} (h : i < n) :
+    xs｢i｣ = xs.reverse｢n - 1 - i｣ := by
+  rw [getElemV_reverse]
+  · congr
+    omega
+  · omega
 
 theorem getElem_eq_getElem_reverse {xs : Vector α n} {i : Nat} (h : i < n) :
     xs[i] = xs.reverse[n - 1 - i] := by
-  rw [getElem_reverse]
-  congr
-  omega
+  simpa using getElemV_eq_getElemV_reverse h
 
 /-- Variant of `getElem?_reverse` with a hypothesis giving the linear relation between the indices. -/
 theorem getElem?_reverse' {xs : Vector α n} {i j : Nat} (h : i + j + 1 = n) : xs.reverse[i]? = xs[j]? := by
@@ -2243,7 +2498,9 @@ theorem getElem?_reverse' {xs : Vector α n} {i j : Nat} (h : i + j + 1 = n) : x
 @[simp, grind =]
 theorem getElem?_reverse {xs : Vector α n} {i} (h : i < n) :
     xs.reverse[i]? = xs[n - 1 - i]? := by
+  rw [Vector.getElem?_eq_some_getElemV h]
   cases xs
+  have : n - 1 - i < n := by omega
   simp_all
 
 -- The argument `xs : Vector α n` is explicit so we can rewrite from right to left.
@@ -2314,11 +2571,22 @@ theorem flatMap_reverse {xs : Vector α n} {f : α → Vector β m} :
 
 /-! ### extract -/
 
-@[simp] theorem getElem_extract {as : Vector α n} {start stop : Nat}
+@[simp] theorem getElemV_extract {_ : Nonempty α} {as : Vector α n} {start stop : Nat}
+    (h : start + i < stop) :
+    (as.extract start stop)｢i｣ = as｢start + i｣ := by
+  rcases as with ⟨as, rfl⟩
+  simp [h]
+
+/-
+PLOG(getElem_extract):
+`simp` is too weak to convert the hypotheses, need `omega` as discharger.
+-/
+
+theorem getElem_extract {as : Vector α n} {start stop : Nat}
     (h : i < min stop n - start) :
     (as.extract start stop)[i] = as[start + i] := by
-  rcases as with ⟨as, rfl⟩
-  simp
+  simp only [getElem_eq_getElemV]
+  rw [getElemV_extract (by omega)]
 
 theorem getElem?_extract {as : Vector α n} {start stop : Nat} :
     (as.extract start stop)[i]? = if i < min stop n - start then as[start + i]? else none := by
@@ -2582,14 +2850,24 @@ theorem back?_eq_some_iff {xs : Vector α n} {a : α} :
   rcases xs with ⟨xs, rfl⟩
   simp
 
-@[simp] theorem back_append_of_neZero {xs : Vector α n} {ys : Vector α m} [NeZero m] :
+theorem back_append_of_neZero {xs : Vector α n} {ys : Vector α m} [NeZero m] :
     (xs ++ ys).back = ys.back := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, rfl⟩
   simp only [mk_append_mk, back_mk]
   rw [Array.back_append_of_size_pos]
 
-@[grind =] theorem back_append {xs : Vector α n} {ys : Vector α m} [NeZero (n + m)] :
+@[simp] theorem backV_append_of_neZero {_ : Nonempty α} {xs : Vector α n} {ys : Vector α m} [NeZero m] :
+    (xs ++ ys).backV = ys.backV := by
+  simp [← back_eq_backV, back_append_of_neZero]
+
+@[grind =] theorem backV_append {_ : Nonempty α} {xs : Vector α n} {ys : Vector α m} [NeZero (n + m)] :
+    (xs ++ ys).backV = if m = 0 then xs.backV else ys.backV := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, rfl⟩
+  simp [Array.backV_append]
+
+theorem back_append {xs : Vector α n} {ys : Vector α m} [NeZero (n + m)] :
     (xs ++ ys).back =
       if h' : m = 0 then
         have : NeZero n := by subst h'; simp_all
@@ -2597,16 +2875,27 @@ theorem back?_eq_some_iff {xs : Vector α n} {a : α} :
       else
         have : NeZero m := ⟨h'⟩
         ys.back := by
-  rcases xs with ⟨xs, rfl⟩
-  rcases ys with ⟨ys, rfl⟩
-  simp [Array.back_append]
+  simpa using backV_append
+
+theorem backV_append_right {xs : Vector α n} {ys : Vector α (m + 1)} :
+    haveI : Nonempty α := ⟨ys.back⟩
+    (xs ++ ys).backV = ys.backV := by
+  rcases xs with ⟨xs⟩
+  rcases ys with ⟨ys⟩
+  simp only [mk_append_mk, backV_mk]
+  rw [Array.backV_append_right (by simp [*])]
 
 theorem back_append_right {xs : Vector α n} {ys : Vector α m} [NeZero m] :
     (xs ++ ys).back = ys.back := by
-  rcases xs with ⟨xs⟩
-  rcases ys with ⟨ys⟩
-  simp only [mk_append_mk, back_mk]
-  rw [Array.back_append_right]
+  simp
+
+theorem backV_append_left {xs : Vector α n} {ys : Vector α 0} [NeZero n] :
+    haveI : Nonempty α := ⟨xs.back⟩
+    (xs ++ ys).backV = xs.backV := by
+  rcases xs with ⟨xs, rfl⟩
+  rcases ys with ⟨ys, h⟩
+  simp only [mk_append_mk, backV_mk]
+  rw [Array.backV_append_left (by simp [h, NeZero.ne, Nat.zero_lt_of_ne_zero]) h]
 
 theorem back_append_left {xs : Vector α n} {ys : Vector α 0} [NeZero n] :
     (xs ++ ys).back = xs.back := by
@@ -2637,8 +2926,15 @@ theorem back?_replicate {a : α} {n : Nat} :
   rw [replicate_eq_mk_replicate]
   simp only [back?_mk, Array.back?_replicate]
 
-@[simp] theorem back_replicate [NeZero n] : (replicate n a).back = a := by
-  simp [back_eq_getElem]
+@[simp] theorem backV_replicate {_ : Nonempty α} [NeZero n] {a : α} :
+    (replicate n a).backV = a := by
+  have : n - 1 < n := by
+    have : n ≠ 0 := NeZero.ne n
+    omega
+  simp [backV_eq_getElemV, this]
+
+theorem back_replicate [NeZero n] : (replicate n a).back = a := by
+  simp
 
 /-! ### leftpad and rightpad -/
 
@@ -2714,16 +3010,28 @@ theorem contains_flatMap [BEq β] {xs : Vector α n} {f : α → Vector β m} {x
 
 @[simp] theorem pop_push {xs : Vector α n} {x : α} : (xs.push x).pop = xs := by simp [pop]
 
+@[simp, grind =] theorem getElemV_pop {xs : Vector α n} {i : Nat} (h : i < n - 1) :
+    xs.pop｢i｣ = xs｢i｣ := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [h]
+
 @[simp, grind =] theorem getElem_pop {xs : Vector α n} {i : Nat} (h : i < n - 1) :
     xs.pop[i] = xs[i] := by
-  rcases xs with ⟨xs, rfl⟩
-  simp
+  simp [h]
+
+/--
+-- Variant of `getElemV_pop` that will sometimes fire when `getElemV_pop` gets stuck because of
+defeq issues in the implicit size argument.
+-/
+@[simp] theorem getElemV_pop' {_ : Nonempty α} {xs : Vector α (n + 1)} {i : Nat} (h : i < n) :
+    xs.pop｢i｣ = xs｢i｣ :=
+  getElemV_pop h
 
 /--
 Variant of `getElem_pop` that will sometimes fire when `getElem_pop` gets stuck because of
 defeq issues in the implicit size argument.
 -/
-@[simp] theorem getElem_pop' {xs : Vector α (n + 1)} {i : Nat} (h : i < n + 1 - 1) :
+theorem getElem_pop' {xs : Vector α (n + 1)} {i : Nat} (h : i < n + 1 - 1) :
     @getElem (Vector α n) Nat α (fun _ i => i < n) instGetElemNatLt xs.pop i h = xs[i] :=
   getElem_pop h
 
@@ -2732,11 +3040,18 @@ defeq issues in the implicit size argument.
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem?_pop]
 
+theorem backV_pop {_ : Nonempty α} {xs : Vector α n} [NeZero (n - 1)] :
+    xs.pop.backV = xs｢n - 2｣ := by
+  rcases xs with ⟨xs, rfl⟩
+  have : 1 < xs.size := by
+    have := NeZero.ne (xs.size - 1)
+    omega
+  simp [Array.backV_pop, this]
+
 theorem back_pop {xs : Vector α n} [h : NeZero (n - 1)] :
    xs.pop.back =
      xs[n - 2]'(by have := h.out; omega) := by
-  rcases xs with ⟨xs, rfl⟩
-  simp [Array.back_pop]
+  simpa using backV_pop
 
 theorem back?_pop {xs : Vector α n} :
     xs.pop.back? = if n ≤ 1 then none else xs[n - 2]? := by
@@ -2761,7 +3076,8 @@ theorem pop_append {xs : Vector α n} {ys : Vector α m} :
   split <;> simp_all
 
 @[simp] theorem pop_replicate {n : Nat} {a : α} : (replicate n a).pop = replicate (n - 1) a := by
-  ext <;> simp
+  ext
+  rw [getElemV_replicate, getElemV_pop, getElemV_replicate] <;> omega
 
 /-! ## Logic -/
 
@@ -2928,16 +3244,29 @@ theorem getElem?_replace_of_ne {xs : Vector α n} {i : Nat} (h : xs[i]? ≠ some
     (xs.replace a b)[i]? = xs[i]? := by
   simp_all [getElem?_replace]
 
-@[grind =] theorem getElem_replace {xs : Vector α n} {i : Nat} (h : i < n) :
+@[grind =]
+theorem getElemV_replace {xs : Vector α n} {i : Nat} (h : i < n) :
+    (xs.replace a b)｢i｣ = if xs｢i｣ == a then if a ∈ xs.take i then a else b else xs｢i｣ := by
+  apply Option.some.inj
+  rw [← getElem?_eq_some_getElemV h, getElem?_replace]
+  split <;> split <;> simp_all
+
+theorem getElem_replace {xs : Vector α n} {i : Nat} (h : i < n) :
     (xs.replace a b)[i] = if xs[i] == a then if a ∈ xs.take i then a else b else xs[i] := by
   apply Option.some.inj
   rw [← getElem?_eq_getElem, getElem?_replace]
   split <;> split <;> simp_all
 
+theorem getElemV_replace_of_ne {xs : Vector α n} {i : Nat} (h' : xs｢i｣ ≠ a) :
+    (xs.replace a b)｢i｣ = xs｢i｣ := by
+  by_cases hi : i < n
+  · simp [getElemV_replace, hi, h']
+  · simp [getElemV_neg, hi]
+
 theorem getElem_replace_of_ne {xs : Vector α n} {i : Nat} {h : i < n} (h' : xs[i] ≠ a) :
     (xs.replace a b)[i]'(by simpa) = xs[i]'(h) := by
-  rw [getElem_replace h]
-  simp [h']
+  revert h'
+  simpa using getElemV_replace_of_ne
 
 @[grind =] theorem replace_append {xs : Vector α n} {ys : Vector α m} :
     (xs ++ ys).replace a b = if a ∈ xs then xs.replace a b ++ ys else xs ++ ys.replace a b := by
@@ -2965,7 +3294,6 @@ theorem replace_extract {xs : Vector α n} {i : Nat} :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.replace_extract]
 
-set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem replace_replicate_self {a : α} (h : 0 < n) :
     (replicate n a).replace a b = (#v[b] ++ replicate (n - 1) a).cast (by omega) := by
   match n, h with
@@ -2980,15 +3308,32 @@ end replace
 
 /-! Content below this point has not yet been aligned with `List` and `Array`. -/
 
+theorem getElemV_push_last {xs : Vector α n} {x : α} : (xs.push x)｢n｣ = x := by
+  simp
+
 set_option linter.indexVariables false in
 theorem getElem_push_last {xs : Vector α n} {x : α} : (xs.push x)[n] = x := by
   simp
 
-set_option backward.isDefEq.respectTransparency false in
-@[simp] theorem push_pop_back (xs : Vector α (n + 1)) : xs.pop.push xs.back = xs := by
+/-
+PLOG(push_pop_backV):
+Had to make `Nat.pred` implicit-reducible
+-/
+
+@[simp] theorem push_pop_backV {_ : Nonempty α} (xs : Vector α (n + 1)) : xs.pop.push xs.backV = xs := by
   ext i
   by_cases h : i < n
-  · simp [h]
+  · simp only [Nat.add_one_sub_one, h, getElemV_push_lt]
+    rw [getElemV_pop]
+    omega
+  · replace h : i = n := by omega
+    subst h
+    simp [backV_eq_getElemV]
+
+theorem push_pop_back (xs : Vector α (n + 1)) : xs.pop.push xs.back = xs := by
+  ext i
+  by_cases h : i < n
+  · simp
   · replace h : i = n := by omega
     subst h
     simp [back]
@@ -3005,11 +3350,15 @@ set_option backward.isDefEq.respectTransparency false in
 
 /-! ### zipWith -/
 
-@[simp, grind =] theorem getElem_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector β n} {i : Nat}
-    (hi : i < n) : (zipWith f as bs)[i] = f as[i] bs[i] := by
+@[simp, grind =] theorem getElemV_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector β n} {i : Nat}
+    (hi : i < n) : (zipWith f as bs)｢i｣ = f as｢i｣ bs｢i｣ := by
   cases as
   cases bs
-  simp
+  simp [*]
+
+@[simp, grind =] theorem getElem_zipWith {f : α → β → γ} {as : Vector α n} {bs : Vector β n} {i : Nat}
+    (hi : i < n) : (zipWith f as bs)[i] = f as[i] bs[i] := by
+  simpa using getElemV_zipWith hi
 
 /-! ### take -/
 
@@ -3019,29 +3368,47 @@ theorem take_size {as : Vector α n} : as.take n = as.cast (by simp) := by
 
 /-! ### swap -/
 
-@[grind =] theorem getElem_swap {xs : Vector α n} {i j : Nat} (hi hj) {k : Nat} (hk : k < n) :
-    (xs.swap i j hi hj)[k] = if k = i then xs[j] else if k = j then xs[i] else xs[k] := by
-  cases xs
-  simp_all [Array.getElem_swap]
-
-@[simp] theorem getElem_swap_right {xs : Vector α n} {i j : Nat} (hi hj) :
-    (xs.swap i j hi hj)[j]'(by simpa using hj) = xs[i] := by
-  simp +contextual [getElem_swap]
-
-@[simp] theorem getElem_swap_left {xs : Vector α n} {i j : Nat} (hi hj) :
-    (xs.swap i j hi hj)[i]'(by simpa using hi) = xs[j] := by
-  simp [getElem_swap]
-
-@[simp] theorem getElem_swap_of_ne {xs : Vector α n} {i j : Nat} {hi hj} {hk : k < n}
-      (hi' : k ≠ i) (hj' : k ≠ j) : (xs.swap i j hi hj)[k] = xs[k] := by
-  simp_all [getElem_swap]
-
 @[grind =]
 theorem getElem?_swap {xs : Vector α n} {i j : Nat} (hi hj) {k : Nat} : (xs.swap i j hi hj)[k]? =
     if j = k then some xs[i] else if i = k then some xs[j] else xs[k]? := by
   rcases xs with ⟨xs, rfl⟩
   simp [Array.getElem?_swap]
 
+@[grind =]
+theorem getElemV_swap {_ : Nonempty α}
+    {xs : Vector α n} {i j : Nat} (hi : i < n) (hj : j < n) {k : Nat} :
+    (xs.swap i j hi hj)｢k｣ = if k = i then xs｢j｣ else if k = j then xs｢i｣ else xs｢k｣ := by
+  cases xs
+  simp_all [Array.getElemV_swap]
+
+theorem getElem_swap {xs : Vector α n} {i j : Nat} (hi hj) {k : Nat} (hk : k < n) :
+    (xs.swap i j hi hj)[k] = if k = i then xs[j] else if k = j then xs[i] else xs[k] := by
+  simpa using getElemV_swap hi hj
+
+@[simp] theorem getElemV_swap_right {_ : Nonempty α} {xs : Vector α n} {i j : Nat} (hi : i < n) (hj : j < n) :
+    (xs.swap i j hi hj)｢j｣ = xs｢i｣ := by
+  simp +contextual [getElemV_swap]
+
+theorem getElem_swap_right {xs : Vector α n} {i j : Nat} (hi hj) :
+    (xs.swap i j hi hj)[j]'(by simpa using hj) = xs[i] := by
+  simp
+
+@[simp] theorem getElemV_swap_left {_ : Nonempty α} {xs : Vector α n} {i j : Nat} (hi : i < n) (hj : j < n) :
+    (xs.swap i j hi hj)｢i｣ = xs｢j｣ := by
+  simp [getElemV_swap]
+
+theorem getElem_swap_left {xs : Vector α n} {i j : Nat} (hi hj) :
+    (xs.swap i j hi hj)[i]'(by simpa using hi) = xs[j] := by
+  simp
+
+@[simp]
+theorem getElemV_swap_of_ne {_ : Nonempty α} {xs : Vector α n} {i j : Nat} {hi : i < n} {hj : j < n} {k : Nat}
+    (hi' : k ≠ i) (hj' : k ≠ j) : (xs.swap i j hi hj)｢k｣ = xs｢k｣ := by
+  simp [getElemV_swap, hi', hj']
+
+theorem getElem_swap_of_ne {xs : Vector α n} {i j : Nat} {hi hj} {hk : k < n}
+      (hi' : k ≠ i) (hj' : k ≠ j) : (xs.swap i j hi hj)[k] = xs[k] := by
+  simpa using getElemV_swap_of_ne hi' hj'
 
 @[simp] theorem swap_swap {xs : Vector α n} {i j : Nat} (hi hj) :
     (xs.swap i j hi hj).swap i j hi hj = xs := by
@@ -3056,16 +3423,29 @@ theorem swap_comm {xs : Vector α n} {i j : Nat} (hi hj) :
 
 /-! ### take -/
 
+@[simp, grind =] theorem getElemV_take {_ : Nonempty α} {xs : Vector α n} {j : Nat} (hi : i < j) :
+    (xs.take j)｢i｣ = xs｢i｣ := by
+  cases xs
+  simp [hi]
+
 @[simp, grind =] theorem getElem_take {xs : Vector α n} {j : Nat} (hi : i < min j n) :
     (xs.take j)[i] = xs[i] := by
-  cases xs
-  simp
+  simp only [getElem_eq_getElemV]
+  rw [getElemV_take]
+  omega
 
 /-! ### drop -/
 
-@[grind =] theorem getElem_drop {xs : Vector α n} {j : Nat} (hi : i < n - j) :
+@[grind =]
+theorem getElemV_drop {xs : Vector α n} {j : Nat} (hi : i < n - j) :
+    (xs.drop j)｢i｣ = xs｢j + i｣ := by
+  simp only [drop_eq_cast_extract, getElemV_cast]
+  rw [getElemV_extract]
+  omega
+
+theorem getElem_drop {xs : Vector α n} {j : Nat} (hi : i < n - j) :
     (xs.drop j)[i] = xs[j + i] := by
-  simp
+  simpa using getElemV_drop hi
 
 /-! ### Decidable quantifiers. -/
 
@@ -3078,7 +3458,6 @@ theorem forall_zero_iff {P : Vector α 0 → Prop} :
     obtain (rfl : xs = #v[]) := (by ext i h; simp at h)
     apply h
 
-set_option backward.isDefEq.respectTransparency false in
 theorem forall_cons_iff {P : Vector α (n + 1) → Prop} :
     (∀ xs : Vector α (n + 1), P xs) ↔ (∀ (x : α) (xs : Vector α n), P (xs.push x)) := by
   constructor

@@ -64,7 +64,6 @@ theorem iunfoldr_getLsbD' {f : Fin w → α → α × Bool} (state : Nat → α)
   (∀ i : Fin w, getLsbD (iunfoldr f (state 0)).snd i.val = (f i (state i.val)).snd)
   ∧ (iunfoldr f (state 0)).fst = state w := by
   unfold iunfoldr
-  simp
   apply Fin.hIterate_elim
         (fun j (p : α × BitVec j) => (hj : j ≤ w) →
          (∀ i : Fin j,  getLsbD p.snd i.val = (f ⟨i.val, Nat.lt_of_lt_of_le i.isLt hj⟩ (state i.val)).snd)

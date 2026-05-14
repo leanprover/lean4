@@ -191,6 +191,14 @@ def getD [TransCmp cmp] (t : ExtTreeSet α cmp) (a : α) (fallback : α) : α :=
   t.inner.getKeyD a fallback
 
 /--
+Checks if given key is contained and returns the key if it is, otherwise returns `Classical.ofNonempty`.
+If the key is contained the result is guaranteed to be pointer equal to the key in the set.
+-/
+noncomputable def getV [TransCmp cmp] (t : ExtTreeSet α cmp) (a : α) : α :=
+  haveI : Nonempty α := ⟨a⟩
+  t.getD a Classical.ofNonempty
+
+/--
 Tries to retrieve the smallest element of the tree set, returning `none` if the set is empty.
 -/
 @[inline]
@@ -217,6 +225,10 @@ Tries to retrieve the smallest element of the tree set, returning `fallback` if 
 @[inline]
 def minD [TransCmp cmp] (t : ExtTreeSet α cmp) (fallback : α) : α :=
   ExtTreeMap.minKeyD t.inner fallback
+
+@[inherit_doc ExtDTreeMap.minKeyV]
+noncomputable def minV [TransCmp cmp] [Nonempty α] (t : ExtTreeSet α cmp) : α :=
+  t.minD Classical.ofNonempty
 
 /--
 Tries to retrieve the largest element of the tree set, returning `none` if the set is empty.
@@ -246,6 +258,10 @@ Tries to retrieve the largest element of the tree set, returning `fallback` if t
 def maxD [TransCmp cmp] (t : ExtTreeSet α cmp) (fallback : α) : α :=
   ExtTreeMap.maxKeyD t.inner fallback
 
+@[inherit_doc ExtDTreeMap.maxKeyV]
+noncomputable def maxV [TransCmp cmp] [Nonempty α] (t : ExtTreeSet α cmp) : α :=
+  t.maxD Classical.ofNonempty
+
 /-- Returns the `n`-th smallest element, or `none` if `n` is at least `t.size`. -/
 @[inline]
 def atIdx? [TransCmp cmp] (t : ExtTreeSet α cmp) (n : Nat) : Option α :=
@@ -265,6 +281,10 @@ def atIdx! [TransCmp cmp] [Inhabited α] (t : ExtTreeSet α cmp) (n : Nat) : α 
 @[inline]
 def atIdxD [TransCmp cmp] (t : ExtTreeSet α cmp) (n : Nat) (fallback : α) : α :=
   ExtTreeMap.keyAtIdxD t.inner n fallback
+
+@[inherit_doc ExtDTreeMap.keyAtIdxV]
+noncomputable def atIdxV [TransCmp cmp] [Nonempty α] (t : ExtTreeSet α cmp) (n : Nat) : α :=
+  t.atIdxD n Classical.ofNonempty
 
 /--
 Tries to retrieve the smallest element that is greater than or equal to the
@@ -393,6 +413,22 @@ returning `fallback` if no such element exists.
 @[inline]
 def getLTD [TransCmp cmp] (t : ExtTreeSet α cmp) (k : α) (fallback : α) : α :=
   ExtTreeMap.getKeyLTD t.inner k fallback
+
+@[inherit_doc ExtDTreeMap.getKeyGEV]
+noncomputable def getGEV [TransCmp cmp] [Nonempty α] (t : ExtTreeSet α cmp) (k : α) : α :=
+  t.getGED k Classical.ofNonempty
+
+@[inherit_doc ExtDTreeMap.getKeyGTV]
+noncomputable def getGTV [TransCmp cmp] [Nonempty α] (t : ExtTreeSet α cmp) (k : α) : α :=
+  t.getGTD k Classical.ofNonempty
+
+@[inherit_doc ExtDTreeMap.getKeyLEV]
+noncomputable def getLEV [TransCmp cmp] [Nonempty α] (t : ExtTreeSet α cmp) (k : α) : α :=
+  t.getLED k Classical.ofNonempty
+
+@[inherit_doc ExtDTreeMap.getKeyLTV]
+noncomputable def getLTV [TransCmp cmp] [Nonempty α] (t : ExtTreeSet α cmp) (k : α) : α :=
+  t.getLTD k Classical.ofNonempty
 
 variable {γ δ : Type w} {m : Type w → Type w₂} [Monad m] [LawfulMonad m]
 

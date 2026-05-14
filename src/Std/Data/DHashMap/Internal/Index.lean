@@ -58,4 +58,8 @@ cf. https://github.com/leanprover/lean4/issues/4157
       · simp [USize.le_iff_toNat_le, Nat.mod_eq_of_lt h', Nat.succ_le_of_lt h]
     · exact Nat.lt_of_lt_of_le (USize.toNat_lt_size _) (Nat.le_of_not_lt h')⟩
 
+@[simp] theorem mkIdx_val_toNat_lt (sz : Nat) (h : 0 < sz) (hash : UInt64) :
+    (mkIdx sz h hash).val.toNat < sz :=
+  (mkIdx sz h hash).property
+
 end Std.DHashMap.Internal

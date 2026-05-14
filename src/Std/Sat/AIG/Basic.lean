@@ -250,7 +250,7 @@ An `Array Decl` is a Direct Acyclic Graph (DAG) if a gate at index `i` only poin
 -/
 def IsDAG (α : Type) (decls : Array (Decl α)) : Prop :=
   ∀ {i lhs rhs} (h : i < decls.size),
-      decls[i] = .gate lhs rhs → lhs.gate < i ∧ rhs.gate < i
+      decls｢i｣ = .gate lhs rhs → lhs.gate < i ∧ rhs.gate < i
 
 /--
 The empty AIG is a DAG.
@@ -286,7 +286,7 @@ structure AIG (α : Type) [DecidableEq α] [Hashable α] where
   /--
   We always store `.false` at the first position. This allows us to avoid cache lookups
   -/
-  hconst : decls[0]'hzero = .false
+  hconst : decls｢0｣ = .false
 
 namespace AIG
 
@@ -397,6 +397,12 @@ structure Entrypoint (α : Type) [DecidableEq α] [Hashable α] where
   -/
   ref : Ref aig
 
+/-
+PLOG(toGraphviz):
+Wasn't able to normalize (metavariables in the way) without adding an explicit type ascription,
+which is a bit unidiomatic with the rest of the function.
+-/
+
 /--
 Transform an `Entrypoint` into a graphviz string. Useful for debugging purposes.
 -/
@@ -423,6 +429,7 @@ where
       let ridx := rhs.gate
       let rinv := rhs.invert
       let curr := s!"{idx} -> {lidx}{invEdgeStyle linv}; {idx} -> {ridx}{invEdgeStyle rinv};"
+      have elem : decls｢idx｣ = Decl.gate lhs rhs := by simpa using elem
       let hlr := hinv hidx elem
       let laig ← go (acc ++ curr) decls hinv lidx (by omega)
       go laig decls hinv ridx (by omega)
@@ -440,7 +447,7 @@ A vector of references into `aig`. This is the `AIG` analog of `BitVec`.
 -/
 structure RefVec (aig : AIG α) (w : Nat) where
   refs : Vector Fanin w
-  hrefs : ∀ (h : i < w), refs[i].gate < aig.decls.size
+  hrefs : i < w → refs｢i｣.gate < aig.decls.size
 
 /--
 A sequence of references bundled with their AIG.
@@ -484,6 +491,7 @@ where
     | .false => false
     | .atom v => assign v
     | .gate lhs rhs =>
+      have h3 : decls｢x｣ = Decl.gate lhs rhs := by simpa using h3
       have := h2 h1 h3
       let lval := go lhs.gate decls assign (by omega) h2
       let rval := go rhs.gate decls assign (by omega) h2
@@ -523,6 +531,11 @@ The denotation of the `Entrypoint` is false for all assignments.
 def Entrypoint.Unsat (entry : Entrypoint α) : Prop :=
   entry.aig.UnsatAt entry.ref.gate entry.ref.invert entry.ref.hgate
 
+/-
+PLOG(mkGate):
+The `have : Nonempty` is needed so that `hdag` isn't assigned type `Nonempty (Decl α)`.
+-/
+
 /--
 Add a new and inverter gate to the AIG in `aig`. Note that this version is only meant for proving,
 for production purposes use `AIG.mkGateCached` and equality theorems to this one.
@@ -534,7 +547,8 @@ def mkGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have hdag := by
     intro i lhs' rhs' h1 h2
-    simp only [Array.getElem_push] at h2
+    rw [Array.size_push] at h1
+    simp only [Array.getElemV_push h1] at h2
     split at h2
     · apply aig.hdag <;> assumption
     · injection h2 with hl hr
@@ -542,8 +556,9 @@ def mkGate (aig : AIG α) (input : BinaryInput aig) : Entrypoint α :=
       have := input.rhs.hgate
       simp [← hl, ← hr]
       omega
-  have hzero := by simp [decls]
-  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
+  have hzero : 0 < decls.size := by simp [decls]
+  have : Nonempty (Decl α) := inferInstance
+  have hconst : decls｢0｣ = .false := by simp [decls, Array.getElemV_push, aig.hzero, aig.hconst]
   ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
@@ -556,12 +571,13 @@ def mkAtom (aig : AIG α) (n : α) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have hdag := by
     intro i lhs rhs h1 h2
-    simp only [Array.getElem_push] at h2
+    rw [Array.size_push] at h1
+    simp only [Array.getElemV_push h1] at h2
     split at h2
     · apply aig.hdag <;> assumption
     · contradiction
   have hzero := by simp [decls]
-  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
+  have hconst := by simp [decls, Array.getElemV_push, aig.hzero, aig.hconst]
   ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
@@ -574,12 +590,13 @@ def mkConst (aig : AIG α) (val : Bool) : Entrypoint α :=
   let cache := aig.cache.noUpdate
   have hdag := by
     intro i lhs rhs h1 h2
-    simp only [Array.getElem_push] at h2
+    rw [Array.size_push] at h1
+    simp only [Array.getElemV_push h1] at h2
     split at h2
     · apply aig.hdag <;> assumption
     · contradiction
   have hzero := by simp [decls]
-  have hconst := by simp [decls, Array.getElem_push, aig.hzero, aig.hconst]
+  have hconst := by simp [decls, Array.getElemV_push, aig.hzero, aig.hconst]
   ⟨⟨decls, cache, hdag, hzero, hconst⟩, ⟨g, val, by simp [g, decls]⟩⟩
 
 /--

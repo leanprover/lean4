@@ -29,13 +29,23 @@ namespace String.Slice.Pattern
 
 namespace ForwardSliceSearcher
 
+/-
+PLOG(buildTable):
+`decreasing_tactic` annoyingly fails to apply the decreasing proof `this` from the local context.
+Reason: `decreasing_with` simplifies the goal (`getElem` -> `getElemV`), but doesn't apply
+the same simplification to `this`.
+-/
+
 def buildTable (pat : Slice) : Vector Nat pat.utf8ByteSize :=
   if h : pat.utf8ByteSize = 0 then
     #v[].cast h.symm
   else
     let arr := Array.emptyWithCapacity pat.utf8ByteSize
     let arr' := arr.push 0
-    go arr' (by simp [arr']) (by simp [arr', arr]; omega) (by simp [arr', arr])
+    go arr' (by simp [arr']) (by simp [arr', arr]; omega) (by
+      intro i hi
+      obtain rfl : i = 0 := by simp [arr', arr] at hi; omega
+      simp [arr', arr])
 where
   go (table : Array Nat) (ht₀ : 0 < table.size) (ht : table.size ≤ pat.utf8ByteSize) (h : ∀ (i : Nat) hi, table[i]'hi ≤ i) :
       Vector Nat pat.utf8ByteSize :=
@@ -66,6 +76,9 @@ where
     else
       have : table[guess - 1] < guess := by have := h (guess - 1) (by omega); omega
       computeDistance patByte table ht h table[guess - 1] (by omega)
+  termination_by guess
+  decreasing_by assumption
+
 
 theorem getElem_buildTable_le (pat : Slice) (i : Nat) (hi) : (buildTable pat)[i]'hi ≤ i := by
   rw [buildTable]

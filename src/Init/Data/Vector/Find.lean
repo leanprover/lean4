@@ -127,14 +127,19 @@ theorem getElem_zero_flatten.proof {xss : Vector (Vector α m) n} (h : 0 < n * m
     simp only [hm, getElem?_eq_getElem, findSome?_mk, Array.findSome?_isSome_iff, Array.mem_map,
       Array.mem_attach, mk_eq, true_and, Subtype.exists, exists_prop, exists_eq_right,
       Option.isSome_some, and_true]
-    exact ⟨⟨xss[0], h₂ _ (by simp)⟩, by simp⟩
+    exact ⟨⟨xss[0], h₂ _ (by simp [*])⟩, by simp [*]⟩
 
 @[grind =]
-theorem getElem_zero_flatten {xss : Vector (Vector α m) n} (h : 0 < n * m) :
-    (flatten xss)[0] = (xss.findSome? fun xs => xs[0]?).get (getElem_zero_flatten.proof h) := by
+theorem getElemV_zero_flatten {_ : Nonempty α} {xss : Vector (Vector α m) n} (h : 0 < n * m) :
+    (flatten xss)｢0｣ = (xss.findSome? fun xs => xs[0]?).getV := by
   have t := getElem?_zero_flatten (xss := xss)
   simp [h] at t
-  simp [← t]
+  simp only [← t, Option.getV_some]
+  simp [*]
+
+theorem getElem_zero_flatten {xss : Vector (Vector α m) n} (h : 0 < n * m) :
+    (flatten xss)[0] = (xss.findSome? fun xs => xs[0]?).get (getElem_zero_flatten.proof h) := by
+  simpa using getElemV_zero_flatten h
 
 @[grind =]
 theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by
@@ -222,11 +227,16 @@ theorem mem_of_find?_eq_some {xs : Vector α n} (h : find? p xs = some a) : a �
   simp at h
   simpa using Array.mem_of_find?_eq_some h
 
-theorem get_find?_mem {xs : Vector α n} (h) : (xs.find? p).get h ∈ xs := by
+theorem getV_find?_mem {xs : Vector α n} (h : (xs.find? p).isSome) :
+    haveI : Nonempty α := ⟨(xs.find? p).get h⟩
+    (xs.find? p).getV ∈ xs := by
   cases xs
-  simp [Array.get_find?_mem]
+  simp [Array.getV_find?_mem h]
 
-grind_pattern get_find?_mem => (xs.find? p).get h
+grind_pattern getV_find?_mem => haveI : Nonempty α := _; (xs.find? p).getV
+
+theorem get_find?_mem {xs : Vector α n} (h) : (xs.find? p).get h ∈ xs := by
+  simpa using getV_find?_mem h
 
 @[simp, grind =] theorem find?_map {f : β → α} {xs : Vector β n} :
     find? p (xs.map f) = (xs.find? (p ∘ f)).map f := by
@@ -283,10 +293,28 @@ theorem find?_replicate_eq_none_iff {n : Nat} {a : α} {p : α → Bool} :
   rw [replicate_eq_mk_replicate, find?_mk]
   simp
 
+/-
+PLOG(getV_find?_replicate):
+I chose to choose the simplest-possible `h`.
+As a consequence, the proof is simpler than the `get_find?_replicate` proof because it does less
+work.
+-/
+
+@[simp] theorem getV_find?_replicate {n : Nat} {a : α} {p : α → Bool} (h : p a ∧ 0 < n) :
+    haveI : Nonempty α := ⟨a⟩
+    ((replicate n a).find? p).getV = a := by
+  simp only [replicate_eq_mk_replicate, find?_mk]
+  rwa [Array.getV_find?_replicate]
+
 @[simp] theorem get_find?_replicate {n : Nat} {a : α} {p : α → Bool} (h) :
     ((replicate n a).find? p).get h = a := by
-  simp only [replicate_eq_mk_replicate, find?_mk]
-  simp
+  simp only [Option.get_eq_getV]
+  apply getV_find?_replicate
+  rw [Vector.find?_replicate] at h
+  split at h
+  · cases h
+  · simp only [Option.isSome_ite] at h
+    exact ⟨h, Nat.zero_lt_of_ne_zero ‹_›⟩
 
 @[grind =]
 theorem find?_pmap {P : α → Prop} {f : (a : α) → P a → β} {xs : Vector α n}

@@ -124,8 +124,13 @@ theorem mem_attach : ∀ (o : Option α) (x : {x // o = some x}), x ∈ o.attach
     o.attachWith p H = some x ↔ o = some x.val := by
   cases o <;> cases x <;> simp
 
-@[simp, grind =] theorem get_attach {o : Option α} (h : o.attach.isSome = true) :
-    o.attach.get h = ⟨o.get (by simpa using h), by simp⟩ :=
+/-
+PLOG(get_attach):
+Hypothesis needs to be simplified to `o.isSome = true` and passed to the `simp`.
+-/
+
+theorem get_attach {o : Option α} (h : o.attach.isSome = true) :
+    o.attach.get h = ⟨o.get (by simpa using h), by simp [Option.some_getV _ (by simpa using h)]⟩ :=
   Subsingleton.elim _ _
 
 @[simp, grind =] theorem getD_attach {o : Option α} {fallback} :
@@ -136,9 +141,22 @@ theorem mem_attach : ∀ (o : Option α) (x : {x // o = some x}), x ∈ o.attach
     o.attach.get! = default :=
   Subsingleton.elim _ _
 
-@[simp, grind =] theorem get_attachWith {p : α → Prop} {o : Option α} (H : ∀ a, o = some a → p a) (h : (o.attachWith p H).isSome) :
-    (o.attachWith p H).get h = ⟨o.get (by simpa using h), H _ (by simp)⟩ := by
-  cases o <;> simp
+@[simp, grind =] theorem getV_attach {o : Option α} {_ : Nonempty { x // o = some x }} :
+    o.attach.getV = Classical.ofNonempty :=
+  Subsingleton.elim _ _
+
+/-
+PLOG(get_attachWith):
+In the `none` case, the goal is of the form `f ofNonempty = ofNonempty`.
+In order to close it, we need to derive a contradiction from the hypotheses.
+-/
+
+theorem get_attachWith {p : α → Prop} {o : Option α} (H : ∀ a, o = some a → p a)
+    (h : (o.attachWith p H).isSome) :
+    (o.attachWith p H).get h = ⟨o.get (by simpa using h), H _ (by simp [Option.some_getV _ (by simpa using h)])⟩ := by
+  cases o
+  · simp at h
+  all_goals simp
 
 @[simp, grind =] theorem getD_attachWith {p : α → Prop} {o : Option α} {h} {fallback} :
     (o.attachWith p h).getD fallback =
@@ -147,6 +165,22 @@ theorem mem_attach : ∀ (o : Option α) (x : {x // o = some x}), x ∈ o.attach
         · exact fallback.property
         · exact h _ (by simp)⟩ := by
   cases o <;> simp
+
+/-
+PLOG(getV_attachWith):
+Subtlety: We can't use the subsingleton argument that worked for `getV_attach`.
+Therefore, a `Nonempty` hypothesis does not suffice.
+This is an example of the subtlety of these signatures.
+-/
+
+@[simp, grind =] theorem getV_attachWith {p : α → Prop} {o : Option α} (H : ∀ a, o = some a → p a)
+    (h : (o.attachWith p H).isSome) :
+    haveI : Nonempty (Subtype _) := ⟨Option.get _ h⟩
+    haveI : Nonempty α := ⟨Option.get o (by simpa using h)⟩
+    (o.attachWith p H).getV = ⟨o.getV, H _ (by simp [Option.some_getV _ (by simpa using h)])⟩ := by
+  cases o
+  · simp at h
+  all_goals simp
 
 theorem toList_attach (o : Option α) :
     o.attach.toList = o.toList.attach.map fun x => ⟨x.1, by simpa using x.2⟩ := by
@@ -358,7 +392,9 @@ theorem unattach_eq_none_iff {p : α → Prop} {o : Option { x // p x }} :
 
 theorem get_unattach {p : α → Prop} {o : Option { x // p x }} {h} :
     o.unattach.get h = (o.get (by simpa using h)).1 := by
-  cases o <;> simp
+  cases o
+  · simp at h
+  all_goals simp
 
 theorem toList_unattach {p : α → Prop} {o : Option { x // p x }} :
     o.unattach.toList = o.toList.unattach := by

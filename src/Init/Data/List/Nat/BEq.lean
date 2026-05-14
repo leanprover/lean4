@@ -52,4 +52,19 @@ theorem beq_eq_decide [BEq α] {as bs : List α} :
       decide (∀ (i : Nat) (h' : i < as.length), as[i] == bs[i]'(h ▸ h')) else false := by
   simp [BEq.beq, beq_eq_isEqv, isEqv_eq_decide]
 
+/-
+PLOG(isEqv_eq_decide_getElemV):
+`Bool.if_false_right` only applies to one of the two expressions, the other having spurious dependencies
+-/
+
+theorem isEqv_eq_decide_getElemV {_ : Nonempty α} {as bs : List α} {r : α → α → Bool} :
+    isEqv as bs r = if as.length = bs.length then
+      decide (∀ (i : Nat), i < as.length → r as｢i｣ bs｢i｣) else false := by
+  simpa [- Bool.if_false_right] using isEqv_eq_decide (as := as) (bs := bs) (r := r)
+
+theorem beq_eq_decide_getElemV {_ : Nonempty α} [BEq α] {as bs : List α} :
+    (as == bs) = if as.length = bs.length then
+      decide (∀ (i : Nat), i < as.length → as｢i｣ == bs｢i｣) else false := by
+  simpa [- Bool.if_false_right] using beq_eq_decide (as := as) (bs := bs)
+
 end List

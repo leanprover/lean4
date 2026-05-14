@@ -39,10 +39,10 @@ instance {w : Nat} : AIG.LawfulOperator α (AIG.BinaryRefVec · w) mkEq where
     intros
     unfold mkEq
     dsimp only
-    rw [AIG.RefVec.fold_decl_eq]
-    rw [AIG.RefVec.zip_decl_eq]
-    apply AIG.RefVec.zip_lt_size_of_lt_aig_size
-    assumption
+    rw [AIG.RefVec.fold_decl_eq, AIG.RefVec.zip_decl_eq]
+    · assumption
+    · apply AIG.RefVec.zip_lt_size_of_lt_aig_size
+      assumption
 
 end BVPred
 

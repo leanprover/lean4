@@ -1954,7 +1954,7 @@ The predecessor of a natural number is one less than it. The predecessor of `0` 
 This definition is overridden in the compiler with an efficient implementation. This definition is
 the logical model.
 -/
-@[extern "lean_nat_pred"]
+@[extern "lean_nat_pred", implicit_reducible]
 def Nat.pred : (@& Nat) → Nat
   | 0      => 0
   | succ a => a

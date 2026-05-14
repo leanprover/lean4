@@ -8,6 +8,7 @@ module
 prelude
 public import Init.Data.Nat.Lemmas
 public import Init.Ext
+public import Init.Data.List.BasicAux
 import Init.ByCases
 import Init.Data.List.Erase
 import Init.Data.List.Find
@@ -54,10 +55,15 @@ theorem getLast?_range' {n : Nat} : (range' s n).getLast? = if n = 0 then none e
     · rw [if_neg h]
       simp
 
-@[simp, grind =] theorem getLast_range' {n : Nat} (h) : (range' s n).getLast h = s + n - 1 := by
+@[simp, grind =] theorem getLastV_range' {n : Nat} (h : 0 < n) :
+    (range' s n).getLastV = s + n - 1 := by
   cases n with
   | zero => simp at h
-  | succ n => simp [getLast?_range', getLast_eq_iff_getLast?_eq_some]
+  | succ n => simp [getLast?_range', getLastV_eq_iff_getLast?_eq_some]
+
+theorem getLast_range' {n : Nat} (h) : (range' s n).getLast h = s + n - 1 := by
+  have := getLastV_range' (n := n) (s := s) (by simpa [Nat.ne_zero_iff_zero_lt] using h)
+  simpa
 
 theorem pairwise_lt_range' {s n} (step := 1) (pos : 0 < step := by simp) :
     Pairwise (· < ·) (range' s n step) :=
@@ -257,7 +263,7 @@ theorem pairwise_le_range {n : Nat} : Pairwise (· ≤ ·) (range n) :=
 @[simp, grind =] theorem take_range {i n : Nat} : take i (range n) = range (min i n) := by
   apply List.ext_getElem
   · simp
-  · simp +contextual [getElem_take, Nat.lt_min]
+  · simp +contextual [Nat.lt_min, getElemV_range]
 
 theorem nodup_range {n : Nat} : Nodup (range n) := by
   simp +decide only [range_eq_range', nodup_range']
@@ -331,7 +337,7 @@ theorem le_snd_of_mem_zipIdx {x : α × Nat} {k : Nat} {l : List α} (h : x ∈ 
 theorem snd_lt_add_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ zipIdx l k) :
     x.2 < k + length l := by
   rcases mem_iff_get.1 h with ⟨i, rfl⟩
-  simpa using i.isLt
+  simpa [getElemV_zipIdx i.isLt] using i.isLt
 
 theorem snd_lt_of_mem_zipIdx {x : α × Nat} {l : List α} {k : Nat} (h : x ∈ l.zipIdx k) : x.2 < l.length + k := by
   simpa [Nat.add_comm] using snd_lt_add_of_mem_zipIdx h

@@ -342,6 +342,10 @@ theorem getElem!_inj [Inhabited α] {xs : List α}
     (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) : xs[i]! = xs[j]! ↔ i = j := by
   simpa only [getElem!_eq_getElem?_getD, ← getD_eq_getElem?_getD] using getD_inj h₀ h₁ h₂
 
+theorem getElemV_inj [Nonempty α] {xs : List α}
+    (h₀ : i < xs.length) (h₁ : j < xs.length) (h₂ : Nodup xs) : xs｢i｣ = xs｢j｣ ↔ i = j := by
+  simpa only [getElemV_eq_getElem?_getD, ← getD_eq_getElem?_getD] using getD_inj h₀ h₁ h₂
+
 @[simp, grind =] theorem nodup_replicate {n : Nat} {a : α} :
     (replicate n a).Nodup ↔ n ≤ 1 := by simp [Nodup]
 

@@ -20,6 +20,12 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace List
 
+/-
+PLOG(set_set_perm'):
+manual bounds proof. Main difficulty was identifying the simp lemma that didn't trigger anymore:
+`getElemV_cons_drop`.
+-/
+
 /-- Helper lemma for `set_set_perm`-/
 private theorem set_set_perm' {as : List α} {i j : Nat} (h₁ : i < as.length) (h₂ : i + j < as.length)
     (hj : 0 < j) :
@@ -28,7 +34,7 @@ private theorem set_set_perm' {as : List α} {i j : Nat} (h₁ : i < as.length) 
       as.take i ++ as[i] :: (as.take (i + j)).drop (i + 1) ++ as[i + j] :: as.drop (i + j + 1) := by
     simp only [getElem_cons_drop, append_assoc, cons_append]
     rw [← drop_append_of_le_length]
-    · simp
+    · simp [getElemV_cons_drop h₁]
     · simp; omega
   conv => lhs; congr; congr; rw [this]
   conv => rhs; rw [this]
@@ -46,7 +52,7 @@ private theorem set_set_perm' {as : List α} {i j : Nat} (h₁ : i < as.length) 
 theorem set_set_perm {as : List α} {i j : Nat} (h₁ : i < as.length) (h₂ : j < as.length) :
     (as.set i as[j]).set j as[i] ~ as := by
   if h₃ : i = j then
-    simp [h₃]
+    simp [h₃, set_getElemV_self h₂]
   else
     if h₃ : i < j then
       let j' := j - i

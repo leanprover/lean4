@@ -143,49 +143,58 @@ theorem length_insertIdx_le_succ {l : List α} {x : α} {i : Nat} :
   simp only [length_insertIdx]
   split <;> simp
 
-theorem getElem_insertIdx_of_lt {l : List α} {x : α} {i j : Nat} (hn : j < i)
-    (hk : j < (l.insertIdx i x).length) :
-    (l.insertIdx i x)[j] = l[j]'(by simp [length_insertIdx] at hk; split at hk <;> omega) := by
+theorem getElemV_insertIdx_of_lt {l : List α} {a : α} {i j : Nat} (h : j < i) :
+    haveI : Nonempty α := ⟨a⟩
+    (l.insertIdx i a)｢j｣ = l｢j｣ := by
   induction i generalizing j l with
-  | zero => simp at hn
+  | zero => simp at h
   | succ n ih =>
     cases l with
     | nil => simp
     | cons _ _=>
       cases j
       · simp
-      · rw [Nat.succ_lt_succ_iff] at hn
-        simpa using ih hn _
+      · rw [Nat.succ_lt_succ_iff] at h
+        simpa [getElemV_cons_succ ] using ih h
+
+theorem getElem_insertIdx_of_lt {l : List α} {x : α} {i j : Nat} (hn : j < i)
+    (hk : j < (l.insertIdx i x).length) :
+    (l.insertIdx i x)[j]'hk = l[j]'(by simp [length_insertIdx] at hk; split at hk <;> omega) := by
+  simp [getElemV_insertIdx_of_lt hn]
+
+@[simp]
+theorem getElemV_insertIdx_self {l : List α} {a : α} {i : Nat} (w : i ≤ l.length) :
+    haveI : Nonempty α := ⟨a⟩
+    (l.insertIdx i a)｢i｣ = a := by
+  induction l generalizing i with
+  | nil =>
+    simp only [length_nil, le_zero_eq] at w
+    simp [w]
+  | cons _ _ ih =>
+    cases i
+    · simp
+    · rw [insertIdx_succ_cons, getElemV_cons_succ, ih]
+      simpa using w
 
 @[simp]
 theorem getElem_insertIdx_self {l : List α} {x : α} {i : Nat} (hi : i < (l.insertIdx i x).length) :
     (l.insertIdx i x)[i] = x := by
-  induction l generalizing i with
-  | nil =>
-    simp [length_insertIdx] at hi
-    split at hi
-    · simp_all
-    · omega
-  | cons _ _ ih =>
-    cases i
-    · simp
-    · simp only [insertIdx_succ_cons, length_cons, length_insertIdx, Nat.add_lt_add_iff_right] at hi ih
-      simpa using ih hi
+  have : i ≤ l.length := Nat.le_of_lt_add_one (Nat.lt_of_lt_of_le hi length_insertIdx_le_succ)
+  simp [getElemV_insertIdx_self this]
 
-theorem getElem_insertIdx_of_gt {l : List α} {x : α} {i j : Nat} (hn : i < j)
-    (hk : j < (l.insertIdx i x).length) :
-    (l.insertIdx i x)[j] = l[j - 1]'(by simp [length_insertIdx] at hk; split at hk <;> omega) := by
+theorem getElemV_insertIdx_of_gt {l : List α} {a : α} {i j : Nat} (h : i < j) :
+    haveI : Nonempty α := ⟨a⟩
+    (l.insertIdx i a)｢j｣ = l｢j - 1｣ := by
   induction l generalizing i j with
   | nil =>
     cases i with
     | zero =>
-      simp only [insertIdx_zero, length_singleton, lt_one_iff] at hk
-      omega
-    | succ n => simp at hk
+      match j with | j' + 1 => simp
+    | succ n => simp [getElemV_neg]
   | cons _ _ ih =>
     cases i with
     | zero =>
-      simp only [insertIdx_zero] at hk
+      simp only [insertIdx_zero]
       cases j with
       | zero => omega
       | succ j => simp
@@ -193,13 +202,34 @@ theorem getElem_insertIdx_of_gt {l : List α} {x : α} {i j : Nat} (hn : i < j)
       cases j with
       | zero => simp
       | succ j =>
-        simp only [insertIdx_succ_cons, getElem_cons_succ]
+        simp only [insertIdx_succ_cons, getElemV_cons_succ]
         rw [ih (by omega)]
         cases j with
         | zero => omega
         | succ j => simp
 
+theorem getElem_insertIdx_of_gt {l : List α} {x : α} {i j : Nat} (hn : i < j)
+    (hk : j < (l.insertIdx i x).length) :
+    (l.insertIdx i x)[j] = l[j - 1]'(by simp [length_insertIdx] at hk; split at hk <;> omega) := by
+  simp [getElemV_insertIdx_of_gt hn]
+
 @[grind =]
+theorem getElemV_insertIdx {l : List α} {a : α} {i j : Nat} (h : j ≤ l.length) :
+    haveI : Nonempty α := ⟨a⟩
+    (l.insertIdx i a)｢j｣ = if j < i then l｢j｣ else if j = i then a else l｢j - 1｣ := by
+  split <;> rename_i h₁
+  · rw [getElemV_insertIdx_of_lt h₁]
+  · split <;> rename_i h₂
+    · subst h₂
+      rw [getElemV_insertIdx_self h]
+    · rw [getElemV_insertIdx_of_gt (by omega)]
+
+/-
+PLOG(getElem_insertIdx):
+had to manually prove a weaker bound
+had to use `ite_eq_dite` because of spurious dependencies
+-/
+
 theorem getElem_insertIdx {l : List α} {x : α} {i j : Nat} (h : j < (l.insertIdx i x).length) :
     (l.insertIdx i x)[j] =
       if h₁ : j < i then
@@ -209,12 +239,9 @@ theorem getElem_insertIdx {l : List α} {x : α} {i j : Nat} (h : j < (l.insertI
           x
         else
           l[j-1]'(by simp [length_insertIdx] at h; split at h <;> omega) := by
-  split <;> rename_i h₁
-  · rw [getElem_insertIdx_of_lt h₁]
-  · split <;> rename_i h₂
-    · subst h₂
-      rw [getElem_insertIdx_self h]
-    · rw [getElem_insertIdx_of_gt (by omega)]
+  simp only [getElem_eq_getElemV]
+  have : j ≤ l.length := Nat.le_of_lt_add_one (Nat.lt_of_lt_of_le h length_insertIdx_le_succ)
+  rw [getElemV_insertIdx (by omega), ite_eq_dite, ite_eq_dite]
 
 @[grind =]
 theorem getElem?_insertIdx {l : List α} {x : α} {i j : Nat} :

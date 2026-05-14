@@ -91,13 +91,13 @@ This invariant says that we have already visited and inserted all nodes up to a 
 -/
 inductive Inv2 (decls : Array (Decl α)) : Nat → HashMap α Nat → Prop where
 | empty : Inv2 decls 0 {}
-| newAtom (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .atom a)
+| newAtom (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls｢idx｣ = .atom a)
   (hmap : map[a]? = none) : Inv2 decls (idx + 1) (map.insert a val)
-| oldAtom (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .atom a)
+| oldAtom (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls｢idx｣ = .atom a)
   (hmap : map[a]? = some n) : Inv2 decls (idx + 1) map
-| false (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .false) :
+| false (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls｢idx｣ = .false) :
   Inv2 decls (idx + 1) map
-| gate (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls[idx] = .gate l r) :
+| gate (hinv : Inv2 decls idx map) (hlt : idx < decls.size) (hatom : decls｢idx｣ = .gate l r) :
   Inv2 decls (idx + 1) map
 
 theorem Inv2.upper_lt_size {decls : Array (Decl α)} (hinv : Inv2 decls upper map) :
@@ -124,6 +124,7 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
       cases Nat.eq_or_lt_of_le hidx with
       | inl hidxeq =>
         subst hidxeq
+        simp only [getElem_eq_getElemV] at heq
         simp_all only [beq_eq_false_iff_ne, Decl.atom.injEq]
       | inr hlt =>
         exact ih5 hlt heq
@@ -135,6 +136,7 @@ theorem Inv2.property (decls : Array (Decl α)) (idx upper : Nat) (map : HashMap
     replace hidx : idx ≤ idx' := by omega
     cases Nat.eq_or_lt_of_le hidx with
     | inl hidxeq =>
+      simp only [getElem_eq_getElemV] at heq
       simp only [hidxeq, ih3, Decl.atom.injEq] at heq
       rw [← heq]
       apply Exists.intro
@@ -188,8 +190,8 @@ def empty {decls : Array (Decl α)} : State α decls 0 :=
 /--
 Insert a `Decl.atom` into the `State` structure.
 -/
-def addAtom {decls : Array (Decl α)} {hidx} (state : State α decls idx) (a : α)
-    (h : decls[idx]'hidx = .atom a) :
+def addAtom {decls : Array (Decl α)} (hidx : idx < decls.size) (state : State α decls idx) (a : α)
+    (h : decls｢idx｣ = .atom a) :
     State α decls (idx + 1) :=
   match hmap : state.map[a]? with
   | some _ =>
@@ -197,6 +199,7 @@ def addAtom {decls : Array (Decl α)} {hidx} (state : State α decls idx) (a : �
       inv2 := by
         apply Inv2.oldAtom
         · exact state.inv2
+        · assumption
         · assumption
         · assumption
     }
@@ -213,31 +216,34 @@ def addAtom {decls : Array (Decl α)} {hidx} (state : State α decls idx) (a : �
         · exact state.inv2
         · assumption
         · assumption
+        · assumption
     }
 
 /--
 Insert a `Decl.false` into the `State` structure.
 -/
-def addFalse {decls : Array (Decl α)} {hidx} (state : State α decls idx)
-    (h : decls[idx]'hidx = .false) :
+def addFalse {decls : Array (Decl α)} (hidx : idx < decls.size) (state : State α decls idx)
+    (h : decls｢idx｣ = .false) :
     State α decls (idx + 1) :=
   { state with
     inv2 := by
       apply Inv2.false
       · exact state.inv2
       · assumption
+      · assumption
   }
 
 /--
 Insert a `Decl.gate` into the `State` structure.
 -/
-def addGate {decls : Array (Decl α)} {hidx} (state : State α decls idx) (lhs rhs : Fanin)
-    (h : decls[idx]'hidx = .gate lhs rhs) :
+def addGate {decls : Array (Decl α)} (hidx : idx < decls.size) (state : State α decls idx) (lhs rhs : Fanin)
+    (h : decls｢idx｣ = .gate lhs rhs) :
     State α decls (idx + 1) :=
   { state with
     inv2 := by
       apply Inv2.gate
       · exact state.inv2
+      · assumption
       · assumption
   }
 
@@ -251,9 +257,9 @@ where
     if hidx : idx < decls.size then
       let decl := decls[idx]
       match hdecl : decl with
-      | .atom a => go decls (idx + 1) (state.addAtom a hdecl)
-      | .false => go decls (idx + 1) (state.addFalse hdecl)
-      | .gate lhs rhs => go decls (idx + 1) (state.addGate lhs rhs hdecl)
+      | .atom a => go decls (idx + 1) (state.addAtom hidx a (by simpa [decl] using hdecl))
+      | .false => go decls (idx + 1) (state.addFalse hidx (by simpa [decl] using hdecl))
+      | .gate lhs rhs => go decls (idx + 1) (state.addGate hidx lhs rhs (by simpa [decl] using hdecl))
     else
       have : idx = decls.size := by
         have := state.inv2.upper_lt_size

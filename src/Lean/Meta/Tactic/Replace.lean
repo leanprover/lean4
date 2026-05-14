@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.InfoTree.Main
 public import Lean.Meta.AppBuilder
+public import Lean.Meta.CollectMVars
 public import Lean.Meta.MatchUtil
 public import Lean.Meta.Tactic.Assert
 
@@ -49,6 +50,7 @@ def _root_.Lean.MVarId.replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) :
     if Expr.equal target targetNew then
       return mvarId
     else
+-- <<<<<<< HEAD -> TODO
       -- For an accurate `Expr.equal` check, we need to instantiate metavariables.
       -- Some tactics depend on this returning the same metavariable to check that they made no progress.
       let target ← instantiateMVars target
@@ -56,6 +58,81 @@ def _root_.Lean.MVarId.replaceTargetDefEq (mvarId : MVarId) (targetNew : Expr) :
       if Expr.equal target targetNew then
         mvarId.setType target -- cache the instantiated type
         return mvarId
+-- ||||||| parent of e4cf40c966 (GetElemV)
+--       let tag     ← mvarId.getTag
+--       let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
+--       let newVal  ← mkExpectedTypeHint mvarNew target
+--       mvarId.assign newVal
+--       return mvarNew.mvarId!
+
+-- private def replaceLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
+--   mvarId.withContext do
+--     let localDecl ← fvarId.getDecl
+--     let typeNewPr ← mkEqMP eqProof (mkFVar fvarId)
+--     /- `typeNew` may contain variables that occur after `fvarId`.
+--         Thus, we use the auxiliary function `findMaxFVar` to ensure `typeNew` is well-formed at the
+--         position we are inserting it.
+--         We must `instantiateMVars` first to ensure that there is no mvar in `typeNew` which is
+--         assigned to some later-occurring fvar. -/
+--     let (_, localDecl') ← findMaxFVar (← instantiateMVars typeNew) |>.run localDecl
+--     let result ← mvarId.assertAfter localDecl'.fvarId localDecl.userName typeNew typeNewPr
+--     (do let mvarIdNew ← result.mvarId.clear fvarId
+--         pure { result with mvarId := mvarIdNew })
+--     <|> pure result
+-- where
+--   findMaxFVar (e : Expr) : StateRefT LocalDecl MetaM Unit :=
+--     e.forEach' fun e => do
+--       if e.isFVar then
+--         let localDecl' ← e.fvarId!.getDecl
+--         modify fun localDecl => if localDecl'.index > localDecl.index then localDecl' else localDecl
+--         return false
+-- =======
+--       let tag     ← mvarId.getTag
+--       let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag
+--       let newVal  ← mkExpectedTypeHint mvarNew target
+--       mvarId.assign newVal
+--       return mvarNew.mvarId!
+
+-- private def replaceLocalDeclCore (mvarId : MVarId) (fvarId : FVarId) (typeNew : Expr) (eqProof : Expr) : MetaM AssertAfterResult :=
+--   mvarId.withContext do
+--     let localDecl ← fvarId.getDecl
+--     let typeNewPr ← mkEqMP eqProof (mkFVar fvarId)
+--     /- `typeNew` may contain variables that occur after `fvarId`.
+--         Thus, we use the auxiliary function `findMaxFVar` to ensure `typeNew` is well-formed at the
+--         position we are inserting it.
+--         We must `instantiateMVars` first to ensure that there is no mvar in `typeNew` which is
+--         assigned to some later-occurring fvar. -/
+--     let typeNewInst ← instantiateMVars typeNew
+--     let (_, localDecl') ← findMaxFVar typeNewInst |>.run localDecl
+--     /- `typeNew` may also contain unassigned metavariables whose eventual
+--         solutions reference fvars occurring later than `localDecl'`. Those
+--         solutions are typechecked in the mvar's local context, so we must
+--         treat every fvar in that context as a potential dependency and insert
+--         after the latest such fvar. Otherwise `assertAfter` would revert those
+--         later fvars and re-introduce them with fresh fvarIds, leaving the
+--         mvar's eventual solution referencing stale fvarIds. -/
+--     let lctx ← getLCtx
+--     let mvars ← getMVars typeNewInst
+--     let mut localDecl' := localDecl'
+--     for m in mvars do
+--       unless ← m.isAssigned do
+--         let mLCtx := (← m.getDecl).lctx
+--         for ldecl' in mLCtx do
+--           if let some ldecl := lctx.find? ldecl'.fvarId then
+--             if ldecl.index > localDecl'.index then
+--               localDecl' := ldecl
+--     let result ← mvarId.assertAfter localDecl'.fvarId localDecl.userName typeNew typeNewPr
+--     (do let mvarIdNew ← result.mvarId.clear fvarId
+--         pure { result with mvarId := mvarIdNew })
+--     <|> pure result
+-- where
+--   findMaxFVar (e : Expr) : StateRefT LocalDecl MetaM Unit :=
+--     e.forEach' fun e => do
+--       if e.isFVar then
+--         let localDecl' ← e.fvarId!.getDecl
+--         modify fun localDecl => if localDecl'.index > localDecl.index then localDecl' else localDecl
+--         return false
+-- >>>>>>> e4cf40c966 (GetElemV)
       else
         let tag     ← mvarId.getTag
         let mvarNew ← mkFreshExprSyntheticOpaqueMVar targetNew tag

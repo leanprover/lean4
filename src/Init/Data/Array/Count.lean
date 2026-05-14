@@ -118,10 +118,15 @@ theorem countP_replicate {a : α} {n : Nat} : countP p (replicate n a) = if p a 
   simp [← List.toArray_replicate, List.countP_replicate]
 
 set_option backward.isDefEq.respectTransparency false in
+theorem boole_getElemV_le_countP {xs : Array α} {i : Nat} (h : i < xs.size) :
+    (if p xs｢i｣ then 1 else 0) ≤ xs.countP p := by
+  rcases xs with ⟨xs⟩
+  simp [List.boole_getElemV_le_countP h]
+
+set_option backward.isDefEq.respectTransparency false in
 theorem boole_getElem_le_countP {xs : Array α} {i : Nat} (h : i < xs.size) :
     (if p xs[i] then 1 else 0) ≤ xs.countP p := by
-  rcases xs with ⟨xs⟩
-  simp [List.boole_getElem_le_countP]
+  simpa using boole_getElemV_le_countP h
 
 set_option backward.isDefEq.respectTransparency false in
 @[grind =]
@@ -234,10 +239,14 @@ theorem count_singleton {a b : α} : count a #[b] = if b == a then 1 else 0 := b
   rcases xs with ⟨xs⟩
   simp
 
+theorem boole_getElemV_le_count {xs : Array α} {i : Nat} {a : α} (h : i < xs.size) :
+    (if xs｢i｣ == a then 1 else 0) ≤ xs.count a := by
+  rw [count_eq_countP]
+  apply boole_getElemV_le_countP (p := (· == a)) h
+
 theorem boole_getElem_le_count {xs : Array α} {i : Nat} {a : α} (h : i < xs.size) :
     (if xs[i] == a then 1 else 0) ≤ xs.count a := by
-  rw [count_eq_countP]
-  apply boole_getElem_le_countP (p := (· == a))
+  simpa using boole_getElemV_le_count h
 
 @[grind =]
 theorem count_set {xs : Array α} {i : Nat} {a b : α} (h : i < xs.size) :

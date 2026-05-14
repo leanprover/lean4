@@ -27,7 +27,7 @@ namespace List
 
 theorem exists_of_set {i : Nat} {a' : α} {l : List α} (h : i < l.length) :
     ∃ l₁ l₂, l = l₁ ++ l[i] :: l₂ ∧ l₁.length = i ∧ l.set i a' = l₁ ++ a' :: l₂ := by
-  refine ⟨l.take i, l.drop (i + 1), ⟨by simp, ⟨length_take_of_le (Nat.le_of_lt h), ?_⟩⟩⟩
+  refine ⟨l.take i, l.drop (i + 1), ⟨by simp [h], ⟨length_take_of_le (Nat.le_of_lt h), ?_⟩⟩⟩
   simp [set_eq_take_append_cons_drop, h]
 
 end List

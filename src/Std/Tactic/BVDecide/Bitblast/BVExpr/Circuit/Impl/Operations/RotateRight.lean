@@ -57,7 +57,7 @@ instance : AIG.LawfulVecOperator α AIG.ShiftTarget blastRotateRight where
   decl_eq := by
     intros
     unfold blastRotateRight
-    dsimp only; rfl
+    dsimp only
 
 end bitblast
 end BVExpr

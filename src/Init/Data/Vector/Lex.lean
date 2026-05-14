@@ -60,7 +60,6 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Vector α n} :
 @[simp] theorem mk_lex_mk [BEq α] {lt : α → α → Bool} {xs ys : Array α} {n₁ : xs.size = n} {n₂ : ys.size = n} :
     (Vector.mk xs n₁).lex (Vector.mk ys n₂) lt = xs.lex ys lt := by
   simp [Vector.lex, Array.lex, n₁, n₂, Std.Rco.forIn'_eq_forIn'_toList]
-  rfl
 
 @[simp, grind =] theorem lex_toArray [BEq α] {lt : α → α → Bool} {xs ys : Vector α n} :
     xs.toArray.lex ys.toArray lt = xs.lex ys lt := by
@@ -211,12 +210,19 @@ there exists an index `i` such that
 - for all `j < i`, `l₁[j] == l₂[j]` and
 - `l₁[i] < l₂[i]`
 -/
-theorem lex_eq_true_iff_exists [BEq α] (lt : α → α → Bool) {xs ys : Vector α n} :
+theorem lex_eq_true_iff_exists_getElem [BEq α] (lt : α → α → Bool) {xs ys : Vector α n} :
     lex xs ys lt = true ↔
       (∃ (i : Nat) (h : i < n), (∀ j, (hj : j < i) → xs[j] == ys[j]) ∧ lt xs[i] ys[i]) := by
   rcases xs with ⟨xs, n₁⟩
   rcases ys with ⟨ys, n₂⟩
-  simp [Array.lex_eq_true_iff_exists, n₁, n₂]
+  simp [Array.lex_eq_true_iff_exists_getElem, n₁, n₂]
+
+theorem lex_eq_true_iff_exists [Nonempty α] [BEq α] {lt : α → α → Bool}
+    {xs ys : Vector α n} :
+    lex xs ys lt = true ↔
+      (∃ (i : Nat), i < n ∧
+        (∀ j, j < i → xs｢j｣ == ys｢j｣) ∧ lt xs｢i｣ ys｢i｣) := by
+  simpa [← exists_prop] using lex_eq_true_iff_exists_getElem (xs := xs) (ys := ys) lt
 
 /--
 `l₁` is *not* lexicographically less than `l₂`
@@ -233,7 +239,7 @@ This formulation requires that `==` and `lt` are compatible in the following sen
 - `lt` is asymmetric  (i.e. `lt x y = true → lt y x = false`)
 - `lt` is antisymmetric with respect to `==` (i.e. `lt x y = false → lt y x = false → x == y`)
 -/
-theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α → Bool)
+theorem lex_eq_false_iff_exists_getElem [BEq α] [PartialEquivBEq α] (lt : α → α → Bool)
     (lt_irrefl : ∀ x y, x == y → lt x y = false)
     (lt_asymm : ∀ x y, lt x y = true → lt y x = false)
     (lt_antisymm : ∀ x y, lt x y = false → lt y x = false → x == y)
@@ -243,16 +249,37 @@ theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] (lt : α → α �
         (∃ (i : Nat) (h : i < n),(∀ j, (hj : j < i) → xs[j] == ys[j]) ∧ lt ys[i] xs[i]) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, n₂⟩
-  simp_all [Array.lex_eq_false_iff_exists]
+  simp_all [Array.lex_eq_false_iff_exists_getElem]
 
-protected theorem lt_iff_exists [LT α] {xs ys : Vector α n} :
+theorem lex_eq_false_iff_exists [BEq α] [PartialEquivBEq α] {lt : α → α → Bool}
+    (lt_irrefl : ∀ x y, x == y → lt x y = false)
+    (lt_asymm : ∀ x y, lt x y = true → lt y x = false)
+    (lt_antisymm : ∀ x y, lt x y = false → lt y x = false → x == y)
+    {xs ys : Vector α n} :
+    lex xs ys lt = false ↔
+      (ys.isEqv xs (· == ·)) ∨
+        (∃ (i : Nat) (_ : i < n),
+          (∀ j, (hj : j < i) →
+            haveI : j < n := Nat.lt_trans hj ‹_›
+            xs｢j｣ == ys｢j｣) ∧ lt ys｢i｣ xs｢i｣) := by
+  simpa [← exists_prop] using lex_eq_false_iff_exists_getElem lt lt_irrefl lt_asymm lt_antisymm
+
+protected theorem lt_iff_exists_getElem [LT α] {xs ys : Vector α n} :
     xs < ys ↔
       (∃ (i : Nat) (h : i < n), (∀ j, (hj : j < i) → xs[j] = ys[j]) ∧ xs[i] < ys[i]) := by
   cases xs
   cases ys
-  simp_all [Array.lt_iff_exists]
+  simp_all [Array.lt_iff_exists_getElem]
 
-protected theorem le_iff_exists [LT α]
+protected theorem lt_iff_exists [LT α] {xs ys : Vector α n} :
+    xs < ys ↔
+      (∃ (i : Nat) (_ : i < n),
+        (∀ j, (hj : j < i) →
+          haveI : j < n := Nat.lt_trans hj ‹_›
+          xs｢j｣ = ys｢j｣) ∧ xs｢i｣ < ys｢i｣) := by
+  simpa using Vector.lt_iff_exists_getElem
+
+protected theorem le_iff_exists_getElem [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Trichotomous (· < · : α → α → Prop)] {xs ys : Vector α n} :
     xs ≤ ys ↔
@@ -260,7 +287,18 @@ protected theorem le_iff_exists [LT α]
         (∃ (i : Nat) (h : i < n), (∀ j, (hj : j < i) → xs[j] = ys[j]) ∧ xs[i] < ys[i]) := by
   rcases xs with ⟨xs, rfl⟩
   rcases ys with ⟨ys, n₂⟩
-  simp [Array.le_iff_exists, ← n₂]
+  simp [Array.le_iff_exists_getElem, ← n₂]
+
+protected theorem le_iff_exists [LT α]
+    [Std.Asymm (· < · : α → α → Prop)]
+    [Std.Trichotomous (· < · : α → α → Prop)] {xs ys : Vector α n} :
+    xs ≤ ys ↔
+      (xs = ys) ∨
+        (∃ (i : Nat) (h : i < n),
+          (∀ j, (hj : j < i) →
+            haveI : j < n := Nat.lt_trans hj ‹_›
+            xs｢j｣ = ys｢j｣) ∧ xs｢i｣ < ys｢i｣) := by
+  simpa using Vector.le_iff_exists_getElem
 
 theorem append_left_lt [LT α] {xs : Vector α n} {ys ys' : Vector α m} (h : ys < ys') :
     xs ++ ys < xs ++ ys' := by

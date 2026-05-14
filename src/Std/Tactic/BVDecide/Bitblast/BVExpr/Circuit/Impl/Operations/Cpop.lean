@@ -62,8 +62,9 @@ instance : AIG.LawfulVecOperator α ExtractAndExtendBitTarget blastExtractAndExt
     dsimp only
     rw [AIG.LawfulVecOperator.decl_eq (f := blastZeroExtend),
       AIG.LawfulVecOperator.decl_eq (f := blastExtract)]
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size
-    omega
+    · assumption
+    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size
+      omega
 
 structure blastExtractAndExtendTarget (aig : AIG α) (outWidth : Nat) where
   {w : Nat}
@@ -110,8 +111,8 @@ termination_by w - idx
 
 theorem blastExtractAndExtend.go_decl_eq (aig : AIG α) (idx' : Nat) (x : AIG.RefVec aig w)
     (acc : AIG.RefVec aig (w * idx')) (h : idx' ≤ w) (h' : outWidth = w * w) :
-    ∀ (idx : Nat) (h1) (h2),
-      (go idx' x acc h h').aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat), (hidx : idx < aig.decls.size) →
+      (go idx' x acc h h').aig.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hres : go idx' x acc h h' = res
   unfold go at hres
   dsimp only at hres
@@ -119,9 +120,10 @@ theorem blastExtractAndExtend.go_decl_eq (aig : AIG α) (idx' : Nat) (x : AIG.Re
   · rw [← hres]
     intros
     rw [blastExtractAndExtend.go_decl_eq, AIG.LawfulVecOperator.decl_eq (f := blastExtractAndExtendBit)]
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastZeroExtend)
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastExtract)
-    omega
+    · assumption
+    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastZeroExtend)
+      apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastExtract)
+      omega
   · simp [← hres]
 termination_by w - idx'
 
@@ -135,6 +137,7 @@ instance : AIG.LawfulVecOperator α blastExtractAndExtendTarget blastExtractAndE
     intros
     unfold blastExtractAndExtend
     apply blastExtractAndExtend.go_decl_eq
+    assumption
 
 structure blastCpopLayerTarget (aig : AIG α) (outWidth : Nat) where
   {w len : Nat}
@@ -202,8 +205,8 @@ termination_by len - iterNum * 2
 
 theorem blastCpopLayer.go_decl_eq (aig : AIG α) (iterNum: Nat) (oldLayer : AIG.RefVec aig (len * w))
     (newLayer : AIG.RefVec aig (iterNum * w)) (hold : 2 * (iterNum - 1) < len) (hout : outWidth = (len + 1) / 2 * w) :
-    ∀ (idx : Nat) h1 h2,
-      (go iterNum oldLayer newLayer hold hout).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+    ∀ (idx : Nat), (h : idx < aig.decls.size) →
+      (go iterNum oldLayer newLayer hold hout).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hres : go iterNum oldLayer newLayer hold hout = res
   unfold go at hres
   dsimp only at hres
@@ -213,6 +216,7 @@ theorem blastCpopLayer.go_decl_eq (aig : AIG α) (iterNum: Nat) (oldLayer : AIG.
       intros
       rw [blastCpopLayer.go_decl_eq]
       · apply AIG.LawfulVecOperator.decl_eq (f := blastAdd)
+        assumption
       · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastAdd)
         assumption
   · simp [← hres]
@@ -229,6 +233,7 @@ instance : AIG.LawfulVecOperator α blastCpopLayerTarget blastCpopLayer where
     unfold blastCpopLayer
     dsimp only
     apply blastCpopLayer.go_decl_eq
+    assumption
 
 structure blastCpopTreeTarget (aig : AIG α) (w : Nat) where
   {len : Nat}
@@ -266,17 +271,18 @@ termination_by len
 
 theorem blastCpopTree.go_decl_eq (aig : AIG α) (oldLayer : AIG.RefVec aig (len * w))
       (h : 0 < len) :
-    ∀ (idx : Nat) h1 h2,
-      (go oldLayer h).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+    ∀ (idx : Nat), (hidx : idx < aig.decls.size) →
+      (go oldLayer h).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hres : go oldLayer h = res
   unfold go at hres
   dsimp only at hres
   split at hres
   · rw [← hres]
-    intros i h1 h2
+    intros i h1
     rw [blastCpopTree.go_decl_eq]
     · apply blastCpopLayer.go_decl_eq
-    · apply Nat.lt_of_lt_of_le h2
+      assumption
+    · apply Nat.lt_of_lt_of_le h1
       apply blastCpopLayer.go_le_size
   · simp [← hres]
 termination_by len
@@ -290,6 +296,7 @@ instance : AIG.LawfulVecOperator α blastCpopTreeTarget blastCpopTree where
     intros
     unfold blastCpopTree
     apply blastCpopTree.go_decl_eq
+    assumption
 
 /-- Extend all the  bits in the input BitVec w `x` to have width `w`,
   then construct the parallel-prefix-sum circuit. -/
@@ -321,16 +328,16 @@ theorem blastCpop_le_size (aig : AIG α) (input : AIG.RefVec aig w) :
     · simp
 
 theorem blastCpop_decl_eq (aig : AIG α) (input : AIG.RefVec aig w) :
-    ∀ (idx : Nat) h1 h2, (blastCpop aig input).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+    ∀ (idx : Nat), (h : idx < aig.decls.size) → (blastCpop aig input).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   unfold blastCpop
   split
-  · simp only [Lean.Elab.WF.paramLet]
-    intros idx hidx hidx'
+  · intros idx hidx
     unfold blastCpopTree blastExtractAndExtend
     dsimp only
     rw [blastCpopTree.go_decl_eq]
     · rw [blastExtractAndExtend.go_decl_eq]
-    · apply Nat.lt_of_lt_of_le hidx' (by apply blastExtractAndExtend.go_le_size)
+      assumption
+    · apply Nat.lt_of_lt_of_le hidx (by apply blastExtractAndExtend.go_le_size)
   · split
     · simp
     · simp
@@ -344,6 +351,7 @@ instance : AIG.LawfulVecOperator α AIG.RefVec blastCpop where
     intros
     unfold blastCpop
     apply blastCpop_decl_eq
+    assumption
 
 end bitblast
 end BVExpr

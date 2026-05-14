@@ -50,9 +50,10 @@ instance {w : Nat} : AIG.LawfulOperator α (AIG.BinaryRefVec · w) mkUlt where
     intros
     unfold mkUlt
     dsimp only
-    rw [AIG.LawfulOperator.decl_eq (f := AIG.mkNotCached)]
-    rw [AIG.LawfulOperator.decl_eq (f := BVExpr.bitblast.mkOverflowBit)]
-    rw [AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast.blastNot)]
+    rw [AIG.LawfulOperator.decl_eq (f := AIG.mkNotCached),
+      AIG.LawfulOperator.decl_eq (f := BVExpr.bitblast.mkOverflowBit),
+      AIG.LawfulVecOperator.decl_eq (f := BVExpr.bitblast.blastNot)]
+    · assumption
     · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.blastNot)
       assumption
     · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVExpr.bitblast.mkOverflowBit)

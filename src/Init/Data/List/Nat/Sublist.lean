@@ -74,13 +74,23 @@ theorem suffix_iff_getElem {l₁ l₂ : List α} :
   · rintro ⟨h, w⟩
     refine ⟨h, fun i h => ?_⟩
     specialize w i h
-    rw [getElem?_eq_getElem] at w
+    rw [getElem?_eq_some_getElemV _ _ (by omega)] at w
     simpa using w
   · rintro ⟨h, w⟩
     refine ⟨h, fun i h => ?_⟩
     specialize w i h
-    rw [getElem?_eq_getElem]
+    rw [getElem?_eq_some_getElemV _ _ (by omega)]
     simpa using w
+
+/-
+PLOG(suffix_iff_getElemV):
+Had to use `← exists_prop` because of spurious dependencies.
+-/
+
+theorem suffix_iff_getElemV [Nonempty α] {l₁ l₂ : List α} :
+    l₁ <:+ l₂ ↔
+      l₁.length ≤ l₂.length ∧ ∀ i, i < l₁.length → l₂｢i + l₂.length - l₁.length｣ = l₁｢i｣ := by
+  simp [suffix_iff_getElem, getElem_eq_getElemV, ← exists_prop]
 
 theorem infix_iff_getElem? {l₁ l₂ : List α} : l₁ <:+: l₂ ↔
     ∃ k, l₁.length + k ≤ l₂.length ∧ ∀ i (h : i < l₁.length), l₂[i + k]? = some l₁[i] := by
@@ -106,7 +116,7 @@ theorem infix_iff_getElem? {l₁ l₂ : List α} : l₁ <:+: l₂ ↔
       · rw [getElem?_take]; simp_all; omega
       · simp_all
         have p : i = (i - k) + k := by omega
-        rw [p, w _ (by omega), getElem?_eq_getElem]
+        rw [p, w _ (by omega), getElem?_eq_some_getElemV]
         · congr 2
           omega
         · omega

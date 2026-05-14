@@ -75,9 +75,10 @@ theorem blastDivSubtractShift_denote_mem_prefix (aig : AIG α)
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
-    apply blastDivSubtractShift_decl_eq
-  · intros
     apply blastDivSubtractShift_le_size
+  · intros
+    apply blastDivSubtractShift_decl_eq
+    assumption
 
 theorem denote_blastDivSubtractShift_q (aig : AIG α) (assign : α → Bool) (lhs rhs : BitVec w)
     (n d : AIG.RefVec aig w) (wn wr : Nat)
@@ -435,9 +436,10 @@ theorem go_denote_mem_prefix (aig : AIG α) (curr : Nat)
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
-    apply go_decl_eq
-  · intros
     apply go_le_size
+  · intros
+    apply go_decl_eq
+    assumption
 
 end blastUdiv
 

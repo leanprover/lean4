@@ -126,7 +126,7 @@ theorem zip_le_size (aig : AIG α) (input : BinaryRefVec aig len)
 theorem zip.go_decl_eq {aig : AIG α} (i) (hi) (lhs rhs : RefVec aig len)
     (s : RefVec aig i) (f : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput f] [LawfulZipOperator α f] :
-    ∀ (idx : Nat) (h1) (h2), (go aig i s hi lhs rhs f).1.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat), idx < aig.decls.size → (go aig i s hi lhs rhs f).1.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hgo : go aig i s hi lhs rhs f = res
   unfold go at hgo
   split at hgo
@@ -135,9 +135,10 @@ theorem zip.go_decl_eq {aig : AIG α} (i) (hi) (lhs rhs : RefVec aig len)
     intros
     intros
     rw [go_decl_eq]
-    rw [LawfulOperator.decl_eq]
-    apply LawfulOperator.lt_size_of_lt_aig_size
-    assumption
+    · rw [LawfulOperator.decl_eq]
+      assumption
+    · apply LawfulOperator.lt_size_of_lt_aig_size
+      assumption
   · dsimp only at hgo
     rw [← hgo]
     intros
@@ -147,11 +148,11 @@ termination_by len - i
 theorem zip_decl_eq {aig : AIG α} (input : BinaryRefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α)
     [LawfulOperator α BinaryInput func] [LawfulZipOperator α func] :
-    ∀ idx (h1 : idx < aig.decls.size) (h2),
-      (zip aig input func).1.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ idx, idx < aig.decls.size → (zip aig input func).1.decls｢idx｣ = aig.decls｢idx｣ := by
   intros
   unfold zip
   apply zip.go_decl_eq
+  assumption
 
 theorem zip_lt_size_of_lt_aig_size (aig : AIG α) (input : BinaryRefVec aig len)
     (func : (aig : AIG α) → BinaryInput aig → Entrypoint α)
@@ -177,9 +178,10 @@ theorem IsPrefix_zip {aig : AIG α} (input : BinaryRefVec aig len)
   unfold zip
   apply IsPrefix.of
   · intros
-    apply zip_decl_eq
-  · intros
     apply zip_le_size
+  · intros
+    apply zip_decl_eq
+    assumption
 
 namespace zip
 
@@ -235,9 +237,10 @@ theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
-    apply go_decl_eq
-  · intros
     apply go_le_size
+  · intros
+    apply go_decl_eq
+    assumption
 
 attribute [local simp] LawfulZipOperator.denote_prefix_cast_ref in
 theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)

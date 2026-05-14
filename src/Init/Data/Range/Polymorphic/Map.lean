@@ -129,7 +129,8 @@ theorem LawfulUpwardEnumerableLeast?.ofMap [Least? α] [Least? β] [LawfulUpward
     have : (Least?.least? (α := α)).isSome := by
       rw [← Option.isSome_map (f := f.toFun), Map.PreservesLeast?.map_least?,
         hl, Option.isSome_some]
-    refine ⟨Option.get _ this, by simp, ?_⟩
+    have _ : Nonempty α := ⟨a⟩
+    refine ⟨Option.get _ this, by simp [this], ?_⟩
     rw [f.le_iff, Option.apply_get (f := f.toFun)]
     simpa [Map.PreservesLeast?.map_least?, hl] using hl'
 

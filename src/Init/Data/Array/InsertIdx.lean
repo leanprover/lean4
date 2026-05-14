@@ -98,7 +98,17 @@ theorem insertIdx_size_self {xs : Array α} {x : α} : xs.insertIdx xs.size x = 
   rcases xs with ⟨xs⟩
   simp
 
+/-
+PLOG(getElemV_insertIdx):
+Oof, `Array.insertIdx` takes a proof autoParam argument. Do we need `Array.insertIdxV`?
+-/
+
 @[grind =]
+theorem getElemV_insertIdx {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k ≤ xs.size) :
+    (xs.insertIdx i x)｢k｣ = if k < i then xs｢k｣ else if k = i then x else xs｢k - 1｣ := by
+  rcases xs with ⟨xs'⟩
+  simp [List.getElemV_insertIdx h]
+
 theorem getElem_insertIdx {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < (xs.insertIdx i x).size) :
     (xs.insertIdx i x)[k] =
       if h₁ : k < i then
@@ -108,21 +118,40 @@ theorem getElem_insertIdx {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.siz
           x
         else
           xs[k-1]'(by simp [size_insertIdx] at h; omega) := by
-  cases xs
-  simp [List.getElem_insertIdx]
+  have : k ≤ xs.size := by simpa [Nat.lt_add_one_iff] using h
+  simpa [ite_eq_dite] using getElemV_insertIdx w this
+
+/-
+PLOG(getElemV_insertIdx_of_lt):
+manual bounds proof
+-/
+
+theorem getElemV_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size)
+    (h : k < i) :
+    (xs.insertIdx i x)｢k｣ = xs｢k｣ := by
+  have : k ≤ xs.size := by omega
+  simp [getElemV_insertIdx w this, h]
 
 theorem getElem_insertIdx_of_lt {xs : Array α} {x : α} {i k : Nat} (w : i ≤ xs.size) (h : k < i) :
     (xs.insertIdx i x)[k]'(by simp; omega) = xs[k] := by
-  simp [getElem_insertIdx, h]
+  simpa using getElemV_insertIdx_of_lt w h
+
+theorem getElemV_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.size) :
+    (xs.insertIdx i x)｢i｣ = x := by
+  simp [getElemV_insertIdx w w]
 
 theorem getElem_insertIdx_self {xs : Array α} {x : α} {i : Nat} (w : i ≤ xs.size) :
     (xs.insertIdx i x)[i]'(by simp; omega) = x := by
-  simp [getElem_insertIdx]
+  simpa using getElemV_insertIdx_self w
+
+theorem getElemV_insertIdx_of_gt {xs : Array α} {x : α} {i k : Nat} (w : k ≤ xs.size)
+    (h : k > i) :
+    (xs.insertIdx i x)｢k｣ = xs｢k - 1｣ := by
+  rw [getElemV_insertIdx (by omega) w, if_neg (by omega), if_neg (by omega)]
 
 theorem getElem_insertIdx_of_gt {xs : Array α} {x : α} {i k : Nat} (w : k ≤ xs.size) (h : k > i) :
     (xs.insertIdx i x)[k]'(by simp; omega) = xs[k - 1]'(by omega) := by
-  simp [getElem_insertIdx]
-  rw [dif_neg (by omega), dif_neg (by omega)]
+  simpa using getElemV_insertIdx_of_gt w h
 
 @[grind =]
 theorem getElem?_insertIdx {xs : Array α} {x : α} {i k : Nat} (h : i ≤ xs.size) :

@@ -140,6 +140,12 @@ theorem satAssignment_inr (h : x < aig.decls.size) :
     (cnfSatAssignment aig assign1) x = ⟦aig, ⟨x, false, h⟩, assign1⟧ := by
   simp [cnfSatAssignment, mixAssigns, h]
 
+/-
+PLOG(Cache.Inv):
+`hmarks` is no longer needed. However, I preserved it because I'm not sure if it's considered
+part of the invariant.
+-/
+
 /--
 The central invariant for the `Cache`.
 
@@ -151,9 +157,9 @@ the atom part of that assignment and will get the value that was assigned to the
 auxiliary variable as a result.
 -/
 def Cache.Inv (aig : AIG Nat) (cnf : CNF Nat) (marks : Array Bool)
-    (hmarks : marks.size = aig.decls.size) : Prop :=
+    (_hmarks : marks.size = aig.decls.size) : Prop :=
   ∀ (assign : Nat → Bool) (_heval : cnf.eval assign = true) (idx : Nat)
-    (hbound : idx < aig.decls.size) (_hmark : marks[idx]'(by omega) = true),
+    (hbound : idx < aig.decls.size) (_hmark : marks｢idx｣ = true),
       ⟦aig, ⟨idx, false, hbound⟩, projectLeftAssign aig assign⟧ = (projectRightAssign assign) idx
 
 
@@ -163,7 +169,7 @@ The `Cache` invariant always holds for an empty CNF when all nodes are unmarked.
 theorem Cache.Inv_init : Inv aig .empty (.replicate aig.decls.size false)
     (by simp) := by
   intro assign _ idx hbound hmark
-  simp at hmark
+  simp [hbound] at hmark
 
 /--
 The CNF cache. It keeps track of AIG nodes that we already turned into CNF to avoid adding the same
@@ -192,14 +198,16 @@ structure Cache.IsExtensionBy (cache1 : Cache aig cnf1) (cache2 : Cache aig cnf2
   /--
   No entry is invalidated.
   -/
-  extension : ∀ (idx : Nat) (hidx : idx < aig.decls.size),
-                cache1.marks[idx]'(by have := cache1.hmarks; omega) = true
+  extension : ∀ (idx : Nat),
+                idx < aig.decls.size
                   →
-                cache2.marks[idx]'(by have := cache2.hmarks; omega) = true
+                cache1.marks｢idx｣ = true
+                  →
+                cache2.marks｢idx｣ = true
   /--
   The second cache is true at the new index.
   -/
-  trueAt : cache2.marks[new]'(by have := cache2.hmarks; omega) = true
+  trueAt : cache2.marks｢new｣ = true
 
 theorem Cache.IsExtensionBy_trans_left (cache1 : Cache aig cnf1) (cache2 : Cache aig cnf2)
     (cache3 : Cache aig cnf3) (h12 : IsExtensionBy cache1 cache2 new1 hnew1)
@@ -207,13 +215,13 @@ theorem Cache.IsExtensionBy_trans_left (cache1 : Cache aig cnf1) (cache2 : Cache
   apply IsExtensionBy.mk
   · intro idx hidx hmarked
     apply h23.extension
+    · assumption
     · apply h12.extension
+      · assumption
       · exact hmarked
-      · omega
-    · omega
   · apply h23.extension
+    · assumption
     · exact h12.trueAt
-    · omega
 
 theorem Cache.IsExtensionBy_trans_right (cache1 : Cache aig cnf1) (cache2 : Cache aig cnf2)
     (cache3 : Cache aig cnf3) (h12 : IsExtensionBy cache1 cache2 new1 hnew1)
@@ -221,16 +229,16 @@ theorem Cache.IsExtensionBy_trans_right (cache1 : Cache aig cnf1) (cache2 : Cach
   apply IsExtensionBy.mk
   · intro idx hidx hmarked
     apply h23.extension
+    · assumption
     · apply h12.extension
+      · assumption
       · exact hmarked
-      · omega
-    · omega
   · exact h23.trueAt
 
 /--
 Cache extension is a reflexive relation.
 -/
-theorem Cache.IsExtensionBy_rfl (cache : Cache aig cnf) {h} (hmarked : cache.marks[idx]'h = true) :
+theorem Cache.IsExtensionBy_rfl (cache : Cache aig cnf) (hmarked : cache.marks｢idx｣ = true) :
     Cache.IsExtensionBy cache cache idx (have := cache.hmarks; omega) := by
   apply IsExtensionBy.mk
   · intros
@@ -242,7 +250,7 @@ theorem Cache.IsExtensionBy_set (cache1 : Cache aig cnf1) (cache2 : Cache aig cn
     IsExtensionBy cache1 cache2 idx (by have := cache1.hmarks; omega) := by
   apply IsExtensionBy.mk
   · intro idx hidx hmark
-    simp [Array.getElem_set, hmark, h]
+    simp [Array.getElemV_set, hmark, h]
   · simp [h]
 
 /--
@@ -257,7 +265,7 @@ def Cache.init (aig : AIG Nat) : Cache aig .empty where
 Add a `Decl.false` to a `Cache`.
 -/
 def Cache.addFalse (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
-    (htip : aig.decls[idx]'h = .false) :
+    (htip : aig.decls｢idx｣ = .false) :
     {
       out : Cache aig (cnf ++ Decl.falseToCNF idx)
         //
@@ -270,11 +278,11 @@ def Cache.addFalse (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
       hmarks := by simp [cache.hmarks]
       inv := by
         intro assign heval idx hbound hmarked
-        rw [Array.getElem_set] at hmarked
+        rw [Array.getElemV_set] at hmarked
         split at hmarked
         next heq =>
           simp [heq] at htip heval
-          simp [denote_idx_false htip, heval]
+          simp [denote_idx_false hbound htip, heval]
         next heq =>
           simp only [CNF.eval_append, Decl.falseToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
           have := cache.inv assign heval.left idx hbound hmarked
@@ -286,7 +294,7 @@ def Cache.addFalse (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size
 Add a `Decl.atom` to a cache.
 -/
 def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
-    (htip : aig.decls[idx]'h = .atom a) :
+    (htip : aig.decls｢idx｣ = .atom a) :
     {
       out : Cache aig ((cnf ++ Decl.atomToCNF idx (a + aig.decls.size)))
         //
@@ -299,11 +307,11 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
       hmarks := by simp [cache.hmarks]
       inv := by
         intro assign heval idx hbound hmarked
-        rw [Array.getElem_set] at hmarked
+        rw [Array.getElemV_set] at hmarked
         split at hmarked
         next heq =>
           simp only [heq, CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at htip heval
-          simp [heval, denote_idx_atom htip]
+          simp [heval, denote_idx_atom hbound htip]
         next heq =>
           simp only [CNF.eval_append, Decl.atomToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
           have := cache.inv assign heval.left idx hbound hmarked
@@ -315,8 +323,8 @@ def Cache.addAtom (cache : Cache aig cnf) (idx : Nat) (h : idx < aig.decls.size)
 Add a `Decl.gate` to a cache.
 -/
 def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig.decls.size)
-    (htip : aig.decls[idx]'h = .gate lhs rhs) (hl : cache.marks[lhs.gate]'hlb = true)
-    (hr : cache.marks[rhs.gate]'hrb = true) :
+    (htip : aig.decls｢idx｣ = .gate lhs rhs) (hl : cache.marks｢lhs.gate｣ = true)
+    (hr : cache.marks｢rhs.gate｣ = true) :
     {
       out : Cache aig (cnf ++ Decl.gateToCNF idx lhs.gate rhs.gate lhs.invert rhs.invert)
         //
@@ -330,13 +338,13 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
       hmarks := by simp [cache.hmarks]
       inv := by
         intro assign heval idx hbound hmarked
-        rw [Array.getElem_set] at hmarked
+        rw [Array.getElemV_set] at hmarked
         split at hmarked
         next heq =>
           simp only [heq, CNF.eval_append, Decl.gateToCNF_eval, Bool.and_eq_true, beq_iff_eq]
             at htip heval
-          have hleval := cache.inv assign heval.left lhs.gate (by omega) hl
-          have hreval := cache.inv assign heval.left rhs.gate (by omega) hr
+          have hleval := cache.inv assign heval.left lhs.gate (by omega) (by simpa using hl)
+          have hreval := cache.inv assign heval.left rhs.gate (by omega) (by simpa using hr)
           simp only [denote_idx_gate htip, Bool.bne_false, projectRightAssign_property, heval]
           generalize lhs.invert = linv
           generalize rhs.invert = rinv
@@ -375,26 +383,26 @@ theorem State.Inv_append (h1 : State.Inv aig cnf1) (h2 : State.Inv aig cnf2) :
 /--
 `State.Inv` holds for the CNF that we produce for a `Decl.false`.
 -/
-theorem State.Inv_falseToCNF {upper : Nat} {h : upper < aig.decls.size}
-    (heq : aig.decls[upper] = .false) :
+theorem State.Inv_falseToCNF {upper : Nat} (h : upper < aig.decls.size)
+    (heq : aig.decls｢upper｣ = .false) :
     State.Inv aig (Decl.falseToCNF upper) := by
   intro assign1
-  simp [CNF.sat_def, denote_idx_false heq, h]
+  simp [CNF.sat_def, denote_idx_false h heq, h]
 
 /--
 `State.Inv` holds for the CNF that we produce for a `Decl.atom`
 -/
-theorem State.Inv_atomToCNF {h : upper < aig.decls.size}
-    (heq : aig.decls[upper] = .atom a) :
+theorem State.Inv_atomToCNF (h : upper < aig.decls.size)
+    (heq : aig.decls｢upper｣ = .atom a) :
     State.Inv aig (Decl.atomToCNF upper (a + aig.decls.size)) := by
   intro assign1
-  simp [CNF.sat_def, denote_idx_atom heq, h]
+  simp [CNF.sat_def, denote_idx_atom h heq, h]
 
 /--
 `State.Inv` holds for the CNF that we produce for a `Decl.gate`
 -/
-theorem State.Inv_gateToCNF {aig : AIG Nat} {h}
-    (heq : aig.decls[upper]'h = .gate lhs rhs) :
+theorem State.Inv_gateToCNF {aig : AIG Nat} (h : upper < aig.decls.size)
+    (heq : aig.decls｢upper｣ = .gate lhs rhs) :
     State.Inv aig (Decl.gateToCNF upper lhs.gate rhs.gate lhs.invert rhs.invert) := by
   intro assign1
   have hlhs : lhs.gate < aig.decls.size := Nat.lt_trans (aig.hdag h heq).left h
@@ -453,8 +461,8 @@ theorem State.IsExtensionBy_trans_right (state1 : State aig) (state2 : State aig
 /--
 State extension is a reflexive relation.
 -/
-theorem State.IsExtensionBy_rfl (state : State aig) {h}
-    (hmarked : state.cache.marks[idx]'h = true) :
+theorem State.IsExtensionBy_rfl (state : State aig)
+    (hmarked : state.cache.marks｢idx｣ = true) :
     State.IsExtensionBy state state idx (have := state.cache.hmarks; omega) := by
   apply Cache.IsExtensionBy_rfl <;> assumption
 
@@ -462,11 +470,11 @@ theorem State.IsExtensionBy_rfl (state : State aig) {h}
 Add the CNF for a `Decl.false` to the state.
 -/
 def State.addFalse (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
-    (htip : aig.decls[idx]'h = .false) :
+    (htip : aig.decls｢idx｣ = .false) :
     { out : State aig // State.IsExtensionBy state out idx h } :=
   let ⟨cnf, cache, inv⟩ := state
   let newCnf := Decl.falseToCNF idx
-  have hinv := toCNF.State.Inv_falseToCNF htip
+  have hinv := toCNF.State.Inv_falseToCNF h htip
   let ⟨cache, hcache⟩ := cache.addFalse idx h htip
   ⟨⟨cnf ++ newCnf, cache, State.Inv_append inv hinv⟩, by simp [newCnf, hcache]⟩
 
@@ -474,11 +482,11 @@ def State.addFalse (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
 Add the CNF for a `Decl.atom` to the state.
 -/
 def State.addAtom (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
-    (htip : aig.decls[idx]'h = .atom a) :
+    (htip : aig.decls｢idx｣ = .atom a) :
     { out : State aig // State.IsExtensionBy state out idx h } :=
   let ⟨cnf, cache, inv⟩ := state
   let newCnf := Decl.atomToCNF idx (a + aig.decls.size)
-  have hinv := toCNF.State.Inv_atomToCNF htip
+  have hinv := toCNF.State.Inv_atomToCNF h htip
   let ⟨cache, hcache⟩ := cache.addAtom idx h htip
   ⟨⟨cnf ++ newCnf, cache, State.Inv_append inv hinv⟩, by simp [newCnf, hcache]⟩
 
@@ -486,13 +494,13 @@ def State.addAtom (state : State aig) (idx : Nat) (h : idx < aig.decls.size)
 Add the CNF for a `Decl.gate` to the state.
 -/
 def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.decls.size)
-    (htip : aig.decls[idx]'h = .gate lhs rhs) (hl : state.cache.marks[lhs.gate]'hlb = true)
-    (hr : state.cache.marks[rhs.gate]'hrb = true) :
+    (htip : aig.decls｢idx｣ = .gate lhs rhs) (hl : state.cache.marks｢lhs.gate｣ = true)
+    (hr : state.cache.marks｢rhs.gate｣ = true) :
     { out : State aig // State.IsExtensionBy state out idx h } :=
   have := aig.hdag h htip
   let ⟨cnf, cache, inv⟩ := state
   let newCnf := Decl.gateToCNF idx lhs.gate rhs.gate lhs.invert rhs.invert
-  have hinv := toCNF.State.Inv_gateToCNF htip
+  have hinv := toCNF.State.Inv_gateToCNF h htip
   let ⟨cache, hcache⟩ := cache.addGate idx h htip hl hr
   ⟨⟨cnf ++ newCnf, cache, State.Inv_append inv hinv⟩, by simp [newCnf, hcache]⟩
 
@@ -526,6 +534,14 @@ theorem State.unsat_iff : State.Unsat state ↔ state.cnf.Unsat := by rfl
 
 end toCNF
 
+/-
+PLOG(toCNF):
+For unclear reasons, I had to add the type annotation to
+```
+have : lhs.gate < upper ∧ rhs.gate < upper := aig.hdag h (by simpa [decl] using heq)
+```
+-/
+
 /--
 Convert an AIG into CNF, starting at some entry node.
 -/
@@ -536,14 +552,16 @@ where
   go (aig : AIG Nat) (upper : Nat) (h : upper < aig.decls.size) (state : toCNF.State aig) :
       { out : toCNF.State aig // toCNF.State.IsExtensionBy state out upper h } :=
     if hmarked : state.cache.marks[upper]'(by have := state.cache.hmarks; omega) then
-      ⟨state, by apply toCNF.State.IsExtensionBy_rfl <;> assumption⟩
+      ⟨state, by
+        apply toCNF.State.IsExtensionBy_rfl <;>
+          simp only [getElem_eq_getElemV] at hmarked <;> assumption⟩
     else
       let decl := aig.decls[upper]
       match heq : decl with
-      | .false => state.addFalse upper h heq
-      | .atom _ => state.addAtom upper h heq
+      | .false => state.addFalse upper h (by simpa [decl] using heq)
+      | .atom _ => state.addAtom upper h (by simpa [decl] using heq)
       | .gate lhs rhs =>
-        have := aig.hdag h heq
+        have : lhs.gate < upper ∧ rhs.gate < upper := aig.hdag h (by simpa [decl] using heq)
         let ⟨lstate, hlstate⟩ := go aig lhs.gate (by omega) state
         let ⟨rstate, hrstate⟩ := go aig rhs.gate (by omega) lstate
 
@@ -552,7 +570,7 @@ where
           · exact hlstate
           · exact hrstate
 
-        let ⟨ret, hretstate⟩ := rstate.addGate upper h heq this.trueAt hrstate.trueAt
+        let ⟨ret, hretstate⟩ := rstate.addGate upper h (by simpa [decl] using heq) this.trueAt hrstate.trueAt
         ⟨
           ret,
           by
@@ -567,7 +585,7 @@ where
 The node that we started CNF conversion at will always be marked as visited in the CNF cache.
 -/
 theorem toCNF.go_marks :
-    (go aig start h state).val.cache.marks[start]'(by have := (go aig start h state).val.cache.hmarks; omega) = true :=
+    (go aig start h state).val.cache.marks｢start｣ = true :=
   (go aig start h state).property.trueAt
 
 /--
@@ -604,7 +622,7 @@ theorem toCNF.denote_as_go {assign : Nat → Bool} :
       →
     CNF.eval assign (((go aig start h1 (.empty aig)).val.cnf.add [(start, !inv)])) = false := by
   intro h
-  match heval1:(go aig start h1 (State.empty aig)).val.cnf.eval assign with
+  match heval1 : (go aig start h1 (State.empty aig)).val.cnf.eval assign with
   | true =>
     have heval2 := (go aig start h1 (.empty aig)).val.cache.inv
     specialize heval2 assign heval1 start h1 go_marks

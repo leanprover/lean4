@@ -146,6 +146,10 @@ instance [BEq α] [Hashable α] {m : DHashMap α β} {a : α} : Decidable (a ∈
     (a : α) (fallback : β a) : β a :=
   Raw₀.getD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
 
+@[inline, inherit_doc Raw.getV] noncomputable def getV [LawfulBEq α] (m : DHashMap α β)
+    (a : α) [Nonempty (β a)] : β a :=
+  Raw₀.getV ⟨m.1, m.2.size_buckets_pos⟩ a
+
 @[cbv_opaque, inline, inherit_doc Raw.erase] def erase (m : DHashMap α β) (a : α) :
     DHashMap α β :=
   ⟨Raw₀.erase ⟨m.1, m.2.size_buckets_pos⟩ a, .erase₀ m.2⟩
@@ -165,6 +169,10 @@ variable {β : Type v}
 @[inline, inherit_doc Raw.Const.getD] def Const.getD
     (m : DHashMap α (fun _ => β)) (a : α) (fallback : β) : β :=
   Raw₀.Const.getD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
+
+@[inline, inherit_doc Raw.Const.getV] noncomputable def Const.getV [Nonempty β]
+    (m : DHashMap α (fun _ => β)) (a : α) : β :=
+  Raw₀.Const.getV ⟨m.1, m.2.size_buckets_pos⟩ a
 
 @[inline, inherit_doc Raw.Const.get!] def Const.get! [Inhabited β]
     (m : DHashMap α (fun _ => β)) (a : α) : β :=
@@ -190,6 +198,9 @@ end
 @[inline, inherit_doc Raw.getKeyD] def getKeyD (m : DHashMap α β) (a : α) (fallback : α) : α :=
   Raw₀.getKeyD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
 
+@[inline, inherit_doc Raw.getKeyV] noncomputable def getKeyV (m : DHashMap α β) (a : α) : α :=
+  Raw₀.getKeyV ⟨m.1, m.2.size_buckets_pos⟩ a
+
 @[inline, inherit_doc Raw.getEntry?] def getEntry? (m : DHashMap α β) (a : α) : Option ((a : α) × β a) :=
   Raw₀.getEntry? ⟨m.1, m.2.size_buckets_pos⟩ a
 
@@ -201,6 +212,10 @@ end
 
 @[inline, inherit_doc Raw.getEntryD] def getEntryD (m : DHashMap α β) (a : α) (fallback : (a : α) × β a) : (a : α) × β a :=
   Raw₀.getEntryD ⟨m.1, m.2.size_buckets_pos⟩ a fallback
+
+@[inline, inherit_doc Raw.getEntryV] noncomputable def getEntryV [Nonempty ((a : α) × β a)]
+    (m : DHashMap α β) (a : α) : (a : α) × β a :=
+  Raw₀.getEntryV ⟨m.1, m.2.size_buckets_pos⟩ a
 
 @[inline, inherit_doc Raw.size] def size (m : DHashMap α β) : Nat :=
   m.1.size

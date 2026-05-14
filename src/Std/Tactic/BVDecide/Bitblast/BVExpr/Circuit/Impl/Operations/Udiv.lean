@@ -52,6 +52,7 @@ instance : AIG.LawfulVecOperator α ShiftConcatInput blastShiftConcat where
     unfold blastShiftConcat
     dsimp only
     rw [AIG.LawfulVecOperator.decl_eq (f := blastZeroExtend)]
+    assumption
 
 structure BlastDivSubtractShiftOutput (old : AIG α) (w : Nat) where
   aig : AIG α
@@ -149,20 +150,21 @@ theorem blastDivSubtractShift_le_size (aig : AIG α)
 
 theorem blastDivSubtractShift_decl_eq (aig : AIG α) (n d : AIG.RefVec aig w) (wn wr : Nat)
     (q r : AIG.RefVec aig w) :
-    ∀ (idx : Nat) (h1) (h2),
-        (blastDivSubtractShift aig n d wn wr q r).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat), (h : idx < aig.decls.size) →
+        (blastDivSubtractShift aig n d wn wr q r).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hres : blastDivSubtractShift aig n d wn wr q r = res
   unfold blastDivSubtractShift at hres
   dsimp only at hres
   rw [← hres]
   intros
-  rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-  rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-  rw [AIG.LawfulOperator.decl_eq (f := BVPred.mkUlt)]
-  rw [AIG.LawfulVecOperator.decl_eq (f := blastSub)]
-  rw [AIG.LawfulVecOperator.decl_eq (f := blastUdiv.blastShiftConcat)]
-  rw [AIG.LawfulVecOperator.decl_eq (f := blastUdiv.blastShiftConcat)]
-  rw [AIG.LawfulVecOperator.decl_eq (f := blastUdiv.blastShiftConcat)]
+  rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite),
+    AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite),
+    AIG.LawfulOperator.decl_eq (f := BVPred.mkUlt),
+    AIG.LawfulVecOperator.decl_eq (f := blastSub),
+    AIG.LawfulVecOperator.decl_eq (f := blastUdiv.blastShiftConcat),
+    AIG.LawfulVecOperator.decl_eq (f := blastUdiv.blastShiftConcat),
+    AIG.LawfulVecOperator.decl_eq (f := blastUdiv.blastShiftConcat)]
+  · assumption
   · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
     assumption
   · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := blastUdiv.blastShiftConcat)
@@ -238,20 +240,20 @@ theorem go_le_size (aig : AIG α) (curr : Nat) (n d : AIG.RefVec aig w) (wn wr :
 
 theorem go_decl_eq (aig : AIG α) (curr : Nat) (n d : AIG.RefVec aig w) (wn wr : Nat)
     (q r : AIG.RefVec aig w) :
-    ∀ (idx : Nat) (h1) (h2),
-        (go aig curr n d wn wr q r).aig.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat), (h : idx < aig.decls.size) →
+        (go aig curr n d wn wr q r).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hgo : go aig curr n d wn wr q r = res
   unfold go at hgo
   dsimp only at hgo
   split at hgo
   · simp [← hgo]
   · rw [← hgo]
-    intro idx h1 h2
-    rw [go_decl_eq]
-    rw [blastDivSubtractShift_decl_eq]
-    apply Nat.lt_of_lt_of_le
-    · exact h1
-    · apply blastDivSubtractShift_le_size
+    intro idx h1
+    rw [go_decl_eq, blastDivSubtractShift_decl_eq]
+    · assumption
+    · apply Nat.lt_of_lt_of_le
+      · exact h1
+      · apply blastDivSubtractShift_le_size
 
 end blastUdiv
 
@@ -286,9 +288,10 @@ instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastUdiv where
   decl_eq := by
     intros
     unfold blastUdiv
-    rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-    rw [blastUdiv.go_decl_eq]
-    rw [AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)]
+    rw [AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite),
+      blastUdiv.go_decl_eq,
+      AIG.LawfulOperator.decl_eq (f := BVPred.mkEq)]
+    · assumption
     · apply AIG.LawfulOperator.lt_size_of_lt_aig_size (f := BVPred.mkEq)
       assumption
     · refine Nat.le_trans ?_ (by apply blastUdiv.go_le_size)

@@ -156,7 +156,11 @@ theorem pmap_eq_map_attach {p : α → Prop} {f : ∀ a, p a → β} {xs : Vecto
   rcases xs with ⟨xs, rfl⟩
   simp only [pmap_mk, Array.pmap_eq_map_attach, attach_mk, map_mk, eq_mk]
   rw [Array.map_attach_eq_pmap, Array.map_attachWith]
-  ext i hi₁ hi₂ <;> simp
+  apply Array.ext_getElemV
+  · simp
+  · intro i hi
+    simp only [Array.size_pmap] at hi
+    simp [Array.getElemV_pmap, *]
 
 @[simp]
 theorem pmap_eq_attachWith {p q : α → Prop} {f : ∀ a, p a → q a} {xs : Vector α n} (H) :
@@ -220,13 +224,18 @@ theorem getElem?_pmap {p : α → Prop} {f : ∀ a, p a → β} {xs : Vector α 
   rcases xs with ⟨xs, rfl⟩
   simp
 
--- The argument `f` is explicit to allow rewriting from right to left.
 @[simp, grind =]
+theorem getElemV_pmap {p : α → Prop} (f : ∀ a, p a → β) {xs : Vector α n} (h : ∀ a ∈ xs, p a)
+    {i : Nat} (hn : i < n) :
+    (pmap f xs h)｢i｣ = f xs｢i｣ (h _ (by simp [*])) := by
+  rcases xs with ⟨xs, rfl⟩
+  simp [*]
+
+-- The argument `f` is explicit to allow rewriting from right to left.
 theorem getElem_pmap {p : α → Prop} (f : ∀ a, p a → β) {xs : Vector α n} (h : ∀ a ∈ xs, p a) {i : Nat}
     (hn : i < n) :
-    (pmap f xs h)[i] = f (xs[i]) (h _ (by simp)) := by
-  rcases xs with ⟨xs, rfl⟩
-  simp
+    (pmap f xs h)[i] = f (xs[i]) (h _ (by simp [*])) := by
+  simpa using getElemV_pmap f h hn
 
 @[simp, grind =]
 theorem getElem?_attachWith {xs : Vector α n} {i : Nat} {P : α → Prop} {H : ∀ a ∈ xs, P a} :
@@ -239,12 +248,23 @@ theorem getElem?_attach {xs : Vector α n} {i : Nat} :
   getElem?_attachWith
 
 @[simp, grind =]
+theorem getElemV_attachWith {xs : Vector α n} {P : α → Prop} {H : ∀ a ∈ xs, P a}
+    {i : Nat} (h : i < n) :
+    haveI : Nonempty { x // P x } := ⟨⟨xs[i], H _ (by simp [*])⟩⟩
+    (xs.attachWith P H)｢i｣ = ⟨xs｢i｣, H _ (by simp [*])⟩ :=
+  getElemV_pmap _ _ h
+
 theorem getElem_attachWith {xs : Vector α n} {P : α → Prop} {H : ∀ a ∈ xs, P a}
     {i : Nat} (h : i < n) :
     (xs.attachWith P H)[i] = ⟨xs[i]'(by simpa using h), H _ (getElem_mem (by simpa using h))⟩ :=
   getElem_pmap _ _ h
 
 @[simp, grind =]
+theorem getElemV_attach {xs : Vector α n} {i : Nat} (h : i < n) :
+    haveI : Nonempty { x // x ∈ xs } := ⟨⟨xs[i], by simp [h]⟩⟩
+    xs.attach｢i｣ = ⟨xs｢i｣, by simp [h]⟩ :=
+  getElemV_attachWith h
+
 theorem getElem_attach {xs : Vector α n} {i : Nat} (h : i < n) :
     xs.attach[i] = ⟨xs[i]'(by simpa using h), getElem_mem (by simpa using h)⟩ :=
   getElem_attachWith h
@@ -260,7 +280,7 @@ theorem getElem_attach {xs : Vector α n} {i : Nat} (h : i < n) :
     pmap f (xs.attachWith q H₁) H₂ =
       xs.pmap (P := fun a => ∃ h : q a, p ⟨a, h⟩)
         (fun a h => f ⟨a, h.1⟩ h.2) (fun a h => ⟨H₁ _ h, H₂ ⟨a, H₁ _ h⟩ (by simpa)⟩) := by
-  ext <;> simp
+  ext <;> simp [*]
 
 theorem foldl_pmap {xs : Vector α n} {P : α → Prop} {f : (a : α) → P a → β}
     (H : ∀ (a : α), a ∈ xs → P a) (g : γ → β → γ) (x : γ) :
@@ -305,7 +325,7 @@ theorem foldr_attach {xs : Vector α n} {f : α → β → β} {b : β} :
 theorem attach_map {xs : Vector α n} {f : α → β} :
     (xs.map f).attach = xs.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem h⟩) := by
   cases xs
-  ext <;> simp
+  ext <;> simp [*]
 
 theorem attachWith_map {xs : Vector α n} {f : α → β} {P : β → Prop} (H : ∀ (b : β), b ∈ xs.map f → P b) :
     (xs.map f).attachWith P H = (xs.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem h))).map
@@ -324,20 +344,20 @@ theorem map_attachWith_eq_pmap {xs : Vector α n} {P : α → Prop} {H : ∀ (a 
     (xs.attachWith P H).map f =
       xs.pmap (fun a (h : a ∈ xs ∧ P a) => f ⟨a, H _ h.1⟩) (fun a h => ⟨h, H a h⟩) := by
   rcases xs with ⟨xs, rfl⟩
-  ext <;> simp
+  ext <;> simp [*]
 
 /-- See also `pmap_eq_map_attach` for writing `pmap` in terms of `map` and `attach`. -/
 theorem map_attach_eq_pmap {xs : Vector α n} {f : { x // x ∈ xs } → β} :
     xs.attach.map f = xs.pmap (fun a h => f ⟨a, h⟩) (fun _ => id) := by
   rcases xs with ⟨xs, rfl⟩
-  ext <;> simp
+  ext <;> simp [*]
 
 theorem pmap_pmap {p : α → Prop} {q : β → Prop} {g : ∀ a, p a → β} {f : ∀ b, q b → γ} {xs : Vector α n} (H₁ H₂) :
     pmap f (pmap g xs H₁) H₂ =
       pmap (α := { x // x ∈ xs }) (fun a h => f (g a h) (H₂ (g a h) (mem_pmap_of_mem a.2))) xs.attach
         (fun a _ => H₁ a a.2) := by
   rcases xs with ⟨xs, rfl⟩
-  ext <;> simp
+  ext <;> simp [*]
 
 @[simp] theorem pmap_append {p : ι → Prop} {f : ∀ a : ι, p a → α} {xs : Vector ι n} {ys : Vector ι m}
     (h : ∀ a ∈ xs ++ ys, p a) :
@@ -510,7 +530,7 @@ theorem unattach_empty {p : α → Prop} : (#v[] : Vector { x // p x } 0).unatta
 @[simp] theorem getElem_unattach
     {p : α → Prop} {xs : Vector { x // p x } n} (i : Nat) (h : i < n) :
     xs.unattach[i] = (xs[i]'(by simpa using h)).1 := by
-  simp [unattach]
+  simp [unattach, *]
 
 /-! ### Recognizing higher order functions using a function that only depends on the value. -/
 

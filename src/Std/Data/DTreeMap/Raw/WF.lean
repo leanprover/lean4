@@ -22,11 +22,11 @@ set_option autoImplicit false
 
 open Std.DTreeMap.Internal
 
-universe u v
+universe u v w
 
 namespace Std.DTreeMap.Raw.WF
 
-variable {α : Type u} {β : α → Type v} {cmp : α → α → Ordering} {t : Raw α β cmp}
+variable {α : Type u} {β : α → Type v} {γ : α → Type w} {cmp : α → α → Ordering} {t : Raw α β cmp}
 local instance : Coe (Type v) (α → Type v) where coe γ := fun _ => γ
 
 theorem empty : (empty : Raw α β cmp).WF :=
@@ -58,7 +58,7 @@ theorem filter [TransCmp cmp] {f} (h : t.WF) :
     WF (t.filter f) :=
   ⟨h.out.filter!⟩
 
-theorem filterMap [TransCmp cmp] {f : (a : α) → β a → Option (β a)} (h : t.WF) :
+theorem filterMap [TransCmp cmp] {f : (a : α) → β a → Option (γ a)} (h : t.WF) :
     WF (t.filterMap f) :=
   ⟨h.out.filterMap!⟩
 

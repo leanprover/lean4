@@ -24,20 +24,25 @@ set_option linter.indexVariables true -- Enforce naming conventions for index va
 
 namespace Vector
 
-@[simp, grind =] theorem getElem_ofFn {α n} {f : Fin n → α} (h : i < n) :
+@[simp, grind =] theorem getElemV_ofFn {α n} {f : Fin n → α} (h : i < n) :
+    (Vector.ofFn f)｢i｣ = f ⟨i, by simpa using h⟩ := by
+  simp [ofFn, *]
+
+theorem getElem_ofFn {α n} {f : Fin n → α} (h : i < n) :
     (Vector.ofFn f)[i] = f ⟨i, by simpa using h⟩ := by
-  simp [ofFn]
+  simpa using getElemV_ofFn h
 
 @[simp, grind =] theorem getElem?_ofFn {α n} {f : Fin n → α} :
     (ofFn f)[i]? = if h : i < n then some (f ⟨i, h⟩) else none := by
-  simp [getElem?_def]
+  simp +contextual [getElem?_def]
 
 @[simp 500, grind =]
 theorem mem_ofFn {n} {f : Fin n → α} {a : α} : a ∈ ofFn f ↔ ∃ i, f i = a := by
   constructor
   · intro w
-    obtain ⟨i, h, rfl⟩ := getElem_of_mem w
-    exact ⟨⟨i, by simpa using h⟩, by simp⟩
+    obtain ⟨i, h, h'⟩ := getElemV_of_mem w
+    rw [← h']
+    exact ⟨⟨i, by simpa using h⟩, by rw [getElemV_ofFn]⟩
   · rintro ⟨i, rfl⟩
     apply mem_of_getElem (i := i) <;> simp
 
@@ -46,14 +51,27 @@ theorem map_ofFn {f : Fin n → α} {g : α → β} :
     (Vector.ofFn f).map g = Vector.ofFn (g ∘ f) := by
   simp [← Vector.toArray_inj]
 
+@[grind =] theorem backV_ofFn {n} [NeZero n] {f : Fin n → α} :
+    haveI : Nonempty α := ⟨f ⟨n - 1, by have := NeZero.ne n; omega⟩⟩
+    (ofFn f).backV = f ⟨n - 1, by have := NeZero.ne n; omega⟩ := by
+  have : n - 1 < n := by
+    have := NeZero.ne n
+    omega
+  simp [backV_eq_getElemV, this]
+
 @[grind =] theorem back_ofFn {n} [NeZero n] {f : Fin n → α} :
     (ofFn f).back = f ⟨n - 1, by have := NeZero.ne n; omega⟩ := by
-  simp [back]
+  simpa using backV_ofFn
+
+/-
+PLOG(ofFn_succ):
+Had to use `ite_eq_dite` so that `+contextual` works.
+-/
 
 theorem ofFn_succ {f : Fin (n+1) → α} :
     ofFn f = (ofFn (fun (i : Fin n) => f i.castSucc)).push (f ⟨n, by omega⟩) := by
   ext i h
-  · simp only [getElem_ofFn, getElem_push, Fin.castSucc_mk, left_eq_dite_iff]
+  · simp +contextual only [getElemV_ofFn, getElemV_push, Fin.castSucc_mk, left_eq_dite_iff, h, ite_eq_dite]
     intro h'
     have : i = n := by omega
     simp_all
@@ -69,9 +87,13 @@ theorem ofFn_succ' {f : Fin (n+1) → α} :
   simp [Array.ofFn_succ']
 
 @[simp]
+theorem ofFn_getElemV {xs : Vector α n} :
+    Vector.ofFn (fun i : Fin n => xs｢i.val｣) = xs := by
+  ext; simp [*]
+
 theorem ofFn_getElem {xs : Vector α n} :
     Vector.ofFn (fun i : Fin n => xs[i.val]) = xs := by
-  ext; simp
+  simp
 
 /-! ### ofFnM -/
 

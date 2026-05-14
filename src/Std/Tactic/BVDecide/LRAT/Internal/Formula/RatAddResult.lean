@@ -37,24 +37,23 @@ theorem insertRatUnits_postcondition {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n)
     (units : CNF.Clause (PosFin n)) :
     let assignments := (insertRatUnits f units).fst.assignments
-    have hsize : assignments.size = n := by grind [size_assignments_insertRatUnits]
     let ratUnits := (insertRatUnits f units).1.ratUnits
-    InsertUnitInvariant f.assignments hf.2 ratUnits assignments hsize := by
+    InsertUnitInvariant f.assignments ratUnits assignments := by
   simp only [insertRatUnits]
   have hsize : f.assignments.size = n := by rw [hf.2]
-  have h0 : InsertUnitInvariant f.assignments hf.2 f.ratUnits f.assignments hsize := by
+  have h0 : InsertUnitInvariant f.assignments f.ratUnits f.assignments := by
     intro i
     apply Or.inl
-    simp only [Fin.getElem_fin, ne_eq, true_and]
+    simp only [ne_eq, true_and]
     intro j
     simp only [hf.1, List.size_toArray, List.length_nil] at j
     exact Fin.elim0 j
-  exact insertUnitInvariant_insertUnit_fold f.assignments hf.2 f.ratUnits f.assignments hsize false units h0
+  exact insertUnitInvariant_insertUnit_fold f.assignments f.ratUnits f.assignments hsize false units h0
 
 theorem nodup_insertRatUnits {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (units : CNF.Clause (PosFin n)) :
     ∀ i : Fin (f.insertRatUnits units).1.ratUnits.size, ∀ j : Fin (f.insertRatUnits units).1.ratUnits.size,
-      i ≠ j → (f.insertRatUnits units).1.ratUnits[i] ≠ (f.insertRatUnits units).1.ratUnits[j] := by
+      i ≠ j → (f.insertRatUnits units).1.ratUnits｢i.val｣ ≠ (f.insertRatUnits units).1.ratUnits｢j.val｣ := by
   intro i
   rcases hi : (insertRatUnits f units).fst.ratUnits[i] with ⟨li, bi⟩
   have h := insertRatUnits_postcondition f hf units ⟨li.1, li.2.2⟩
@@ -68,13 +67,19 @@ theorem nodup_insertRatUnits {n : Nat} (f : DefaultFormula n)
 theorem clear_insertRat_base_case {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (units : CNF.Clause (PosFin n)) :
     let insertRat_res := insertRatUnits f units
-    ClearInsertInductionMotive f hf.2 insertRat_res.1.ratUnits 0 insertRat_res.1.assignments := by
+    ClearInsertInductionMotive f insertRat_res.1.ratUnits 0 insertRat_res.1.assignments := by
   have insertRatUnits_assignments_size := size_assignments_insertRatUnits f units
   rw [hf.2] at insertRatUnits_assignments_size
   apply Exists.intro insertRatUnits_assignments_size
   intro i
-  simp only [Nat.zero_le, Fin.getElem_fin, ne_eq, forall_const, true_and]
+  simp only [Nat.zero_le, ne_eq, forall_const, true_and]
   exact insertRatUnits_postcondition f hf units i
+
+/-
+PLOG(clear_insertRat):
+`Array.ext_getElemV` isn't super nice when the *second* bounds hypothesis, which isn't available,
+is nicer. See the TODO.
+-/
 
 theorem clear_insertRat {n : Nat} (f : DefaultFormula n)
     (hf : f.ratUnits = #[] ∧ f.assignments.size = n) (units : CNF.Clause (PosFin n)) :
@@ -85,20 +90,21 @@ theorem clear_insertRat {n : Nat} (f : DefaultFormula n)
   · simp only [insertRatUnits]
   · grind
   · simp only
-    let motive := ClearInsertInductionMotive f hf.2 (insertRatUnits f units).1.ratUnits
+    let motive := ClearInsertInductionMotive f (insertRatUnits f units).1.ratUnits
     have h_base : motive 0 (insertRatUnits f units).1.assignments := clear_insertRat_base_case f hf units
-    have h_inductive (idx : Fin (insertRatUnits f units).1.ratUnits.size) (assignments : Array Assignment)
-      (ih : motive idx.val assignments) : motive (idx.val + 1) (clearUnit assignments (insertRatUnits f units).1.ratUnits[idx]) :=
-      clear_insert_inductive_case f hf.2 (insertRatUnits f units).1.ratUnits
-        (nodup_insertRatUnits f hf units) idx assignments ih
+    have h_inductive (idx : Nat) (hidx : idx < (insertRatUnits f units).1.ratUnits.size) (assignments : Array Assignment)
+      (ih : motive idx assignments) : motive (idx + 1) (clearUnit assignments (insertRatUnits f units).1.ratUnits｢idx｣) :=
+      clear_insert_inductive_case f (insertRatUnits f units).1.ratUnits
+        (nodup_insertRatUnits f hf units) ⟨idx, hidx⟩ assignments ih
     rcases Array.foldl_induction motive h_base h_inductive with ⟨h_size, h⟩
-    apply Array.ext
+    apply Array.ext -- TODO: use `ext_getElemV`
     · rw [h_size, hf.2]
     · intro i hi1 hi2
       have i_lt_n : i < n := by omega
       specialize h ⟨i, i_lt_n⟩
       rcases h with h | h | h
-      · exact h.1
+      · simp only [getElem_eq_getElemV] at h ⊢
+        exact h.1
       · omega -- FIXME why can't `grind` do this?
       · omega -- FIXME why can't `grind` do this?
 
@@ -137,8 +143,8 @@ theorem performRatCheck_fold_formula_eq {n : Nat} (f : DefaultFormula n)
     performRatCheck_fold_res.1 = f := by
   let motive (_idx : Nat) (acc : DefaultFormula n × Bool) := acc.1 = f
   have h_base : motive 0 (f, true) := rfl
-  have h_inductive (idx : Fin ratHints.size) (acc : DefaultFormula n × Bool) :
-    motive idx.1 acc → motive (idx.1 + 1) (if acc.2 then performRatCheck acc.1 p ratHints[idx] else (acc.1, false)) := by
+  have h_inductive (idx : Nat) (hidx : idx < ratHints.size) (acc : DefaultFormula n × Bool) :
+    motive idx acc → motive (idx + 1) (if acc.2 then performRatCheck acc.1 p ratHints｢idx｣ else (acc.1, false)) := by
     grind [formula_performRatCheck]
   exact Array.foldl_induction motive h_base h_inductive
 

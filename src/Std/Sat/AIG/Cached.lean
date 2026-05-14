@@ -40,12 +40,13 @@ def mkAtomCached (aig : AIG α) (n : α) : Entrypoint α :=
     let decls := decls.push decl
     have hdag := by
       intro i lhs rhs h1 h2
-      simp only [Array.getElem_push] at h2
+      rw [Array.size_push] at h1
+      simp only [Array.getElemV_push h1] at h2
       split at h2
       · apply hdag <;> assumption
       · contradiction
     have hzero' := by simp [decls]
-    have hconst := by simp [decls, Array.getElem_push, hzero, hconst]
+    have hconst := by simp [decls, Array.getElemV_push, hzero, hconst]
     ⟨⟨decls, cache, hdag, hzero', hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 /--
@@ -116,7 +117,8 @@ where
           let decls := decls.push decl
           have hdag := by
             intro i lhs rhs h1 h2
-            simp only [Array.getElem_push] at h2
+            rw [Array.size_push] at h1
+            simp only [Array.getElemV_push h1] at h2
             simp_all
             split at h2
             · apply hdag <;> assumption
@@ -124,7 +126,7 @@ where
               simp [← hl, ← hr]
               omega
           have hzero' := by simp [decls]
-          have hconst := by simp [decls, Array.getElem_push, hzero, hconst]
+          have hconst := by simp [decls, Array.getElemV_push, hzero, hconst]
           ⟨⟨decls, cache, hdag, hzero', hconst⟩, ⟨g, false, by simp [g, decls]⟩⟩
 
 end AIG

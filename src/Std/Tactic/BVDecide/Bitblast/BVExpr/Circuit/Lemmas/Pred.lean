@@ -28,9 +28,10 @@ theorem bitblast_aig_IsPrefix (aig : AIG BVBit) (input : BVExpr.WithCache BVPred
     IsPrefix aig.decls (bitblast aig input).result.val.aig.decls := by
   apply IsPrefix.of
   · intros
-    apply bitblast_decl_eq
-  · intros
     apply (bitblast aig input).result.property
+  · intros
+    apply bitblast_decl_eq
+    assumption
 
 theorem bitblast_denote_mem_prefix (aig : AIG BVBit) (input : BVExpr.WithCache BVPred aig)
     (assign : BVExpr.Assignment) (start : Nat) (hstart) :

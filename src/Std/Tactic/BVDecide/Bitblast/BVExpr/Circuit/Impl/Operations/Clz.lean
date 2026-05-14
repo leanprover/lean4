@@ -60,8 +60,8 @@ termination_by w - curr
 
 theorem blastClz.go_decl_eq (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
     (xc : AIG.RefVec aig w) :
-    ∀ (idx : Nat) h1 h2,
-        (go aig xc curr acc).aig.decls[idx]'h1 = aig.decls[idx]'h2 := by
+    ∀ (idx : Nat), (h : idx < aig.decls.size) →
+        (go aig xc curr acc).aig.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hgo : go aig xc curr acc = res
   unfold go at hgo
   dsimp only at hgo
@@ -69,8 +69,9 @@ theorem blastClz.go_decl_eq (aig : AIG α) (curr : Nat) (acc : AIG.RefVec aig w)
   · rw [← hgo]
     intros
     rw [blastClz.go_decl_eq, AIG.LawfulVecOperator.decl_eq (f := AIG.RefVec.ite)]
-    apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
-    assumption
+    · assumption
+    · apply AIG.LawfulVecOperator.lt_size_of_lt_aig_size (f := AIG.RefVec.ite)
+      assumption
   · simp [← hgo]
 termination_by w - curr
 
@@ -85,6 +86,7 @@ instance : AIG.LawfulVecOperator α AIG.RefVec blastClz where
     unfold blastClz
     dsimp only
     apply blastClz.go_decl_eq
+    assumption
 
 end bitblast
 end BVExpr

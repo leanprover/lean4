@@ -54,12 +54,12 @@ theorem sublist_eq_map_getElem {l l' : List α} (h : l' <+ l) : ∃ is : List (F
     let ⟨is, IH⟩ := IH
     refine ⟨is.map (·.succ), ?_⟩
     set_option backward.isDefEq.respectTransparency false in
-    simpa [Function.comp_def, pairwise_map]
+    simpa [Function.comp_def, pairwise_map] using IH
   | cons_cons _ _ IH =>
     rcases IH with ⟨is,IH⟩
     refine ⟨⟨0, by simp [Nat.zero_lt_succ]⟩ :: is.map (·.succ), ?_⟩
     set_option backward.isDefEq.respectTransparency false in
-    simp [Function.comp_def, pairwise_map, IH, ← get_eq_getElem, get_cons_zero, get_cons_succ']
+    simp [Function.comp_def, pairwise_map, IH]
 
 set_option linter.listVariables false in
 theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
@@ -73,6 +73,10 @@ theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
     have ⟨is, h', hij⟩ := sublist_eq_map_getElem h'
     rcases is with ⟨⟩ | ⟨a', ⟨⟩ | ⟨b', ⟨⟩⟩⟩ <;> simp at h'
     rcases h' with ⟨rfl, rfl⟩
-    apply h; simpa using hij
+    simp only [getElem_eq_getElemV] at h
+    apply h
+    · simp
+    · simp
+    · simpa using hij
 
 end List

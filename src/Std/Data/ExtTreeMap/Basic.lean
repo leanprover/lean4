@@ -159,10 +159,17 @@ def get! [TransCmp cmp] [Inhabited β] (t : ExtTreeMap α β cmp) (a : α) : β 
 def getD [TransCmp cmp] (t : ExtTreeMap α β cmp) (a : α) (fallback : β) : β :=
   ExtDTreeMap.Const.getD t.inner a fallback
 
+@[inherit_doc ExtDTreeMap.Const.getV]
+noncomputable def getV [TransCmp cmp] [Nonempty β] (t : ExtTreeMap α β cmp) (a : α) : β :=
+  t.getD a Classical.ofNonempty
+
 instance [TransCmp cmp] : GetElem? (ExtTreeMap α β cmp) α β (fun m a => a ∈ m) where
   getElem m a h := m.get a h
   getElem? m a := m.get? a
   getElem! m a := m.get! a
+
+noncomputable instance [TransCmp cmp] : GetElemV (ExtTreeMap α β cmp) α β where
+  getElemV m a := m.getV a
 
 @[inline, inherit_doc ExtDTreeMap.getKey?]
 def getKey? [TransCmp cmp] (t : ExtTreeMap α β cmp) (a : α) : Option α :=
@@ -180,6 +187,11 @@ def getKey! [TransCmp cmp] [Inhabited α] (t : ExtTreeMap α β cmp) (a : α) : 
 def getKeyD [TransCmp cmp] (t : ExtTreeMap α β cmp) (a : α) (fallback : α) : α :=
   t.inner.getKeyD a fallback
 
+@[inherit_doc ExtDTreeMap.getKeyV]
+noncomputable def getKeyV [TransCmp cmp] (t : ExtTreeMap α β cmp) (a : α) : α :=
+  haveI : Nonempty α := ⟨a⟩
+  t.getKeyD a Classical.ofNonempty
+
 @[inline, inherit_doc ExtDTreeMap.Const.minEntry?]
 def minEntry? [TransCmp cmp] (t : ExtTreeMap α β cmp) : Option (α × β) :=
   ExtDTreeMap.Const.minEntry? t.inner
@@ -195,6 +207,10 @@ def minEntry! [TransCmp cmp] [Inhabited (α × β)] (t : ExtTreeMap α β cmp) :
 @[inline, inherit_doc ExtDTreeMap.Const.minEntryD]
 def minEntryD [TransCmp cmp] (t : ExtTreeMap α β cmp) (fallback : α × β) : α × β :=
   ExtDTreeMap.Const.minEntryD t.inner fallback
+
+@[inherit_doc ExtDTreeMap.Const.minEntryV]
+noncomputable def minEntryV [TransCmp cmp] [Nonempty (α × β)] (t : ExtTreeMap α β cmp) : α × β :=
+  t.minEntryD Classical.ofNonempty
 
 @[inline, inherit_doc ExtDTreeMap.Const.maxEntry?]
 def maxEntry? [TransCmp cmp] (t : ExtTreeMap α β cmp) : Option (α × β) :=
@@ -212,6 +228,10 @@ def maxEntry! [TransCmp cmp] [Inhabited (α × β)] (t : ExtTreeMap α β cmp) :
 def maxEntryD [TransCmp cmp] (t : ExtTreeMap α β cmp) (fallback : α × β) : α × β :=
   ExtDTreeMap.Const.maxEntryD t.inner fallback
 
+@[inherit_doc ExtDTreeMap.Const.maxEntryV]
+noncomputable def maxEntryV [TransCmp cmp] [Nonempty (α × β)] (t : ExtTreeMap α β cmp) : α × β :=
+  t.maxEntryD Classical.ofNonempty
+
 @[inline, inherit_doc ExtDTreeMap.minKey?]
 def minKey? [TransCmp cmp] (t : ExtTreeMap α β cmp) : Option α :=
   ExtDTreeMap.minKey? t.inner
@@ -227,6 +247,10 @@ def minKey! [TransCmp cmp] [Inhabited α] (t : ExtTreeMap α β cmp) : α :=
 @[inline, inherit_doc ExtDTreeMap.minKeyD]
 def minKeyD [TransCmp cmp] (t : ExtTreeMap α β cmp) (fallback : α) : α :=
   ExtDTreeMap.minKeyD t.inner fallback
+
+@[inherit_doc ExtDTreeMap.minKeyV]
+noncomputable def minKeyV [TransCmp cmp] [Nonempty α] (t : ExtTreeMap α β cmp) : α :=
+  t.minKeyD Classical.ofNonempty
 
 @[inline, inherit_doc ExtDTreeMap.maxKey?]
 def maxKey? [TransCmp cmp] (t : ExtTreeMap α β cmp) : Option α :=
@@ -244,6 +268,10 @@ def maxKey! [TransCmp cmp] [Inhabited α] (t : ExtTreeMap α β cmp) : α :=
 def maxKeyD [TransCmp cmp] (t : ExtTreeMap α β cmp) (fallback : α) : α :=
   ExtDTreeMap.maxKeyD t.inner fallback
 
+@[inherit_doc ExtDTreeMap.maxKeyV]
+noncomputable def maxKeyV [TransCmp cmp] [Nonempty α] (t : ExtTreeMap α β cmp) : α :=
+  t.maxKeyD Classical.ofNonempty
+
 @[inline, inherit_doc ExtDTreeMap.Const.entryAtIdx?]
 def entryAtIdx? [TransCmp cmp] (t : ExtTreeMap α β cmp) (n : Nat) : Option (α × β) :=
   ExtDTreeMap.Const.entryAtIdx? t.inner n
@@ -260,6 +288,11 @@ def entryAtIdx! [TransCmp cmp] [Inhabited (α × β)] (t : ExtTreeMap α β cmp)
 def entryAtIdxD [TransCmp cmp] (t : ExtTreeMap α β cmp) (n : Nat) (fallback : α × β) : α × β :=
   ExtDTreeMap.Const.entryAtIdxD t.inner n fallback
 
+@[inherit_doc ExtDTreeMap.Const.entryAtIdxV]
+noncomputable def entryAtIdxV [TransCmp cmp] [Nonempty (α × β)] (t : ExtTreeMap α β cmp) (n : Nat) :
+    α × β :=
+  t.entryAtIdxD n Classical.ofNonempty
+
 @[inline, inherit_doc ExtDTreeMap.keyAtIdx?]
 def keyAtIdx? [TransCmp cmp] (t : ExtTreeMap α β cmp) (n : Nat) : Option α :=
   ExtDTreeMap.keyAtIdx? t.inner n
@@ -275,6 +308,10 @@ def keyAtIdx! [TransCmp cmp] [Inhabited α] (t : ExtTreeMap α β cmp) (n : Nat)
 @[inline, inherit_doc ExtDTreeMap.keyAtIdxD]
 def keyAtIdxD [TransCmp cmp] (t : ExtTreeMap α β cmp) (n : Nat) (fallback : α) : α :=
   ExtDTreeMap.keyAtIdxD t.inner n fallback
+
+@[inherit_doc ExtDTreeMap.keyAtIdxV]
+noncomputable def keyAtIdxV [TransCmp cmp] [Nonempty α] (t : ExtTreeMap α β cmp) (n : Nat) : α :=
+  t.keyAtIdxD n Classical.ofNonempty
 
 @[inline, inherit_doc ExtDTreeMap.Const.getEntryGE?]
 def getEntryGE? [TransCmp cmp] (t : ExtTreeMap α β cmp) (k : α) : Option (α × β) :=
@@ -344,6 +381,26 @@ def getEntryLED [TransCmp cmp] (t : ExtTreeMap α β cmp) (k : α) (fallback : �
 def getEntryLTD [TransCmp cmp] (t : ExtTreeMap α β cmp) (k : α) (fallback : α × β) : (α × β) :=
   ExtDTreeMap.Const.getEntryLTD t.inner k fallback
 
+@[inherit_doc ExtDTreeMap.Const.getEntryGEV]
+noncomputable def getEntryGEV [TransCmp cmp] [Nonempty (α × β)] (t : ExtTreeMap α β cmp) (k : α) :
+    α × β :=
+  t.getEntryGED k Classical.ofNonempty
+
+@[inherit_doc ExtDTreeMap.Const.getEntryGTV]
+noncomputable def getEntryGTV [TransCmp cmp] [Nonempty (α × β)] (t : ExtTreeMap α β cmp) (k : α) :
+    α × β :=
+  t.getEntryGTD k Classical.ofNonempty
+
+@[inherit_doc ExtDTreeMap.Const.getEntryLEV]
+noncomputable def getEntryLEV [TransCmp cmp] [Nonempty (α × β)] (t : ExtTreeMap α β cmp) (k : α) :
+    α × β :=
+  t.getEntryLED k Classical.ofNonempty
+
+@[inherit_doc ExtDTreeMap.Const.getEntryLTV]
+noncomputable def getEntryLTV [TransCmp cmp] [Nonempty (α × β)] (t : ExtTreeMap α β cmp) (k : α) :
+    α × β :=
+  t.getEntryLTD k Classical.ofNonempty
+
 @[inline, inherit_doc ExtDTreeMap.getKeyGE?]
 def getKeyGE? [TransCmp cmp] (t : ExtTreeMap α β cmp) (k : α) : Option α :=
   ExtDTreeMap.getKeyGE? t.inner k
@@ -407,6 +464,22 @@ def getKeyLED [TransCmp cmp] (t : ExtTreeMap α β cmp) (k : α) (fallback : α)
 @[inline, inherit_doc ExtDTreeMap.getKeyLTD]
 def getKeyLTD [TransCmp cmp] (t : ExtTreeMap α β cmp) (k : α) (fallback : α) : α :=
   ExtDTreeMap.getKeyLTD t.inner k fallback
+
+@[inherit_doc ExtDTreeMap.getKeyGEV]
+noncomputable def getKeyGEV [TransCmp cmp] [Nonempty α] (t : ExtTreeMap α β cmp) (k : α) : α :=
+  t.getKeyGED k Classical.ofNonempty
+
+@[inherit_doc ExtDTreeMap.getKeyGTV]
+noncomputable def getKeyGTV [TransCmp cmp] [Nonempty α] (t : ExtTreeMap α β cmp) (k : α) : α :=
+  t.getKeyGTD k Classical.ofNonempty
+
+@[inherit_doc ExtDTreeMap.getKeyLEV]
+noncomputable def getKeyLEV [TransCmp cmp] [Nonempty α] (t : ExtTreeMap α β cmp) (k : α) : α :=
+  t.getKeyLED k Classical.ofNonempty
+
+@[inherit_doc ExtDTreeMap.getKeyLTV]
+noncomputable def getKeyLTV [TransCmp cmp] [Nonempty α] (t : ExtTreeMap α β cmp) (k : α) : α :=
+  t.getKeyLTD k Classical.ofNonempty
 
 variable {δ : Type w} {m : Type w → Type w₂} [Monad m] [LawfulMonad m]
 

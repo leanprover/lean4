@@ -512,9 +512,15 @@ protected theorem minOn_eq_get_minOn? [LE β] [DecidableLE β] {f : α → β} {
   · contradiction
   · simp [List.minOn?, List.minOn]
 
+/-
+PLOG(minOn?_eq_some_minOn):
+Oh, we still need to add `minOnV` and `minV`.
+-/
+
 protected theorem minOn?_eq_some_minOn [LE β] [DecidableLE β] {f : α → β} {xs : List α}
     (h : xs ≠ []) : xs.minOn? f = some (xs.minOn f h) := by
-  simp [List.minOn_eq_get_minOn? h]
+  simp only [List.minOn_eq_get_minOn? h, Option.get_eq_getV]
+  rw [Option.some_getV _ (by simpa)]
 
 @[simp]
 protected theorem get_minOn? [LE β] [DecidableLE β] {f : α → β} {xs : List α}

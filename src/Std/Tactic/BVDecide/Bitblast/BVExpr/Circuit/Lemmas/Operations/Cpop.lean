@@ -66,9 +66,10 @@ theorem blastExtractAndExtendBit_denote_mem_prefix (aig : AIG α) (curr : Nat)
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
-    apply AIG.LawfulVecOperator.decl_eq (f := blastExtractAndExtendBit)
-  · intros
     apply AIG.LawfulVecOperator.le_size (f := blastExtractAndExtendBit)
+  · intros
+    apply AIG.LawfulVecOperator.decl_eq (f := blastExtractAndExtendBit)
+    assumption
 
 theorem denote_append_blastExtractAndExtendBit (assign : α → Bool) (aig : AIG α)
     (currIdx w : Nat) (x : BitVec w) (xc : AIG.RefVec aig w) (acc : AIG.RefVec aig (w * currIdx))
@@ -87,7 +88,9 @@ theorem denote_append_blastExtractAndExtendBit (assign : α → Bool) (aig : AIG
   · rw [blastExtractAndExtendBit_denote_mem_prefix (xc := xc)]
     apply hacc
     simp only [RefVec.get_cast, Ref.cast_eq]
+    simp only [RefVec.get, getElem_eq_getElemV]
     apply acc.hrefs (i := idx)
+    assumption
   · rw [BitVec.getLsbD_extractAndExtend (by omega)]
     have h := Nat.div_eq_of_lt_le (k := currIdx) (m := idx) (n := w)
       (by rw [Nat.mul_comm]; omega)
@@ -244,9 +247,10 @@ theorem blastCpopLayer_denote_mem_prefix.go (aig : AIG α) (iterNum : Nat)  (hst
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
-    apply blastCpopLayer.go_decl_eq
-  · intros
     apply blastCpopLayer.go_le_size
+  · intros
+    apply blastCpopLayer.go_decl_eq
+    assumption
 
 theorem denote_blastCpopTree.go (aig : AIG α) (len : Nat)
     (l : AIG.RefVec aig (len * w)) (h : 0 < len) (bv : BitVec (len * w))

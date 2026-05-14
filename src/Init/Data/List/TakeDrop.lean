@@ -9,6 +9,7 @@ prelude
 import all Init.Data.List.Basic
 public import Init.BinderPredicates
 public import Init.Ext
+public import Init.Data.List.BasicAux
 import Init.ByCases
 import Init.Data.Bool
 import Init.Data.List.Lemmas
@@ -188,7 +189,24 @@ theorem take_concat_get {l : List α} {i : Nat} (h : i < l.length) :
   Eq.symm <| (append_left_inj _).1 <| (take_append_drop (i+1) l).trans <| by
     rw [concat_eq_append, append_assoc, singleton_append, getElem_cons_drop, take_append_drop]
 
-@[simp] theorem take_append_getElem {l : List α} {i : Nat} (h : i < l.length) :
+@[simp] theorem take_append_getElemV {l : List α} {i : Nat} (h : i < l.length) :
+    (l.take i) ++ [l｢i｣] = l.take (i+1) := by
+  simpa using take_concat_get h
+
+theorem take_succ_eq_append_getElemV {i} {l : List α} (h : i < l.length) : l.take (i + 1) = l.take i ++ [l｢i｣] :=
+  (take_append_getElemV h).symm
+
+-- The argument `l : List α` is explicit
+-- as `h` may be produced by a tactic that does not determine `l`.
+@[simp] theorem take_append_getLastV (l : List α) (h : l ≠ []) :
+    haveI : Nonempty α := ⟨l.head h⟩
+    (l.take (l.length - 1)) ++ [l.getLastV] = l := by
+  rw [getLastV_eq_getElemV]
+  cases l
+  · contradiction
+  · simp
+
+theorem take_append_getElem {l : List α} {i : Nat} (h : i < l.length) :
     (l.take i) ++ [l[i]] = l.take (i+1) := by
   simpa using take_concat_get h
 
@@ -197,19 +215,16 @@ theorem take_succ_eq_append_getElem {i} {l : List α} (h : i < l.length) : l.tak
 
 -- The argument `l : List α` is explicit
 -- as `h` may be produced by a tactic that does not determine `l`.
-@[simp] theorem take_append_getLast (l : List α) (h : l ≠ []) :
+theorem take_append_getLast (l : List α) (h : l ≠ []) :
     (l.take (l.length - 1)) ++ [l.getLast h] = l := by
-  rw [getLast_eq_getElem]
-  cases l
-  · contradiction
-  · simp
+  simp [take_append_getLastV l h]
 
 @[simp] theorem take_append_getLast? (l : List α) :
     (l.take (l.length - 1)) ++ l.getLast?.toList = l := by
   match l with
   | [] => simp
   | x :: xs =>
-    simpa using take_append_getLast (x :: xs) (by simp)
+    simpa [getLast?_eq_some_getLastV] using take_append_getLastV (x :: xs) (by simp)
 
 theorem drop_left : ∀ {l₁ l₂ : List α}, drop (length l₁) (l₁ ++ l₂) = l₂
   | [], _ => rfl
@@ -312,14 +327,19 @@ theorem head?_takeWhile {p : α → Bool} {l : List α} : (l.takeWhile p).head? 
     simp only [takeWhile_cons, head?_cons, Option.filter_some]
     split <;> simp
 
-theorem head_takeWhile {p : α → Bool} {l : List α} (w) :
-    (l.takeWhile p).head w = l.head (by rintro rfl; simp_all) := by
+theorem headV_takeWhile {p : α → Bool} {l : List α} (w : l.takeWhile p ≠ []) :
+    haveI : Nonempty α := ⟨(l.takeWhile p).head w⟩
+    (l.takeWhile p).headV = l.headV := by
   cases l with
   | nil => rfl
   | cons x xs =>
-    simp only [takeWhile_cons, head_cons]
+    simp only [takeWhile_cons]
     simp only [takeWhile_cons] at w
     split <;> simp_all
+
+theorem head_takeWhile {p : α → Bool} {l : List α} (w) :
+    (l.takeWhile p).head w = l.head (by rintro rfl; simp_all) := by
+  simp [headV_takeWhile w]
 
 theorem head?_dropWhile_not (p : α → Bool) (l : List α) :
     match (l.dropWhile p).head? with | some x => p x = false | none => True := by
@@ -330,9 +350,15 @@ theorem head?_dropWhile_not (p : α → Bool) (l : List α) :
     split <;> rename_i h <;> split at h <;> simp_all
 
 -- The argument `p` is explicit, as otherwise the head of the left hand side may be a metavariable.
+theorem headV_dropWhile_not (p : α → Bool) {l : List α} (w : l.dropWhile p ≠ []) :
+    haveI : Nonempty α := ⟨(l.dropWhile p).head w⟩
+    p ((l.dropWhile p).headV) = false := by
+  simpa [head?_eq_some_head, w] using head?_dropWhile_not p l
+
+-- The argument `p` is explicit, as otherwise the head of the left hand side may be a metavariable.
 theorem head_dropWhile_not (p : α → Bool) {l : List α} (w) :
     p ((l.dropWhile p).head w) = false := by
-  simpa [head?_eq_some_head, w] using head?_dropWhile_not p l
+  simp [headV_dropWhile_not p w]
 
 theorem takeWhile_map {f : α → β} {p : β → Bool} {l : List α} :
     (l.map f).takeWhile p = (l.takeWhile (p ∘ f)).map f := by

@@ -102,7 +102,7 @@ theorem map_le_size {aig : AIG α} (target : MapTarget aig len) :
 theorem map.go_decl_eq {aig : AIG α} (i) (hi)
     (s : RefVec aig i) (input : RefVec aig len) (f : (aig : AIG α) → Ref aig → Entrypoint α)
     [LawfulOperator α Ref f] [LawfulMapOperator α f] :
-    ∀ (idx : Nat) (h1) (h2), (go aig i hi s input f).1.decls[idx]'h2 = aig.decls[idx]'h1 := by
+    ∀ (idx : Nat), idx < aig.decls.size → (go aig i hi s input f).1.decls｢idx｣ = aig.decls｢idx｣ := by
   generalize hgo : go aig i hi s input f = res
   unfold go at hgo
   split at hgo
@@ -110,9 +110,10 @@ theorem map.go_decl_eq {aig : AIG α} (i) (hi)
     rw [← hgo]
     intros
     rw [go_decl_eq]
-    rw [LawfulOperator.decl_eq]
-    apply LawfulOperator.lt_size_of_lt_aig_size
-    assumption
+    · rw [LawfulOperator.decl_eq]
+      assumption
+    · apply LawfulOperator.lt_size_of_lt_aig_size
+      assumption
   · dsimp only at hgo
     rw [← hgo]
     intros
@@ -120,17 +121,15 @@ theorem map.go_decl_eq {aig : AIG α} (i) (hi)
 termination_by len - i
 
 theorem map_decl_eq {aig : AIG α} (target : MapTarget aig len) :
-    ∀ idx (h1 : idx < aig.decls.size) (h2),
-      (map aig target).1.decls[idx]'h2
-        =
-      aig.decls[idx]'h1 := by
+    ∀ idx, idx < aig.decls.size → (map aig target).1.decls｢idx｣ = aig.decls｢idx｣ := by
   intros
   unfold map
   apply map.go_decl_eq
+  assumption
 
 instance : LawfulVecOperator α MapTarget map where
   le_size := by intros; apply map_le_size
-  decl_eq := by intros; apply map_decl_eq
+  decl_eq := by intros; apply map_decl_eq; assumption
 
 namespace map
 
@@ -187,9 +186,10 @@ theorem go_denote_mem_prefix {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len)
   apply denote.eq_of_isPrefix (entry := ⟨aig, start, inv, hstart⟩)
   apply IsPrefix.of
   · intros
-    apply go_decl_eq
-  · intros
     apply go_le_size
+  · intros
+    apply go_decl_eq
+    assumption
 
 attribute [local simp] LawfulMapOperator.denote_prefix_cast_ref in
 theorem denote_go {aig : AIG α} (curr : Nat) (hcurr : curr ≤ len) (s : RefVec aig curr)

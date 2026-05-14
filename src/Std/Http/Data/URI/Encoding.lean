@@ -185,7 +185,7 @@ theorem all_of_all_of_imp {b : ByteArray} (h : b.data.all p) (imp : ∀ c, p c �
   rw [Array.all_eq] at *
   simp at *
   intro i x
-  exact (imp b.data[i]) (h i x)
+  exact (imp b.data｢i｣) (h i x)
 
 private theorem autf8EncodeChar_flatMap_ascii {a : List UInt8}
     (is_ascii_list : ∀ (x : UInt8), x ∈ a → x < 128) :

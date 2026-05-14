@@ -228,9 +228,9 @@ theorem toListModel_updateAllBuckets {m : Raw₀ α β} {f : AssocList α β →
 namespace IsHashSelf
 
 @[simp]
-theorem replicate [BEq α] [Hashable α] {c : Nat} : IsHashSelf
-    (Array.replicate c (AssocList.nil : AssocList α β)) :=
-  ⟨by simp⟩
+theorem replicate [BEq α] [Hashable α] {c : Nat} :
+    IsHashSelf (Array.replicate c (AssocList.nil : AssocList α β)) :=
+  ⟨by simp +contextual⟩
 
 theorem uset [BEq α] [Hashable α] {m : Array (AssocList α β)} {i : USize} {h : i.toNat < m.size}
     {d : AssocList α β}

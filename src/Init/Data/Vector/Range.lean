@@ -42,13 +42,17 @@ theorem range'_eq_mk_range' {start size step} :
     range' start size step = Vector.mk (Array.range' start size step) (by simp) := by
   rfl
 
-@[simp, grind =] theorem getElem_range' {start size step i} (h : i < size) :
+@[simp, grind =] theorem getElemV_range' {start size step i} (h : i < size) :
+   (range' start size step)｢i｣ = start + step * i := by
+  simp [range', h]
+
+theorem getElem_range' {start size step i} (h : i < size) :
    (range' start size step)[i] = start + step * i := by
-  simp [range']
+  simpa using getElemV_range' h
 
 @[simp, grind =] theorem getElem?_range' {start size step i} :
    (range' start size step)[i]? = if i < size then some (start + step * i) else none := by
-  simp [getElem?_def, range']
+  simp +contextual [getElem?_def, range']
 
 theorem range'_succ {s n step} :
     range' s (n + 1) step = (#v[s] ++ range' (s + step) n step).cast (by omega) := by
@@ -69,15 +73,22 @@ theorem range'_zero : range' s 0 step = #v[] := by
 theorem mem_range' {n} : m ∈ range' s n step ↔ ∃ i < n, m = s + step * i := by
   simp [range', Array.mem_range']
 
+/-
+PLOG(pop_range'):
+`omega` bounds proof
+-/
+
 @[simp, grind =]
 theorem pop_range' : (range' s n step).pop = range' s (n - 1) step := by
-  ext <;> simp
+  ext i hi
+  have : i < n := by omega
+  simp [*]
 
 theorem map_add_range' {a} (s n step) : map (a + ·) (range' s n step) = range' (a + s) n step := by
-  ext <;> simp <;> omega
+  ext <;> simp [*] <;> omega
 
 theorem range'_succ_left : range' (s + 1) n step = (range' s n step).map (· + 1) := by
-  ext <;> simp <;> omega
+  ext <;> simp [*] <;> omega
 
 theorem range'_append {s m n step : Nat} :
     range' s m step ++ range' (s + step * m) n step = range' s (m + n) step := by
@@ -142,8 +153,12 @@ theorem count_range_1' {a s n} :
 
 /-! ### range -/
 
-@[simp, grind =] theorem getElem_range {i : Nat} (hi : i < n) : (Vector.range n)[i] = i := by
-  simp [Vector.range]
+@[simp, grind =]
+theorem getElemV_range {i : Nat} (hi : i < n) : (Vector.range n)｢i｣ = i := by
+  simp [Vector.range, hi]
+
+theorem getElem_range {i : Nat} (hi : i < n) : (Vector.range n)[i] = i := by
+  simpa using getElemV_range hi
 
 @[grind _=_]
 theorem range_eq_range' {n : Nat} : range n = range' 0 n := by
@@ -178,10 +193,29 @@ theorem not_mem_range_self {n : Nat} : n ∉ range n := by simp
 
 theorem self_mem_range_succ {n : Nat} : n ∈ range (n + 1) := by simp
 
+/-
+PLOG(take_range):
+see inline comment
+-/
+
 @[simp] theorem take_range {n i : Nat} : take (range n) i = range (min i n) := by
-  ext <;> simp
-  erw [getElem_extract] -- Why is an `erw` needed here? This should be by simp!
-  simp
+  ext
+  simp (discharger := omega) only [take_eq_extract, getElemV_range]
+  /-
+  The discrimination tree for `getElemV_extract` contains `(Vector _ (@HSub.hSub ..))`,
+  but the goal contains `@getElemV (Vector (min i n)) ..` not `@getElemV (Vector (min i n - 0)) ..`
+  because it came from `getElemV (xs.take i)` and was rewritten via `simp` into `extract`.
+
+  MWE:
+  ```lean
+  example (xs : Vector Nat n) (j k : Nat) :
+    (xs.take k)[j]? = sorry := by
+  simp only [Vector.take_eq_extract]
+  simp only [Vector.getElem?_extract]
+  ```
+  Therefore we need to use `rw`.
+  -/
+  rw [getElemV_extract, getElemV_range] <;> omega
 
 @[simp] theorem find?_range_eq_some {n : Nat} {i : Nat} {p : Nat → Bool} :
     (range n).find? p = some i ↔ p i ∧ i ∈ range n ∧ ∀ j, j < i → !p j := by
@@ -201,11 +235,11 @@ theorem count_range {a n} :
 
 @[simp, grind =]
 theorem getElem?_zipIdx {xs : Vector α n} {i j} : (zipIdx xs i)[j]? = xs[j]?.map fun a => (a, i + j) := by
-  simp [getElem?_def]
+  simp +contextual [getElem?_def]
 
 theorem map_snd_add_zipIdx_eq_zipIdx {xs : Vector α n} {m k : Nat} :
     map (Prod.map id (· + m)) (zipIdx xs k) = zipIdx xs (m + k) := by
-  ext <;> simp <;> omega
+  ext <;> simp [*] <;> omega
 
 -- Arguments are explicit for parity with `zipIdx_map_fst`.
 @[simp]
@@ -257,7 +291,7 @@ theorem le_snd_of_mem_zipIdx {x : α × Nat} {k : Nat} {xs : Vector α n} (h : x
 theorem snd_lt_add_of_mem_zipIdx {x : α × Nat} {k : Nat} {xs : Vector α n} (h : x ∈ zipIdx xs k) :
     x.2 < k + n := by
   rcases mem_iff_getElem.1 h with ⟨i, h', rfl⟩
-  simpa using h'
+  simp [h']
 
 theorem snd_lt_of_mem_zipIdx {x : α × Nat} {k : Nat} {xs : Vector α n} (h : x ∈ zipIdx xs k) :
     x.2 < n + k := by

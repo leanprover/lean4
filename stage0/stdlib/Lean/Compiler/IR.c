@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Compiler.IR
-// Imports: public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.Format public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.NormIds public import Lean.Compiler.IR.Checker public import Lean.Compiler.IR.UnboxResult public import Lean.Compiler.IR.Sorry public import Lean.Compiler.IR.ToIR public import Lean.Compiler.IR.ToIRType public import Lean.Compiler.IR.Meta public import Lean.Compiler.IR.LLVMBindings public import Lean.Compiler.IR.EmitLLVM
+// Imports: public import Lean.Compiler.IR.Basic public import Lean.Compiler.IR.Format public import Lean.Compiler.IR.CompilerM public import Lean.Compiler.IR.NormIds public import Lean.Compiler.IR.Checker public import Lean.Compiler.IR.UnboxResult public import Lean.Compiler.IR.Sorry public import Lean.Compiler.IR.ToIR public import Lean.Compiler.IR.ToIRType public import Lean.Compiler.IR.Meta
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -489,8 +489,6 @@ lean_object* runtime_initialize_Lean_Compiler_IR_Sorry(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_IR_ToIR(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_IR_ToIRType(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Compiler_IR_Meta(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Compiler_IR_LLVMBindings(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Compiler_IR(uint8_t builtin) {
 lean_object * res;
@@ -526,12 +524,6 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Compiler_IR_Meta(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_IR_LLVMBindings(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = runtime_initialize_Lean_Compiler_IR_EmitLLVM(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
 res = l___private_Lean_Compiler_IR_0__Lean_IR_initFn_00___x40_Lean_Compiler_IR_640659120____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
@@ -554,8 +546,6 @@ lean_object* initialize_Lean_Compiler_IR_Sorry(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_IR_ToIR(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_IR_ToIRType(uint8_t builtin);
 lean_object* initialize_Lean_Compiler_IR_Meta(uint8_t builtin);
-lean_object* initialize_Lean_Compiler_IR_LLVMBindings(uint8_t builtin);
-lean_object* initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Compiler_IR(uint8_t builtin) {
 lean_object * res;
@@ -589,12 +579,6 @@ res = initialize_Lean_Compiler_IR_ToIRType(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Compiler_IR_Meta(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_LLVMBindings(builtin);
-if (lean_io_result_is_error(res)) return res;
-lean_dec_ref(res);
-res = initialize_Lean_Compiler_IR_EmitLLVM(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Compiler_IR(builtin);

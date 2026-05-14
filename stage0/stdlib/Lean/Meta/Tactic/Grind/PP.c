@@ -8475,7 +8475,7 @@ v___x_2736_ = l_Lean_PersistentArray_foldlM___at___00__private_Lean_Meta_Tactic_
 v_splits_2737_ = lean_ctor_get(v_c_2692_, 0);
 v_ematch_2738_ = lean_ctor_get(v_c_2692_, 1);
 v_gen_2739_ = lean_ctor_get(v_c_2692_, 2);
-v_instances_2740_ = lean_ctor_get(v_c_2692_, 3);
+v_instances_2740_ = lean_ctor_get(v_c_2692_, 4);
 v_numInstances_2741_ = lean_ctor_get(v_ematch_2699_, 4);
 v_num_2742_ = lean_ctor_get(v_ematch_2699_, 6);
 v___x_2743_ = ((lean_object*)(l_Lean_toTraceElem___at___00Lean_Meta_Grind_ppExprArray_spec__0___closed__1));
@@ -9615,7 +9615,7 @@ LEAN_EXPORT lean_object* l_Lean_Meta_Grind_goalToMessageData(lean_object* v_goal
 _start:
 {
 uint8_t v_verbose_3198_; lean_object* v_mvarId_3199_; uint8_t v___x_3200_; lean_object* v___x_3201_; lean_object* v___x_3202_; lean_object* v___y_3203_; lean_object* v___x_3204_; 
-v_verbose_3198_ = lean_ctor_get_uint8(v_config_3192_, sizeof(void*)*12 + 15);
+v_verbose_3198_ = lean_ctor_get_uint8(v_config_3192_, sizeof(void*)*13 + 15);
 v_mvarId_3199_ = lean_ctor_get(v_goal_3191_, 1);
 lean_inc_n(v_mvarId_3199_, 2);
 v___x_3200_ = 1;

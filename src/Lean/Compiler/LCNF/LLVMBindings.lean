@@ -42,6 +42,8 @@ structure AttributeIndex where
 def AttributeIndex.AttributeReturnIndex : AttributeIndex := { val := 0 }
 -- This value is ~0 for 64 bit
 def AttributeIndex.AttributeFunctionIndex : AttributeIndex := { val := 18446744073709551615 }
+/-- Parameter attribute index. Parameter `n` (0-based) maps to attribute index `n+1`. -/
+def AttributeIndex.param (n : UInt64) : AttributeIndex := { val := n + 1 }
 
 structure BasicBlock (ctx : Context)  where
   private mk :: ptr : USize
@@ -172,7 +174,34 @@ opaque pointerType (elemty : LLVMType ctx) : BaseIO (LLVMType ctx)
 opaque arrayType (elemty : LLVMType ctx) (nelem : UInt64) : BaseIO (LLVMType ctx)
 
 @[extern "lean_llvm_const_array"]
-opaque constArray (elemty : LLVMType ctx) (vals : @&Array (Value ctx)) : BaseIO (LLVMType ctx)
+opaque constArray (elemty : LLVMType ctx) (vals : @&Array (Value ctx)) : BaseIO (Value ctx)
+
+@[extern "lean_llvm_struct_type_in_context"]
+opaque structTypeInContext (ctx : Context) (elemTys : @&Array (LLVMType ctx))
+    (packed : Bool := false) : BaseIO (LLVMType ctx)
+
+@[extern "lean_llvm_struct_create_named"]
+opaque structCreateNamed (ctx : Context) (name : @&String) : BaseIO (LLVMType ctx)
+
+@[extern "lean_llvm_struct_set_body"]
+opaque structSetBody (ty : LLVMType ctx) (elemTys : @&Array (LLVMType ctx))
+    (packed : Bool := false) : BaseIO Unit
+
+@[extern "lean_llvm_const_struct_in_context"]
+opaque constStructInContext (ctx : Context) (vals : @&Array (Value ctx))
+    (packed : Bool := false) : BaseIO (Value ctx)
+
+@[extern "lean_llvm_const_named_struct"]
+opaque constNamedStruct (ty : LLVMType ctx) (vals : @&Array (Value ctx)) : BaseIO (Value ctx)
+
+@[extern "lean_llvm_set_global_constant"]
+opaque setGlobalConstant (glbl : Value ctx) (isConst : Bool) : BaseIO Unit
+
+@[extern "lean_llvm_const_int_to_ptr"]
+opaque constIntToPtr (val : Value ctx) (destTy : LLVMType ctx) : BaseIO (Value ctx)
+
+@[extern "lean_llvm_const_bit_cast"]
+opaque constBitCast (val : Value ctx) (destTy : LLVMType ctx) : BaseIO (Value ctx)
 
 -- `constString` provides a `String` as a constant array of element type `i8`
 @[extern "lean_llvm_const_string"]
@@ -210,6 +239,18 @@ opaque buildCall2 (builder : Builder ctx) (ty: LLVMType ctx) (fn : Value ctx) (a
 
 @[extern "lean_llvm_set_tail_call"]
 opaque setTailCall (fn : Value ctx) (istail : Bool) : BaseIO Unit
+
+-- https://llvm.org/doxygen/group__LLVMCCoreValueInstructionCall.html
+structure TailCallKind where
+  private mk :: val : UInt64
+
+def TailCallKind.none     : TailCallKind := { val := 0 }
+def TailCallKind.tail     : TailCallKind := { val := 1 }
+def TailCallKind.mustTail : TailCallKind := { val := 2 }
+def TailCallKind.noTail   : TailCallKind := { val := 3 }
+
+@[extern "lean_llvm_set_tail_call_kind"]
+opaque setTailCallKind (fn : Value ctx) (kind : TailCallKind) : BaseIO Unit
 
 @[extern "lean_llvm_build_cond_br"]
 opaque buildCondBr (builder : Builder ctx) (if_ : Value ctx) (thenbb : BasicBlock ctx) (elsebb : BasicBlock ctx) : BaseIO (Value ctx)
@@ -353,6 +394,12 @@ opaque verifyModule (m : Module ctx) : BaseIO (Option String)
 
 @[extern "lean_llvm_create_string_attribute"]
 opaque createStringAttribute (key : String) (value : String) : BaseIO (Attribute ctx)
+
+@[extern "lean_llvm_create_enum_attribute"]
+opaque createEnumAttribute (name : String) : BaseIO (Attribute ctx)
+
+@[extern "lean_llvm_function_type_returns_void"]
+opaque functionTypeReturnsVoid (ty : @&LLVMType ctx) : BaseIO Bool
 
 @[extern "lean_llvm_add_attribute_at_index"]
 opaque addAttributeAtIndex (fn : Value ctx) (idx: AttributeIndex) (attr: Attribute ctx) : BaseIO Unit

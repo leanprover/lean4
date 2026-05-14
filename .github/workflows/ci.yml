@@ -245,13 +245,13 @@ jobs:
             const isPushToMaster = "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "master";
             const chonk = ${{ steps.runner-fallback.outputs.use-runner }};
             let matrix = [
-              /* TODO: to be updated to new LLVM
               {
                 "name": "Linux LLVM",
                 "os": "ubuntu-latest",
                 "release": false,
-                "enabled": level >= 2,
-                "test": true,
+                "enabled": isPr || level != 1,
+                "test": level >= 1,
+                "secondary": level == 0,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
                 "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
@@ -260,7 +260,7 @@ jobs:
                 // reverse-ffi needs to be updated to link to LLVM libraries
                 "CTEST_OPTIONS": "-E 'foreign|leanlaketest_reverse-ffi'",
                 "CMAKE_OPTIONS": "-DLLVM=ON -DLLVM_CONFIG=${GITHUB_WORKSPACE}/build/llvm-host/bin/llvm-config"
-              }, */
+              },
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",

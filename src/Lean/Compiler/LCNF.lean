@@ -45,3 +45,8 @@ public import Lean.Compiler.LCNF.ReduceArity
 public import Lean.Compiler.LCNF.Probing
 public import Lean.Compiler.LCNF.Irrelevant
 public import Lean.Compiler.LCNF.SplitSCC
+
+-- The following imports are not required by the compiler. They are here to ensure that there
+-- are no orphaned modules.
+public import Lean.Compiler.LCNF.LLVMBindings
+public import Lean.Compiler.LCNF.EmitLLVM

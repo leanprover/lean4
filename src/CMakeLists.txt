@@ -420,8 +420,8 @@ if(LLVM)
     STATUS
     "Found 'llvm-config' at '${LLVM_CONFIG}' with version '${LLVM_CONFIG_VERSION}', major version '${LLVM_CONFIG_MAJOR_VERSION}'"
   )
-  if(NOT LLVM_CONFIG_MAJOR_VERSION STREQUAL "19")
-    message(FATAL_ERROR "Unable to find llvm-config version 19. Found invalid version '${LLVM_CONFIG_MAJOR_VERSION}'")
+  if(NOT LLVM_CONFIG_MAJOR_VERSION STREQUAL "22")
+    message(FATAL_ERROR "Unable to find llvm-config version 22. Found invalid version '${LLVM_CONFIG_MAJOR_VERSION}'")
   endif()
   # -DLEAN_LLVM is used to conditionally compile Lean features that depend on LLVM
   string(APPEND CMAKE_CXX_FLAGS " -D LEAN_LLVM")

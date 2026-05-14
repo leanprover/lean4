@@ -5,8 +5,8 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Author: Siddharth Bhat
 
 This file contains bare bones bindings to the LLVM C FFI. This enables
-`src/Lean/Compiler/IR/EmitLLVM.lean` to produce LLVM bitcode from
-Lean's IR.
+`src/Lean/Compiler/LCNF/EmitLLVM.lean` to produce LLVM bitcode from
+Lean's LCNF IR.
 */
 
 #include <lean/lean.h>
@@ -39,15 +39,15 @@ Lean's IR.
 
 namespace lean {
 /*  initLLVM : IO Unit */
-extern "C" obj_res initialize_Lean_Compiler_IR_EmitLLVM(uint8_t builtin);
+extern "C" obj_res initialize_Lean_Compiler_LCNF_EmitLLVM(uint8_t builtin);
 extern "C" LEAN_EXPORT obj_res lean_init_llvm() {
-    return initialize_Lean_Compiler_IR_EmitLLVM(/*builtin*/ false);
+    return initialize_Lean_Compiler_LCNF_EmitLLVM(/*builtin*/ false);
 }
 
 /*  emitLLVM (env : Environment) (modName : Name) (filepath : FilePath) : IO Unit */
-extern "C" obj_res lean_ir_emit_llvm(obj_arg env, obj_arg mod_name, obj_arg filepath);
+extern "C" obj_res lean_lcnf_emit_llvm(obj_arg env, obj_arg mod_name, obj_arg filepath);
 extern "C" LEAN_EXPORT obj_res lean_emit_llvm(obj_arg env, obj_arg mod_name, obj_arg filepath) {
-    return lean_ir_emit_llvm(env, mod_name, filepath);
+    return lean_lcnf_emit_llvm(env, mod_name, filepath);
 }
 }
 
@@ -958,7 +958,7 @@ extern "C" LEAN_EXPORT size_t lean_llvm_const_string(
 
     LLVMValueRef out =
         LLVMConstStringInContext(lean_to_Context(ctx), sref.data(),
-                                 sref.length(), /*DontNullTerminate=*/false);
+                                 sref.num_bytes(), /*DontNullTerminate=*/false);
     return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
@@ -973,6 +973,119 @@ extern "C" LEAN_EXPORT size_t lean_llvm_const_pointer_null(
 
     LLVMValueRef out = LLVMConstPointerNull(lean_to_Type(elemty));
 
+    return Value_to_lean(out);
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT size_t lean_llvm_struct_type_in_context(
+    size_t ctx, lean_object *elemtys, uint8_t packed) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    lean::array_ref<lean_object *> arr(elemtys, true);
+    LLVMTypeRef *tys = array_ref_to_ArrayLLVMType(arr);
+    LLVMTypeRef out =
+        LLVMStructTypeInContext(lean_to_Context(ctx), tys, arr.size(), packed);
+    free(tys);
+    return Type_to_lean(out);
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT size_t lean_llvm_struct_create_named(
+    size_t ctx, lean_object *name) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMTypeRef out =
+        LLVMStructCreateNamed(lean_to_Context(ctx), lean_string_cstr(name));
+    return Type_to_lean(out);
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_struct_set_body(
+    size_t ctx, size_t ty, lean_object *elemtys, uint8_t packed) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    lean::array_ref<lean_object *> arr(elemtys, true);
+    LLVMTypeRef *tys = array_ref_to_ArrayLLVMType(arr);
+    LLVMStructSetBody(lean_to_Type(ty), tys, arr.size(), packed);
+    free(tys);
+    return lean_box(0);
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT size_t lean_llvm_const_struct_in_context(
+    size_t ctx, lean_object *vals, uint8_t packed) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    lean::array_ref<lean_object *> arr(vals, true);
+    LLVMValueRef *vs = array_ref_to_ArrayLLVMValue(arr);
+    LLVMValueRef out =
+        LLVMConstStructInContext(lean_to_Context(ctx), vs, arr.size(), packed);
+    free(vs);
+    return Value_to_lean(out);
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT size_t lean_llvm_const_named_struct(
+    size_t ctx, size_t ty, lean_object *vals) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    lean::array_ref<lean_object *> arr(vals, true);
+    LLVMValueRef *vs = array_ref_to_ArrayLLVMValue(arr);
+    LLVMValueRef out = LLVMConstNamedStruct(lean_to_Type(ty), vs, arr.size());
+    free(vs);
+    return Value_to_lean(out);
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_set_global_constant(
+    size_t ctx, size_t glbl, uint8_t is_const) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMSetGlobalConstant(lean_to_Value(glbl), is_const);
+    return lean_box(0);
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT size_t lean_llvm_const_int_to_ptr(
+    size_t ctx, size_t val, size_t destty) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMValueRef out =
+        LLVMConstIntToPtr(lean_to_Value(val), lean_to_Type(destty));
+    return Value_to_lean(out);
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT size_t lean_llvm_const_bit_cast(
+    size_t ctx, size_t val, size_t destty) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMValueRef out =
+        LLVMConstBitCast(lean_to_Value(val), lean_to_Type(destty));
     return Value_to_lean(out);
 #endif  // LEAN_LLVM
 }
@@ -1007,6 +1120,18 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_set_tail_call(
                   "the LLVM backend function."));
 #else
     LLVMSetTailCall(lean_to_Value(fnval), isTail);
+    return lean_box(0);
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT lean_object *lean_llvm_set_tail_call_kind(
+    size_t ctx, size_t fnval, uint64_t kind) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMSetTailCallKind(lean_to_Value(fnval), (LLVMTailCallKind)kind);
     return lean_box(0);
 #endif  // LEAN_LLVM
 }
@@ -1294,6 +1419,29 @@ extern "C" LEAN_EXPORT size_t lean_llvm_create_string_attribute(size_t ctx, lean
 #endif  // LEAN_LLVM
 }
 
+extern "C" LEAN_EXPORT size_t lean_llvm_create_enum_attribute(size_t ctx, lean_object* name) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    unsigned kind = LLVMGetEnumAttributeKindForName(lean_string_cstr(name), lean_string_len(name));
+    LLVMAttributeRef attr = LLVMCreateEnumAttribute(lean_to_Context(ctx), kind, 0);
+    return Attribute_to_lean(attr);
+#endif  // LEAN_LLVM
+}
+
+extern "C" LEAN_EXPORT uint8_t lean_llvm_function_type_returns_void(size_t ctx, size_t fnty) {
+#ifndef LEAN_LLVM
+    lean_always_assert(
+        false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
+                  "the LLVM backend function."));
+#else
+    LLVMTypeRef ret = LLVMGetReturnType(lean_to_Type(fnty));
+    return LLVMGetTypeKind(ret) == LLVMVoidTypeKind ? 1 : 0;
+#endif  // LEAN_LLVM
+}
+
 extern "C" LEAN_EXPORT lean_object *lean_llvm_add_attribute_at_index(size_t ctx, size_t fn, uint64_t idx, size_t attr) {
 #ifndef LEAN_LLVM
     lean_always_assert(
@@ -1373,14 +1521,13 @@ extern "C" LEAN_EXPORT lean_object *lean_llvm_get_value_name2(size_t ctx, size_t
 #endif  // LEAN_LLVM
 }
 
-extern "C" LEAN_EXPORT lean_object *llvm_is_declaration(size_t ctx, size_t global) {
+extern "C" LEAN_EXPORT uint8_t llvm_is_declaration(size_t ctx, size_t global) {
 #ifndef LEAN_LLVM
     lean_always_assert(
         false && ("Please build a version of Lean4 with -DLLVM=ON to invoke "
                   "the LLVM backend function."));
 #else
-	uint8_t is_bool = LLVMIsDeclaration(lean_to_Value(global));
-	return lean_box(is_bool);
+    return LLVMIsDeclaration(lean_to_Value(global));
 #endif  // LEAN_LLVM
 }
 

@@ -17,6 +17,7 @@ mkdir -p build/release
 cd build/release
 eval cmake ../.. \
     --preset release $(../../script/prepare-llvm-linux.sh $LLVM_TARBALL) \
+    -DLLVM=ON -DUSE_LAKE=OFF \
     -DWFAIL=OFF
 rm -rf stage2
 cp -r stage1 stage2

@@ -32,6 +32,7 @@ $CP llvm/lib/libLLVM*.so* $ZLIB/lib/libz.so* stage0/lib/
 $CP $GCC_LIB/lib/libgcc_s.so* stage1/lib/
 # bundle libatomic (referenced by LLVM >= 15, and required by the lean executable to run)
 $CP $GCC_LIB/lib/libatomic.so* stage1/lib/
+$CP $GCC_LIB/lib/libatomic.so* stage0/lib/
 
 find stage1 -type f -exec strip --strip-unneeded '{}' \; 2> /dev/null
 # lean.h dependencies
@@ -47,6 +48,8 @@ $CP llvm/lib/*/lib{c++,c++abi,unwind}.* $GMP/lib/libgmp.a $LIBUV/lib/libuv.a sta
 # https://github.com/llvm/llvm-project/issues/54955
 $CP llvm/lib/*/lib{c++,c++abi,unwind}.* llvm/lib/
 $CP llvm-host/lib/*/lib{c++,c++abi,unwind}.* llvm-host/lib/
+# libLLVM-22 is built with -stdlib=libc++, so the stage0 lean binary needs libc++ at runtime
+$CP llvm/lib/lib{c++,c++abi,unwind}.so* stage0/lib/
 # libc++ headers are looked up in the host compiler's root, so copy over target-specific includes
 $CP -r llvm/include/*-*-* llvm-host/include/ || true
 # glibc: use for linking (so Lean programs don't embed newer symbol versions), but not for running (because libc.so, librt.so, and ld.so must be compatible)!
@@ -69,6 +72,7 @@ if [[ -L llvm-host ]]; then
 else
   echo -n " -DCMAKE_C_COMPILER=$PWD/llvm-host/bin/clang -DLEANC_OPTS='--sysroot $PWD/stage1 -resource-dir $PWD/stage1/lib/clang/15.0.1 ${EXTRA_FLAGS:-}'"
 fi
+echo -n " -DLLVM_CONFIG=$PWD/llvm-host/bin/llvm-config"
 # use `-nostdinc` to make sure headers are not visible by default (in particular, not to `#include_next` in the clang headers),
 # but do not change sysroot so users can still link against system libs
 echo -n " -DLEANC_INTERNAL_FLAGS='--sysroot ROOT -nostdinc -isystem ROOT/include/clang' -DLEANC_CC=ROOT/bin/clang"

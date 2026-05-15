@@ -2247,8 +2247,8 @@ options. Of particular note is `stepLimit = some 42`, which is useful for bisect
 Often, `mvcgen` will be used like this:
 ```
 mvcgen [...]
-case inv1 => by exact I1
-case inv2 => by exact I2
+case inv1 => exact I1
+case inv2 => exact I2
 all_goals (mleave; try grind)
 ```
 There is special syntax for this:

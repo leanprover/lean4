@@ -50,7 +50,7 @@ where
 
 /--
 Elaborates `id` as an identifier representing an option name with value given by `val`, adding
-appropriate leaves to the infotree.
+appropriate info to the infotrees.
 
 Validates that `val` has the correct type for values of the option `id`, and returns the updated
 `Options`. Does **not** update the options in the monad `m`.

@@ -299,6 +299,11 @@ instance : ExceptToTraceResult ε (Option α) where
     | .ok (some _) => .success
     | .ok none => .failure
 
+instance : ExceptToTraceResult ε Expr where
+  toTraceResult
+    | .error _ => .error
+    | .ok e => if e.hasSyntheticSorry then .failure else .success
+
 instance (priority := low) : ExceptToTraceResult ε α where
   toTraceResult
     | .error _ => .error

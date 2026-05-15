@@ -14,6 +14,7 @@ public import Lean.Elab.Parallel
 public meta import Lean.Elab.Command
 import Lean.Elab.BuiltinTerm
 import Init.Omega
+import Lean.Elab.ConfigEval
 public section
 namespace Lean.Elab.Tactic
 open Meta

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeclModifiers
-// Imports: public import Lean.DocString.Add public import Lean.Linter.Basic import Lean.Linter.EnvLinter.Nolint meta import Lean.Parser.Command
+// Imports: public import Lean.DocString.Add public import Lean.Linter.Init import Lean.Linter.EnvLinter.Nolint meta import Lean.Parser.Command
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -9971,7 +9971,7 @@ return v___x_3789_;
 }
 }
 lean_object* runtime_initialize_Lean_DocString_Add(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_EnvLinter_Nolint(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_DeclModifiers(uint8_t builtin) {
@@ -9981,7 +9981,7 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Lean_DocString_Add(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Linter_Basic(builtin);
+res = runtime_initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter_EnvLinter_Nolint(builtin);
@@ -10012,7 +10012,7 @@ lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_DocString_Add(uint8_t builtin);
-lean_object* initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* initialize_Lean_Linter_EnvLinter_Nolint(uint8_t builtin);
 lean_object* initialize_Lean_Parser_Command(uint8_t builtin);
 static bool _G_initialized = false;
@@ -10023,7 +10023,7 @@ _G_initialized = true;
 res = initialize_Lean_DocString_Add(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Linter_Basic(builtin);
+res = initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Linter_EnvLinter_Nolint(builtin);

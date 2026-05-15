@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Reduce
 public import Lean.Elab.Eval
 public import Lean.Elab.Command
+import Lean.Elab.ConfigEval
 import Lean.Elab.DeprecatedSyntax
 public import Lean.Elab.Open
 import Init.Data.Nat.Order
@@ -453,23 +454,25 @@ def elabCheckCore (ignoreStuckTC : Bool) : CommandElab
 
 @[builtin_command_elab Lean.Parser.Command.check] def elabCheck : CommandElab := elabCheckCore (ignoreStuckTC := true)
 
+declare_command_config_elab elabReduceConfig Command.ReduceConfig
+
 @[builtin_command_elab Lean.reduceCmd] def elabReduce : CommandElab
-  | `(#reduce%$tk $term) => go tk term
-  | `(#reduce%$tk (proofs := true) $term) => go tk term (skipProofs := false)
-  | `(#reduce%$tk (types := true) $term) => go tk term (skipTypes := false)
-  | `(#reduce%$tk (proofs := true) (types := true) $term) => go tk term (skipProofs := false) (skipTypes := false)
+  | `(#reduce%$tk $cfg $term) => do
+    let cfg ← elabReduceConfig cfg
+    go tk term cfg
   | _ => throwUnsupportedSyntax
 where
-  go (tk : Syntax) (term : Syntax) (skipProofs := true) (skipTypes := true) : CommandElabM Unit :=
+  go (tk : Syntax) (term : Syntax) (cfg : Command.ReduceConfig) : CommandElabM Unit :=
     withoutModifyingEnv <| runTermElabM fun _ => Term.withDeclName `_reduce do
       let e ← Term.elabTerm term none
-      Term.synthesizeSyntheticMVarsNoPostponing
-      -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
-      withRef tk <| Meta.check e
+      Term.synthesizeSyntheticMVarsNoPostponing (ignoreStuckTC := cfg.ignoreStuckTC)
+      let e ← instantiateMVars e
+      if cfg.check then
+        -- Users might be testing out buggy elaborators. Let's typecheck before proceeding:
+        withRef tk <| Meta.check e
       let e ← Term.levelMVarToParam (← instantiateMVars e)
-      -- TODO: add options or notation for setting the following parameters
-      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `smartUnfolding false }) do
-        let e ← withTransparency (mode := TransparencyMode.all) <| reduce e (skipProofs := skipProofs) (skipTypes := skipTypes)
+      withTheReader Core.Context (fun ctx => { ctx with options := ctx.options.set `smartUnfolding cfg.smartUnfolding }) do
+        let e ← withTransparency (mode := cfg.transparency) <| reduce e (explicitOnly := !cfg.implicits) (skipProofs := !cfg.proofs) (skipTypes := !cfg.types)
         logInfoAt tk e
 
 def hasNoErrorMessages : CommandElabM Bool := do

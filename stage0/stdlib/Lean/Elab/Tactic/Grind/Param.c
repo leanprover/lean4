@@ -6284,7 +6284,7 @@ _start:
 {
 lean_object* v_config_1868_; uint8_t v_revert_1869_; 
 v_config_1868_ = lean_ctor_get(v_params_1864_, 0);
-v_revert_1869_ = lean_ctor_get_uint8(v_config_1868_, sizeof(void*)*12 + 29);
+v_revert_1869_ = lean_ctor_get_uint8(v_config_1868_, sizeof(void*)*13 + 29);
 if (v_revert_1869_ == 0)
 {
 lean_object* v___x_1870_; lean_object* v___x_1871_; 

@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Elab.Tactic.Omega.Core
 public import Lean.Elab.Tactic.FalseOrByContra
-public import Lean.Elab.Tactic.Config
+import Lean.Elab.ConfigEval
 public import Lean.Meta.Tactic.Simp.Attr
 import Lean.Elab.Tactic.BuiltinTactic
 import Init.Data.Int.Pow

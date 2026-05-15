@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Elab.Tactic.Simp
 public import Std.Tactic.BVDecide.Syntax
+import Lean.Elab.ConfigEval
 
 public section
 

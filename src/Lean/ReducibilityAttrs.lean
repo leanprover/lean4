@@ -24,12 +24,14 @@ See `TransparencyMode` for the full design rationale.
   `[instance_reducible]` marks a definition with this status; users typically do not need to
   apply it manually.
 - **`implicitReducible`**: Unfolded at `TransparencyMode.implicit` or above (strictly above
-  `.instances`). Used for definitions that appear in types matched during *implicit-argument*
-  defeq (e.g., `Nat.add`, `Array.size`, Mathlib functors). These definitions cannot be eagerly
-  reduced (recursive definitions are problematic), but should unfold when checking implicit
-  arguments. Crucially, marking a constant `[implicit_reducible]` does **not** affect type class
-  search — it only helps implicit-arg defeq. The attribute `[implicit_reducible]` marks a
-  definition with this status.
+  `.instances`). Used for definitions that should unfold during *implicit-argument* defeq but
+  must stay invisible to type class search — typically user-written abbreviations in downstream
+  libraries (e.g. Mathlib functors). These definitions cannot be eagerly reduced (recursive
+  definitions are problematic), but should unfold when checking implicit arguments. Crucially,
+  marking a constant `[implicit_reducible]` does **not** affect type class search — it only helps
+  implicit-arg defeq. The attribute `[implicit_reducible]` marks a definition with this status.
+  (Note: core arithmetic such as `Nat.add` and `Array.size` is deliberately `instanceReducible`,
+  not `implicitReducible`, because type class synthesis depends on it unfolding.)
 - **`semireducible`**: The default. Unfolded at `TransparencyMode.default` or above. Used for
   ordinary definitions. Suitable for user-written code where `isDefEq` should try hard during
   type checking, but not during speculative proof automation.
@@ -220,9 +222,13 @@ Marks a definition as `[implicit_reducible]`, meaning it is unfolded at
 `TransparencyMode.reducible`.
 
 Use this attribute for definitions that should unfold when checking implicit-argument
-definitional equality (e.g., `Nat.add`, `Array.size`, Mathlib functors), without affecting
-type class search. When proof automation applies a lemma, implicit arguments are checked
-with increased transparency so that type-level computations (e.g., `n + 0` vs `n`) are resolved.
+definitional equality (e.g. abbreviations in downstream libraries such as Mathlib functors),
+without affecting type class search. When proof automation applies a lemma, implicit arguments
+are checked with increased transparency so that type-level computations (e.g. `n + 0` vs `n`)
+are resolved.
+
+Note that core arithmetic such as `Nat.add` and `Array.size` is *not* `[implicit_reducible]`:
+it is `[instance_reducible]`, because type class synthesis depends on it unfolding.
 
 To mark a *type class instance* — so it can be unfolded during type class synthesis —
 use `[instance_reducible]` instead (which the `instance` command applies automatically).

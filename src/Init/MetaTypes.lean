@@ -55,9 +55,12 @@ Each level unfolds everything the previous level does, plus more:
   marking a Mathlib functor `[implicit_reducible]` does not affect type class search.
 
 - **`implicit`**: Also unfolds `[implicit_reducible]` definitions. Used when checking implicit
-  *value* arguments — e.g., a `Vector α (n+1)` vs `Vector α (Nat.succ n)` mismatch needs
-  `Nat.add`/`Array.size`-style definitions to unfold. Discrimination trees do not index these
-  definitions, so `.implicit` is still safe for speculative checks involving implicit arguments
+  *value* arguments. This lets downstream libraries mark their own abbreviations
+  `[implicit_reducible]` so they unfold during implicit-argument defeq without affecting type
+  class search. (Definitions like `Nat.add`/`Array.size` are `[instance_reducible]`,
+  so already unfold at `.instances`; core currently has no `[implicit_reducible]` constants.)
+  Discrimination trees do not index `[implicit_reducible]` definitions,
+  so `.implicit` is still safe for speculative checks involving implicit arguments
   without the performance cost of `.default`.
 
 - **`default`**: Also unfolds `[semireducible]` definitions (anything not `[irreducible]`).
@@ -74,8 +77,8 @@ Historically, Lean bumped transparency to `.default` for implicit arguments, but
 became a performance bottleneck in Mathlib. The option `backward.isDefEq.respectTransparency`
 (default: `true`) disables this bump. Instead, instance-implicit arguments (`[..]`) are checked at
 `.instances` (so instance diamonds resolve), and other implicit arguments are checked at
-`.implicit` (so user-marked `[implicit_reducible]` arithmetic unfolds), or at the caller's
-transparency when `backward.isDefEq.implicitBump` is `false`.
+`.implicit` (so user-marked `[implicit_reducible]` definitions additionally unfold), or at the
+caller's transparency when `backward.isDefEq.implicitBump` is `false`.
 
 See also: `ReducibilityStatus`, `backward.isDefEq.respectTransparency`,
 `backward.whnf.reducibleClassField`.
@@ -100,8 +103,9 @@ inductive TransparencyMode where
   /-- Do not unfold anything. -/
   | none
   /-- Unfolds reducible constants, `[instance_reducible]`, and `[implicit_reducible]` constants.
-  Used for checking definitional equality of implicit *value* arguments (e.g., `Nat.add`,
-  `Array.size`, Mathlib functors). Strictly above `.instances` in the unfolding lattice.
+  Used for checking definitional equality of implicit *value* arguments, so that downstream
+  `[implicit_reducible]` definitions unfold without affecting type class search. Strictly above
+  `.instances` in the unfolding lattice.
 
   NOTE: this constructor is appended at the end (not in unfolding order) to preserve olean
   compatibility with the pre-existing constructor indices. -/

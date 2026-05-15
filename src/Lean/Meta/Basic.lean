@@ -1294,8 +1294,8 @@ or type class instances (`[instance_reducible]`) are unfolded. User-written `[im
 /--
 `withImplicit x` executes `x` using the `.implicit` transparency setting. In this setting `[reducible]`,
 `[instance_reducible]`, and user-written `[implicit_reducible]` definitions are all unfolded.
-Used for definitional equality checks on implicit *value* arguments where definitions like
-`Nat.add`/`Array.size` (typically `[implicit_reducible]`) need to unfold.
+Used for definitional equality checks on implicit *value* arguments, where `[implicit_reducible]`
+definitions need to unfold in addition to what `.instances` already unfolds.
 -/
 @[inline] def withImplicit (x : n α) : n α :=
   withTransparency TransparencyMode.implicit x

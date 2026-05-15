@@ -104,12 +104,13 @@ Subject should use imperative present tense ("add" not "added"), no capitalizati
 
 **Body format:** The first paragraph must start with "This PR". This paragraph is automatically incorporated into release notes, so keep it short, focus on user-side impact, and avoid implementation-specific wording. Save the implementation details for a follow-up paragraph. Use imperative present tense. Do NOT use markdown headings (`## Summary`, `## Test plan`, etc.) in PR bodies.
 
+**Line wrapping:** Do NOT hard-wrap lines in commit messages or PR descriptions. Write each paragraph as a single line and let display tools (GitHub, `git log`, terminals) soft-wrap. Bullet lists are still fine; just keep each `* item` body on one line.
+
 Example:
 ```
 feat: add optional binder limit to `mkPatternFromTheorem`
 
-This PR adds a `num?` parameter to `mkPatternFromTheorem` to control how many
-leading quantifiers are stripped when creating a pattern.
+This PR adds a `num?` parameter to `mkPatternFromTheorem` to control how many leading quantifiers are stripped when creating a pattern.
 ```
 
 **Changelog labels:** Add one `changelog-*` label to categorize the PR for release notes:

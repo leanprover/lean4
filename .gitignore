@@ -34,3 +34,5 @@ wdErr.txt
 wdIn.txt
 wdOut.txt
 .claude/worktrees/
+
+/vscode-test/

@@ -491,6 +491,46 @@ def handleDocumentColor (_ : DocumentColorParams) :
   -- VS Code one.
   return .pure #[]
 
+/-- Walk the syntax tree collecting all nodes whose range contains `pos`, from innermost to
+outermost. Unlike `Syntax.findStack?`, this accepts non-leaf nodes when none of their children
+cover `pos` (e.g. when `pos` falls on whitespace between tokens). -/
+private partial def findContainingStack (stx : Syntax) (pos : String.Pos.Raw) : List Syntax :=
+  if stx.getRange?.any (·.contains pos) then
+    -- Recurse into the first child (if any) that also contains pos.
+    let childResult : Option (List Syntax) := (Array.range stx.getNumArgs).findSome? fun i =>
+      let sub := findContainingStack stx[i] pos
+      if sub.isEmpty then none else some sub
+    match childResult with
+    | some sub => sub ++ [stx]  -- child chain found; add current node as parent
+    | none => [stx]             -- no child covers pos; this node is the innermost
+  else []
+
+/-- Handles `textDocument/selectionRange`: for each requested position, walks the syntax tree to
+build a `SelectionRange` chain from the innermost enclosing node outward. Waits for all command
+snapshots so that the full file syntax is available. -/
+def handleSelectionRange (p : SelectionRangeParams)
+    : RequestM (RequestTask (Array SelectionRange)) := do
+  let doc ← readDoc
+  let text := doc.meta.text
+  let t := doc.cmdSnaps.waitAll
+  mapTaskCostly t fun (snaps, _) => do
+    let build (lspPos : Lsp.Position) : SelectionRange :=
+      let pos := text.lspPosToUtf8Pos lspPos
+      let fallback : SelectionRange := .mk { range := ⟨lspPos, lspPos⟩ }
+      match snaps.find? (fun s => s.stx.getRange?.any (·.contains pos)) with
+      | none => fallback
+      | some snap =>
+        let stxList := findContainingStack snap.stx pos
+        if stxList.isEmpty then fallback
+        else
+          -- Collect LSP ranges from innermost (leaf) to outermost, deduplicating adjacent equal ranges.
+          let ranges := (stxList.filterMap (fun stx => stx.getRange?.map (·.toLspRange text))).toArray
+          let ranges := ranges.foldl (fun (acc : Array Lsp.Range) r =>
+            if acc.isEmpty || acc.toList.getLast! != r then acc.push r else acc) #[]
+          -- foldr builds the chain with innermost at head (parent? pointing outward).
+          (ranges.foldr (fun r parent? => some (.mk { range := r, parent? })) none).getD fallback
+    return p.positions.map build
+
 builtin_initialize
   registerLspRequestHandler
     "textDocument/waitForDiagnostics"
@@ -543,6 +583,11 @@ builtin_initialize
     FoldingRangeParams
     (Array FoldingRange)
     handleFoldingRange
+  registerLspRequestHandler
+    "textDocument/selectionRange"
+    SelectionRangeParams
+    (Array SelectionRange)
+    handleSelectionRange
   registerLspRequestHandler
     "textDocument/signatureHelp"
     SignatureHelpParams

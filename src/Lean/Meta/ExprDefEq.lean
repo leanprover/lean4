@@ -346,7 +346,7 @@ private def isDefEqArgsFirstPass
 
 /--
 Ensure `MetaM` configuration is strong enough for checking definitional equality at the
-*instance* tier — i.e., when comparing instance-implicit `[..]` arguments or class-projection
+*instance* level — i.e., when comparing instance-implicit `[..]` arguments or class-projection
 struct arguments. Bumps transparency to at least `.instances` so type class instances
 (`[instance_reducible]`) unfold; `[implicit_reducible]` does **not** unfold here.
 For example, we must be able to unfold instances, `beta := true`, `proj := .yesWithDelta` are essential.
@@ -425,7 +425,6 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     if respectTransparency && finfo.paramInfo[i]!.isInstance then
-      -- HO instance argument: bump to `.instances` (TC tier).
       unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else if respectTransparency && implicitBump then
       unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false

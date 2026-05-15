@@ -25,7 +25,7 @@ See `TransparencyMode` for the full design rationale.
   apply it manually.
 - **`implicitReducible`**: Unfolded at `TransparencyMode.implicit` or above (strictly above
   `.instances`). Used for definitions that should unfold during *implicit-argument* defeq but
-  must stay invisible to type class search — typically user-written abbreviations in downstream
+  must stay opaque to type class search — typically user-written abbreviations in downstream
   libraries (e.g. Mathlib functors). These definitions cannot be eagerly reduced (recursive
   definitions are problematic), but should unfold when checking implicit arguments. Crucially,
   marking a constant `[implicit_reducible]` does **not** affect type class search — it only helps
@@ -230,7 +230,7 @@ are resolved.
 Note that core arithmetic such as `Nat.add` and `Array.size` is *not* `[implicit_reducible]`:
 it is `[instance_reducible]`, because type class synthesis depends on it unfolding.
 
-To mark a *type class instance* — so it can be unfolded during type class synthesis —
+To mark a potential *type class instance* — so it can be unfolded during type class synthesis —
 use `[instance_reducible]` instead (which the `instance` command applies automatically).
 -/
 builtin_initialize

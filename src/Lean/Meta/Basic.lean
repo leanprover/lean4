@@ -32,6 +32,7 @@ namespace Lean.Meta
 
 builtin_initialize isDefEqStuckExceptionId : InternalExceptionId ← registerInternalExceptionId `isDefEqStuck
 
+/-- NOTE: value purely intended for equality comparison, *NOT* following the transparency lattice. -/
 def TransparencyMode.toUInt64 : TransparencyMode → UInt64
   | .all       => 0
   | .default   => 1
@@ -196,8 +197,6 @@ structure Config where
   deriving Inhabited, Repr
 
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
--- Note: `TransparencyMode.toUInt64` returns values 0..5, so transparency occupies bits 0..2.
--- All other fields are shifted accordingly.
 private def Config.toKey (c : Config) : UInt64 :=
   c.transparency.toUInt64 |||
   (c.foApprox.toUInt64 <<< 3) |||
@@ -1285,7 +1284,7 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
 
 /--
 `withReducibleAndInstances x` executes `x` using the `.instances` transparency setting. In this setting only definitions tagged as `[reducible]`
-or type class instances (`[instance_reducible]`) are unfolded. User-written `[implicit_reducible]` is **not** unfolded — use
+or `[instance_reducible]` (e.g. instances) are unfolded. `[implicit_reducible]` is **not** unfolded — use
 `withImplicit` for that.
 -/
 @[inline] def withReducibleAndInstances (x : n α) : n α :=
@@ -1293,9 +1292,9 @@ or type class instances (`[instance_reducible]`) are unfolded. User-written `[im
 
 /--
 `withImplicit x` executes `x` using the `.implicit` transparency setting. In this setting `[reducible]`,
-`[instance_reducible]`, and user-written `[implicit_reducible]` definitions are all unfolded.
-Used for definitional equality checks on implicit *value* arguments, where `[implicit_reducible]`
-definitions need to unfold in addition to what `.instances` already unfolds.
+`[instance_reducible]`, and `[implicit_reducible]` definitions are all unfolded. Used for
+definitional equality checks on implicit *value* arguments, where `[implicit_reducible]` definitions
+need to unfold in addition to what `.instances` already unfolds.
 -/
 @[inline] def withImplicit (x : n α) : n α :=
   withTransparency TransparencyMode.implicit x

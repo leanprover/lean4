@@ -96,19 +96,17 @@ inductive TransparencyMode where
   `isDefEq` in proof automation (`simp`, `rw`, type class resolution) where most checks fail
   and we must not try too hard. -/
   | reducible
-  /-- Unfolds reducible constants and constants tagged with `@[instance_reducible]` (i.e. type
+  /-- Unfolds reducible constants and constants tagged with `@[instance_reducible]` (e.g. type
   class instances). Used during type class synthesis to resolve instance diamonds (e.g., `Add Nat`
   from a direct instance vs from `Semiring`). Does *not* unfold `[implicit_reducible]`. -/
   | instances
   /-- Do not unfold anything. -/
   | none
-  /-- Unfolds reducible constants, `[instance_reducible]`, and `[implicit_reducible]` constants.
+  /--
+  Unfolds reducible constants, `[instance_reducible]`, and `[implicit_reducible]` constants.
   Used for checking definitional equality of implicit *value* arguments, so that downstream
-  `[implicit_reducible]` definitions unfold without affecting type class search. Strictly above
-  `.instances` in the unfolding lattice.
-
-  NOTE: this constructor is appended at the end (not in unfolding order) to preserve olean
-  compatibility with the pre-existing constructor indices. -/
+  `[implicit_reducible]` definitions unfold without affecting type class search.
+  -/
   | implicit
   deriving Inhabited, BEq
 

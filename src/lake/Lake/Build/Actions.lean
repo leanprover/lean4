@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lake.Util.Log
+public import Lake.Build.WrappedExec
 import Lake.Util.Proc
 import Lake.Util.FilePath
 import Lake.Util.IO
@@ -54,6 +55,32 @@ public def mkLeanModuleArgs
   args := args.push "--json"
   return (args, postponeCompile)
 
+/-- Collect the absolute output paths Lake expects lean to produce for `arts`.
+Used to populate the wrapped-exec manifest's `outputs` list so workers know
+which files to ship back. `setupFile` is intentionally NOT listed here — it's
+an input (written by Lake before the proc invocation, read by lean), and
+shipping a worker-translated copy back would clobber the head's original. -/
+public def collectLeanModuleOutputPaths
+  (arts : ModuleArtifacts) (postponeCompile : Bool)
+: Array FilePath := Id.run do
+  let mut xs : Array FilePath := #[]
+  if let some f := arts.olean? then xs := xs.push f
+  if let some f := arts.ilean? then xs := xs.push f
+  if !postponeCompile then
+    if let some f := arts.c? then xs := xs.push f
+  if let some f := arts.oleanServer? then xs := xs.push f
+  if let some f := arts.oleanPrivate? then xs := xs.push f
+  if let some f := arts.ir? then xs := xs.push f
+  if let some f := arts.bc? then xs := xs.push f
+  return xs
+
+/-- Remote-exec parameters (after `leanir`):
+* `extraInputs` — transitive olean closure that must be on the worker before
+  `lean` runs (see `Lake.collectLeanInputClosure`).
+* `lakeRoots` — `(workspace, lakeHome, toolchain, toolchainRoot)`; when
+  `some _` AND `$LAKE_WRAPPED_EXEC` is set, the invocation is routed through
+  the wrapper. Otherwise this falls through to local `rawProc`.
+* `jobId` — free-form label for logging. -/
 public def compileLeanModule
   (leanFile relLeanFile : FilePath)
   (setup : ModuleSetup) (setupFile : FilePath)
@@ -62,6 +89,9 @@ public def compileLeanModule
   (leanPath : SearchPath := [])
   (lean : FilePath := "lean")
   (leanir : FilePath := "leanir")
+  (extraInputs : Array FilePath := #[])
+  (lakeRoots : Option (FilePath × FilePath × FilePath × FilePath) := none)
+  (jobId : String := "")
 : LogIO Unit := do
   if let some oleanFile := arts.olean? then createParentDirs oleanFile
   if let some ileanFile := arts.ilean? then createParentDirs ileanFile
@@ -72,13 +102,12 @@ public def compileLeanModule
   createParentDirs setupFile
   IO.FS.writeFile setupFile (toJson setup).pretty
   withLogErrorPos do
-  let out ← rawProc {
-    args
-    cmd := lean.toString
-    env := #[
-      ("LEAN_PATH", leanPath.toString)
-    ]
-  }
+  let outputs := collectLeanModuleOutputPaths arts postponeCompile
+  let inputs := #[leanFile, setupFile] ++ extraInputs
+  let out ← Lake.WrappedExec.runRawProcOrWrapped
+    { args, cmd := lean.toString,
+      env := #[("LEAN_PATH", leanPath.toString)] }
+    inputs outputs lakeRoots jobId
   unless out.stdout.isEmpty do
     let txt ← out.stdout.split '\n' |>.foldM (init := "") fun (txt : String) ln => do
       let ln := ln.copy

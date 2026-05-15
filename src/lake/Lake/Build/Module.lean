@@ -277,6 +277,49 @@ where
         else q
       else q
 
+/-! ## Wrapped-exec input closure
+
+Walks the *unfiltered* direct-imports graph of `root` and returns every
+workspace olean file that needs to be on disk before invoking lean for `root`.
+Module-style modules contribute `.olean`, `.ir`, `.olean.server`, and
+`.olean.private`; non-module imports contribute just `.olean`.
+
+This is a strict superset of `setup.importArts` (which only follows exported
+imports). The bigger set is needed because lean's olean loader follows
+non-exported references at runtime via LEAN_PATH lookup — Lake's normal
+build dir is fully populated so this is invisible during a regular
+`lake build`, but in wrapped-exec mode where the worker only sees what's
+shipped, the difference matters.
+
+Only `mod.input.fetch` is consulted (the pure `:input` facet — reads source
+headers without compiling). Self is excluded from the result.
+-/
+
+private partial def collectInputClosureRec
+  (root : Module) (mod : Module) (visited : NameSet) (files : Array FilePath)
+: FetchM (NameSet × Array FilePath) := do
+  if visited.contains mod.name then return (visited, files)
+  let visited := visited.insert mod.name
+  let inp ← (← mod.input.fetch).await
+  let files :=
+    if mod.name == root.name then files
+    else
+      let files := files.push mod.oleanFile
+      if inp.header.isModule then
+        files.push mod.irFile
+          |>.push mod.oleanServerFile
+          |>.push mod.oleanPrivateFile
+      else files
+  inp.imports.foldlM (init := (visited, files)) fun (visited, files) imp => do
+    match imp.module? with
+    | none => pure (visited, files)
+    | some depMod => collectInputClosureRec root depMod visited files
+
+/-- See the `Wrapped-exec input closure` doc above. -/
+public def collectLeanInputClosure (root : Module) : FetchM (Array FilePath) := do
+  let (_, files) ← collectInputClosureRec root root {} #[]
+  return files
+
 def ModuleImportInfo.nil (modName : Name) : ModuleImportInfo where
   directArts := {}
   trace := .nil s!"imports"
@@ -890,8 +933,16 @@ def Module.buildLean
   let setup := {setup with importArts := transImpArts}
   let arts := mod.mkArtifacts srcFile setup.isModule
   mod.clearOutputArtifacts
+  -- Compute wrapped-exec metadata. The closure is only consulted when
+  -- `$LAKE_WRAPPED_EXEC` is set; otherwise it's effectively unused.
+  let ws ← getWorkspace
+  let lakeEnv := ws.lakeEnv
+  let extraInputs ← collectLeanInputClosure mod
+  let lakeRoots := some (ws.root.dir, ws.root.lakeDir, lakeEnv.lean.binDir, lakeEnv.lean.sysroot)
+  let jobId := s!"{mod.pkg.baseName}_{mod.name}"
   compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
     (← getLeanPath) (← getLean) (← getLeanir)
+    (extraInputs := extraInputs) (lakeRoots := lakeRoots) (jobId := jobId)
   mod.clearOutputHashes
   mod.computeArtifacts setup.isModule
 

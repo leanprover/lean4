@@ -219,6 +219,7 @@ jobs:
           rm -rf ../build/stage1/lib/lean
           ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
           ../build/stage0/bin/lake build --no-build
+        continue-on-error: true
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

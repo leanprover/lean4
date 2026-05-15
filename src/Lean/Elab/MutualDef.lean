@@ -1179,7 +1179,7 @@ deriving TypeName
 
 register_builtin_option warn.classDefReducibility : Bool := {
   defValue := true
-  descr    := "warn when a `def` of class type is not marked `@[reducible]`, `@[instance_reducible]`, or `@[instance_reducible]`"
+  descr    := "warn when a `def` of class type is not marked `@[reducible]`, `@[instance_reducible]`, or `@[implicit_reducible]`"
 }
 
 register_builtin_option warn.exposeOnPrivate : Bool := {

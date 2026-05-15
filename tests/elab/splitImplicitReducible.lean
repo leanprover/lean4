@@ -1,3 +1,5 @@
+import Lean
+
 /-!
 # Split of `[implicit_reducible]` and `[instance_reducible]`
 
@@ -44,8 +46,7 @@ instance instFoo : Foo := ⟨42⟩
 
 /-! ## Upgrade transition: `[instance_reducible]` -> `[implicit_reducible]` is allowed.
 
-This is the escape hatch for users who want an instance-tier symbol to *also* unfold
-during implicit-arg defeq. -/
+The declaration moves to the higher implicit tier, and no longer unfolds at `.instances`. -/
 
 @[instance_reducible] def upgradeMe : Nat → Nat
   | n => n
@@ -55,6 +56,19 @@ attribute [implicit_reducible] upgradeMe
 /-- info: @[implicit_reducible] def upgradeMe : Nat → Nat -/
 #guard_msgs in
 #print sig upgradeMe
+
+open Lean Meta in
+run_meta do
+  let lhs := mkApp (mkConst ``upgradeMe) (mkNatLit 0)
+  let rhs := mkNatLit 0
+  let atInstances ← withTransparency .instances <| isDefEq lhs rhs
+  match atInstances with
+  | true => throwError "`upgradeMe` should not unfold at `.instances` after moving to `[implicit_reducible]`"
+  | false => pure ()
+  let atImplicit ← withTransparency .implicit <| isDefEq lhs rhs
+  match atImplicit with
+  | true => pure ()
+  | false => throwError "`upgradeMe` should unfold at `.implicit`"
 
 /-! ## A class-typed `def` is rejected if it lacks any reducibility attribute. -/
 

@@ -156,7 +156,7 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
       | .implicitReducible =>
         -- Allow `[semireducible] -> [implicit_reducible]` and the upgrade
         -- `[instance_reducible] -> [implicit_reducible]` (so instances can be strengthened to
-        -- also unfold during implicit-arg defeq).
+        -- only unfold during implicit-arg defeq).
         unless statusOld matches .semireducible | .instanceReducible do
           throwError "failed to set `[implicit_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]` nor `[instance_reducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .instanceReducible =>
@@ -245,8 +245,8 @@ to class parents). The `instance` command automatically adds `[instance_reducibl
 diamonds (e.g., `Add Nat` from a direct instance vs via `Semiring`) are definitionally equal
 but structurally different, so `isDefEq` must unfold them during type class synthesis.
 
-To strengthen an `[instance_reducible]` definition so it also unfolds during implicit-arg
-defeq, you can additionally apply `[implicit_reducible]`.
+Applying `[implicit_reducible]` to an `[instance_reducible]` declaration moves it to the higher
+implicit tier; it will no longer unfold at `.instances` transparency.
 -/
 builtin_initialize
   registerBuiltinAttribute {

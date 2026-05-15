@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.Ext
-// Imports: import Lean.Meta.Tactic.Ext import Lean.Elab.Tactic.RCases import Lean.Elab.Command import Lean.Linter.Basic public import Lean.Elab.Term.TermElabM
+// Imports: import Lean.Meta.Tactic.Ext import Lean.Elab.Tactic.RCases import Lean.Elab.Command import Lean.Linter.Init public import Lean.Elab.Term.TermElabM
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -20996,7 +20996,7 @@ return v_res_7996_;
 lean_object* runtime_initialize_Lean_Meta_Tactic_Ext(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Tactic_RCases(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Term_TermElabM(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_Ext(uint8_t builtin) {
@@ -21012,7 +21012,7 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Command(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Linter_Basic(builtin);
+res = runtime_initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Term_TermElabM(builtin);
@@ -21042,7 +21042,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Lean_Meta_Tactic_Ext(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Tactic_RCases(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin);
-lean_object* initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Term_TermElabM(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_Ext(uint8_t builtin) {
@@ -21058,7 +21058,7 @@ lean_dec_ref(res);
 res = initialize_Lean_Elab_Command(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Linter_Basic(builtin);
+res = initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Term_TermElabM(builtin);

@@ -13,21 +13,21 @@ test_run lint --builtin-only Clean
 # is captured in `lintLogExt`, and is re-emitted by `lake lint` post-build.
 # `linter.missingDocs` (defValue=false) must NOT fire without --lint-all/--lint-only.
 lake_out lint --builtin-only TextLints || true
-match_pat 'unused variable `unusedLet`' produced.out
+match_pat 'Variable name `unusedLet` is not explicitly referenced' produced.out
 no_match_pat 'missing doc string' produced.out
 
 # --lint-all enables all linters, so missingDocs fires too.
 lake_out lint --lint-all TextLints || true
-match_pat 'unused variable `unusedLet`' produced.out
+match_pat 'Variable name `unusedLet` is not explicitly referenced' produced.out
 match_pat 'missing doc string for public def undocumentedPublicDef' produced.out
 
 # --lint-only filters entries by suffix match against the linter name.
 lake_out lint --lint-only missingDocs TextLints || true
 match_pat 'missing doc string for public def undocumentedPublicDef' produced.out
-no_match_pat 'unused variable' produced.out
+no_match_pat 'is not explicitly referenced' produced.out
 
 lake_out lint --lint-only unusedVariables TextLints || true
-match_pat 'unused variable `unusedLet`' produced.out
+match_pat 'Variable name `unusedLet` is not explicitly referenced' produced.out
 no_match_pat 'missing doc string' produced.out
 
 # --builtin-lint should detect the defLemma violation in Main (the default target)
@@ -64,7 +64,7 @@ match_pat 'shouldBeTheoremInSub' produced.out
 
 # `linter.unusedVariables` (defValue=true) fires on every build, so its entry
 # lands in `Main.Sub.olean` unconditionally.
-match_pat 'unused variable `unusedInSub`' produced.out
+match_pat 'Variable name `unusedInSub` is not explicitly referenced' produced.out
 
 # Explicit arg with --lint-all: the override applies to the whole package of
 # `Main`, so `Main.Sub` is also built with `linter.all=true` and the
@@ -116,7 +116,7 @@ match_pat 'shouldBeTheoremUnderExtra' produced.out
 # linters run under --extra). `linter.missingDocs` is still off-by-default
 # and only enabled by `--lint-all`/`--lint-only`.
 lake_out lint --extra TextLints || true
-match_pat 'unused variable `unusedLet`' produced.out
+match_pat 'Variable name `unusedLet` is not explicitly referenced' produced.out
 no_match_pat 'missing doc string' produced.out
 
 # --lint-all should run both default and extra linters, for both the

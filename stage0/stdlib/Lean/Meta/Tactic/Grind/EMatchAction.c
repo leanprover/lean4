@@ -9901,7 +9901,7 @@ goto v_resetjp_3164_;
 v_resetjp_3164_:
 {
 uint8_t v_trace_3167_; 
-v_trace_3167_ = lean_ctor_get_uint8(v_a_3163_, sizeof(void*)*12);
+v_trace_3167_ = lean_ctor_get_uint8(v_a_3163_, sizeof(void*)*13);
 lean_dec(v_a_3163_);
 if (v_trace_3167_ == 0)
 {

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.Sets
-// Imports: public meta import Lean.Linter.Basic public meta import Lean.Elab.Command public import Init.Notation import Lean.Data.KVMap
+// Imports: public meta import Lean.Linter.Init public meta import Lean.Elab.Command public import Init.Notation import Lean.Data.KVMap
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1473,14 +1473,14 @@ if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* runtime_initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Command(uint8_t builtin);
 static bool _G_meta_initialized = false;
 LEAN_EXPORT lean_object* meta_initialize_Lean_Linter_Sets(uint8_t builtin) {
 lean_object * res;
 if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
-res = runtime_initialize_Lean_Linter_Basic(builtin);
+res = runtime_initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Command(builtin);
@@ -1490,7 +1490,7 @@ l_Lean_Linter_registerSet___auto__1 = _init_l_Lean_Linter_registerSet___auto__1(
 lean_mark_persistent(l_Lean_Linter_registerSet___auto__1);
 return lean_io_result_mk_ok(lean_box(0));
 }
-lean_object* initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Command(uint8_t builtin);
 lean_object* initialize_Init_Notation(uint8_t builtin);
 lean_object* initialize_Lean_Data_KVMap(uint8_t builtin);
@@ -1499,7 +1499,7 @@ LEAN_EXPORT lean_object* initialize_Lean_Linter_Sets(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
-res = initialize_Lean_Linter_Basic(builtin);
+res = initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Command(builtin);

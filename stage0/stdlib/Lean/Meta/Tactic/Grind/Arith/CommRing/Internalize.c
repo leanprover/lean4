@@ -10861,7 +10861,7 @@ goto v_resetjp_3407_;
 v_resetjp_3407_:
 {
 uint8_t v_ring_3410_; 
-v_ring_3410_ = lean_ctor_get_uint8(v_a_3406_, sizeof(void*)*12 + 21);
+v_ring_3410_ = lean_ctor_get_uint8(v_a_3406_, sizeof(void*)*13 + 21);
 lean_dec(v_a_3406_);
 if (v_ring_3410_ == 0)
 {

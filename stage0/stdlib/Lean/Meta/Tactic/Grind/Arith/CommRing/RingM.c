@@ -272,7 +272,7 @@ goto v_resetjp_9_;
 v_resetjp_9_:
 {
 lean_object* v_ringSteps_12_; lean_object* v_steps_13_; uint8_t v___x_14_; lean_object* v___x_15_; lean_object* v___x_17_; 
-v_ringSteps_12_ = lean_ctor_get(v_a_8_, 5);
+v_ringSteps_12_ = lean_ctor_get(v_a_8_, 6);
 lean_inc(v_ringSteps_12_);
 lean_dec(v_a_8_);
 v_steps_13_ = lean_ctor_get(v_a_6_, 12);
@@ -568,7 +568,7 @@ goto v_resetjp_112_;
 v_resetjp_112_:
 {
 lean_object* v_ringMaxDegree_115_; lean_object* v___x_116_; uint8_t v___x_117_; 
-v_ringMaxDegree_115_ = lean_ctor_get(v_a_111_, 6);
+v_ringMaxDegree_115_ = lean_ctor_get(v_a_111_, 7);
 lean_inc(v_ringMaxDegree_115_);
 lean_dec(v_a_111_);
 v___x_116_ = l_Lean_Grind_CommRing_Poly_degree(v_p_100_);

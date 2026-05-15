@@ -9,3 +9,4 @@ prelude
 public import Lean.Linter.Extra.DupNamespace
 public import Lean.Linter.Extra.UnnecessarySeqFocus
 public import Lean.Linter.Extra.UnreachableTactic
+public import Lean.Linter.Extra.UnusedDecidableInType

@@ -1064,8 +1064,8 @@ configure_file(${LEAN_SOURCE_DIR}/stdlib.make.in ${CMAKE_BINARY_DIR}/stdlib.make
 
 # hacky
 function(toml_escape IN OUTVAR)
-  if(IN)
-    string(STRIP "${IN}" OUT)
+  string(STRIP "${IN}" OUT)
+  if(OUT)
     string(REPLACE " " "\", \"" OUT "${OUT}")
     set(${OUTVAR} "\"${OUT}\"" PARENT_SCOPE)
   endif()

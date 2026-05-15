@@ -7090,7 +7090,7 @@ goto v_resetjp_2260_;
 v_resetjp_2260_:
 {
 lean_object* v_ringSteps_2263_; lean_object* v_steps_2264_; uint8_t v___x_2265_; 
-v_ringSteps_2263_ = lean_ctor_get(v_c_2254_, 5);
+v_ringSteps_2263_ = lean_ctor_get(v_c_2254_, 6);
 lean_inc(v_ringSteps_2263_);
 lean_dec_ref(v_c_2254_);
 v_steps_2264_ = lean_ctor_get(v_a_2259_, 12);

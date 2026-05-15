@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.Tactic.ElabTerm
-// Imports: public import Lean.Meta.Tactic.Constructor public import Lean.Meta.Tactic.Replace public import Lean.Meta.Tactic.Rename public import Lean.Elab.Tactic.Config
+// Imports: public import Lean.Meta.Tactic.Constructor public import Lean.Meta.Tactic.Replace public import Lean.Meta.Tactic.Rename public import Lean.Elab.Tactic.Basic public import Lean.Elab.SyntheticMVars
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -11286,7 +11286,8 @@ return v_res_4656_;
 lean_object* runtime_initialize_Lean_Meta_Tactic_Constructor(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Replace(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Meta_Tactic_Rename(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Elab_Tactic_Config(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_SyntheticMVars(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_Tactic_ElabTerm(uint8_t builtin) {
 lean_object * res;
@@ -11301,7 +11302,10 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Meta_Tactic_Rename(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Elab_Tactic_Config(builtin);
+res = runtime_initialize_Lean_Elab_Tactic_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_SyntheticMVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = l___private_Lean_Elab_Tactic_ElabTerm_0__Lean_Elab_Tactic_evalExact___regBuiltin_Lean_Elab_Tactic_evalExact__1();
@@ -11379,7 +11383,8 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Lean_Meta_Tactic_Constructor(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Replace(uint8_t builtin);
 lean_object* initialize_Lean_Meta_Tactic_Rename(uint8_t builtin);
-lean_object* initialize_Lean_Elab_Tactic_Config(uint8_t builtin);
+lean_object* initialize_Lean_Elab_Tactic_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Elab_SyntheticMVars(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_Tactic_ElabTerm(uint8_t builtin) {
 lean_object * res;
@@ -11394,7 +11399,10 @@ lean_dec_ref(res);
 res = initialize_Lean_Meta_Tactic_Rename(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Elab_Tactic_Config(builtin);
+res = initialize_Lean_Elab_Tactic_Basic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_SyntheticMVars(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Tactic_ElabTerm(builtin);

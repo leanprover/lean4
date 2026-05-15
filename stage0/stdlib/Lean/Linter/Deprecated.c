@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.Deprecated
-// Imports: public import Lean.Meta.Basic import Lean.Linter.Basic import Lean.Elab.InfoTree.Main import Lean.ExtraModUses import Init.Omega
+// Imports: public import Lean.Meta.Basic import Lean.Linter.Init import Lean.Elab.InfoTree.Main import Lean.ExtraModUses import Init.Omega
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -4864,7 +4864,7 @@ return v_res_1578_;
 }
 }
 lean_object* runtime_initialize_Lean_Meta_Basic(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_InfoTree_Main(uint8_t builtin);
 lean_object* runtime_initialize_Lean_ExtraModUses(uint8_t builtin);
 lean_object* runtime_initialize_Init_Omega(uint8_t builtin);
@@ -4876,7 +4876,7 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Linter_Basic(builtin);
+res = runtime_initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_InfoTree_Main(builtin);
@@ -4908,7 +4908,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Meta_Basic(uint8_t builtin);
-lean_object* initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* initialize_Lean_Elab_InfoTree_Main(uint8_t builtin);
 lean_object* initialize_Lean_ExtraModUses(uint8_t builtin);
 lean_object* initialize_Init_Omega(uint8_t builtin);
@@ -4920,7 +4920,7 @@ _G_initialized = true;
 res = initialize_Lean_Meta_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Linter_Basic(builtin);
+res = initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_InfoTree_Main(builtin);

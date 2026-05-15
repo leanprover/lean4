@@ -111,7 +111,9 @@ def evalCheck (tacticName : Name) (k : GoalM Bool)
      This matches the behavior of these tactics in default tactic mode
      where `lia` can close `x > 1 → x + y + z > 0` directly. -/
   if (← read).sym then
-    liftAction <| Action.intros 0 >> Action.assertAll
+    match (← liftActionCore <| Action.intros 0 >> Action.assertAll) with
+    | .closed   => return () -- closed the goal
+    | .subgoals => pure () -- continue
   let recover := (← read).recover
   liftGoalM do
     let progress ← k
@@ -437,7 +439,8 @@ where
   replaceMainGoal [{ goal with mvarId }]
 
 @[builtin_grind_tactic setOption] def elabSetOption : GrindTactic := fun stx => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let (options, decl) ← Elab.elabSetOption stx[1] stx[3]
+  withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   withOptions (fun _ => options) do evalGrindTactic stx[5]
 
 @[builtin_grind_tactic setConfig] def elabSetConfig : GrindTactic := fun stx => do

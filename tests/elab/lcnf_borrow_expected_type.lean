@@ -139,8 +139,6 @@ structure Quad where
 /-- Only traverses → parameter stays borrowed. -/
 @[noinline] def measuree (xs : List Nat) : Nat := xs.length
 
-/-
-
 /--
 trace: [Compiler.explicitRc] size: 22
     def cascadeDemo @&t : tobj :=
@@ -170,7 +168,7 @@ trace: [Compiler.explicitRc] size: 22
 [Compiler.explicitRc] size: 2
     def cascadeDemo._boxed t : tobj :=
       let res := cascadeDemo t;
-      dec t;
+      dec[ref] t;
       return res
 -/
 #guard_msgs in
@@ -185,20 +183,20 @@ def cascadeDemo (t : @&Quad) : Nat :=
 trace: [Compiler.explicitRc] size: 33
     def cascadeDemo' t : tobj :=
       let left := oproj[0] t;
-      inc left;
+      inc[ref] left;
       let right := oproj[1] t;
-      inc right;
-      dec t;
+      inc[ref] right;
+      dec[ref] t;
       let fst := oproj[0] left;
       inc fst;
       let snd := oproj[1] left;
       inc snd;
-      dec left;
+      dec[ref] left;
       let fst := oproj[0] right;
       inc fst;
       let snd := oproj[1] right;
       inc snd;
-      dec right;
+      dec[ref] right;
       let _x.1 := wrap fst;
       let res := List.lengthTR._redArg _x.1;
       dec _x.1;
@@ -240,7 +238,7 @@ trace: [Compiler.explicitRc] size: 15
         dec a;
         let fst := oproj[0] x;
         inc fst;
-        dec x;
+        dec[ref] x;
         return fst
       | Bool.false =>
         let one := 1;
@@ -257,5 +255,3 @@ def preserveTailCall (x : @&Prod Nat Nat) (a : Nat) : Nat :=
   match a with
   | 0 => x.fst
   | a + 1 => preserveTailCall (mkNewProd x a) a
-
--/

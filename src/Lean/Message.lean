@@ -14,6 +14,7 @@ public import Lean.Util.Sorry
 import Init.Data.String.Search
 import Init.Data.Format.Macro
 import Init.Data.Iterators.Consumers.Collect
+import Init.Data.String.Length
 
 public section
 
@@ -244,7 +245,7 @@ def ofLevel (l : Level) : MessageData :=
   .ofLazy
     (fun ctx? => do
       let msg ← ofFormat <$> match ctx? with
-        | .none => pure (format l)
+        | .none => pure (l.format true (fun _ => none))
         | .some ctx => ppLevel ctx l
       return Dynamic.mk msg)
     (fun _ => false)
@@ -688,7 +689,7 @@ def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
     (fun ctx => do
       let msg := MessageData.ofExpr e
       let render ← msg.formatExpensively ctx
-      if render.length > maxInlineLength || render.any (· == '\n') then
+      if render.positions.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg ++ "\n"
       else
         return " `" ++ msg ++ "` ")
@@ -704,7 +705,7 @@ def inlineExprTrailing (e : Expr) (maxInlineLength := 30) : MessageData :=
     (fun ctx => do
       let msg := MessageData.ofExpr e
       let render ← msg.formatExpensively ctx
-      if render.length > maxInlineLength || render.any (· == '\n') then
+      if render.positions.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg
       else
         return " `" ++ msg ++ "`")

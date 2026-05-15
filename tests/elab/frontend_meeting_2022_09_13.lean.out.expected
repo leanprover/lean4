@@ -96,5 +96,5 @@ Lean.SourceInfo : Type
 str := "My command comment hello world "
 Lean.Elab.runFrontend (input : String) (opts : Lean.Options) (fileName : String) (mainModuleName : Lean.Name)
   (trustLevel : UInt32 := 0) (oleanFileName? ileanFileName? : Option System.FilePath := none)
-  (jsonOutput : Bool := false) (errorOnKinds : Array Lean.Name := #[]) (plugins : Array System.FilePath := #[])
+  (jsonOutput : Bool := false) (errorOnKinds : Array Lean.Name := #[]) (plugins : Array Lean.Plugin := #[])
   (printStats : Bool := false) (setup? : Option Lean.ModuleSetup := none) : IO (Option Lean.Environment)

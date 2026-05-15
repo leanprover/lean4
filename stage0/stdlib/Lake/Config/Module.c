@@ -954,7 +954,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_findModule_x3f(lean_object* v_mod_230_, 
 _start:
 {
 lean_object* v___y_233_; lean_object* v_targetDecls_236_; lean_object* v___x_237_; lean_object* v___x_238_; lean_object* v___x_239_; uint8_t v___x_240_; 
-v_targetDecls_236_ = lean_ctor_get(v_self_231_, 13);
+v_targetDecls_236_ = lean_ctor_get(v_self_231_, 14);
 lean_inc_ref(v_targetDecls_236_);
 v___x_237_ = lean_unsigned_to_nat(0u);
 v___x_238_ = ((lean_object*)(l_Lake_Package_findModule_x3f___closed__0));
@@ -1464,12 +1464,11 @@ case 1:
 {
 lean_object* v_a_431_; lean_object* v___f_432_; lean_object* v___x_433_; lean_object* v___x_434_; lean_object* v___x_435_; 
 v_a_431_ = lean_ctor_get(v___x_424_, 0);
-lean_inc(v_a_431_);
+lean_inc_n(v_a_431_, 2);
 v___f_432_ = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_LeanLib_getModuleArray_spec__1___lam__1___boxed), 5, 2);
 lean_closure_set(v___f_432_, 0, v_a_431_);
 lean_closure_set(v___f_432_, 1, v___f_423_);
 v___x_433_ = ((lean_object*)(l_String_dropSuffix_x3f___at___00Lake_LeanLib_findModuleBySrc_x3f_spec__3___redArg___closed__0));
-lean_inc(v_a_431_);
 v___x_434_ = l_Lean_modToFilePath(v___x_428_, v_a_431_, v___x_433_);
 lean_dec_ref(v___x_428_);
 v___x_435_ = l_Lean_forEachModuleInDir___at___00Lake_LeanLib_getModuleArray_spec__0(v___x_434_, v___f_432_, v___y_406_);
@@ -1493,12 +1492,11 @@ lean_dec_ref(v___x_437_);
 v_snd_439_ = lean_ctor_get(v_a_438_, 1);
 lean_inc(v_snd_439_);
 lean_dec(v_a_438_);
-lean_inc(v_a_436_);
+lean_inc_n(v_a_436_, 2);
 v___f_440_ = lean_alloc_closure((void*)(l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_LeanLib_getModuleArray_spec__1___lam__1___boxed), 5, 2);
 lean_closure_set(v___f_440_, 0, v_a_436_);
 lean_closure_set(v___f_440_, 1, v___f_423_);
 v___x_441_ = ((lean_object*)(l_String_dropSuffix_x3f___at___00Lake_LeanLib_findModuleBySrc_x3f_spec__3___redArg___closed__0));
-lean_inc(v_a_436_);
 v___x_442_ = l_Lean_modToFilePath(v___x_428_, v_a_436_, v___x_441_);
 lean_dec_ref(v___x_428_);
 v___x_443_ = l_Lean_forEachModuleInDir___at___00Lake_LeanLib_getModuleArray_spec__0(v___x_442_, v___f_440_, v_snd_439_);
@@ -2031,7 +2029,7 @@ v_name_619_ = lean_ctor_get(v_self_614_, 1);
 lean_inc(v_name_619_);
 lean_dec_ref(v_self_614_);
 v_dir_620_ = lean_ctor_get(v_pkg_616_, 4);
-lean_inc_ref(v_dir_620_);
+lean_inc_ref_n(v_dir_620_, 2);
 lean_dec_ref(v_pkg_616_);
 v_srcDir_621_ = lean_ctor_get(v_config_617_, 4);
 lean_inc_ref(v_srcDir_621_);
@@ -2041,7 +2039,6 @@ lean_inc_ref(v_srcDir_622_);
 lean_dec(v_config_618_);
 v___x_623_ = ((lean_object*)(l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop___at___00Lean_forEachModuleInDir___at___00Lake_LeanLib_getModuleArray_spec__0_spec__1___closed__0));
 v___x_624_ = l_System_FilePath_normalize(v_srcDir_621_);
-lean_inc_ref(v_dir_620_);
 v___x_625_ = l_Lake_joinRelative(v_dir_620_, v___x_624_);
 v___x_626_ = l_System_FilePath_normalize(v_srcDir_622_);
 v___x_627_ = l_Lake_joinRelative(v___x_625_, v___x_626_);
@@ -2807,7 +2804,7 @@ if (v_allowImportAll_991_ == 0)
 lean_object* v_pkg_992_; lean_object* v_config_993_; uint8_t v_allowImportAll_994_; 
 v_pkg_992_ = lean_ctor_get(v_lib_989_, 0);
 v_config_993_ = lean_ctor_get(v_pkg_992_, 6);
-v_allowImportAll_994_ = lean_ctor_get_uint8(v_config_993_, sizeof(void*)*26 + 5);
+v_allowImportAll_994_ = lean_ctor_get_uint8(v_config_993_, sizeof(void*)*27 + 5);
 return v_allowImportAll_994_;
 }
 else
@@ -3139,7 +3136,7 @@ lean_inc_ref(v_pkg_1119_);
 lean_dec_ref(v_lib_1118_);
 v_config_1120_ = lean_ctor_get(v_pkg_1119_, 6);
 lean_inc_ref(v_config_1120_);
-v_bootstrap_1121_ = lean_ctor_get_uint8(v_config_1120_, sizeof(void*)*26);
+v_bootstrap_1121_ = lean_ctor_get_uint8(v_config_1120_, sizeof(void*)*27);
 if (v_bootstrap_1121_ == 0)
 {
 lean_object* v___x_1122_; 
@@ -3208,7 +3205,7 @@ lean_object* v_lib_1142_; lean_object* v_pkg_1143_; lean_object* v_config_1144_;
 v_lib_1142_ = lean_ctor_get(v_self_1141_, 0);
 v_pkg_1143_ = lean_ctor_get(v_lib_1142_, 0);
 v_config_1144_ = lean_ctor_get(v_pkg_1143_, 6);
-v_precompileModules_1145_ = lean_ctor_get_uint8(v_config_1144_, sizeof(void*)*26 + 1);
+v_precompileModules_1145_ = lean_ctor_get_uint8(v_config_1144_, sizeof(void*)*27 + 1);
 if (v_precompileModules_1145_ == 0)
 {
 lean_object* v_config_1146_; uint8_t v_precompileModules_1147_; 

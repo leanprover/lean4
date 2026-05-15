@@ -49,7 +49,7 @@ data_value mk_data_value(data_value_kind k, char const * val) {
 extern "C" object * lean_register_option(obj_arg name, obj_arg decl);
 
 void register_option(name const & n, name const & decl_name, data_value_kind k, char const * default_value, char const * description) {
-    object_ref decl = mk_cnstr(0, n, decl_name, mk_data_value(k, default_value), string_ref(description));
+    object_ref decl = mk_cnstr(0, n, decl_name, mk_data_value(k, default_value), string_ref(description), object_ref(lean_box(0)));
     consume_io_result(lean_register_option(n.to_obj_arg(), decl.to_obj_arg()));
 }
 }

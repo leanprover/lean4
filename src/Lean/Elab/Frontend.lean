@@ -10,6 +10,8 @@ public import Lean.Language.Lean
 public import Lean.Server.References
 public import Lean.Util.Profiler
 import Lean.Compiler.Options
+import Lean.Linter.PersistentLintLog
+import Lean.Util.ProfilerServer
 
 public section
 
@@ -143,7 +145,7 @@ def runFrontend
     (ileanFileName? : Option System.FilePath := none)
     (jsonOutput : Bool := false)
     (errorOnKinds : Array Name := #[])
-    (plugins : Array System.FilePath := #[])
+    (plugins : Array Plugin := #[])
     (printStats : Bool := false)
     (setup? : Option ModuleSetup := none)
     : IO (Option Environment) := do
@@ -195,6 +197,9 @@ def runFrontend
 
   if let some oleanFileName := oleanFileName? then
     profileitIO ".olean serialization" finalOpts do
+      let allMessages := snaps.getAll.foldl
+        (init := (.empty : MessageLog)) (fun acc s => acc ++ s.diagnostics.msgLog)
+      let env ← Linter.recordLints env allMessages
       writeModule (writeIR := !Compiler.compiler.postponeCompile.get finalOpts) env oleanFileName
 
   if let some ileanFileName := ileanFileName? then
@@ -214,6 +219,10 @@ def runFrontend
     let traceStates := snaps.getAll.map (·.traces)
     let profile ← Firefox.Profile.export mainModuleName.toString startTime traceStates opts
     IO.FS.writeFile ⟨out⟩ <| Json.compress <| toJson profile
+  else if trace.profiler.serve.get finalOpts then
+    let traceStates := snaps.getAll.map (·.traces)
+    let profile ← Firefox.Profile.export mainModuleName.toString startTime traceStates opts
+    Firefox.Profile.serve <| Json.compress <| toJson profile
 
   -- no point in freeing the snapshot graph and all referenced data this close to process exit
   Runtime.forget snaps

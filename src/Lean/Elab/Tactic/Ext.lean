@@ -9,7 +9,7 @@ prelude
 import Lean.Meta.Tactic.Ext
 import Lean.Elab.Tactic.RCases
 import Lean.Elab.Command
-import Lean.Linter.Basic
+import Lean.Linter.Init
 -- These public imports are needed because for now we make `extCore` public.
 public import Lean.Elab.Term.TermElabM
 

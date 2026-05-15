@@ -1214,7 +1214,7 @@ _start:
 {
 lean_object* v_fixedParamPerm_391_; lean_object* v_recArgPos_392_; lean_object* v_indicesPos_393_; lean_object* v___x_394_; lean_object* v___x_395_; lean_object* v___x_396_; lean_object* v___x_397_; lean_object* v_xs_398_; lean_object* v_indexMajorPos_399_; size_t v_sz_400_; lean_object* v___x_401_; lean_object* v_indexMajorArgs_402_; size_t v___x_403_; lean_object* v___x_404_; lean_object* v___x_405_; lean_object* v___x_406_; 
 v_fixedParamPerm_391_ = lean_ctor_get(v_info_389_, 1);
-lean_inc_ref(v_fixedParamPerm_391_);
+lean_inc_ref_n(v_fixedParamPerm_391_, 2);
 v_recArgPos_392_ = lean_ctor_get(v_info_389_, 2);
 lean_inc(v_recArgPos_392_);
 v_indicesPos_393_ = lean_ctor_get(v_info_389_, 3);
@@ -1224,7 +1224,6 @@ v___x_394_ = l_Lean_Elab_FixedParamPerm_numFixed(v_fixedParamPerm_391_);
 v___x_395_ = lean_unsigned_to_nat(0u);
 v___x_396_ = lean_obj_once(&l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__1, &l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__1_once, _init_l_Lean_Elab_Structural_RecArgInfo_pickIndicesMajor___closed__1);
 v___x_397_ = lean_mk_array(v___x_394_, v___x_396_);
-lean_inc_ref(v_fixedParamPerm_391_);
 v_xs_398_ = l_Lean_Elab_FixedParamPerm_buildArgs___redArg(v_fixedParamPerm_391_, v___x_397_, v_xs_390_);
 lean_dec_ref(v___x_397_);
 v_indexMajorPos_399_ = lean_array_push(v_indicesPos_393_, v_recArgPos_392_);

@@ -22,7 +22,7 @@ uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
 lean_object* lean_string_utf8_next_fast(lean_object*, lean_object*);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
-uint8_t l_String_instDecidableLtRaw___aux__1(lean_object*, lean_object*);
+uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* l_String_Slice_pos_x21(lean_object*, lean_object*);
 uint8_t lean_string_get_byte_fast(lean_object*, lean_object*);
 uint8_t lean_uint8_dec_eq(uint8_t, uint8_t);
@@ -580,7 +580,7 @@ lean_dec(v_needlePos_158_);
 lean_dec(v_stackPos_157_);
 lean_dec_ref(v_table_156_);
 lean_dec_ref(v_needle_155_);
-v___x_173_ = l_String_instDecidableLtRaw___aux__1(v_basePos_168_, v___x_171_);
+v___x_173_ = lean_nat_dec_lt(v_basePos_168_, v___x_171_);
 if (v___x_173_ == 0)
 {
 lean_dec(v___x_171_);

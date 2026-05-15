@@ -21,7 +21,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState_default;
-extern lean_object* l_Lean_instInhabitedFVarId_default;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
@@ -310,7 +309,7 @@ _start:
 {
 lean_object* v___x_69_; lean_object* v___x_70_; lean_object* v___x_71_; lean_object* v___x_72_; 
 v___x_69_ = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState_default;
-v___x_70_ = l_Lean_instInhabitedFVarId_default;
+v___x_70_ = lean_box(0);
 v___x_71_ = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCaseKind_default;
 v___x_72_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_72_, 0, v___x_71_);
@@ -1009,13 +1008,12 @@ goto v_resetjp_360_;
 v_resetjp_360_:
 {
 lean_object* v___x_363_; lean_object* v___x_364_; lean_object* v___x_365_; lean_object* v___x_367_; 
-lean_inc(v_a_353_);
+lean_inc_n(v_a_353_, 2);
 v___x_363_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_363_, 0, v_kind_338_);
 lean_ctor_set(v___x_363_, 1, v_a_353_);
 lean_ctor_set(v___x_363_, 2, v_a_355_);
 v___x_364_ = l_Lean_PersistentArray_push___redArg(v_cases_357_, v___x_363_);
-lean_inc(v_a_353_);
 v___x_365_ = l_Lean_FVarIdSet_insert(v_decVars_359_, v_a_353_);
 if (v_isShared_362_ == 0)
 {

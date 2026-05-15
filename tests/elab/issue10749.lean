@@ -10,7 +10,7 @@ def test (a : List Nat) : Nat :=
 -- Should have no `casesOn`
 
 /--
-info: def test.match_1.{u_1} : (motive : List Nat → Sort u_1) →
+info: @[implicit_reducible] def test.match_1.{u_1} : (motive : List Nat → Sort u_1) →
   (a : List Nat) → ((x : List Nat) → motive x) → (Unit → motive []) → motive a :=
 fun motive a h_1 h_2 => h_1 a
 -/
@@ -25,7 +25,7 @@ def test2 (a b : List Nat) : Nat :=
 -- Should have exactly two `casesOn`
 
 /--
-info: def test2.match_1.{u_1} : (motive : List Nat → List Nat → Sort u_1) →
+info: @[implicit_reducible] def test2.match_1.{u_1} : (motive : List Nat → List Nat → Sort u_1) →
   (a b : List Nat) →
     ((x : List Nat) → motive [] x) →
       ((x : List Nat) → motive x []) →
@@ -47,7 +47,7 @@ def test3 (a : List Nat) (b : Bool) : Nat :=
 -- Should have exactly two `casesOn`
 
 /--
-info: def test3.match_1.{u_1} : (motive : List Nat → Bool → Sort u_1) →
+info: @[implicit_reducible] def test3.match_1.{u_1} : (motive : List Nat → Bool → Sort u_1) →
   (a : List Nat) →
     (b : Bool) →
       ((x : List Nat) → motive x true) →
@@ -71,7 +71,7 @@ def test4 : Bool → Bool → Bool → Bool → Bool → Bool
   | _ , _ , _ , _ , _ => false
 
 /--
-info: def test4.match_1.{u_1} : (motive : Bool → Bool → Bool → Bool → Bool → Sort u_1) →
+info: @[implicit_reducible] def test4.match_1.{u_1} : (motive : Bool → Bool → Bool → Bool → Bool → Sort u_1) →
   (x x_1 x_2 x_3 x_4 : Bool) →
     ((x x_5 x_6 x_7 : Bool) → motive x x_5 x_6 x_7 true) →
       ((x x_5 x_6 x_7 : Bool) → motive x x_5 x_6 true x_7) →
@@ -98,7 +98,7 @@ def test4' : Bool → Bool → Bool → Bool → Bool → Bool
   | false, false, false, false, false => false
 
 /--
-info: def test4'.match_1.{u_1} : (motive : Bool → Bool → Bool → Bool → Bool → Sort u_1) →
+info: @[implicit_reducible] def test4'.match_1.{u_1} : (motive : Bool → Bool → Bool → Bool → Bool → Sort u_1) →
   (x x_1 x_2 x_3 x_4 : Bool) →
     ((x x_5 x_6 x_7 : Bool) → motive x x_5 x_6 x_7 true) →
       ((x x_5 x_6 x_7 : Bool) → motive x x_5 x_6 true x_7) →
@@ -130,7 +130,7 @@ def testOld (a : List Nat) : Nat :=
 -- Has unnecessary `casesOn`
 
 /--
-info: def testOld.match_1.{u_1} : (motive : List Nat → Sort u_1) →
+info: @[implicit_reducible] def testOld.match_1.{u_1} : (motive : List Nat → Sort u_1) →
   (a : List Nat) → ((x : List Nat) → motive x) → (Unit → motive []) → motive a :=
 fun motive a h_1 h_2 => test3._sparseCasesOn_2 a (h_1 []) fun h => h_1 a
 -/

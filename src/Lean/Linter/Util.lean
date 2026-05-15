@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Server.InfoUtils
-public import Lean.Linter.Basic
+public import Lean.Linter.Init
 
 public section
 

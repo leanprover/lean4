@@ -43,7 +43,7 @@ lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, le
 lean_object* l_ReaderT_instMonad___redArg(lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
 lean_object* l_instInhabitedForall___redArg___lam__0___boxed(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_usize_dec_eq(size_t, size_t);
 uint8_t lean_nat_dec_le(lean_object*, lean_object*);
 lean_object* l_Lean_Compiler_LCNF_Simp_markSimplified___redArg(lean_object*);
@@ -684,14 +684,15 @@ goto v_reusejp_190_;
 }
 v_reusejp_190_:
 {
-lean_object* v___x_192_; lean_object* v___x_193_; lean_object* v___x_194_; lean_object* v___x_195_; lean_object* v___f_196_; lean_object* v___x_3441__overap_197_; lean_object* v___x_198_; 
+lean_object* v___x_192_; lean_object* v___x_193_; lean_object* v___x_194_; lean_object* v___x_195_; lean_object* v___f_196_; lean_object* v___x_3443__overap_197_; lean_object* v___x_198_; 
 v___x_192_ = l_ReaderT_instMonad___redArg(v___x_191_);
 v___x_193_ = l_StateRefT_x27_instMonad___redArg(v___x_192_);
 v___x_194_ = lean_box(0);
 v___x_195_ = l_instInhabitedOfMonad___redArg(v___x_193_, v___x_194_);
 v___f_196_ = lean_alloc_closure((void*)(l_instInhabitedForall___redArg___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_196_, 0, v___x_195_);
-v___x_3441__overap_197_ = lean_panic_fn(v___f_196_, v_msg_134_);
+v___x_3443__overap_197_ = lean_panic_fn_borrowed(v___f_196_, v_msg_134_);
+lean_dec_ref(v___f_196_);
 lean_inc(v___y_141_);
 lean_inc_ref(v___y_140_);
 lean_inc(v___y_139_);
@@ -699,7 +700,7 @@ lean_inc_ref(v___y_138_);
 lean_inc_ref(v___y_137_);
 lean_inc(v___y_136_);
 lean_inc_ref(v___y_135_);
-v___x_198_ = lean_apply_8(v___x_3441__overap_197_, v___y_135_, v___y_136_, v___y_137_, v___y_138_, v___y_139_, v___y_140_, v___y_141_, lean_box(0));
+v___x_198_ = lean_apply_8(v___x_3443__overap_197_, v___y_135_, v___y_136_, v___y_137_, v___y_138_, v___y_139_, v___y_140_, v___y_141_, lean_box(0));
 return v___x_198_;
 }
 }

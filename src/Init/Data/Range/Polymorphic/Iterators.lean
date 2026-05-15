@@ -38,7 +38,7 @@ def Internal.iter [UpwardEnumerable α] (r : Rcc α) : Iter (α := Rxc.Iterator 
 /--
 Returns the elements of the given closed range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Rcc α) : List α :=
   Internal.iter r |>.toList
@@ -46,7 +46,7 @@ def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given closed range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Rcc α) : Array α :=
   Internal.iter r |>.toArray
@@ -124,7 +124,7 @@ def Internal.iter [UpwardEnumerable α] (r : Rco α) : Iter (α := Rxo.Iterator 
 /--
 Returns the elements of the given left-closed right-open range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rco α) : List α :=
   Internal.iter r |>.toList
@@ -132,7 +132,7 @@ def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given left-closed right-open range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rco α) : Array α :=
   Internal.iter r |>.toArray
@@ -210,7 +210,7 @@ def Internal.iter [UpwardEnumerable α] (r : Rci α) : Iter (α := Rxi.Iterator 
 /--
 Returns the elements of the given left-closed right-unbounded range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] (r : Rci α) :
     List α :=
   Internal.iter r |>.toList
@@ -218,7 +218,7 @@ def toList [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite
 /--
 Returns the elements of the given left-closed right-unbounded range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] (r : Rci α) :
     Array α :=
   Internal.iter r |>.toArray
@@ -295,7 +295,7 @@ def Internal.iter [UpwardEnumerable α] (r : Roc α) : Iter (α := Rxc.Iterator 
 /--
 Returns the elements of the given left-open right-closed range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Roc α) : List α :=
   Internal.iter r |>.toList
@@ -303,7 +303,7 @@ def toList [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given left-open right-closed range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Roc α) : Array α :=
   Internal.iter r |>.toArray
@@ -376,7 +376,7 @@ def Internal.iter [UpwardEnumerable α] (r : Roo α) : Iter (α := Rxo.Iterator 
 /--
 Returns the elements of the given open range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Roo α) : List α :=
   Internal.iter r |>.toList
@@ -384,7 +384,7 @@ def toList [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerabl
 /--
 Returns the elements of the given open range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Roo α) : Array α :=
   Internal.iter r |>.toArray
@@ -456,7 +456,7 @@ def Internal.iter [UpwardEnumerable α] (r : Roi α) : Iter (α := Rxi.Iterator 
 /--
 Returns the elements of the given left-open right-unbounded range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList[UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     (r : Roi α) : List α :=
   Internal.iter r |>.toList
@@ -464,7 +464,7 @@ def toList[UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite 
 /--
 Returns the elements of the given left-open right-unbounded range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [UpwardEnumerable α] [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α]
     (r : Roi α) : Array α :=
   Internal.iter r |>.toArray
@@ -532,7 +532,7 @@ def Internal.iter [Least? α] (r : Ric α) : Iter (α := Rxc.Iterator α) α :=
 /--
 Returns the elements of the given closed range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Ric α) : List α :=
   Internal.iter r |>.toList
@@ -540,7 +540,7 @@ def toList [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpw
 /--
 Returns the elements of the given closed range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [Least? α] [LE α] [DecidableLE α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxc.IsAlwaysFinite α] (r : Ric α) : Array α :=
   Internal.iter r |>.toArray
@@ -607,7 +607,7 @@ def Internal.iter [UpwardEnumerable α] [Least? α] (r : Rio α) : Iter (α := R
 /--
 Returns the elements of the given closed range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rio α) : List α :=
   Internal.iter r |>.toList
@@ -615,7 +615,7 @@ def toList [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpw
 /--
 Returns the elements of the given closed range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray [Least? α] [LT α] [DecidableLT α] [UpwardEnumerable α] [LawfulUpwardEnumerable α]
     [Rxo.IsAlwaysFinite α] (r : Rio α) : Array α :=
   Internal.iter r |>.toArray
@@ -681,7 +681,7 @@ def Internal.iter [UpwardEnumerable α] [Least? α] (_ : Rii α) : Iter (α := R
 /--
 Returns the elements of the given full range as a list in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toList [UpwardEnumerable α] [Least? α] (r : Rii α)
     [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id] : List α :=
   Internal.iter r |>.toList
@@ -689,7 +689,7 @@ def toList [UpwardEnumerable α] [Least? α] (r : Rii α)
 /--
 Returns the elements of the given full range as an array in ascending order.
 -/
-@[always_inline, inline, expose]
+@[always_inline, inline]
 def toArray {α} [UpwardEnumerable α] [Least? α] (r : Rii α)
     [Iterator (Rxi.Iterator α) Id α] [Finite (Rxi.Iterator α) Id] : Array α :=
   Internal.iter r |>.toArray

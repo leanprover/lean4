@@ -1,4 +1,4 @@
-def Foo.bar.match_1.{u_1} : {l₂ : Nat} →
+@[implicit_reducible] def Foo.bar.match_1.{u_1} : {l₂ : Nat} →
   (motive : Foo l₂ → Sort u_1) →
     (t₂ : Foo l₂) → ((s₁ : Foo l₂) → motive s₁.cons) → ((x : Foo l₂) → motive x) → motive t₂ :=
 fun {l₂} motive t₂ h_1 h_2 =>

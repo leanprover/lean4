@@ -7,7 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.TryThis
-public import Lean.Elab.Tactic.Config
+public import Lean.Elab.Tactic.Grind.Config
 public import Lean.LibrarySuggestions.Basic
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Elab.Tactic.Grind.Param
@@ -17,12 +17,6 @@ import Lean.Meta.Tactic.Grind.Parser
 public section
 namespace Lean.Elab.Tactic
 open Meta
-declare_config_elab elabGrindConfig Grind.Config
-declare_config_elab elabGrindConfigInteractive Grind.ConfigInteractive
-declare_config_elab elabCutsatConfig Grind.CutsatConfig
-declare_config_elab elabLinarithConfig Grind.LinarithConfig
-declare_config_elab elabOrderConfig Grind.OrderConfig
-declare_config_elab elabGrobnerConfig Grind.GrobnerConfig
 
 open Command Term in
 open Lean.Parser.Command.GrindCnstr in
@@ -334,7 +328,7 @@ def filterSuggestionsAndLocalsFromGrindConfig (config : TSyntax ``Lean.Parser.Ta
 
 private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (interactive : Bool) : TacticM Grind.Config := do
   if interactive then
-    return (← elabGrindConfigInteractive config).toConfig
+    elabGrindConfigInteractive config
   else
     elabGrindConfig config
 

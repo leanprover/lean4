@@ -28,7 +28,7 @@ def getConstUnfoldEqnFor? (declName : Name) : MetaM (Option Name) := do
     trace[ReservedNameAction] "getConstUnfoldEqnFor? {declName} failed, no unfold theorem available"
     return none
   let name := mkEqLikeNameFor (← getEnv) declName eqUnfoldThmSuffix
-  realizeConst declName name do
+  realizeConst declName name <| withEqnOptions declName do
     -- we have to call `getUnfoldEqnFor?` again to make `unfoldEqnName` available in this context
     let some unfoldEqnName ← getUnfoldEqnFor? (nonRec := true) declName | unreachable!
     let info ← getConstInfo unfoldEqnName

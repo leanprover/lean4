@@ -2614,7 +2614,6 @@ v_resetjp_717_:
 {
 lean_object* v___x_720_; lean_object* v___x_721_; uint8_t v___x_722_; 
 v___x_720_ = lean_obj_once(&l___private_Init_Omega_Constraint_0__Lean_Omega_instToStringInt___lam__0___closed__0, &l___private_Init_Omega_Constraint_0__Lean_Omega_instToStringInt___lam__0___closed__0_once, _init_l___private_Init_Omega_Constraint_0__Lean_Omega_instToStringInt___lam__0___closed__0);
-lean_inc(v_snd_716_);
 v___x_721_ = l_Lean_Omega_IntList_leading(v_snd_716_);
 v___x_722_ = lean_int_dec_le(v___x_720_, v___x_721_);
 lean_dec(v___x_721_);
@@ -2844,12 +2843,11 @@ LEAN_EXPORT lean_object* l_Lean_Omega_bmod__div__term(lean_object* v_m_782_, lea
 _start:
 {
 lean_object* v___f_785_; lean_object* v___x_786_; lean_object* v___x_787_; lean_object* v___x_788_; lean_object* v___x_789_; lean_object* v___x_790_; lean_object* v___x_791_; lean_object* v___x_792_; lean_object* v___x_793_; 
-lean_inc(v_m_782_);
+lean_inc_n(v_m_782_, 2);
 v___f_785_ = lean_alloc_closure((void*)(l_Lean_Omega_bmod__div__term___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_785_, 0, v_m_782_);
 lean_inc(v_b_784_);
 v___x_786_ = l_Lean_Omega_IntList_dot(v_a_783_, v_b_784_);
-lean_inc(v_m_782_);
 v___x_787_ = l_Int_bmod(v___x_786_, v_m_782_);
 lean_dec(v___x_786_);
 v___x_788_ = lean_box(0);

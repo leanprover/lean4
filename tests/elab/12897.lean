@@ -1,12 +1,25 @@
--- Tests that `inferInstanceAs` auxiliary definitions are properly marked `meta`
--- when used inside a `meta` section.
+-- Tests that `wrapInstance` auxiliary definitions work correctly
+-- when used inside a `meta` section, for both `inferInstanceAs` and `deriving`.
 
 module
 
-meta section
+public meta import Lean.Elab.Command
 
-def Foo := List Nat
+public meta section
 
-instance : EmptyCollection Foo := inferInstanceAs (EmptyCollection (List Nat))
+namespace Test
 
-end
+open Lean
+
+-- `@[expose]` forces `wrapInstance` to create aux wrapper definitions,
+-- which is where the meta marking matters.
+@[expose] def Foo := Unit
+deriving Inhabited
+
+@[expose] def Bar := Name
+deriving Inhabited
+
+@[expose] def Baz := List Nat
+instance : EmptyCollection Baz := inferInstanceAs (EmptyCollection (List Nat))
+
+end Test

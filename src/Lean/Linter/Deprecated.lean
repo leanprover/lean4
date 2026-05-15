@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Basic
-import Lean.Linter.Basic
+import Lean.Linter.Init
 import Lean.Elab.InfoTree.Main
 import Lean.ExtraModUses
 import Init.Omega

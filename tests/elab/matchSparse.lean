@@ -10,7 +10,7 @@ def simple : Lean.Expr → Bool
   | _      => false
 
 /--
-info: def simple.match_1.{u_1} : (motive : Expr → Sort u_1) →
+info: @[implicit_reducible] def simple.match_1.{u_1} : (motive : Expr → Sort u_1) →
   (x : Expr) → ((u : Level) → motive (sort u)) → ((x : Expr) → motive x) → motive x :=
 fun motive x h_1 h_2 => simple._sparseCasesOn_1 x (fun u => h_1 u) fun h => h_2 x
 -/

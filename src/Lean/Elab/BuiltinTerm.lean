@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.Meta.Diagnostics
-public import Lean.Meta.InstanceNormalForm
+public import Lean.Meta.WrapInstance
 public import Lean.Elab.Open
 public import Lean.Elab.SetOption
 public import Lean.Elab.Eval
@@ -157,7 +157,37 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     elabTerm b expectedType?
   | _ => throwUnsupportedSyntax
 
-@[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
+register_builtin_option tactic.tryOnEmptyBy : Bool := {
+  defValue := false
+  descr    := "when an empty `by` block is encountered interactively, run `try?` to suggest \
+    a proof (currently disabled by default; may become the default in a future release)"
+}
+
+/-- Returns `true` if `stx` is a `by` expression with an empty tactic body
+(not a parse error producing `.missing`).
+The structure is: `node byTactic [atom "by", node tacticSeq [node tacticSeq1Indented [node null []]]]` -/
+def isEmptyByBlock (stx : Syntax) : Bool :=
+  stx.getNumArgs == 2 &&
+  stx[1].getNumArgs >= 1 &&
+  stx[1][0].isOfKind ``Lean.Parser.Tactic.tacticSeq1Indented &&
+  stx[1][0].getNumArgs >= 1 &&
+  stx[1][0][0].getNumArgs == 0 &&
+  !stx[1][0][0].isMissing
+
+/-- Returns `true` if all conditions are met for empty `by` to be elaborated as `try?`:
+the body is empty, the option is enabled, we are in an interactive (non-combinator) context,
+and the `try?` infrastructure (parser `Lean.Parser.Tactic.tryTrace`) is available — the latter
+matters when working on the prelude, before `Init.Try` is imported. -/
+def shouldElabEmptyByAsTry (stx : Syntax) : TermElabM Bool := do
+  return isEmptyByBlock stx
+    && tactic.tryOnEmptyBy.get (← getOptions)
+    && (← read).errToSorry
+    && (← getEnv).contains `Lean.Parser.Tactic.tryTrace
+
+/-- Body of the `byTactic` term elaborator: registers a tactic mvar for the body, or
+errors when there's no expected type. Shared between `elabByTactic` and
+`Lean.Elab.Tactic.Try`'s `elabEmptyByAsTry` so the two paths can't drift. -/
+def elabByTacticCore : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType =>
     -- `by` switches from an exported to a private context, so we must disallow unassigned
@@ -167,6 +197,13 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")
+
+@[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
+  -- When the conditions for `try?` on empty `by` are met, skip this elaborator so a later one
+  -- (in Lean.Elab.Tactic.Try) can handle it with try?.
+  if (← shouldElabEmptyByAsTry stx) then
+    throwUnsupportedSyntax
+  elabByTacticCore stx expectedType?
 
 @[builtin_term_elab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)
@@ -314,23 +351,49 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     return val
   | _ => panic! "resolveId? returned an unexpected expression"
 
+/--
+Rebuild a type application with fresh synthetic metavariables for instance-implicit arguments.
+Non-instance-implicit arguments are assigned from the original application's arguments.
+If the function is over-applied, extra arguments are preserved.
+-/
+private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
+  let fn := type.getAppFn
+  let args := type.getAppArgs
+  let (mvars, bis, _) ← forallMetaTelescope (← inferType fn)
+  for i in [:mvars.size] do
+    if bis[i]!.isInstImplicit then
+      mvars[i]!.mvarId!.assign (← mkInstMVar (← inferType mvars[i]!))
+    else
+      mvars[i]!.mvarId!.assign args[i]!
+  let args := mvars ++ args.drop mvars.size
+  instantiateMVars (mkAppN fn args)
+
 @[builtin_term_elab Lean.Parser.Term.inferInstanceAs] def elabInferInstanceAs : TermElab := fun stx expectedType? => do
-  let expectedType ← tryPostponeIfHasMVars expectedType? "`inferInstanceAs` failed"
   -- The type argument is the last child (works for both `inferInstanceAs T` and `inferInstanceAs <| T`)
   let typeStx := stx[stx.getNumArgs - 1]!
-  let type ← withSynthesize (postpone := .yes) <| elabType typeStx
-  -- Unify with expected type to resolve metavariables (e.g., `_` placeholders)
-  discard <| isDefEq type expectedType
+  if !backward.inferInstanceAs.wrap.get (← getOptions) then
+    return (← elabTerm (← `(_root_.inferInstanceAs $(⟨typeStx⟩))) expectedType?)
+
+  let some expectedType ← tryPostponeIfHasMVars? expectedType? |
+    throwError (m!"`inferInstanceAs` failed, expected type contains metavariables{indentD expectedType?}" ++
+      .note "`inferInstanceAs` requires full knowledge of the expected (\"target\") type to do its \
+        instance translation. If you do not intend to transport instances between two types, \
+        consider using `inferInstance` or `(inferInstance : expectedType)` instead.")
+  let type ← withSynthesize do
+    let type ← elabType typeStx
+    -- Unify with expected type to resolve metavariables (e.g., `_` placeholders)
+    discard <| isDefEq type expectedType
+    return type
+  -- Re-infer instance-implicit args, so that synthesis is not influenced by the expected type's
+  -- instance choices.
+  let type ← withSynthesize <| resynthInstImplicitArgs type
   let type ← instantiateMVars type
-  -- Rebuild type with fresh synthetic mvars for instance-implicit args, so that
-  -- synthesis is not influenced by the expected type's instance choices.
-  let type ← abstractInstImplicitArgs type
   let inst ← synthInstance type
   let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
-    -- Normalize to instance normal form.
+    -- Wrap instance so its type matches the expected type exactly.
     let logCompileErrors := !(← read).isNoncomputableSection && !(← read).declName?.any (Lean.isNoncomputable (← getEnv))
-    let isMeta := (← read).isMetaSection
-    withNewMCtxDepth <| normalizeInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
+    let isMeta := (← read).declName?.any (isMarkedMeta (← getEnv))
+    wrapInstance inst expectedType (logCompileErrors := logCompileErrors) (isMeta := isMeta)
   else
     pure inst
   ensureHasType expectedType? inst
@@ -364,7 +427,8 @@ private def mkSilentAnnotationIfHole (e : Expr) : TermElabM Expr := do
     popScope
 
 @[builtin_term_elab «set_option»] def elabSetOption : TermElab := fun stx expectedType? => do
-  let options ← Elab.elabSetOption stx[1] stx[3]
+  let (options, decl) ← Elab.elabSetOption stx[1] stx[3]
+  withRef stx[1] <| Elab.checkDeprecatedOption (stx[1].getId.eraseMacroScopes) decl
   withOptions (fun _ => options) do
     try
       elabTerm stx[5] expectedType?

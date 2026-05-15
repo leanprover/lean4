@@ -33,12 +33,12 @@ The high-level overview of moves are
   * If there is an alternative, solve its constraints
   * Else use `contradiction` to prove completeness of the match
 * Process “independent prefixes” of patterns. These are patterns that can be processed without
-  affecting the aother alternatives, and without side effects in the sense of updating the `mvarId`.
+  affecting the other alternatives, and without side effects in the sense of updating the `mvarId`.
   These are
   - variable patterns; substitute
   - inaccessible patterns; add equality constraints
   - as-patterns: substitute value and equality
-  After thes have been processed, we use `.inaccessible x` where `x` is the variable being matched
+  After these have been processed, we use `.inaccessible x` where `x` is the variable being matched
   to mark them as “done”.
 * If all patterns start with “done”, drop the first variable
 * The first alt has only “done” patterns, drop remaining alts (they're overlapped)
@@ -76,6 +76,14 @@ register_builtin_option backward.match.rowMajor : Bool := {
   descr := "If true (the default), match compilation will split the discrimnants based \
     on position of the first constructor pattern in the first alternative. If false, \
     it splits them from left to right, which can lead to unnecessary code bloat."
+}
+
+register_builtin_option match.maxCounterExamples : Nat := {
+  defValue := 5
+  descr := "Maximum number of missing-case counter-examples to generate. \
+    When this limit is reached, the match compiler stops exploring further \
+    case splits for counter-example generation. Increase if you need to see \
+    all missing cases."
 }
 
 private def mkIncorrectNumberOfPatternsMsg [ToMessageData α]
@@ -202,7 +210,7 @@ structure State where
   Used during splitter generation to avoid going through all pairs of patterns.
   -/
   overlaps        : Overlaps := {}
-  counterExamples : List (List Example) := []
+  counterExamples : Array (List Example) := #[]
 
 /-- Return true if the given (sub-)problem has been solved. -/
 private def isDone (p : Problem) : Bool :=
@@ -269,10 +277,16 @@ def isCurrVarInductive (p : Problem) : MetaM Bool := do
     let val? ← getInductiveVal? x
     return val?.isSome
 
-private def isConstructorTransition (p : Problem) : MetaM Bool := do
-  return (← isCurrVarInductive p)
-    && (hasCtorPattern p || p.alts.isEmpty)
-    && p.alts.all fun alt => match alt.patterns with
+private def isConstructorTransition (p : Problem) : StateRefT State MetaM Bool := do
+  if !(← isCurrVarInductive p) then return false
+  if p.alts.isEmpty then
+    /- When there are no alternatives left and we have already accumulated enough
+       counter-examples, stop exploring further case splits. This prevents
+       combinatorial explosion when generating "missing cases" diagnostics. -/
+    let maxCEx := match.maxCounterExamples.get (← getOptions)
+    return (← get).counterExamples.size < maxCEx
+  else
+    return hasCtorPattern p && p.alts.all fun alt => match alt.patterns with
       | .ctor .. :: _        => true
       | .inaccessible _ :: _ => true -- should be a done pattern by now
       | _                    => false
@@ -467,7 +481,7 @@ where
         trace[Meta.Match.match] "contradiction succeeded"
       else
         trace[Meta.Match.match] "contradiction failed, missing alternative"
-        modify fun s => { s with counterExamples := p.examples :: s.counterExamples }
+        modify fun s => { s with counterExamples := s.counterExamples.push p.examples }
     | alt :: overlapped =>
       solveCnstrs p.mvarId alt
       for otherAlt in overlapped do
@@ -1094,6 +1108,9 @@ def mkMatcherAuxDefinition (name : Name) (type : Expr) (value : Expr) (isSplitte
       -- matcher bodies should always be exported, if not private anyway
       withExporting do
         addDecl decl
+      -- if `matcher` is not private, we mark it as `implicit_reducible` too
+      unless isPrivateName name do
+        setReducibilityStatus name .implicitReducible
       unless isSplitter do
         modifyEnv fun env => matcherExt.modifyState env fun s => s.insert key name
         addMatcherInfo name mi

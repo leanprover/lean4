@@ -138,9 +138,7 @@ theorem getElem_zero_flatten.proof {xss : Array (Array α)} (h : 0 < xss.flatten
 @[grind =]
 theorem getElem_zero_flatten {xss : Array (Array α)} (h) :
     (flatten xss)[0] = (xss.findSome? fun xs => xs[0]?).get (getElem_zero_flatten.proof h) := by
-  have t := getElem?_zero_flatten xss
-  simp at t
-  simp [← t]
+  simp [← getElem?_zero_flatten xss]
 
 @[grind =]
 theorem findSome?_replicate : findSome? f (replicate n a) = if n = 0 then none else f a := by

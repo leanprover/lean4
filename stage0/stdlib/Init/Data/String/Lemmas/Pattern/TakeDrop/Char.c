@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.String.Lemmas.Pattern.TakeDrop.Char
-// Imports: public import Init.Data.String.Slice public import Init.Data.String.TakeDrop import Init.Data.String.Lemmas.Pattern.TakeDrop.Basic import Init.Data.String.Lemmas.Pattern.Char import Init.Data.Option.Lemmas
+// Imports: public import Init.Data.String.Slice public import Init.Data.String.TakeDrop import Init.Data.String.Lemmas.Pattern.TakeDrop.Basic import Init.Data.String.Lemmas.Pattern.Char import Init.Data.Option.Lemmas import Init.Data.String.Lemmas.FindPos import Init.Data.List.Sublist
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -18,6 +18,8 @@ lean_object* runtime_initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_TakeDrop_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_Char(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Sublist(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_String_Lemmas_Pattern_TakeDrop_Char(uint8_t builtin) {
 lean_object * res;
@@ -38,6 +40,12 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Option_Lemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Lemmas_FindPos(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Sublist(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -52,6 +60,8 @@ lean_object* initialize_Init_Data_String_TakeDrop(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Pattern_TakeDrop_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Lemmas_Pattern_Char(uint8_t builtin);
 lean_object* initialize_Init_Data_Option_Lemmas(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Lemmas_FindPos(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Sublist(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_String_Lemmas_Pattern_TakeDrop_Char(uint8_t builtin) {
 lean_object * res;
@@ -70,6 +80,12 @@ res = initialize_Init_Data_String_Lemmas_Pattern_Char(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Option_Lemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Lemmas_FindPos(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Sublist(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Lemmas_Pattern_TakeDrop_Char(builtin);

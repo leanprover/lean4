@@ -227,19 +227,19 @@ public def f.eq_def := 1
 #guard_msgs in
 public def fexp.eq_def := 1
 
-/-- info: @[defeq] private theorem f.eq_def : f = 1 -/
+/-- info: @[backward_defeq] private theorem f.eq_def : f = 1 -/
 #guard_msgs in #print sig f.eq_def
 
-/-- info: @[defeq] private theorem f.eq_unfold : f = 1 -/
+/-- info: @[backward_defeq] private theorem f.eq_unfold : f = 1 -/
 #guard_msgs in #print sig f.eq_unfold
 
-/-- info: @[defeq] theorem fexp.eq_def : fexp = 1 -/
+/-- info: @[backward_defeq] theorem fexp.eq_def : fexp = 1 -/
 #guard_msgs in #print sig fexp.eq_def
 
-/-- info: @[defeq] theorem fexp.eq_unfold : fexp = 1 -/
+/-- info: @[backward_defeq] theorem fexp.eq_unfold : fexp = 1 -/
 #guard_msgs in #print sig fexp.eq_unfold
 
-/-- info: @[defeq] private theorem f_struct.eq_1 : f_struct 0 = 0 -/
+/-- info: @[backward_defeq] private theorem f_struct.eq_1 : f_struct 0 = 0 -/
 #guard_msgs in #print sig f_struct.eq_1
 
 /--
@@ -561,3 +561,12 @@ public def func (ctx : Nat) (operand : OpOperand2) : Nat :=
 
 /-- Setup for #12833. -/
 public def Namespaced.def := 0
+
+/-! Setup for the default-instance visibility test in `Module.PrivateImported`. -/
+
+public structure CustomMulT where
+  x : Nat
+
+@[default_instance]
+public instance instHMulNatCustom : HMul Nat CustomMulT CustomMulT where
+  hMul a b := { x := a + b.x }

@@ -31,6 +31,9 @@ make -C build/release -j "$(nproc)" test ARGS='--rerun-failed'
 # Run a test manually without ctest (test pile: pass filename relative to the pile dir)
 tests/with_stage1_test_env.sh tests/elab_bench/run_bench.sh cbv_decide.lean
 tests/with_stage1_test_env.sh tests/elab/run_test.sh grind_indexmap.lean
+
+# Build Lake and run a Lake test (pass directory name relative to `tests/lake`)
+tests/lake/run_test.sh tests/ltar
 ```
 
 ## Benchmark vs Test Problem Sizes
@@ -55,6 +58,13 @@ the stage 2 build as well as for final validation,
 make -C build/release/stage2 clean-stdlib
 ```
 must be run manually before building.
+
+To rebuild individual stage 2 modules without a full `make stage2`, use Lake directly:
+```
+cd build/release/stage2 && lake build Init.Prelude
+```
+
+To run tests in stage2, replace `-C build/release` from above with `-C build/release/stage2`.
 
 ## New features
 
@@ -92,7 +102,7 @@ Follow the commit convention in `doc/dev/commit_convention.md`.
 **Title format:** `<type>: <subject>` where type is one of: `feat`, `fix`, `doc`, `style`, `refactor`, `test`, `chore`, `perf`.
 Subject should use imperative present tense ("add" not "added"), no capitalization, no trailing period.
 
-**Body format:** The first paragraph must start with "This PR". This paragraph is automatically incorporated into release notes. Use imperative present tense. Include motivation and contrast with previous behavior when relevant. Do NOT use markdown headings (`## Summary`, `## Test plan`, etc.) in PR bodies.
+**Body format:** The first paragraph must start with "This PR". This paragraph is automatically incorporated into release notes, so keep it short, focus on user-side impact, and avoid implementation-specific wording. Save the implementation details for a follow-up paragraph. Use imperative present tense. Do NOT use markdown headings (`## Summary`, `## Test plan`, etc.) in PR bodies.
 
 Example:
 ```
@@ -141,3 +151,13 @@ When CI jobs fail, investigate immediately - don't wait for other jobs to comple
 New files require a copyright header. To get the year right, always run `date +%Y` rather than relying on memory. The copyright holder should be the author or their current employer — check other recent files by the same author in the repository to determine the correct entity (e.g., "Lean FRO, LLC", "Amazon.com, Inc. or its affiliates").
 
 Test files (in `tests/`) do not need copyright headers.
+
+## Test Module Docstrings
+
+Every test `.lean` file must include a module docstring (`/-! ... -/`) briefly explaining what the file tests. For regression tests, reference the issue (e.g. `#13599`). Place the docstring after the `import` block, if any.
+
+## Rebasing vs PR base
+
+When asked to "rebase a PR onto X", **only change the local branch base** — never change the PR's `--base` target on GitHub unless explicitly told to.
+
+Common Lean4 case: rebasing onto `nightly-with-mathlib` is done to get a mathlib-tested snapshot for CI; the PR still targets `master`.

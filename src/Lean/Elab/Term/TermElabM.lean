@@ -9,6 +9,7 @@ prelude
 public import Lean.Meta.Coe
 public import Lean.Util.CollectLevelMVars
 public import Lean.Linter.Deprecated
+import Lean.Elab.DeprecatedSyntax
 public import Lean.Elab.Attributes
 public import Lean.Elab.Level
 public import Lean.Elab.PreDefinition.TerminationHint
@@ -231,7 +232,10 @@ structure TacticFinishedSnapshot extends Language.Snapshot where
   state? : Option SavedState
   /-- Untyped snapshots from `logSnapshotTask`, saved at this level for cancellation. -/
   moreSnaps : Array (SnapshotTask SnapshotTree)
-deriving Inhabited
+
+instance : Inhabited TacticFinishedSnapshot where
+  default := { toSnapshot := default, state? := default, moreSnaps := default }
+
 instance : ToSnapshotTree TacticFinishedSnapshot where
   toSnapshotTree s := ⟨s.toSnapshot, s.moreSnaps⟩
 
@@ -245,7 +249,10 @@ structure TacticParsedSnapshot extends Language.Snapshot where
   finished : SnapshotTask TacticFinishedSnapshot
   /-- Tasks for subsequent, potentially parallel, tactic steps. -/
   next     : Array (SnapshotTask TacticParsedSnapshot) := #[]
-deriving Inhabited
+
+instance : Inhabited TacticParsedSnapshot where
+  default := { toSnapshot := default, stx := default, finished := default }
+
 partial instance : ToSnapshotTree TacticParsedSnapshot where
   toSnapshotTree := go where
     go := fun s => ⟨s.toSnapshot,
@@ -626,13 +633,13 @@ builtin_initialize termElabAttribute : KeyedDeclsAttribute TermElab ← mkTermEl
   `[LVal.fieldName "foo", LVal.fieldIdx 1]`.
 -/
 inductive LVal where
-  | fieldIdx  (ref : Syntax) (i : Nat)
+  | fieldIdx  (ref : Syntax) (i : Nat) (levels : List Level)
   /-- Field `suffix?` is for producing better error messages because `x.y` may be a field access or a hierarchical/composite name.
   `ref` is the syntax object representing the field. `fullRef` includes the LHS. -/
-  | fieldName (ref : Syntax) (name : String) (suffix? : Option Name) (fullRef : Syntax)
+  | fieldName (ref : Syntax) (name : String) (levels : List Level) (suffix? : Option Name) (fullRef : Syntax)
 
 def LVal.getRef : LVal → Syntax
-  | .fieldIdx ref _    => ref
+  | .fieldIdx ref ..   => ref
   | .fieldName ref ..  => ref
 
 def LVal.isFieldName : LVal → Bool
@@ -641,8 +648,11 @@ def LVal.isFieldName : LVal → Bool
 
 instance : ToString LVal where
   toString
-    | .fieldIdx _ i     => toString i
-    | .fieldName _ n .. => n
+    | .fieldIdx _ i levels ..  => toString i ++ levelsToString levels
+    | .fieldName _ n levels .. => n ++ levelsToString levels
+where
+  levelsToString levels :=
+    if levels.isEmpty then "" else ".{" ++ String.intercalate "," (levels.map toString) ++ "}"
 
 /-- Return the name of the declaration being elaborated if available. -/
 def getDeclName? : TermElabM (Option Name) := return (← read).declName?
@@ -1794,6 +1804,7 @@ private partial def elabTermAux (expectedType? : Option Expr) (catchExPostpone :
     withTraceNode `Elab.step (fun _ => return m!"expected type: {expectedType?}, term\n{stx}")
       (tag := stx.getKind.toString) do
     checkSystem "elaborator"
+    checkDeprecatedSyntax stx (← read).macroStack
     let env ← getEnv
     let result ← match (← liftMacroM (expandMacroImpl? env stx)) with
     | some (decl, stxNew?) =>
@@ -2109,8 +2120,10 @@ def checkDeprecated (ref : Syntax) (e : Expr) : TermElabM Unit := do
 @[inline] def withoutCheckDeprecated [MonadWithReaderOf Context m] : m α → m α :=
   withTheReader Context (fun ctx => { ctx with checkDeprecated := false })
 
-private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String)) := do
+private def mkConsts (candidates : List (Name × List String)) (explicitLevels : List Level) : TermElabM (List (Expr × List String × List Level)) := do
   candidates.foldlM (init := []) fun result (declName, projs) => do
+    -- levels apply to the last projection, not the constant
+    let (constLevels, projLevels) := if projs.isEmpty then (explicitLevels, []) else ([], explicitLevels)
     -- TODO: better support for `mkConst` failure. We may want to cache the failures, and report them if all candidates fail.
     /-
     We disable `checkDeprecated` here because there may be many overloaded symbols.
@@ -2119,22 +2132,38 @@ private def mkConsts (candidates : List (Name × List String)) (explicitLevels :
     At `elabAppFnId`, we perform the check when converting the list returned by `resolveName'` into a list of
     `TermElabResult`s.
     -/
-    let const ← withoutCheckDeprecated <| mkConst declName explicitLevels
-    return (const, projs) :: result
+    let const ← withoutCheckDeprecated <| mkConst declName constLevels
+    return (const, projs, projLevels) :: result
 
-def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String)) := do
+def throwInvalidExplicitUniversesForLocal {α} (e : Expr) : TermElabM α :=
+  throwError "invalid use of explicit universe parameters, `{e}` is a local variable"
+
+/--
+  Gives all resolutions of the name `n`.
+
+- `explicitLevels` provides a prefix of level parameters to the constant. For resolutions with a projection
+  component, the levels are not used, since they must apply to the last projection, not the constant.
+  In that case, the third component of the tuple is `explicitLevels`.
+-/
+def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (List (Expr × List String × List Level)) := do
   addCompletionInfo <| CompletionInfo.id stx stx.getId (danglingDot := false) (← getLCtx) expectedType?
+  let processLocal (e : Expr) (projs : List String) := do
+    if projs.isEmpty then
+      if explicitLevels.isEmpty then
+        return [(e, [], [])]
+      else
+        throwInvalidExplicitUniversesForLocal e
+    else
+      return [(e, projs, explicitLevels)]
   if let some (e, projs) ← resolveLocalName n then
-    unless explicitLevels.isEmpty do
-      throwError "invalid use of explicit universe parameters, `{e}` is a local variable"
-    return [(e, projs)]
+    return ← processLocal e projs
   let preresolved := preresolved.filterMap fun
     | .decl n projs => some (n, projs)
     | _             => none
   -- check for section variable capture by a quotation
   let ctx ← read
   if let some (e, projs) := preresolved.findSome? fun (n, projs) => ctx.sectionFVars.find? n |>.map (·, projs) then
-    return [(e, projs)]  -- section variables should shadow global decls
+    return ← processLocal e projs  -- section variables should shadow global decls
   if preresolved.isEmpty then
     mkConsts (← realizeGlobalName n) explicitLevels
   else
@@ -2143,14 +2172,17 @@ def resolveName (stx : Syntax) (n : Name) (preresolved : List Syntax.Preresolved
 /--
   Similar to `resolveName`, but creates identifiers for the main part and each projection with position information derived from `ident`.
   Example: Assume resolveName `v.head.bla.boo` produces `(v.head, ["bla", "boo"])`, then this method produces
-  `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`. -/
-def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (Name × List (Expr × Syntax × List Syntax)) := do
+  `(v.head, id, [f₁, f₂])` where `id` is an identifier for `v.head`, and `f₁` and `f₂` are identifiers for fields `"bla"` and `"boo"`.
+
+  See the comment there about `explicitLevels` and the meaning of the `List Level` component of the returned tuple.
+-/
+def resolveName' (ident : Syntax) (explicitLevels : List Level) (expectedType? : Option Expr := none) : TermElabM (Name × List (Expr × Syntax × List Syntax × List Level)) := do
   let .ident _ _ n preresolved := ident
     | throwError "identifier expected"
   let r ← resolveName ident n preresolved explicitLevels expectedType?
-  let rc ← r.mapM fun (c, fields) => do
+  let rc ← r.mapM fun (c, fields, levels) => do
     let ids := ident.identComponents (nFields? := fields.length)
-    return (c, ids.head!, ids.tail!)
+    return (c, ids.head!, ids.tail!, levels)
   return (n, rc)
 
 
@@ -2158,7 +2190,7 @@ def resolveId? (stx : Syntax) (kind := "term") (withInfo := false) : TermElabM (
   match stx with
   | .ident _ _ val preresolved =>
     let rs ← try resolveName stx val preresolved [] catch _ => pure []
-    let rs := rs.filter fun ⟨_, projs⟩ => projs.isEmpty
+    let rs := rs.filter fun ⟨_, projs, _⟩ => projs.isEmpty
     let fs := rs.map fun (f, _) => f
     match fs with
     | []  => return none

@@ -36,7 +36,7 @@ def mkContext (lratPath : System.FilePath) (cfg : BVDecideConfig) : TermElabM Ta
   TacticContext.new lratPath cfg
 
 /--
-Prepare an `Expr` that proves `bvExpr.unsat` using native evalution.
+Prepare an `Expr` that proves `bvExpr.unsat` using native evaluation.
 -/
 def lratChecker (ctx : TacticContext) (reflectionResult : ReflectionResult) : MetaM Expr := do
   let cert ← LratCert.ofFile ctx.lratPath ctx.config.trimProofs

@@ -41,7 +41,7 @@ def foo {A B} (_: A) (_: B) : Unit := ()
 #check (11.12succ)
 
 
--- This example (adapted from structInst4.lean) exercises the difference betwee
+-- This example (adapted from structInst4.lean) exercises the difference between
 -- term parsing and LVal parsing; the latter fails if we allow `2.snd` to parse
 -- as a scientificLit followed by an error token, so this test captures
 -- that we have to throw the error token right away, positioned before, rather

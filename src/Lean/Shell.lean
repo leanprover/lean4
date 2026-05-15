@@ -12,6 +12,7 @@ import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Compiler.LCNF.EmitC
 import Init.System.Platform
+import Lean.Compiler.Options
 
 /-  Lean companion to  `shell.cpp` -/
 
@@ -165,7 +166,7 @@ def displayHelp (useStderr : Bool) : IO Unit := do
     out.putStrLn  "  -s, --tstack=num       thread stack size in Kb"
     out.putStrLn  "      --server           start lean in server mode"
     out.putStrLn  "      --worker           start lean in server-worker mode"
-  out.putStrLn    "      --plugin=file      load and initialize Lean shared library for registering linters etc."
+  out.putStrLn    "      --plugin=file[=fn] load and initialize Lean shared library for registering linters etc."
   out.putStrLn    "      --load-dynlib=file load shared library to make its symbols available to the interpreter"
   out.putStrLn    "      --setup=file       JSON file with module setup data (supersedes the file's header)"
   out.putStrLn    "      --json             report Lean output (e.g., messages) as JSON (one per line)"
@@ -340,7 +341,10 @@ def ShellOptions.process (opts : ShellOptions)
   | 'I' => -- `-I, --stdin`
     return {opts with useStdin := true}
   | 'r' => -- `--run`
-    return {opts with run := true}
+    return {opts with
+      run := true
+      -- can't get IR if it's postponed
+      leanOpts := Compiler.compiler.postponeCompile.set opts.leanOpts false }
   | 'o' => -- `--o, olean=fname`
     return {opts with oleanFileName? := ← checkOptArg "o" optArg?}
   | 'i' => -- `--i, ilean=fname`
@@ -406,9 +410,17 @@ def ShellOptions.process (opts : ShellOptions)
       Internal.enableDebug arg
       return opts
     -- if not `LEAN_DEBUG`, fall through to unknown option
-  | 'p' => -- `--plugin=file`
+  | 'p' => -- `--plugin=file[=fn]`
     let arg ← checkOptArg "p" optArg?
-    Lean.loadPlugin arg
+    let (path, fn?) :=
+      let pos := arg.find '='
+      if h : pos.IsAtEnd then
+        (FilePath.mk arg, none)
+      else
+        let path := arg.sliceTo pos
+        let initFn := arg.sliceFrom (pos.next h)
+        (FilePath.mk path.copy, some initFn.copy)
+    Lean.loadPlugin path fn?
     let forwardedArgs := opts.forwardedArgs.push s!"-p{arg}"
     return {opts with forwardedArgs}
   | 'l' => -- `--load-dynlib=file`

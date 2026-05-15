@@ -106,6 +106,10 @@ extern "C" LEAN_EXPORT void lean_internal_panic_rc_overflow() {
     lean_internal_panic("reference counter overflowed");
 }
 
+extern "C" LEAN_EXPORT void lean_internal_panic_overflow() {
+    lean_internal_panic("integer overflow in runtime computation");
+}
+
 bool g_exit_on_panic = false;
 bool g_panic_messages = true;
 
@@ -196,6 +200,11 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
     return default_val;
 }
 
+extern "C" LEAN_EXPORT object * lean_panic_fn_borrowed(b_obj_arg default_val, object * msg) {
+    lean_inc(default_val);
+    return lean_panic_fn(default_val, msg);
+}
+
 extern "C" LEAN_EXPORT object * lean_sorry(uint8) {
     lean_internal_panic("executed 'sorry'");
     lean_unreachable();
@@ -284,11 +293,10 @@ static inline lean_object * get_next(lean_object * o) {
 
 static inline void set_next(lean_object * o, lean_object * n) {
     if (sizeof(void*) == 8) {
-        size_t new_header = (size_t)n;
-        LEAN_BYTE(new_header, 7) = o->m_tag;
-        LEAN_BYTE(new_header, 6) = o->m_other;
-        ((size_t*)o)[0] = new_header;
-        lean_assert(get_next(o) == n);
+        uint16_t hi;
+        memcpy(&hi, (char*)o + 6, 2);
+        size_t header = ((size_t)hi << 48) | (size_t)n;
+        memcpy(o, &header, 8);
     } else {
         // 32-bit version
         ((lean_object**)o)[0] = n;
@@ -352,61 +360,65 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 static void deactivate_task(lean_task_object * t);
 static void deactivate_promise(lean_promise_object * t);
 
+static void lean_del_core_other(object * o, uint8 tag, object * & todo) {
+    switch (tag) {
+    case LeanClosure: {
+        object ** it  = lean_closure_arg_cptr(o);
+        object ** end = it + lean_closure_num_fixed(o);
+        for (; it != end; ++it) dec(*it, todo);
+        lean_dealloc(o, lean_closure_byte_size(o));
+        break;
+    }
+    case LeanArray: {
+        object ** it  = lean_array_cptr(o);
+        object ** end = it + lean_array_size(o);
+        for (; it != end; ++it) dec(*it, todo);
+        lean_dealloc(o, lean_array_byte_size(o));
+        break;
+    }
+    case LeanScalarArray:
+        lean_dealloc(o, lean_sarray_byte_size(o));
+        break;
+    case LeanString:
+        lean_dealloc(o, lean_string_byte_size(o));
+        break;
+    case LeanMPZ:
+        to_mpz(o)->m_value.~mpz();
+        lean_free_small_object(o);
+        break;
+    case LeanThunk:
+        if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
+        if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
+        lean_free_small_object(o);
+        break;
+    case LeanRef:
+        if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
+        lean_free_small_object(o);
+        break;
+    case LeanTask:
+        deactivate_task(lean_to_task(o));
+        break;
+    case LeanPromise:
+        deactivate_promise(lean_to_promise(o));
+        break;
+    case LeanExternal:
+        lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
+        lean_free_small_object(o);
+        break;
+    default:
+        lean_unreachable();
+    }
+}
+
 static void lean_del_core(object * o, object * & todo) {
     uint8 tag = lean_ptr_tag(o);
-    if (tag <= LeanMaxCtorTag) {
+    if (LEAN_LIKELY(tag <= LeanMaxCtorTag)) {
         object ** it  = lean_ctor_obj_cptr(o);
         object ** end = it + lean_ctor_num_objs(o);
         for (; it != end; ++it) dec(*it, todo);
         lean_free_small_object(o);
     } else {
-        switch (tag) {
-        case LeanClosure: {
-            object ** it  = lean_closure_arg_cptr(o);
-            object ** end = it + lean_closure_num_fixed(o);
-            for (; it != end; ++it) dec(*it, todo);
-            lean_dealloc(o, lean_closure_byte_size(o));
-            break;
-        }
-        case LeanArray: {
-            object ** it  = lean_array_cptr(o);
-            object ** end = it + lean_array_size(o);
-            for (; it != end; ++it) dec(*it, todo);
-            lean_dealloc(o, lean_array_byte_size(o));
-            break;
-        }
-        case LeanScalarArray:
-            lean_dealloc(o, lean_sarray_byte_size(o));
-            break;
-        case LeanString:
-            lean_dealloc(o, lean_string_byte_size(o));
-            break;
-        case LeanMPZ:
-            to_mpz(o)->m_value.~mpz();
-            lean_free_small_object(o);
-            break;
-        case LeanThunk:
-            if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
-            if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
-            lean_free_small_object(o);
-            break;
-        case LeanRef:
-            if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
-            lean_free_small_object(o);
-            break;
-        case LeanTask:
-            deactivate_task(lean_to_task(o));
-            break;
-        case LeanPromise:
-            deactivate_promise(lean_to_promise(o));
-            break;
-        case LeanExternal:
-            lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
-            lean_free_small_object(o);
-            break;
-        default:
-            lean_unreachable();
-        }
+        lean_del_core_other(o, tag, todo);
     }
 }
 
@@ -1239,7 +1251,12 @@ extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
 }
 
 obj_res lean_promise_new() {
-    lean_always_assert(g_task_manager);
+    if (!g_task_manager) {
+        lean_internal_panic(
+            "`IO.Promise.new` called before the task manager is running; this typically "
+            "happens when called (directly or transitively, e.g. via `IO.CancelToken.new`) "
+            "from an `initialize` block. Construct lazily on first use instead.");
+    }
 
     bool keep_alive = false;
     unsigned prio = 0;
@@ -2071,6 +2088,11 @@ extern "C" LEAN_EXPORT object * lean_string_append(object * s1, object * s2) {
 
 extern "C" LEAN_EXPORT bool lean_string_eq_cold(b_lean_obj_arg s1, b_lean_obj_arg s2) {
     return std::memcmp(lean_string_cstr(s1), lean_string_cstr(s2), lean_string_size(s1)) == 0;
+}
+
+extern "C" LEAN_EXPORT bool lean_sarray_eq_cold(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    size_t len = lean_sarray_elem_size(a1) * lean_sarray_size(a1);
+    return std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), len) == 0;
 }
 
 bool string_eq(object * s1, char const * s2) {

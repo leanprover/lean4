@@ -145,7 +145,7 @@ Examples:
 The constant function that ignores its argument.
 
 If `a : α`, then `Function.const β a : β → α` is the “constant function with value `a`”. For all
-arguments `b : β`, `Function.const β a b = a`.
+arguments `b : β`, `Function.const β a b = a`. It is often written directly as `fun _ => a`.
 
 Examples:
  * `Function.const Bool 10 true = 10`
@@ -185,15 +185,36 @@ example : foo.default = (default, default) :=
 abbrev inferInstance {α : Sort u} [i : α] : α := i
 
 set_option checkBinderAnnotations false in
-/-- `inferInstanceAs α` synthesizes an instance of type `α` and normalizes it to
-"instance normal form": the result is a constructor application whose sub-instance fields
-are canonical instances and whose types match `α` exactly. This is useful when `α` is
-definitionally equal to some `α'` for which instances are registered, as it prevents
-leaking the definition's RHS at lower transparencies. See `Lean.Meta.InstanceNormalForm`
-for details. Example:
+/--
+`inferInstanceAs α` synthesizes an instance of type `α` and then adjusts it to conform to the
+expected type `β`, which must be inferable from context.
+
+Example:
 ```
-#check inferInstanceAs (Inhabited Nat) -- Inhabited Nat
+def D := Nat
+instance : Inhabited D := inferInstanceAs (Inhabited Nat)
 ```
+
+The adjustment will make sure that when the resulting instance will not "leak" the RHS `Nat` when
+reduced at transparency levels below `semireducible`, i.e. where `D` would not be unfolded either,
+preventing "defeq abuse".
+
+More specifically, given the "source type" (the argument) and "target type" (the expected type),
+`inferInstanceAs` synthesizes an instance for the source type and then unfolds and rewraps its
+components (fields, nested instances) as necessary to make them compatible with the target type. The
+individual steps are represented by the following options, which all default to enabled and can be
+disabled to help with porting:
+
+* `backward.inferInstanceAs.wrap`: master switch for instance adjustment in both `inferInstanceAs`
+  and the default deriving handler
+* `backward.inferInstanceAs.wrap.reuseSubInstances`: reuse existing instances for the target type
+  for sub-instance fields to avoid non-defeq instance diamonds
+* `backward.inferInstanceAs.wrap.instances`: wrap non-reducible instances in auxiliary definitions
+* `backward.inferInstanceAs.wrap.data`: wrap data fields in auxiliary definitions (proof fields are
+  always wrapped)
+
+If you just need to synthesize an instance without transporting between types, use `inferInstance`
+instead, potentially with a type annotation for the expected type.
 -/
 abbrev «inferInstanceAs» (α : Sort u) [i : α] : α := i
 
@@ -2325,7 +2346,7 @@ Returns `a` modulo `n` as a `Fin n`.
 
 This function exists for bootstrapping purposes. Use `Fin.ofNat` instead.
 -/
-@[expose] protected def Fin.Internal.ofNat (n : Nat) (hn : LT.lt 0 n) (a : Nat) : Fin n :=
+protected def Fin.Internal.ofNat (n : Nat) (hn : LT.lt 0 n) (a : Nat) : Fin n :=
   ⟨HMod.hMod a n, Nat.mod_lt _ hn⟩
 
 /--
@@ -2367,7 +2388,7 @@ protected def BitVec.ofNatLT {w : Nat} (i : Nat) (p : LT.lt i (hPow 2 w)) : BitV
 /--
 The bitvector with value `i mod 2^n`.
 -/
-@[expose, match_pattern]
+@[match_pattern]
 protected def BitVec.ofNat (n : Nat) (i : Nat) : BitVec n where
   toFin := Fin.Internal.ofNat (HPow.hPow 2 n) (Nat.pow_pos (Nat.zero_lt_succ _)) i
 
@@ -2376,7 +2397,6 @@ Return the underlying `Nat` that represents a bitvector.
 
 This is O(1) because `BitVec` is a (zero-cost) wrapper around a `Nat`.
 -/
-@[expose]
 protected def BitVec.toNat (x : BitVec w) : Nat := x.toFin.val
 
 instance : LT (BitVec w) where lt := (LT.lt ·.toNat ·.toNat)
@@ -2903,7 +2923,7 @@ Examples:
  * `(some "hello").getD "goodbye" = "hello"`
  * `none.getD "goodbye" = "goodbye"`
 -/
-@[macro_inline, expose] def Option.getD (opt : Option α) (dflt : α) : α :=
+@[macro_inline] def Option.getD (opt : Option α) (dflt : α) : α :=
   match opt with
   | some x => x
   | none => dflt
@@ -3194,7 +3214,7 @@ def Array.mkEmpty {α : Type u} (c : @& Nat) : Array α where
 /--
 Constructs a new empty array with initial capacity `c`.
 -/
-@[extern "lean_mk_empty_array_with_capacity", expose]
+@[extern "lean_mk_empty_array_with_capacity"]
 def Array.emptyWithCapacity {α : Type u} (c : @& Nat) : Array α where
   toList := List.nil
 
@@ -3203,7 +3223,7 @@ Constructs a new empty array with initial capacity `0`.
 
 Use `Array.emptyWithCapacity` to create an array with a greater initial capacity.
 -/
-@[expose, inline]
+@[inline]
 def Array.empty {α : Type u} : Array α := emptyWithCapacity 0
 
 /--
@@ -3261,7 +3281,7 @@ Version of `Array.get!Internal` that does not increment the reference count of i
 This is only intended for direct use by the compiler.
 -/
 @[extern "lean_array_get_borrowed"]
-unsafe opaque Array.get!InternalBorrowed {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α
+unsafe opaque Array.get!InternalBorrowed {α : Type u} [@&Inhabited α] (a : @& Array α) (i : @& Nat) : α
 
 /--
 Use the indexing notation `a[i]!` instead.
@@ -3269,7 +3289,7 @@ Use the indexing notation `a[i]!` instead.
 Access an element from an array, or panic if the index is out of bounds.
 -/
 @[extern "lean_array_get"]
-def Array.get!Internal {α : Type u} [Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
+def Array.get!Internal {α : Type u} [@&Inhabited α] (a : @& Array α) (i : @& Nat) : α :=
   Array.getD a i default
 
 /--
@@ -3282,7 +3302,7 @@ Examples:
 * `#[].push "apple" = #["apple"]`
 * `#["apple"].push "orange" = #["apple", "orange"]`
 -/
-@[extern "lean_array_push", expose]
+@[extern "lean_array_push"]
 def Array.push {α : Type u} (a : Array α) (v : α) : Array α where
   toList := List.concat a.toList v
 
@@ -3572,7 +3592,7 @@ instance : Inhabited Substring.Raw where
 /--
 The number of bytes used by the string's UTF-8 encoding.
 -/
-@[inline, expose] def Substring.Raw.bsize : Substring.Raw → Nat
+@[inline] def Substring.Raw.bsize : Substring.Raw → Nat
   | ⟨_, b, e⟩ => e.byteIdx.sub b.byteIdx
 
 /--
@@ -3648,8 +3668,8 @@ will prevent the actual monad from being "copied" to the code being specialized.
 When we reimplement the specializer, we may consider copying `inst` if it also
 occurs outside binders or if it is an instance.
 -/
-@[never_extract, extern "lean_panic_fn"]
-def panicCore {α : Sort u} [Inhabited α] (msg : String) : α := default
+@[never_extract, extern "lean_panic_fn_borrowed"]
+def panicCore {α : Sort u} [@&Inhabited α] (msg : String) : α := default
 
 /--
 `(panic "msg" : α)` has a built-in implementation which prints `msg` to
@@ -3667,7 +3687,7 @@ def panic {α : Sort u} [Inhabited α] (msg : String) : α :=
   panicCore msg
 
 -- TODO: this be applied directly to `Inhabited`'s definition when we remove the above workaround
-attribute [nospecialize] Inhabited
+attribute [weak_specialize] Inhabited
 
 /--
 The `>>=` operator is overloaded via instances of `bind`.
@@ -3733,7 +3753,7 @@ class Functor (f : Type u → Type v) : Type (max (u+1) v) where
   /--
   Mapping a constant function.
 
-  Given `a : α` and `v : f α`, `mapConst a v` is equivalent to `Function.const _ a <$> v`. For some
+  Given `a : α` and `v : f β`, `mapConst a v` is equivalent to `(fun _ => a) <$> v`. For some
   functors, this can be implemented more efficiently; for all other functors, the default
   implementation may be used.
   -/

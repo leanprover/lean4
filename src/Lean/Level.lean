@@ -441,18 +441,27 @@ def Result.imax : Result → Result → Result
   | f, Result.imaxNode Fs => Result.imaxNode (f::Fs)
   | f₁, f₂                => Result.imaxNode [f₁, f₂]
 
-def toResult (l : Level) (mvars : Bool) : Result :=
+structure Context where
+  mvars : Bool
+  lIndex? : LMVarId → Option Nat
+
+abbrev M := ReaderM Context
+
+def toResult (l : Level) : M Result := do
   match l with
-  | zero       => Result.num 0
-  | succ l     => Result.succ (toResult l mvars)
-  | max l₁ l₂  => Result.max (toResult l₁ mvars) (toResult l₂ mvars)
-  | imax l₁ l₂ => Result.imax (toResult l₁ mvars) (toResult l₂ mvars)
-  | param n    => Result.leaf n
+  | zero       => return Result.num 0
+  | succ l     => return Result.succ (← toResult l)
+  | max l₁ l₂  => return Result.max (← toResult l₁) (← toResult l₂)
+  | imax l₁ l₂ => return Result.imax (← toResult l₁) (← toResult l₂)
+  | param n    => return Result.leaf n
   | mvar n     =>
-    if mvars then
-      Result.leaf <| n.name.replacePrefix `_uniq (Name.mkSimple "?u")
+    if !(← read).mvars then
+      return Result.leaf `_
+    else if let some i := (← read).lIndex? n then
+      return Result.leaf <| Name.num (Name.mkSimple "?u") (i + 1)
     else
-      Result.leaf `_
+      -- Undefined mvar, use internal name
+      return Result.leaf <| n.name.replacePrefix `_uniq (Name.mkSimple "?_mvar")
 
 private def parenIfFalse : Format → Bool → Format
   | f, true  => f
@@ -469,7 +478,7 @@ mutual
     | Result.offset f 0,     r => format f r
     | Result.offset f (k+1), r =>
       let f' := format f false;
-      parenIfFalse (f' ++ "+" ++ Std.format (k+1)) r
+      parenIfFalse (f' ++ " + " ++ Std.format (k+1)) r
     | Result.maxNode fs,    r => parenIfFalse (Format.group <| "max"  ++ formatLst fs) r
     | Result.imaxNode fs,   r => parenIfFalse (Format.group <| "imax" ++ formatLst fs) r
 end
@@ -487,20 +496,20 @@ protected partial def Result.quote (r : Result) (prec : Nat) : Syntax.Level :=
 
 end PP
 
-protected def format (u : Level) (mvars : Bool) : Format :=
-  (PP.toResult u mvars).format true
+protected def format (u : Level) (mvars : Bool) (lIndex? : LMVarId → Option Nat) : Format :=
+  (PP.toResult u) |>.run { mvars, lIndex? } |>.format true
 
 instance : ToFormat Level where
-  format u := Level.format u (mvars := true)
+  format u := Level.format u (mvars := true) (lIndex? := fun _ => none)
 
 instance : ToString Level where
   toString u := Format.pretty (format u)
 
-protected def quote (u : Level) (prec : Nat := 0) (mvars : Bool := true) : Syntax.Level :=
-  (PP.toResult u (mvars := mvars)).quote prec
+protected def quote (u : Level) (prec : Nat := 0) (mvars : Bool := true) (lIndex? : LMVarId → Option Nat) : Syntax.Level :=
+  (PP.toResult u) |>.run { mvars, lIndex? } |>.quote prec
 
 instance : Quote Level `level where
-  quote := Level.quote
+  quote := Level.quote (lIndex? := fun _ => none)
 
 end Level
 

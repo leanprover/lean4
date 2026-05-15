@@ -31,7 +31,7 @@ lean_object* l_ReaderT_instApplicativeOfMonad___redArg___lam__4(lean_object*, le
 lean_object* l_Lean_Meta_instMonadMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_instMonadMetaM___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instInhabitedOfMonad___redArg(lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t lean_name_eq(lean_object*, lean_object*);
 lean_object* l_Lean_Meta_forallMetaTelescope(lean_object*, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Meta_isExprDefEq(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -414,7 +414,8 @@ v_reusejp_105_:
 lean_object* v___x_107_; lean_object* v___x_108_; lean_object* v___x_1849__overap_109_; lean_object* v___x_110_; 
 v___x_107_ = lean_box(0);
 v___x_108_ = l_instInhabitedOfMonad___redArg(v___x_106_, v___x_107_);
-v___x_1849__overap_109_ = lean_panic_fn(v___x_108_, v_msg_52_);
+v___x_1849__overap_109_ = lean_panic_fn_borrowed(v___x_108_, v_msg_52_);
+lean_dec(v___x_108_);
 lean_inc(v___y_56_);
 lean_inc_ref(v___y_55_);
 lean_inc(v___y_54_);

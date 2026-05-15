@@ -802,6 +802,7 @@ Examples:
 def firstM {α : Type u} {m : Type v → Type w} [Alternative m] (f : α → m β) (as : Array α) : m β :=
   go 0
 where
+  @[specialize]
   go (i : Nat) : m β :=
     if hlt : i < as.size then
       f as[i] <|> go (i+1)
@@ -1086,6 +1087,17 @@ def sum {α} [Add α] [Zero α] : Array α → α :=
   foldr (· + ·) 0
 
 /--
+Computes the product of the elements of an array.
+
+Examples:
+ * `#[a, b, c].prod = a * (b * (c * 1))`
+ * `#[1, 2, 5].prod = 10`
+-/
+@[inline, expose]
+def prod {α} [Mul α] [One α] : Array α → α :=
+  foldr (· * ·) 1
+
+/--
 Counts the number of elements in the array `as` that satisfy the Boolean predicate `p`.
 
 Examples:
@@ -1253,7 +1265,7 @@ Examples:
 -/
 @[inline, expose]
 def findIdx? {α : Type u} (p : α → Bool) (as : Array α) : Option Nat :=
-  let rec loop (j : Nat) :=
+  let rec @[specialize] loop (j : Nat) :=
     if h : j < as.size then
       if p as[j] then some j else loop (j + 1)
     else none

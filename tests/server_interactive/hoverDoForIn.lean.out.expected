@@ -1,0 +1,10 @@
+{"textDocument": {"uri": "file:///hoverDoForIn.lean"},
+ "position": {"line": 3, "character": 6}}
+{"range":
+ {"start": {"line": 3, "character": 6}, "end": {"line": 3, "character": 7}},
+ "contents": {"value": "```lean\nh : i ∈ [1, 2, 3]\n```", "kind": "markdown"}}
+{"textDocument": {"uri": "file:///hoverDoForIn.lean"},
+ "position": {"line": 3, "character": 10}}
+{"range":
+ {"start": {"line": 3, "character": 10}, "end": {"line": 3, "character": 11}},
+ "contents": {"value": "```lean\ni : Nat\n```", "kind": "markdown"}}

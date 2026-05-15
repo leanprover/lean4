@@ -1164,16 +1164,6 @@ and less messy than commenting the remainder of the proof.
 macro "stop" tacticSeq : tactic => `(tactic| repeat sorry)
 
 /--
-The tactic `specialize h a₁ ... aₙ` works on local hypothesis `h`.
-The premises of this hypothesis, either universal quantifications or
-non-dependent implications, are instantiated by concrete terms coming
-from arguments `a₁` ... `aₙ`.
-The tactic adds a new hypothesis with the same name `h := h a₁ ... aₙ`
-and tries to clear the previous one.
--/
-syntax (name := specialize) "specialize " term : tactic
-
-/--
 `unhygienic tacs` runs `tacs` with name hygiene disabled.
 This means that tactics that would normally create inaccessible names will instead
 make regular variables. **Warning**: Tactics may change their variable naming
@@ -1260,8 +1250,8 @@ macro "nomatch " es:term,+ : tactic =>
   `(tactic| exact nomatch $es:term,*)
 
 /--
-Acts like `have`, but removes a hypothesis with the same name as
-this one if possible. For example, if the state is:
+`replace h := e` is like `have h := e`, but it removes a previous hypothesis
+of the same name as this one if possible. For example, if the state is:
 
 ```lean
 f : α → β
@@ -1286,9 +1276,28 @@ h : β
 ⊢ goal
 ```
 
-This can be used to simulate the `specialize` and `apply at` tactics of Coq.
+The tactic `specialize h a₁ ... aₙ` is a way to write `replace h := h a₁ ... aₙ`,
+automatically inferring which hypothesis should be replaced.
+
+The `replace` tactic can be used to simulate Rocq's `apply at` tactic.
 -/
 syntax (name := replace) "replace" letDecl : tactic
+
+/--
+`specialize h a₁ ... aₙ` is equivalent to `replace h := h a₁ ... aₙ`.
+It specializes the local hypothesis `h` by instantiating
+universal quantifications and implications using the concrete terms `a₁` ... `aₙ`.
+The tactic adds a new hypothesis with the same name and tries to remove
+the original `h` if possible.
+
+Example: given `h : ∀ (n : Nat), p n → q n` and `h' : p 2`,
+then `specialize h 2 h'` replaces `h` with `h : q 2`.
+
+The tactic also supports instantiating particular universal quantifiers
+using named argument syntax. Example: given `h : ∀ (m n : Nat), p m n`,
+then `specialize h (n := 2)` replaces `h` with `h : ∀ (m : Nat), p m 2`.
+-/
+syntax (name := specialize) "specialize " term : tactic
 
 /-- `and_intros` applies `And.intro` until it does not make progress. -/
 syntax "and_intros" : tactic
@@ -2259,42 +2268,6 @@ with grind
 ```
 This is more convenient than the equivalent `· by rename_i _ acc _; exact I1 acc`.
 
-### Witnesses
-
-When a specification has a parameter whose type is tagged with `@[mvcgen_witness_type]`, `mvcgen`
-classifies the corresponding goal as a *witness* rather than a verification condition.
-Witnesses are concrete values that the user must provide (inspired by zero-knowledge proofs),
-as opposed to invariants (predicates maintained across loop iterations) or verification conditions
-(propositions to prove).
-
-Witness goals are labelled `witness1`, `witness2`, etc. and can be provided in a `witnesses` section
-that appears before the `invariants` section:
-```
-mvcgen [...] witnesses
-· W1
-· W2
-invariants
-· I1
-with grind
-```
-Like invariants, witnesses support case label syntax:
-```
-mvcgen [...] witnesses
-| witness1 => W1
-```
-
-See the `@[mvcgen_witness_type]` attribute for how to register custom witness types.
-
-### Invariant and witness type attributes
-
-The `@[mvcgen_invariant_type]` and `@[mvcgen_witness_type]` tag attributes control how `mvcgen`
-classifies subgoals:
-* A goal whose type is an application of a type tagged with `@[mvcgen_invariant_type]` is classified
-  as an invariant (`inv<n>`).
-* A goal whose type is an application of a type tagged with `@[mvcgen_witness_type]` is classified
-  as a witness (`witness<n>`).
-* All other goals are classified as verification conditions (`vc<n>`).
-
 ### Invariant suggestions
 
 `mvcgen` will suggest invariants for you if you use the `invariants?` keyword.
@@ -2328,6 +2301,10 @@ theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
 -/
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
+
+/-- Experimental Sym-based drop-in for `mvcgen`; see `mvcgen` for documentation. -/
+macro (name := mvcgen'Macro) (priority:=low) "mvcgen'" : tactic =>
+  Macro.throwError "to use `mvcgen'`, please include `import Std.Tactic.Do`"
 
 /--
 `cbv` performs simplification that closely mimics call-by-value evaluation.

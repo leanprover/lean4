@@ -759,10 +759,9 @@ if (lean_obj_tag(v___x_258_) == 0)
 lean_object* v___y_260_; lean_object* v_env_263_; lean_object* v___x_264_; 
 lean_dec_ref(v___x_258_);
 v_env_263_ = lean_ctor_get(v___x_244_, 0);
-lean_inc_ref(v_env_263_);
+lean_inc_ref_n(v_env_263_, 2);
 lean_dec(v___x_244_);
 lean_inc(v_name_242_);
-lean_inc_ref(v_env_263_);
 v___x_264_ = l_Lean_getBuiltinInitFnNameFor_x3f(v_env_263_, v_name_242_);
 if (lean_obj_tag(v___x_264_) == 0)
 {

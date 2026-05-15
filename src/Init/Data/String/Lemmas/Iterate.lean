@@ -31,7 +31,7 @@ namespace Slice
 /--
 A list of all positions starting at {name}`p`.
 
-This function is not meant to be used in actual progams. Actual programs should use
+This function is not meant to be used in actual programs. Actual programs should use
 {name}`Slice.positionsFrom` or {name}`Slice.positions`.
 -/
 protected def Model.positionsFrom {s : Slice} (p : s.Pos) : List { p : s.Pos // p ≠ s.endPos } :=
@@ -206,7 +206,7 @@ end Slice
 /--
 A list of all positions starting at {name}`p`.
 
-This function is not meant to be used in actual progams. Actual programs should use
+This function is not meant to be used in actual programs. Actual programs should use
 {name}`Slice.positionsFrom` or {name}`Slice.positions`.
 -/
 protected def Model.positionsFrom {s : String} (p : s.Pos) : List { p : s.Pos // p ≠ s.endPos } :=

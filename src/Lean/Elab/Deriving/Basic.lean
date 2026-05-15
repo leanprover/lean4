@@ -9,7 +9,7 @@ prelude
 public import Lean.Elab.App
 public import Lean.Elab.DeclNameGen
 import Lean.Compiler.NoncomputableAttr
-import Lean.Meta.InstanceNormalForm
+import Lean.Meta.WrapInstance
 
 public section
 
@@ -211,19 +211,19 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
           -- We don't reduce because of abbreviations such as `DecidableEq`
           forallTelescope classExpr fun _ classExpr => do
             let result ← mkInst classExpr declName decl value
-            -- Save the pre-normalization value for the noncomputable check below,
-            -- since `normalizeInstance` may inline noncomputable constants.
+            -- Save the pre-wrapping value for the noncomputable check below,
+            -- since `wrapInstance` may inline noncomputable constants.
             let preNormClosure ← Closure.mkValueTypeClosure result.instType result.instVal (zetaDelta := true)
-            -- Compute instance name early so `normalizeInstance` can use it for aux def naming.
+            -- Compute instance name early so `wrapInstance` can use it for aux def naming.
             let env ← getEnv
             let mut instName := (← getCurrNamespace) ++ (← NameGen.mkBaseNameWithSuffix "inst" preNormClosure.type)
             instName ← liftMacroM <| mkUnusedBaseName instName
             if isPrivateName declName then
               instName := mkPrivateName env instName
-            let isMeta := (← read).isMetaSection
+            let isMeta := (← read).isMetaSection || isMarkedMeta (← getEnv) declName
             let inst ← if backward.inferInstanceAs.wrap.get (← getOptions) then
               withDeclNameForAuxNaming instName <| withNewMCtxDepth <|
-                normalizeInstance result.instVal result.instType
+                wrapInstance result.instVal result.instType
                   (logCompileErrors := false)  -- covered by noncomputable check below
                   (isMeta := isMeta)
             else
@@ -233,27 +233,42 @@ def processDefDeriving (view : DerivingClassView) (decl : Expr) (isNoncomputable
         finally
           Core.setMessageLog (msgLog ++ (← Core.getMessageLog))
   let env ← getEnv
-  let hints := ReducibilityHints.regular (getMaxHeight env result.value + 1)
-  let decl ← mkDefinitionValInferringUnsafe instName result.levelParams.toList result.type result.value hints
-  -- Pre-check: if the instance value depends on noncomputable definitions and the user didn't write
-  -- `noncomputable`, give an actionable error with a `Try this:` suggestion.
-  unless isNoncomputable || (← read).isNoncomputableSection || (← isProp result.type) do
-    let noncompRef? := preNormValue.foldConsts none fun n acc =>
-      acc <|> if Lean.isNoncomputable (asyncMode := .local) env n then some n else none
-    if let some noncompRef := noncompRef? then
-      if let some cmdRef := cmdRef? then
-        if let some origText := cmdRef.reprint then
-          let newText := (origText.replace "deriving instance " "deriving noncomputable instance ").trimAscii
-          logInfoAt cmdRef m!"Try this: {newText}"
-      throwError "failed to derive instance because it depends on \
-        `{.ofConstName noncompRef}`, which is noncomputable"
-  if isNoncomputable || (← read).isNoncomputableSection then
-    addDecl <| Declaration.defnDecl decl
-    modifyEnv (addNoncomputable · instName)
+  let isPropType ← isProp result.type
+  if isPropType then
+    let decl ← mkThmOrUnsafeDef {
+      name := instName, levelParams := result.levelParams.toList,
+      type := result.type, value := result.value
+    }
+    addDecl decl
   else
-    addAndCompile <| Declaration.defnDecl decl
+    let hints := ReducibilityHints.regular (getMaxHeight env result.value + 1)
+    let decl ← mkDefinitionValInferringUnsafe instName result.levelParams.toList result.type result.value hints
+    -- Pre-check: if the instance value depends on noncomputable definitions and the user didn't write
+    -- `noncomputable`, give an actionable error with a `Try this:` suggestion.
+    unless isNoncomputable || (← read).isNoncomputableSection do
+      let noncompRef? := preNormValue.foldConsts none fun n acc =>
+        acc <|> if Lean.isNoncomputable (asyncMode := .local) env n then some n else none
+      if let some noncompRef := noncompRef? then
+        if let some cmdRef := cmdRef? then
+          if let some origText := cmdRef.reprint then
+            let newText := (origText.replace "deriving instance " "deriving noncomputable instance ").trimAscii
+            logInfoAt cmdRef m!"Try this: {newText}"
+        throwError "failed to derive instance because it depends on \
+          `{.ofConstName noncompRef}`, which is noncomputable"
+    let isMeta := (← read).isMetaSection || isMarkedMeta (← getEnv) declName
+    if isNoncomputable || (← read).isNoncomputableSection then
+      addDecl <| Declaration.defnDecl decl
+      modifyEnv (addNoncomputable · instName)
+    else
+      addAndCompile (Declaration.defnDecl decl) (markMeta := isMeta)
   trace[Elab.Deriving] "Derived instance `{.ofConstName instName}`"
-  registerInstance instName AttributeKind.global (eval_prio default)
+  -- For Prop-typed instances (theorems), skip `implicit_reducible` since reducibility hints are
+  -- irrelevant for theorems. This matches the behavior of the handwritten `instance` command
+  -- (see `MutualDef.lean`).
+  if isPropType then
+    addInstance instName AttributeKind.global (eval_prio default)
+  else
+    registerInstance instName AttributeKind.global (eval_prio default)
   addDeclarationRangesFromSyntax instName (← getRef)
 
 end Term

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Internal.Parsec.String
-// Imports: public import Std.Internal.Parsec.Basic public import Init.Data.String.Slice public import Init.Data.String.Termination
+// Imports: public import Std.Internal.Parsec.Basic public import Init.Data.String.Slice public import Init.Data.String.Termination import Init.Data.String.Length
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -1653,6 +1653,7 @@ return v___x_457_;
 lean_object* runtime_initialize_Std_Internal_Parsec_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Slice(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_String_Termination(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_String_Length(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Internal_Parsec_String(uint8_t builtin) {
 lean_object * res;
@@ -1667,6 +1668,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_Data_String_Termination(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Data_String_Length(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -1679,6 +1683,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Std_Internal_Parsec_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Slice(uint8_t builtin);
 lean_object* initialize_Init_Data_String_Termination(uint8_t builtin);
+lean_object* initialize_Init_Data_String_Length(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Internal_Parsec_String(uint8_t builtin) {
 lean_object * res;
@@ -1691,6 +1696,9 @@ res = initialize_Init_Data_String_Slice(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_String_Termination(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_String_Length(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Internal_Parsec_String(builtin);

@@ -14,6 +14,7 @@ import Lean.Meta.Tactic.Grind.SynthInstance
 import Lean.Meta.Tactic.Grind.Simp
 import Init.Grind.Util
 import Init.Omega
+public import Lean.Meta.HasAssignableMVar
 public section
 namespace Lean.Meta.Grind
 namespace EMatch
@@ -56,6 +57,11 @@ structure Choice where
   gen        : Nat
   /-- Partial assignment so far. Recall that pattern variables are encoded as de-Bruijn variables. -/
   assignment : Array Expr
+  /--
+  Helper field for implementing `grind.ematch.diagnostics`.
+  It stores the sources for an entry `{thm_1, ..., thm_n} => thm`
+  -/
+  sources : PHashSet EMatchDiagNode := {}
   deriving Inhabited
 
 /-- Context for the E-matching monad. -/
@@ -142,6 +148,15 @@ private def assignDelayedEqProof? (c : Choice) (bidx : Nat) : OptionT GoalM Choi
     -- `Choice` was not properly initialized
     unreachable!
 
+/--
+Save `e.ematchDiagSource` in `c` if it is not `.other`.
+This is used to implement `grind.ematch.diagnostics`.
+-/
+private def saveSource (c : Choice) (e : Expr) : GoalM Choice := do
+  unless (← isEmatchDiagEnabled) do return c
+  let some n ← getENode? e | return c
+  let .ematch o p := n.ematchDiagSource | return c
+  return { c with sources := c.sources.insert { origin := o, proof := p } }
 
 private def unassign (c : Choice) (bidx : Nat) : Choice :=
   { c with assignment := c.assignment.set! bidx unassigned }
@@ -190,7 +205,8 @@ private def matchGroundPattern (pArg eArg : Expr) : GoalM Bool := do
 private def matchArg? (c : Choice) (pArg : Expr) (eArg : Expr) : OptionT GoalM Choice := do
   if isPatternDontCare pArg then
     return c
-  else if pArg.isBVar then
+  let c ← saveSource c eArg
+  if pArg.isBVar then
     assign? c pArg.bvarIdx! eArg
   else if let some pArg := groundPattern? pArg then
     guard (← matchGroundPattern pArg eArg)
@@ -236,6 +252,7 @@ private partial def matchArgsPrefix? (c : Choice) (p : Expr) (e : Expr) : Option
   let pn := p.getAppNumArgs
   let en := e.getAppNumArgs
   guard (pn <= en)
+  let c ← saveSource c e
   if pn == en then
     matchArgs? c p e
   else
@@ -252,7 +269,16 @@ private partial def matchArgsPrefix? (c : Choice) (p : Expr) (e : Expr) : Option
 
 private def assignGenInfo? (genInfo? : Option GenPatternInfo) (c : Choice) (x : Expr) : OptionT GoalM Choice := do
   let some genInfo := genInfo? | return c
+  let c ← saveSource c x
   genInfo.assign? c x
+
+/--
+Return the maximum generation allowed for the current theorem.
+-/
+private def getMaxGeneration : M Nat := do
+  match (← read).thm.origin with
+  | .stx .. | .decl _ => return (← getConfig).gen
+  | _ => return (← getConfig).genLocal
 
 /--
 Matches pattern `p` with term `e` with respect to choice `c`.
@@ -456,13 +482,14 @@ private def getUnassignedLevelMVars (e : Expr) : MetaM (Array LMVarId) := do
 -- **Note**: issues reported by the E-matching module are too distractive. We only
 -- report them if `set_option grind.debug true`
 macro "reportEMatchIssue!" s:(interpolatedStr(term) <|> term) : doElem => do
-  expandReportDbgIssueMacro s.raw
+  Sym.expandReportDbgIssueMacro s.raw
 
 /--
 Stores new theorem instance in the state.
 Recall that new instances are internalized later, after a full round of ematching.
 -/
-private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Nat) (guards : List TheoremGuard) : M Unit := do
+private def addNewInstance (thm : EMatchTheorem) (proof : Expr) (generation : Nat)
+    (guards : List TheoremGuard) (sources : PHashSet EMatchDiagNode) : M Unit := do
   let proof ← instantiateMVars proof
   if grind.debug.proofs.get (← getOptions) then
     check proof
@@ -504,7 +531,7 @@ where
     **Note**: Restores grind transparency setting because with use `withDefault` at `instantiateTheorem`.
     -/
     withGTransparency do
-      addTheoremInstance thm proof prop (generation+1) guards
+      addTheoremInstance thm proof prop (generation+1) guards sources.toList
 
 private def synthesizeInsts (mvars : Array Expr) (bis : Array BinderInfo) : OptionT M Unit := do
   let thm := (← read).thm
@@ -796,13 +823,13 @@ private partial def instantiateTheorem (c : Choice) : M Unit := withDefault do w
     let guards ← collectGuards thm proof mvars
     let proof := mkAppN proof mvars
     if (← mvars.allM (·.mvarId!.isAssigned)) then
-      addNewInstance thm proof c.gen guards
+      addNewInstance thm proof c.gen guards c.sources
     else
       let mvars ← mvars.filterM fun mvar => return !(← mvar.mvarId!.isAssigned)
       if let some mvarBad ← mvars.findM? fun mvar => return !(← isProof mvar) then
         reportEMatchIssue! "failed to instantiate {thm.origin.pp}, failed to instantiate non propositional argument with type{indentExpr (← inferType mvarBad)}"
       let proof ← mkLambdaFVars (binderInfoForMVars := .default) mvars (← instantiateMVars proof)
-      addNewInstance thm proof c.gen guards
+      addNewInstance thm proof c.gen guards c.sources
 
 /-- Process choice stack until we don't have more choices to be processed. -/
 private def processChoices : M Unit := do
@@ -869,7 +896,7 @@ private def matchEqBwdPat (p : Expr) : M Unit := do
 def instantiateGroundTheorem (thm : EMatchTheorem) : M Unit := do
   if (← markTheoremInstance thm.proof #[]) then
     let proof ← thm.getProofWithFreshMVarLevels
-    addNewInstance thm proof 0 []
+    addNewInstance thm proof 0 [] {}
 
 def ematchTheorem (thm : EMatchTheorem) : M Unit := do
   if (← checkMaxInstancesExceeded) then return ()

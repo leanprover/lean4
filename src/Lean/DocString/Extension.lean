@@ -37,7 +37,9 @@ instance : Repr ElabInline where
 
 instance : Doc.MarkdownInline ElabInline where
   -- TODO extensibility
-  toMarkdown go _i content := content.forM go
+  toMarkdown go _i content := do
+    let parts ← content.mapM go
+    return Doc.joinInlines parts
 
 
 /--
@@ -57,7 +59,9 @@ instance : Repr ElabBlock where
 
 -- TODO extensible toMarkdown
 instance : Doc.MarkdownBlock ElabInline ElabBlock where
-  toMarkdown _goI goB _b content := content.forM goB
+  toMarkdown _goI goB _b content := do
+    let parts ← content.mapM goB
+    return Doc.joinBlocks parts
 
 structure VersoDocString where
   text : Array (Doc.Block ElabInline ElabBlock)
@@ -78,27 +82,21 @@ private builtin_initialize builtinDocStrings : IO.Ref (NameMap String) ← IO.mk
 builtin_initialize docStringExt : MapDeclarationExtension String ←
   mkMapDeclarationExtension
     (asyncMode := .async .asyncEnv)
-    (exportEntriesFn := fun _ s level =>
-      if level < .server then
-        {}
-      else
-        s.toArray)
+    (exportEntriesFn := fun _ s =>
+      let ents := s.toArray
+      { exported := #[], server := ents, «private» := ents })
 private builtin_initialize inheritDocStringExt : MapDeclarationExtension Name ←
-  mkMapDeclarationExtension (exportEntriesFn := fun _ s level =>
-    if level < .server then
-      {}
-    else
-      s.toArray)
+  mkMapDeclarationExtension (exportEntriesFn := fun _ s =>
+    let ents := s.toArray
+    { exported := #[], server := ents, «private» := ents })
 
 private builtin_initialize builtinVersoDocStrings : IO.Ref (NameMap VersoDocString) ← IO.mkRef {}
 builtin_initialize versoDocStringExt : MapDeclarationExtension VersoDocString ←
   mkMapDeclarationExtension
     (asyncMode := .async .asyncEnv)
-    (exportEntriesFn := fun _ s level =>
-      if level < .server then
-        {}
-      else
-        s.toArray)
+    (exportEntriesFn := fun _ s =>
+      let ents := s.toArray
+      { exported := #[], server := ents, «private» := ents })
 
 /--
 Adds a builtin docstring to the compiler.
@@ -182,10 +180,9 @@ def findSimpleDocString? (env : Environment) (declName : Name) (includeBuiltin :
 where
   toMarkdown : VersoDocString → String
   | .mk bs ps => Doc.MarkdownM.run' do
-      for b in bs do
-        Doc.ToMarkdown.toMarkdown b
-      for p in ps do
-        Doc.ToMarkdown.toMarkdown p
+      let blockLines ← bs.mapM Doc.ToMarkdown.toMarkdown
+      let partLines ← ps.mapM Doc.ToMarkdown.toMarkdown
+      return Doc.joinBlocks (blockLines ++ partLines)
 
 
 structure ModuleDoc where
@@ -196,11 +193,9 @@ private builtin_initialize moduleDocExt :
     SimplePersistentEnvExtension ModuleDoc (PersistentArray ModuleDoc) ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.push e
-  exportEntriesFnEx? := some fun _ _ es level =>
-    if level < .server then
-      #[]
-    else
-      es.toArray
+  exportEntriesFnEx? := some fun _ _ es =>
+    let ents := es.toArray
+    { exported := #[], server := ents, «private» := ents }
 }
 
 def addMainModuleDoc (env : Environment) (doc : ModuleDoc) : Environment :=
@@ -281,24 +276,20 @@ def addPart (snippet : Snippet) (level : Nat) (range : DeclarationRange) (part :
 
 end VersoModuleDocs.Snippet
 
-open Lean Doc ToMarkdown MarkdownM in
+open Lean Doc ToMarkdown in
 instance : ToMarkdown VersoModuleDocs.Snippet where
   toMarkdown
     | {text, sections, ..} => do
-      text.forM toMarkdown
-      endBlock
-      for (level, _, part) in sections do
-        push ("".pushn '#' (level + 1))
-        push " "
-        for i in part.title do toMarkdown i
-        endBlock
-        for b in part.content do toMarkdown b
-        endBlock
+      let textBlocks ← text.mapM toMarkdown
+      let sectionBlocks ← sections.mapM fun (level, _, part) => partMarkdown level part
+      return joinBlocks (textBlocks ++ sectionBlocks)
 
 structure VersoModuleDocs where
   snippets : PersistentArray VersoModuleDocs.Snippet := {}
-  terminalNesting : Option Nat := snippets.findSomeRev? (·.terminalNesting)
 deriving Inhabited
+
+def VersoModuleDocs.terminalNesting : VersoModuleDocs → Option Nat
+  | VersoModuleDocs.mk snippets => snippets.findSomeRev? (·.terminalNesting)
 
 instance : Repr VersoModuleDocs where
   reprPrec v _ :=
@@ -322,10 +313,7 @@ def add (docs : VersoModuleDocs) (snippet : Snippet) : Except String VersoModule
   unless docs.canAdd snippet do
     throw "Can't nest this snippet here"
 
-  return { docs with
-    snippets := docs.snippets.push snippet,
-    terminalNesting := snippet.terminalNesting
-  }
+  return { docs with snippets := docs.snippets.push snippet }
 
 def add! (docs : VersoModuleDocs) (snippet : Snippet) : VersoModuleDocs :=
   let ok :=
@@ -335,10 +323,7 @@ def add! (docs : VersoModuleDocs) (snippet : Snippet) : VersoModuleDocs :=
   if not ok then
     panic! "Can't nest this snippet here"
   else
-    { docs with
-      snippets := docs.snippets.push snippet,
-      terminalNesting := snippet.terminalNesting
-    }
+    { docs with snippets := docs.snippets.push snippet }
 
 
 private structure DocFrame where
@@ -407,11 +392,9 @@ private builtin_initialize versoModuleDocExt :
     SimplePersistentEnvExtension VersoModuleDocs.Snippet VersoModuleDocs ← registerSimplePersistentEnvExtension {
   addImportedFn := fun _ => {}
   addEntryFn    := fun s e => s.add! e
-  exportEntriesFnEx? := some fun _ _ es level =>
-    if level < .server then
-      #[]
-    else
-      es.toArray
+  exportEntriesFnEx? := some fun _ _ es =>
+    let ents := es.toArray
+    { exported := #[], server := ents, «private» := ents }
 }
 
 

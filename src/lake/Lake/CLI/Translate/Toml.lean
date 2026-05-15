@@ -23,7 +23,7 @@ open Lean System Toml
 
 /-! ## General Helpers -/
 
-private local instance : BEq FilePath where
+local instance : BEq FilePath where
   beq a b := a.normalize == b.normalize
 
 class EncodeField (σ : Type u) (name : Name) (α : Type u) where
@@ -69,7 +69,7 @@ public def Toml.encodeLeanOptions (opts : Array LeanOption) : Table :=
 public instance : ToToml (Array LeanOption) where
   toToml opts := .table .missing <| encodeLeanOptions opts
 
-@[inline] private def encodeSingleton? [ToToml? α] (name : Name) (a : α) : Option Value :=
+@[inline] def encodeSingleton? [ToToml? α] (name : Name) (a : α) : Option Value :=
   toToml? a |>.map fun v => toToml <| Table.empty.insert name v
 
 mutual
@@ -149,7 +149,7 @@ public instance : ToToml Dependency := ⟨(toToml ·.toToml)⟩
 
 /-! ## Package & Target Configuration Encoders -/
 
-private meta def genToToml
+meta def genToToml
   (cmds : Array Command)
   (tyName : Name) [info : ConfigInfo tyName]
   (exclude : Array Name := #[])

@@ -31,7 +31,6 @@ uint8_t l_Lean_isPrivateName(lean_object*);
 lean_object* l_Lean_MessageData_ofName(lean_object*);
 extern lean_object* l_Lean_unknownIdentifierMessageTag;
 lean_object* l_Lean_replaceRef(lean_object*, lean_object*);
-lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Environment_find_x3f(lean_object*, lean_object*, uint8_t);
 lean_object* l_Lean_KeyedDeclsAttribute_getValues___redArg(lean_object*, lean_object*, lean_object*);
 uint8_t lean_has_compile_error(lean_object*, lean_object*);
@@ -40,13 +39,14 @@ extern lean_object* l_Lean_Elab_abortCommandExceptionId;
 lean_object* l_Lean_ConstantInfo_type(lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_isConstOf(lean_object*, lean_object*);
+lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_registerInternalExceptionId(lean_object*);
-static const lean_string_object l_Lean_PrettyPrinter_initFn___closed__0_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "backtrackFormatter"};
-static const lean_object* l_Lean_PrettyPrinter_initFn___closed__0_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_ = (const lean_object*)&l_Lean_PrettyPrinter_initFn___closed__0_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2__value;
-static const lean_ctor_object l_Lean_PrettyPrinter_initFn___closed__1_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l_Lean_PrettyPrinter_initFn___closed__0_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2__value),LEAN_SCALAR_PTR_LITERAL(242, 119, 53, 207, 6, 152, 86, 99)}};
-static const lean_object* l_Lean_PrettyPrinter_initFn___closed__1_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_ = (const lean_object*)&l_Lean_PrettyPrinter_initFn___closed__1_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2__value;
-LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_();
-LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2____boxed(lean_object*);
+static const lean_string_object l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn___closed__0_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = 0, .m_other = 0, .m_tag = 249}, .m_size = 19, .m_capacity = 19, .m_length = 18, .m_data = "backtrackFormatter"};
+static const lean_object* l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn___closed__0_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_ = (const lean_object*)&l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn___closed__0_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2__value;
+static const lean_ctor_object l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn___closed__1_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2__value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 8, .m_other = 2, .m_tag = 1}, .m_objs = {((lean_object*)(((size_t)(0) << 1) | 1)),((lean_object*)&l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn___closed__0_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2__value),LEAN_SCALAR_PTR_LITERAL(242, 119, 53, 207, 6, 152, 86, 99)}};
+static const lean_object* l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn___closed__1_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_ = (const lean_object*)&l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn___closed__1_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2__value;
+LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_();
+LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2____boxed(lean_object*);
 LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_backtrackExceptionId;
 static lean_once_cell_t l_Lean_Elab_throwAbortCommand___at___00Lean_evalConst___at___00Lean_PrettyPrinter_runForNodeKind_spec__2_spec__5___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_Elab_throwAbortCommand___at___00Lean_evalConst___at___00Lean_PrettyPrinter_runForNodeKind_spec__2_spec__5___redArg___closed__0;
@@ -164,20 +164,20 @@ LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkU
 LEAN_EXPORT lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__1_spec__6_spec__8_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__1_spec__6_spec__9(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_PrettyPrinter_runForNodeKind_spec__0_spec__0_spec__1_spec__6_spec__9___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_(){
+LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_(){
 _start:
 {
 lean_object* v___x_5_; lean_object* v___x_6_; 
-v___x_5_ = ((lean_object*)(l_Lean_PrettyPrinter_initFn___closed__1_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_));
+v___x_5_ = ((lean_object*)(l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn___closed__1_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_));
 v___x_6_ = l_Lean_registerInternalExceptionId(v___x_5_);
 return v___x_6_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2____boxed(lean_object* v_a_7_){
+LEAN_EXPORT lean_object* l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2____boxed(lean_object* v_a_7_){
 _start:
 {
 lean_object* v_res_8_; 
-v_res_8_ = l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_();
+v_res_8_ = l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_();
 return v_res_8_;
 }
 }
@@ -235,16 +235,17 @@ _start:
 lean_object* v___x_20_; lean_object* v___x_21_; lean_object* v___x_22_; 
 v___x_20_ = lean_obj_once(&l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PrettyPrinter_runForNodeKind_spec__1_spec__2___closed__1, &l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PrettyPrinter_runForNodeKind_spec__1_spec__2___closed__1_once, _init_l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_PrettyPrinter_runForNodeKind_spec__1_spec__2___closed__1);
 v___x_21_ = lean_unsigned_to_nat(0u);
-v___x_22_ = lean_alloc_ctor(0, 9, 0);
+v___x_22_ = lean_alloc_ctor(0, 10, 0);
 lean_ctor_set(v___x_22_, 0, v___x_21_);
 lean_ctor_set(v___x_22_, 1, v___x_21_);
 lean_ctor_set(v___x_22_, 2, v___x_21_);
-lean_ctor_set(v___x_22_, 3, v___x_20_);
+lean_ctor_set(v___x_22_, 3, v___x_21_);
 lean_ctor_set(v___x_22_, 4, v___x_20_);
 lean_ctor_set(v___x_22_, 5, v___x_20_);
 lean_ctor_set(v___x_22_, 6, v___x_20_);
 lean_ctor_set(v___x_22_, 7, v___x_20_);
 lean_ctor_set(v___x_22_, 8, v___x_20_);
+lean_ctor_set(v___x_22_, 9, v___x_20_);
 return v___x_22_;
 }
 }
@@ -1538,7 +1539,7 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Lean_KeyedDeclsAttribute(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = l_Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_();
+res = l___private_Lean_PrettyPrinter_Basic_0__Lean_PrettyPrinter_initFn_00___x40_Lean_PrettyPrinter_Basic_613194564____hygCtx___hyg_2_();
 if (lean_io_result_is_error(res)) return res;
 l_Lean_PrettyPrinter_backtrackExceptionId = lean_io_result_get_value(res);
 lean_mark_persistent(l_Lean_PrettyPrinter_backtrackExceptionId);

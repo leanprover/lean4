@@ -51,15 +51,13 @@ else
 {
 lean_object* v_head_7_; lean_object* v_tail_8_; lean_object* v___x_9_; lean_object* v___x_10_; lean_object* v___x_11_; uint8_t v___x_12_; 
 v_head_7_ = lean_ctor_get(v_xs_6_, 0);
-lean_inc(v_head_7_);
+lean_inc_n(v_head_7_, 2);
 v_tail_8_ = lean_ctor_get(v_xs_6_, 1);
 lean_inc(v_tail_8_);
 lean_dec_ref(v_xs_6_);
-lean_inc(v_f_2_);
+lean_inc_n(v_f_2_, 2);
 lean_inc(v_x_3_);
 v___x_9_ = lean_apply_1(v_f_2_, v_x_3_);
-lean_inc(v_f_2_);
-lean_inc(v_head_7_);
 v___x_10_ = lean_apply_1(v_f_2_, v_head_7_);
 lean_inc_ref(v_inst_1_);
 v___x_11_ = lean_apply_2(v_inst_1_, v___x_9_, v___x_10_);

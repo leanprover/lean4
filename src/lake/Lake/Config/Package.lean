@@ -45,13 +45,15 @@ public structure Package where
   /-- The path to the package's configuration file (relative to `dir`). -/
   relConfigFile : FilePath
   /-- The path to the package's JSON manifest of remote dependencies (relative to `dir`). -/
-  relManifestFile : FilePath := defaultManifestFile
+  relManifestFile : FilePath
   /-- The package's scope (e.g., in Reservoir). -/
   scope : String
   /-- The URL to this package's Git remote. -/
   remoteUrl : String
   /-- Dependency configurations for the package. -/
   depConfigs : Array Dependency := #[]
+  /-- **For internal use only.** Resolved direct dependences of the package. -/
+  depPkgs : Array Package := #[]
   /-- Target configurations in the order declared by the package. -/
   targetDecls : Array (PConfigDecl keyName) := #[]
   /-- Name-declaration map of target configurations in the package. -/

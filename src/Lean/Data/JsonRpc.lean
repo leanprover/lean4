@@ -400,7 +400,7 @@ Namely:
 def parseMessageMetaData (input : String) : Except String MessageMetaData :=
   messageMetaDataParser input |>.run input
 
-public inductive MessageDirection where
+inductive MessageDirection where
   | clientToServer
   | serverToClient
   deriving Inhabited, FromJson, ToJson

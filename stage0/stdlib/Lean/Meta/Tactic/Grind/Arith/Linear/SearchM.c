@@ -21,7 +21,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedStruct_default;
-extern lean_object* l_Lean_instInhabitedFVarId_default;
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -96,7 +95,7 @@ _start:
 {
 lean_object* v___x_13_; lean_object* v___x_14_; lean_object* v___x_15_; lean_object* v___x_16_; 
 v___x_13_ = l_Lean_Meta_Grind_Arith_Linear_instInhabitedStruct_default;
-v___x_14_ = l_Lean_instInhabitedFVarId_default;
+v___x_14_ = lean_box(0);
 v___x_15_ = lean_obj_once(&l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4, &l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4_once, _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4);
 v___x_16_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_16_, 0, v___x_15_);
@@ -625,13 +624,12 @@ goto v_resetjp_197_;
 v_resetjp_197_:
 {
 lean_object* v___x_200_; lean_object* v___x_201_; lean_object* v___x_202_; lean_object* v___x_204_; 
-lean_inc(v_a_191_);
+lean_inc_n(v_a_191_, 2);
 v___x_200_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_200_, 0, v_c_176_);
 lean_ctor_set(v___x_200_, 1, v_a_191_);
 lean_ctor_set(v___x_200_, 2, v_a_193_);
 v___x_201_ = l_Lean_PersistentArray_push___redArg(v_cases_195_, v___x_200_);
-lean_inc(v_a_191_);
 v___x_202_ = l_Lean_FVarIdSet_insert(v_decVars_196_, v_a_191_);
 if (v_isShared_199_ == 0)
 {

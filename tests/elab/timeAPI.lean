@@ -633,9 +633,9 @@ Std.Time.Weekday.friday
   println! date.toLeanDateString
   println! date.toSQLDateString
 
-  println! date.toDaysSinceUNIXEpoch
-  println! date.toTimestampAssumingUTC
-  println! PlainDate.ofDaysSinceUNIXEpoch 1
+  println! date.toEpochDay
+  println! date.toWallTime
+  println! PlainDate.ofEpochDay 1
 
 /--
 info: 1997-03-19T02:03:04.000000000
@@ -707,9 +707,9 @@ Std.Time.Weekday.tuesday
   println! repr plaindatetime.weekOfYear
   println! repr plaindatetime.weekOfMonth
 
-  println! plaindatetime.toDaysSinceUNIXEpoch
-  println! plaindatetime.toTimestampAssumingUTC
-  println! PlainDateTime.ofDaysSinceUNIXEpoch 1 PlainTime.midnight
+  println! plaindatetime.toEpochDay
+  println! plaindatetime.toWallTime
+  println! PlainDateTime.ofEpochDay 1 PlainTime.midnight
 
 /--
 info: 2024-09-13T02:01:02.000000000-03:00
@@ -747,7 +747,7 @@ Std.Time.Weekday.thursday
 -/
 #guard_msgs in
 #eval do
-  let zoned := DateTime.ofPlainDateTimeAssumingUTC datetime("2024-09-12T05:01:02") timezone("America/Sao_Paulo -03:00")
+  let zoned := DateTime.ofPlainDateTime datetime("2024-09-12T02:01:02") timezone("America/Sao_Paulo -03:00")
 
   println! zoned.addDays 1
   println! zoned.addWeeks 1
@@ -781,9 +781,9 @@ Std.Time.Weekday.thursday
   println! repr zoned.weekOfYear
   println! repr zoned.weekOfMonth
 
-  println! zoned.toDaysSinceUNIXEpoch
+  println! zoned.toEpochDay
   println! zoned.toTimestamp
-  println! DateTime.ofDaysSinceUNIXEpoch 1 PlainTime.midnight .UTC
+  println! DateTime.ofEpochDay 1 PlainTime.midnight .UTC
 
 /--
 info: 1997-03-19T02:03:04.000000000[America/Sao_Paulo]
@@ -856,7 +856,7 @@ Std.Time.Weekday.tuesday
   println! repr zoned.weekOfYear
   println! repr zoned.weekOfMonth
 
-  println! zoned.toDaysSinceUNIXEpoch
+  println! zoned.toEpochDay
   println! zoned.toTimestamp
 
 /--
@@ -868,22 +868,20 @@ info: 2023-06-09T00:00:00.000000000
 #eval do
   println! PlainDateTime.ofPlainDate date("2023-06-09")
   println! PlainDateTime.ofPlainTime time("12:32:43")
-  println! PlainDateTime.ofDaysSinceUNIXEpoch 23332 time("12:32:43")
+  println! PlainDateTime.ofEpochDay 23332 time("12:32:43")
 
 /--
 info: 1970-01-02T00:00:00.000000000Z
 1997-03-18T00:00:00.000000000Z
-1997-03-18T00:01:02.000000000Z
 1997-03-18T00:01:02.000000000Z
 2024-02-16T22:07:14.000000000Z
 
 -/
 #guard_msgs in
 #eval do
-  println! DateTime.ofDaysSinceUNIXEpoch 1 PlainTime.midnight .UTC
-  println! DateTime.ofPlainDate date("1997-03-18") .UTC
+  println! DateTime.ofEpochDay 1 PlainTime.midnight .UTC
+  println! DateTime.ofLocalDate date("1997-03-18") .UTC
   println! DateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC
-  println! DateTime.ofPlainDateTimeAssumingUTC datetime("1997-03-18T00:01:02") .UTC
   println! DateTime.ofTimestamp 1708121234 .UTC
 
 /--
@@ -892,17 +890,15 @@ info: 1970-01-02T00:00:00.000000000[UTC]
 1997-03-18T00:00:00.000000000[UTC]
 1997-03-18T00:01:02.000000000[UTC]
 1997-03-18T00:01:02.000000000[UTC]
-1997-03-18T00:01:02.000000000[UTC]
 2024-02-16T22:07:14.000000000[UTC]
 2024-02-16T22:07:14.000000000[UTC]
 -/
 #guard_msgs in
 #eval do
-  println! ZonedDateTime.ofDaysSinceUNIXEpoch 1 PlainTime.midnight .UTC
-  println! ZonedDateTime.ofPlainDate date("1997-03-18") .UTC
-  println! ZonedDateTime.ofPlainDateWithZone date("1997-03-18") .UTC
+  println! ZonedDateTime.ofEpochDay 1 PlainTime.midnight .UTC
+  println! ZonedDateTime.ofLocalDate date("1997-03-18") .UTC
+  println! ZonedDateTime.ofLocalDateWithZone date("1997-03-18") .UTC
   println! ZonedDateTime.ofPlainDateTime datetime("1997-03-18T00:01:02") .UTC
-  println! ZonedDateTime.ofPlainDateTimeAssumingUTC datetime("1997-03-18T00:01:02") .UTC
   println! ZonedDateTime.ofPlainDateTimeWithZone datetime("1997-03-18T00:01:02") .UTC
   println! ZonedDateTime.ofTimestamp 1708121234 .UTC
   println! ZonedDateTime.ofTimestampWithZone 1708121234 .UTC

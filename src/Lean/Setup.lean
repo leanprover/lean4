@@ -35,7 +35,7 @@ structure Import where
 
 -- TODO: move further up into `Init` by using simpler representation for `imports`
 @[extern "lean_idbg_client_loop"]
-public opaque Idbg.idbgClientLoop {α : Type} [Nonempty α]
+opaque Idbg.idbgClientLoop {α : Type} [Nonempty α]
   (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit
 
 instance : Coe Name Import := ⟨({module := ·})⟩
@@ -124,13 +124,50 @@ def ModuleArtifacts.oleanParts (arts : ModuleArtifacts) : Array System.FilePath 
         fnames := fnames.push pFile
   return fnames
 
+/-- A Lean plugin. Plugins are shared libraries with an initialization function. -/
+structure Plugin where
+  /-- The path to the plugin's shared library. -/
+  path : System.FilePath
+  /--
+  The name of the plugin initialization function symbol.
+  If {lean}`none`, the symbol is derived from the file name of the shared library.
+  -/
+  initFn? : Option String
+  deriving Repr, ToJson
+
+namespace Plugin
+
+/--
+Constructs a plugin from just a shared library's {lean}`path`,
+inferring the name of the initialization function from the library's name.
+-/
+def ofFilePath (path : System.FilePath) : Plugin :=
+  {path, initFn? := none}
+
+instance : Coe System.FilePath Plugin := ⟨ofFilePath⟩
+
+protected def fromJson? (data : Json) : Except String Plugin := do
+  match data with
+  | .str path =>
+    return .ofFilePath path
+  | data@(.obj _) =>
+    let path ← data.getObjValAs? _ "path"
+    let initFn? ← data.getObjValAs? _ "initFn"
+    return {path, initFn?}
+  | _ =>
+    throw "expected string or object"
+
+instance : FromJson Plugin := ⟨Plugin.fromJson?⟩
+
+end Plugin
+
 /--
 The type of module package identifiers.
 
 This is a {name}`String` that is used to disambiguate native symbol prefixes between
 different packages (and different versions of the same package).
 -/
-public abbrev PkgId := String
+abbrev PkgId := String
 
 /-- A module's setup information as described by a JSON file. -/
 structure ModuleSetup where
@@ -154,7 +191,7 @@ structure ModuleSetup where
   /-- Dynamic libraries to load with the module. -/
   dynlibs : Array System.FilePath := #[]
   /-- Plugins to initialize with the module. -/
-  plugins : Array System.FilePath := #[]
+  plugins : Array Plugin := #[]
   /-- Additional options for the module. -/
   options : LeanOptions := {}
   deriving Repr, Inhabited, ToJson, FromJson

@@ -1,8 +1,8 @@
-import Std.Internal.Async.Signal
-import Std.Internal.Async.Select
-import Std.Internal.Async
+import Std.Async.Signal
+import Std.Async.Select
+import Std.Async
 
-open Std.Internal.IO.Async
+open Std.Async
 
 def assertBEq [BEq α] [Repr α] (actual expected : α) : IO Unit := do
   unless actual == expected do

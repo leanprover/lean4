@@ -21,7 +21,8 @@ def elabDoIdDecl (x : Ident) (xType? : Option Term) (rhs : TSyntax `doElem) (k :
   let xType ← Term.elabType (xType?.getD (mkHole x))
   let lctx ← getLCtx
   let ctx ← read
-  elabDoElem rhs <| .mk (kind := kind) x.getId xType do
+  let ref ← getRef -- store the surrounding reference for error messages in `k`
+  elabDoElem rhs <| .mk (kind := kind) x.getId xType do withRef ref do
     withLCtxKeepingMutVarDefs lctx ctx x.getId do
       Term.addLocalVarInfo x (← getFVarFromUserName x.getId)
       k

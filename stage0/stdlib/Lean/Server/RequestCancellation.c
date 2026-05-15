@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Server.RequestCancellation
-// Imports: public import Lean.Server.ServerTask public import Init.System.Promise
+// Imports: public import Lean.Server.ServerTask public import Init.System.Promise public import Init.System.CancelToken
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -381,9 +381,9 @@ return v___x_116_;
 LEAN_EXPORT lean_object* l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0___boxed(lean_object* v_a_117_){
 _start:
 {
-uint8_t v_a_667__boxed_118_; lean_object* v_res_119_; 
-v_a_667__boxed_118_ = lean_unbox(v_a_117_);
-v_res_119_ = l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0(v_a_667__boxed_118_);
+uint8_t v_a_668__boxed_118_; lean_object* v_res_119_; 
+v_a_668__boxed_118_ = lean_unbox(v_a_117_);
+v_res_119_ = l_Lean_Server_CancellableT_checkCancelled___redArg___lam__0(v_a_668__boxed_118_);
 return v_res_119_;
 }
 }
@@ -443,14 +443,13 @@ _start:
 lean_object* v_toApplicative_151_; lean_object* v_toBind_152_; lean_object* v_toFunctor_153_; lean_object* v_toPure_154_; lean_object* v___f_155_; lean_object* v___f_156_; lean_object* v___f_157_; lean_object* v___x_158_; lean_object* v___x_159_; lean_object* v___x_160_; lean_object* v___x_161_; 
 v_toApplicative_151_ = lean_ctor_get(v_inst_148_, 0);
 v_toBind_152_ = lean_ctor_get(v_inst_148_, 1);
-lean_inc(v_toBind_152_);
+lean_inc_n(v_toBind_152_, 2);
 v_toFunctor_153_ = lean_ctor_get(v_toApplicative_151_, 0);
 v_toPure_154_ = lean_ctor_get(v_toApplicative_151_, 1);
 v___f_155_ = ((lean_object*)(l_Lean_Server_CancellableT_checkCancelled___redArg___closed__0));
-lean_inc(v_toPure_154_);
+lean_inc_n(v_toPure_154_, 2);
 v___f_156_ = lean_alloc_closure((void*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__1___boxed), 2, 1);
 lean_closure_set(v___f_156_, 0, v_toPure_154_);
-lean_inc(v_toBind_152_);
 lean_inc_ref(v_inst_148_);
 lean_inc_ref(v_toFunctor_153_);
 v___f_157_ = lean_alloc_closure((void*)(l_Lean_Server_CancellableT_checkCancelled___redArg___lam__2), 7, 6);
@@ -463,7 +462,6 @@ lean_closure_set(v___f_157_, 5, v_toBind_152_);
 lean_inc_ref(v_a_150_);
 v___x_158_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_158_, 0, v_a_150_);
-lean_inc(v_toPure_154_);
 v___x_159_ = lean_apply_2(v_toPure_154_, lean_box(0), v___x_158_);
 v___x_160_ = lean_alloc_closure((void*)(l_ExceptT_bindCont), 7, 6);
 lean_closure_set(v___x_160_, 0, lean_box(0));
@@ -623,6 +621,7 @@ return v_res_214_;
 }
 lean_object* runtime_initialize_Lean_Server_ServerTask(uint8_t builtin);
 lean_object* runtime_initialize_Init_System_Promise(uint8_t builtin);
+lean_object* runtime_initialize_Init_System_CancelToken(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Server_RequestCancellation(uint8_t builtin) {
 lean_object * res;
@@ -632,6 +631,9 @@ res = runtime_initialize_Lean_Server_ServerTask(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_System_Promise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_System_CancelToken(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 l_Lean_Server_RequestCancellation_requestCancelled = _init_l_Lean_Server_RequestCancellation_requestCancelled();
@@ -647,6 +649,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Server_ServerTask(uint8_t builtin);
 lean_object* initialize_Init_System_Promise(uint8_t builtin);
+lean_object* initialize_Init_System_CancelToken(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Server_RequestCancellation(uint8_t builtin) {
 lean_object * res;
@@ -656,6 +659,9 @@ res = initialize_Lean_Server_ServerTask(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_System_Promise(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_System_CancelToken(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Server_RequestCancellation(builtin);

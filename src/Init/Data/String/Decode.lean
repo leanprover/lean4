@@ -94,7 +94,7 @@ public def String.utf8EncodeCharFast (c : Char) : List UInt8 :=
      (v >>>  6).toUInt8 &&& 0x3f ||| 0x80,
               v.toUInt8 &&& 0x3f ||| 0x80]
 
-private theorem Nat.add_two_pow_eq_or_of_lt {b : Nat} (i : Nat) (b_lt : b < 2 ^ i) (a : Nat) :
+theorem Nat.add_two_pow_eq_or_of_lt {b : Nat} (i : Nat) (b_lt : b < 2 ^ i) (a : Nat) :
     b + 2 ^ i * a = b ||| 2 ^ i * a := by
   rw [Nat.add_comm, Nat.or_comm, Nat.two_pow_add_eq_or_of_lt b_lt]
 
@@ -363,7 +363,7 @@ theorem toBitVec_eq_of_parseFirstByte_eq_threeMore {b : UInt8} (h : parseFirstBy
 public def isInvalidContinuationByte (b : UInt8) : Bool :=
   b &&& 0xc0 != 0x80
 
-theorem isInvalidContinutationByte_eq_false_iff {b : UInt8} :
+theorem isInvalidContinuationByte_eq_false_iff {b : UInt8} :
     isInvalidContinuationByte b = false ↔ b &&& 0xc0 = 0x80 := by
   simp [isInvalidContinuationByte]
 

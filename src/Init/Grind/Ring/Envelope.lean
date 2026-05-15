@@ -193,7 +193,7 @@ theorem mul_assoc (a b c : Q α) : mul (mul a b) c = mul a (mul b c) := by
   simp [Semiring.left_distrib, Semiring.right_distrib]; refine ⟨0, ?_⟩; ac_rfl
 
 theorem mul_one (a : Q α) : mul a (natCast 1) = a := by
-obtain ⟨⟨_, _⟩⟩ := a; simp
+  obtain ⟨⟨_, _⟩⟩ := a; simp
 
 theorem one_mul (a : Q α) : mul (natCast 1) a = a := by
   obtain ⟨⟨_, _⟩⟩ := a; simp
@@ -359,7 +359,7 @@ instance (priority := high) {p} [Semiring α] [AddRightCancel α] [IsCharP α p]
         replace h := AddRightCancel.add_right_cancel _ _ _ h
         simp [Semiring.ofNat_eq_natCast, h]
       have := IsCharP.ofNat_ext_iff p |>.mp h
-      simp at this; assumption
+      exact this
     next =>
       intro h
       have := IsCharP.ofNat_ext_iff (α := α) p |>.mpr h

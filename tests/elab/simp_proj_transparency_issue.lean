@@ -2,11 +2,11 @@ structure Foo where
   x : Nat
   y : Nat := 10
 
-@[instance]
+@[implicit_reducible]
 def f (x : Nat) : Foo :=
   { x := x + x }
 
-@[instance]
+@[implicit_reducible]
 def g (x : Nat) : Foo :=
   { x := x + x }
 

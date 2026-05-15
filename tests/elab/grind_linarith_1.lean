@@ -1,6 +1,6 @@
 module
 open Std Lean.Grind
-set_option grind.debug true
+set_option sym.debug true
 
 example [IntModule α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [OrderedAdd α] (a b : α)
     : (2:Int) • a + b < b + a + a → False := by
@@ -66,23 +66,23 @@ example [CommRing α] [LE α] [LT α] [LawfulOrderLT α] [IsPreorder α] [Ordere
 
 -- Test misconfigured instances
 /--
-trace: [grind.issues] type has `LE`, but is not a partial order, failed to synthesize
+trace: [sym.issues] type has `LE`, but is not a partial order, failed to synthesize
       IsPartialOrder α
-[grind.issues] type has `LE`, but is not a linear preorder, failed to synthesize
+[sym.issues] type has `LE`, but is not a linear preorder, failed to synthesize
       IsLinearPreorder α
-[grind.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
+[sym.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
       LawfulOrderLT α
-[grind.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
+[sym.issues] type has `LE` and `LT`, but the `LT` instance is not lawful, failed to synthesize
       LawfulOrderLT α
-[grind.issues] type has `LE`, but is not a partial order, failed to synthesize
+[sym.issues] type has `LE`, but is not a partial order, failed to synthesize
       IsPartialOrder α
-[grind.issues] type has `LE`, but is not a linear order, failed to synthesize
+[sym.issues] type has `LE`, but is not a linear order, failed to synthesize
       IsLinearOrder α
-[grind.issues] type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize
+[sym.issues] type has a `Preorder` and is a `Semiring`, but is not an ordered ring, failed to synthesize
       OrderedRing α
 -/
 #guard_msgs (drop error, trace) in
-set_option trace.grind.issues true in
+set_option trace.sym.issues true in
 example [CommRing α] [LE α] [LT α] [IsPreorder α] [OrderedAdd α] (a b c : α)
     : a < b → b + b < c → c < a → False := by
   grind

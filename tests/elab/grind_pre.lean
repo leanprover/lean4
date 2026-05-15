@@ -171,14 +171,14 @@ example (a : α) (p q r : Prop) : (h₁ : p ≍ a) → (h₂ : q ≍ a) → (h�
   grind
 
 /--
-trace: [grind.issues] found congruence between
+trace: [sym.issues] found congruence between
       g b
     and
       f a
     but functions have different types
 -/
 #guard_msgs (trace) in
-set_option trace.grind.issues true in
+set_option trace.sym.issues true in
 set_option trace.grind.debug.proof false in
 example (f : Nat → Bool) (g : Int → Bool) (a : Nat) (b : Int) : f ≍ g → a ≍ b → f a = g b := by
   fail_if_success grind

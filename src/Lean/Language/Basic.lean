@@ -67,7 +67,9 @@ structure Snapshot where
   `diagnostics`) occurred that prevents processing of the remainder of the file.
   -/
   isFatal := false
-deriving Inhabited
+
+instance : Inhabited Snapshot where
+  default := { desc := "", diagnostics := default }
 
 /-- Range that is marked as being processed by the server while a task is running. -/
 inductive SnapshotTask.ReportingRange where
@@ -236,7 +238,10 @@ partial def SnapshotTask.cancelRec [ToSnapshotTree α] (t : SnapshotTask α) : B
 
 /-- Snapshot type without child nodes. -/
 structure SnapshotLeaf extends Snapshot
-deriving Inhabited, TypeName
+deriving TypeName
+
+instance : Inhabited SnapshotLeaf where
+  default := { toSnapshot := default }
 
 instance : ToSnapshotTree SnapshotLeaf where
   toSnapshotTree s := SnapshotTree.mk s.toSnapshot #[]
@@ -312,15 +317,18 @@ private def reportMessages (msgLog : MessageLog) (opts : Options)
     (json : Bool) (severityOverrides : NameMap MessageSeverity) (numErrors : Nat) : IO Nat := do
   let includeEndPos := printMessageEndPos.get opts
   msgLog.unreported.foldlM (init := numErrors) fun numErrors msg => do
+    let msg : Message :=
+      if let some severity := severityOverrides.find? msg.kind then
+        {msg with severity}
+      else
+        msg
     let numErrors := numErrors + (if msg.severity matches .error then 1 else 0)
     let maxErrorsReached := maxErrors.get opts != 0 && numErrors > maxErrors.get opts
     let msg : Message :=
       if maxErrorsReached then { msg with
         data := s!"maximum number of errors ({maxErrors.get opts}; from option `maxErrors`) reached, exiting"
         severity := .error
-      } else if let some severity := severityOverrides.find? msg.kind then
-        {msg with severity}
-      else
+      } else
         msg
     unless msg.isSilent do
       if json then

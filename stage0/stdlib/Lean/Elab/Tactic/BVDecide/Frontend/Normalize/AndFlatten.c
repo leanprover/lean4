@@ -868,12 +868,11 @@ return v___x_243_;
 else
 {
 lean_object* v___x_244_; lean_object* v___x_245_; lean_object* v___x_246_; uint8_t v___x_247_; uint8_t v___x_248_; lean_object* v___x_250_; 
-lean_inc_ref(v_arg_235_);
+lean_inc_ref_n(v_arg_235_, 2);
 v___x_244_ = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit___redArg___lam__0(v_arg_235_);
 v___x_245_ = lean_obj_once(&l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit___redArg___closed__8, &l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit___redArg___closed__8_once, _init_l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_AndFlatten_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_andFlatteningPass_trySplit___redArg___closed__8);
 lean_inc_ref(v_value_198_);
 lean_inc_ref(v_arg_232_);
-lean_inc_ref(v_arg_235_);
 v___x_246_ = l_Lean_mkApp3(v___x_245_, v_arg_235_, v_arg_232_, v_value_198_);
 v___x_247_ = 0;
 v___x_248_ = 0;
@@ -1364,7 +1363,6 @@ if (v___x_408_ == 0)
 {
 lean_object* v___x_409_; 
 lean_del_object(v___x_404_);
-lean_inc_ref(v_a_397_);
 lean_inc(v_fvar_395_);
 v___x_409_ = l_Lean_FVarId_getDecl___redArg(v_fvar_395_, v_a_397_, v_a_398_, v_a_399_);
 if (lean_obj_tag(v___x_409_) == 0)
@@ -1375,7 +1373,7 @@ lean_inc(v_a_410_);
 lean_dec_ref(v___x_409_);
 v___x_411_ = l_Lean_LocalDecl_userName(v_a_410_);
 lean_dec(v_a_410_);
-lean_inc(v_fvar_395_);
+lean_inc_n(v_fvar_395_, 2);
 v___x_412_ = l_Lean_mkFVar(v_fvar_395_);
 v___x_413_ = 0;
 v___x_414_ = 0;
@@ -1385,7 +1383,6 @@ lean_ctor_set(v___x_415_, 1, v_a_402_);
 lean_ctor_set(v___x_415_, 2, v___x_412_);
 lean_ctor_set_uint8(v___x_415_, sizeof(void*)*3, v___x_413_);
 lean_ctor_set_uint8(v___x_415_, sizeof(void*)*3 + 1, v___x_414_);
-lean_inc(v_fvar_395_);
 v___x_416_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_416_, 0, v___x_415_);
 lean_ctor_set(v___x_416_, 1, v_fvar_395_);
@@ -1899,7 +1896,6 @@ LEAN_EXPORT lean_object* l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normaliz
 _start:
 {
 lean_object* v___x_608_; 
-lean_inc_ref(v___y_603_);
 v___x_608_ = l_Lean_Meta_getPropHyps(v___y_603_, v___y_604_, v___y_605_, v___y_606_);
 if (lean_obj_tag(v___x_608_) == 0)
 {

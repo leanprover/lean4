@@ -558,9 +558,8 @@ goto v_resetjp_237_;
 v_resetjp_237_:
 {
 lean_object* v___x_240_; lean_object* v___x_241_; lean_object* v___x_242_; lean_object* v___x_244_; 
-lean_inc(v_n_232_);
+lean_inc_n(v_n_232_, 2);
 v___x_240_ = l_Vector_instAddCommMonoid___redArg(v_n_232_, v_toAddCommMonoid_234_);
-lean_inc(v_n_232_);
 v___x_241_ = lean_alloc_closure((void*)(l_Vector_neg___boxed), 4, 3);
 lean_closure_set(v___x_241_, 0, lean_box(0));
 lean_closure_set(v___x_241_, 1, v_n_232_);

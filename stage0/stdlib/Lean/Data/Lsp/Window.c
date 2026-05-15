@@ -1278,6 +1278,7 @@ goto v___jp_294_;
 v___jp_294_:
 {
 lean_object* v___x_296_; lean_object* v___x_297_; lean_object* v___x_298_; lean_object* v___x_299_; lean_object* v___x_300_; lean_object* v___x_301_; lean_object* v___x_302_; lean_object* v___x_303_; lean_object* v___x_304_; lean_object* v___x_305_; lean_object* v___x_306_; lean_object* v___x_307_; 
+lean_inc(v___y_295_);
 v___x_296_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_296_, 0, v___x_293_);
 lean_ctor_set(v___x_296_, 1, v___y_295_);
@@ -1304,6 +1305,7 @@ lean_ctor_set(v___x_304_, 1, v___x_303_);
 v___x_305_ = ((lean_object*)(l_instToJsonShowMessageParams_toJson___closed__0));
 v___x_306_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00instToJsonShowMessageParams_toJson_spec__0(v___x_304_, v___x_305_);
 v___x_307_ = l_Lean_Json_mkObj(v___x_306_);
+lean_dec(v___x_306_);
 return v___x_307_;
 }
 }
@@ -1526,6 +1528,7 @@ lean_ctor_set(v___x_374_, 1, v___x_372_);
 v___x_375_ = ((lean_object*)(l_instToJsonShowMessageParams_toJson___closed__0));
 v___x_376_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00instToJsonShowMessageParams_toJson_spec__0(v___x_374_, v___x_375_);
 v___x_377_ = l_Lean_Json_mkObj(v___x_376_);
+lean_dec(v___x_376_);
 return v___x_377_;
 }
 }
@@ -2336,6 +2339,7 @@ goto v___jp_596_;
 v___jp_596_:
 {
 lean_object* v___x_598_; lean_object* v___x_599_; lean_object* v___x_600_; lean_object* v___x_601_; lean_object* v___x_602_; lean_object* v___x_603_; lean_object* v___x_604_; lean_object* v___x_605_; lean_object* v___x_606_; lean_object* v___x_607_; lean_object* v___x_608_; lean_object* v___x_609_; lean_object* v___x_610_; lean_object* v___x_611_; lean_object* v___x_612_; 
+lean_inc(v___y_597_);
 v___x_598_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_598_, 0, v___x_595_);
 lean_ctor_set(v___x_598_, 1, v___y_597_);
@@ -2366,6 +2370,7 @@ lean_ctor_set(v___x_609_, 1, v___x_608_);
 v___x_610_ = ((lean_object*)(l_instToJsonShowMessageParams_toJson___closed__0));
 v___x_611_ = l___private_Init_Data_List_Impl_0__List_flatMapTR_go___at___00instToJsonShowMessageParams_toJson_spec__0(v___x_609_, v___x_610_);
 v___x_612_ = l_Lean_Json_mkObj(v___x_611_);
+lean_dec(v___x_611_);
 return v___x_612_;
 }
 }

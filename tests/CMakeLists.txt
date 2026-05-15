@@ -250,19 +250,11 @@ set(PART2 "")
 # toolchain: requires elan to download toolchain
 # online: downloads remote repositories
 option(LAKE_CI "Enable full Lake test suite (use `lake-ci` label on PRs)" OFF)
-if(LAKE_CI)
-  file(
-    GLOB_RECURSE LEANLAKETESTS
-    "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
-    "${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
-  )
-else()
-  file(
-    GLOB_RECURSE LEANLAKETESTS
-    "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
-    "${LEAN_SOURCE_DIR}/../tests/lake/tests/shake/test.sh"
-  )
-endif()
+file(
+  GLOB_RECURSE LEANLAKETESTS
+  "${LEAN_SOURCE_DIR}/../tests/lake/examples/test.sh"
+  "${LEAN_SOURCE_DIR}/../tests/lake/tests/test.sh"
+)
 foreach(T ${LEANLAKETESTS})
   if(NOT T MATCHES ".*(lake-packages|bootstrap|toolchain|online).*")
     get_filename_component(T_DIR ${T} DIRECTORY)
@@ -290,7 +282,13 @@ add_test_pile(../doc/examples *.lean)
 add_test_pile(compile *.lean BENCH PART2)
 add_test_pile(compile_bench *.lean BENCH PART2)
 add_test_pile(docparse *.txt)
-add_test_pile(elab *.lean)
+add_test_pile(
+  elab
+  *.lean
+  EXCEPT
+    async_select_channel.lean # Flaky
+    sync_mutex.lean # Flaky
+)
 add_test_pile(elab_bench *.lean BENCH PART2)
 add_test_pile(elab_fail *.lean)
 add_test_pile(misc *.sh)

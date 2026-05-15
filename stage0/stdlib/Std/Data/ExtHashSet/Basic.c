@@ -40,7 +40,7 @@ lean_object* l_Std_DHashMap_Internal_Raw_u2080_insertMany___redArg(lean_object*,
 lean_object* l___private_Std_Data_DHashMap_Internal_AssocList_Basic_0__Std_DHashMap_Internal_AssocList_forInStep_go(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 size_t lean_array_size(lean_object*);
 lean_object* l___private_Init_Data_Array_Basic_0__Array_forIn_x27Unsafe_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, size_t, size_t, lean_object*);
-lean_object* l_List_instForIn_x27InferInstanceMembershipOfMonad___redArg___lam__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l_List_instForIn_x27InferInstanceMembershipOfMonad___redArg___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_instForInOfForIn_x27___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_Const_insertManyIfNewUnit___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Std_DHashMap_Internal_Raw_u2080_getKey_x3f___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
@@ -138,7 +138,7 @@ static const lean_ctor_object l_Std_ExtHashSet_ofList___redArg___closed__8_value
 static const lean_object* l_Std_ExtHashSet_ofList___redArg___closed__8 = (const lean_object*)&l_Std_ExtHashSet_ofList___redArg___closed__8_value;
 static const lean_ctor_object l_Std_ExtHashSet_ofList___redArg___closed__9_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_ctor_object) + sizeof(void*)*2 + 0, .m_other = 2, .m_tag = 0}, .m_objs = {((lean_object*)&l_Std_ExtHashSet_ofList___redArg___closed__8_value),((lean_object*)&l_Std_ExtHashSet_ofList___redArg___closed__6_value)}};
 static const lean_object* l_Std_ExtHashSet_ofList___redArg___closed__9 = (const lean_object*)&l_Std_ExtHashSet_ofList___redArg___closed__9_value;
-static const lean_closure_object l_Std_ExtHashSet_ofList___redArg___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_List_instForIn_x27InferInstanceMembershipOfMonad___redArg___lam__0, .m_arity = 5, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Std_ExtHashSet_ofList___redArg___closed__9_value)} };
+static const lean_closure_object l_Std_ExtHashSet_ofList___redArg___closed__10_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_List_instForIn_x27InferInstanceMembershipOfMonad___redArg___lam__0___boxed, .m_arity = 5, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Std_ExtHashSet_ofList___redArg___closed__9_value)} };
 static const lean_object* l_Std_ExtHashSet_ofList___redArg___closed__10 = (const lean_object*)&l_Std_ExtHashSet_ofList___redArg___closed__10_value;
 static const lean_closure_object l_Std_ExtHashSet_ofList___redArg___closed__11_value = {.m_header = {.m_rc = 0, .m_cs_sz = sizeof(lean_closure_object) + sizeof(void*)*1, .m_other = 0, .m_tag = 245}, .m_fun = (void*)l_instForInOfForIn_x27___redArg___lam__1, .m_arity = 5, .m_num_fixed = 1, .m_objs = {((lean_object*)&l_Std_ExtHashSet_ofList___redArg___closed__10_value)} };
 static const lean_object* l_Std_ExtHashSet_ofList___redArg___closed__11 = (const lean_object*)&l_Std_ExtHashSet_ofList___redArg___closed__11_value;
@@ -389,7 +389,7 @@ v_size_102_ = lean_ctor_get(v_m_100_, 0);
 v_buckets_103_ = lean_ctor_get(v_m_100_, 1);
 v___x_104_ = lean_array_get_size(v_buckets_103_);
 lean_inc_ref(v_x_99_);
-lean_inc(v_a_101_);
+lean_inc_n(v_a_101_, 2);
 v___x_105_ = lean_apply_1(v_x_99_, v_a_101_);
 v___x_106_ = 32ULL;
 v___x_107_ = lean_unbox_uint64(v___x_105_);
@@ -407,7 +407,6 @@ v___x_117_ = lean_usize_sub(v___x_115_, v___x_116_);
 v___x_118_ = lean_usize_land(v___x_114_, v___x_117_);
 v_bkt_119_ = lean_array_uget_borrowed(v_buckets_103_, v___x_118_);
 lean_inc(v_bkt_119_);
-lean_inc(v_a_101_);
 v___x_120_ = l_Std_DHashMap_Internal_AssocList_contains___redArg(v_x_98_, v_a_101_, v_bkt_119_);
 if (v___x_120_ == 0)
 {
@@ -537,7 +536,7 @@ v_size_158_ = lean_ctor_get(v_m_156_, 0);
 v_buckets_159_ = lean_ctor_get(v_m_156_, 1);
 v___x_160_ = lean_array_get_size(v_buckets_159_);
 lean_inc_ref(v_x_153_);
-lean_inc(v_a_157_);
+lean_inc_n(v_a_157_, 2);
 v___x_161_ = lean_apply_1(v_x_153_, v_a_157_);
 v___x_162_ = 32ULL;
 v___x_163_ = lean_unbox_uint64(v___x_161_);
@@ -555,7 +554,6 @@ v___x_173_ = lean_usize_sub(v___x_171_, v___x_172_);
 v___x_174_ = lean_usize_land(v___x_170_, v___x_173_);
 v_bkt_175_ = lean_array_uget_borrowed(v_buckets_159_, v___x_174_);
 lean_inc(v_bkt_175_);
-lean_inc(v_a_157_);
 v___x_176_ = l_Std_DHashMap_Internal_AssocList_contains___redArg(v_x_152_, v_a_157_, v_bkt_175_);
 if (v___x_176_ == 0)
 {
@@ -939,6 +937,7 @@ _start:
 lean_object* v_res_401_; 
 v_res_401_ = l_Std_ExtHashSet_get_x21___redArg(v_x_396_, v_x_397_, v_inst_398_, v_m_399_, v_a_400_);
 lean_dec(v_m_399_);
+lean_dec(v_inst_398_);
 return v_res_401_;
 }
 }
@@ -956,6 +955,7 @@ _start:
 lean_object* v_res_419_; 
 v_res_419_ = l_Std_ExtHashSet_get_x21(v_00_u03b1_411_, v_x_412_, v_x_413_, v_inst_414_, v_inst_415_, v_inst_416_, v_m_417_, v_a_418_);
 lean_dec(v_m_417_);
+lean_dec(v_inst_416_);
 return v_res_419_;
 }
 }

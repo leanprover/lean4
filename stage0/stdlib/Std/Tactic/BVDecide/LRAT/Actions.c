@@ -355,7 +355,7 @@ v___x_88_ = l_Std_Tactic_BVDecide_LRAT_Action_ctorElim___redArg(v_t_85_, v_del_8
 return v___x_88_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instInhabitedAction_default(lean_object* v_a_94_, lean_object* v_a_95_){
+LEAN_EXPORT lean_object* l_Std_Tactic_BVDecide_LRAT_instInhabitedAction_default(lean_object* v_00_u03b2_94_, lean_object* v_00_u03b1_95_){
 _start:
 {
 lean_object* v___x_96_; 
@@ -965,6 +965,7 @@ v___x_285_ = l_Array_repr___redArg(v___f_270_, v_rupHints_272_);
 v___x_286_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_286_, 0, v___x_284_);
 lean_ctor_set(v___x_286_, 1, v___x_285_);
+lean_inc(v___y_277_);
 v___x_287_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_287_, 0, v___y_277_);
 lean_ctor_set(v___x_287_, 1, v___x_286_);
@@ -1031,6 +1032,7 @@ v___x_312_ = l_Array_repr___redArg(v___f_270_, v_rupHints_299_);
 v___x_313_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_313_, 0, v___x_311_);
 lean_ctor_set(v___x_313_, 1, v___x_312_);
+lean_inc(v___y_301_);
 v___x_314_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_314_, 0, v___y_301_);
 lean_ctor_set(v___x_314_, 1, v___x_313_);
@@ -1114,6 +1116,7 @@ v___x_347_ = l_Array_repr___redArg(v___x_328_, v_ratHints_326_);
 v___x_348_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_348_, 0, v___x_346_);
 lean_ctor_set(v___x_348_, 1, v___x_347_);
+lean_inc(v___y_330_);
 v___x_349_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_349_, 0, v___y_330_);
 lean_ctor_set(v___x_349_, 1, v___x_348_);
@@ -1157,6 +1160,7 @@ v___x_361_ = l_Array_repr___redArg(v___f_270_, v_ids_357_);
 v___x_362_ = lean_alloc_ctor(5, 2, 0);
 lean_ctor_set(v___x_362_, 0, v___x_360_);
 lean_ctor_set(v___x_362_, 1, v___x_361_);
+lean_inc(v___y_359_);
 v___x_363_ = lean_alloc_ctor(4, 2, 0);
 lean_ctor_set(v___x_363_, 0, v___y_359_);
 lean_ctor_set(v___x_363_, 1, v___x_362_);
@@ -1345,7 +1349,6 @@ v___jp_479_:
 {
 lean_object* v___x_481_; lean_object* v___x_482_; lean_object* v___x_483_; lean_object* v___x_484_; lean_object* v___x_485_; lean_object* v___x_486_; lean_object* v___x_487_; lean_object* v___x_488_; lean_object* v___x_489_; lean_object* v___x_490_; lean_object* v___x_491_; lean_object* v___x_492_; lean_object* v___x_493_; lean_object* v___x_494_; lean_object* v___x_495_; lean_object* v___x_496_; lean_object* v___x_497_; lean_object* v___x_498_; 
 v___x_481_ = lean_string_append(v___x_478_, v___y_480_);
-lean_dec_ref(v___y_480_);
 v___x_482_ = ((lean_object*)(l_Std_Tactic_BVDecide_LRAT_Action_toString___redArg___closed__4));
 v___x_483_ = lean_string_append(v___x_481_, v___x_482_);
 v___x_484_ = lean_string_append(v___x_473_, v___x_483_);

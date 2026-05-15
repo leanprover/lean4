@@ -836,12 +836,11 @@ _start:
 {
 lean_object* v_fst_244_; lean_object* v_snd_245_; lean_object* v___x_246_; lean_object* v___x_247_; lean_object* v___x_248_; lean_object* v___x_249_; lean_object* v___x_250_; lean_object* v___x_251_; lean_object* v___x_252_; lean_object* v___x_253_; lean_object* v___x_254_; 
 v_fst_244_ = lean_ctor_get(v_x_243_, 0);
-lean_inc(v_fst_244_);
+lean_inc_n(v_fst_244_, 2);
 v_snd_245_ = lean_ctor_get(v_x_243_, 1);
 lean_inc(v_snd_245_);
 lean_dec_ref(v_x_243_);
 v___x_246_ = ((lean_object*)(l_instToStringSigma___redArg___lam__0___closed__0));
-lean_inc(v_fst_244_);
 v___x_247_ = lean_apply_1(v_inst_241_, v_fst_244_);
 v___x_248_ = lean_string_append(v___x_246_, v___x_247_);
 lean_dec_ref(v___x_247_);

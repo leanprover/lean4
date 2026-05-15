@@ -14,7 +14,7 @@ def mkSimpContext (config : Simp.Config := {}) : MetaM Simp.Context := do
   let config := { config with implicitDefEqProofs := false }
   Simp.mkContext config #[s] {}
 
-def simp (e : Expr) : MetaM (Simp.Result × Float) := Sym.SymM.run' do
+def simp (e : Expr) : MetaM (Simp.Result × Float) := Sym.SymM.run do
   -- let e ← Grind.shareCommon e
   let startTime ← IO.monoNanosNow
   let (r, _) ← Meta.simp e (← mkSimpContext)

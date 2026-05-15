@@ -13,6 +13,7 @@ import Init.Data.String.Search
 import Init.Omega
 import Init.System.Platform
 import Init.While
+import Init.Data.String.Length
 
 public section
 

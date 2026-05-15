@@ -11,10 +11,12 @@ public import Lake.Load.Manifest
 import Lake.Util.IO
 import Lake.Util.StoreInsts
 import Lake.Config.Monad
-import Lake.Build.Topological
 import Lake.Load.Materialize
 import Lake.Load.Lean.Eval
 import Lake.Load.Package
+import Init.Data.Range.Polymorphic.Iterators
+import Init.TacticsExtra
+import Lean.Runtime
 
 open System Lean
 
@@ -25,108 +27,187 @@ This module contains definitions for resolving the dependencies of a package.
 
 namespace Lake
 
+/-- Returns the load configuration of a materialized dependency. -/
+@[inline] def mkDepLoadConfig
+  (ws : Workspace) (dep : MaterializedDep)
+  (lakeOpts : NameMap String) (leanOpts : Options) (reconfigure : Bool)
+: LoadConfig where
+  lakeEnv := ws.lakeEnv
+  wsDir := ws.dir
+  pkgIdx := ws.packages.size
+  pkgName := dep.name
+  pkgDir := dep.pkgDir
+  relPkgDir := dep.relPkgDir
+  relConfigFile := dep.relConfigFile
+  relManifestFile := dep.relManifestFile
+  lakeOpts; leanOpts; reconfigure
+  scope := dep.scope
+  remoteUrl := dep.remoteUrl
+
+def Workspace.addFacetDecls (decls : Array FacetDecl) (self : Workspace) : Workspace :=
+  decls.foldl (·.addFacetConfig ·.config) self
+
+theorem Workspace.packages_addFacetDecls :
+  (addFacetDecls decls ws).packages = ws.packages
+:= by
+  simp only [addFacetDecls]
+  apply Array.foldl_induction (fun _ (s : Workspace) => s.packages = ws.packages) rfl
+  intro i s h
+  simp only [packages_addFacetConfig, h]
+
 /--
 Loads the package configuration of a materialized dependency.
-Adds the facets defined in the package to the `Workspace`.
+Adds the package and the facets defined within it to the `Workspace`.
 -/
-def loadDepPackage
-  (wsIdx : Nat)
-  (dep : MaterializedDep)
-  (lakeOpts : NameMap String)
-  (leanOpts : Options) (reconfigure : Bool)
-: StateT Workspace LogIO Package := fun ws => do
-  let name := dep.name.toString (escape := false)
-  let pkgDir := ws.dir / dep.relPkgDir
-  let some pkgDir ← resolvePath? pkgDir
-    | error s!"{name}: package directory not found: {pkgDir}"
-  let (pkg, env?) ← loadPackageCore name {
-    lakeEnv := ws.lakeEnv
-    wsDir := ws.dir
-    pkgIdx := wsIdx
-    pkgName := dep.name
-    pkgDir
-    relPkgDir := dep.relPkgDir
-    relConfigFile := dep.configFile
-    lakeOpts, leanOpts, reconfigure
-    scope := dep.scope
-    remoteUrl := dep.remoteUrl
+def Workspace.addDepPackage'
+  (ws : Workspace) (dep : MaterializedDep)
+  (lakeOpts : NameMap String) (leanOpts : Options) (reconfigure : Bool)
+: LogIO {ws' : Workspace // ws'.packages.size = ws.packages.size + 1} := do
+  let wsIdx := ws.packages.size
+  let loadCfg := mkDepLoadConfig ws dep lakeOpts leanOpts reconfigure
+  let ⟨loadCfg, h⟩ ← resolveConfigFile dep.prettyName loadCfg
+  let fileCfg ← loadConfigFile loadCfg h
+  let pkg := mkPackage loadCfg fileCfg wsIdx
+  let ws := ws.addPackage' pkg wsIdx_mkPackage |>.addFacetDecls fileCfg.facetDecls
+  return ⟨ws, by simp [ws, packages_addFacetDecls, packages_addPackage']⟩
+
+
+def Workspace.setDepPkgs
+  (self : Workspace) (pkg : Package) (depPkgs : Array Package)
+  (h : pkg.wsIdx < self.packages.size)
+: Workspace :=
+  let pkg := {pkg with depPkgs}
+  {self with
+    packages := self.packages.set pkg.wsIdx pkg h
+    packageMap := self.packageMap.insert pkg.keyName pkg
+    size_packages_pos := by simp [self.size_packages_pos]
+    packages_wsIdx {i} := by
+      intro hi
+      rw [Array.size_set] at hi
+      rw [self.packages.getElem_set]
+      split
+      · assumption
+      · rw [self.packages_wsIdx]
   }
-  if let some env := env? then
-    let ws ← IO.ofExcept <| ws.addFacetsFromEnv env leanOpts
-    return (pkg, ws)
-  else
-    return (pkg, ws)
+
+theorem Workspace.size_packages_setDepPkgs :
+  (setDepPkgs ws pkg depPkgs h).packages.size = ws.packages.size
+:= by simp [setDepPkgs]
+
+structure ResolveState (start : Nat) where
+  ws : Workspace
+  depIdxs : Array Nat
+  lt_of_mem : ∀ i ∈ depIdxs, i < ws.packages.size
+  start_le : start ≤ ws.packages.size
+
+namespace ResolveState
+
+@[inline] def init (ws : Workspace) (size : Nat) : ResolveState ws.packages.size :=
+  {ws, depIdxs := Array.mkEmpty size, lt_of_mem := by simp, start_le := Nat.le_refl ..}
+
+@[inline] def reuseDep (s : ResolveState n) (wsIdx : Fin s.ws.packages.size) : ResolveState n :=
+  have lt_of_mem := by
+    intro i i_mem
+    cases Array.mem_push.mp i_mem with
+    | inl i_mem => exact s.lt_of_mem i i_mem
+    | inr i_eq => simp only [i_eq, wsIdx.isLt]
+  {s with depIdxs := s.depIdxs.push wsIdx, lt_of_mem}
+
+@[inline] def newDep
+  (s : ResolveState n) (dep : MaterializedDep)
+  (lakeOpts : NameMap String) (leanOpts : Options) (reconfigure : Bool)
+: LogIO (ResolveState n) := do
+  let {ws, depIdxs, lt_of_mem, start_le} := s
+  let wsIdx := ws.packages.size
+  let ⟨ws', h⟩ ← ws.addDepPackage' dep lakeOpts leanOpts reconfigure
+  have lt_of_mem := by
+    intro i i_mem
+    cases Array.mem_push.mp i_mem with
+    | inl i_mem => exact h ▸ Nat.lt_add_one_of_lt (lt_of_mem i i_mem)
+    | inr i_eq => simp only [wsIdx, i_eq, h, Nat.lt_add_one]
+  have start_le := Nat.le_trans start_le <| h ▸ Nat.le_add_right ..
+  return ⟨ws', depIdxs.push wsIdx, lt_of_mem, start_le⟩
+
+end ResolveState
+
+abbrev MinWorkspace (ws : Workspace) :=
+  {ws' : Workspace // ws.packages.size ≤ ws'.packages.size}
+
+instance : Nonempty (MinWorkspace ws) := ⟨⟨ws, Nat.le_refl ..⟩⟩
+
+@[inline] unsafe def guardBySizeImpl [Pure m] [MonadError m] (as : Array α) : m (PLift (as.size ≤ Lean.maxSmallNat)) :=
+  pure ⟨lcProof⟩
 
 /--
-The resolver's call stack of dependencies.
-That is, the dependency currently being resolved plus its parents.
+Returns a proof that the size of an `Array` is at most `Lean.maxSmallNat`.
+
+This is modelled to fail via `MonadError` if this property does not hold. However, when compiled,
+this is implemented by a no-op, because this is a fixed property of the Lean runtime.
+
+This function can be used to prove that Array-bounded recursion terminates.
 -/
-abbrev DepStack := CallStack Name
-
-/--
-A monad transformer for recursive dependency resolution.
-It equips the monad with the stack of dependencies currently being resolved.
--/
-abbrev DepStackT m := CallStackT Name m
-
-@[inline] nonrec def DepStackT.run
-  (x : DepStackT m α) (stack : DepStack := {})
-: m α := x.run stack
-
-/-- Log dependency cycle and error. -/
-@[specialize] def depCycleError [MonadError m] (cycle : Cycle Name) : m α :=
-  error s!"dependency cycle detected:\n{formatCycle cycle}"
-
-instance [Monad m] [MonadError m] : MonadCycleOf Name (DepStackT m) where
-  throwCycle := depCycleError
-
-/-- The monad of the dependency resolver. -/
-abbrev ResolveT m := DepStackT <| StateT Workspace m
-
-@[inline] nonrec def ResolveT.run
-  (ws : Workspace) (x : ResolveT m α) (stack : DepStack := {})
-: m (α × Workspace) := x.run stack |>.run ws
-
-/-- Recursively run a `ResolveT` monad starting from the workspace's root. -/
-@[specialize] private def Workspace.runResolveT
-  [Monad m] [MonadError m] (ws : Workspace)
-  (go : RecFetchFn Package PUnit (ResolveT m))
-  (root := ws.root) (stack : DepStack  := {})
-: m Workspace := do
-  let (_, ws) ← ResolveT.run ws (stack := stack) do
-    recFetchAcyclic (·.baseName) go root
-  return ws
+@[implemented_by guardBySizeImpl]
+def guardBySize! [Pure m] [MonadError m] (as : Array α) : m (PLift (as.size ≤ Lean.maxSmallNat)) :=
+  if h : as.size ≤ Lean.maxSmallNat then pure ⟨h⟩ else error "Array-bounded termination"
 
 /-
 Recursively visits each node in a package's dependency graph, starting from
 the workspace package `root`. Each dependency missing from the workspace is
-resolved using the `load` function and added into the workspace.
+added to the workspace using the `resolve` function.
 
 Recursion occurs breadth-first. Each direct dependency of a package is
 resolved in reverse order before recursing to the dependencies' dependencies.
 
 See `Workspace.updateAndMaterializeCore` for more details.
 -/
-@[inline] private def Workspace.resolveDepsCore
-  [Monad m] [MonadError m] (ws : Workspace)
-  (load : Package → Dependency → Nat → StateT Workspace m Package)
-  (root : Package := ws.root) (stack : DepStack := {})
-: m Workspace := do
-  ws.runResolveT go root stack
+@[inline] def Workspace.resolveDepsCore
+  [Monad m] [MonadError m] [MonadLiftT LogIO m] (ws : Workspace)
+  (resolve : Package → Dependency → Workspace → m MaterializedDep)
+  (root : Nat) (h : root < ws.packages.size)
+  (leanOpts : Options := {}) (reconfigure := true)
+: m (MinWorkspace ws) := do
+  go ws root h
 where
-  @[specialize] go pkg recurse : ResolveT m Unit := do
-    let start := (← getWorkspace).packages.size
+  @[specialize] go
+    (ws : Workspace) (wsIdx : Nat) (h : wsIdx < ws.packages.size)
+  : m (MinWorkspace ws) := do
+    let start := ws.packages.size
+    let pkg : Package := ws.packages[wsIdx]
+    have lt_start : pkg.wsIdx < start := ws.packages_wsIdx _ ▸ h
     -- Materialize and load the missing direct dependencies of `pkg`
-    pkg.depConfigs.forRevM fun dep => do
-      let ws ← getWorkspace
-      if ws.packages.any (·.baseName == dep.name) then
-        return -- already handled in another branch
+    let s := ResolveState.init ws pkg.depConfigs.size
+    let ⟨ws, depIdxs, lt_of_mem, start_le⟩ ← pkg.depConfigs.foldrM (m := m) (init := s) fun dep s => do
+      if let some wsIdx := s.ws.packages.findFinIdx? (·.baseName == dep.name) then
+        return s.reuseDep wsIdx -- already handled in another branch
       if pkg.baseName = dep.name then
         error s!"{pkg.prettyName}: package requires itself (or a package with the same name)"
-      let depPkg ← load pkg dep ws.packages.size
-      modifyThe Workspace (·.addPackage depPkg)
+      let matDep ← resolve pkg dep s.ws
+      s.newDep matDep dep.opts leanOpts reconfigure
     -- Recursively load the dependencies' dependencies
-    (← getWorkspace).packages.forM recurse start
+    let stop := ws.packages.size
+    let ⟨le_maxSmallNat⟩ ← guardBySize! ws.packages
+    let ⟨ws, stop_le⟩ ← id do
+      let mut ws' : {ws' : Workspace // stop ≤ ws'.packages.size} := ⟨ws, Nat.le_refl _⟩
+      for h_rco : wsIdx in (start...<stop) do
+        let ⟨ws, stop_le⟩ := ws'
+        have lt_stop := Std.Rco.lt_upper_of_mem h_rco
+        let ⟨ws, h⟩ ← go ws wsIdx <| Nat.lt_of_lt_of_le lt_stop stop_le
+        ws' := ⟨ws, Nat.le_trans stop_le h⟩
+      return ws'
+    have start_le := Nat.le_trans start_le stop_le
+    -- Add the package's dependencies to the package
+    let depPkgs := depIdxs.attach.map fun ⟨wsIdx, h_mem⟩ =>
+      ws.packages[wsIdx]'(Nat.lt_of_lt_of_le (lt_of_mem wsIdx h_mem) stop_le)
+    let ws := ws.setDepPkgs pkg depPkgs <| Nat.lt_of_lt_of_le lt_start start_le
+    have start_le := Nat.le_trans start_le <| by
+      simp [ws, Workspace.size_packages_setDepPkgs]
+    return ⟨ws, start_le⟩
+  termination_by Lean.maxSmallNat - wsIdx
+  decreasing_by
+    have start_le := Std.Rco.lower_le_of_mem h_rco
+    have lt_wsIdx := Nat.lt_of_lt_of_le h start_le
+    refine Nat.sub_lt_sub_left (Nat.lt_of_lt_of_le lt_wsIdx ?_) lt_wsIdx
+    exact Nat.le_trans (Nat.le_of_lt lt_stop) le_maxSmallNat
 
 /--
 Adds monad state used to update the manifest.
@@ -141,7 +222,7 @@ abbrev UpdateT := StateT (NameMap PackageEntry)
 Reuse manifest versions of root packages that should not be updated.
 Also, move the packages directory if its location has changed.
 -/
-private def reuseManifest
+def reuseManifest
   (ws : Workspace) (toUpdate : NameSet)
 : UpdateT LoggerIO PUnit := do
   let rootName := ws.root.prettyName
@@ -171,20 +252,20 @@ private def reuseManifest
     logWarning s!"{rootName}: ignoring previous manifest because it failed to load: {e}"
 
 /-- Add a package dependency's manifest entries to the update state. -/
-private def addDependencyEntries (pkg : Package) (matDep : MaterializedDep) : UpdateT LoggerIO PUnit := do
-  match matDep.manifest? with
+def addDependencyEntries (dep : MaterializedDep) : UpdateT LoggerIO PUnit := do
+  match (← Manifest.load dep.manifestFile |>.toBaseIO) with
   | .ok manifest =>
     manifest.packages.forM fun entry => do
       unless (← getThe (NameMap PackageEntry)).contains entry.name do
-        let entry := entry.setInherited.inDirectory pkg.relDir
+        let entry := entry.setInherited.inDirectory dep.relPkgDir
         store entry.name entry
   | .error (.noFileOrDirectory ..) =>
-    logWarning s!"{pkg.prettyName}: ignoring missing manifest '{pkg.manifestFile}'"
+    logWarning s!"{dep.prettyName}: ignoring missing manifest:\n  {dep.manifestFile}"
   | .error e =>
-    logWarning s!"{pkg.prettyName}: ignoring manifest because it failed to load: {e}"
+    logWarning s!"{dep.prettyName}: ignoring manifest because it failed to load: {e}"
 
 /-- Materialize a single dependency, updating it if desired. -/
-private def updateAndMaterializeDep
+def updateAndMaterializeDep
   (ws : Workspace) (pkg : Package) (dep : Dependency)
 : UpdateT LoggerIO MaterializedDep := do
   if let some entry ← fetch? dep.name then
@@ -211,7 +292,7 @@ Used, for instance, if the toolchain is updated and no Elan is detected.
 def restartCode : ExitCode := 4
 
 /-- The toolchain information of a package. -/
-private structure ToolchainCandidate where
+structure ToolchainCandidate where
   /-- The name of the package which provided the toolchain candidate. -/
   src : Name
   /-- The version of the toolchain candidate. -/
@@ -356,30 +437,48 @@ def Workspace.updateAndMaterializeCore
   (updateToolchain := true)
 : LoggerIO (Workspace × NameMap PackageEntry) := UpdateT.run do
   reuseManifest ws toUpdate
-  let ws := ws.addPackage ws.root
   if updateToolchain then
-    let deps := ws.root.depConfigs.reverse
+    let numDeps := ws.root.depConfigs.size
+    -- Update and materialize the top-level dependenciess
+    let deps : Vector _ numDeps := Vector.mk ws.root.depConfigs.reverse (by simp [numDeps])
     let matDeps ← deps.mapM fun dep => do
       logVerbose s!"{ws.root.prettyName}: updating '{dep.name}' with {toJson dep.opts}"
       updateAndMaterializeDep ws ws.root dep
-    ws.updateToolchain matDeps
+    -- Update the toolchain based on the top-level dependenciess
+    ws.updateToolchain matDeps.toArray
+    -- Load the top-level dependenciess
     let start := ws.packages.size
-    let ws ← (deps.zip matDeps).foldlM (init := ws) fun ws (dep, matDep) => do
-      let (depPkg, ws) ← loadUpdatedDep ws.packages.size dep matDep ws
-      let ws := ws.addPackage depPkg
-      return ws
-    ws.packages.foldlM (init := ws) (start := start) fun ws pkg =>
-      ws.resolveDepsCore (stack := [ws.root.baseName]) updateAndLoadDep pkg
+    let ⟨ws, h⟩ ← id do
+      let mut ws' : {ws : Workspace // start ≤ ws.packages.size} := ⟨ws, Nat.le_refl _⟩
+      for h : i in 0...<numDeps do
+        let matDep := matDeps[i]
+        addDependencyEntries matDep
+        let lakeOpts := deps[i].opts
+        let ⟨ws, h⟩ ← ws'.val.addDepPackage' matDep lakeOpts leanOpts true
+        ws' := ⟨ws, Nat.le_trans ws'.property <| by simp [h]⟩
+      return ws'
+    let stop := ws.packages.size
+    have start_le_stop : start ≤ stop := h
+    -- Resolve the top-level dependencies' dependencies'
+    let ⟨ws, _⟩ ← id do
+      let mut ws' : {ws : Workspace // stop ≤ ws.packages.size} := ⟨ws, Nat.le_refl _⟩
+      for h : wsIdx in start...<stop do
+        let ⟨ws, stop_le⟩ := ws'
+        have h := Nat.lt_of_lt_of_le (Std.Rco.lt_upper_of_mem h) stop_le
+        let ⟨ws, h⟩ ← ws.resolveDepsCore updateAndAddDep wsIdx h
+          (leanOpts := leanOpts) (reconfigure := true)
+        ws' := ⟨ws, Nat.le_trans stop_le h⟩
+      return ws'
+    -- Set dependency packages after `resolveDepsCore` so
+    -- that the dependencies' dependencies are also properly set
+    return ws.setDepPkgs ws.root ws.packages[start...<stop] ws.wsIdx_root_lt
   else
-    ws.resolveDepsCore updateAndLoadDep
+    ws.resolveDepsCore updateAndAddDep ws.root.wsIdx ws.wsIdx_root_lt leanOpts (reconfigure := true)
 where
-  @[inline] updateAndLoadDep pkg dep wsIdx := do
-    let matDep ← updateAndMaterializeDep (← getWorkspace) pkg dep
-    loadUpdatedDep wsIdx dep matDep
-  @[inline] loadUpdatedDep wsIdx dep matDep : StateT Workspace (UpdateT LoggerIO) Package  := do
-    let depPkg ← loadDepPackage wsIdx matDep dep.opts leanOpts true
-    addDependencyEntries depPkg matDep
-    return depPkg
+  @[inline] updateAndAddDep pkg dep ws := do
+    let matDep ← updateAndMaterializeDep ws pkg dep
+    addDependencyEntries matDep
+    return matDep
 
 /-- Write package entries to the workspace manifest. -/
 def Workspace.writeManifest
@@ -471,12 +570,9 @@ public def Workspace.materializeDeps
   if pkgEntries.isEmpty && !ws.root.depConfigs.isEmpty then
     error "missing manifest; use `lake update` to generate one"
   -- Materialize all dependencies
-  let ws := ws.addPackage ws.root
-  ws.resolveDepsCore fun pkg dep wsIdx => do
-    let ws ← getWorkspace
+  let materialize pkg dep ws := do
     if let some entry := pkgEntries.find? dep.name then
-      let result ← entry.materialize ws.lakeEnv ws.dir relPkgsDir
-      loadDepPackage wsIdx result dep.opts leanOpts reconfigure
+      entry.materialize ws.lakeEnv ws.dir relPkgsDir
     else
       if pkg.isRoot then
         error <|
@@ -488,3 +584,4 @@ public def Workspace.materializeDeps
           this suggests that the manifest is corrupt; \
           use `lake update` to generate a new, complete file \
           (warning: this will update ALL workspace dependencies)"
+  ws.resolveDepsCore materialize ws.root.wsIdx ws.wsIdx_root_lt leanOpts reconfigure

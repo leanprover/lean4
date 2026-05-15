@@ -76,33 +76,25 @@ LEAN_EXPORT lean_object* l_Lean_Grind_instCommRingBitVec(lean_object* v_w_19_){
 _start:
 {
 lean_object* v___f_20_; lean_object* v___f_21_; lean_object* v___x_22_; lean_object* v___x_23_; lean_object* v___f_24_; lean_object* v___x_25_; lean_object* v___f_26_; lean_object* v___f_27_; lean_object* v___x_28_; lean_object* v___x_29_; lean_object* v___x_30_; lean_object* v___x_31_; lean_object* v___x_32_; 
-lean_inc(v_w_19_);
+lean_inc_n(v_w_19_, 9);
 v___f_20_ = lean_alloc_closure((void*)(l_Lean_Grind_instCommRingBitVec___lam__0___boxed), 3, 1);
 lean_closure_set(v___f_20_, 0, v_w_19_);
-lean_inc(v_w_19_);
 v___f_21_ = lean_alloc_closure((void*)(l_Lean_Grind_instCommRingBitVec___lam__1___boxed), 3, 1);
 lean_closure_set(v___f_21_, 0, v_w_19_);
-lean_inc(v_w_19_);
 v___x_22_ = lean_alloc_closure((void*)(l_BitVec_add___boxed), 3, 1);
 lean_closure_set(v___x_22_, 0, v_w_19_);
-lean_inc(v_w_19_);
 v___x_23_ = lean_alloc_closure((void*)(l_BitVec_mul___boxed), 3, 1);
 lean_closure_set(v___x_23_, 0, v_w_19_);
-lean_inc(v_w_19_);
 v___f_24_ = lean_alloc_closure((void*)(l_BitVec_instNatCast___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_24_, 0, v_w_19_);
-lean_inc(v_w_19_);
 v___x_25_ = lean_alloc_closure((void*)(l_BitVec_instOfNat___boxed), 2, 1);
 lean_closure_set(v___x_25_, 0, v_w_19_);
-lean_inc(v_w_19_);
 v___f_26_ = lean_alloc_closure((void*)(l_BitVec_instPowNat___lam__0___boxed), 3, 1);
 lean_closure_set(v___f_26_, 0, v_w_19_);
 v___f_27_ = lean_alloc_closure((void*)(l_instHAdd___redArg___lam__0), 3, 1);
 lean_closure_set(v___f_27_, 0, v___f_26_);
-lean_inc(v_w_19_);
 v___x_28_ = lean_alloc_closure((void*)(l_BitVec_neg___boxed), 2, 1);
 lean_closure_set(v___x_28_, 0, v_w_19_);
-lean_inc(v_w_19_);
 v___x_29_ = lean_alloc_closure((void*)(l_BitVec_sub___boxed), 3, 1);
 lean_closure_set(v___x_29_, 0, v_w_19_);
 v___x_30_ = lean_alloc_closure((void*)(l_BitVec_ofInt___boxed), 2, 1);

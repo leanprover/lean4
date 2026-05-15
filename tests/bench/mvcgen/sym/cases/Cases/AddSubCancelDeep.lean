@@ -1,5 +1,5 @@
 import Lean
-import VCGen
+import Std.Tactic.Do
 
 open Lean Meta Elab Tactic Sym Std Do SpecAttr
 

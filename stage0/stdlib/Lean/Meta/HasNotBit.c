@@ -14,7 +14,7 @@
 extern "C" {
 #endif
 lean_object* l_Lean_Meta_instInhabitedMetaM___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr2(lean_object*, lean_object*);
 lean_object* l_Lean_mkConst(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
@@ -194,7 +194,7 @@ _start:
 {
 lean_object* v___f_47_; lean_object* v___x_344__overap_48_; lean_object* v___x_49_; 
 v___f_47_ = ((lean_object*)(l_panic___at___00mkHasNotBitProof_spec__0___closed__0));
-v___x_344__overap_48_ = lean_panic_fn(v___f_47_, v_msg_41_);
+v___x_344__overap_48_ = lean_panic_fn_borrowed(v___f_47_, v_msg_41_);
 lean_inc(v___y_45_);
 lean_inc_ref(v___y_44_);
 lean_inc(v___y_43_);
@@ -488,7 +488,7 @@ _start:
 {
 lean_object* v___f_164_; lean_object* v___x_1859__overap_165_; lean_object* v___x_166_; 
 v___f_164_ = ((lean_object*)(l_panic___at___00mkHasNotBitProof_spec__0___closed__0));
-v___x_1859__overap_165_ = lean_panic_fn(v___f_164_, v_msg_158_);
+v___x_1859__overap_165_ = lean_panic_fn_borrowed(v___f_164_, v_msg_158_);
 lean_inc(v___y_162_);
 lean_inc_ref(v___y_161_);
 lean_inc(v___y_160_);
@@ -665,12 +665,10 @@ v_snd_227_ = lean_ctor_get(v_val_223_, 1);
 lean_inc(v_snd_227_);
 lean_dec(v_val_223_);
 v_fst_228_ = lean_ctor_get(v_snd_227_, 0);
-lean_inc(v_fst_228_);
+lean_inc_n(v_fst_228_, 2);
 v_snd_229_ = lean_ctor_get(v_snd_227_, 1);
-lean_inc(v_snd_229_);
+lean_inc_n(v_snd_229_, 2);
 lean_dec(v_snd_227_);
-lean_inc(v_snd_229_);
-lean_inc(v_fst_228_);
 v___x_230_ = l_Lean_Meta_isExprDefEq(v_fst_228_, v_snd_229_, v_a_189_, v_a_190_, v_a_191_, v_a_192_);
 if (lean_obj_tag(v___x_230_) == 0)
 {

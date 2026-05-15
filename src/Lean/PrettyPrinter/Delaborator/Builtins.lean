@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.PrettyPrinter.Delaborator.Basic
+public import Lean.PrettyPrinter.Delaborator.Metavariable
 public import Lean.Meta.CoeAttr
 public import Lean.Meta.Structure
 public import Lean.PrettyPrinter.Formatter
@@ -60,29 +61,14 @@ def delabBVar : Delab := do
   let Expr.bvar idx ← getExpr | unreachable!
   pure $ mkIdent $ Name.mkSimple $ "#" ++ toString idx
 
-def delabMVarAux (m : MVarId) : DelabM Term := do
-  let mkMVarPlaceholder : DelabM Term := `(?_)
-  let mkMVar (n : Name) : DelabM Term := `(?$(mkIdent n))
-  withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
-    if ← getPPOption getPPMVars then
-      if let some decl ← m.findDecl? then
-        match decl.userName with
-        | .anonymous =>
-          if ← getPPOption getPPMVarsAnonymous then
-            mkMVar <| Name.num `m (decl.index + 1)
-          else
-            mkMVarPlaceholder
-        | n => mkMVar n
-      else
-        -- Undefined mvar, use internal name
-        mkMVar <| m.name.replacePrefix `_uniq `_mvar
-    else
-      mkMVarPlaceholder
-
 @[builtin_delab mvar]
 def delabMVar : Delab := do
-  let Expr.mvar n ← getExpr | unreachable!
-  delabMVarAux n
+  let Expr.mvar mvarId ← getExpr | unreachable!
+  withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
+    let stx ← annotateCurPos =<< delabMVarAux mvarId
+    let descr ← mkDescribeMVar mvarId
+    addDelabTermInfo (← getPos) stx (← getExpr) (mkDocString? := some descr) (explicit := true)
+    return stx
 
 @[builtin_delab sort]
 def delabSort : Delab := do
@@ -91,10 +77,9 @@ def delabSort : Delab := do
   | Level.zero => `(Prop)
   | Level.succ .zero => `(Type)
   | _ =>
-    let mvars ← getPPOption getPPMVarsLevels
     match l.dec with
-    | some l' => `(Type $(Level.quote l' (prec := max_prec) (mvars := mvars)))
-    | none    => `(Sort $(Level.quote l (prec := max_prec) (mvars := mvars)))
+    | some l' => `(Type $(← delabLevel l' (prec := max_prec)))
+    | none    => `(Sort $(← delabLevel l (prec := max_prec)))
 
 /--
 Delaborator for `const` expressions.
@@ -131,8 +116,8 @@ def delabConst : Delab := do
 
   let stx ←
     if !ls.isEmpty && (← getPPOption getPPUniverses) then
-      let mvars ← getPPOption getPPMVarsLevels
-      `($(mkIdent c).{$[$(ls.toArray.map (Level.quote · (prec := 0) (mvars := mvars)))],*})
+      let ls' ← ls.toArray.mapM fun l => delabLevel l (prec := 0)
+      `($(mkIdent c).{$ls',*})
     else
       pure <| mkIdent c
 
@@ -594,10 +579,17 @@ def delabDelayedAssignedMVar : Delab := whenNotPPOption getPPMVarsDelayed do
   let .mvar mvarId := (← getExpr).getAppFn | failure
   let some decl ← getDelayedMVarAssignment? mvarId | failure
   withOverApp decl.fvars.size do
-    let args := (← getExpr).getAppArgs
-    -- Only delaborate using decl.mvarIdPending if the delayed mvar is applied to fvars
-    guard <| args.all Expr.isFVar
-    delabMVarAux decl.mvarIdPending
+    guard <| ← checkDelayedMVarAssignment (← getExpr) decl
+    let mvarIdPending ← getDelayedMVarIdPending decl.mvarIdPending
+    let descr ← mkDescribeMVar mvarIdPending (fromDelayed := true)
+    withTypeAscription (cond := ← getPPOption getPPMVarsWithType) do
+      -- Delaborate the whole application as if it were a single metavariable.
+      -- Hovering will show the underlying delayed assignment expression, and the type
+      -- will be the type of the application itself (which is valid in the current local context,
+      -- unlike the type of `mvarIdPending`).
+      let stx ← annotateCurPos =<< delabMVarAux mvarIdPending
+      addDelabTermInfo (← getPos) stx (← getExpr) (explicit := true) (mkDocString? := descr)
+      return stx
 
 private partial def collectStructFields
     (structName : Name) (levels : List Level) (params : Array Expr)
@@ -620,8 +612,9 @@ private partial def collectStructFields
             if s'.induct == parentName then
               let (fieldValues, fields) ← collectStructFields structName levels params fields fieldValues s'
               return (i + 1, fieldValues, fields)
-      /- Does this field have a default value? and if so, can we omit the field? -/
-      unless ← getPPOption getPPStructureInstancesDefaults do
+      /- Does this field have a default value? and if so, can we omit the field?
+      We cannot omit fields for patterns, since default values do not apply for them. -/
+      unless ← pure (← read).inPattern <||> getPPOption getPPStructureInstancesDefaults do
         if let some defFn := getEffectiveDefaultFnForField? (← getEnv) structName fieldName then
           -- Use `withNewMCtxDepth` to prevent delaborator from solving metavariables.
           if let some (_, defValue) ← withNewMCtxDepth <| instantiateStructDefaultValueFn? defFn levels params (pure ∘ fieldValues.get?) then
@@ -1204,9 +1197,9 @@ def delabOfScientific : Delab := whenNotPPOption getPPExplicit <| whenPPOption g
     | Expr.const ``Bool.false _ => pure false
     | _ => failure
   let str  := toString m
-  if s && e == str.length then
+  if s && e == str.utf8ByteSize then
     return Syntax.mkScientificLit ("0." ++ str)
-  else if s && e < str.length then
+  else if s && e < str.utf8ByteSize then
     let mStr := String.Pos.Raw.extract str 0 ⟨str.length - e⟩
     let eStr := String.Pos.Raw.extract str ⟨str.length - e⟩ ⟨str.length⟩
     return Syntax.mkScientificLit (mStr ++ "." ++ eStr)

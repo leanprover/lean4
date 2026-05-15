@@ -189,7 +189,7 @@ v___x_57_ = l_Lean_LOption_ctorElim___redArg(v_t_54_, v_undef_56_);
 return v___x_57_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption_default(lean_object* v_a_58_){
+LEAN_EXPORT lean_object* l_Lean_instInhabitedLOption_default(lean_object* v_00_u03b1_58_){
 _start:
 {
 lean_object* v___x_59_; 

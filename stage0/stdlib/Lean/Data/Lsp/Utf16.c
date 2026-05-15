@@ -742,9 +742,8 @@ LEAN_EXPORT lean_object* l_Lean_DeclarationRange_ofStringPositions(lean_object* 
 _start:
 {
 lean_object* v___x_246_; lean_object* v___x_247_; lean_object* v___x_248_; 
-lean_inc_ref(v_text_243_);
+lean_inc_ref_n(v_text_243_, 2);
 v___x_246_ = l_Lean_FileMap_toPosition(v_text_243_, v_pos_244_);
-lean_inc_ref(v_text_243_);
 v___x_247_ = l_Lean_FileMap_toPosition(v_text_243_, v_endPos_245_);
 v___x_248_ = l_Lean_DeclarationRange_ofFilePositions(v_text_243_, v___x_246_, v___x_247_);
 return v___x_248_;

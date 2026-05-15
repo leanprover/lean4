@@ -717,20 +717,25 @@ def recordSynthPendingFailure (type : Expr) : MetaM Unit := do
       modifyDiag fun { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures } =>
         { unfoldCounter, unfoldAxiomCounter, heuristicCounter, instanceCounter, synthPendingFailures := synthPendingFailures.insert type msg }
 
+@[inline]
 def getLocalInstances : MetaM LocalInstances :=
   return (← read).localInstances
 
+@[inline]
 def getConfig : MetaM Config :=
   return (← read).config
 
+@[inline]
 def getConfigWithKey : MetaM ConfigWithKey :=
   return (← getConfig).toConfigWithKey
 
 /-- Return the array of postponed universe level constraints. -/
+@[inline]
 def getPostponed : MetaM (PersistentArray PostponedEntry) :=
   return (← get).postponed
 
 /-- Set the array of postponed universe level constraints. -/
+@[inline]
 def setPostponed (postponed : PersistentArray PostponedEntry) : MetaM Unit :=
   modify fun s => { s with postponed := postponed }
 
@@ -904,12 +909,15 @@ def mkConstWithFreshMVarLevels (declName : Name) : MetaM Expr := do
   return mkConst declName (← mkFreshLevelMVarsFor info)
 
 /-- Return current transparency setting/mode. -/
+@[inline]
 def getTransparency : MetaM TransparencyMode :=
   return (← getConfig).transparency
 
+@[inline]
 def shouldReduceAll : MetaM Bool :=
   return (← getTransparency) == TransparencyMode.all
 
+@[inline]
 def shouldReduceReducibleOnly : MetaM Bool :=
   return (← getTransparency) == TransparencyMode.reducible
 
@@ -1280,7 +1288,7 @@ or type class instances are unfolded.
 
 /--
 Execute `x` ensuring the transparency setting is at least `mode`.
-Recall that `.all > .default > .instances > .reducible`.
+Recall that `.none < .reducible < .instances < .default < .all`.
 -/
 @[inline] def withAtLeastTransparency (mode : TransparencyMode) : n α → n α :=
   mapMetaM <| withReader fun ctx =>
@@ -2215,10 +2223,14 @@ def instantiateLambdaWithParamInfos (e : Expr) (args : Array Expr) (cleanupAnnot
     | _ => throwError "invalid `instantiateForallWithParams`, too many parameters{indentExpr e}"
   return (res, e)
 
+def getPPContext : MetaM PPContext := do
+  return { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions),
+           currNamespace := (← getCurrNamespace), openDecls := (← getOpenDecls) }
+
 /-- Pretty-print the given expression. -/
 def ppExprWithInfos (e : Expr) : MetaM FormatWithInfos := do
-  let ctxCore  ← readThe Core.Context
-  Lean.ppExprWithInfos { env := (← getEnv), mctx := (← getMCtx), lctx := (← getLCtx), opts := (← getOptions), currNamespace := ctxCore.currNamespace, openDecls := ctxCore.openDecls } e
+  let ctx ← getPPContext
+  Lean.ppExprWithInfos ctx e
 
 /-- Pretty-print the given expression. -/
 def ppExpr (e : Expr) : MetaM Format := (·.fmt) <$> ppExprWithInfos e

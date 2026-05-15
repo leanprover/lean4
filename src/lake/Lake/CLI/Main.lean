@@ -27,6 +27,7 @@ import Lake.CLI.Build
 import Lake.CLI.Actions
 import Lake.CLI.Translate
 import Lake.CLI.Serve
+public import Lake.CLI.BuiltinLint
 import Init.Data.String.Modify
 
 -- # CLI
@@ -55,6 +56,7 @@ public structure LakeOptions where
   reconfigure : Bool := false
   oldMode : Bool := false
   trustHash : Bool := true
+  allowEmpty : Bool := false
   noBuild : Bool := false
   failFast : Bool := false
   noCache : Option Bool := none
@@ -70,9 +72,14 @@ public structure LakeOptions where
   scope? : Option CacheServiceScope := none
   platform? : Option CachePlatform := none
   toolchain? : Option CacheToolchain := none
-  rev? : Option String := none
+  rev? : Option GitRev := none
   maxRevs : Nat := 100
   shake : Shake.Args := {}
+  builtinLint : BuiltinLint.Args := {}
+  /-- Whether `lake lint` should also run builtin lints (via `--builtin-lint`). -/
+  runBuiltinLint : Bool := false
+  /-- Whether `lake lint` should skip the lint driver (via `--builtin-only`). -/
+  builtinOnly : Bool := false
 
 def LakeOptions.outLv (opts : LakeOptions) : LogLevel :=
   opts.outLv?.getD opts.verbosity.minLogLv
@@ -243,6 +250,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--old"         => modifyThe LakeOptions ({· with oldMode := true})
 | "--text"        => modifyThe LakeOptions ({· with outFormat := .text})
 | "--json"        => modifyThe LakeOptions ({· with outFormat := .json})
+| "--allow-empty" => modifyThe LakeOptions ({· with allowEmpty := true})
 | "--no-build"    => modifyThe LakeOptions ({· with noBuild := true})
 | "--fail-fast" => modifyThe LakeOptions ({· with failFast := true})
 | "--no-cache"    => modifyThe LakeOptions ({· with noCache := true})
@@ -305,12 +313,24 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--"            => do
   let subArgs ← takeArgs
   modifyThe LakeOptions ({· with subArgs})
+-- Builtin lint options (using any of these implicitly enables --builtin-lint)
+| "--builtin-lint" => modifyThe LakeOptions ({· with runBuiltinLint := true})
+| "--builtin-only" => modifyThe LakeOptions ({· with runBuiltinLint := true, builtinOnly := true})
+| "--extra" => modifyThe LakeOptions ({· with
+    runBuiltinLint := true, builtinLint.scope := .extra, builtinLint.only := #[]})
+| "--lint-all" => modifyThe LakeOptions ({· with
+    runBuiltinLint := true, builtinLint.scope := .all, builtinLint.only := #[]})
+| "--lint-only" => do
+  let name ← takeOptArg "--lint-only" "linter name"
+  modifyThe LakeOptions fun opts =>
+    {opts with runBuiltinLint := true, builtinLint.only := opts.builtinLint.only.push name.toName}
+-- Shared options
+| "--force" => modifyThe LakeOptions ({· with shake.force := true})
 -- Shake options
 | "--keep-implied" => modifyThe LakeOptions ({· with shake.keepImplied := true})
 | "--keep-prefix" => modifyThe LakeOptions ({· with shake.keepPrefix := true})
 | "--keep-public" => modifyThe LakeOptions ({· with shake.keepPublic := true})
 | "--add-public" => modifyThe LakeOptions ({· with shake.addPublic := true})
-| "--force" => modifyThe LakeOptions ({· with shake.force := true})
 | "--gh-style" => modifyThe LakeOptions ({· with shake.githubStyle := true})
 | "--explain" => modifyThe LakeOptions ({· with shake.explain := true})
 | "--trace" => modifyThe LakeOptions ({· with shake.trace := true})
@@ -394,14 +414,14 @@ def serviceNotFound (service : String) (configuredServices : Array CacheServiceC
     let msg := s!"{msg}; configured services:\n"
     configuredServices.foldl (· ++ s!"  {·.name}") msg
 
-@[inline] private def cacheToolchain (pkg : Package) (toolchain : CacheToolchain) : CacheToolchain :=
+@[inline] def cacheToolchain (pkg : Package) (toolchain : CacheToolchain) : CacheToolchain :=
   if pkg.fixedToolchain || pkg.bootstrap then .none else toolchain
 
-@[inline] private def cachePlatform (pkg : Package) (platform : CachePlatform) : CachePlatform :=
+@[inline] def cachePlatform (pkg : Package) (platform : CachePlatform) : CachePlatform :=
   if pkg.isPlatformIndependent then .none else platform
 
 -- since 2026-02-19
-private def endpointDeprecation : String :=
+def endpointDeprecation : String :=
    "configuring the cache service via environment variables is deprecated; use --service instead"
 
 protected def get : CliM PUnit := do
@@ -449,7 +469,7 @@ protected def get : CliM PUnit := do
           logWarning endpointDeprecation
           if opts.mappingsOnly then
             error "`--mappings-only` requires services to be configured
-              via the Lake system configuration (not enviroment variables)"
+              via the Lake system configuration (not environment variables)"
           return .downloadService artifactEndpoint revisionEndpoint ws.lakeEnv.cacheService?
         | none, none =>
             return ws.defaultCacheService
@@ -526,61 +546,82 @@ where
         error s!"{remoteScope}: no outputs found {revisions}"
     return map
 
-protected def put : CliM PUnit := do
-  processOptions lakeOption
-  let file ← takeArg "mappings"
-  let opts ← getThe LakeOptions
-  let some scope := opts.scope?
-    | error "the `--scope` or `--repo` option must be set for `cache put`"
-  noArgsRem do
-  let cfg ← mkLoadConfig opts
-  let ws ← loadWorkspace cfg
-  let pkg := ws.root
-  let platform := cachePlatform pkg (opts.platform?.getD .system)
-  let toolchain := cacheToolchain pkg (opts.toolchain?.getD ws.cacheToolchain)
-  let service : CacheService ← id do
-    if let some service := opts.service? then
-      let some service := ws.findCacheService? service
-        | error (serviceNotFound service ws.lakeConfig.config.cache.services)
-      let some key := ws.lakeEnv.cacheKey?
-        | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
-      return service.withKey key
-    else
-      match ws.lakeEnv.cacheKey?, ws.lakeEnv.cacheArtifactEndpoint?, ws.lakeEnv.cacheRevisionEndpoint? with
-      | some key, some artifactEndpoint, some revisionEndpoint =>
-        logWarning endpointDeprecation
-        return .uploadService key artifactEndpoint revisionEndpoint
-      | key?, none, none =>
-        if let some service := ws.defaultCacheUploadService? then
-          let some key := key?
-            | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
-          return service.withKey key
-        else
-          error "no default upload service configured; the `--service` option must be set for `cache put`"
-      | key?, artifactEndpoint?, revisionEndpoint? =>
-        logWarning endpointDeprecation
-        error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
-  let repo := GitRepo.mk pkg.dir
-  if (← repo.hasDiff) then
-    logWarning s!"{pkg.prettyName}: package has changes; \
-      artifacts will be uploaded for the most recent commit"
-    if opts.failLv ≤ .warning then
-      exit 1
-  let rev ← repo.getHeadRevision
-  let map ← CacheMap.load file
-  let descrs ← map.collectOutputDescrs
-  let paths ← ws.lakeCache.getArtifactPaths descrs
-  service.uploadArtifacts ⟨descrs, rfl⟩ paths scope
-  -- Mappings are uploaded after artifacts to allow downloads to assume that
-  -- if the mappings exist, the artifacts should also exist
-  service.uploadRevisionOutputs rev file scope platform toolchain
+private def computeUploadService
+  (service? : Option String) (lakeEnv : Env) (lakeCfg : LoadedLakeConfig)
+: CliStateM CacheService := do
+  if let some service := service? then
+    let some service := lakeCfg.cacheServices.find? (.mkSimple service)
+      | error (serviceNotFound service lakeCfg.config.cache.services)
+    let some key := lakeEnv.cacheKey?
+      | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
+    return service.withKey key
+  else
+    match lakeEnv.cacheKey?, lakeEnv.cacheArtifactEndpoint?, lakeEnv.cacheRevisionEndpoint? with
+    | some key, some artifactEndpoint, some revisionEndpoint =>
+      return .uploadService key artifactEndpoint revisionEndpoint
+    | key?, none, none =>
+      if let some service := lakeCfg.defaultCacheUploadService? then
+        let some key := key?
+          | error "uploads require an authentication key configured through `LAKE_CACHE_KEY`"
+        return service.withKey key
+      else
+        error "no default upload service configured; the `--service` option must be set"
+    | key?, artifactEndpoint?, revisionEndpoint? =>
+      error (invalidEndpointConfig key? artifactEndpoint? revisionEndpoint?)
 where
   invalidEndpointConfig key? artifactEndpoint? revisionEndpoint? :=
     s!"invalid endpoint configuration:\
     \n  LAKE_CACHE_KEY is {if key?.isNone then "unset" else "set"}\
     \n  LAKE_CACHE_ARTIFACT_ENDPOINT={artifactEndpoint?.getD ""}\
     \n  LAKE_CACHE_REVISION_ENDPOINT={revisionEndpoint?.getD ""}\n\
-    To use `cache put`, these environment variables must be set to non-empty strings."
+    To upload, these environment variables must be set to non-empty strings."
+
+private def computePackageRev (pkgDir : FilePath) : CliStateM String := do
+  let repo := GitRepo.mk pkgDir
+  if (← repo.hasDiff) then
+    logWarning s!"package has changes; \
+      artifacts will be uploaded for the most recent commit"
+    if (← getThe LakeOptions).failLv ≤ .warning then
+      exit 1
+  repo.getHeadRevision
+
+private def putCore
+  (rev : GitRev)  (outputs : FilePath) (artDir : FilePath)
+  (service : CacheService) (scope : CacheServiceScope)
+  (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
+: LoggerIO Unit := do
+  let map ← CacheMap.load outputs
+  let descrs ← map.collectOutputDescrs
+  let paths ← computeArtifactPaths descrs
+  service.uploadArtifacts ⟨descrs, rfl⟩ paths scope
+  -- Mappings are uploaded after artifacts to allow downloads to assume that
+  -- if the mappings exist, the artifacts should also exist
+  service.uploadRevisionOutputs rev outputs scope platform toolchain
+where
+  computeArtifactPaths (descrs : Array ArtifactDescr) : LogIO (Vector FilePath descrs.size) := throwIfLogs do
+    (Vector.mk descrs rfl).mapM fun out => do
+      let art := artDir / out.relPath
+      unless (← art.pathExists) do
+        logError s!"artifact not found in cache: {art}"
+      return art
+
+protected def put : CliM PUnit := do
+  processOptions lakeOption
+  let file ← takeArg "mappings"
+  let opts ← getThe LakeOptions
+  let some scope := opts.scope?
+    | error "the `--scope` or `--repo` option must be set"
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let lakeEnv := cfg.lakeEnv
+  let pkg ← loadPackage cfg
+  let lakeCfg ← loadLakeConfig lakeEnv
+  let lakeCache := computeLakeCache pkg lakeEnv
+  let platform := cachePlatform pkg (opts.platform?.getD .system)
+  let toolchain := cacheToolchain pkg (opts.toolchain?.getD lakeEnv.cacheToolchain)
+  let service ← computeUploadService opts.service? lakeEnv lakeCfg
+  let rev ← opts.rev?.getDM (computePackageRev pkg.dir)
+  putCore rev file lakeCache.artifactDir service scope platform toolchain
 
 protected def add : CliM PUnit := do
   processOptions lakeOption
@@ -604,6 +645,99 @@ protected def add : CliM PUnit := do
     return some (.ofString service)
   let map ← CacheMap.load file
   ws.lakeCache.writeMap localScope map service? opts.scope?
+
+private def stagingOutputsFile := "outputs.jsonl"
+
+protected def stage : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let mappingsFile ← FilePath.mk <$> takeArg "mappings"
+  let stagingDir ← FilePath.mk <$> takeArg "staging directory"
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let cache ← id do
+    if (← configFileExists cfg.configFile) then
+      return (← loadWorkspaceRoot cfg).lakeCache
+    else if let some cache := cfg.lakeEnv.lakeCache? then
+      return cache
+    else
+      error "no workspace configuration found and no system cache detected"
+  let map ← CacheMap.load mappingsFile
+  let descrs ← map.collectOutputDescrs
+  IO.FS.createDirAll stagingDir
+  copyFile mappingsFile (stagingDir / stagingOutputsFile)
+  let ok ← descrs.foldlM (init := true) fun ok descr => do
+    let cachePath := cache.artifactDir / descr.relPath
+    let stagingPath := stagingDir / descr.relPath
+    match (← copyFile cachePath stagingPath |>.toBaseIO) with
+    | .ok _ =>
+      return ok
+    | .error (.noFileOrDirectory ..) =>
+      logError s!"artifact not found in cache: {cachePath}"
+      return false
+    | .error e =>
+      logError s!"failed to copy artifact: {e}"
+      return false
+  unless ok do
+    logError "failed to copy all outputs to the staging directory"
+    exit 1
+
+protected def unstage : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let stagingDir ← FilePath.mk <$> takeArg "staging directory"
+  let pkg? ← takeArg?
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let ws ← loadWorkspace cfg
+  let pkg ← match pkg? with
+    | some pkg => parsePackageSpec ws pkg
+    | _ => pure ws.root
+  let localScope := pkg.cacheScope
+  if opts.scope?.isSome && opts.service?.isNone then
+    error "`--scope` and `--repo` require `--service`"
+  let service? ← id do
+    let some service := opts.service?
+      | return none
+    unless (ws.findCacheService? service).isSome do
+      error (serviceNotFound service ws.lakeConfig.config.cache.services)
+    return some (.ofString service)
+  let map ← CacheMap.load (stagingDir / stagingOutputsFile)
+  let descrs ← map.collectOutputDescrs
+  let artDir := ws.lakeCache.artifactDir
+  IO.FS.createDirAll artDir
+  let ok ← descrs.foldlM (init := true) fun ok descr => do
+    let cachePath := artDir/ descr.relPath
+    let stagingPath := stagingDir / descr.relPath
+    match (← copyFile stagingPath cachePath |>.toBaseIO) with
+    | .ok _ =>
+      return ok
+    | .error (.noFileOrDirectory ..) =>
+      logError s!"output artifact not found in staging directory: {stagingPath}"
+      return false
+    | .error e =>
+      logError s!"failed to copy artifact: {e}"
+      return false
+  unless ok do
+    logError "failed to copy all outputs to the staging directory"
+    exit 1
+  ws.lakeCache.writeMap localScope map service? opts.scope?
+
+protected def putStaged : CliM PUnit := do
+  processOptions lakeOption
+  let opts ← getThe LakeOptions
+  let stagingDir ← FilePath.mk <$> takeArg "staging directory"
+  let some scope := opts.scope?
+    | error "the `--scope` or `--repo` option must be set"
+  noArgsRem do
+  let cfg ← mkLoadConfig opts
+  let lakeCfg ← loadLakeConfig cfg.lakeEnv
+  let platform := opts.platform?.getD .none
+  let toolchain := opts.toolchain?.getD .none
+  let service ← computeUploadService opts.service? cfg.lakeEnv lakeCfg
+  let rev ← opts.rev?.getDM (computePackageRev cfg.wsDir)
+  let outputsFile := stagingDir / stagingOutputsFile
+  putCore rev outputsFile stagingDir service scope platform toolchain
 
 protected def services : CliM PUnit := do
   processOptions lakeOption
@@ -633,13 +767,16 @@ protected def help : CliM PUnit := do
 end cache
 
 def cacheCli : (cmd : String) → CliM PUnit
-| "add"      => cache.add
-| "get"      => cache.get
-| "put"      => cache.put
-| "clean"    => cache.clean
-| "services" => cache.services
-| "help"     => cache.help
-| cmd        => throw <| CliError.unknownCommand cmd
+| "add"         => cache.add
+| "get"         => cache.get
+| "put"         => cache.put
+| "stage"       => cache.stage
+| "unstage"     => cache.unstage
+| "put-staged"  => cache.putStaged
+| "clean"       => cache.clean
+| "services"    => cache.services
+| "help"        => cache.help
+| cmd           => throw <| CliError.unknownCommand cmd
 
 /-! ### `lake script` CLI -/
 
@@ -713,6 +850,12 @@ protected def build : CliM PUnit := do
   let ws ← loadWorkspace config
   let targetSpecs ← takeArgs
   let specs ← parseTargetSpecs ws targetSpecs
+  if specs.isEmpty && !opts.allowEmpty then
+    logWarning "no targets specified and no default targets configured\
+      \n  Note: This will be an error in a future version of Lake.\
+      \n  Hint: This warning (or error) can be suppressed with '--allow-empty'."
+    if opts.failLv ≤ .warning then
+      exit 1
   specs.forM fun spec =>
     unless spec.buildable do
       throw <| .invalidBuildTarget spec.info.key.toSimpleString
@@ -831,18 +974,59 @@ protected def checkTest : CliM PUnit := do
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
   noArgsRem do exit <| if pkg.testDriver.isEmpty then 1 else 0
 
+private def runBuiltinLint
+    (opts : LakeOptions) (ws : Workspace) (specifiedMods : Array Lean.Name)
+    : CliM UInt32 := do
+  let mods := if specifiedMods.isEmpty then ws.defaultTargetRoots else specifiedMods
+  if mods.isEmpty then
+    error "no modules specified and there are no applicable default targets"
+  let args := opts.builtinLint
+  let args := {args with mods}
+  let specs ← parseTargetSpecs ws (mods.map (s!"+{·}") |>.toList)
+  let lintOpts := BuiltinLint.leanOptOverrides args
+  let overrides : Lean.NameMap Lean.LeanOptions :=
+    if lintOpts.values.isEmpty then
+      {}
+    else
+      mods.foldl (init := ({} : Lean.NameMap Lean.LeanOptions))
+        fun m modName =>
+          match ws.findTargetModule? modName with
+          | some mod => m.insert mod.pkg.baseName lintOpts
+          | none     => m
+  let buildCfg := { mkBuildConfig opts with
+    outLv := .error
+    leanOptOverrides := overrides
+  }
+  ws.runBuild (buildSpecs specs) buildCfg
+  Lean.searchPathRef.set ws.augmentedLeanPath
+  BuiltinLint.run args
+
 protected def lint : CliM PUnit := do
   processOptions lakeOption
   let opts ← getThe LakeOptions
   let ws ← loadWorkspace (← mkLoadConfig opts)
-  noArgsRem do
-  let x := ws.root.lint opts.subArgs (mkBuildConfig opts)
-  exit <| ← x.run (mkLakeContext ws)
+  let hasDriver := !ws.root.lintDriver.isEmpty && !opts.builtinOnly
+  let pkgBuiltinLint := ws.root.config.builtinLint?
+  let doBuiltinLint := opts.runBuiltinLint || pkgBuiltinLint == some true
+  let mut exitCode : UInt32 := 0
+  if doBuiltinLint then
+    let mods := (← takeArgs).toArray.map (·.toName)
+    exitCode ← runBuiltinLint opts ws mods
+  if hasDriver then
+    let driverExitCode ← noArgsRem do
+      ws.root.lint opts.subArgs (mkBuildConfig opts) |>.run (mkLakeContext ws)
+    unless driverExitCode == 0 do
+      exitCode := driverExitCode
+  unless doBuiltinLint || hasDriver do
+    error s!"no lint driver configured and builtin linting is disabled"
+  exit exitCode
 
 protected def checkLint : CliM PUnit := do
   processOptions lakeOption
   let pkg ← loadPackage (← mkLoadConfig (← getThe LakeOptions))
-  noArgsRem do exit <| if pkg.lintDriver.isEmpty then 1 else 0
+  noArgsRem do
+  let hasLint := !pkg.lintDriver.isEmpty || pkg.config.builtinLint? == some true
+  exit <| if hasLint then 0 else 1
 
 protected def clean : CliM PUnit := do
   processOptions lakeOption

@@ -8,28 +8,39 @@
   "configurePresets": [
     {
       "name": "release",
-      "displayName": "Default development optimized build config",
+      "displayName": "Release build config",
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/release"
+    },
+    {
+      "name": "dev",
+      "displayName": "Default development optimized build config",
+      "cacheVariables": {
+        "STRIP_BINARIES": "OFF"
+      },
+      "generator": "Unix Makefiles",
+      "binaryDir": "${sourceDir}/build/dev"
     },
     {
       "name": "debug",
       "displayName": "Debug build config",
       "cacheVariables": {
+        "CMAKE_BUILD_TYPE": "Debug",
         "LEAN_EXTRA_CXX_FLAGS": "-DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
-        "CMAKE_BUILD_TYPE": "Debug"
+        "STRIP_BINARIES": "OFF"
       },
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/debug"
     },
     {
-      "name": "reldebug",
+      "name": "relwithassert",
       "displayName": "Release with assertions enabled",
       "cacheVariables": {
-        "CMAKE_BUILD_TYPE": "RelWithAssert"
+        "CMAKE_BUILD_TYPE": "RelWithAssert",
+        "STRIP_BINARIES": "OFF"
       },
       "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/build/reldebug"
+      "binaryDir": "${sourceDir}/build/relwithassert"
     },
     {
       "name": "sanitize",
@@ -38,6 +49,7 @@
         "LEAN_EXTRA_CXX_FLAGS": "-fsanitize=address,undefined -DLEAN_DEFAULT_THREAD_STACK_SIZE=16*1024*1024",
         "LEANC_EXTRA_CC_FLAGS": "-fsanitize=address,undefined",
         "LEAN_EXTRA_LINKER_FLAGS": "-fsanitize=address,undefined -fsanitize-link-c++-runtime",
+        "STRIP_BINARIES": "OFF",
         "SMALL_ALLOCATOR": "OFF",
         "USE_MIMALLOC": "OFF",
         "BSYMBOLIC": "OFF",
@@ -59,12 +71,16 @@
       "configurePreset": "release"
     },
     {
+      "name": "dev",
+      "configurePreset": "dev"
+    },
+    {
       "name": "debug",
       "configurePreset": "debug"
     },
     {
-      "name": "reldebug",
-      "configurePreset": "reldebug"
+      "name": "relwithassert",
+      "configurePreset": "relwithassert"
     },
     {
       "name": "sanitize",
@@ -82,13 +98,18 @@
       "output": {"outputOnFailure": true, "shortProgress": true}
     },
     {
+      "name": "dev",
+      "configurePreset": "dev",
+      "output": {"outputOnFailure": true, "shortProgress": true}
+    },
+    {
       "name": "debug",
       "configurePreset": "debug",
       "inherits": "release"
     },
     {
-      "name": "reldebug",
-      "configurePreset": "reldebug",
+      "name": "relwithassert",
+      "configurePreset": "relwithassert",
       "inherits": "release"
     },
     {

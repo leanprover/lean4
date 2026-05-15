@@ -66,10 +66,18 @@ def notFollowedByRedefinedTermToken :=
       "do" <|> "dbg_trace" <|> "idbg" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
     "token at 'do' element"
 
+namespace InternalSyntax
+/--
+Internal syntax used in the `if` and `unless` elaborators. Behaves like `pure PUnit.unit` but
+uses `()` if possible and gives better error messages.
+-/
+scoped syntax (name := doSkip) "skip" : doElem
+end InternalSyntax
+
 @[builtin_doElem_parser] def doLet      := leading_parser
-  "let " >> optional "mut " >> letDecl
+  "let " >> optional "mut " >> letConfig >> letDecl
 @[builtin_doElem_parser] def doLetElse  := leading_parser withPosition <|
-  "let " >> optional "mut " >> termParser >> " := " >> termParser >>
+  "let " >> optional "mut " >> letConfig >> termParser >> " := " >> termParser >>
   (checkColGe >> " | " >> doSeqIndent) >> optional (checkColGe >> doSeqIndent)
 
 @[builtin_doElem_parser] def doLetExpr  := leading_parser withPosition <|
@@ -89,7 +97,7 @@ def doPatDecl  := leading_parser
   atomic (termParser >> optType >> ppSpace >> leftArrow) >>
   doElemParser >> optional ((checkColGe >> " | " >> doSeqIndent) >> optional (checkColGe >> doSeqIndent))
 @[builtin_doElem_parser] def doLetArrow      := leading_parser withPosition <|
-  "let " >> optional "mut " >> (doIdDecl <|> doPatDecl)
+  "let " >> optional "mut " >> letConfig >> (doIdDecl <|> doPatDecl)
 
 /-
 We use `letIdDeclNoBinders` to define `doReassign`.
@@ -114,7 +122,7 @@ def letIdDeclNoBinders := leading_parser
 @[builtin_doElem_parser] def doReassignArrow := leading_parser
   notFollowedByRedefinedTermToken >> (doIdDecl <|> doPatDecl)
 @[builtin_doElem_parser] def doHave     := leading_parser
-  "have" >> Term.letDecl
+  "have" >> Term.letConfig >> Term.letDecl
 /-
 In `do` blocks, we support `if` without an `else`.
 Thus, we use indentation to prevent examples such as
@@ -264,6 +272,13 @@ with debug assertions enabled (see the `debugAssertions` option).
 -/
 @[builtin_doElem_parser] def doDebugAssert := leading_parser:leadPrec
   "debug_assert! " >> termParser
+
+@[builtin_doElem_parser] def doRepeat      := leading_parser
+  "repeat " >> doSeq
+@[builtin_doElem_parser] def doWhile       := leading_parser
+  "while " >> withForbidden "do" doIfCond >> " do " >> doSeq
+@[builtin_doElem_parser] def doRepeatUntil := leading_parser
+  "repeat " >> doSeq >> ppDedent ppLine >> "until " >> termParser
 
 /-
 We use `notFollowedBy` to avoid counterintuitive behavior.

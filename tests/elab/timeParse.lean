@@ -141,7 +141,7 @@ def localTm : Second.Offset := 1723730627
 /--
 This PlainDate is relative to the local time.
 -/
-def PlainDate : PlainDateTime := Timestamp.toPlainDateTimeAssumingUTC (Timestamp.ofSecondsSinceUnixEpoch localTm)
+def PlainDate : PlainDateTime := PlainDateTime.ofWallTime (WallTime.ofSeconds localTm)
 
 def dateBR₁ := DateTime.ofPlainDateTime PlainDate brTZ
 def dateJP₁ := DateTime.ofPlainDateTime PlainDate jpTZ

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.Triple.SpecLemmas
-// Imports: public import Std.Do.Triple.Basic public import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic public import Init.Data.Slice.Array public import Init.Data.Iterators.Lemmas.Combinators.FilterMap public import Init.Data.Range import Init.Data.Iterators.Lemmas import Init.Data.List.Nat.Range import Init.Data.List.Nat.TakeDrop import Init.Data.List.Range import Init.Data.List.TakeDrop import Init.Data.Nat.Mod import Init.Data.Slice.Lemmas import Init.Omega public import Init.Data.String.Defs public import Init.Data.String.Iterate import Init.Data.String.Lemmas.Splits import Init.Data.String.Termination import Init.Data.String.Lemmas.Iterate
+// Imports: public import Std.Do.Triple.Basic public import Init.Data.Range.Polymorphic.Iterators import Init.Data.Range.Polymorphic public import Init.Data.Slice.Array public import Std.Do.WP.Adequate public import Init.While public import Init.Data.Iterators.Lemmas.Combinators.FilterMap public import Init.Data.Range import Init.Data.Iterators.Lemmas import Init.Data.List.Nat.Range import Init.Data.List.Nat.TakeDrop import Init.Data.List.Range import Init.Data.List.TakeDrop import Init.Data.Nat.Mod import Init.Data.Slice.Lemmas import Init.Omega public import Init.Data.String.Defs public import Init.Data.String.Iterate import Init.Data.String.Lemmas.Splits import Init.Data.String.Termination import Init.Data.String.Lemmas.Iterate
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -137,6 +137,8 @@ LEAN_EXPORT lean_object* l_Std_Do_StringSliceInvariant_withEarlyReturn___boxed(l
 LEAN_EXPORT lean_object* l_Std_Do_StringSliceInvariant_withEarlyReturnNewDo___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_StringSliceInvariant_withEarlyReturnNewDo(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Do_StringSliceInvariant_withEarlyReturnNewDo___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Lean_Loop_forIn_match__1_splitter___redArg(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Lean_Loop_forIn_match__1_splitter(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Legacy_Range_toList(lean_object* v_r_1_){
 _start:
 {
@@ -646,23 +648,19 @@ v_fst_201_ = lean_ctor_get(v_x_199_, 0);
 lean_inc(v_fst_201_);
 lean_dec_ref(v_x_199_);
 v_snd_202_ = lean_ctor_get(v_snd_200_, 1);
-lean_inc(v_snd_202_);
+lean_inc_n(v_snd_202_, 2);
 lean_dec(v_snd_200_);
 v___x_203_ = l_Std_Do_PostShape_args(v_ps_196_);
-lean_inc(v___x_203_);
+lean_inc_n(v___x_203_, 4);
 v___x_204_ = l_Std_Do_SPred_pure___redArg(v___x_203_);
 lean_inc(v___x_204_);
-lean_inc(v___x_203_);
-lean_inc(v_snd_202_);
 v___f_205_ = lean_alloc_closure((void*)(l_Std_Do_Invariant_withEarlyReturn___redArg___lam__0), 5, 4);
 lean_closure_set(v___f_205_, 0, v_onReturn_197_);
 lean_closure_set(v___f_205_, 1, v_snd_202_);
 lean_closure_set(v___f_205_, 2, v___x_203_);
 lean_closure_set(v___f_205_, 3, v___x_204_);
 v___x_206_ = lean_apply_2(v_onContinue_198_, v_fst_201_, v_snd_202_);
-lean_inc(v___x_203_);
 v___x_207_ = l_Std_Do_SPred_and(v___x_203_, v___x_204_, v___x_206_);
-lean_inc(v___x_203_);
 v___x_208_ = l_Std_Do_SPred_exists___redArg(v___x_203_, v___f_205_);
 v___x_209_ = l_Std_Do_SPred_or(v___x_203_, v___x_207_, v___x_208_);
 return v___x_209_;
@@ -724,23 +722,19 @@ v_fst_245_ = lean_ctor_get(v_x_243_, 0);
 lean_inc(v_fst_245_);
 lean_dec_ref(v_x_243_);
 v_snd_246_ = lean_ctor_get(v_snd_244_, 1);
-lean_inc(v_snd_246_);
+lean_inc_n(v_snd_246_, 2);
 lean_dec(v_snd_244_);
 v___x_247_ = l_Std_Do_PostShape_args(v_ps_240_);
-lean_inc(v___x_247_);
+lean_inc_n(v___x_247_, 4);
 v___x_248_ = l_Std_Do_SPred_pure___redArg(v___x_247_);
 lean_inc(v___x_248_);
-lean_inc(v___x_247_);
-lean_inc(v_snd_246_);
 v___f_249_ = lean_alloc_closure((void*)(l_Std_Do_Invariant_withEarlyReturn___redArg___lam__0), 5, 4);
 lean_closure_set(v___f_249_, 0, v_onReturn_241_);
 lean_closure_set(v___f_249_, 1, v_snd_246_);
 lean_closure_set(v___f_249_, 2, v___x_247_);
 lean_closure_set(v___f_249_, 3, v___x_248_);
 v___x_250_ = lean_apply_2(v_onContinue_242_, v_fst_245_, v_snd_246_);
-lean_inc(v___x_247_);
 v___x_251_ = l_Std_Do_SPred_and(v___x_247_, v___x_248_, v___x_250_);
-lean_inc(v___x_247_);
 v___x_252_ = l_Std_Do_SPred_exists___redArg(v___x_247_, v___f_249_);
 v___x_253_ = l_Std_Do_SPred_or(v___x_247_, v___x_251_, v___x_252_);
 return v___x_253_;
@@ -852,23 +846,19 @@ v_fst_305_ = lean_ctor_get(v_x_303_, 0);
 lean_inc(v_fst_305_);
 lean_dec_ref(v_x_303_);
 v_snd_306_ = lean_ctor_get(v_snd_304_, 1);
-lean_inc(v_snd_306_);
+lean_inc_n(v_snd_306_, 2);
 lean_dec(v_snd_304_);
 v___x_307_ = l_Std_Do_PostShape_args(v_ps_300_);
-lean_inc(v___x_307_);
+lean_inc_n(v___x_307_, 4);
 v___x_308_ = l_Std_Do_SPred_pure___redArg(v___x_307_);
 lean_inc(v___x_308_);
-lean_inc(v___x_307_);
-lean_inc(v_snd_306_);
 v___f_309_ = lean_alloc_closure((void*)(l_Std_Do_Invariant_withEarlyReturn___redArg___lam__0), 5, 4);
 lean_closure_set(v___f_309_, 0, v_onReturn_301_);
 lean_closure_set(v___f_309_, 1, v_snd_306_);
 lean_closure_set(v___f_309_, 2, v___x_307_);
 lean_closure_set(v___f_309_, 3, v___x_308_);
 v___x_310_ = lean_apply_2(v_onContinue_302_, v_fst_305_, v_snd_306_);
-lean_inc(v___x_307_);
 v___x_311_ = l_Std_Do_SPred_and(v___x_307_, v___x_308_, v___x_310_);
-lean_inc(v___x_307_);
 v___x_312_ = l_Std_Do_SPred_exists___redArg(v___x_307_, v___f_309_);
 v___x_313_ = l_Std_Do_SPred_or(v___x_307_, v___x_311_, v___x_312_);
 return v___x_313_;
@@ -930,23 +920,19 @@ v_fst_347_ = lean_ctor_get(v_x_345_, 0);
 lean_inc(v_fst_347_);
 lean_dec_ref(v_x_345_);
 v_snd_348_ = lean_ctor_get(v_snd_346_, 1);
-lean_inc(v_snd_348_);
+lean_inc_n(v_snd_348_, 2);
 lean_dec(v_snd_346_);
 v___x_349_ = l_Std_Do_PostShape_args(v_ps_342_);
-lean_inc(v___x_349_);
+lean_inc_n(v___x_349_, 4);
 v___x_350_ = l_Std_Do_SPred_pure___redArg(v___x_349_);
 lean_inc(v___x_350_);
-lean_inc(v___x_349_);
-lean_inc(v_snd_348_);
 v___f_351_ = lean_alloc_closure((void*)(l_Std_Do_Invariant_withEarlyReturn___redArg___lam__0), 5, 4);
 lean_closure_set(v___f_351_, 0, v_onReturn_343_);
 lean_closure_set(v___f_351_, 1, v_snd_348_);
 lean_closure_set(v___f_351_, 2, v___x_349_);
 lean_closure_set(v___f_351_, 3, v___x_350_);
 v___x_352_ = lean_apply_2(v_onContinue_344_, v_fst_347_, v_snd_348_);
-lean_inc(v___x_349_);
 v___x_353_ = l_Std_Do_SPred_and(v___x_349_, v___x_350_, v___x_352_);
-lean_inc(v___x_349_);
 v___x_354_ = l_Std_Do_SPred_exists___redArg(v___x_349_, v___f_351_);
 v___x_355_ = l_Std_Do_SPred_or(v___x_349_, v___x_353_, v___x_354_);
 return v___x_355_;
@@ -1072,10 +1058,62 @@ lean_dec_ref(v_s_425_);
 return v_res_429_;
 }
 }
+LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Lean_Loop_forIn_match__1_splitter___redArg(lean_object* v_____do__lift_430_, lean_object* v_h__1_431_, lean_object* v_h__2_432_){
+_start:
+{
+if (lean_obj_tag(v_____do__lift_430_) == 0)
+{
+lean_object* v_a_433_; lean_object* v___x_434_; 
+lean_dec(v_h__2_432_);
+v_a_433_ = lean_ctor_get(v_____do__lift_430_, 0);
+lean_inc(v_a_433_);
+lean_dec_ref(v_____do__lift_430_);
+v___x_434_ = lean_apply_1(v_h__1_431_, v_a_433_);
+return v___x_434_;
+}
+else
+{
+lean_object* v_a_435_; lean_object* v___x_436_; 
+lean_dec(v_h__1_431_);
+v_a_435_ = lean_ctor_get(v_____do__lift_430_, 0);
+lean_inc(v_a_435_);
+lean_dec_ref(v_____do__lift_430_);
+v___x_436_ = lean_apply_1(v_h__2_432_, v_a_435_);
+return v___x_436_;
+}
+}
+}
+LEAN_EXPORT lean_object* l___private_Std_Do_Triple_SpecLemmas_0__Lean_Loop_forIn_match__1_splitter(lean_object* v_00_u03b2_437_, lean_object* v_motive_438_, lean_object* v_____do__lift_439_, lean_object* v_h__1_440_, lean_object* v_h__2_441_){
+_start:
+{
+if (lean_obj_tag(v_____do__lift_439_) == 0)
+{
+lean_object* v_a_442_; lean_object* v___x_443_; 
+lean_dec(v_h__2_441_);
+v_a_442_ = lean_ctor_get(v_____do__lift_439_, 0);
+lean_inc(v_a_442_);
+lean_dec_ref(v_____do__lift_439_);
+v___x_443_ = lean_apply_1(v_h__1_440_, v_a_442_);
+return v___x_443_;
+}
+else
+{
+lean_object* v_a_444_; lean_object* v___x_445_; 
+lean_dec(v_h__1_440_);
+v_a_444_ = lean_ctor_get(v_____do__lift_439_, 0);
+lean_inc(v_a_444_);
+lean_dec_ref(v_____do__lift_439_);
+v___x_445_ = lean_apply_1(v_h__2_441_, v_a_444_);
+return v___x_445_;
+}
+}
+}
 lean_object* runtime_initialize_Std_Do_Triple_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Range_Polymorphic(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Slice_Array(uint8_t builtin);
+lean_object* runtime_initialize_Std_Do_WP_Adequate(uint8_t builtin);
+lean_object* runtime_initialize_Init_While(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Range(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Iterators_Lemmas(uint8_t builtin);
@@ -1106,6 +1144,12 @@ res = runtime_initialize_Init_Data_Range_Polymorphic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Slice_Array(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Std_Do_WP_Adequate(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_While(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin);
@@ -1170,6 +1214,8 @@ lean_object* initialize_Std_Do_Triple_Basic(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic_Iterators(uint8_t builtin);
 lean_object* initialize_Init_Data_Range_Polymorphic(uint8_t builtin);
 lean_object* initialize_Init_Data_Slice_Array(uint8_t builtin);
+lean_object* initialize_Std_Do_WP_Adequate(uint8_t builtin);
+lean_object* initialize_Init_While(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(uint8_t builtin);
 lean_object* initialize_Init_Data_Range(uint8_t builtin);
 lean_object* initialize_Init_Data_Iterators_Lemmas(uint8_t builtin);
@@ -1200,6 +1246,12 @@ res = initialize_Init_Data_Range_Polymorphic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Slice_Array(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Do_WP_Adequate(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_While(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Iterators_Lemmas_Combinators_FilterMap(builtin);

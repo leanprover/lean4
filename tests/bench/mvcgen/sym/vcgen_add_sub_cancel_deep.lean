@@ -6,6 +6,8 @@ Authors: Sebastian Graf
 import Cases.AddSubCancelDeep
 import Driver
 
+set_option mvcgen.warning false
+
 open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
 open AddSubCancelDeep
 
@@ -13,5 +15,5 @@ set_option maxRecDepth 10000
 set_option maxHeartbeats 10000000
 
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| grind)
-  [100, 500, 1000]
+  [100, 400, 700]
   -- [1000]

@@ -30,6 +30,8 @@ See `TransparencyMode` for the full design rationale.
 - **`irreducible`**: Only unfolded at `TransparencyMode.all`. The definition body is effectively
   hidden from `isDefEq` in normal usage.
 -/
+-- Note: `implicitReducible` appears last for the same reason `TransparencyMode`'s constructors
+-- are not in unfolding order: reordering them causes a non-trivial bootstrapping problem.
 inductive ReducibilityStatus where
   | reducible | semireducible | irreducible | implicitReducible
   deriving Inhabited, Repr, BEq

@@ -11,6 +11,8 @@ import all Init.Data.String.Slice
 import Init.Data.String.Lemmas.Pattern.Memcmp
 import Init.Data.String.Lemmas.Basic
 import Init.Data.ByteArray.Lemmas
+import Init.Data.String.Lemmas.IsEmpty
+import Init.Data.String.Lemmas.FindPos
 
 public section
 
@@ -52,4 +54,85 @@ theorem beq_list_eq_decide {l l' : List String.Slice} :
 
 end BEq
 
-end String.Slice
+namespace Pos
+
+theorem get?_eq_dif {s : Slice} {p : s.Pos} : p.get? = if h : p = s.endPos then none else some (p.get h) :=
+  (rfl)
+
+theorem get?_eq_some_get {s : Slice} {p : s.Pos} (h : p ≠ s.endPos) : p.get? = some (p.get h) := by
+  simp [Pos.get?, h]
+
+@[simp]
+theorem get?_eq_none_iff {s : Slice} {p : s.Pos} : p.get? = none ↔ p = s.endPos := by
+  simp [Pos.get?]
+
+theorem get?_eq_none {s : Slice} {p : s.Pos} (h : p = s.endPos) : p.get? = none :=
+  get?_eq_none_iff.2 h
+
+@[simp]
+theorem get?_endPos {s : Slice} : s.endPos.get? = none := by
+  simp
+
+end Pos
+
+end Slice
+
+namespace Pos
+
+theorem get?_toSlice {s : String} {p : s.Pos} : p.toSlice.get? = p.get? :=
+  (rfl)
+
+theorem get?_eq_dif {s : String} {p : s.Pos} : p.get? = if h : p = s.endPos then none else some (p.get h) := by
+  simp [← get?_toSlice, Slice.Pos.get?_eq_dif]
+
+theorem get?_eq_some_get {s : String} {p : s.Pos} (h : p ≠ s.endPos) : p.get? = some (p.get h) := by
+  simpa [← get?_toSlice] using Slice.Pos.get?_eq_some_get (by simpa)
+
+@[simp]
+theorem get?_eq_none_iff {s : String} {p : s.Pos} : p.get? = none ↔ p = s.endPos := by
+  simp [← get?_toSlice]
+
+theorem get?_eq_none {s : String} {p : s.Pos} (h : p = s.endPos) : p.get? = none :=
+  get?_eq_none_iff.2 h
+
+@[simp]
+theorem get?_endPos {s : String} : s.endPos.get? = none := by
+  simp
+
+end Pos
+
+namespace Slice
+
+theorem front?_eq_get? {s : Slice} : s.front? = s.startPos.get? :=
+  (rfl)
+
+theorem front?_eq {s : Slice} : s.front? = s.copy.toList.head? := by
+  simp only [front?_eq_get?, Pos.get?_eq_dif]
+  split
+  · simp_all [startPos_eq_endPos_iff, eq_comm (a := none)]
+  · rename_i h
+    obtain ⟨t, ht⟩ := s.splits_startPos.exists_eq_singleton_append h
+    simp [ht]
+
+@[simp]
+theorem front_eq {s : Slice} : s.front = s.front?.getD default := by
+  simp [front]
+
+theorem back?_eq_get? {s : Slice} : s.back? = s.endPos.prev?.bind Pos.get? :=
+  (rfl)
+
+theorem back?_eq {s : Slice} : s.back? = s.copy.toList.getLast? := by
+  simp [back?_eq_get?, Pos.prev?_eq_dif]
+  split
+  · simp_all [startPos_eq_endPos_iff, eq_comm (a := s.endPos), eq_comm (a := none)]
+  · rename_i h
+    obtain ⟨t, ht⟩ := s.splits_endPos.exists_eq_append_singleton_of_ne_startPos h
+    simp [ht, Pos.get?_eq_some_get]
+
+@[simp]
+theorem back_eq {s : Slice} : s.back = s.back?.getD default := by
+  simp [back]
+
+end Slice
+
+end String

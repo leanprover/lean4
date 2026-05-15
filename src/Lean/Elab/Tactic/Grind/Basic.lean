@@ -68,7 +68,10 @@ def setGoals (goals : List Goal) : GrindTacticM Unit :=
 
 def pruneSolvedGoals : GrindTacticM Unit := do
   let gs ← getGoals
-  let gs := gs.filter fun g => !g.inconsistent
+  let gs ← gs.filterM fun g => do
+    if g.inconsistent then return false
+    -- The metavariable may have been assigned by `isDefEq`
+    return !(← g.mvarId.isAssigned)
   setGoals gs
 
 def getUnsolvedGoals : GrindTacticM (List Goal) := do
@@ -329,13 +332,19 @@ def liftGoalM (k : GoalM α) : GrindTacticM α := do
   replaceMainGoal [goal]
   return a
 
-def liftAction (a : Action) : GrindTacticM Unit := do
+inductive LiftActionCoreResult where
+  | closed | subgoals
+
+def liftActionCore (a : Action) : GrindTacticM LiftActionCoreResult := do
   let goal ← getMainGoal
   let ka := fun _ => throwError "tactic is not applicable"
   let kp := fun goal => return .stuck [goal]
   match (← liftGrindM <| a goal ka kp) with
-  | .closed _ => replaceMainGoal []
-  | .stuck gs => replaceMainGoal gs
+  | .closed _ => replaceMainGoal []; return .closed
+  | .stuck gs => replaceMainGoal gs; return .subgoals
+
+def liftAction (a : Action) : GrindTacticM Unit := do
+  discard <| liftActionCore a
 
 def done : GrindTacticM Unit := do
   pruneSolvedGoals

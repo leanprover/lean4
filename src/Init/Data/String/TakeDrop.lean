@@ -28,7 +28,7 @@ open Slice.Pattern
 Returns a {name}`String.Slice` obtained by removing the specified number of characters (Unicode code
 points) from the start of the string.
 
-If {name}`n` is greater than {lean}`s.length`, returns an empty slice.
+If {name}`n` is greater than {lean}`s.toList.length`, returns an empty slice.
 
 This is a cheap operation because it does not allocate a new string to hold the result.
 To convert the result into a string, use {name}`String.Slice.copy`.
@@ -50,7 +50,7 @@ def Internal.dropImpl (s : String) (n : Nat) : String :=
 Returns a {name}`String.Slice` obtained by removing the specified number of characters (Unicode code
 points) from the end of the string.
 
-If {name}`n` is greater than {lean}`s.length`, returns an empty slice.
+If {name}`n` is greater than {lean}`s.toList.length`, returns an empty slice.
 
 This is a cheap operation because it does not allocate a new string to hold the result.
 To convert the result into a string, use {name}`String.Slice.copy`.
@@ -80,7 +80,7 @@ def Internal.dropRightImpl (s : String) (n : Nat) : String :=
 Returns a {name}`String.Slice` that contains the first {name}`n` characters (Unicode code points) of
 {name}`s`.
 
-If {name}`n` is greater than {lean}`s.length`, returns {lean}`s.toSlice`.
+If {name}`n` is greater than {lean}`s.toList.length`, returns {lean}`s.toSlice`.
 
 This is a cheap operation because it does not allocate a new string to hold the result.
 To convert the result into a string, use {name}`String.Slice.copy`.
@@ -99,7 +99,7 @@ Examples:
 Returns a {name}`String.Slice` that contains the last {name}`n` characters (Unicode code points) of
 {name}`s`.
 
-If {name}`n` is greater than {lean}`s.length`, returns {lean}`s.toSlice`.
+If {name}`n` is greater than {lean}`s.toList.length`, returns {lean}`s.toSlice`.
 
 This is a cheap operation because it does not allocate a new string to hold the result.
 To convert the result into a string, use {name}`String.Slice.copy`.
@@ -225,6 +225,53 @@ Returns the position after the longest prefix of {name}`s` for which {name}`pat`
   Pos.ofToSlice (s.toSlice.skipPrefixWhile pat)
 
 /--
+Checks whether a string only consists of matches of the pattern {name}`pat`.
+
+Short-circuits at the first pattern mis-match.
+
+This function is generic over all currently supported patterns.
+
+Examples:
+ * {lean}`"brown".all Char.isLower = true`
+ * {lean}`"brown and orange".all Char.isLower = false`
+ * {lean}`"aaaaaa".all 'a' = true`
+ * {lean}`"aaaaaa".all "aa" = true`
+ * {lean}`"aaaaaaa".all "aa" = false`
+-/
+@[inline, suggest_for String.every] def all (s : String) (pat : ρ) [ForwardPattern pat] : Bool :=
+  s.toSlice.all pat
+
+/--
+Checks whether a string only consists of matches of the pattern {name}`pat`, starting from the back
+of the string.
+
+Short-circuits at the first pattern mis-match.
+
+This function is generic over all currently supported patterns.
+
+For many types of patterns, this function can be expected to return the same result as
+{name}`String.all`. If mismatches are expected to occur close to the end of the string, this function
+might be more efficient.
+
+For some types of patterns, this function will return a different result than {name}`String.all`.
+Consider, for example, a pattern that matches the longest string at the given position that matches
+the regular expression {lean}`"a|aa|ab"`. Then, given the input string {lean}`"aab"`, performing
+{name}`String.all` will greedily match the prefix {lean}`"aa"` and then get stuck on the remainder
+{lean}`"b"`, causing it to return {lean}`false`. On the other hand, {name}`String.revAll` will match
+the suffix {lean}`"ab"` and then match the remainder {lean}`"a"`, so it will return {lean}`true`.
+
+Examples:
+ * {lean}`"brown".revAll Char.isLower = true`
+ * {lean}`"brown and orange".revAll Char.isLower = false`
+ * {lean}`"aaaaaa".revAll 'a' = true`
+ * {lean}`"aaaaaa".revAll "aa" = true`
+ * {lean}`"aaaaaaa".revAll "aa" = false`
+-/
+@[inline]
+def revAll (s : String) (pat : ρ) [BackwardPattern pat] : Bool :=
+  s.toSlice.revAll pat
+
+/--
 If {name}`pat` matches at {name}`pos`, returns the position after the end of the match.
 Returns {name}`none` otherwise.
 
@@ -314,7 +361,7 @@ Returns {name}`none` otherwise.
 This function is generic over all currently supported patterns.
 -/
 @[inline]
-def Pos.revSkip? {s : String} (pos : s.Pos) (pat : ρ) [ForwardPattern pat] : Option s.Pos :=
+def Pos.revSkip? {s : String} (pos : s.Pos) (pat : ρ) [BackwardPattern pat] : Option s.Pos :=
   (pos.toSlice.revSkip? pat).map Pos.ofToSlice
 
 /--
@@ -461,7 +508,7 @@ def dropPrefix? (s : String) (pat : ρ) [ForwardPattern pat] : Option String.Sli
 If {name}`pat` matches a suffix of {name}`s`, returns the remainder. Returns {name}`none` otherwise.
 
 Use {name (scope := "Init.Data.String.TakeDrop")}`String.dropSuffix` to return the slice
-unchanged when {name}`pat` does not match a prefix.
+unchanged when {name}`pat` does not match a suffix.
 
 This is a cheap operation because it does not allocate a new string to hold the result.
 To convert the result into a string, use {name}`String.Slice.copy`.

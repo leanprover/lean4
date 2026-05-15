@@ -6,6 +6,8 @@ Authors: Sebastian Graf
 import Cases.PurePrecond
 import Driver
 
+set_option mvcgen.warning false
+
 open Lean Parser Meta Elab Tactic Sym Std Do SpecAttr
 open PurePrecond
 
@@ -17,4 +19,4 @@ example : Goal 10 := by
   mvcgen'
 
 #eval runBenchUsingTactic ``Goal [``loop, ``step] `(tactic| mvcgen') `(tactic| fail)
-  [100, 500, 1000]
+  [100, 400, 700]

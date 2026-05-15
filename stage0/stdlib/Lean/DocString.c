@@ -46,11 +46,9 @@ goto v___jp_5_;
 v___jp_5_:
 {
 lean_object* v_exts_7_; lean_object* v_spellings_8_; lean_object* v___x_9_; 
-lean_inc(v___y_6_);
-lean_inc_ref(v_env_1_);
+lean_inc_n(v___y_6_, 2);
+lean_inc_ref_n(v_env_1_, 2);
 v_exts_7_ = l_Lean_Parser_Tactic_Doc_getTacticExtensionString(v_env_1_, v___y_6_);
-lean_inc(v___y_6_);
-lean_inc_ref(v_env_1_);
 v_spellings_8_ = l_Lean_Parser_Term_Doc_getRecommendedSpellingString(v_env_1_, v___y_6_);
 v___x_9_ = l_Lean_findSimpleDocString_x3f(v_env_1_, v___y_6_, v_includeBuiltin_3_);
 if (lean_obj_tag(v___x_9_) == 0)

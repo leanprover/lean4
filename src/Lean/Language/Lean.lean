@@ -298,7 +298,7 @@ structure SetupImportsResult where
   /-- Pre-resolved artifacts of transitively imported modules. -/
   importArts : NameMap ImportArtifacts := {}
   /-- Lean plugins to load as part of the environment setup. -/
-  plugins : Array System.FilePath := #[]
+  plugins : Array Plugin := #[]
 
 /--
 Parses an option value from a string and inserts it into `opts`.
@@ -478,11 +478,11 @@ where
         }
         result? := some {
           parserState
-          processedSnap := (← processHeader ⟨trimmedStx⟩ parserState)
+          processedSnap := (← processHeader ⟨trimmedStx⟩ stx parserState)
         }
       }
 
-  processHeader (stx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
+  processHeader (stx : HeaderSyntax) (origStx : HeaderSyntax) (parserState : Parser.ModuleParserState) :
       LeanProcessingM (SnapshotTask HeaderProcessedSnapshot) := do
     let ctx ← read
     SnapshotTask.ofIO none none (.some ⟨0, ctx.endPos⟩) <|
@@ -498,13 +498,14 @@ where
       let (headerEnv, msgLog) ← Elab.processHeaderCore (leakEnv := true)
         stx.startPos setup.imports setup.isModule setup.opts .empty ctx.toInputContext
         setup.trustLevel setup.plugins setup.mainModuleName setup.package? setup.importArts
+        (headerStx? := stx) (origHeaderStx? := origStx)
       let stopTime := (← IO.monoNanosNow).toFloat / 1000000000
       let diagnostics := (← Snapshot.Diagnostics.ofMessageLog msgLog)
       if msgLog.hasErrors then
         return { diagnostics, result? := none, metaSnap := default }
 
       let mut traceState := default
-      if trace.profiler.output.get? setup.opts |>.isSome then
+      if trace.profiler.isExporting setup.opts then
         traceState := {
           traces := #[{
             ref := .missing,

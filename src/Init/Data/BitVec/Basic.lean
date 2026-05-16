@@ -753,12 +753,12 @@ section normalization_eqs
 end normalization_eqs
 
 /-- Converts a list of `Bool`s into a big-endian `BitVec`. -/
-def ofBoolListBE : (bs : List Bool) → BitVec bs.length
+noncomputable def ofBoolListBE : (bs : List Bool) → BitVec bs.length
 | [] => 0#0
 | b :: bs => cons b (ofBoolListBE bs)
 
 /-- Converts a list of `Bool`s into a little-endian `BitVec`. -/
-def ofBoolListLE : (bs : List Bool) → BitVec bs.length
+noncomputable def ofBoolListLE : (bs : List Bool) → BitVec bs.length
 | [] => 0#0
 | b :: bs => concat (ofBoolListLE bs) b
 

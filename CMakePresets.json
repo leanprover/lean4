@@ -13,13 +13,13 @@
       "binaryDir": "${sourceDir}/build/release"
     },
     {
-      "name": "dev",
+      "name": "dev-release",
       "displayName": "Default development optimized build config",
       "cacheVariables": {
         "STRIP_BINARIES": "OFF"
       },
       "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/build/dev"
+      "binaryDir": "${sourceDir}/build/release"
     },
     {
       "name": "debug",
@@ -71,8 +71,8 @@
       "configurePreset": "release"
     },
     {
-      "name": "dev",
-      "configurePreset": "dev"
+      "name": "dev-release",
+      "configurePreset": "dev-release"
     },
     {
       "name": "debug",
@@ -98,8 +98,8 @@
       "output": {"outputOnFailure": true, "shortProgress": true}
     },
     {
-      "name": "dev",
-      "configurePreset": "dev",
+      "name": "dev-release",
+      "configurePreset": "dev-release",
       "output": {"outputOnFailure": true, "shortProgress": true}
     },
     {

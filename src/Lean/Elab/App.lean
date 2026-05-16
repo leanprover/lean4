@@ -1432,10 +1432,15 @@ private def resolveLValAux (e : Expr) (eType : Expr) (lval : LVal) : TermElabM L
     -- Then search the environment
     if let some (baseStructName, fullName) ← findMethod? structName (.mkSimple fieldName) then
       return LValResolution.const baseStructName structName fullName levels
-    throwInvalidFieldAt ref fieldName fullName
-      -- Suggest a potential unreachable private name as hint. This does not cover structure
-      -- inheritance, nor `import all`.
-      (declHint := (mkPrivateName env structName).mkStr fieldName)
+    -- In public scope, retry in private scope as error message hint. Does not cover `import all`.
+    let declHint ← (do
+      if env.isExporting then
+        try
+          if let some (_, n) ← withoutExporting <| findMethod? structName (.mkSimple fieldName) then
+            return n
+        catch _ => pure ()
+      return .anonymous)
+    throwInvalidFieldAt ref fieldName fullName (declHint := declHint)
 
   | .forallE .., LVal.fieldName ref fieldName levels suffix? fullRef =>
     let fullName := Name.str `Function fieldName

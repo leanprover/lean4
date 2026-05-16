@@ -31,7 +31,7 @@ variable (f : Foo)
 example (f : Foo) : f.n' = f.n := rfl
 
 /-!
-Fail dot notation if it requires using a named argument from the CoeFun instance.
+Dot notation works even if it involves a CoeFun instance.
 -/
 structure F where
   f : Bool → Nat → Nat
@@ -50,18 +50,8 @@ def Nat.foo : F := { f := fun _ b => b }
 /-- info: fun n x => (fun a b => Nat.foo.f a b) x n : Nat → Bool → Nat -/
 #guard_msgs in #check fun (n : Nat) => (Nat.foo · n)
 
--- Intentionally fails:
-/--
-error: Invalid field notation: `Nat.foo.f` (coerced from `Nat.foo`) has a parameter with expected type
-  Nat
-but it cannot be used
-
-Note: Field notation cannot refer to parameter `b` by name because that constant was coerced to a function
-
-Hint: Consider rewriting this application without field notation (e.g., `C.f x` instead of `x.f`)
----
-info: fun n => sorry : (n : Nat) → ?_ n
--/
+-- This is ok too:
+/-- info: fun n a => (fun a b => Nat.foo.f a b) a n : Nat → Bool → Nat -/
 #guard_msgs in #check fun (n : Nat) => n.foo
 
 /-!

@@ -109,7 +109,8 @@ theorem Small.of_surjective (α : Type v) {β : Type w} (f : α → β) [Small.{
 
 instance {α : Type v} {β : Type w} {f : α → β} [Small.{u} α] :
     Small.{u} { b : β // ∃ a, f a = b } := .of_surjective α (fun a => ⟨f a, a, rfl⟩)
-        (fun b => ⟨b.2.choose, by simp; ext; exact b.2.choose_spec⟩)
+         -- TODO(kmill): remove `try dsimp` after stage0 update
+        (fun b => ⟨b.2.choose, by (try dsimp); ext; exact b.2.choose_spec⟩)
 
 theorem Small.map {α : Type v} {β : Type w} (P : α → Prop) (f : (a : α) → P a → β)
     [Small.{u} { a // P a }] :

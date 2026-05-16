@@ -43,7 +43,10 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         | .some inst =>
           let forInFn ← mkConst ``forIn
           elabAppArgs forInFn
-            (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType }, { name := `self, val := Arg.expr inst }])
+            (namedArgs :=
+              #[{ param := .name (← getRef) `m,    val := Arg.expr m},
+                { param := .name (← getRef) `α,    val := Arg.expr elemType },
+                { param := .name (← getRef) `self, val := Arg.expr inst }])
             (args := #[Arg.expr colE, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)
@@ -69,7 +72,10 @@ private def throwForInFailure (forInInstance : Expr) : TermElabM Expr :=
         | .some inst  =>
           let forInFn ← mkConst ``forIn'
           elabAppArgs forInFn
-            (namedArgs := #[{ name := `m, val := Arg.expr m}, { name := `α, val := Arg.expr elemType}, { name := `self, val := Arg.expr inst }])
+            (namedArgs :=
+              #[{ param := .name (← getRef) `m,    val := Arg.expr m},
+                { param := .name (← getRef) `α,    val := Arg.expr elemType},
+                { param := .name (← getRef) `self, val := Arg.expr inst }])
             (args := #[Arg.expr colE, Arg.stx init, Arg.stx body])
             (expectedType? := expectedType?)
             (explicit := false) (ellipsis := false) (resultIsOutParamSupport := false)

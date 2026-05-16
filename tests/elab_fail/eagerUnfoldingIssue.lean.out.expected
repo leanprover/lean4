@@ -2,7 +2,23 @@ eagerUnfoldingIssue.lean:6:2-6:17: error(lean.synthInstanceFailed): failed to sy
   MonadLog (StateM Nat)
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+eagerUnfoldingIssue.lean:6:2-6:17: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  AddMessageContext (StateM Nat)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+eagerUnfoldingIssue.lean:6:2-6:17: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  MonadOptions (StateM Nat)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
 eagerUnfoldingIssue.lean:12:2-12:17: error(lean.synthInstanceFailed): failed to synthesize instance of type class
   MonadLog (StateM Nat)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+eagerUnfoldingIssue.lean:12:2-12:17: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  AddMessageContext (StateM Nat)
+
+Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+eagerUnfoldingIssue.lean:12:2-12:17: error(lean.synthInstanceFailed): failed to synthesize instance of type class
+  MonadOptions (StateM Nat)
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.

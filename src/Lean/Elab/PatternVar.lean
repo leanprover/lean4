@@ -99,6 +99,7 @@ structure Context where
   ellipsis      : Bool
   paramDecls    : Array (Name × BinderInfo) -- parameters' names and binder information
   paramDeclIdx  : Nat := 0
+  paramDeclExplicitCount : Nat := 0
   namedArgs     : Array NamedArg
   usedNames     : Std.HashSet Name := {}
   args          : List Arg
@@ -106,7 +107,7 @@ structure Context where
   deriving Inhabited
 
 private def throwInvalidNamedArgs (ctx : Context) (h : !ctx.namedArgs.isEmpty) : MetaM α := do
-  let names := (ctx.namedArgs.map fun narg => m!"`{narg.name}`").toList
+  let names := (ctx.namedArgs.map fun narg => m!"`{narg.param}`").toList
   let nameStr := if names.length == 1 then "name" else "names"
   let validNames := ctx.paramDecls.filterMap fun (name, _) =>
     if name.hasMacroScopes then none else some name
@@ -121,8 +122,8 @@ private def throwInvalidNamedArgs (ctx : Context) (h : !ctx.namedArgs.isEmpty) :
         { suggestion := validName.toString
           span? := replacementSpan
           preInfo? := some s!"`{validName}`: "
-          toCodeActionTitle? := some fun s => s!"Change argument name `{firstNamedArg.name}` to `{s}`" }
-      let hintMsg := m!"Replace `{firstNamedArg.name}` with one of the following parameter names:"
+          toCodeActionTitle? := some fun s => s!"Change argument name `{firstNamedArg.param}` to `{s}`" }
+      let hintMsg := m!"Replace `{firstNamedArg.param}` with one of the following parameter names:"
       MessageData.hint (forceList := true) hintMsg suggestions
     else
       let validNamesMsg := MessageData.orList <| unused.map (m!"`{·}`") |>.toList
@@ -132,10 +133,16 @@ private def throwInvalidNamedArgs (ctx : Context) (h : !ctx.namedArgs.isEmpty) :
 private def isDone (ctx : Context) : Bool :=
   ctx.paramDeclIdx ≥ ctx.paramDecls.size
 
-private def getNextParam (ctx : Context) : (Name × BinderInfo) × Context :=
-  let i := ctx.paramDeclIdx
-  let d := ctx.paramDecls[i]!
-  (d, { ctx with paramDeclIdx := ctx.paramDeclIdx + 1 })
+/--
+Returns the parameter index, the number of explicit parameters before this one, the parameter name, and the binder info.
+-/
+private def getNextParam (ctx : Context) : (Nat × Nat × Name × BinderInfo) × Context :=
+  let d := ctx.paramDecls[ctx.paramDeclIdx]!
+  let explicit := d.2.isExplicit
+  ((ctx.paramDeclIdx, ctx.paramDeclExplicitCount, d),
+    { ctx with
+      paramDeclIdx := ctx.paramDeclIdx + 1,
+      paramDeclExplicitCount := ctx.paramDeclExplicitCount + if explicit then 1 else 0 })
 
 private def throwWrongArgCount (ctx : Context) (tooMany : Bool) : M α := do
   let numExpectedArgs :=
@@ -157,11 +164,11 @@ where
     -- If there were too few (unnamed) arguments, we may not have processed the parameters that
     -- match the outstanding named arguments, so some names in `namedArgs` may be valid
     while !isDone ctx do
-      let ((name, _), ctx') := getNextParam ctx
+      let ((paramIdx, paramExplicitCount, paramName, paramInfo), ctx') := getNextParam ctx
       ctx := ctx'
-      if let some idx := ctx'.namedArgs.findFinIdx? fun namedArg => namedArg.name == name then
+      if let some idx ← findNamedArgFinIdx? paramIdx paramExplicitCount paramInfo.isExplicit paramName ctx'.namedArgs then
         ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx
-                          usedNames := ctx.usedNames.insert name }
+                          usedNames := ctx.usedNames.insert paramName }
     if h : !ctx.namedArgs.isEmpty then
       throwInvalidNamedArgs ctx h
 
@@ -322,7 +329,7 @@ where
     if f.getKind == ``Parser.Term.dotIdent then
       let namedArgsNew ← namedArgs.mapM fun
         -- We must ensure that `ref[1]` remains original to allow named-argument hints
-        | { ref, name, val := Arg.stx arg, .. } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
+        | { ref, val := Arg.stx arg, .. } => withRef ref do return ref.setArg 3 (← collect arg)
         | _ => unreachable!
       let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
       if ellipsis then
@@ -378,16 +385,16 @@ where
       finalize ctx
     else
       let accessible := isNextArgAccessible ctx
-      let (d, ctx)   := getNextParam ctx
-      match ctx.namedArgs.findFinIdx? fun namedArg => namedArg.name == d.1 with
+      let ((paramIdx, paramExplicitCount, paramName, paramInfo), ctx) := getNextParam ctx
+      match (← findNamedArgFinIdx? paramIdx paramExplicitCount paramInfo.isExplicit paramName ctx.namedArgs) with
       | some idx =>
         let arg := ctx.namedArgs[idx]
         let ctx := { ctx with namedArgs := ctx.namedArgs.eraseIdx idx
-                              usedNames := ctx.usedNames.insert arg.name }
+                              usedNames := ctx.usedNames.insert paramName }
         let ctx ← pushNewArg accessible ctx arg.val
         processCtorAppContext ctx
       | none =>
-        let ctx ← match d.2 with
+        let ctx ← match paramInfo with
           | BinderInfo.implicit       => processImplicitArg accessible ctx
           | BinderInfo.strictImplicit => processImplicitArg accessible ctx
           | BinderInfo.instImplicit   => processImplicitArg accessible ctx

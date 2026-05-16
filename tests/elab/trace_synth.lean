@@ -29,8 +29,6 @@ trace: [Meta.synthInstance] ❌️ Foo "two"
     [Meta.synthInstance] ✅️ no instances for Foo "three"
       [Meta.synthInstance.instances] #[]
   [Meta.synthInstance] result <not-available>
-[Meta.synthInstance] ❌️ Foo "two"
-  [Meta.synthInstance] result <not-available> (cached)
 -/
 #guard_msgs in
 set_option trace.Meta.synthInstance true in
@@ -44,8 +42,6 @@ trace: [Meta.synthInstance] ❌️ Foo "three"
   [Meta.synthInstance] ✅️ no instances for Foo "three"
     [Meta.synthInstance.instances] #[]
   [Meta.synthInstance] result <not-available>
-[Meta.synthInstance] ❌️ Foo "three"
-  [Meta.synthInstance] result <not-available> (cached)
 -/
 #guard_msgs in
 set_option trace.Meta.synthInstance true in

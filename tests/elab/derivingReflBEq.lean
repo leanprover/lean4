@@ -62,6 +62,13 @@ error: failed to synthesize instance of type class
   BEq Foo
 
 Hint: Adding the command `deriving instance BEq for RegularBEq.Foo` may allow Lean to derive the missing instance.
+---
+error: failed to synthesize instance of type class
+  BEq Foo
+
+Hint: Adding the command `deriving instance BEq for RegularBEq.Foo` may allow Lean to derive the missing instance.
+---
+error: `simp` made no progress
 -/
 #guard_msgs in
 structure Foo where
@@ -163,6 +170,13 @@ error: failed to synthesize instance of type class
   BEq Foo
 
 Hint: Adding the command `deriving instance BEq for LinearBEq.Foo` may allow Lean to derive the missing instance.
+---
+error: failed to synthesize instance of type class
+  BEq Foo
+
+Hint: Adding the command `deriving instance BEq for LinearBEq.Foo` may allow Lean to derive the missing instance.
+---
+error: `simp` made no progress
 -/
 #guard_msgs in
 structure Foo where

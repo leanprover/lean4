@@ -1208,42 +1208,47 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
   let type := instMVarDecl.type
   let type ← instantiateMVars type
   let result ← trySynthInstance type maxResultSize?
+  withConfig (fun config => { config with isDefEqStuckEx := true }) do
   match result with
   | LOption.some val =>
     if (← instMVar.isAssigned) then
-      let oldVal ← instantiateMVars (mkMVar instMVar)
-      unless (← isDefEq oldVal val) do
-        if (← containsPendingMVar oldVal <||> containsPendingMVar val) then
-          /- If `val` or `oldVal` contains metavariables directly or indirectly (e.g., in a let-declaration),
-             we return `false` to indicate we should try again later. This is very coarse grain since
-             the metavariable may not be responsible for the failure. We should refine the test in the future if needed.
-             This check has been added to address dependencies between postponed metavariables. The following
-             example demonstrates the issue fixed by this test.
-             ```
-               structure Point where
-                 x : Nat
-                 y : Nat
+      catchInternalId isDefEqStuckExceptionId
+        (do
+          let oldVal ← instantiateMVars (mkMVar instMVar)
+          unless (← isDefEq oldVal val) do
+            if (← containsPendingMVar oldVal <||> containsPendingMVar val) then
+              /- If `val` or `oldVal` contains metavariables directly or indirectly (e.g., in a let-declaration),
+                we return `false` to indicate we should try again later. This is very coarse grain since
+                the metavariable may not be responsible for the failure. We should refine the test in the future if needed.
+                This check has been added to address dependencies between postponed metavariables. The following
+                example demonstrates the issue fixed by this test.
+                ```
+                  structure Point where
+                    x : Nat
+                    y : Nat
 
-               def Point.compute (p : Point) : Point :=
-                 let p := { p with x := 1 }
-                 let p := { p with y := 0 }
-                 if (p.x - p.y) > p.x then p else p
-             ```
-             The `isDefEq` test above fails for `Decidable (p.x - p.y ≤ p.x)` when the structure instance assigned to
-             `p` has not been elaborated yet.
-           -/
-          return false -- we will try again later
-        let oldValType ← inferType oldVal
-        let valType ← inferType val
-        unless (← isDefEq oldValType valType) do
-          let (oldValType, valType) ← addPPExplicitToExposeDiff oldValType valType
-          throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}{extraErrorMsg}"
-        let (oldVal, val) ← addPPExplicitToExposeDiff oldVal val
-        throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}{extraErrorMsg}"
+                  def Point.compute (p : Point) : Point :=
+                    let p := { p with x := 1 }
+                    let p := { p with y := 0 }
+                    if (p.x - p.y) > p.x then p else p
+                ```
+                The `isDefEq` test above fails for `Decidable (p.x - p.y ≤ p.x)` when the structure instance assigned to
+                `p` has not been elaborated yet.
+              -/
+              return false -- we will try again later
+            let oldValType ← inferType oldVal
+            let valType ← inferType val
+            unless (← isDefEq oldValType valType) do
+              let (oldValType, valType) ← addPPExplicitToExposeDiff oldValType valType
+              throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}{extraErrorMsg}"
+            let (oldVal, val) ← addPPExplicitToExposeDiff oldVal val
+            throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}{extraErrorMsg}"
+          return true)
+        (fun _ => pure false)
     else
       unless (← isDefEq (mkMVar instMVar) val) do
         throwError "failed to assign synthesized type class instance{indentExpr val}{extraErrorMsg}"
-    return true
+      return true
   | .undef => return false -- we will try later
   | .none  =>
     if (← read).ignoreTCFailures then

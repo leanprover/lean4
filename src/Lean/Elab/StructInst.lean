@@ -1069,7 +1069,7 @@ private def processField (loop : StructInstM α) (field : ExpandedField) (fieldT
             {← mkHasTypeButIsExpectedMsg eType fieldType}"
         addStructFieldAux field.name e
       catch ex =>
-        if (← readThe Term.Context).errToSorry then
+        if (← readThe Term.Context).errToSorry && ex matches .error .. then
           let e ← exceptionToSorry ex fieldType
           addStructFieldAux field.name e
         else

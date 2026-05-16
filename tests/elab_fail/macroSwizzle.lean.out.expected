@@ -2,6 +2,7 @@ macroSwizzle.lean:4:7-4:23: error(lean.synthInstanceFailed): failed to synthesiz
   HAdd Bool String ?m
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
+true + "s" : ?m
 macroSwizzle.lean:6:7-6:10: error: Application type mismatch: The argument
   "x"
 has type

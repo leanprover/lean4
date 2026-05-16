@@ -130,7 +130,38 @@ failed to synthesize instance of type class
   HAdd.{0, 0, ?u} Nat Bool ?m
 
 Hint: Type class instance resolution failures can be inspected with the `set_option trace.Meta.synthInstance true` command.
-@HAdd.hAdd.{0, 0, u_1} Nat Bool ?m ?m (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) Bool.true : ?m
+@HAdd.hAdd.{0, 0, u_1} Nat Bool ?m
+  (sorryAx.{u_1 + 1} ((tag : Unit) → HAdd.{0, 0, u_1} Nat Bool ?m) Bool.true
+    (@Function.const.{1, 1} Unit Lean.Name Unit.unit
+      (Lean.Name.num
+        (Lean.Name.str
+          (Lean.Name.str
+            (Lean.Name.num
+              (Lean.Name.str
+                (Lean.Name.str
+                  (Lean.Name.str
+                    (Lean.Name.str
+                      (Lean.Name.num
+                        (Lean.Name.num
+                          (Lean.Name.num
+                            (Lean.Name.num
+                              (Lean.Name.num
+                                (Lean.Name.num (Lean.Name.str (Lean.Name.str Lean.Name.anonymous "elab") "newfrontend1")
+                                  (@OfNat.ofNat.{0} Nat (nat_lit 307) (instOfNatNat (nat_lit 307))))
+                                (@OfNat.ofNat.{0} Nat (nat_lit 15) (instOfNatNat (nat_lit 15))))
+                              (@OfNat.ofNat.{0} Nat (nat_lit 307) (instOfNatNat (nat_lit 307))))
+                            (@OfNat.ofNat.{0} Nat (nat_lit 23) (instOfNatNat (nat_lit 23))))
+                          (@OfNat.ofNat.{0} Nat (nat_lit 15) (instOfNatNat (nat_lit 15))))
+                        (@OfNat.ofNat.{0} Nat (nat_lit 23) (instOfNatNat (nat_lit 23))))
+                      "_sorry")
+                    "_@")
+                  "elab")
+                "newfrontend1")
+              (@OfNat.ofNat.{0} Nat (nat_lit 201360788) (instOfNatNat (nat_lit 201360788))))
+            "_hygCtx")
+          "_hyg")
+        (@OfNat.ofNat.{0} Nat (nat_lit 9) (instOfNatNat (nat_lit 9))))))
+  (@OfNat.ofNat.{0} Nat (nat_lit 1) (instOfNatNat (nat_lit 1))) Bool.true : ?m
 fun x => x + 1 : Nat → Nat
 fun α a => a : (α : Sort u_1) → α → α
 @tst1 : {α : Type} → α → α

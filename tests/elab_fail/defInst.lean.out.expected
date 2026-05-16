@@ -3,7 +3,7 @@ defInst.lean:8:26-8:32: error(lean.synthInstanceFailed): failed to synthesize in
   BEq Foo
 
 Hint: Adding the command `deriving instance BEq for Foo` may allow Lean to derive the missing instance.
-fun x y => sorry : (x y : Foo) → ?m x y
+fun x y => x == y : Foo → Foo → Bool
 [4, 5, 6]
 fun x y => x == y : Foo → Foo → Bool
 [("hello", "hello")]

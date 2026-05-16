@@ -90,7 +90,8 @@ theorem inv_eq_zero_iff {a : α} : a⁻¹ = 0 ↔ a = 0 := by
     · subst h
       rfl
     · have := congrArg (fun x => x * a) w
-      dsimp at this
+      -- TODO(kmill): remove after stage0 update
+      try dsimp at this
       rw [Semiring.zero_mul, inv_mul_cancel h] at this
       exfalso
       exact zero_ne_one this.symm

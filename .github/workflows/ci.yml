@@ -264,29 +264,8 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                // usually not a bottleneck so make exclusive to `fast-ci`
-                "os": large && fast ? chonk : "ubuntu-latest",
-                "release": true,
-                // Special handling for release jobs. We want:
-                // 1. To run it in PRs so developers get PR toolchains (so secondary without tests is sufficient)
-                // 2. To skip it in merge queues as it takes longer than the
-                //    Linux lake build and adds little value in the merge queue
-                // 3. To run it in release (obviously)
-                // 4. To run it for pushes to master so that pushes to master have a Linux toolchain
-                //    available as an artifact for Grove to use.
-                "enabled": isPr || level != 1 || isPushToMaster,
-                "test": level >= 1,
-                "secondary": level == 0,
-                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-                "binary-check": "ldd -v",
-                // foreign code may be linked against more recent glibc
-                "CTEST_OPTIONS": "-E 'foreign'",
-              },
-              {
-                "name": "Linux Lake",
                 "os": large ? chonk : "ubuntu-latest",
+                "release": true,
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
                 // Done as part of test-bench
@@ -294,8 +273,16 @@ jobs:
                 "test": true,
                 // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
                 "test-bench": large && level >= 2,
-                // We are not warning-free yet on all platforms, start here
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
+                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
+                "binary-check": "ldd -v",
+                // We are not warning-free yet on all platforms, start with Linux
+                // Do not (yet) use Lake cache on release
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (level < 3 ? " -DUSE_LAKE_CACHE=ON" : ""),
+                "lake-actions-cache": level < 3,
+                // foreign code may be linked against more recent glibc
+                "CTEST_OPTIONS": "-E 'foreign'",
               },
               {
                 "name": "Linux Lake (Cached)",
@@ -366,7 +353,9 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
-                // See "Linux release" for release job levels; Grove is not a concern here
+                // Run in PRs so developers get PR toolchains (so secondary without tests is sufficient);
+                // skip in merge queues as it takes longer than the Linux release build and adds little
+                // value in the merge queue; run in release (obviously)
                 "enabled": isPr || level != 1,
                 "test": level >= 1,
                 "secondary": level == 0,

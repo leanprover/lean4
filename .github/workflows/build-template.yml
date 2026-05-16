@@ -101,7 +101,7 @@ jobs:
           # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
+            ${{ matrix.lake-actions-cache && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
             build/stage1/**/*.ir
@@ -188,7 +188,7 @@ jobs:
           # NOTE: must be in sync with `restore` above
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
+            ${{ matrix.lake-actions-cache && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
             build/stage1/**/*.ir
@@ -199,7 +199,7 @@ jobs:
         name: Upload Lake Cache
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
-        if: matrix.name == 'Linux Lake' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        if: matrix.name == 'Linux release' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           curl --version
           cd src

@@ -24,6 +24,12 @@ The reference definitions in `Init.Data.BitVec.Basic` (e.g. `BitVec.ofBoolListLE
 clean for proofs but not tail-recursive, and stack-overflow on lists with ~1M elements.
 This file provides asymptotically faster, non-stack-using implementations selected at
 runtime via `@[csimp]`.
+
+The strategy is to pack bits in 64-bit chunks (`packChunk`, `collectChunks`) and combine
+the chunks with a balanced tree merge (`mergePass`, `treeMerge`), giving O(n log n) work
+and O(1) stack usage. Correctness goes through the list-level spec function `flattenList`,
+which gives the intended `Nat` semantics of a list of `(value, width)` pairs. Every step
+is an unconditional `Nat` identity, so no well-formedness invariant is needed.
 -/
 
 namespace BitVec.Internal
@@ -79,23 +85,19 @@ where
     else
       go n (mergePass arr)
 
+/-- A single bit becomes a width-1 `(value, width)` leaf. -/
+def leaf (b : Bool) : Nat × Nat := (b.toNat, 1)
+
 /-- Tail-recursive implementation of `BitVec.ofBoolListLE`. -/
 public def ofBoolListLEImpl (bs : List Bool) : BitVec bs.length :=
-  let chunks := collectChunks bs.length bs (Array.mkEmpty ((bs.length + 63) / 64))
-  BitVec.ofNat bs.length (treeMerge chunks)
+  BitVec.ofNat bs.length
+    (treeMerge (collectChunks bs.length bs (Array.mkEmpty ((bs.length + 63) / 64))))
 
 /-- Tail-recursive implementation of `BitVec.ofBoolListBE`: reverse, then LE. -/
 public def ofBoolListBEImpl (bs : List Bool) : BitVec bs.length :=
   (ofBoolListLEImpl bs.reverse).cast List.length_reverse
 
 /-! ### Helpers -/
-
-theorem two_pow_le_of_le {a b : Nat} (h : a ≤ b) : 2^a ≤ 2^b :=
-  Nat.pow_le_pow_right (by decide) h
-
-theorem one_shiftLeft_lt_two_pow_succ (i : Nat) : (1 : Nat) <<< i < 2 ^ (i + 1) := by
-  rw [Nat.shiftLeft_eq, Nat.one_mul]
-  exact Nat.pow_lt_pow_succ (by decide)
 
 /-- If `a ≤ 2^(k+1)` then `(a + 1) / 2 ≤ 2^k`. Used for the `mergePass` halving step. -/
 theorem half_le_pow_of_le_double {a k : Nat} (h : a ≤ 2^(k+1)) :
@@ -104,149 +106,17 @@ theorem half_le_pow_of_le_double {a k : Nat} (h : a ≤ 2^(k+1)) :
   generalize 2^k = m at *
   omega
 
-theorem step_lt (b : Bool) {c i : Nat} (h : c < 2^i) :
-    (if b then c ||| (1 <<< i) else c) < 2^(i+1) := by
-  cases b
-  case false => exact Nat.lt_of_lt_of_le h (two_pow_le_of_le (Nat.le_succ i))
-  case true =>
-    apply Nat.or_lt_two_pow
-    · exact Nat.lt_of_lt_of_le h (two_pow_le_of_le (Nat.le_succ i))
-    · exact one_shiftLeft_lt_two_pow_succ i
-
-theorem testBit_step_at (b : Bool) {c i : Nat} (h : c < 2^i) :
-    (if b then c ||| (1 <<< i) else c).testBit i = b := by
-  have hci : c.testBit i = false := Nat.testBit_lt_two_pow h
-  cases b
-  case false => simp [hci]
-  case true =>
-    rw [if_pos rfl, Nat.testBit_or, Nat.testBit_shiftLeft]
-    simp [hci]
-
-theorem testBit_step_lo (b : Bool) {c i j : Nat} (hji : j < i) :
-    (if b then c ||| (1 <<< i) else c).testBit j = c.testBit j := by
-  cases b
-  case false => rfl
-  case true =>
-    rw [if_pos rfl, Nat.testBit_or, Nat.testBit_shiftLeft]
-    have : ¬ i ≤ j := Nat.not_le_of_lt hji
-    simp [this]
-
-/-! ### packChunk invariants -/
-
-theorem packChunk_used (bs : List Bool) (r c u : Nat) :
-    (packChunk bs r c u).2.1 = u + min bs.length r := by
-  induction bs generalizing r c u with
-  | nil => simp [packChunk]
-  | cons b bs ih =>
-    cases r with
-    | zero => simp [packChunk]
-    | succ r =>
-      simp only [packChunk, List.length_cons]
-      rw [ih]; omega
-
-theorem packChunk_rest (bs : List Bool) (r c u : Nat) :
-    (packChunk bs r c u).2.2 = bs.drop (min bs.length r) := by
-  induction bs generalizing r c u with
-  | nil => simp [packChunk]
-  | cons b bs ih =>
-    cases r with
-    | zero => simp [packChunk]
-    | succ r =>
-      simp only [packChunk, List.length_cons]
-      rw [ih]
-      have hmin : min (bs.length + 1) (r + 1) = min bs.length r + 1 := by omega
-      rw [hmin]; rfl
-
-theorem packChunk_lt (bs : List Bool) (r c u : Nat) (h : c < 2^u) :
-    (packChunk bs r c u).1 < 2^(u + min bs.length r) := by
-  induction bs generalizing r c u with
-  | nil => simpa [packChunk] using h
-  | cons b bs ih =>
-    cases r with
-    | zero => simpa [packChunk] using h
-    | succ r =>
-      simp only [packChunk, List.length_cons]
-      have hrw : u + 1 + min bs.length r = u + min (bs.length + 1) (r + 1) := by omega
-      have step := step_lt b h
-      have ih' := ih (r := r) (c := if b then c ||| (1 <<< u) else c) (u := u + 1) step
-      rw [← hrw]; exact ih'
-
-theorem packChunk_testBit_lo (bs : List Bool) (r c u j : Nat) (hju : j < u) :
-    (packChunk bs r c u).1.testBit j = c.testBit j := by
-  induction bs generalizing r c u with
-  | nil => simp [packChunk]
-  | cons b bs ih =>
-    cases r with
-    | zero => simp [packChunk]
-    | succ r =>
-      simp only [packChunk]
-      have hju1 : j < u + 1 := Nat.lt_succ_of_lt hju
-      rw [ih (r := r) (c := if b then c ||| (1 <<< u) else c) (u := u + 1) hju1]
-      exact testBit_step_lo b hju
-
-theorem packChunk_testBit_mid (bs : List Bool) (r c u j : Nat)
-    (hc : c < 2^u) (hjr : j < min bs.length r) :
-    (packChunk bs r c u).1.testBit (u + j) = bs.getD j false := by
-  induction bs generalizing r c u j with
-  | nil => simp at hjr
-  | cons b bs ih =>
-    cases r with
-    | zero => simp at hjr
-    | succ r =>
-      simp only [packChunk]
-      by_cases hj0 : j = 0
-      · subst hj0
-        simp only [Nat.add_zero, List.getD_cons_zero]
-        rw [packChunk_testBit_lo bs r _ (u+1) u (Nat.lt_succ_self u)]
-        exact testBit_step_at b hc
-      · have hjm1 : j - 1 < min bs.length r := by
-          simp only [List.length_cons] at hjr; omega
-        have heq : u + 1 + (j - 1) = u + j := by omega
-        have hcons : (b :: bs).getD j false = bs.getD (j - 1) false := by
-          rw [show j = (j - 1) + 1 from by omega]
-          exact List.getD_cons_succ
-        have step := step_lt b hc
-        have ih' := ih (r := r) (c := if b then c ||| (1 <<< u) else c) (u := u + 1)
-          (j := j - 1) step hjm1
-        rw [heq] at ih'
-        rw [ih', hcons]
-
-/-- The chunk produced from initial state `(c=0, u=0)` is well-formed. -/
-theorem packChunk_init_lt (bs : List Bool) (r : Nat) :
-    (packChunk bs r 0 0).1 < 2^((packChunk bs r 0 0).2.1) := by
-  rw [packChunk_used]
-  exact packChunk_lt bs r 0 0 (by simp)
-
-theorem packChunk_init_testBit (bs : List Bool) (r j : Nat) (hjr : j < min bs.length r) :
-    (packChunk bs r 0 0).1.testBit j = bs.getD j false := by
-  have := packChunk_testBit_mid bs r 0 0 j (by simp) hjr
-  simpa using this
-
 /-! ### flattenList spec function -/
 
+/-- The `Nat` denoted by a list of `(value, width)` pairs: concatenate the bit-fields. -/
 def flattenList : List (Nat × Nat) → Nat
   | [] => 0
   | (v, w) :: rest => v ||| (flattenList rest <<< w)
 
+/-- The total bit-width of a list of `(value, width)` pairs. -/
 def totalWidth : List (Nat × Nat) → Nat
   | [] => 0
   | (_, w) :: rest => w + totalWidth rest
-
-def WellFormedList (xs : List (Nat × Nat)) : Prop :=
-  ∀ p ∈ xs, p.1 < 2^p.2
-
-theorem WellFormedList.nil : WellFormedList [] := by
-  intro p hp; simp at hp
-
-theorem WellFormedList.tail {p : Nat × Nat} {rest : List (Nat × Nat)}
-    (h : WellFormedList (p :: rest)) : WellFormedList rest :=
-  fun q hq => h q (List.mem_cons_of_mem _ hq)
-
-theorem WellFormedList.head {p : Nat × Nat} {rest : List (Nat × Nat)}
-    (h : WellFormedList (p :: rest)) : p.1 < 2^p.2 :=
-  h p List.mem_cons_self
-
-/-! ### Append lemmas -/
 
 theorem totalWidth_append (xs ys : List (Nat × Nat)) :
     totalWidth (xs ++ ys) = totalWidth xs + totalWidth ys := by
@@ -271,32 +141,9 @@ theorem flattenList_append (xs ys : List (Nat × Nat)) :
 theorem flattenList_singleton (v w : Nat) : flattenList [(v, w)] = v := by
   simp [flattenList]
 
-theorem flattenList_lt (xs : List (Nat × Nat)) (h : WellFormedList xs) :
-    flattenList xs < 2^(totalWidth xs) := by
-  induction xs with
-  | nil => simp [flattenList, totalWidth]
-  | cons p rest ih =>
-    obtain ⟨v, w⟩ := p
-    simp only [flattenList, totalWidth]
-    have hp : v < 2^w := h.head
-    have hrest : WellFormedList rest := h.tail
-    have ih' := ih hrest
-    apply Nat.or_lt_two_pow
-    · exact Nat.lt_of_lt_of_le hp (two_pow_le_of_le (Nat.le_add_right _ _))
-    · rw [Nat.shiftLeft_eq]
-      have hmul : flattenList rest * 2^w < 2^(totalWidth rest) * 2^w :=
-        Nat.mul_lt_mul_of_pos_right ih' (Nat.two_pow_pos w)
-      have heq : 2^(totalWidth rest) * 2^w = 2^(w + totalWidth rest) := by
-        rw [← Nat.pow_add]; congr 1; omega
-      rw [heq] at hmul; exact hmul
-
-theorem testBit_flattenList_high (xs : List (Nat × Nat)) (h : WellFormedList xs)
-    (n : Nat) (hn : totalWidth xs ≤ n) :
-    (flattenList xs).testBit n = false :=
-  Nat.testBit_lt_two_pow (Nat.lt_of_lt_of_le (flattenList_lt xs h) (two_pow_le_of_le hn))
-
 /-! ### List-level mergePass -/
 
+/-- The list-level specification of one `mergePass`. -/
 def mergePassList : List (Nat × Nat) → List (Nat × Nat)
   | (lo, lb) :: (hi, hb) :: rest =>
     (lo ||| (hi <<< lb), lb + hb) :: mergePassList rest
@@ -315,64 +162,22 @@ theorem mergePassList_length (xs : List (Nat × Nat)) :
     simp only [mergePassList, List.length_cons]
     rw [mergePassList_length rest]; omega
 
-theorem mergePassList_wellFormed : ∀ (xs : List (Nat × Nat)),
-    WellFormedList xs → WellFormedList (mergePassList xs)
-  | [], _ => WellFormedList.nil
-  | [p], h => h
-  | (lo, lb) :: (hi, hb) :: rest, h => by
-    have h_lo : lo < 2^lb := h (lo, lb) (by simp)
-    have h_hi : hi < 2^hb := h (hi, hb) (by simp)
-    have hrest : WellFormedList rest := fun q hq => h q (by simp [hq])
-    have ihx := mergePassList_wellFormed rest hrest
-    intro p hp
-    simp only [mergePassList, List.mem_cons] at hp
-    rcases hp with rfl | hp
-    · apply Nat.or_lt_two_pow
-      · exact Nat.lt_of_lt_of_le h_lo (two_pow_le_of_le (Nat.le_add_right _ _))
-      · rw [Nat.shiftLeft_eq]
-        have hmul : hi * 2^lb < 2^hb * 2^lb :=
-          Nat.mul_lt_mul_of_pos_right h_hi (Nat.two_pow_pos lb)
-        have heq : 2^hb * 2^lb = 2^(lb + hb) := by
-          rw [← Nat.pow_add]; congr 1; omega
-        rw [heq] at hmul; exact hmul
-    · exact ihx p hp
-
-theorem flattenList_pack (lo lb hi hb : Nat) (rest : List (Nat × Nat))
-    (h_lo : lo < 2^lb) :
+/-- Merging two adjacent fields is associativity of `|||` after distributing `<<<`. -/
+theorem flattenList_pack (lo lb hi hb : Nat) (rest : List (Nat × Nat)) :
     (lo ||| (hi <<< lb)) ||| (flattenList rest <<< (lb + hb))
       = lo ||| ((hi ||| (flattenList rest <<< hb)) <<< lb) := by
-  apply Nat.eq_of_testBit_eq
-  intro j
-  simp only [Nat.testBit_or, Nat.testBit_shiftLeft]
-  by_cases hjlb : lb ≤ j
-  · have hlo_j : lo.testBit j = false :=
-      Nat.testBit_lt_two_pow (Nat.lt_of_lt_of_le h_lo (two_pow_le_of_le hjlb))
-    rw [hlo_j]
-    simp only [Bool.false_or, hjlb, decide_true, Bool.true_and]
-    by_cases hjlbhb : lb + hb ≤ j
-    · simp only [hjlbhb, decide_true, Bool.true_and]
-      have hhi_le : hb ≤ j - lb := by omega
-      simp only [hhi_le, decide_true, Bool.true_and]
-      have heq : j - (lb + hb) = j - lb - hb := by omega
-      rw [heq]
-    · simp only [hjlbhb, decide_false, Bool.false_and, Bool.or_false]
-      have hhi_le : ¬ hb ≤ j - lb := by omega
-      simp only [hhi_le, decide_false, Bool.false_and, Bool.or_false]
-  · have hge2 : ¬ lb + hb ≤ j := by omega
-    simp [hjlb, hge2]
+  rw [Nat.shiftLeft_or_distrib, ← Nat.shiftLeft_add, Nat.add_comm hb lb, Nat.or_assoc]
 
 theorem flattenList_mergePassList : ∀ (xs : List (Nat × Nat)),
-    WellFormedList xs → flattenList (mergePassList xs) = flattenList xs
-  | [], _ => rfl
-  | [_], _ => rfl
-  | (lo, lb) :: (hi, hb) :: rest, h => by
-    have h_lo : lo < 2^lb := h (lo, lb) (by simp)
-    have hrest : WellFormedList rest := fun q hq => h q (by simp [hq])
+    flattenList (mergePassList xs) = flattenList xs
+  | [] => rfl
+  | [_] => rfl
+  | (lo, lb) :: (hi, hb) :: rest => by
     simp only [mergePassList, flattenList]
-    rw [flattenList_mergePassList rest hrest]
-    exact flattenList_pack lo lb hi hb rest h_lo
+    rw [flattenList_mergePassList rest]
+    exact flattenList_pack lo lb hi hb rest
 
-/-! ### Bridge Array `mergePass` ↔ List `mergePassList` -/
+/-! ### Relate Array `mergePass` to List `mergePassList` -/
 
 theorem mergePass_go_toList_aux (arr : Array (Nat × Nat)) :
     ∀ (n i : Nat) (acc : Array (Nat × Nat)), arr.size - i ≤ n →
@@ -460,7 +265,7 @@ theorem toList_size_zero {arr : Array (Nat × Nat)} (h : arr.size = 0) :
   apply Array.eq_empty_of_size_eq_zero h
 
 theorem treeMerge_go_eq_flattenList (n : Nat) (arr : Array (Nat × Nat))
-    (h : WellFormedList arr.toList) (hsize : arr.size ≤ 2^n) :
+    (hsize : arr.size ≤ 2^n) :
     treeMerge.go n arr = flattenList arr.toList := by
   induction n generalizing arr with
   | zero =>
@@ -486,149 +291,116 @@ theorem treeMerge_go_eq_flattenList (n : Nat) (arr : Array (Nat × Nat))
         have h0z : arr.size = 0 := by clear hsize; omega
         rw [toList_size_zero h0z]; rfl
     · simp only [hle, ↓reduceDIte]
-      have hwf' : WellFormedList (mergePass arr).toList := by
-        rw [mergePass_toList]; exact mergePassList_wellFormed _ h
       have hsize' : (mergePass arr).size ≤ 2^k := by
         rw [mergePass_size]; exact half_le_pow_of_le_double hsize
-      rw [ih _ hwf' hsize', mergePass_toList]
-      exact flattenList_mergePassList arr.toList h
+      rw [ih _ hsize', mergePass_toList]
+      exact flattenList_mergePassList arr.toList
 
-theorem treeMerge_eq_flattenList (arr : Array (Nat × Nat))
-    (h : WellFormedList arr.toList) :
+theorem treeMerge_eq_flattenList (arr : Array (Nat × Nat)) :
     treeMerge arr = flattenList arr.toList := by
   unfold treeMerge
-  exact treeMerge_go_eq_flattenList _ _ h (Nat.le_of_lt Nat.lt_two_pow_self)
+  exact treeMerge_go_eq_flattenList _ _ (Nat.le_of_lt Nat.lt_two_pow_self)
+
+/-! ### Leaf list correctness -/
+
+theorem totalWidth_map_leaf (bs : List Bool) : totalWidth (bs.map leaf) = bs.length := by
+  induction bs with
+  | nil => rfl
+  | cons b bs ih => simp only [List.map_cons, totalWidth, leaf, List.length_cons]; omega
+
+theorem testBit_flattenList_leaves (bs : List Bool) (i : Nat) :
+    (flattenList (bs.map leaf)).testBit i = bs.getD i false := by
+  induction bs generalizing i with
+  | nil => simp [flattenList]
+  | cons b bs ih =>
+    simp only [List.map_cons, flattenList, leaf, Nat.testBit_or, Nat.testBit_shiftLeft]
+    cases i with
+    | zero => cases b <;> simp
+    | succ j =>
+      have hb : b.toNat.testBit (j+1) = false := by cases b <;> simp [Nat.testBit_succ]
+      rw [Nat.add_sub_cancel, ih, hb]
+      simp
+
+/-! ### packChunk correctness -/
+
+theorem packChunk_used (bs : List Bool) (r c u : Nat) :
+    (packChunk bs r c u).2.1 = u + (bs.take r).length := by
+  induction bs generalizing r c u with
+  | nil => simp [packChunk]
+  | cons b bs ih =>
+    cases r with
+    | zero => simp [packChunk]
+    | succ r =>
+      simp only [packChunk, List.take_succ_cons, List.length_cons]
+      rw [ih]; omega
+
+theorem packChunk_rest (bs : List Bool) (r c u : Nat) :
+    (packChunk bs r c u).2.2 = bs.drop r := by
+  induction bs generalizing r c u with
+  | nil => simp [packChunk]
+  | cons b bs ih =>
+    cases r with
+    | zero => simp [packChunk]
+    | succ r =>
+      simp only [packChunk, List.drop_succ_cons]
+      exact ih r (if b then c ||| (1 <<< u) else c) (u + 1)
+
+/-- The chunk value built by `packChunk` is the `flattenList` of the consumed bits as leaves,
+shifted into place above `used`. -/
+theorem packChunk_eq (bs : List Bool) (r c u : Nat) :
+    (packChunk bs r c u).1 = c ||| (flattenList ((bs.take r).map leaf) <<< u) := by
+  induction bs generalizing r c u with
+  | nil => simp [packChunk, flattenList]
+  | cons b bs ih =>
+    cases r with
+    | zero => simp [packChunk, flattenList]
+    | succ r =>
+      simp only [packChunk, List.take_succ_cons, List.map_cons, flattenList, leaf]
+      rw [ih]
+      have hstep : (if b then c ||| (1 <<< u) else c) = c ||| (b.toNat <<< u) := by
+        cases b <;> simp
+      rw [hstep, Nat.shiftLeft_or_distrib, ← Nat.shiftLeft_add, Nat.add_comm 1 u, Nat.or_assoc]
 
 /-! ### collectChunks correctness -/
 
-theorem collectChunks_wellFormed (fuel : Nat) (bs : List Bool) (acc : Array (Nat × Nat))
-    (hacc : WellFormedList acc.toList) :
-    WellFormedList (collectChunks fuel bs acc).toList := by
+/-- The `flattenList` value of the chunks produced by `collectChunks`. -/
+theorem flattenList_collectChunks (fuel : Nat) (bs : List Bool) (acc : Array (Nat × Nat))
+    (hfuel : bs.length ≤ 64 * fuel) :
+    flattenList (collectChunks fuel bs acc).toList
+      = flattenList acc.toList ||| (flattenList (bs.map leaf) <<< totalWidth acc.toList) := by
   induction fuel generalizing bs acc with
   | zero =>
-    cases bs with
-    | nil => simpa [collectChunks] using hacc
-    | cons _ _ => simpa [collectChunks] using hacc
+    have hbs : bs = [] := List.length_eq_zero_iff.mp (by omega)
+    subst hbs
+    simp [collectChunks, flattenList]
   | succ k ih =>
     cases bs with
-    | nil => simpa [collectChunks] using hacc
+    | nil => simp [collectChunks, flattenList]
     | cons b bs =>
-      simp only [collectChunks]
-      apply ih
-      rw [Array.toList_push]
-      intro p hp
-      rcases List.mem_append.mp hp with hp' | hp'
-      · exact hacc p hp'
-      · simp at hp'
-        rw [hp']
-        exact packChunk_init_lt (b :: bs) 64
-
-/-- The strengthened spec for `collectChunks`. -/
-theorem testBit_flattenList_collectChunks_aux
-    (fuel : Nat) (bs : List Bool) (acc : Array (Nat × Nat))
-    (hfuel : bs.length ≤ fuel) (hacc : WellFormedList acc.toList) (i : Nat) :
-    (flattenList (collectChunks fuel bs acc).toList).testBit i =
-      if i < totalWidth acc.toList
-      then (flattenList acc.toList).testBit i
-      else bs.getD (i - totalWidth acc.toList) false := by
-  induction fuel generalizing bs acc with
-  | zero =>
-    have hbs_nil : bs = [] := List.length_eq_zero_iff.mp (by omega)
-    subst hbs_nil
-    simp only [collectChunks]
-    by_cases hi : i < totalWidth acc.toList
-    · simp [hi]
-    · simp only [hi, ↓reduceIte, List.getD_nil]
-      exact testBit_flattenList_high _ hacc _ (Nat.le_of_not_lt hi)
-  | succ k ih =>
-    cases bs with
-    | nil =>
-      simp only [collectChunks]
-      by_cases hi : i < totalWidth acc.toList
-      · simp [hi]
-      · simp only [hi, ↓reduceIte, List.getD_nil]
-        exact testBit_flattenList_high _ hacc _ (Nat.le_of_not_lt hi)
-    | cons b bs =>
-      simp only [collectChunks]
-      -- Use a `let` for the packed pieces; but to avoid `set`'s issues, work with explicit values.
-      have hused_eq : (packChunk (b :: bs) 64 0 0).2.1 = min (b :: bs).length 64 := by
-        rw [packChunk_used]; simp
-      have hused_pos : 0 < (packChunk (b :: bs) 64 0 0).2.1 := by
-        rw [hused_eq]; simp [List.length_cons]; omega
-      have hrest_eq : (packChunk (b :: bs) 64 0 0).2.2 = (b :: bs).drop ((packChunk (b :: bs) 64 0 0).2.1) := by
-        rw [packChunk_rest, hused_eq]
-      have hchunk_lt : (packChunk (b :: bs) 64 0 0).1 < 2^((packChunk (b :: bs) 64 0 0).2.1) :=
-        packChunk_init_lt _ _
-      -- new acc well-formedness
-      have hacc' : WellFormedList
-          (acc.push ((packChunk (b :: bs) 64 0 0).1, (packChunk (b :: bs) 64 0 0).2.1)).toList := by
-        rw [Array.toList_push]
-        intro p hp
-        rcases List.mem_append.mp hp with hp' | hp'
-        · exact hacc p hp'
-        · simp at hp'; rw [hp']; exact hchunk_lt
-      -- rest length is ≤ k for IH
-      have hrest_len : (packChunk (b :: bs) 64 0 0).2.2.length ≤ k := by
-        rw [hrest_eq, List.length_drop, hused_eq]
-        clear hchunk_lt
+      have hchunk : (packChunk (b :: bs) 64 0 0).1
+          = flattenList (((b :: bs).take 64).map leaf) := by
+        rw [packChunk_eq]; simp
+      have hused : (packChunk (b :: bs) 64 0 0).2.1 = ((b :: bs).take 64).length := by
+        simp [packChunk_used]
+      have hrest : (packChunk (b :: bs) 64 0 0).2.2 = (b :: bs).drop 64 :=
+        packChunk_rest (b :: bs) 64 0 0
+      have hrest_len : ((b :: bs).drop 64).length ≤ 64 * k := by
+        rw [List.length_drop]
         simp only [List.length_cons] at hfuel ⊢
         omega
-      -- totalWidth after push
-      have htw_push :
-          totalWidth (acc.push ((packChunk (b :: bs) 64 0 0).1, (packChunk (b :: bs) 64 0 0).2.1)).toList
-          = totalWidth acc.toList + (packChunk (b :: bs) 64 0 0).2.1 := by
-        rw [Array.toList_push, totalWidth_append]
-        simp [totalWidth]
-      -- flattenList after push
-      have hflat_push :
-          flattenList (acc.push ((packChunk (b :: bs) 64 0 0).1, (packChunk (b :: bs) 64 0 0).2.1)).toList
-          = flattenList acc.toList |||
-              ((packChunk (b :: bs) 64 0 0).1 <<< totalWidth acc.toList) := by
-        rw [Array.toList_push, flattenList_append, flattenList_singleton]
-      -- Apply IH
-      have ih' := ih (packChunk (b :: bs) 64 0 0).2.2
-        (acc.push ((packChunk (b :: bs) 64 0 0).1, (packChunk (b :: bs) 64 0 0).2.1)) hrest_len hacc'
-      rw [ih', htw_push]
-      -- Three-way case split on i
-      by_cases h1 : i < totalWidth acc.toList
-      · have h1' : i < totalWidth acc.toList + (packChunk (b :: bs) 64 0 0).2.1 := by
-          have := hused_pos; omega
-        simp only [h1, ↓reduceIte, h1', ↓reduceIte]
-        rw [hflat_push, Nat.testBit_or, Nat.testBit_shiftLeft]
-        have hge : ¬ totalWidth acc.toList ≤ i := Nat.not_le_of_lt h1
-        simp [hge]
-      · have hge : totalWidth acc.toList ≤ i := Nat.le_of_not_lt h1
-        simp only [h1, ↓reduceIte]
-        by_cases h2 : i < totalWidth acc.toList + (packChunk (b :: bs) 64 0 0).2.1
-        · simp only [h2, ↓reduceIte]
-          rw [hflat_push, Nat.testBit_or]
-          rw [testBit_flattenList_high _ hacc _ hge, Bool.false_or]
-          rw [Nat.testBit_shiftLeft]
-          simp only [hge, decide_true, Bool.true_and]
-          have hjr : i - totalWidth acc.toList < min (b :: bs).length 64 := by
-            rw [← hused_eq]; omega
-          exact packChunk_init_testBit (b :: bs) 64 (i - totalWidth acc.toList) hjr
-        · have h2' : ¬ i < totalWidth acc.toList + (packChunk (b :: bs) 64 0 0).2.1 := h2
-          simp only [h2', ↓reduceIte]
-          -- bridge: (rest).getD (i - (tw + used)) false = (b :: bs).getD (i - tw) false
-          rw [hrest_eq]
-          rw [List.getD_eq_getElem?_getD, List.getD_eq_getElem?_getD]
-          rw [List.getElem?_drop]
-          congr 2
-          omega
-
-theorem testBit_flattenList_collectChunks (bs : List Bool) (i : Nat) :
-    (flattenList ((collectChunks bs.length bs
-        (Array.mkEmpty ((bs.length + 63) / 64))).toList)).testBit i = bs.getD i false := by
-  have hempty :
-      ((Array.mkEmpty ((bs.length + 63) / 64) : Array (Nat × Nat))).toList = [] := by
-    simp [Array.mkEmpty_eq]
-  have hwf : WellFormedList ((Array.mkEmpty ((bs.length + 63) / 64) :
-      Array (Nat × Nat))).toList := by
-    rw [hempty]; exact WellFormedList.nil
-  rw [testBit_flattenList_collectChunks_aux _ _ _ (Nat.le_refl _) hwf]
-  rw [hempty]
-  simp [totalWidth]
+      -- unfold one step, rewrite the chunk pieces, and apply the inductive hypothesis
+      simp only [collectChunks]
+      rw [hchunk, hused, hrest, ih ((b :: bs).drop 64) _ hrest_len]
+      rw [Array.toList_push, flattenList_append, flattenList_singleton, totalWidth_append]
+      simp only [totalWidth, Nat.add_zero]
+      -- split the bit list into its first 64 bits and the rest
+      have hsplit : (b :: bs).map leaf
+          = ((b :: bs).take 64).map leaf ++ ((b :: bs).drop 64).map leaf := by
+        rw [← List.map_append, List.take_append_drop]
+      rw [hsplit, flattenList_append, totalWidth_map_leaf]
+      exact flattenList_pack (flattenList acc.toList) (totalWidth acc.toList)
+        (flattenList (((b :: bs).take 64).map leaf)) ((b :: bs).take 64).length
+        (((b :: bs).drop 64).map leaf)
 
 /-! ### Main correctness theorems -/
 
@@ -637,14 +409,12 @@ theorem getLsbD_ofBoolListLEImpl (bs : List Bool) (i : Nat) (hi : i < bs.length)
   unfold ofBoolListLEImpl
   rw [getLsbD_ofNat]
   simp only [hi, decide_true, Bool.true_and]
-  have hwf : WellFormedList ((collectChunks bs.length bs
-      (Array.mkEmpty ((bs.length + 63) / 64))).toList) := by
-    apply collectChunks_wellFormed
-    rw [show ((Array.mkEmpty ((bs.length + 63) / 64) :
-      Array (Nat × Nat))).toList = [] from by simp [Array.mkEmpty_eq]]
-    exact WellFormedList.nil
-  rw [treeMerge_eq_flattenList _ hwf]
-  exact testBit_flattenList_collectChunks bs i
+  rw [treeMerge_eq_flattenList, flattenList_collectChunks _ _ _ (by omega)]
+  have hempty : ((Array.mkEmpty ((bs.length + 63) / 64) : Array (Nat × Nat))).toList = [] := by
+    simp [Array.mkEmpty_eq]
+  rw [hempty]
+  simp only [flattenList, totalWidth, Nat.zero_or, Nat.shiftLeft_zero]
+  exact testBit_flattenList_leaves bs i
 
 theorem getLsbD_ofBoolListBEImpl (bs : List Bool) (i : Nat) (hi : i < bs.length) :
     (ofBoolListBEImpl bs).getLsbD i =

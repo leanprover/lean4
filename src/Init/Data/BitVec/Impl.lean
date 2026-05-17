@@ -149,10 +149,6 @@ def mergePassList : List (Nat × Nat) → List (Nat × Nat)
     (lo ||| (hi <<< lb), lb + hb) :: mergePassList rest
   | rest => rest
 
-theorem mergePassList_nil : mergePassList [] = [] := rfl
-
-theorem mergePassList_singleton (p : Nat × Nat) : mergePassList [p] = [p] := rfl
-
 theorem mergePassList_length (xs : List (Nat × Nat)) :
     (mergePassList xs).length = (xs.length + 1) / 2 := by
   match xs with
@@ -193,7 +189,7 @@ theorem mergePass_go_toList_aux (arr : Array (Nat × Nat)) :
     simp only [hi_neg, ↓reduceDIte, hi_neg2, ↓reduceDIte]
     have hdrop : arr.toList.drop i = [] :=
       List.drop_of_length_le (by simpa using hge)
-    rw [hdrop, mergePassList_nil, List.append_nil]
+    simp [hdrop, mergePassList]
   | succ k ih =>
     intro i acc hbound
     rw [mergePass.go]
@@ -226,11 +222,12 @@ theorem mergePass_go_toList_aux (arr : Array (Nat × Nat)) :
             List.drop_of_length_le (by simp; omega)
           rw [h_step1, h_step2]
           simp
-        rw [hdrop, mergePassList_singleton, Array.toList_push]
+        rw [hdrop, Array.toList_push]
+        simp [mergePassList]
       · simp only [h2, ↓reduceDIte]
         have hdrop : arr.toList.drop i = [] :=
           List.drop_of_length_le (by simpa using Nat.le_of_not_lt h2)
-        rw [hdrop, mergePassList_nil, List.append_nil]
+        simp [hdrop, mergePassList]
 
 theorem mergePass_go_toList (arr : Array (Nat × Nat)) (i : Nat) (acc : Array (Nat × Nat)) :
     (mergePass.go arr i acc).toList = acc.toList ++ mergePassList (arr.toList.drop i) :=
@@ -244,25 +241,18 @@ theorem mergePass_toList (arr : Array (Nat × Nat)) :
 
 theorem mergePass_size (arr : Array (Nat × Nat)) :
     (mergePass arr).size = (arr.size + 1) / 2 := by
-  rw [show (mergePass arr).size = (mergePass arr).toList.length from by simp]
-  rw [mergePass_toList, mergePassList_length]
-  simp
+  simpa [mergePassList_length] using congrArg List.length (mergePass_toList arr)
 
 /-! ### treeMerge correctness -/
 
 theorem toList_size_one {arr : Array (Nat × Nat)} (h : arr.size = 1) :
     arr.toList = [arr[0]] := by
-  apply List.ext_getElem (by simp [h])
-  intro i hi1 hi2
-  simp only [List.length_singleton] at hi2
-  have : i = 0 := by omega
-  subst this
-  simp
+  obtain ⟨p, rfl⟩ := Array.size_eq_one_iff.mp h
+  rfl
 
 theorem toList_size_zero {arr : Array (Nat × Nat)} (h : arr.size = 0) :
-    arr.toList = [] := by
-  rw [Array.toList_eq_nil_iff]
-  apply Array.eq_empty_of_size_eq_zero h
+    arr.toList = [] :=
+  List.length_eq_zero_iff.mp (by simp [h])
 
 theorem treeMerge_go_eq_flattenList (n : Nat) (arr : Array (Nat × Nat))
     (hsize : arr.size ≤ 2^n) :
@@ -304,9 +294,7 @@ theorem treeMerge_eq_flattenList (arr : Array (Nat × Nat)) :
 /-! ### Leaf list correctness -/
 
 theorem totalWidth_map_leaf (bs : List Bool) : totalWidth (bs.map leaf) = bs.length := by
-  induction bs with
-  | nil => rfl
-  | cons b bs ih => simp only [List.map_cons, totalWidth, leaf, List.length_cons]; omega
+  induction bs <;> simp [totalWidth, leaf, *] <;> omega
 
 theorem testBit_flattenList_leaves (bs : List Bool) (i : Nat) :
     (flattenList (bs.map leaf)).testBit i = bs.getD i false := by
@@ -328,22 +316,14 @@ theorem packChunk_used (bs : List Bool) (r c u : Nat) :
   induction bs generalizing r c u with
   | nil => simp [packChunk]
   | cons b bs ih =>
-    cases r with
-    | zero => simp [packChunk]
-    | succ r =>
-      simp only [packChunk, List.take_succ_cons, List.length_cons]
-      rw [ih]; omega
+    cases r <;> simp [packChunk, ih] <;> omega
 
 theorem packChunk_rest (bs : List Bool) (r c u : Nat) :
     (packChunk bs r c u).2.2 = bs.drop r := by
   induction bs generalizing r c u with
   | nil => simp [packChunk]
   | cons b bs ih =>
-    cases r with
-    | zero => simp [packChunk]
-    | succ r =>
-      simp only [packChunk, List.drop_succ_cons]
-      exact ih r (if b then c ||| (1 <<< u) else c) (u + 1)
+    cases r <;> simp [packChunk, ih]
 
 /-- The chunk value built by `packChunk` is the `flattenList` of the consumed bits as leaves,
 shifted into place above `used`. -/
@@ -410,11 +390,7 @@ theorem getLsbD_ofBoolListLEImpl (bs : List Bool) (i : Nat) (hi : i < bs.length)
   rw [getLsbD_ofNat]
   simp only [hi, decide_true, Bool.true_and]
   rw [treeMerge_eq_flattenList, flattenList_collectChunks _ _ _ (by omega)]
-  have hempty : ((Array.mkEmpty ((bs.length + 63) / 64) : Array (Nat × Nat))).toList = [] := by
-    simp [Array.mkEmpty_eq]
-  rw [hempty]
-  simp only [flattenList, totalWidth, Nat.zero_or, Nat.shiftLeft_zero]
-  exact testBit_flattenList_leaves bs i
+  simp [Array.mkEmpty_eq, flattenList, totalWidth, testBit_flattenList_leaves]
 
 theorem getLsbD_ofBoolListBEImpl (bs : List Bool) (i : Nat) (hi : i < bs.length) :
     (ofBoolListBEImpl bs).getLsbD i =

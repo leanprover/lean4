@@ -635,7 +635,7 @@ The pure function mapping a range iterator of type {name}`IterM` to the next ste
 This function is prefixed with {lit}`Monadic` in order to disambiguate it from the version for iterators
 of type {name}`Iter`.
 -/
-@[inline, instance_reducible]
+@[inline, implicit_reducible]
 def Iterator.Monadic.step [UpwardEnumerable α] [LT α] [DecidableLT α]
     (it : IterM (α := Rxo.Iterator α) Id α) :
     IterStep (IterM (α := Rxo.Iterator α) Id α) α :=

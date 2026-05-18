@@ -20,17 +20,17 @@ test_run env printenv LEAN_GITHASH
 test_run env printenv LEAN_SYSROOT
 test_out "ar" env printenv LEAN_AR
 test_run env printenv LEAN_PATH
-test_out "hello" -d ../../examples/hello env printenv LEAN_PATH
+test_out "hello" -d hello env printenv LEAN_PATH
 test_out "lake" env printenv LEAN_SRC_PATH
-test_out "hello" -d ../../examples/hello env printenv LEAN_SRC_PATH
-test_out "hello" -d ../../examples/hello env printenv PATH
-LAKE_CACHE_DIR= test_out "hello" -d ../../examples/hello env printenv PATH
+test_out "hello" -d hello env printenv LEAN_SRC_PATH
+test_out "hello" -d hello env printenv PATH
+LAKE_CACHE_DIR= test_out "hello" -d hello env printenv PATH
 
 # Test other variables are set
 test_eq "false" env printenv LAKE_NO_CACHE
 
 # Test that a workspace always sets the cache directory
-LAKE_CACHE_DIR= test_run env -d ../../examples/hello env printenv LAKE_CACHE_DIR
+LAKE_CACHE_DIR= test_run env -d hello env printenv LAKE_CACHE_DIR
 
 # Test that `env` preserves the input environment for certain variables
 echo "# TEST: Setting variables for lake env"
@@ -48,7 +48,7 @@ LEAN_CC=foo test_eq "foo" env printenv LEAN_CC
 LAKE_ARTIFACT_CACHE=true test_eq "true" env printenv LAKE_ARTIFACT_CACHE
 LAKE_ARTIFACT_CACHE=false test_eq "false" env printenv LAKE_ARTIFACT_CACHE
 LAKE_ARTIFACT_CACHE= test_eq "" env printenv LAKE_ARTIFACT_CACHE
-LAKE_ARTIFACT_CACHE= test_eq "" -d ../../examples/hello env printenv LAKE_ARTIFACT_CACHE
+LAKE_ARTIFACT_CACHE= test_eq "" -d hello env printenv LAKE_ARTIFACT_CACHE
 LAKE_ARTIFACT_CACHE= test_eq "true" -f enableArtifactCache.toml env printenv LAKE_ARTIFACT_CACHE
 LAKE_ARTIFACT_CACHE= test_eq "false" -f disableArtifactCache.toml env printenv LAKE_ARTIFACT_CACHE
 test_cmd rm lake-manifest.json
@@ -69,11 +69,11 @@ elif [ "$UNAME" = Darwin ]; then
 # https://apple.stackexchange.com/questions/212945/unable-to-set-dyld-fallback-library-path-in-shell-on-osx-10-11-1
 set -x
 $LAKE env | grep DYLD_LIBRARY_PATH | grep --color lib/lean
-$LAKE -d ../../examples/hello env | grep DYLD_LIBRARY_PATH | grep --color examples/hello
+$LAKE -d hello env | grep DYLD_LIBRARY_PATH | grep --color tests/env/hello
 set +x
 else
 test_out "lib/lean" env printenv LD_LIBRARY_PATH
-test_out "examples/hello" -d ../../examples/hello env printenv LD_LIBRARY_PATH
+test_out "tests/env/hello" -d hello env printenv LD_LIBRARY_PATH
 fi
 
 # Cleanup

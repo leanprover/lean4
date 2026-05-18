@@ -23,6 +23,15 @@ def hash : TransparencyMode → UInt64
 
 instance : Hashable TransparencyMode := ⟨hash⟩
 
+protected def toString : TransparencyMode → String
+  | all       => "all"
+  | default   => "default"
+  | reducible => "reducible"
+  | instances => "instances"
+  | none      => "none"
+
+instance : ToString TransparencyMode := ⟨TransparencyMode.toString⟩
+
 def lt : TransparencyMode → TransparencyMode → Bool
   | _,         none      => false
   | none,      _         => true

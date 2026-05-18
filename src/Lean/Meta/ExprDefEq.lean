@@ -79,6 +79,11 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
   not just instance-implicit ones"
 }
 
+register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
+  defValue := false
+  descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
+}
+
 /--
   Return `true` if `e` is of the form `fun (x_1 ... x_n) => ?m y_1 ... y_k)`, and `?m` is unassigned.
   Remark: `n`, `k` may be 0.
@@ -2270,7 +2275,11 @@ private def whnfCoreAtDefEq (e : Expr) : MetaM Expr := do
 set_option compiler.ignoreBorrowAnnotation true in
 @[export lean_is_expr_def_eq]
 partial def isExprDefEqAuxImpl (t : Expr) (s : Expr) : MetaM Bool := withIncRecDepth do
-  withTraceNodeBefore `Meta.isDefEq (fun _ => return m!"{t} =?= {s}") do
+  withTraceNodeBefore `Meta.isDefEq (fun _ => do
+    if trace.Meta.isDefEq.printTransparency.get (← getOptions) then
+      return m!"[{toString (← getTransparency)}] {t} =?= {s}"
+    else
+      return m!"{t} =?= {s}") do
   checkSystem "isDefEq"
   whenUndefDo (isDefEqQuick t s) do
   whenUndefDo (isDefEqProofIrrel t s) do
@@ -2360,5 +2369,6 @@ builtin_initialize
   registerTraceClass `Meta.isDefEq.assign.occursCheck (inherited := true)
   registerTraceClass `Meta.isDefEq.assign.readOnlyMVarWithBiggerLCtx (inherited := true)
   registerTraceClass `Meta.isDefEq.eta.struct
+  registerTraceClass `Meta.isDefEq.transparency (inherited := true)
 
 end Lean.Meta

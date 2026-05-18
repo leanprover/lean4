@@ -42,5 +42,7 @@ This gadget is supported by
 It is ineffective in other positions (hypotheses of rewrite rules) or when used by other tactics
 (e.g. `apply`).
 -/
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, there is a failure in `tests/elab/binderNameHintSimp.lean` if we make this change. -/
 @[simp ↓, expose, instance_reducible]
 def binderNameHint {α : Sort u} {β : Sort v} {γ : Sort w} (v : α) (binder : β) (e : γ) : γ := e

@@ -1753,6 +1753,8 @@ Addition of natural numbers, typically used via the `+` operator.
 This function is overridden in both the kernel and the compiler to efficiently evaluate using the
 arbitrary-precision arithmetic library. The definition provided here is the logical model.
 -/
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, there is a failure in `tests/elab/whnfProj.lean` if we make this change. -/
 @[extern "lean_nat_add", instance_reducible]
 protected def Nat.add : (@& Nat) → (@& Nat) → Nat
   | a, Nat.zero   => a
@@ -1772,6 +1774,8 @@ Multiplication of natural numbers, usually accessed via the `*` operator.
 This function is overridden in both the kernel and the compiler to efficiently evaluate using the
 arbitrary-precision arithmetic library. The definition provided here is the logical model.
 -/
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, there is a failure in `Init/Grind/Ring/Basic.lean` if we make this change. -/
 @[extern "lean_nat_mul", instance_reducible]
 protected def Nat.mul : (@& Nat) → (@& Nat) → Nat
   | _, 0          => 0
@@ -2103,6 +2107,8 @@ Examples:
 * `8 - 8 = 0`
 * `8 - 20 = 0`
 -/
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, there is a failure in `Init/Data/BitVec/Lemmas.lean` if we make this change. -/
 @[extern "lean_nat_sub", instance_reducible]
 protected def Nat.sub : (@& Nat) → (@& Nat) → Nat
   | a, 0      => a
@@ -3024,6 +3030,8 @@ Examples:
  * `([] : List String).length = 0`
  * `["green", "brown"].length = 2`
 -/
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, there is a failure in `tests/elab/implicit_reducible_list_length.lean` if we make this change. -/
 @[instance_reducible] def List.length : List α → Nat
   | nil       => 0
   | cons _ as => HAdd.hAdd (length as) 1
@@ -3234,6 +3242,8 @@ This is a cached value, so it is `O(1)` to access. The space allocated for an ar
 its _capacity_, is at least as large as its size, but may be larger. The capacity of an array is an
 internal detail that's not observable by Lean code.
 -/
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, there is a failure in `Init/Data/List/MapIdx.lean` if we make this change. -/
 @[extern "lean_array_get_size", tagged_return, instance_reducible]
 def Array.size {α : Type u} (a : @& Array α) : Nat :=
  a.toList.length

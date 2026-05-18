@@ -59,6 +59,8 @@ Runs a computation in the identity monad.
 This function is the identity function. Because its parameter has type `Id α`, it causes
 `do`-notation in its arguments to use the `Monad Id` instance.
 -/
+/- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
+Currently, there is a failure in `Init/Data/Iterators/Lemmas/Consumers/Loop.lean` if we make this change. -/
 @[always_inline, inline, expose, instance_reducible]
 protected def run (x : Id α) : α := x
 

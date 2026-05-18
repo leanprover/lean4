@@ -47,6 +47,7 @@ def mkAttrKindGlobal : Syntax :=
   mkNode ``Lean.Parser.Term.attrKind #[mkNullNode]
 
 def elabAttr [Monad m] [i : MonadOnlyEnv m] [MonadResolveName m] [MonadError m] [MonadMacroAdapter m] [MonadRecDepth m] [MonadTrace m] [MonadOptions m] [AddMessageContext m] [MonadLiftT IO m] [MonadFinally m] (attrInstance : Syntax) : m Attribute := do
+  have := i.monadEnv
   -- Resolving the attribute itself can be done in the private scope; running the attribute handler
   -- will later be done in a scope determined by `applyAttributesCore`.
   withoutExporting do
@@ -59,7 +60,6 @@ def elabAttr [Monad m] [i : MonadOnlyEnv m] [MonadResolveName m] [MonadError m] 
     else match attr.getKind with
       | .str _ s => pure <| Name.mkSimple s
       | _ => throwErrorAt attr  "Unknown attribute"
-  have := i.monadEnv
     let .ok _impl := getAttributeImpl (← getEnv) attrName
       | throwError "Unknown attribute `[{attrName}]`"
     if let .ok impl := getAttributeImpl (← getEnv) attrName then

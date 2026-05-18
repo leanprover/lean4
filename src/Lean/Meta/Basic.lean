@@ -213,7 +213,8 @@ private def Config.toKey (c : Config) : UInt64 :=
   (c.univApprox.toUInt64 <<< 16) |||
   (c.etaStruct.toUInt64 <<< 17) |||
   (c.proj.toUInt64 <<< 19) |||
-  (c.zetaHave.toUInt64 <<< 21)
+  (c.zetaHave.toUInt64 <<< 21) |||
+  (c.zetaUnused.toUInt64 <<< 22)
 
 /-- Configuration with key produced by `Config.toKey`. -/
 structure ConfigWithKey where

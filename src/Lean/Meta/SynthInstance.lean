@@ -239,9 +239,7 @@ def getInstances (type : Expr) : MetaM (Array Instance) := do
       trace[Meta.synthInstance.instances] result.map (·.val)
       return result
 
-def mkGeneratorNode? (key mvar : Expr) : MetaM (Option GeneratorNode) := do
-  let mvarType  ← inferType mvar
-  let mvarType  ← instantiateMVars mvarType
+def mkGeneratorNode? (key mvar mvarType : Expr) : MetaM (Option GeneratorNode) := do
   let instances ← getInstances mvarType
   if instances.isEmpty then
     return none
@@ -256,9 +254,9 @@ def mkGeneratorNode? (key mvar : Expr) : MetaM (Option GeneratorNode) := do
 /--
   Create a new generator node for `mvar` and add `waiter` as its waiter.
   `key` must be `mkTableKey mctx mvarType`. -/
-def newSubgoal (mctx : MetavarContext) (key : Expr) (mvar : Expr) (waiter : Waiter) : SynthM Unit :=
-  withMCtx mctx do withTraceNode' `Meta.synthInstance do
-    match (← mkGeneratorNode? key mvar) with
+def newSubgoal (key : Expr) (mvar mvarType : Expr) (waiter : Waiter) : SynthM Unit :=
+  withTraceNode' `Meta.synthInstance do
+    match (← mkGeneratorNode? key mvar mvarType) with
     | none      => pure ((), m!"no instances for {key}")
     | some node =>
       let entry : TableEntry := { waiters := #[waiter] }
@@ -281,10 +279,7 @@ def getEntry (key : Expr) : SynthM TableEntry := do
   That is, we create a key for the type of the metavariable.
 
   We must instantiate assigned metavariables before we invoke `mkTableKey`. -/
-def mkTableKeyFor (mctx : MetavarContext) (mvar : Expr) : SynthM Expr :=
-  withMCtx mctx do
-    let mvarType ← inferType mvar
-    let mvarType ← instantiateMVars mvarType
+def mkTableKeyFor (mvarType : Expr) : SynthM Expr :=
     mkTableKey mvarType
 
 /-- See `getSubgoals` and `getSubgoalsAux`
@@ -420,7 +415,6 @@ private def mkAnswer (cNode : ConsumerNode) : MetaM Answer :=
   That is, `cNode.subgoals == []`.
   And then, store it in the tabled entries map, and wakeup waiters. -/
 def addAnswer (cNode : ConsumerNode) : SynthM Unit := do
-  withMCtx cNode.mctx do
   if cNode.size ≥ (← read).maxResultSize then
     trace[Meta.synthInstance.answer] "{crossEmoji} {← instantiateMVars (← inferType cNode.mvar)}{Format.line}(size: {cNode.size} ≥ {(← read).maxResultSize})"
   else
@@ -466,9 +460,7 @@ private def hasUnusedArguments : Expr → Bool
   just get it as normal, but if not first remove all unused arguments producing `E'`. Now we look up the table again but
   for `E'`. If it exists, use the transformer to create E. If it does not exists, create a new goal `E'`.
 -/
-private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM (Option (Expr × Expr)) :=
-  withMCtx mctx do
-    let mvarType ← instantiateMVars (← inferType mvar)
+private def removeUnusedArguments? (mvarType : Expr) : MetaM (Option (Expr × Expr)) := do
     if !hasUnusedArguments mvarType then
       return none
     else
@@ -488,7 +480,7 @@ private def removeUnusedArguments? (mctx : MetavarContext) (mvar : Expr) : MetaM
           return some (mvarType', transformer)
 
 /-- Process the next subgoal in the given consumer node. -/
-def consume (cNode : ConsumerNode) : SynthM Unit := do
+def consume (cNode : ConsumerNode) : SynthM Unit := withMCtx cNode.mctx do
   /- Filter out subgoals that have already been assigned when solving typing constraints.
     This may happen when a local instance type depends on other local instances.
     For example, in Mathlib, we have
@@ -501,28 +493,26 @@ def consume (cNode : ConsumerNode) : SynthM Unit := do
     ```
   -/
   let cNode := { cNode with
-    subgoals := ← withMCtx cNode.mctx do
-      cNode.subgoals.filterM (not <$> ·.mvarId!.isAssigned)
+    subgoals := ← cNode.subgoals.filterM (not <$> ·.mvarId!.isAssigned)
   }
   match cNode.subgoals with
   | []      => addAnswer cNode
   | mvar::_ =>
+     let mvarType ← instantiateMVars (← inferType mvar)
      let waiter := Waiter.consumerNode cNode
-     let key ← mkTableKeyFor cNode.mctx mvar
+     let key ← mkTableKeyFor mvarType
      let entry? ← findEntry? key
      match entry? with
      | none       =>
        -- Remove unused arguments and try again, see comment at `removeUnusedArguments?`
-       match (← removeUnusedArguments? cNode.mctx mvar) with
-       | none => newSubgoal cNode.mctx key mvar waiter
+       match (← removeUnusedArguments? mvarType) with
+       | none => newSubgoal key mvar mvarType waiter
        | some (mvarType', transformer) =>
-         let key' ← withMCtx cNode.mctx <| mkTableKey mvarType'
+         let key' ← mkTableKey mvarType'
          match (← findEntry? key') with
          | none =>
-           let (mctx', mvar') ← withMCtx cNode.mctx do
-             let mvar' ← mkFreshExprMVar mvarType'
-             return (← getMCtx, mvar')
-           newSubgoal mctx' key' mvar' (Waiter.consumerNode { cNode with mctx := mctx', subgoals := mvar'::cNode.subgoals })
+           let mvar' ← mkFreshExprMVar mvarType'
+           newSubgoal key' mvar' mvarType' (Waiter.consumerNode { cNode with mctx := (← getMCtx), subgoals := mvar'::cNode.subgoals })
          | some entry' =>
            let answers' ← entry'.answers.mapM fun a => withMCtx cNode.mctx do
              let trAnswr := Expr.betaRev transformer #[← instantiateMVars a.result.expr]
@@ -634,7 +624,7 @@ def main (type : Expr) (maxResultSize : Nat) : MetaM (Option AbstractMVarsResult
      let mvar ← mkFreshExprMVar type
      let key  ← mkTableKey type
      let action : SynthM (Option AbstractMVarsResult) := do
-       newSubgoal (← getMCtx) key mvar Waiter.root
+       newSubgoal key mvar type Waiter.root
        synth
      tryCatchRuntimeEx
        (action.run { maxResultSize := maxResultSize, maxHeartbeats := getMaxHeartbeats (← getOptions) } |>.run' {})

@@ -123,8 +123,11 @@ mimalloc, so there we always use `m_cs_sz`; reusing it for the deletion list is 
 we do not need the size after an object has been marked for deletion (see `lean_free_small_object`).
 
 During deallocation and 64-bit machines, the fields `m_rc` and `m_cs_sz` store the next object in the deletion TODO list.
-These two fields together have 48-bits, and this is enough for modern computers.
+These two fields together have 48-bits, and this is enough for most modern computers.
 In 32-bit machines, the field `m_rc` is sufficient.
+Note that as a result, this code is not compatible with ARM MTE or HWASAN,
+which use extra pointer bits which do not fit (https://github.com/leanprover/lean4/issues/13113).
+
 
 The field `m_other` is used to store the number of fields in a constructor object and the element size in a scalar array.
 */

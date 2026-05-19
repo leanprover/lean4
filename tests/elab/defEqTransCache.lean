@@ -75,6 +75,6 @@ axiom test {α} (i : B α) : unfold_head i.toA.x
 -- Previously, in this example the unification failed,
 -- because some metavariable assignment wasn't reverted properly
 -- However, it is clearly the case that `(i.toA.map f).x` is the same as `i.toA.x`
-example (i : B α) (f : α → β) : (i.toA.map f).x := by
+noncomputable example (i : B α) (f : α → β) : (i.toA.map f).x := by
   apply @test
 end test3

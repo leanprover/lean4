@@ -626,6 +626,12 @@ declaration signatures.
 @[builtin_command_parser] def dumpAsyncEnvState := leading_parser
   "#dump_async_env_state"
 /--
+Parses the string literal that follows after as a command and produces a trace for the parsing
+process.
+-/
+@[builtin_command_parser] def traceParseCommand := leading_parser
+  "#trace_parse_command " >> strLit
+/--
 Mark a syntax kind as deprecated. When this syntax is elaborated, a warning will be emitted.
 
 ```

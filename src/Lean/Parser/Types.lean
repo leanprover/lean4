@@ -324,7 +324,7 @@ inductive ParserTrace where
   | result (stx : Syntax)
   | log (s : String)
   | cacheHit (key : ParserCacheKey) (res : ParserCacheEntry)
-  | error (msg : Error)
+  | error (msg : Error) (pos : String.Pos.Raw)
 
 structure ParserState where
   stxStack : SyntaxStack := .empty
@@ -438,7 +438,7 @@ def allErrors (s : ParserState) : Array (String.Pos.Raw × SyntaxStack × Error)
 def setError (s : ParserState) (e : Error) : ParserState :=
   match s with
   | ⟨stack, lhsPrec, pos, cache, _, errs, traces⟩ =>
-    ⟨stack, lhsPrec, pos, cache, some e, errs, pushTrace traces (.error e)⟩
+    ⟨stack, lhsPrec, pos, cache, some e, errs, pushTrace traces (.error e pos)⟩
 
 def mkError (s : ParserState) (msg : String) : ParserState :=
   s.setError { expected := [msg] } |>.pushSyntax .missing

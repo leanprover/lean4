@@ -722,6 +722,50 @@ where
     let env ← getEnv
     IO.eprintln (← env.dbgFormatAsyncState)
 
+open Lean Parser Elab Command
+private partial def logAsStructuredTrace (t : ParserTrace) (posStr : String.Pos.Raw → String) :
+    CommandElabM Unit := do
+  match t with
+  | .stop => pure ()
+  | .parser lhsPrec pos descr fail children =>
+    discard <| withTraceNode `debug (fun _ => return m!"Running `{descr}` at {posStr pos} with lhsPrec {lhsPrec}") do
+      for child in children do
+        logAsStructuredTrace child posStr
+      return !fail
+  | .cacheHit key entry =>
+    trace[debug] m!"Cache hit for {key.parserName} at {posStr key.pos}: {format entry.stx}"
+  | .log str => trace[debug] str
+  | .error err pos => trace[debug] "Error at {posStr pos}: {err.toString}"
+  | .result stx =>
+    trace[debug] m!"Syntax: {format stx}"
+
+@[builtin_command_elab Parser.Command.traceParseCommand] def elabTraceParseCommand : CommandElab := fun stx => do
+  let s := stx[1]
+  let str := s.isStrLit? |>.getD ""
+  let ictx := {
+    inputString := str
+    fileName := "input"
+    fileMap := .ofString str
+  }
+  let pmctx := {
+    env := ← getEnv
+    options := ← getOptions
+    currNamespace := ← getCurrNamespace
+    openDecls := ← getOpenDecls
+  }
+  let toks := getTokenTable (← getEnv)
+  let s := mkParserState str
+  let s := { s with traces := #[.stop] }
+  let s := (andthenFn whitespace topLevelCommandParserFn).run ictx pmctx toks s
+  let traces := s.traces
+  let posStr (pos : String.Pos.Raw) : String :=
+    let pos := ictx.fileMap.toPosition pos
+    s!"input:{pos.line}:{pos.column}"
+  withRef stx[0] do
+  withScope (fun scope => { scope with opts := scope.opts.setBool `trace.debug true }) do
+    for trace in traces do
+      logAsStructuredTrace trace posStr
+
 /-- Elaborate `deprecated_module`, marking the current module as deprecated. -/
 @[builtin_command_elab Parser.Command.deprecated_module]
 def elabDeprecatedModule : CommandElab

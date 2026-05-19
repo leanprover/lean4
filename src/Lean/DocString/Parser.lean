@@ -1309,7 +1309,7 @@ mutual
     let iniPos := s.pos
     let iniSz := s.stxStack.size
     let restorePosOnErr : ParserState → ParserState
-      | ⟨stack, lhsPrec, _, cache, some msg, errs⟩ => ⟨stack, lhsPrec, iniPos, cache, some msg, errs⟩
+      | ⟨stack, lhsPrec, _, cache, some msg, errs, traces⟩ => ⟨stack, lhsPrec, iniPos, cache, some msg, errs, traces⟩
       | other => other
     let s := eatSpaces c s
     if s.hasError then restorePosOnErr s

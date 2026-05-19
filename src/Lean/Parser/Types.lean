@@ -318,6 +318,14 @@ instance : HAppend SyntaxStack (Array Syntax) SyntaxStack where
 
 end SyntaxStack
 
+inductive ParserTrace where
+  | stop
+  | parser (lhsPrec : Nat) (pos : String.Pos.Raw) (descr : String) (failed : Bool) (children : Array ParserTrace)
+  | result (stx : Syntax)
+  | log (s : String)
+  | cacheHit (key : ParserCacheKey) (res : ParserCacheEntry)
+  | error (msg : Error)
+
 structure ParserState where
   stxStack : SyntaxStack := .empty
   /--
@@ -330,8 +338,40 @@ structure ParserState where
   cache    : ParserCache
   errorMsg : Option Error := none
   recoveredErrors : Array (String.Pos.Raw × SyntaxStack × Error) := #[]
+  traces : Array ParserTrace := #[]
 
 namespace ParserState
+
+@[expose, macro_inline]
+def pushTrace (a : Array ParserTrace) (trace : ParserTrace) : Array ParserTrace :=
+  if a.isEmpty then a else a.push trace
+
+@[expose, macro_inline]
+def trace (s : ParserState) (trace : ParserTrace) : ParserState :=
+  { s with traces := pushTrace s.traces trace }
+
+@[inline]
+def withTraceNode (s : ParserState) (descr : String) (f : ParserState → ParserState) : ParserState :=
+  if s.traces.isEmpty then
+    f s
+  else
+    let rec slow : ParserState :=
+      let lhsPrec := s.lhsPrec
+      let pos := s.pos
+      let s := { s with traces := s.traces.push .stop }
+      let s := f s
+      let rec findStop (i : Nat) (h : i ≤ s.traces.size) : ParserState :=
+        match i with
+        | 0 => dbg_trace "Could not find stop for {descr}"; s -- hmm, something seems to have gone wrong
+        | j + 1 =>
+          match s.traces[j] with
+          | .stop =>
+            let children := s.traces.drop i
+            let trace := .parser lhsPrec pos descr s.errorMsg.isSome children
+            { s with traces := (s.traces.shrink j).push trace }
+          | _ => findStop j (Nat.le_of_lt h)
+      findStop s.traces.size (Nat.le_refl _)
+    slow
 
 @[inline]
 def hasError (s : ParserState) : Bool :=
@@ -349,8 +389,8 @@ def restore (s : ParserState) (iniStackSz : Nat) (iniPos : String.Pos.Raw) : Par
 def setCache (s : ParserState) (cache : ParserCache) : ParserState :=
   { s with cache := cache }
 
-def pushSyntax (s : ParserState) (n : Syntax) : ParserState :=
-  { s with stxStack := s.stxStack.push n }
+def pushSyntax (s : ParserState) (n : Syntax) (silent := false) : ParserState :=
+  { s with stxStack := s.stxStack.push n, traces := if silent then s.traces else pushTrace s.traces (.result n) }
 
 def popSyntax (s : ParserState) : ParserState :=
   { s with stxStack := s.stxStack.pop }
@@ -366,7 +406,7 @@ def next' (s : ParserState) (c : ParserContext) (pos : String.Pos.Raw) (h : ¬ c
 
 def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, err, recovered⟩ =>
+  | ⟨stack, lhsPrec, pos, cache, err, recovered, traces⟩ =>
     if err != none && stack.size == iniStackSz then
       -- If there is an error but there are no new nodes on the stack, use `missing` instead.
       -- Thus we ensure the property that an syntax tree contains (at least) one `missing` node
@@ -376,20 +416,20 @@ def mkNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserSta
       -- `node k1 p1 <|> ... <|> node kn pn` when all parsers fail. With the code below we
       -- instead return a less misleading single `missing` node without randomly selecting any `ki`.
       let stack   := stack.push Syntax.missing
-      ⟨stack, lhsPrec, pos, cache, err, recovered⟩
+      ⟨stack, lhsPrec, pos, cache, err, recovered, traces⟩
     else
       let newNode := Syntax.node SourceInfo.none k (stack.extract iniStackSz stack.size)
       let stack   := stack.shrink iniStackSz
       let stack   := stack.push newNode
-      ⟨stack, lhsPrec, pos, cache, err, recovered⟩
+      ⟨stack, lhsPrec, pos, cache, err, recovered, traces⟩
 
 def mkTrailingNode (s : ParserState) (k : SyntaxNodeKind) (iniStackSz : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, err, errs⟩ =>
+  | ⟨stack, lhsPrec, pos, cache, err, errs, traces⟩ =>
     let newNode := Syntax.node SourceInfo.none k (stack.extract (iniStackSz - 1) stack.size)
     let stack   := stack.shrink (iniStackSz - 1)
     let stack   := stack.push newNode
-    ⟨stack, lhsPrec, pos, cache, err, errs⟩
+    ⟨stack, lhsPrec, pos, cache, err, errs, traces⟩
 
 def allErrors (s : ParserState) : Array (String.Pos.Raw × SyntaxStack × Error) :=
   s.recoveredErrors ++ (s.errorMsg.map (fun e => #[(s.pos, s.stxStack, e)])).getD #[]
@@ -397,7 +437,8 @@ def allErrors (s : ParserState) : Array (String.Pos.Raw × SyntaxStack × Error)
 @[inline]
 def setError (s : ParserState) (e : Error) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, _, errs⟩ => ⟨stack, lhsPrec, pos, cache, some e, errs⟩
+  | ⟨stack, lhsPrec, pos, cache, _, errs, traces⟩ =>
+    ⟨stack, lhsPrec, pos, cache, some e, errs, pushTrace traces (.error e)⟩
 
 def mkError (s : ParserState) (msg : String) : ParserState :=
   s.setError { expected := [msg] } |>.pushSyntax .missing
@@ -513,6 +554,14 @@ abbrev TrailingParser := Parser
 @[inline]
 def withFn (f : ParserFn → ParserFn) (p : Parser) : Parser := { p with fn := f p.fn }
 
+@[inline]
+def withTraceNodeFn (descr : String) (f : ParserFn) : ParserFn :=
+  fun c s => s.withTraceNode descr (f c)
+
+@[inline]
+def withTraceNode (descr : String) (p : Parser) : Parser :=
+  withFn (withTraceNodeFn descr) p
+
 def adaptCacheableContextFn (f : CacheableParserContext → CacheableParserContext) (p : ParserFn) : ParserFn := fun c s =>
   p { c with toCacheableParserContext := f c.toCacheableParserContext } s
 
@@ -550,9 +599,8 @@ place if there was an error.
 def withCacheFn (parserName : Name) (p : ParserFn) : ParserFn := fun c s => Id.run do
   let key := ⟨c.toCacheableParserContext, parserName, s.pos⟩
   if let some r := s.cache.parserCache[key]? then
-    -- TODO: turn this into a proper trace once we have these in the parser
-    --dbg_trace "parser cache hit: {parserName}:{s.pos} -> {r.stx}"
-    return ⟨s.stxStack.push r.stx, r.lhsPrec, r.newPos, s.cache, r.errorMsg, s.recoveredErrors⟩
+    let s := s.trace (.cacheHit key r)
+    return ⟨s.stxStack.push r.stx, r.lhsPrec, r.newPos, s.cache, r.errorMsg, s.recoveredErrors, s.traces⟩
   let initStackSz := s.stxStack.raw.size
   let s := withStackDrop initStackSz p c { s with lhsPrec := 0, errorMsg := none }
   if s.stxStack.raw.size != initStackSz + 1 then

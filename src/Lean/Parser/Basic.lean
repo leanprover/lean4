@@ -113,12 +113,12 @@ def andthen (p q : Parser) : Parser where
 instance : AndThen Parser where
   andThen a b := andthen a (b ())
 
-def nodeFn (n : SyntaxNodeKind) (p : ParserFn) : ParserFn := fun c s =>
+def nodeFn (n : SyntaxNodeKind) (p : ParserFn) : ParserFn := withTraceNodeFn s!"node {n}" fun c s =>
   let iniSz := s.stackSize
   let s     := p c s
   s.mkNode n iniSz
 
-def trailingNodeFn (n : SyntaxNodeKind) (p : ParserFn) : ParserFn := fun c s =>
+def trailingNodeFn (n : SyntaxNodeKind) (p : ParserFn) : ParserFn := withTraceNodeFn s!"trailingNode {n}" fun c s =>
   let iniSz := s.stackSize
   let s     := p c s
   s.mkTrailingNode n iniSz
@@ -210,9 +210,9 @@ def trailingNode (n : SyntaxNodeKind) (prec lhsPrec : Nat) (p : Parser) : Traili
 
 def mergeOrElseErrors (s : ParserState) (error1 : Error) (iniPos : String.Pos.Raw) (mergeErrors : Bool) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, some error2, errs⟩ =>
+  | ⟨stack, lhsPrec, pos, cache, some error2, errs, traces⟩ =>
     if pos == iniPos then
-      ⟨stack, lhsPrec, pos, cache, some (if mergeErrors then error1.merge error2 else error2), errs⟩
+      ⟨stack, lhsPrec, pos, cache, some (if mergeErrors then error1.merge error2 else error2), errs, traces⟩
     else s
   | other => other
 
@@ -263,7 +263,7 @@ def orelseFnCore (p q : ParserFn) (antiquotBehavior := OrElseOnAntiquotBehavior.
     s := pushAntiquots qBack s
     s.mkNode choiceKind iniSz
 
-def orelseFn (p q : ParserFn) : ParserFn :=
+def orelseFn (p q : ParserFn) : ParserFn := withTraceNodeFn "orElse" <|
   orelseFnCore p q
 
 @[noinline] def orelseInfo (p q : ParserInfo) : ParserInfo := {
@@ -293,10 +293,10 @@ instance : OrElse Parser where
   collectKinds  := info.collectKinds
 }
 
-def atomicFn (p : ParserFn) : ParserFn := fun c s =>
+def atomicFn (p : ParserFn) : ParserFn := withTraceNodeFn "atomic" fun c s =>
   let iniPos := s.pos
   match p c s with
-  | ⟨stack, lhsPrec, _, cache, some msg, errs⟩ => ⟨stack, lhsPrec, iniPos, cache, some msg, errs⟩
+  | ⟨stack, lhsPrec, _, cache, some msg, errs, traces⟩ => ⟨stack, lhsPrec, iniPos, cache, some msg, errs, traces⟩
   | other                       => other
 
 /-- The `atomic(p)` parser parses `p`, returns the same result as `p` and fails iff `p` fails,
@@ -322,18 +322,19 @@ If `recover` fails itself, then no recovery is performed.
 `recover` is provided with information about the failing parser's effects , and it is run in the
 state immediately after the failure.
 -/
-def recoverFn (p : ParserFn) (recover : RecoveryContext → ParserFn) : ParserFn := fun c s =>
+def recoverFn (p : ParserFn) (recover : RecoveryContext → ParserFn) : ParserFn := withTraceNodeFn "recover" fun c s =>
   let iniPos := s.pos
   let iniSz := s.stxStack.size
   let s := p c s
   if let some msg := s.errorMsg then
     let s' := recover ⟨iniPos, iniSz⟩ c {s with errorMsg := none}
-    if s'.hasError then s
+    if s'.hasError then {s with traces := s'.traces}
     else {s with
       pos := s'.pos,
       errorMsg := none,
       stxStack := s'.stxStack,
-      recoveredErrors := s.recoveredErrors.push (s'.pos, s'.stxStack, msg) }
+      recoveredErrors := s.recoveredErrors.push (s'.pos, s'.stxStack, msg)
+      traces := s'.traces }
   else s
 
 
@@ -360,7 +361,7 @@ The interactions between <|> and `recover` are subtle, especially for syntactic
 categories that admit user extension. Consider avoiding it in these cases. -/
 @[builtin_doc] def recover (parser handler : Parser) : Parser := recover' parser fun _ => handler
 
-def optionalFn (p : ParserFn) : ParserFn := fun c s =>
+def optionalFn (p : ParserFn) : ParserFn := withTraceNodeFn "optional" fun c s =>
   let iniSz  := s.stackSize
   let iniPos := s.pos
   let s      := p c s
@@ -420,7 +421,7 @@ partial def manyAux (p : ParserFn) : ParserFn := fun c s => Id.run do
     s := s.mkNode nullKind iniSz
   manyAux p c s
 
-def manyFn (p : ParserFn) : ParserFn := fun c s =>
+def manyFn (p : ParserFn) : ParserFn := withTraceNodeFn "many" fun c s =>
   let iniSz  := s.stackSize
   let s := manyAux p c s
   s.mkNode nullKind iniSz
@@ -430,7 +431,7 @@ def manyNoAntiquot (p : Parser) : Parser := {
   fn   := manyFn p.fn
 }
 
-def many1Fn (p : ParserFn) : ParserFn := fun c s =>
+def many1Fn (p : ParserFn) : ParserFn := withTraceNodeFn "many1" fun c s =>
   let iniSz  := s.stackSize
   let s := andthenFn p (manyAux p) c s
   s.mkNode nullKind iniSz
@@ -463,7 +464,7 @@ private partial def sepByFnAux (p : ParserFn) (sep : ParserFn) (allowTrailingSep
     if s.stackSize > sz + 1 then
       s := s.mkNode nullKind sz
     parse allowTrailingSep c s
-  parse pOpt
+  withTraceNodeFn "sepBy" <| parse pOpt
 
 def sepByFn (allowTrailingSep : Bool) (p : ParserFn) (sep : ParserFn) : ParserFn := fun c s =>
   let iniSz := s.stackSize
@@ -1047,14 +1048,14 @@ private def tokenFnAux : ParserFn := fun c s =>
 private def updateTokenCache (startPos : String.Pos.Raw) (s : ParserState) : ParserState :=
   -- do not cache token parsing errors, which are rare and usually fatal and thus not worth an extra field in `TokenCache`
   match s with
-  | ⟨stack, lhsPrec, pos, ⟨_, catCache⟩, none, errs⟩ =>
+  | ⟨stack, lhsPrec, pos, ⟨_, catCache⟩, none, errs, traces⟩ =>
     if stack.size == 0 then s
     else
       let tk := stack.back
-      ⟨stack, lhsPrec, pos, ⟨{ startPos := startPos, stopPos := pos, token := tk }, catCache⟩, none, errs⟩
+      ⟨stack, lhsPrec, pos, ⟨{ startPos := startPos, stopPos := pos, token := tk }, catCache⟩, none, errs, traces⟩
   | other => other
 
-def tokenFn (expected : List String := []) : ParserFn := fun c s =>
+def tokenFn (expected : List String := []) : ParserFn := withTraceNodeFn "token" fun c s =>
   let i := s.pos
   if c.atEnd i then s.mkEOIError expected
   else
@@ -1083,7 +1084,7 @@ def peekToken (c : ParserContext) (s : ParserState) : ParserState × Except Pars
     peekTokenAux c s
 
 /-- Treat keywords as identifiers. -/
-def rawIdentFn (includeWhitespace := true) : ParserFn := fun c s =>
+def rawIdentFn (includeWhitespace := true) : ParserFn := withTraceNodeFn "rawIdent" fun c s =>
   let i := s.pos
   if c.atEnd i then s.mkEOIError
   else identFnAux i none .anonymous (includeWhitespace := includeWhitespace) c s
@@ -1356,24 +1357,24 @@ def keepTop (s : SyntaxStack) (startStackSize : Nat) : SyntaxStack :=
 
 def keepNewError (s : ParserState) (oldStackSize : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, err, errs⟩ => ⟨keepTop stack oldStackSize, lhsPrec, pos, cache, err, errs⟩
+  | ⟨stack, lhsPrec, pos, cache, err, errs, traces⟩ => ⟨keepTop stack oldStackSize, lhsPrec, pos, cache, err, errs, traces⟩
 
 def keepPrevError (s : ParserState) (oldStackSize : Nat) (oldStopPos : String.Pos.Raw) (oldError : Option Error) (oldLhsPrec : Nat) : ParserState :=
   match s with
-  | ⟨stack, _, _, cache, _, errs⟩ =>
-    ⟨stack.shrink oldStackSize, oldLhsPrec, oldStopPos, cache, oldError, errs⟩
+  | ⟨stack, _, _, cache, _, errs, traces⟩ =>
+    ⟨stack.shrink oldStackSize, oldLhsPrec, oldStopPos, cache, oldError, errs, traces⟩
 
 def mergeErrors (s : ParserState) (oldStackSize : Nat) (oldError : Error) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, some err, errs⟩ =>
+  | ⟨stack, lhsPrec, pos, cache, some err, errs, traces⟩ =>
     let newError := if oldError == err then err else oldError.merge err
-    ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, some newError, errs⟩
+    ⟨stack.shrink oldStackSize, lhsPrec, pos, cache, some newError, errs, traces⟩
   | other                         => other
 
 def keepLatest (s : ParserState) (startStackSize : Nat) : ParserState :=
   match s with
-  | ⟨stack, lhsPrec, pos, cache, _, errs⟩ =>
-    ⟨keepTop stack startStackSize, lhsPrec, pos, cache, none, errs⟩
+  | ⟨stack, lhsPrec, pos, cache, _, errs, traces⟩ =>
+    ⟨keepTop stack startStackSize, lhsPrec, pos, cache, none, errs, traces⟩
 
 def replaceLongest (s : ParserState) (startStackSize : Nat) : ParserState :=
   s.keepLatest startStackSize
@@ -1403,7 +1404,7 @@ def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : Pars
   let mut s := { s with lhsPrec := if left?.isSome then startLhsPrec else maxPrec }
   let startSize := s.stackSize
   if let some left := left? then
-    s := s.pushSyntax left
+    s := s.pushSyntax left (silent := true)
   s := p c s
   -- stack contains `[..., result ]`
   if s.stackSize == startSize + 1 then
@@ -1417,7 +1418,7 @@ def runLongestMatchParser (left? : Option Syntax) (startLhsPrec : Nat) (p : Pars
 
 def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (startPos : String.Pos.Raw) (prevPrio : Nat) (prio : Nat) (p : ParserFn)
     : ParserContext → ParserState → ParserState × Nat := fun c s =>
-  let score (s : ParserState) (prio : Nat) :=
+  let rec score (s : ParserState) (prio : Nat) :=
     (s.pos.byteIdx, if s.errorMsg.isSome then (0 : Nat) else 1, prio)
   let previousScore := score s prevPrio
   let prevErrorMsg  := s.errorMsg
@@ -1426,7 +1427,9 @@ def longestMatchStep (left? : Option Syntax) (startSize startLhsPrec : Nat) (sta
   let prevLhsPrec   := s.lhsPrec
   let s             := s.restore prevSize startPos
   let s             := runLongestMatchParser left? startLhsPrec p c s
-  match (let _ := @lexOrd; compare previousScore (score s prio)) with
+  let newScore      := score s prio
+  let s             := s.trace (.log s!"New parser has score: {newScore}")
+  match (let _ := @lexOrd; compare previousScore newScore) with
   | .lt => (s.keepNewError startSize, prio)
   | .gt => (s.keepPrevError prevSize prevStopPos prevErrorMsg prevLhsPrec, prevPrio)
   | .eq =>
@@ -1448,7 +1451,9 @@ def longestMatchFnAux (left? : Option Syntax) (startSize startLhsPrec : Nat) (st
       parse prevPrio ps c s
   parse prevPrio ps
 
-def longestMatchFn (left? : Option Syntax) : List (Parser × Nat) → ParserFn
+def longestMatchFn (left? : Option Syntax) (l : List (Parser × Nat)) : ParserFn :=
+    withTraceNodeFn (if left?.isSome then "longestMatchFn (trailing)" else "longestMatchFn") <|
+  match l with
   | []    => fun _ s => s.mkError "longestMatch: empty list"
   | [p]   => fun c s => runLongestMatchParser left? s.lhsPrec p.1.fn c s
   | p::ps => fun c s =>
@@ -1456,6 +1461,7 @@ def longestMatchFn (left? : Option Syntax) : List (Parser × Nat) → ParserFn
     let startLhsPrec := s.lhsPrec
     let startPos  := s.pos
     let s         := runLongestMatchParser left? s.lhsPrec p.1.fn c s
+    let s         := s.trace (.log s!"New parser has score: {longestMatchStep.score s p.2}")
     longestMatchFnAux left? startSize startLhsPrec startPos p.2 ps c s
 
 def anyOfFn : List Parser → ParserFn
@@ -1555,10 +1561,10 @@ The saved position is only available in the read-only state, which is why this i
 after the `withPosition(..)` block the saved position will be restored to its original value.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
-@[builtin_doc] def withPosition : Parser → Parser := withFn fun f c s =>
+@[builtin_doc] def withPosition : Parser → Parser := withFn fun f => withTraceNodeFn "withPosition" fun c s =>
     adaptCacheableContextFn ({ · with savedPos? := s.pos }) f c s
 
-def withPositionAfterLinebreak : Parser → Parser := withFn fun f c s =>
+def withPositionAfterLinebreak : Parser → Parser := withFn fun f => withTraceNodeFn "withPositionAfterLinebreak" fun c s =>
   let prev := s.stxStack.back
   adaptCacheableContextFn (fun c => if checkTailLinebreak prev then { c with savedPos? := s.pos } else c) f c s
 
@@ -1567,7 +1573,7 @@ parsers like `colGt` will have no effect. This is usually used by bracketing con
 `(...)` so that the user can locally override whitespace sensitivity.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
-@[builtin_doc] def withoutPosition (p : Parser) : Parser :=
+@[builtin_doc] def withoutPosition (p : Parser) : Parser := withTraceNode "withoutPosition" <|
   adaptCacheableContext ({ · with savedPos? := none }) p
 
 /-- `withForbidden tk p` runs `p` with `tk` as a "forbidden token". This means that if the token
@@ -1577,7 +1583,7 @@ stop there, making `tk` effectively a lowest-precedence operator. This is used f
 would be treated as an application.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
-@[builtin_doc] def withForbidden (tk : Token) (p : Parser) : Parser :=
+@[builtin_doc] def withForbidden (tk : Token) (p : Parser) : Parser := withTraceNode "withForbidden" <|
   adaptCacheableContext ({ · with forbiddenTk? := tk }) p
 
 /-- `withoutForbidden(p)` runs `p` disabling the "forbidden token" (see `withForbidden`), if any.
@@ -1585,7 +1591,7 @@ This is usually used by bracketing constructs like `(...)` because there is no p
 inside these nested constructs.
 
 This parser has the same arity as `p` - it just forwards the results of `p`. -/
-@[builtin_doc] def withoutForbidden (p : Parser) : Parser :=
+@[builtin_doc] def withoutForbidden (p : Parser) : Parser := withTraceNode "withoutForbidden" <|
   adaptCacheableContext ({ · with forbiddenTk? := none }) p
 
 def eoiFn : ParserFn := fun c s =>
@@ -1734,7 +1740,7 @@ def categoryParserFn (catName : Name) : ParserFn := fun ctx s =>
   fn catName ctx s
 
 def categoryParser (catName : Name) (prec : Nat) : Parser where
-  fn := adaptCacheableContextFn ({ · with prec }) (withCacheFn catName (categoryParserFn catName))
+  fn := withTraceNodeFn s!"category {catName}:{prec}" <| adaptCacheableContextFn ({ · with prec }) (withCacheFn catName (categoryParserFn catName))
 
 -- Define `termParser` here because we need it for antiquotations
 def termParser (prec : Nat := 0) : Parser :=
@@ -1943,7 +1949,10 @@ partial def trailingLoop (tables : PrattParsingTables) (c : ParserContext) (s : 
   if s.hasError then
     -- Discard non-consuming parse errors and break the trailing loop instead, restoring `left`.
     -- This is necessary for fallback parsers like `app` that pretend to be always applicable.
-    return if s.pos == iniPos then s.restore (iniSz - 1) iniPos |>.pushSyntax left else s
+    return if s.pos == iniPos then
+      s.restore (iniSz - 1) iniPos |>.pushSyntax left (silent := true)
+        |>.trace (.log "Trailing parsers made no progress, backtracking")
+    else s.trace (.log "Trailing parsers failed with progress!")
   trailingLoop tables c s
 
 /--

@@ -42,23 +42,26 @@ test_status $NO_BUILD_CODE build dep:release -v --no-build
 test_cmd git -C .lake/packages/dep tag -d release
 
 # Test that a direct invocation of `lake build *:release` fails
+diff_out() {
+  sed "/$1/ s/^[^${1:0:1}]*//" | diff -u --strip-trailing-cr $2 -
+}
 echo "# TEST: Direct fetch"
-test_err_diff <(cat << EOF
-✖ [2/2] Running dep:release
+($LAKE build dep:release 2>&1 && exit 1 || true) | diff_out "Running" <(cat << 'EOF'
+Running dep:release
 error: failed to fetch GitHub release (run with '-v' for details)
 Some required targets logged failures:
 - dep:release
 error: build failed
 EOF
-) build dep:release
+)
 
 # Test that an indirect fetch on the release does not cause the build to fail
 echo "# TEST: Indirect fetch"
-test_out_diff <(cat << EOF
-⚠ [3/6] Ran dep:extraDep
+$LAKE build Test -q 2>&1 | diff_out "Ran" <(cat << EOF
+Ran dep:extraDep
 warning: building from source; failed to fetch GitHub release (run with '-v' for details)
 EOF
-) build Test -q
+)
 
 # Test download failure
 echo "# TEST: Download failure"

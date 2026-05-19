@@ -145,9 +145,8 @@ jobs:
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
             PREPARE="$(${{ matrix.prepare-llvm }})"
-            if [ "$TARGET_STAGE" == "stage2" ]; then
-              cp -r stage1 stage2
-            fi
+            cp -r stage1 stage2
+            cp -r stage1 stage3
             eval "OPTIONS+=($PREPARE)"
           fi
           if [[ -n '${{ matrix.release }}' && -n '${{ inputs.nightly }}' ]]; then

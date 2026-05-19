@@ -16,12 +16,13 @@ class A (n : Nat) where
 instance [A n] : A (n+1) where
   x := A.x n
 
-theorem test [A 0] : A.x 100 = 0 := sorry
+axiom test [A 0] : A.x 100 = 0
+axiom test' [A 1] : A.x 100 = 0
 
 -- This rewrite should fail. Previously, it failed exponentially slowly
 example [A 1] : A.x 100 = 0 := by
   fail_if_success rw [@test]
-  sorry
+  exact test'
 end test1
 
 
@@ -47,6 +48,8 @@ axiom foo {p} {α : Type} (a b : α) : f a b p
 
 variable (x : A) (y : B)
 -- Previously, this check was exponentially slow; now it is quadratically slow
+/-- info: foo (↑x) y : f (↑x) y 30 -/
+#guard_msgs in
 #check (foo (↑x) y : f (AtoB x) y 30)
 end test2
 
@@ -67,7 +70,7 @@ elab "unfold_head" e:term : term => do
   unfoldDefinition e
 
 -- use `unfold_head` to get the raw kernel projection `·.1` instead of the projection funtcion `A.x`
-def test {α} (i : B α) : unfold_head i.toA.x := sorry
+axiom test {α} (i : B α) : unfold_head i.toA.x
 
 -- Previously, in this example the unification failed,
 -- because some metavariable assignment wasn't reverted properly

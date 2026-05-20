@@ -24,22 +24,22 @@ def Measure.bind {α β} [MeasureSpace α] [MeasureSpace β]
     (mx : Measure α) (f : α → Measure β) : Measure β := f mx.value
 
 def randOps : DoOps := { DoOps.default with
-  mkPureApp := fun _ e => do
+  mkPureApp _ e := do
     let eStx ← Term.exprToSyntax e
     Term.elabTermEnsuringType (← `(Measure.pure $eStx)) none
-  mkBindApp := fun _ _ e k => do
+  mkBindApp _ _ e k := do
     let eStx ← Term.exprToSyntax e
     let kStx ← Term.exprToSyntax k
     Term.elabTermEnsuringType (← `(Measure.bind $eStx $kStx)) none
-  isPureApp? := fun e =>
+  isPureApp? e :=
     if e.isAppOfArity ``Measure.pure 3 then some e.appArg! else none
-  splitMonadApp? := fun type => do
+  splitMonadApp? type := do
     let type := type.consumeMData
     unless type.isAppOfArity ``Measure 2 do return none
     let resultType := type.getAppArgs[0]!
     let u ← getDecLevel resultType
     return some ({ m := type.getAppFn, u := u.normalize, v := u.normalize }, resultType)
-  mkMonadApp := fun α => do
+  mkMonadApp α := do
     let m ← Term.exprToSyntax (← read).monadInfo.m
     Term.elabTermEnsuringType (← `($m $(← Term.exprToSyntax α))) none
 }

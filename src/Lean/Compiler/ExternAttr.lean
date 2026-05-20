@@ -8,6 +8,9 @@ module
 prelude
 public import Lean.ProjFns
 public import Lean.Attributes
+import Init.Data.String.Lemmas.Order
+import Init.Data.String.OrderInstances
+import Init.Data.Order.Lemmas
 
 public section
 
@@ -72,30 +75,30 @@ builtin_initialize externAttr : ParametricAttribute ExternAttrData ←
 def getExternAttrData? (env : Environment) (n : Name) : Option ExternAttrData :=
   externAttr.getParam? env n
 
-private def parseOptNum : Nat → (pattern : String) → (it : pattern.Pos) → Nat → pattern.Pos × Nat
-  | 0,   _      , it, r => (it, r)
-  | n+1, pattern, it, r =>
-    if h : it.IsAtEnd then (it, r)
-    else
-      let c := it.get h
-      if '0' <= c && c <= '9'
-      then parseOptNum n pattern (it.next h) (r*10 + (c.toNat - '0'.toNat))
-      else (it, r)
+private def parseOptNum (pattern : String.Slice) (it : pattern.Pos) (r : Nat) : pattern.Pos × Nat :=
+  if h : it.IsAtEnd then (it, r)
+  else
+    let c := it.get h
+    if '0' <= c && c <= '9'
+    then
+      parseOptNum pattern (it.next h) (r*10 + (c.toNat - '0'.toNat))
+    else (it, r)
+termination_by it
 
-def expandExternPatternAux (args : List String) : Nat → (pattern : String) → (it : pattern.Pos) → String → String
-  | 0,   _,       _,  r => r
-  | i+1, pattern, it, r =>
-    if h : it.IsAtEnd then r
-    else let c := it.get h
-      if c ≠ '#' then expandExternPatternAux args i pattern (it.next h) (r.push c)
-      else
-        let it      := it.next h
-        let (it, j) := parseOptNum it.remainingBytes pattern it 0
-        let j       := j-1
-        expandExternPatternAux args i pattern it (r ++ args.getD j "")
+def expandExternPatternAux (args : List String) (pattern : String) (it : pattern.Pos) (r : String) : String :=
+  if h : it.IsAtEnd then r
+  else let c := it.get h
+    if c ≠ '#' then expandExternPatternAux args pattern (it.next h) (r.push c)
+    else
+      let it₁      := it.next h
+      let (it₂, j) := parseOptNum (pattern.sliceFrom it₁) (String.Slice.startPos _) 0
+      let j       := j-1
+      have : it < String.Pos.ofSliceFrom it₂ := Std.lt_of_lt_of_le String.Pos.lt_next String.Pos.le_ofSliceFrom
+      expandExternPatternAux args pattern (String.Pos.ofSliceFrom it₂) (r ++ args.getD j "")
+termination_by it
 
 def expandExternPattern (pattern : String) (args : List String) : String :=
-  expandExternPatternAux args pattern.length pattern pattern.startPos ""
+  expandExternPatternAux args pattern pattern.startPos ""
 
 def mkSimpleFnCall (fn : String) (args : List String) : String :=
   fn ++ "(" ++ ((args.intersperse ", ").foldl (·++·) "") ++ ")"

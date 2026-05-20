@@ -723,15 +723,19 @@ where
     IO.eprintln (← env.dbgFormatAsyncState)
 
 open Lean Parser Elab Command
-private partial def logAsStructuredTrace (t : ParserTrace) (posStr : String.Pos.Raw → String) :
+private partial def logAsStructuredTrace (t : ParserTrace) (omitNode : String → Bool) (posStr : String.Pos.Raw → String) :
     CommandElabM Unit := do
   match t with
   | .stop => pure ()
   | .parser lhsPrec pos descr fail children =>
-    discard <| withTraceNode `debug (fun _ => return m!"Running `{descr}` at {posStr pos} with lhsPrec {lhsPrec}") do
+    if omitNode descr then
       for child in children do
-        logAsStructuredTrace child posStr
-      return !fail
+        logAsStructuredTrace child omitNode posStr
+    else
+      discard <| withTraceNode `debug (fun _ => return m!"Running `{descr}` at {posStr pos} with lhsPrec {lhsPrec}") do
+        for child in children do
+          logAsStructuredTrace child omitNode posStr
+        return !fail
   | .cacheHit key entry =>
     trace[debug] m!"Cache hit for {key.parserName} at {posStr key.pos}: {format entry.stx}"
   | .log str => trace[debug] str
@@ -739,8 +743,29 @@ private partial def logAsStructuredTrace (t : ParserTrace) (posStr : String.Pos.
   | .result stx =>
     trace[debug] m!"Syntax: {format stx}"
 
-@[builtin_command_elab Parser.Command.traceParseCommand] def elabTraceParseCommand : CommandElab := fun stx => do
-  let s := stx[1]
+@[builtin_command_elab Parser.Command.traceParse] def elabTraceParse : CommandElab := fun stx => do
+  let parserName? := stx[1]
+  let mut p := termParser.fn
+  if !parserName?.isNone then
+    let id : Ident := ⟨parserName?[1]⟩
+    let res ← liftCoreM <| resolveParserName id
+    if res.isEmpty then
+      throwErrorAt id "Unknown parser `{id.getId}`"
+    let [res] := res | throwErrorAt id "Ambiguous parser name `{id.getId}`"
+    match res with
+    | .category nm => p := categoryParserFn nm
+    | .parser nm _ => p := evalParserConst nm
+    | .alias val =>
+      match val with
+      | .const c => p := c.fn
+      | _ => throwErrorAt id "Unexpected parser alias `{id.getId}`, must not take parameters"
+  let mut omits : Std.HashSet String := {}
+  for omitStx in stx[2].getArgs do
+    let nm := omitStx[1].getId
+    if !nm.isAnonymous then
+      omits := omits.insert nm.toString
+      omits := omits.insert s!"node {nm.toString}"
+  let s := stx[3]
   let str := s.isStrLit? |>.getD ""
   let ictx := {
     inputString := str
@@ -756,7 +781,7 @@ private partial def logAsStructuredTrace (t : ParserTrace) (posStr : String.Pos.
   let toks := getTokenTable (← getEnv)
   let s := mkParserState str
   let s := { s with traces := #[.stop] }
-  let s := (andthenFn whitespace topLevelCommandParserFn).run ictx pmctx toks s
+  let s := (andthenFn whitespace p).run ictx pmctx toks s
   let traces := s.traces
   let posStr (pos : String.Pos.Raw) : String :=
     let pos := ictx.fileMap.toPosition pos
@@ -764,7 +789,7 @@ private partial def logAsStructuredTrace (t : ParserTrace) (posStr : String.Pos.
   withRef stx[0] do
   withScope (fun scope => { scope with opts := scope.opts.setBool `trace.debug true }) do
     for trace in traces do
-      logAsStructuredTrace trace posStr
+      logAsStructuredTrace trace omits.contains posStr
 
 /-- Elaborate `deprecated_module`, marking the current module as deprecated. -/
 @[builtin_command_elab Parser.Command.deprecated_module]

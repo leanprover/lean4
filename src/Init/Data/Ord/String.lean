@@ -28,6 +28,7 @@ namespace String
 /--
 Lexicographic comparison of strings
 -/
+@[extern "lean_string_compare"]
 def compare (s₁ s₂ : @& String) : Ordering :=
   compareOfLessAndEq s₁ s₂
 

@@ -41,23 +41,24 @@ def modifyN (f : Nat → Nat) : IState Nat Nat Unit := fun i => ((), f i)
 
 /-! ## Pluggable ops emitting `IxMonad.pure` / `IxMonad.bind` -/
 
-def ixOps : DoOps where
-  mkPureApp α e := do
+def ixOps : DoOps := { DoOps.default with
+  mkPureApp := fun α e => do
     let info := (← read).monadInfo
     let mα := mkApp info.m α
     let eStx ← Term.exprToSyntax e
     let stx ← `(IxMonad.pure $eStx)
     Term.elabTermEnsuringType stx mα
-  mkBindApp α β e k := do
+  mkBindApp := fun α β e k => do
     let info := (← read).monadInfo
     let mβ := mkApp info.m β
     let eStx ← Term.exprToSyntax e
     let kStx ← Term.exprToSyntax k
     let stx ← `(IxMonad.bind $eStx $kStx)
     Term.elabTermEnsuringType stx mβ
-  isPureApp? e :=
+  isPureApp? := fun e =>
     -- `@IxMonad.pure ι m inst α i e` — 6 args.
     if e.isAppOfArity ``IxMonad.pure 6 then some (e.getArg! 5) else none
+}
 
 /-! ## `ido` surface syntax -/
 

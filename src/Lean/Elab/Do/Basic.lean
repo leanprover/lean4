@@ -116,6 +116,10 @@ structure DoOps where
   `pure e >>= k` to `let x := e; k x`.
   -/
   isPureApp? : Expr → Option Expr
+  /-- Match a monad application `m α`, returning `MonadInfo` for `m` and `α`. -/
+  splitMonadApp? : Expr → Term.TermElabM (Option (MonadInfo × Expr))
+  /-- Construct `m α` from `α`. -/
+  mkMonadApp : Expr → DoElabM Expr
   deriving Inhabited
 
 unsafe def DoOps.toDoOpsRefImpl (o : DoOps) : DoOpsRef :=
@@ -225,8 +229,8 @@ unsafe def ContInfoRef.toContInfoImpl (m : ContInfoRef) : ContInfo :=
 opaque ContInfoRef.toContInfo (m : ContInfoRef) : ContInfo
 
 /-- Constructs `m α` from `α`. -/
-def mkMonadApp (resultType : Expr) : DoElabM Expr :=
-  return mkApp (← read).monadInfo.m resultType
+def mkMonadApp (resultType : Expr) : DoElabM Expr := do
+  (← read).ops.toDoOps.mkMonadApp resultType
 
 /-- The cached `PUnit` expression. -/
 def mkPUnit : DoElabM Expr := do
@@ -282,6 +286,14 @@ def DoOps.default : DoOps where
     return mkApp6 (mkConst ``Bind.bind [info.u, info.v]) info.m instBind α β e k
   isPureApp? e :=
     if e.isAppOfArity ``Pure.pure 4 then some (e.getArg! 3) else none
+  splitMonadApp? type := do
+    let .app m resultType := type.consumeMData | return none
+    unless ← isType resultType do return none
+    let u ← getDecLevel resultType
+    let v ← getDecLevel type
+    return some ({ m, u := u.normalize, v := v.normalize }, resultType)
+  mkMonadApp α := do
+    return mkApp (← read).monadInfo.m α
 
 /-- Register the given name as that of a `mut` variable. -/
 def declareMutVar (x : Ident) (k : DoElabM α) : DoElabM α := do
@@ -694,19 +706,11 @@ def enterFinally (resultType : Expr) (k : DoElabM Expr) : DoElabM Expr := do
   withDoBlockResultType resultType k
 
 /-- Extracts `MonadInfo` and monadic result type `α` from the expected type of a `do` block `m α`. -/
-private partial def extractMonadInfo (expectedType? : Option Expr) : Term.TermElabM (MonadInfo × Expr) := do
+private partial def extractMonadInfo (ops : DoOps) (expectedType? : Option Expr) : Term.TermElabM (MonadInfo × Expr) := do
   let some expectedType := expectedType? | mkUnknownMonadResult
   let expectedType ← instantiateMVars expectedType
-  let extractStep? (type : Expr) : Term.TermElabM (Option (MonadInfo × Expr)) := do
-    let .app m resultType := type.consumeMData | return none
-    unless ← isType resultType do return none
-    let u ← getDecLevel resultType
-    let v ← getDecLevel type
-    let u := u.normalize
-    let v := v.normalize
-    return some ({ m, u, v }, resultType)
   let rec extract? (type : Expr) : Term.TermElabM (Option (MonadInfo × Expr)) := do
-    match (← extractStep? type) with
+    match (← ops.splitMonadApp? type) with
     | some r => return r
     | none =>
       let typeNew ← whnfCore type
@@ -731,7 +735,7 @@ where
 
 /-- Create the `Context` for `do` elaboration from the given expected type of a `do` block. -/
 def mkContext (expectedType? : Option Expr) (ops : DoOps := .default) : TermElabM Context := do
-  let (mi, resultType) ← extractMonadInfo expectedType?
+  let (mi, resultType) ← extractMonadInfo ops expectedType?
   let returnCont ← ReturnCont.mkPure resultType
   let contInfo := ContInfo.toContInfoRef { returnCont }
   return { monadInfo := mi, doBlockResultType := resultType, contInfo,

@@ -185,7 +185,7 @@ open Lean.Meta
         if info.returnsEarly then
           let ret ← getFVarFromUserName returnVarName
           let ret ← if loopMutVars.isEmpty then mkAppM ``Prod.fst #[ret] else pure ret
-          let motive := mkLambda `_ .default (← inferType ret) (← mkMonadicType γ)
+          let motive := mkLambda `_ .default (← inferType ret) (← mkMonadApp γ)
           let app := mkApp3 (mkConst ``Break.runK.match_1 [mi.u, mi.v.succ]) oldReturnCont.resultType motive ret
           let none := mkSimpleThunk (← dec.continueWithUnit)
           let some ← withLocalDeclD (← mkFreshUserName `r) oldReturnCont.resultType fun r => do

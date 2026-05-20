@@ -225,7 +225,7 @@ unsafe def ContInfoRef.toContInfoImpl (m : ContInfoRef) : ContInfo :=
 opaque ContInfoRef.toContInfo (m : ContInfoRef) : ContInfo
 
 /-- Constructs `m α` from `α`. -/
-def mkMonadicType (resultType : Expr) : DoElabM Expr :=
+def mkMonadApp (resultType : Expr) : DoElabM Expr :=
   return mkApp (← read).monadInfo.m resultType
 
 /-- The cached `PUnit` expression. -/
@@ -469,7 +469,7 @@ the bind if `$(← dec.k)` is `pure $dec.resultName` or `e` is some `pure` compu
 -/
 def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := do
   -- let eResultTy ← mkFreshResultType
-  -- let e ← Term.ensureHasType (← mkMonadicType eResultTy) e
+  -- let e ← Term.ensureHasType (← mkMonadApp eResultTy) e
   -- let dec ← dec.ensureHasType eResultTy
   let x := dec.resultName
   let k := dec.k
@@ -505,7 +505,7 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
         -- else -- would be too aggressive
         --   return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
 
-    let body ← Term.ensureHasType (← mkMonadicType kResultTy) body
+    let body ← Term.ensureHasType (← mkMonadApp kResultTy) body
     let k ← mkLambdaFVars #[xFVar] body
     mkBindApp eResultTy kResultTy e k
 
@@ -603,7 +603,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
   if nondupDec.kind matches .duplicable .. then
     return ← caller nondupDec
   let γ := (← read).doBlockResultType
-  let mγ ← mkMonadicType γ
+  let mγ ← mkMonadApp γ
   let mutVars := (← read).mutVars |>.filter (callerInfo.reassigns.contains ·.getId)
   let mutVarNames := mutVars.map (·.getId)
   let joinName ← mkFreshUserName `__do_jp
@@ -869,7 +869,7 @@ private def elabDoElemFns (stx : TSyntax `doElem) (cont : DoElemCont)
   match fns with
   | [] => throwError "unexpected `do` element syntax{indentD stx}"
   | elabFn :: elabFns =>
-    let expectedType ← mkMonadicType (← read).doBlockResultType
+    let expectedType ← mkMonadApp (← read).doBlockResultType
     withTermInfoContext' elabFn.declName stx (expectedType := expectedType) do
       try
         elabFn.value stx cont
@@ -897,7 +897,7 @@ partial def elabDoElem (stx : TSyntax `doElem) (cont : DoElemCont) (catchExPostp
   checkSystem "do element elaborator"
   profileitM Exception "do element elaborator" (decl := k) (← getOptions) <|
   withRef stx <| withIncRecDepth <| withFreshMacroScope <| do
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadApp (← read).doBlockResultType
   if (← read).deadCode matches .deadSyntactically then
     logWarningAt stx "This `do` element and its control-flow region are dead code. Consider removing it."
     return ← mkFreshExprMVar mγ (userName := `deadCode)
@@ -940,7 +940,7 @@ partial def elabDoSeq (doSeq : TSyntax ``doSeq) (cont : DoElemCont) (catchExPost
     | .internal id _ =>
       if catchExPostpone && id == postponeExceptionId then
         s.restore
-        let expectedType ← mkMonadicType (← read).doBlockResultType
+        let expectedType ← mkMonadApp (← read).doBlockResultType
         doElabToSyntax m!"do sequence {doSeq}" (elabDoSeq doSeq cont) (Term.postponeElabTerm · expectedType)
       else
         throw ex

@@ -23,7 +23,7 @@ partial def mRevert (goal : MGoal) (ref : TSyntax `ident) (k : MGoal → m Expr)
   let Q := res.restHyps
   let H := res.focusHyp
   let T := goal.target
-  let prf ← k { goal with hyps := Q, target := mkApp3 (mkConst ``SPred.imp [goal.u]) goal.σs H T }
+  let prf ← k { goal with hyps := Q, target := mkApp3 (mkConst ``SPred.imp [goal.u]) goal.σs H.consumeMData T }
   let prf := mkApp7 (mkConst ``Revert.revert [goal.u]) goal.σs P Q H T res.proof prf
   return prf
 

@@ -19,7 +19,7 @@ variable {m : Type → Type u} [Monad m] [MonadControlT MetaM m] [MonadLiftT Met
 
 partial def mRevert (goal : MGoal) (ref : TSyntax `ident) (k : MGoal → m Expr) : m Expr := do
   let res ← goal.focusHypWithInfo ref
-  let some hyp := parseHyp? res.focusHyp | throwError "impossible; res.focusHyp not a hypothesis"
+  let some hyp := parseHyp? res.focusHyp | liftMetaM <| throwError "impossible; res.focusHyp not a hypothesis"
   let P := goal.hyps
   let Q := res.restHyps
   let H := res.focusHyp

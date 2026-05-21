@@ -78,8 +78,15 @@ private def resumePostponed (savedContext : SavedContext) (stx : Syntax) (mvarId
   are used. It also logs any error message produced. -/
 private def synthesizePendingInstMVar (instMVar : MVarId) (extraErrorMsg? : Option MessageData := none): TermElabM Bool :=
   instMVar.withContext do
+    -- Recover the parent application registered by `synthesizeAppInstMVars` for richer errors.
+    let app? := (← get).mvarErrorInfos.findSome? fun info =>
+      if info.mvarId == instMVar then
+        match info.kind with
+        | .implicitArg _ app => some app
+        | _ => none
+      else none
     try
-      synthesizeInstMVarCore instMVar (extraErrorMsg? := extraErrorMsg?)
+      synthesizeInstMVarCore instMVar (extraErrorMsg? := extraErrorMsg?) (app? := app?)
     catch
       | ex@(.error ..) => logException ex; return true
       | _              => unreachable!

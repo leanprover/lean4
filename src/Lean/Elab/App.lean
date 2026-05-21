@@ -74,7 +74,7 @@ private def mkProjAndCheck (structName : Name) (idx : Nat) (e : Expr) : MetaM Ex
 
 def synthesizeAppInstMVars (instMVars : Array MVarId) (app : Expr) : TermElabM Unit :=
   for mvarId in instMVars do
-    unless (← synthesizeInstMVarCore mvarId) do
+    unless (← synthesizeInstMVarCore mvarId (app? := app)) do
       registerSyntheticMVarWithCurrRef mvarId (.typeClass none)
       registerMVarErrorImplicitArgInfo mvarId (← getRef) app
 

@@ -23,7 +23,7 @@ COMMANDS:
   build <targets>...    build targets
   query <targets>...    build targets and output results
   exe <exe> <args>...   build an exe and run it in Lake's environment
-  profile <exe>         profile an exe and demangle Lean names
+  samply <exe>          profile an exe with samply and demangle Lean names
   check-build           check if any default build targets are configured
   test                  test the package using the configured test driver
   check-test            check if there is a properly configured test driver
@@ -834,21 +834,30 @@ learn how to specify targets), builds it if it is out of date, and then runs
 it with the given `args` in Lake's environment (see `lake help env` for how
 the environment is set up)."
 
-def helpProfile :=
-"Profile an executable target and demangle Lean names
+def helpSamply :=
+"Profile an executable target with samply and demangle Lean names
 
 USAGE:
-  lake profile [OPTIONS] <exe-target> [<args>...]
+  lake samply [OPTIONS] <exe-target> [-- [<samply-args>...] [-- <exe-args>...]]
 
 Builds the executable target, records a CPU profile using samply, symbolicates
 the raw addresses, demangles Lean compiler names, and writes a Firefox Profiler
 JSON file.
 
 OPTIONS:
-  --rate N              sampling rate in Hz (default: 1000)
-  -o FILE               output path (default: current directory)
+  -o FILE               output path (default: ./profile-demangled.json.gz)
   --raw                 skip symbolication and demangling
   --no-serve            write output file and exit (don't start server)
+
+Anything after `--` is forwarded verbatim to `samply record`. An inner `--`
+separates samply's own flags from the profiled executable's arguments, e.g.:
+
+  lake samply mergeSort                          # no samply or exe args
+  lake samply mergeSort -- --rate 2000           # only samply args
+  lake samply mergeSort -- -- 10                 # only exe args
+  lake samply mergeSort -- --rate 2000 -- 10     # both
+
+Run `samply record --help` to see samply's flags.
 
 REQUIREMENTS:
   samply                cargo install samply
@@ -924,7 +933,7 @@ public def help : (cmd : String) → String
 | "serve"               => helpServe
 | "env"                 => helpEnv
 | "exe" | "exec"        => helpExe
-| "profile"             => helpProfile
+| "samply"              => helpSamply
 | "lean"                => helpLean
 | "translate-config"    => helpTranslateConfig
 | _                     => usage

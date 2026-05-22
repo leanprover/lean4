@@ -298,7 +298,7 @@ jobs:
         if: matrix.test
 
       - name: Lower perf_event_paranoid for samply
-        # Best-effort: some runners lack sudo or won't allow this. The `lake profile`
+        # Best-effort: some runners lack sudo or won't allow this. The `lake samply`
         # test self-skips if `samply record` fails.
         run: command -v sudo && sudo -n sysctl -w kernel.perf_event_paranoid=1 || true
         if: runner.os == 'Linux' && contains(matrix.name, 'Lake') && matrix.test

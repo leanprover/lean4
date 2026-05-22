@@ -18,13 +18,13 @@ import Init.System.Uri
 import Init.While
 
 /-!
-# `lake profile`
+# `lake samply`
 
 Profile a Lean executable with [samply](https://github.com/mstange/samply)
 and demangle Lean names for [Firefox Profiler](https://profiler.firefox.com).
 -/
 
-namespace Lake.Profile
+namespace Lake.Samply
 
 open Lean (Json JsonNumber)
 
@@ -173,30 +173,41 @@ private def applySymbols (profile : Json) (response : Json)
 private def killSafe {cfg : IO.Process.StdioConfig} (proc : IO.Process.Child cfg) : IO Unit :=
   try proc.kill; let _ ← proc.wait catch _ => pure ()
 
+/-- Split a pass-through arg list on the first `--`.
+    Returns `(samplyArgs, progArgs)`; if there is no `--`, all args are samply args. -/
+private def splitOnDash (args : Array String) : Array String × Array String :=
+  match args.findIdx? (· == "--") with
+  | some i => (args.take i, args.extract (i + 1) args.size)
+  | none   => (args, #[])
+
 /-- Run the full profiling pipeline.
+    `passthrough` is forwarded verbatim to `samply record`; an inner `--` separates
+    samply's own flags from the profiled executable's arguments.
     Returns the path to the output file. -/
-public def run (binary : String) (args : Array String)
+public def run (binary : String) (passthrough : Array String)
     (outputPath : Option String := none)
-    (rate : Nat := 1000) (port : Nat := 3756) (raw : Bool := false)
+    (port : Nat := 3756) (raw : Bool := false)
     (serve : Bool := true) : IO String := do
   requireCmd "samply" "Install with: cargo install samply"
   requireCmd "gzip" "gzip is required for profile compression"
 
   let tmpResult ← IO.Process.output {
-    cmd := "mktemp", args := #["-d", "/tmp/lake-profile-XXXXXX"]
+    cmd := "mktemp", args := #["-d", "/tmp/lake-samply-XXXXXX"]
   }
   if tmpResult.exitCode != 0 then throw <| IO.userError "failed to create temp directory"
   let tmpDir := tmpResult.stdout.trimAscii.toString
   let rawProfile := s!"{tmpDir}/profile.json.gz"
   let defaultOut := "profile-demangled.json.gz"
 
+  let (samplyArgs, progArgs) := splitOnDash passthrough
+
   try
     -- Record
-    IO.eprintln s!"Recording profile (rate={rate} Hz)..."
+    IO.eprintln "Recording profile..."
     let recordResult ← IO.Process.output {
       cmd := "samply"
-      args := #["record", "--save-only", "-o", rawProfile,
-                "-r", toString rate, binary] ++ args
+      args := #["record", "--save-only", "-o", rawProfile] ++ samplyArgs
+              ++ #["--", binary] ++ progArgs
     }
     if recordResult.exitCode != 0 then
       IO.eprintln recordResult.stderr
@@ -308,4 +319,4 @@ public def run (binary : String) (args : Array String)
   finally
     removeDirAllIfExists tmpDir
 
-end Lake.Profile
+end Lake.Samply

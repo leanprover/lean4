@@ -13,13 +13,13 @@ fi
 test_run build
 
 # Test help output
-test_out "lake profile" help profile
-test_out "--rate" help profile
-test_out "--raw" help profile
-test_out "--no-serve" help profile
+test_out "lake samply" help samply
+test_out "--raw" help samply
+test_out "--no-serve" help samply
 
-# Test --raw mode (records profile, skips symbolication/demangling)
-lake_out profile --raw -o raw.json.gz hello || true
+# Test --raw mode (records profile, skips symbolication/demangling).
+# `-- --rate 100` exercises the samply-arg forwarding path.
+lake_out samply --raw -o raw.json.gz hello -- --rate 100 || true
 if match_text "samply record failed" produced.out 2>/dev/null; then
   echo "SKIP: samply cannot record (missing perf permissions?)"
   exit 0
@@ -27,7 +27,7 @@ fi
 
 test_exp -f raw.json.gz
 # Verify output is valid gzipped Firefox Profiler JSON
-zcat raw.json.gz | python3 -c "
+gzip -dc raw.json.gz | python3 -c "
 import json, sys
 d = json.load(sys.stdin)
 assert 'threads' in d, f'missing threads key, got: {list(d.keys())}'
@@ -36,11 +36,11 @@ print(f'raw profile: {len(d[\"threads\"])} threads, {len(d[\"libs\"])} libs')
 "
 
 # Test full pipeline (record + symbolicate + demangle, no serve)
-test_run profile --no-serve -o demangled.json.gz hello
+test_run samply --no-serve -o demangled.json.gz hello
 test_exp -f demangled.json.gz
 
 # Verify demangled output structure
-zcat demangled.json.gz | python3 -c "
+gzip -dc demangled.json.gz | python3 -c "
 import json, sys
 d = json.load(sys.stdin)
 assert 'threads' in d, f'missing threads key'

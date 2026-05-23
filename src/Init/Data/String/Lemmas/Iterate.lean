@@ -113,6 +113,8 @@ theorem Pos.Splits.mem_toList_left_iff {s : Slice} {pos : s.Pos} {t u : String} 
       by simpa [← Pos.ofSliceTo_inj] using Std.ne_of_lt hlt,
       by rw [Slice.Pos.get_eq_get_ofSliceTo]; simpa using hget⟩
 
+-- TODO: We should be able to remove this flag after a stage0 update.
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Pos.Splits.mem_toList_right_iff {s : Slice} {pos : s.Pos} {t u : String} {c : Char}
     (hs : pos.Splits t u) :
     c ∈ u.toList ↔ ∃ pos', ∃ (_ : pos ≤ pos') (h : pos' ≠ s.endPos), pos'.get h = c := by
@@ -274,6 +276,8 @@ theorem mem_toList_iff_exists_get {s : String} {c : Char} :
     c ∈ s.toList ↔ ∃ (p : s.Pos) (h : p ≠ s.endPos), p.get h = c := by
   simp [← Model.map_get_positionsFrom_startPos]
 
+-- TODO: We should be able to remove this flag after a stage0 update.
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Pos.Splits.mem_toList_left_iff {s : String} {pos : s.Pos} {t u : String} {c : Char}
     (hs : pos.Splits t u) :
     c ∈ t.toList ↔ ∃ pos', ∃ (h : pos' < pos), pos'.get (Pos.ne_endPos_of_lt h) = c := by
@@ -288,6 +292,8 @@ theorem Pos.Splits.mem_toList_left_iff {s : String} {pos : s.Pos} {t u : String}
       fun h => Std.ne_of_lt hlt (by simpa using congrArg Pos.ofSliceTo h),
       by rw [Pos.get_eq_get_ofSliceTo]; simpa using hget⟩
 
+-- TODO: We should be able to remove this flag after a stage0 update.
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Pos.Splits.mem_toList_right_iff {s : String} {pos : s.Pos} {t u : String} {c : Char}
     (hs : pos.Splits t u) :
     c ∈ u.toList ↔ ∃ pos', ∃ (_ : pos ≤ pos') (h : pos' ≠ s.endPos), pos'.get h = c := by

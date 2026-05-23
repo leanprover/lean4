@@ -314,7 +314,7 @@ so if your goal is `¬p` you can use `intro h` to turn the goal into
 and `(hn h).elim` will prove anything.
 For more information: [Propositional Logic](https://lean-lang.org/theorem_proving_in_lean4/propositions_and_proofs.html#propositional-logic)
 -/
-@[instance_reducible] def Not (a : Prop) : Prop := a → False
+@[implicit_reducible] def Not (a : Prop) : Prop := a → False
 
 /--
 `False.elim : False → C` says that from `False`, any desired proposition

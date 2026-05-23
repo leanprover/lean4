@@ -796,6 +796,8 @@ theorem length_eq_of_beq [BEq α] {l₁ l₂ : List α} (h : l₁ == l₂) : l�
 
 /-! ### getLast -/
 
+-- TODO: We should be able to remove this flag after a stage0 update.
+set_option backward.isDefEq.respectTransparency.types false in
 @[grind =]
 theorem getLast_eq_getElem : ∀ {l : List α} (h : l ≠ []),
     getLast l h = l[l.length - 1]'(by
@@ -828,6 +830,8 @@ theorem getLast_eq_getLastD {a l} (h) : @getLast α (a::l) h = getLastD l a := b
 
 @[simp, grind =] theorem getLast_singleton {a} (h) : @getLast α [a] h = a := rfl
 
+-- TODO: We should be able to remove this flag after a stage0 update.
+set_option backward.isDefEq.respectTransparency.types false in
 theorem getLast!_cons_eq_getLastD [Inhabited α] : @getLast! α _ (a::l) = getLastD l a := by
   simp [getLast!, getLast_eq_getLastD]
 
@@ -860,6 +864,8 @@ theorem getLast?_eq_getLast : ∀ {l : List α} h, l.getLast? = some (l.getLast 
   | [], h => nomatch h rfl
   | _ :: _, _ => rfl
 
+-- TODO: We should be able to remove this flag after a stage0 update.
+set_option backward.isDefEq.respectTransparency.types false in
 @[grind =] theorem getLast?_eq_getElem? : ∀ {l : List α}, l.getLast? = l[l.length - 1]?
   | [] => rfl
   | a::l => by
@@ -1762,6 +1768,8 @@ theorem append_eq_append_iff {ws xs ys zs : List α} :
   · simp [isEmpty_iff] at h
     simp [h]
 
+-- TODO: We should be able to remove this flag after a stage0 update.
+set_option backward.isDefEq.respectTransparency.types false in
 theorem head_append_left {l₁ l₂ : List α} (h : l₁ ≠ []) :
     head (l₁ ++ l₂) (fun h => by simp_all) = head l₁ h := by
   rw [head_append, dif_neg (by simp_all)]
@@ -2990,6 +2998,8 @@ theorem head_eq_getLast_reverse {l : List α} (h : l ≠ []) :
   · simp [isEmpty_iff] at h'
     simp [h']
 
+-- TODO: We should be able to remove this flag after a stage0 update.
+set_option backward.isDefEq.respectTransparency.types false in
 theorem getLast_append_right {l : List α} (h : l' ≠ []) :
     (l ++ l').getLast (fun h => by simp_all) = l'.getLast h := by
   rw [getLast_append, dif_neg (by simp_all)]

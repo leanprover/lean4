@@ -52,6 +52,8 @@ theorem Pos.find?_char_eq_some_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
         ∀ pos'', pos ≤ pos'' → (h' : pos'' < pos') → pos''.get (Pos.ne_endPos_of_lt h') ≠ c := by
   grind [Pattern.Model.posFind?_eq_some_iff, Pattern.Model.Char.matchesAt_iff]
 
+-- TODO: We should be able to remove this flag after a stage0 update.
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Pos.find?_char_eq_some_iff_splits {c : Char} {s : Slice} {pos : s.Pos}
     {t u : String} (hs : pos.Splits t u) {pos' : s.Pos} :
     pos.find? c = some pos' ↔ ∃ v w, pos'.Splits (t ++ v) (singleton c ++ w) ∧ c ∉ v.toList := by

@@ -485,6 +485,8 @@ protected theorem minOn?_singleton [LE β] [DecidableLE β] {x : α} {f : α →
     [x].minOn? f = some x := by
   simp [List.minOn?_cons_eq_some_minOn]
 
+-- TODO: We should be able to remove this flag after a stage0 update.
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 protected theorem minOn?_id [Min α] [LE α] [DecidableLE α] [LawfulOrderLeftLeaningMin α]
     {xs : List α} : xs.minOn? id = xs.min? := by

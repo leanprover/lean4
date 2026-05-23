@@ -77,6 +77,8 @@ theorem Pos.find?_bool_eq_some_iff {p : Char → Bool} {s : Slice} {pos pos' : s
           p (pos''.get (Pos.ne_endPos_of_lt h')) = false := by
   grind [Pattern.Model.posFind?_eq_some_iff, Pattern.Model.CharPred.matchesAt_iff]
 
+-- TODO: We should be able to remove this flag after a stage0 update.
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Pos.find?_bool_eq_some_iff_splits {p : Char → Bool} {s : Slice} {pos : s.Pos}
     {t u : String} (hs : pos.Splits t u) {pos' : s.Pos} :
     pos.find? p = some pos' ↔

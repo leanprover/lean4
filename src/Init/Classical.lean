@@ -67,7 +67,9 @@ noncomputable def decidableInhabited (a : Prop) : Inhabited (Decidable a) where
 instance (a : Prop) : Nonempty (Decidable a) := ⟨propDecidable a⟩
 
 noncomputable def typeDecidableEq (α : Sort u) : DecidableEq α :=
-  fun _ _ => inferInstance
+  (choice <| match em_eq · · with
+    | .inl h => ⟨isTrue h⟩
+    | .inr h => ⟨isFalse h⟩)
 
 noncomputable def typeDecidable (α : Sort u) : PSum α (α → False) :=
   match (propDecidable (Nonempty α)) with

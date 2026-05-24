@@ -2469,7 +2469,7 @@ if (lean_obj_tag(v_t_450_) == 63)
 lean_object* v_status_452_; lean_object* v___x_453_; 
 v_status_452_ = lean_ctor_get(v_t_450_, 0);
 lean_inc_ref(v_status_452_);
-lean_dec_ref(v_t_450_);
+lean_dec_ref_known(v_t_450_, 1);
 v___x_453_ = lean_apply_1(v_k_451_, v_status_452_);
 return v___x_453_;
 }
@@ -4810,7 +4810,7 @@ default:
 lean_object* v_status_1872_; lean_object* v___y_1874_; lean_object* v___x_1882_; uint8_t v___x_1883_; 
 v_status_1872_ = lean_ctor_get(v_x_1177_, 0);
 lean_inc_ref(v_status_1872_);
-lean_dec_ref(v_x_1177_);
+lean_dec_ref_known(v_x_1177_, 1);
 v___x_1882_ = lean_unsigned_to_nat(1024u);
 v___x_1883_ = lean_nat_dec_le(v___x_1882_, v_prec_1178_);
 if (v___x_1883_ == 0)
@@ -6594,7 +6594,7 @@ else
 lean_object* v_val_2244_; 
 v_val_2244_ = lean_ctor_get(v_reasonPhrase_2102_, 0);
 lean_inc(v_val_2244_);
-lean_dec_ref(v_reasonPhrase_2102_);
+lean_dec_ref_known(v_reasonPhrase_2102_, 1);
 v___y_2105_ = v_val_2244_;
 goto v___jp_2104_;
 }

@@ -2865,23 +2865,19 @@ static inline unsigned lean_unbox_uint32(b_lean_obj_arg o) {
 }
 
 static inline lean_obj_res lean_box_uint64(uint64_t v) {
-    lean_obj_res r = lean_alloc_ctor(0, 0, sizeof(uint64_t));
-    lean_ctor_set_uint64(r, 0, v);
-    return r;
+    return lean_uint64_to_nat(v);
 }
 
 static inline uint64_t lean_unbox_uint64(b_lean_obj_arg o) {
-    return lean_ctor_get_uint64(o, 0);
+    return lean_uint64_of_nat(o);
 }
 
 static inline lean_obj_res lean_box_usize(size_t v) {
-    lean_obj_res r = lean_alloc_ctor(0, 0, sizeof(size_t));
-    lean_ctor_set_usize(r, 0, v);
-    return r;
+    return lean_usize_to_nat(v);
 }
 
 static inline size_t lean_unbox_usize(b_lean_obj_arg o) {
-    return lean_ctor_get_usize(o, 0);
+    return lean_usize_of_nat(o);
 }
 
 static inline lean_obj_res lean_box_float(double v) {

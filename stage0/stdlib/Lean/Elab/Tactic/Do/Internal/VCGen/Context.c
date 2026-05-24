@@ -101,7 +101,7 @@ case 1:
 {
 uint8_t v_silent_9_; lean_object* v___x_10_; lean_object* v___x_11_; 
 v_silent_9_ = lean_ctor_get_uint8(v_t_7_, 0);
-lean_dec_ref(v_t_7_);
+lean_dec_ref_known(v_t_7_, 0);
 v___x_10_ = lean_box(v_silent_9_);
 v___x_11_ = lean_apply_1(v_k_8_, v___x_10_);
 return v___x_11_;
@@ -111,7 +111,7 @@ default:
 lean_object* v_tac_12_; lean_object* v___x_13_; 
 v_tac_12_ = lean_ctor_get(v_t_7_, 0);
 lean_inc(v_tac_12_);
-lean_dec_ref(v_t_7_);
+lean_dec_ref_known(v_t_7_, 1);
 v___x_13_ = lean_apply_1(v_k_8_, v_tac_12_);
 return v___x_13_;
 }

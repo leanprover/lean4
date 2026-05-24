@@ -1599,9 +1599,9 @@ _start:
 {
 uint64_t v_a_boxed_607_; uint64_t v_b_boxed_608_; uint64_t v_res_609_; lean_object* v_r_610_; 
 v_a_boxed_607_ = lean_unbox_uint64(v_a_605_);
-lean_dec_ref(v_a_605_);
+lean_dec(v_a_605_);
 v_b_boxed_608_ = lean_unbox_uint64(v_b_606_);
-lean_dec_ref(v_b_606_);
+lean_dec(v_b_606_);
 v_res_609_ = lean_uint64_add(v_a_boxed_607_, v_b_boxed_608_);
 v_r_610_ = lean_box_uint64(v_res_609_);
 return v_r_610_;
@@ -1612,9 +1612,9 @@ _start:
 {
 uint64_t v_a_boxed_615_; uint64_t v_b_boxed_616_; uint64_t v_res_617_; lean_object* v_r_618_; 
 v_a_boxed_615_ = lean_unbox_uint64(v_a_613_);
-lean_dec_ref(v_a_613_);
+lean_dec(v_a_613_);
 v_b_boxed_616_ = lean_unbox_uint64(v_b_614_);
-lean_dec_ref(v_b_614_);
+lean_dec(v_b_614_);
 v_res_617_ = lean_uint64_sub(v_a_boxed_615_, v_b_boxed_616_);
 v_r_618_ = lean_box_uint64(v_res_617_);
 return v_r_618_;
@@ -1625,9 +1625,9 @@ _start:
 {
 uint64_t v_a_boxed_623_; uint64_t v_b_boxed_624_; uint64_t v_res_625_; lean_object* v_r_626_; 
 v_a_boxed_623_ = lean_unbox_uint64(v_a_621_);
-lean_dec_ref(v_a_621_);
+lean_dec(v_a_621_);
 v_b_boxed_624_ = lean_unbox_uint64(v_b_622_);
-lean_dec_ref(v_b_622_);
+lean_dec(v_b_622_);
 v_res_625_ = lean_uint64_mul(v_a_boxed_623_, v_b_boxed_624_);
 v_r_626_ = lean_box_uint64(v_res_625_);
 return v_r_626_;
@@ -1638,9 +1638,9 @@ _start:
 {
 uint64_t v_a_boxed_631_; uint64_t v_b_boxed_632_; uint64_t v_res_633_; lean_object* v_r_634_; 
 v_a_boxed_631_ = lean_unbox_uint64(v_a_629_);
-lean_dec_ref(v_a_629_);
+lean_dec(v_a_629_);
 v_b_boxed_632_ = lean_unbox_uint64(v_b_630_);
-lean_dec_ref(v_b_630_);
+lean_dec(v_b_630_);
 v_res_633_ = lean_uint64_div(v_a_boxed_631_, v_b_boxed_632_);
 v_r_634_ = lean_box_uint64(v_res_633_);
 return v_r_634_;
@@ -1675,7 +1675,7 @@ _start:
 {
 uint64_t v_x_boxed_646_; uint64_t v_res_647_; lean_object* v_r_648_; 
 v_x_boxed_646_ = lean_unbox_uint64(v_x_644_);
-lean_dec_ref(v_x_644_);
+lean_dec(v_x_644_);
 v_res_647_ = l_UInt64_pow(v_x_boxed_646_, v_n_645_);
 lean_dec(v_n_645_);
 v_r_648_ = lean_box_uint64(v_res_647_);
@@ -1687,9 +1687,9 @@ _start:
 {
 uint64_t v_a_boxed_653_; uint64_t v_b_boxed_654_; uint64_t v_res_655_; lean_object* v_r_656_; 
 v_a_boxed_653_ = lean_unbox_uint64(v_a_651_);
-lean_dec_ref(v_a_651_);
+lean_dec(v_a_651_);
 v_b_boxed_654_ = lean_unbox_uint64(v_b_652_);
-lean_dec_ref(v_b_652_);
+lean_dec(v_b_652_);
 v_res_655_ = lean_uint64_mod(v_a_boxed_653_, v_b_boxed_654_);
 v_r_656_ = lean_box_uint64(v_res_655_);
 return v_r_656_;
@@ -1731,7 +1731,7 @@ _start:
 {
 uint64_t v_a_boxed_670_; uint64_t v_res_671_; lean_object* v_r_672_; 
 v_a_boxed_670_ = lean_unbox_uint64(v_a_668_);
-lean_dec_ref(v_a_668_);
+lean_dec(v_a_668_);
 v_res_671_ = l_UInt64_modn(v_a_boxed_670_, v_n_669_);
 lean_dec(v_n_669_);
 v_r_672_ = lean_box_uint64(v_res_671_);
@@ -1743,9 +1743,9 @@ _start:
 {
 uint64_t v_a_boxed_677_; uint64_t v_b_boxed_678_; uint64_t v_res_679_; lean_object* v_r_680_; 
 v_a_boxed_677_ = lean_unbox_uint64(v_a_675_);
-lean_dec_ref(v_a_675_);
+lean_dec(v_a_675_);
 v_b_boxed_678_ = lean_unbox_uint64(v_b_676_);
-lean_dec_ref(v_b_676_);
+lean_dec(v_b_676_);
 v_res_679_ = lean_uint64_land(v_a_boxed_677_, v_b_boxed_678_);
 v_r_680_ = lean_box_uint64(v_res_679_);
 return v_r_680_;
@@ -1756,9 +1756,9 @@ _start:
 {
 uint64_t v_a_boxed_685_; uint64_t v_b_boxed_686_; uint64_t v_res_687_; lean_object* v_r_688_; 
 v_a_boxed_685_ = lean_unbox_uint64(v_a_683_);
-lean_dec_ref(v_a_683_);
+lean_dec(v_a_683_);
 v_b_boxed_686_ = lean_unbox_uint64(v_b_684_);
-lean_dec_ref(v_b_684_);
+lean_dec(v_b_684_);
 v_res_687_ = lean_uint64_lor(v_a_boxed_685_, v_b_boxed_686_);
 v_r_688_ = lean_box_uint64(v_res_687_);
 return v_r_688_;
@@ -1769,9 +1769,9 @@ _start:
 {
 uint64_t v_a_boxed_693_; uint64_t v_b_boxed_694_; uint64_t v_res_695_; lean_object* v_r_696_; 
 v_a_boxed_693_ = lean_unbox_uint64(v_a_691_);
-lean_dec_ref(v_a_691_);
+lean_dec(v_a_691_);
 v_b_boxed_694_ = lean_unbox_uint64(v_b_692_);
-lean_dec_ref(v_b_692_);
+lean_dec(v_b_692_);
 v_res_695_ = lean_uint64_xor(v_a_boxed_693_, v_b_boxed_694_);
 v_r_696_ = lean_box_uint64(v_res_695_);
 return v_r_696_;
@@ -1782,9 +1782,9 @@ _start:
 {
 uint64_t v_a_boxed_701_; uint64_t v_b_boxed_702_; uint64_t v_res_703_; lean_object* v_r_704_; 
 v_a_boxed_701_ = lean_unbox_uint64(v_a_699_);
-lean_dec_ref(v_a_699_);
+lean_dec(v_a_699_);
 v_b_boxed_702_ = lean_unbox_uint64(v_b_700_);
-lean_dec_ref(v_b_700_);
+lean_dec(v_b_700_);
 v_res_703_ = lean_uint64_shift_left(v_a_boxed_701_, v_b_boxed_702_);
 v_r_704_ = lean_box_uint64(v_res_703_);
 return v_r_704_;
@@ -1795,9 +1795,9 @@ _start:
 {
 uint64_t v_a_boxed_709_; uint64_t v_b_boxed_710_; uint64_t v_res_711_; lean_object* v_r_712_; 
 v_a_boxed_709_ = lean_unbox_uint64(v_a_707_);
-lean_dec_ref(v_a_707_);
+lean_dec(v_a_707_);
 v_b_boxed_710_ = lean_unbox_uint64(v_b_708_);
-lean_dec_ref(v_b_708_);
+lean_dec(v_b_708_);
 v_res_711_ = lean_uint64_shift_right(v_a_boxed_709_, v_b_boxed_710_);
 v_r_712_ = lean_box_uint64(v_res_711_);
 return v_r_712_;
@@ -1824,7 +1824,7 @@ _start:
 {
 uint64_t v_a_boxed_731_; uint64_t v_res_732_; lean_object* v_r_733_; 
 v_a_boxed_731_ = lean_unbox_uint64(v_a_730_);
-lean_dec_ref(v_a_730_);
+lean_dec(v_a_730_);
 v_res_732_ = lean_uint64_complement(v_a_boxed_731_);
 v_r_733_ = lean_box_uint64(v_res_732_);
 return v_r_733_;
@@ -1835,7 +1835,7 @@ _start:
 {
 uint64_t v_a_boxed_736_; uint64_t v_res_737_; lean_object* v_r_738_; 
 v_a_boxed_736_ = lean_unbox_uint64(v_a_735_);
-lean_dec_ref(v_a_735_);
+lean_dec(v_a_735_);
 v_res_737_ = lean_uint64_neg(v_a_boxed_736_);
 v_r_738_ = lean_box_uint64(v_res_737_);
 return v_r_738_;
@@ -1868,9 +1868,9 @@ _start:
 {
 uint64_t v_a_boxed_765_; uint64_t v_b_boxed_766_; uint8_t v_res_767_; lean_object* v_r_768_; 
 v_a_boxed_765_ = lean_unbox_uint64(v_a_763_);
-lean_dec_ref(v_a_763_);
+lean_dec(v_a_763_);
 v_b_boxed_766_ = lean_unbox_uint64(v_b_764_);
-lean_dec_ref(v_b_764_);
+lean_dec(v_b_764_);
 v_res_767_ = l_UInt64_decLt___aux__1(v_a_boxed_765_, v_b_boxed_766_);
 v_r_768_ = lean_box(v_res_767_);
 return v_r_768_;
@@ -1881,9 +1881,9 @@ _start:
 {
 uint64_t v_a_boxed_773_; uint64_t v_b_boxed_774_; uint8_t v_res_775_; lean_object* v_r_776_; 
 v_a_boxed_773_ = lean_unbox_uint64(v_a_771_);
-lean_dec_ref(v_a_771_);
+lean_dec(v_a_771_);
 v_b_boxed_774_ = lean_unbox_uint64(v_b_772_);
-lean_dec_ref(v_b_772_);
+lean_dec(v_b_772_);
 v_res_775_ = lean_uint64_dec_lt(v_a_boxed_773_, v_b_boxed_774_);
 v_r_776_ = lean_box(v_res_775_);
 return v_r_776_;
@@ -1906,9 +1906,9 @@ _start:
 {
 uint64_t v_a_boxed_784_; uint64_t v_b_boxed_785_; uint8_t v_res_786_; lean_object* v_r_787_; 
 v_a_boxed_784_ = lean_unbox_uint64(v_a_782_);
-lean_dec_ref(v_a_782_);
+lean_dec(v_a_782_);
 v_b_boxed_785_ = lean_unbox_uint64(v_b_783_);
-lean_dec_ref(v_b_783_);
+lean_dec(v_b_783_);
 v_res_786_ = l_UInt64_decLe___aux__1(v_a_boxed_784_, v_b_boxed_785_);
 v_r_787_ = lean_box(v_res_786_);
 return v_r_787_;
@@ -1919,9 +1919,9 @@ _start:
 {
 uint64_t v_a_boxed_792_; uint64_t v_b_boxed_793_; uint8_t v_res_794_; lean_object* v_r_795_; 
 v_a_boxed_792_ = lean_unbox_uint64(v_a_790_);
-lean_dec_ref(v_a_790_);
+lean_dec(v_a_790_);
 v_b_boxed_793_ = lean_unbox_uint64(v_b_791_);
-lean_dec_ref(v_b_791_);
+lean_dec(v_b_791_);
 v_res_794_ = lean_uint64_dec_le(v_a_boxed_792_, v_b_boxed_793_);
 v_r_795_ = lean_box(v_res_794_);
 return v_r_795_;
@@ -1947,9 +1947,9 @@ _start:
 {
 uint64_t v_x_boxed_801_; uint64_t v_y_boxed_802_; uint64_t v_res_803_; lean_object* v_r_804_; 
 v_x_boxed_801_ = lean_unbox_uint64(v_x_799_);
-lean_dec_ref(v_x_799_);
+lean_dec(v_x_799_);
 v_y_boxed_802_ = lean_unbox_uint64(v_y_800_);
-lean_dec_ref(v_y_800_);
+lean_dec(v_y_800_);
 v_res_803_ = l_instMaxUInt64___lam__0(v_x_boxed_801_, v_y_boxed_802_);
 v_r_804_ = lean_box_uint64(v_res_803_);
 return v_r_804_;
@@ -1975,9 +1975,9 @@ _start:
 {
 uint64_t v_x_boxed_812_; uint64_t v_y_boxed_813_; uint64_t v_res_814_; lean_object* v_r_815_; 
 v_x_boxed_812_ = lean_unbox_uint64(v_x_810_);
-lean_dec_ref(v_x_810_);
+lean_dec(v_x_810_);
 v_y_boxed_813_ = lean_unbox_uint64(v_y_811_);
-lean_dec_ref(v_y_811_);
+lean_dec(v_y_811_);
 v_res_814_ = l_instMinUInt64___lam__0(v_x_boxed_812_, v_y_boxed_813_);
 v_r_815_ = lean_box_uint64(v_res_814_);
 return v_r_815_;
@@ -2295,7 +2295,7 @@ _start:
 {
 uint64_t v_a_boxed_966_; size_t v_res_967_; lean_object* v_r_968_; 
 v_a_boxed_966_ = lean_unbox_uint64(v_a_965_);
-lean_dec_ref(v_a_965_);
+lean_dec(v_a_965_);
 v_res_967_ = lean_uint64_to_usize(v_a_boxed_966_);
 v_r_968_ = lean_box_usize(v_res_967_);
 return v_r_968_;

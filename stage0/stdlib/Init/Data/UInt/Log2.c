@@ -59,7 +59,7 @@ _start:
 {
 uint64_t v_a_boxed_18_; uint64_t v_res_19_; lean_object* v_r_20_; 
 v_a_boxed_18_ = lean_unbox_uint64(v_a_17_);
-lean_dec_ref(v_a_17_);
+lean_dec(v_a_17_);
 v_res_19_ = lean_uint64_log2(v_a_boxed_18_);
 v_r_20_ = lean_box_uint64(v_res_19_);
 return v_r_20_;

@@ -253,7 +253,7 @@ _start:
 {
 uint64_t v_a_00___x40___internal___hyg_1__boxed_52_; double v_res_53_; lean_object* v_r_54_; 
 v_a_00___x40___internal___hyg_1__boxed_52_ = lean_unbox_uint64(v_a_00___x40___internal___hyg_51_);
-lean_dec_ref(v_a_00___x40___internal___hyg_51_);
+lean_dec(v_a_00___x40___internal___hyg_51_);
 v_res_53_ = lean_float_of_bits(v_a_00___x40___internal___hyg_1__boxed_52_);
 v_r_54_ = lean_box_float(v_res_53_);
 return v_r_54_;
@@ -469,7 +469,7 @@ _start:
 {
 uint64_t v_n_boxed_165_; double v_res_166_; lean_object* v_r_167_; 
 v_n_boxed_165_ = lean_unbox_uint64(v_n_164_);
-lean_dec_ref(v_n_164_);
+lean_dec(v_n_164_);
 v_res_166_ = lean_uint64_to_float(v_n_boxed_165_);
 v_r_167_ = lean_box_float(v_res_166_);
 return v_r_167_;

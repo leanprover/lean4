@@ -2889,7 +2889,7 @@ v___x_958_ = l_Lean_Elab_ConfigEval_EvalTerm_checkExpectedNumberOfArguments(v___
 if (lean_obj_tag(v___x_958_) == 0)
 {
 lean_object* v___x_959_; lean_object* v___x_960_; lean_object* v___x_961_; lean_object* v___x_962_; lean_object* v___x_963_; lean_object* v___x_964_; lean_object* v___x_965_; 
-lean_dec_ref(v___x_958_);
+lean_dec_ref_known(v___x_958_, 1);
 v___x_959_ = lean_box(0);
 v___x_960_ = lean_obj_once(&l_Lean_Elab_ConfigEval_instEvalTermOccurrences_evalTerm___lam__0___closed__4, &l_Lean_Elab_ConfigEval_instEvalTermOccurrences_evalTerm___lam__0___closed__4_once, _init_l_Lean_Elab_ConfigEval_instEvalTermOccurrences_evalTerm___lam__0___closed__4);
 v___x_961_ = ((lean_object*)(l_Lean_Elab_ConfigEval_instEvalTermOccurrences_evalTerm___lam__0___closed__5));
@@ -3083,7 +3083,7 @@ v___x_1004_ = l_Lean_Elab_ConfigEval_EvalTerm_checkExpectedNumberOfArguments(v__
 if (lean_obj_tag(v___x_1004_) == 0)
 {
 lean_object* v___x_1005_; lean_object* v___x_1006_; lean_object* v___x_1007_; lean_object* v___x_1008_; lean_object* v___x_1009_; lean_object* v___x_1010_; lean_object* v___x_1011_; 
-lean_dec_ref(v___x_1004_);
+lean_dec_ref_known(v___x_1004_, 1);
 v___x_1005_ = lean_box(0);
 v___x_1006_ = lean_obj_once(&l_Lean_Elab_ConfigEval_instEvalTermOccurrences_evalTerm___lam__0___closed__4, &l_Lean_Elab_ConfigEval_instEvalTermOccurrences_evalTerm___lam__0___closed__4_once, _init_l_Lean_Elab_ConfigEval_instEvalTermOccurrences_evalTerm___lam__0___closed__4);
 v___x_1007_ = ((lean_object*)(l_Lean_Elab_ConfigEval_instEvalTermOccurrences_evalTerm___lam__0___closed__5));

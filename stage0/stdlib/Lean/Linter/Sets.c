@@ -1084,7 +1084,7 @@ lean_object* v_val_475_; lean_object* v___x_476_; lean_object* v___x_477_; lean_
 lean_dec(v___y_421_);
 v_val_475_ = lean_ctor_get(v___x_473_, 0);
 lean_inc(v_val_475_);
-lean_dec_ref(v___x_473_);
+lean_dec_ref_known(v___x_473_, 1);
 v___x_476_ = ((lean_object*)(l_Lean_Linter___aux__Lean__Linter__Sets______elabRules__Lean__Linter__command__Register__linter__set___x3a_x3d____1___closed__30));
 lean_inc_ref(v___y_422_);
 v___x_477_ = l_Lean_Name_mkStr4(v___x_404_, v___y_422_, v___x_438_, v___x_476_);
@@ -1133,7 +1133,7 @@ if (lean_obj_tag(v___y_490_) == 1)
 lean_object* v_val_501_; lean_object* v___x_502_; 
 v_val_501_ = lean_ctor_get(v___y_490_, 0);
 lean_inc(v_val_501_);
-lean_dec_ref(v___y_490_);
+lean_dec_ref_known(v___y_490_, 1);
 v___x_502_ = l_Array_mkArray1___redArg(v_val_501_);
 v___y_413_ = v___x_496_;
 v___y_414_ = v___x_499_;
@@ -1181,14 +1181,14 @@ if (lean_obj_tag(v___x_509_) == 0)
 lean_object* v_a_510_; lean_object* v___x_511_; 
 v_a_510_ = lean_ctor_get(v___x_509_, 0);
 lean_inc(v_a_510_);
-lean_dec_ref(v___x_509_);
+lean_dec_ref_known(v___x_509_, 1);
 v___x_511_ = l_Lean_Elab_Command_getCurrMacroScope___redArg(v_a_368_);
 if (lean_obj_tag(v___x_511_) == 0)
 {
 lean_object* v_a_512_; lean_object* v_quotContext_x3f_513_; uint8_t v___x_514_; lean_object* v___x_515_; 
 v_a_512_ = lean_ctor_get(v___x_511_, 0);
 lean_inc(v_a_512_);
-lean_dec_ref(v___x_511_);
+lean_dec_ref_known(v___x_511_, 1);
 v_quotContext_x3f_513_ = lean_ctor_get(v_a_368_, 5);
 v___x_514_ = 0;
 v___x_515_ = l_Lean_SourceInfo_fromRef(v_a_510_, v___x_514_);
@@ -1382,7 +1382,7 @@ if (lean_obj_tag(v___x_388_) == 0)
 lean_object* v_a_389_; lean_object* v___x_390_; lean_object* v___x_391_; lean_object* v___x_392_; lean_object* v___x_393_; lean_object* v___x_394_; lean_object* v___x_395_; 
 v_a_389_ = lean_ctor_get(v___x_388_, 0);
 lean_inc(v_a_389_);
-lean_dec_ref(v___x_388_);
+lean_dec_ref_known(v___x_388_, 1);
 lean_inc_n(v___y_383_, 3);
 v___x_390_ = l_Lean_Syntax_node2(v___y_383_, v___y_377_, v___x_387_, v___y_379_);
 lean_inc(v___y_381_);

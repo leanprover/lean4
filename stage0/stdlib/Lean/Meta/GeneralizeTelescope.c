@@ -142,7 +142,7 @@ if (lean_obj_tag(v___x_20_) == 0)
 lean_object* v_a_21_; uint8_t v___x_22_; 
 v_a_21_ = lean_ctor_get(v___x_20_, 0);
 lean_inc(v_a_21_);
-lean_dec_ref(v___x_20_);
+lean_dec_ref_known(v___x_20_, 1);
 v___x_22_ = l_Lean_Expr_hasLooseBVars(v_a_21_);
 if (v___x_22_ == 0)
 {
@@ -666,11 +666,11 @@ if (lean_obj_tag(v___x_305_) == 0)
 lean_object* v_a_306_; 
 v_a_306_ = lean_ctor_get(v___x_305_, 0);
 lean_inc(v_a_306_);
-lean_dec_ref(v___x_305_);
+lean_dec_ref_known(v___x_305_, 1);
 if (lean_obj_tag(v_a_306_) == 0)
 {
 lean_object* v___x_307_; lean_object* v___x_308_; lean_object* v___x_309_; 
-lean_dec_ref(v_a_306_);
+lean_dec_ref_known(v_a_306_, 4);
 v___x_307_ = lean_unsigned_to_nat(1u);
 v___x_308_ = lean_nat_add(v_i_228_, v___x_307_);
 lean_dec(v_i_228_);
@@ -684,7 +684,7 @@ else
 {
 lean_object* v___x_311_; 
 v___x_311_ = l_Lean_LocalDecl_userName(v_a_306_);
-lean_dec_ref(v_a_306_);
+lean_dec_ref_known(v_a_306_, 5);
 lean_inc_ref(v_type_268_);
 lean_inc_ref(v_expr_267_);
 v_baseUserName_236_ = v___x_311_;
@@ -784,7 +784,7 @@ if (lean_obj_tag(v___x_275_) == 0)
 lean_object* v_a_276_; uint8_t v___x_277_; 
 v_a_276_ = lean_ctor_get(v___x_275_, 0);
 lean_inc(v_a_276_);
-lean_dec_ref(v___x_275_);
+lean_dec_ref_known(v___x_275_, 1);
 v___x_277_ = lean_unbox(v_a_276_);
 lean_dec(v_a_276_);
 if (v___x_277_ == 0)
@@ -805,7 +805,7 @@ lean_ctor_set(v___x_286_, 1, v___x_285_);
 v___x_287_ = l_Lean_throwError___at___00Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux_spec__3___redArg(v___x_286_, v___y_271_, v___y_272_, v___y_273_, v___y_274_);
 if (lean_obj_tag(v___x_287_) == 0)
 {
-lean_dec_ref(v___x_287_);
+lean_dec_ref_known(v___x_287_, 1);
 lean_inc_ref(v_expr_267_);
 lean_inc_ref(v_type_268_);
 v___y_256_ = v_type_268_;
@@ -932,7 +932,7 @@ if (lean_obj_tag(v___x_243_) == 0)
 lean_object* v_a_244_; lean_object* v___f_245_; lean_object* v___x_246_; 
 v_a_244_ = lean_ctor_get(v___x_243_, 0);
 lean_inc(v_a_244_);
-lean_dec_ref(v___x_243_);
+lean_dec_ref_known(v___x_243_, 1);
 v___f_245_ = lean_alloc_closure((void*)(l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg___lam__0___boxed), 11, 5);
 lean_closure_set(v___f_245_, 0, v_i_228_);
 lean_closure_set(v___f_245_, 1, v_e_237_);
@@ -1018,7 +1018,7 @@ if (lean_obj_tag(v___x_333_) == 0)
 lean_object* v_a_334_; lean_object* v___x_335_; lean_object* v___x_336_; 
 v_a_334_ = lean_ctor_get(v___x_333_, 0);
 lean_inc(v_a_334_);
-lean_dec_ref(v___x_333_);
+lean_dec_ref_known(v___x_333_, 1);
 v___x_335_ = lean_array_push(v_fvars_323_, v_x_325_);
 v___x_336_ = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg(v_k_324_, v_a_334_, v___x_332_, v___x_335_, v___y_326_, v___y_327_, v___y_328_, v___y_329_);
 return v___x_336_;
@@ -1304,14 +1304,14 @@ if (lean_obj_tag(v___x_493_) == 0)
 lean_object* v_a_494_; lean_object* v___x_495_; 
 v_a_494_ = lean_ctor_get(v___x_493_, 0);
 lean_inc(v_a_494_);
-lean_dec_ref(v___x_493_);
+lean_dec_ref_known(v___x_493_, 1);
 v___x_495_ = l_Lean_instantiateMVars___at___00Lean_Meta_generalizeTelescope_spec__0___redArg(v_a_494_, v___y_486_);
 if (lean_obj_tag(v___x_495_) == 0)
 {
 lean_object* v_a_496_; lean_object* v___x_497_; lean_object* v_bs_x27_498_; uint8_t v___x_499_; lean_object* v___x_500_; size_t v___x_501_; size_t v___x_502_; lean_object* v___x_503_; 
 v_a_496_ = lean_ctor_get(v___x_495_, 0);
 lean_inc(v_a_496_);
-lean_dec_ref(v___x_495_);
+lean_dec_ref_known(v___x_495_, 1);
 v___x_497_ = lean_unsigned_to_nat(0u);
 v_bs_x27_498_ = lean_array_uset(v_bs_484_, v_i_483_, v___x_497_);
 v___x_499_ = 0;
@@ -1444,7 +1444,7 @@ if (lean_obj_tag(v___x_543_) == 0)
 lean_object* v_a_544_; lean_object* v___x_545_; lean_object* v___x_546_; lean_object* v___x_547_; 
 v_a_544_ = lean_ctor_get(v___x_543_, 0);
 lean_inc(v_a_544_);
-lean_dec_ref(v___x_543_);
+lean_dec_ref_known(v___x_543_, 1);
 v___x_545_ = lean_unsigned_to_nat(0u);
 v___x_546_ = ((lean_object*)(l_Lean_Meta_generalizeTelescope___redArg___closed__0));
 v___x_547_ = l_Lean_Meta_GeneralizeTelescope_generalizeTelescopeAux___redArg(v_k_535_, v_a_544_, v___x_545_, v___x_546_, v_a_536_, v_a_537_, v_a_538_, v_a_539_);

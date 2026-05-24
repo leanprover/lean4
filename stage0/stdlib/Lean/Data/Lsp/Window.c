@@ -729,7 +729,7 @@ if (lean_obj_tag(v___x_158_) == 2)
 lean_object* v_n_159_; lean_object* v_mantissa_160_; lean_object* v_exponent_161_; lean_object* v_natZero_162_; lean_object* v_intZero_163_; uint8_t v_isNeg_164_; 
 v_n_159_ = lean_ctor_get(v___x_158_, 0);
 lean_inc_ref(v_n_159_);
-lean_dec_ref(v___x_158_);
+lean_dec_ref_known(v___x_158_, 1);
 v_mantissa_160_ = lean_ctor_get(v_n_159_, 0);
 lean_inc(v_mantissa_160_);
 v_exponent_161_ = lean_ctor_get(v_n_159_, 1);
@@ -1067,7 +1067,7 @@ else
 lean_object* v_a_248_; lean_object* v___x_249_; lean_object* v___x_250_; 
 v_a_248_ = lean_ctor_get(v___x_229_, 0);
 lean_inc(v_a_248_);
-lean_dec_ref(v___x_229_);
+lean_dec_ref_known(v___x_229_, 1);
 v___x_249_ = ((lean_object*)(l_instFromJsonShowMessageParams_fromJson___closed__11));
 v___x_250_ = l_Lean_Json_getObjValAs_x3f___at___00instFromJsonShowMessageParams_fromJson_spec__1(v_json_227_, v___x_249_);
 if (lean_obj_tag(v___x_250_) == 0)
@@ -1229,7 +1229,7 @@ v_head_284_ = lean_ctor_get(v_a_281_, 0);
 lean_inc(v_head_284_);
 v_tail_285_ = lean_ctor_get(v_a_281_, 1);
 lean_inc(v_tail_285_);
-lean_dec_ref(v_a_281_);
+lean_dec_ref_known(v_a_281_, 2);
 v___x_286_ = l_List_foldl___at___00Array_appendList_spec__0___redArg(v_a_282_, v_head_284_);
 v_a_281_ = v_tail_285_;
 v_a_282_ = v___x_286_;
@@ -1597,7 +1597,7 @@ else
 lean_object* v_a_395_; lean_object* v___x_396_; lean_object* v_bs_x27_397_; size_t v___x_398_; size_t v___x_399_; lean_object* v___x_400_; 
 v_a_395_ = lean_ctor_get(v___x_386_, 0);
 lean_inc(v_a_395_);
-lean_dec_ref(v___x_386_);
+lean_dec_ref_known(v___x_386_, 1);
 v___x_396_ = lean_unsigned_to_nat(0u);
 v_bs_x27_397_ = lean_array_uset(v_bs_382_, v_i_381_, v___x_396_);
 v___x_398_ = ((size_t)1ULL);
@@ -1630,7 +1630,7 @@ if (lean_obj_tag(v_x_410_) == 4)
 lean_object* v_elems_411_; size_t v_sz_412_; size_t v___x_413_; lean_object* v___x_414_; 
 v_elems_411_ = lean_ctor_get(v_x_410_, 0);
 lean_inc_ref(v_elems_411_);
-lean_dec_ref(v_x_410_);
+lean_dec_ref_known(v_x_410_, 1);
 v_sz_412_ = lean_array_size(v_elems_411_);
 v___x_413_ = ((size_t)0ULL);
 v___x_414_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Array_fromJson_x3f___at___00Option_fromJson_x3f___at___00Lean_Json_getObjValAs_x3f___at___00instFromJsonShowMessageRequestParams_fromJson_spec__0_spec__0_spec__1_spec__2(v_sz_412_, v___x_413_, v_elems_411_);
@@ -1964,7 +1964,7 @@ else
 lean_object* v_a_506_; lean_object* v___x_507_; lean_object* v___x_508_; 
 v_a_506_ = lean_ctor_get(v___x_487_, 0);
 lean_inc(v_a_506_);
-lean_dec_ref(v___x_487_);
+lean_dec_ref_known(v___x_487_, 1);
 v___x_507_ = ((lean_object*)(l_instFromJsonShowMessageParams_fromJson___closed__11));
 lean_inc(v_json_485_);
 v___x_508_ = l_Lean_Json_getObjValAs_x3f___at___00instFromJsonShowMessageParams_fromJson_spec__1(v_json_485_, v___x_507_);
@@ -2066,7 +2066,7 @@ else
 lean_object* v_a_527_; lean_object* v___x_528_; lean_object* v___x_529_; 
 v_a_527_ = lean_ctor_get(v___x_508_, 0);
 lean_inc(v_a_527_);
-lean_dec_ref(v___x_508_);
+lean_dec_ref_known(v___x_508_, 1);
 v___x_528_ = ((lean_object*)(l_instFromJsonShowMessageRequestParams_fromJson___closed__8));
 v___x_529_ = l_Lean_Json_getObjValAs_x3f___at___00instFromJsonShowMessageRequestParams_fromJson_spec__0(v_json_485_, v___x_528_);
 if (lean_obj_tag(v___x_529_) == 0)
@@ -2281,7 +2281,7 @@ else
 lean_object* v_val_586_; lean_object* v___x_587_; lean_object* v___x_588_; lean_object* v___x_589_; lean_object* v___x_590_; 
 v_val_586_ = lean_ctor_get(v_x_584_, 0);
 lean_inc(v_val_586_);
-lean_dec_ref(v_x_584_);
+lean_dec_ref_known(v_x_584_, 1);
 v___x_587_ = l_Array_toJson___at___00Lean_Json_opt___at___00instToJsonShowMessageRequestParams_toJson_spec__0_spec__0(v_val_586_);
 v___x_588_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_588_, 0, v_k_583_);
@@ -2508,7 +2508,7 @@ else
 lean_object* v_val_651_; lean_object* v___x_652_; 
 v_val_651_ = lean_ctor_get(v_x_649_, 0);
 lean_inc(v_val_651_);
-lean_dec_ref(v_x_649_);
+lean_dec_ref_known(v_x_649_, 1);
 v___x_652_ = l_instToJsonMessageActionItem_toJson(v_val_651_);
 return v___x_652_;
 }

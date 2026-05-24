@@ -98,7 +98,7 @@ if (lean_obj_tag(v___x_19_) == 0)
 lean_object* v_a_20_; lean_object* v___x_21_; 
 v_a_20_ = lean_ctor_get(v___x_19_, 0);
 lean_inc(v_a_20_);
-lean_dec_ref(v___x_19_);
+lean_dec_ref_known(v___x_19_, 1);
 v___x_21_ = l_Std_Time_Database_Windows_getZoneRules(v_a_20_);
 lean_dec(v_a_20_);
 return v___x_21_;

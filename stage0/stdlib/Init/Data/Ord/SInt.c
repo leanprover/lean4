@@ -208,9 +208,9 @@ _start:
 {
 uint64_t v_x_boxed_55_; uint64_t v_y_boxed_56_; uint8_t v_res_57_; lean_object* v_r_58_; 
 v_x_boxed_55_ = lean_unbox_uint64(v_x_53_);
-lean_dec_ref(v_x_53_);
+lean_dec(v_x_53_);
 v_y_boxed_56_ = lean_unbox_uint64(v_y_54_);
-lean_dec_ref(v_y_54_);
+lean_dec(v_y_54_);
 v_res_57_ = l_Int64_instOrd___lam__0(v_x_boxed_55_, v_y_boxed_56_);
 v_r_58_ = lean_box(v_res_57_);
 return v_r_58_;

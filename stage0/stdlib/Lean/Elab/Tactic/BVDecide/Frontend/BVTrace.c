@@ -428,12 +428,12 @@ else
 lean_object* v_val_75_; 
 v_val_75_ = lean_ctor_get(v___x_73_, 0);
 lean_inc(v_val_75_);
-lean_dec_ref(v___x_73_);
+lean_dec_ref_known(v___x_73_, 1);
 if (lean_obj_tag(v_val_75_) == 1)
 {
 uint8_t v_v_76_; 
 v_v_76_ = lean_ctor_get_uint8(v_val_75_, 0);
-lean_dec_ref(v_val_75_);
+lean_dec_ref_known(v_val_75_, 0);
 return v_v_76_;
 }
 else
@@ -709,20 +709,20 @@ if (lean_obj_tag(v___x_190_) == 1)
 lean_object* v_val_191_; lean_object* v___x_192_; 
 v_val_191_ = lean_ctor_get(v___x_190_, 0);
 lean_inc(v_val_191_);
-lean_dec_ref(v___x_190_);
+lean_dec_ref_known(v___x_190_, 1);
 v___x_192_ = l_Lean_Elab_Term_getDeclName_x3f___redArg(v_a_181_);
 if (lean_obj_tag(v___x_192_) == 0)
 {
 lean_object* v_a_193_; 
 v_a_193_ = lean_ctor_get(v___x_192_, 0);
 lean_inc(v_a_193_);
-lean_dec_ref(v___x_192_);
+lean_dec_ref_known(v___x_192_, 1);
 if (lean_obj_tag(v_a_193_) == 1)
 {
 lean_object* v_val_194_; lean_object* v___x_195_; lean_object* v_a_196_; lean_object* v___x_198_; uint8_t v_isShared_199_; uint8_t v_isSharedCheck_219_; 
 v_val_194_ = lean_ctor_get(v_a_193_, 0);
 lean_inc(v_val_194_);
-lean_dec_ref(v_a_193_);
+lean_dec_ref_known(v_a_193_, 1);
 v___x_195_ = l_Lean_getRefPos___at___00Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_getLratFileName_spec__0___redArg(v_a_185_);
 v_a_196_ = lean_ctor_get(v___x_195_, 0);
 v_isSharedCheck_219_ = !lean_is_exclusive(v___x_195_);
@@ -1293,14 +1293,14 @@ if (lean_obj_tag(v___x_505_) == 0)
 lean_object* v_a_506_; lean_object* v___x_507_; 
 v_a_506_ = lean_ctor_get(v___x_505_, 0);
 lean_inc(v_a_506_);
-lean_dec_ref(v___x_505_);
+lean_dec_ref_known(v___x_505_, 1);
 v___x_507_ = l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_getLratFileName(v_a_485_, v_a_486_, v_a_487_, v_a_488_, v_a_489_, v_a_490_);
 if (lean_obj_tag(v___x_507_) == 0)
 {
 lean_object* v_a_508_; lean_object* v_timeout_509_; uint8_t v_binaryProofs_510_; uint8_t v_acNf_511_; uint8_t v_andFlattening_512_; uint8_t v_embeddedConstraintSubst_513_; uint8_t v_structures_514_; uint8_t v_fixedInt_515_; uint8_t v_enums_516_; uint8_t v_graphviz_517_; lean_object* v_maxSteps_518_; uint8_t v_shortCircuit_519_; uint8_t v_solverMode_520_; lean_object* v___x_522_; uint8_t v_isShared_523_; uint8_t v_isSharedCheck_668_; 
 v_a_508_ = lean_ctor_get(v___x_507_, 0);
 lean_inc(v_a_508_);
-lean_dec_ref(v___x_507_);
+lean_dec_ref_known(v___x_507_, 1);
 v_timeout_509_ = lean_ctor_get(v_a_506_, 0);
 v_binaryProofs_510_ = lean_ctor_get_uint8(v_a_506_, sizeof(void*)*2 + 1);
 v_acNf_511_ = lean_ctor_get_uint8(v_a_506_, sizeof(void*)*2 + 2);
@@ -1367,14 +1367,14 @@ if (lean_obj_tag(v___x_526_) == 0)
 lean_object* v_a_527_; lean_object* v___x_528_; 
 v_a_527_ = lean_ctor_get(v___x_526_, 0);
 lean_inc(v_a_527_);
-lean_dec_ref(v___x_526_);
+lean_dec_ref_known(v___x_526_, 1);
 v___x_528_ = l_Lean_Elab_Tactic_getMainGoal___redArg(v_a_484_, v_a_487_, v_a_488_, v_a_489_, v_a_490_);
 if (lean_obj_tag(v___x_528_) == 0)
 {
 lean_object* v_a_529_; lean_object* v___f_530_; lean_object* v___x_531_; 
 v_a_529_ = lean_ctor_get(v___x_528_, 0);
 lean_inc_n(v_a_529_, 2);
-lean_dec_ref(v___x_528_);
+lean_dec_ref_known(v___x_528_, 1);
 lean_inc(v_a_527_);
 v___f_530_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace___lam__0___boxed), 11, 2);
 lean_closure_set(v___f_530_, 0, v_a_529_);
@@ -1385,7 +1385,7 @@ if (lean_obj_tag(v___x_531_) == 0)
 lean_object* v_a_532_; lean_object* v___x_533_; lean_object* v_tk_534_; lean_object* v___y_536_; lean_object* v___y_537_; 
 v_a_532_ = lean_ctor_get(v___x_531_, 0);
 lean_inc(v_a_532_);
-lean_dec_ref(v___x_531_);
+lean_dec_ref_known(v___x_531_, 1);
 v___x_533_ = lean_unsigned_to_nat(0u);
 v_tk_534_ = l_Lean_Syntax_getArg(v_x_482_, v___x_533_);
 lean_dec(v_x_482_);
@@ -1476,7 +1476,7 @@ if (lean_obj_tag(v___x_579_) == 0)
 lean_object* v_a_580_; lean_object* v___x_581_; lean_object* v___x_582_; 
 v_a_580_ = lean_ctor_get(v___x_579_, 0);
 lean_inc(v_a_580_);
-lean_dec_ref(v___x_579_);
+lean_dec_ref_known(v___x_579_, 1);
 lean_inc(v_a_508_);
 v___x_581_ = l_System_FilePath_join(v_a_580_, v_a_508_);
 v___x_582_ = l_Std_Tactic_BVDecide_LRAT_loadLRATProof(v___x_581_);
@@ -1485,7 +1485,7 @@ if (lean_obj_tag(v___x_582_) == 0)
 lean_object* v_a_583_; lean_object* v___x_584_; lean_object* v___x_585_; 
 v_a_583_ = lean_ctor_get(v___x_582_, 0);
 lean_inc(v_a_583_);
-lean_dec_ref(v___x_582_);
+lean_dec_ref_known(v___x_582_, 1);
 v___x_584_ = l_Lean_Elab_Tactic_BVDecide_LRAT_trim(v_a_583_);
 lean_dec(v_a_583_);
 v___x_585_ = l_IO_ofExcept___at___00Lean_Elab_Tactic_BVDecide_Frontend_BVTrace_evalBvTrace_spec__2___redArg(v___x_584_);
@@ -1494,13 +1494,13 @@ if (lean_obj_tag(v___x_585_) == 0)
 lean_object* v_a_586_; lean_object* v___x_587_; 
 v_a_586_ = lean_ctor_get(v___x_585_, 0);
 lean_inc(v_a_586_);
-lean_dec_ref(v___x_585_);
+lean_dec_ref_known(v___x_585_, 1);
 v___x_587_ = l_Std_Tactic_BVDecide_LRAT_dumpLRATProof(v___x_581_, v_a_586_, v_binaryProofs_510_);
 lean_dec(v_a_586_);
 lean_dec_ref(v___x_581_);
 if (lean_obj_tag(v___x_587_) == 0)
 {
-lean_dec_ref(v___x_587_);
+lean_dec_ref_known(v___x_587_, 1);
 lean_del_object(v___x_575_);
 v___y_536_ = v_a_489_;
 v___y_537_ = v_a_490_;

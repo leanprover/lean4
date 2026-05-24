@@ -611,7 +611,7 @@ v_snd_236_ = lean_ctor_get(v_b_221_, 1);
 lean_inc(v_snd_236_);
 v_a_237_ = lean_ctor_get(v___x_235_, 0);
 lean_inc(v_a_237_);
-lean_dec_ref(v___x_235_);
+lean_dec_ref_known(v___x_235_, 1);
 v_fst_238_ = lean_ctor_get(v_b_221_, 0);
 v_isSharedCheck_302_ = !lean_is_exclusive(v_b_221_);
 if (v_isSharedCheck_302_ == 0)
@@ -738,7 +738,7 @@ if (lean_obj_tag(v___x_271_) == 0)
 lean_object* v_a_272_; lean_object* v___x_273_; lean_object* v___x_274_; lean_object* v___x_275_; lean_object* v___x_276_; 
 v_a_272_ = lean_ctor_get(v___x_271_, 0);
 lean_inc(v_a_272_);
-lean_dec_ref(v___x_271_);
+lean_dec_ref_known(v___x_271_, 1);
 v___x_273_ = l_Lean_LocalDecl_toExpr(v_a_272_);
 lean_inc(v_a_234_);
 v___x_274_ = lean_alloc_ctor(1, 1, 0);
@@ -750,7 +750,7 @@ if (lean_obj_tag(v___x_276_) == 0)
 lean_object* v_a_277_; lean_object* v___x_278_; lean_object* v___x_279_; lean_object* v___x_280_; lean_object* v___x_281_; 
 v_a_277_ = lean_ctor_get(v___x_276_, 0);
 lean_inc(v_a_277_);
-lean_dec_ref(v___x_276_);
+lean_dec_ref_known(v___x_276_, 1);
 v___x_278_ = lean_box(0);
 v___x_279_ = l_Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass_spec__1___redArg(v_fst_242_, v_arg_259_, v___x_278_);
 v___x_280_ = lean_alloc_ctor(0, 2, 0);
@@ -1130,7 +1130,7 @@ if (lean_obj_tag(v___x_368_) == 0)
 lean_object* v_a_369_; lean_object* v___x_370_; lean_object* v_relevantHyps_371_; lean_object* v___x_372_; size_t v_sz_373_; size_t v___x_374_; lean_object* v___x_375_; 
 v_a_369_ = lean_ctor_get(v___x_368_, 0);
 lean_inc(v_a_369_);
-lean_dec_ref(v___x_368_);
+lean_dec_ref_known(v___x_368_, 1);
 v___x_370_ = lean_unsigned_to_nat(0u);
 v_relevantHyps_371_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1___closed__0));
 v___x_372_ = lean_obj_once(&l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1___closed__4, &l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1___closed__4_once, _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1___closed__4);
@@ -1143,7 +1143,7 @@ if (lean_obj_tag(v___x_375_) == 0)
 lean_object* v_a_376_; lean_object* v_snd_377_; lean_object* v_fst_378_; lean_object* v_snd_379_; lean_object* v___x_380_; 
 v_a_376_ = lean_ctor_get(v___x_375_, 0);
 lean_inc(v_a_376_);
-lean_dec_ref(v___x_375_);
+lean_dec_ref_known(v___x_375_, 1);
 v_snd_377_ = lean_ctor_get(v_a_376_, 1);
 lean_inc(v_snd_377_);
 v_fst_378_ = lean_ctor_get(v_a_376_, 0);
@@ -1189,14 +1189,14 @@ if (lean_obj_tag(v___x_387_) == 0)
 lean_object* v_a_388_; lean_object* v___x_389_; 
 v_a_388_ = lean_ctor_get(v___x_387_, 0);
 lean_inc(v_a_388_);
-lean_dec_ref(v___x_387_);
+lean_dec_ref_known(v___x_387_, 1);
 v___x_389_ = l_Lean_Meta_getSimpCongrTheorems___redArg(v___y_366_);
 if (lean_obj_tag(v___x_389_) == 0)
 {
 lean_object* v_a_390_; lean_object* v_maxSteps_391_; uint8_t v___x_392_; lean_object* v___x_393_; uint8_t v___x_394_; lean_object* v___x_395_; lean_object* v___x_396_; lean_object* v___x_397_; lean_object* v___x_398_; 
 v_a_390_ = lean_ctor_get(v___x_389_, 0);
 lean_inc(v_a_390_);
-lean_dec_ref(v___x_389_);
+lean_dec_ref_known(v___x_389_, 1);
 v_maxSteps_391_ = lean_ctor_get(v___y_361_, 1);
 v___x_392_ = 1;
 v___x_393_ = lean_unsigned_to_nat(2u);
@@ -1243,7 +1243,7 @@ if (lean_obj_tag(v___x_398_) == 0)
 lean_object* v_a_399_; lean_object* v___x_400_; lean_object* v___x_401_; 
 v_a_399_ = lean_ctor_get(v___x_398_, 0);
 lean_inc(v_a_399_);
-lean_dec_ref(v___x_398_);
+lean_dec_ref_known(v___x_398_, 1);
 v___x_400_ = lean_obj_once(&l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1___closed__11, &l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1___closed__11_once, _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_embeddedConstraintPass___lam__1___closed__11);
 v___x_401_ = l_Lean_Meta_simpGoal(v_a_381_, v_a_399_, v_relevantHyps_371_, v___x_395_, v___x_392_, v_a_388_, v___x_400_, v___y_363_, v___y_364_, v___y_365_, v___y_366_);
 if (lean_obj_tag(v___x_401_) == 0)

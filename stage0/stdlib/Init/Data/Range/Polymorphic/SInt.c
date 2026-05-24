@@ -1461,7 +1461,7 @@ _start:
 {
 uint64_t v_i_boxed_447_; lean_object* v_res_448_; 
 v_i_boxed_447_ = lean_unbox_uint64(v_i_446_);
-lean_dec_ref(v_i_446_);
+lean_dec(v_i_446_);
 v_res_448_ = l_Int64_instUpwardEnumerable___lam__0(v_i_boxed_447_);
 return v_res_448_;
 }
@@ -1510,7 +1510,7 @@ _start:
 {
 uint64_t v_i_boxed_464_; lean_object* v_res_465_; 
 v_i_boxed_464_ = lean_unbox_uint64(v_i_463_);
-lean_dec_ref(v_i_463_);
+lean_dec(v_i_463_);
 v_res_465_ = l_Int64_instUpwardEnumerable___lam__1(v_n_462_, v_i_boxed_464_);
 return v_res_465_;
 }
@@ -1584,9 +1584,9 @@ _start:
 {
 uint64_t v_lo_boxed_492_; uint64_t v_hi_boxed_493_; lean_object* v_res_494_; 
 v_lo_boxed_492_ = lean_unbox_uint64(v_lo_490_);
-lean_dec_ref(v_lo_490_);
+lean_dec(v_lo_490_);
 v_hi_boxed_493_ = lean_unbox_uint64(v_hi_491_);
-lean_dec_ref(v_hi_491_);
+lean_dec(v_hi_491_);
 v_res_494_ = l_Int64_instRxcHasSize___lam__0(v_lo_boxed_492_, v_hi_boxed_493_);
 return v_res_494_;
 }
@@ -1616,9 +1616,9 @@ _start:
 {
 uint64_t v_lo_boxed_509_; uint64_t v_hi_boxed_510_; lean_object* v_res_511_; 
 v_lo_boxed_509_ = lean_unbox_uint64(v_lo_507_);
-lean_dec_ref(v_lo_507_);
+lean_dec(v_lo_507_);
 v_hi_boxed_510_ = lean_unbox_uint64(v_hi_508_);
-lean_dec_ref(v_hi_508_);
+lean_dec(v_hi_508_);
 v_res_511_ = l_Int64_instRxoHasSize___lam__0(v_lo_boxed_509_, v_hi_boxed_510_);
 return v_res_511_;
 }
@@ -1651,7 +1651,7 @@ _start:
 {
 uint64_t v_lo_boxed_523_; lean_object* v_res_524_; 
 v_lo_boxed_523_ = lean_unbox_uint64(v_lo_522_);
-lean_dec_ref(v_lo_522_);
+lean_dec(v_lo_522_);
 v_res_524_ = l_Int64_instRxiHasSize___lam__0(v_lo_boxed_523_);
 return v_res_524_;
 }

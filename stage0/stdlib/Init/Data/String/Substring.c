@@ -896,7 +896,7 @@ lean_dec(v_stopPos_212_);
 lean_dec(v_startPos_211_);
 v_val_225_ = lean_ctor_get(v___x_223_, 0);
 lean_inc(v_val_225_);
-lean_dec_ref(v___x_223_);
+lean_dec_ref_known(v___x_223_, 1);
 return v_val_225_;
 }
 }

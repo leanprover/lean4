@@ -1451,7 +1451,7 @@ _start:
 {
 uint64_t v_k_boxed_299_; lean_object* v_res_300_; 
 v_k_boxed_299_ = lean_unbox_uint64(v_k_296_);
-lean_dec_ref(v_k_296_);
+lean_dec(v_k_296_);
 v_res_300_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Std_CancellationContext_new_spec__0___redArg(v_k_boxed_299_, v_v_297_, v_t_298_);
 return v_res_300_;
 }
@@ -1502,7 +1502,7 @@ _start:
 {
 uint64_t v_k_boxed_327_; lean_object* v_res_328_; 
 v_k_boxed_327_ = lean_unbox_uint64(v_k_323_);
-lean_dec_ref(v_k_323_);
+lean_dec(v_k_323_);
 v_res_328_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Std_CancellationContext_new_spec__0(v_00_u03b2_322_, v_k_boxed_327_, v_v_324_, v_t_325_, v_hl_326_);
 return v_res_328_;
 }
@@ -1577,7 +1577,7 @@ _start:
 {
 uint64_t v___x_1350__boxed_362_; lean_object* v_res_363_; 
 v___x_1350__boxed_362_ = lean_unbox_uint64(v___x_360_);
-lean_dec_ref(v___x_360_);
+lean_dec(v___x_360_);
 v_res_363_ = l_Std_DTreeMap_Internal_Impl_Const_modify___at___00Std_CancellationContext_fork_spec__0___lam__1(v___x_1350__boxed_362_, v_x_361_);
 return v_res_363_;
 }
@@ -1724,9 +1724,9 @@ _start:
 {
 uint64_t v___x_1362__boxed_400_; uint64_t v_k_boxed_401_; lean_object* v_res_402_; 
 v___x_1362__boxed_400_ = lean_unbox_uint64(v___x_397_);
-lean_dec_ref(v___x_397_);
+lean_dec(v___x_397_);
 v_k_boxed_401_ = lean_unbox_uint64(v_k_398_);
-lean_dec_ref(v_k_398_);
+lean_dec(v_k_398_);
 v_res_402_ = l_Std_DTreeMap_Internal_Impl_Const_modify___at___00Std_CancellationContext_fork_spec__0(v___x_1362__boxed_400_, v_k_boxed_401_, v_t_399_);
 return v_res_402_;
 }
@@ -1810,7 +1810,7 @@ _start:
 {
 uint64_t v_id_boxed_435_; lean_object* v_res_436_; 
 v_id_boxed_435_ = lean_unbox_uint64(v_id_430_);
-lean_dec_ref(v_id_430_);
+lean_dec(v_id_430_);
 v_res_436_ = l_Std_CancellationContext_fork___lam__0(v_token_429_, v_id_boxed_435_, v_state_431_, v_root_432_, v___y_433_);
 lean_dec(v___y_433_);
 lean_dec_ref(v_root_432_);
@@ -5006,7 +5006,7 @@ _start:
 {
 uint64_t v_k_boxed_1114_; lean_object* v_res_1115_; 
 v_k_boxed_1114_ = lean_unbox_uint64(v_k_1112_);
-lean_dec_ref(v_k_1112_);
+lean_dec(v_k_1112_);
 v_res_1115_ = l_Std_DTreeMap_Internal_Impl_erase___at___00__private_Std_Sync_CancellationContext_0__Std_CancellationContext_cancelChildren_spec__2___redArg(v_k_boxed_1114_, v_t_1113_);
 return v_res_1115_;
 }
@@ -5061,7 +5061,7 @@ _start:
 {
 uint64_t v_k_boxed_1132_; lean_object* v_res_1133_; 
 v_k_boxed_1132_ = lean_unbox_uint64(v_k_1131_);
-lean_dec_ref(v_k_1131_);
+lean_dec(v_k_1131_);
 v_res_1133_ = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00__private_Std_Sync_CancellationContext_0__Std_CancellationContext_cancelChildren_spec__0___redArg(v_t_1130_, v_k_boxed_1132_);
 lean_dec(v_t_1130_);
 return v_res_1133_;
@@ -5078,7 +5078,7 @@ if (lean_obj_tag(v___x_1139_) == 1)
 lean_object* v_val_1140_; lean_object* v_fst_1141_; lean_object* v_snd_1142_; size_t v_sz_1143_; size_t v___x_1144_; lean_object* v___x_1145_; lean_object* v___x_1146_; lean_object* v_tokens_1147_; uint64_t v_id_1148_; lean_object* v___x_1150_; uint8_t v_isShared_1151_; uint8_t v_isSharedCheck_1156_; 
 v_val_1140_ = lean_ctor_get(v___x_1139_, 0);
 lean_inc(v_val_1140_);
-lean_dec_ref(v___x_1139_);
+lean_dec_ref_known(v___x_1139_, 1);
 v_fst_1141_ = lean_ctor_get(v_val_1140_, 0);
 lean_inc(v_fst_1141_);
 v_snd_1142_ = lean_ctor_get(v_val_1140_, 1);
@@ -5183,7 +5183,7 @@ _start:
 {
 uint64_t v_id_boxed_1183_; lean_object* v_res_1184_; 
 v_id_boxed_1183_ = lean_unbox_uint64(v_id_1180_);
-lean_dec_ref(v_id_1180_);
+lean_dec(v_id_1180_);
 v_res_1184_ = l___private_Std_Sync_CancellationContext_0__Std_CancellationContext_cancelChildren(v_state_1179_, v_id_boxed_1183_, v_reason_1181_);
 return v_res_1184_;
 }
@@ -5201,7 +5201,7 @@ _start:
 {
 uint64_t v_k_boxed_1192_; lean_object* v_res_1193_; 
 v_k_boxed_1192_ = lean_unbox_uint64(v_k_1191_);
-lean_dec_ref(v_k_1191_);
+lean_dec(v_k_1191_);
 v_res_1193_ = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00__private_Std_Sync_CancellationContext_0__Std_CancellationContext_cancelChildren_spec__0(v_00_u03b4_1189_, v_t_1190_, v_k_boxed_1192_);
 lean_dec(v_t_1190_);
 return v_res_1193_;
@@ -5220,7 +5220,7 @@ _start:
 {
 uint64_t v_k_boxed_1203_; lean_object* v_res_1204_; 
 v_k_boxed_1203_ = lean_unbox_uint64(v_k_1200_);
-lean_dec_ref(v_k_1200_);
+lean_dec(v_k_1200_);
 v_res_1204_ = l_Std_DTreeMap_Internal_Impl_erase___at___00__private_Std_Sync_CancellationContext_0__Std_CancellationContext_cancelChildren_spec__2(v_00_u03b2_1199_, v_k_boxed_1203_, v_t_1201_, v_h_1202_);
 return v_res_1204_;
 }
@@ -5240,7 +5240,7 @@ _start:
 {
 uint64_t v_id_boxed_1216_; lean_object* v_res_1217_; 
 v_id_boxed_1216_ = lean_unbox_uint64(v_id_1212_);
-lean_dec_ref(v_id_1212_);
+lean_dec(v_id_1212_);
 v_res_1217_ = l_Std_CancellationContext_cancel___lam__0(v_id_boxed_1216_, v_reason_1213_, v___y_1214_);
 lean_dec(v___y_1214_);
 return v_res_1217_;
@@ -5371,7 +5371,7 @@ else
 lean_object* v_val_1263_; lean_object* v_snd_1264_; lean_object* v___x_1265_; lean_object* v___x_1266_; uint8_t v___x_1267_; 
 v_val_1263_ = lean_ctor_get(v___x_1261_, 0);
 lean_inc(v_val_1263_);
-lean_dec_ref(v___x_1261_);
+lean_dec_ref_known(v___x_1261_, 1);
 v_snd_1264_ = lean_ctor_get(v_val_1263_, 1);
 lean_inc(v_snd_1264_);
 lean_dec(v_val_1263_);
@@ -5469,7 +5469,7 @@ _start:
 {
 uint64_t v_id_boxed_1302_; lean_object* v_res_1303_; 
 v_id_boxed_1302_ = lean_unbox_uint64(v_id_1301_);
-lean_dec_ref(v_id_1301_);
+lean_dec(v_id_1301_);
 v_res_1303_ = l___private_Std_Sync_CancellationContext_0__Std_CancellationContext_countAliveTokensRec(v_state_1300_, v_id_boxed_1302_);
 lean_dec_ref(v_state_1300_);
 return v_res_1303_;
@@ -5490,7 +5490,7 @@ _start:
 {
 uint64_t v_id_boxed_1312_; lean_object* v_res_1313_; 
 v_id_boxed_1312_ = lean_unbox_uint64(v_id_1309_);
-lean_dec_ref(v_id_1309_);
+lean_dec(v_id_1309_);
 v_res_1313_ = l_Std_CancellationContext_countAliveTokens___lam__0(v_id_boxed_1312_, v___y_1310_);
 lean_dec(v___y_1310_);
 return v_res_1313_;

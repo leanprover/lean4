@@ -774,7 +774,7 @@ if (lean_obj_tag(v___x_308_) == 0)
 lean_object* v_a_309_; lean_object* v_iExpr_310_; lean_object* v___x_311_; lean_object* v_projL1_312_; lean_object* v___x_313_; uint8_t v___x_314_; lean_object* v___x_315_; lean_object* v___x_316_; lean_object* v___x_317_; lean_object* v_projFn_318_; lean_object* v_projL2_319_; lean_object* v_projEq_320_; lean_object* v___x_321_; lean_object* v_congrArgFn_322_; lean_object* v___x_323_; lean_object* v___x_324_; lean_object* v___x_325_; lean_object* v___x_326_; 
 v_a_309_ = lean_ctor_get(v___x_308_, 0);
 lean_inc(v_a_309_);
-lean_dec_ref(v___x_308_);
+lean_dec_ref_known(v___x_308_, 1);
 v_iExpr_310_ = l_Lean_mkNatLit(v___y_276_);
 v___x_311_ = lean_obj_once(&l_Lean_Meta_mkStringLitNeProof___closed__62, &l_Lean_Meta_mkStringLitNeProof___closed__62_once, _init_l_Lean_Meta_mkStringLitNeProof___closed__62);
 lean_inc_ref_n(v_l_u2081Expr_226_, 2);
@@ -826,7 +826,7 @@ lean_ctor_set(v___x_331_, 1, v___y_328_);
 lean_ctor_set(v___x_331_, 2, v___x_330_);
 v___x_332_ = ((lean_object*)(l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Meta_mkStringLitNeProof_spec__1___redArg___closed__0));
 v___x_333_ = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_Meta_mkStringLitNeProof_spec__1___redArg(v_l_u2081_220_, v_l_u2082_221_, v___x_331_, v___x_332_, v___x_329_);
-lean_dec_ref(v___x_331_);
+lean_dec_ref_known(v___x_331_, 3);
 v_fst_334_ = lean_ctor_get(v___x_333_, 0);
 lean_inc(v_fst_334_);
 lean_dec_ref(v___x_333_);
@@ -843,7 +843,7 @@ else
 lean_object* v_val_335_; 
 v_val_335_ = lean_ctor_get(v_fst_334_, 0);
 lean_inc(v_val_335_);
-lean_dec_ref(v_fst_334_);
+lean_dec_ref_known(v_fst_334_, 1);
 v___y_274_ = v___x_329_;
 v___y_275_ = v___y_328_;
 v___y_276_ = v_val_335_;

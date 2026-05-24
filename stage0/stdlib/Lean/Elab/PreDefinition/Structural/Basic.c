@@ -267,7 +267,7 @@ return v___x_25_;
 else
 {
 uint8_t v___x_26_; 
-lean_dec_ref(v_app_x3f_24_);
+lean_dec_ref_known(v_app_x3f_24_, 1);
 v___x_26_ = 1;
 return v___x_26_;
 }

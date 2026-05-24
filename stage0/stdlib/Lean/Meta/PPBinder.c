@@ -63,7 +63,7 @@ lean_inc(v_fvarId_13_);
 v_type_14_ = lean_ctor_get(v_x_12_, 3);
 lean_inc_ref(v_type_14_);
 v_bi_15_ = lean_ctor_get_uint8(v_x_12_, sizeof(void*)*4);
-lean_dec_ref(v_x_12_);
+lean_dec_ref_known(v_x_12_, 4);
 switch(v_bi_15_)
 {
 case 0:
@@ -127,7 +127,7 @@ return v___x_26_;
 else
 {
 lean_object* v___x_35_; 
-lean_dec_ref(v_x_12_);
+lean_dec_ref_known(v_x_12_, 5);
 v___x_35_ = lean_box(0);
 return v___x_35_;
 }

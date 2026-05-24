@@ -644,7 +644,7 @@ v___x_213_ = lean_box(0);
 v___x_214_ = l_WellFounded_opaqueFix_u2083___at___00__private_Init_Data_String_Extra_0__String_findLeadingSpacesSize_spec__0___redArg(v___x_212_, v_s_209_, v_searcher_210_, v___x_213_);
 if (lean_obj_tag(v___x_214_) == 0)
 {
-lean_dec_ref(v___x_212_);
+lean_dec_ref_known(v___x_212_, 3);
 lean_dec_ref(v_s_209_);
 return v_searcher_210_;
 }
@@ -653,10 +653,10 @@ else
 lean_object* v_val_215_; lean_object* v___x_216_; 
 v_val_215_ = lean_ctor_get(v___x_214_, 0);
 lean_inc(v_val_215_);
-lean_dec_ref(v___x_214_);
+lean_dec_ref_known(v___x_214_, 1);
 v___x_216_ = l_String_Slice_Pos_next_x3f(v___x_212_, v_val_215_);
 lean_dec(v_val_215_);
-lean_dec_ref(v___x_212_);
+lean_dec_ref_known(v___x_212_, 3);
 if (lean_obj_tag(v___x_216_) == 0)
 {
 lean_dec_ref(v_s_209_);
@@ -667,7 +667,7 @@ else
 lean_object* v_val_217_; lean_object* v___x_218_; 
 v_val_217_ = lean_ctor_get(v___x_216_, 0);
 lean_inc(v_val_217_);
-lean_dec_ref(v___x_216_);
+lean_dec_ref_known(v___x_216_, 1);
 v___x_218_ = l___private_Init_Data_String_Extra_0__String_findLeadingSpacesSize_consumeSpaces(v_s_209_, v_val_217_, v_searcher_210_, v___x_211_);
 lean_dec_ref(v_s_209_);
 return v___x_218_;

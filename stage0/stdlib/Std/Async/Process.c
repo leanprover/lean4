@@ -903,9 +903,9 @@ _start:
 {
 uint64_t v_x_25__boxed_327_; uint64_t v_x_26__boxed_328_; uint8_t v_res_329_; lean_object* v_r_330_; 
 v_x_25__boxed_327_ = lean_unbox_uint64(v_x_325_);
-lean_dec_ref(v_x_325_);
+lean_dec(v_x_325_);
 v_x_26__boxed_328_ = lean_unbox_uint64(v_x_326_);
-lean_dec_ref(v_x_326_);
+lean_dec(v_x_326_);
 v_res_329_ = l_Std_IO_Process_instDecidableEqPId_decEq(v_x_25__boxed_327_, v_x_26__boxed_328_);
 v_r_330_ = lean_box(v_res_329_);
 return v_r_330_;
@@ -924,9 +924,9 @@ _start:
 {
 uint64_t v_x_6__boxed_336_; uint64_t v_x_7__boxed_337_; uint8_t v_res_338_; lean_object* v_r_339_; 
 v_x_6__boxed_336_ = lean_unbox_uint64(v_x_334_);
-lean_dec_ref(v_x_334_);
+lean_dec(v_x_334_);
 v_x_7__boxed_337_ = lean_unbox_uint64(v_x_335_);
-lean_dec_ref(v_x_335_);
+lean_dec(v_x_335_);
 v_res_338_ = l_Std_IO_Process_instDecidableEqPId(v_x_6__boxed_336_, v_x_7__boxed_337_);
 v_r_339_ = lean_box(v_res_338_);
 return v_r_339_;
@@ -967,9 +967,9 @@ _start:
 {
 uint64_t v_x_75__boxed_349_; uint64_t v_x_76__boxed_350_; uint8_t v_res_351_; lean_object* v_r_352_; 
 v_x_75__boxed_349_ = lean_unbox_uint64(v_x_347_);
-lean_dec_ref(v_x_347_);
+lean_dec(v_x_347_);
 v_x_76__boxed_350_ = lean_unbox_uint64(v_x_348_);
-lean_dec_ref(v_x_348_);
+lean_dec(v_x_348_);
 v_res_351_ = l_Std_IO_Process_instOrdPId_ord(v_x_75__boxed_349_, v_x_76__boxed_350_);
 v_r_352_ = lean_box(v_res_351_);
 return v_r_352_;
@@ -996,7 +996,7 @@ _start:
 {
 uint64_t v_u_boxed_368_; lean_object* v_res_369_; 
 v_u_boxed_368_ = lean_unbox_uint64(v_u_366_);
-lean_dec_ref(v_u_366_);
+lean_dec(v_u_366_);
 v_res_369_ = l_Std_IO_Process_instReprPId___lam__0(v_u_boxed_368_, v___y_367_);
 lean_dec(v___y_367_);
 return v_res_369_;
@@ -1356,7 +1356,7 @@ _start:
 {
 uint64_t v_pid_boxed_453_; lean_object* v_res_454_; 
 v_pid_boxed_453_ = lean_unbox_uint64(v_pid_451_);
-lean_dec_ref(v_pid_451_);
+lean_dec(v_pid_451_);
 v_res_454_ = l_Std_IO_Process_getPriority(v_pid_boxed_453_);
 return v_res_454_;
 }
@@ -1374,9 +1374,9 @@ _start:
 {
 uint64_t v_pid_boxed_462_; uint64_t v_priority_boxed_463_; lean_object* v_res_464_; 
 v_pid_boxed_462_ = lean_unbox_uint64(v_pid_459_);
-lean_dec_ref(v_pid_459_);
+lean_dec(v_pid_459_);
 v_priority_boxed_463_ = lean_unbox_uint64(v_priority_460_);
-lean_dec_ref(v_priority_460_);
+lean_dec(v_priority_460_);
 v_res_464_ = l_Std_IO_Process_setPriority(v_pid_boxed_462_, v_priority_boxed_463_);
 return v_res_464_;
 }

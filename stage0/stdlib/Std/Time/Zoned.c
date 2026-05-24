@@ -112,7 +112,7 @@ if (lean_obj_tag(v___x_6_) == 0)
 lean_object* v_a_7_; lean_object* v___x_8_; 
 v_a_7_ = lean_ctor_get(v___x_6_, 0);
 lean_inc(v_a_7_);
-lean_dec_ref(v___x_6_);
+lean_dec_ref_known(v___x_6_, 1);
 v___x_8_ = l_Std_Time_Database_defaultGetLocalZoneRules();
 if (lean_obj_tag(v___x_8_) == 0)
 {
@@ -154,7 +154,7 @@ lean_object* v_val_34_; lean_object* v_localTimeType_35_;
 lean_dec_ref(v_initialLocalTimeType_31_);
 v_val_34_ = lean_ctor_get(v___x_33_, 0);
 lean_inc(v_val_34_);
-lean_dec_ref(v___x_33_);
+lean_dec_ref_known(v___x_33_, 1);
 v_localTimeType_35_ = lean_ctor_get(v_val_34_, 1);
 lean_inc_ref(v_localTimeType_35_);
 lean_dec(v_val_34_);
@@ -316,7 +316,7 @@ if (lean_obj_tag(v___x_56_) == 0)
 lean_object* v_a_57_; lean_object* v___x_58_; 
 v_a_57_ = lean_ctor_get(v___x_56_, 0);
 lean_inc(v_a_57_);
-lean_dec_ref(v___x_56_);
+lean_dec_ref_known(v___x_56_, 1);
 v___x_58_ = l_Std_Time_Database_defaultGetLocalZoneRules();
 if (lean_obj_tag(v___x_58_) == 0)
 {
@@ -358,7 +358,7 @@ lean_object* v_val_85_; lean_object* v_localTimeType_86_;
 lean_dec_ref(v_initialLocalTimeType_82_);
 v_val_85_ = lean_ctor_get(v___x_84_, 0);
 lean_inc(v_val_85_);
-lean_dec_ref(v___x_84_);
+lean_dec_ref_known(v___x_84_, 1);
 v_localTimeType_86_ = lean_ctor_get(v_val_85_, 1);
 lean_inc_ref(v_localTimeType_86_);
 lean_dec(v_val_85_);
@@ -523,7 +523,7 @@ if (lean_obj_tag(v___x_107_) == 0)
 lean_object* v_a_108_; lean_object* v___x_109_; 
 v_a_108_ = lean_ctor_get(v___x_107_, 0);
 lean_inc(v_a_108_);
-lean_dec_ref(v___x_107_);
+lean_dec_ref_known(v___x_107_, 1);
 v___x_109_ = l_Std_Time_Database_defaultGetLocalZoneRules();
 if (lean_obj_tag(v___x_109_) == 0)
 {
@@ -565,7 +565,7 @@ lean_object* v_val_136_; lean_object* v_localTimeType_137_;
 lean_dec_ref(v_initialLocalTimeType_133_);
 v_val_136_ = lean_ctor_get(v___x_135_, 0);
 lean_inc(v_val_136_);
-lean_dec_ref(v___x_135_);
+lean_dec_ref_known(v___x_135_, 1);
 v_localTimeType_137_ = lean_ctor_get(v_val_136_, 1);
 lean_inc_ref(v_localTimeType_137_);
 lean_dec(v_val_136_);
@@ -1100,7 +1100,7 @@ if (lean_obj_tag(v___x_285_) == 0)
 lean_object* v_a_286_; lean_object* v___x_287_; 
 v_a_286_ = lean_ctor_get(v___x_285_, 0);
 lean_inc(v_a_286_);
-lean_dec_ref(v___x_285_);
+lean_dec_ref_known(v___x_285_, 1);
 v___x_287_ = l_Std_Time_Database_defaultGetLocalZoneRules();
 if (lean_obj_tag(v___x_287_) == 0)
 {
@@ -1130,7 +1130,7 @@ v___x_302_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_301_, v_a_2
 if (lean_obj_tag(v___x_302_) == 0)
 {
 lean_object* v___x_303_; 
-lean_dec_ref(v___x_302_);
+lean_dec_ref_known(v___x_302_, 1);
 v___x_303_ = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(v_initialLocalTimeType_300_);
 v___y_293_ = v___x_303_;
 goto v___jp_292_;
@@ -1140,7 +1140,7 @@ else
 lean_object* v_a_304_; 
 v_a_304_ = lean_ctor_get(v___x_302_, 0);
 lean_inc(v_a_304_);
-lean_dec_ref(v___x_302_);
+lean_dec_ref_known(v___x_302_, 1);
 v___y_293_ = v_a_304_;
 goto v___jp_292_;
 }
@@ -1283,7 +1283,7 @@ if (lean_obj_tag(v___x_326_) == 0)
 lean_object* v_a_327_; lean_object* v___x_328_; 
 v_a_327_ = lean_ctor_get(v___x_326_, 0);
 lean_inc(v_a_327_);
-lean_dec_ref(v___x_326_);
+lean_dec_ref_known(v___x_326_, 1);
 v___x_328_ = l_Std_Time_Database_defaultGetZoneRules(v_id_324_);
 if (lean_obj_tag(v___x_328_) == 0)
 {
@@ -1313,7 +1313,7 @@ v___x_343_ = l_Std_Time_TimeZone_Transition_timezoneAt(v_transitions_342_, v_a_3
 if (lean_obj_tag(v___x_343_) == 0)
 {
 lean_object* v___x_344_; 
-lean_dec_ref(v___x_343_);
+lean_dec_ref_known(v___x_343_, 1);
 v___x_344_ = l_Std_Time_TimeZone_LocalTimeType_getTimeZone(v_initialLocalTimeType_341_);
 v___y_334_ = v___x_344_;
 goto v___jp_333_;
@@ -1323,7 +1323,7 @@ else
 lean_object* v_a_345_; 
 v_a_345_ = lean_ctor_get(v___x_343_, 0);
 lean_inc(v_a_345_);
-lean_dec_ref(v___x_343_);
+lean_dec_ref_known(v___x_343_, 1);
 v___y_334_ = v_a_345_;
 goto v___jp_333_;
 }

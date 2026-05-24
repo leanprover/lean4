@@ -133,7 +133,7 @@ else
 lean_object* v_a_21_; 
 v_a_21_ = lean_ctor_get(v_x_10_, 0);
 lean_inc(v_a_21_);
-lean_dec_ref(v_x_10_);
+lean_dec_ref_known(v_x_10_, 1);
 if (lean_obj_tag(v_a_21_) == 0)
 {
 lean_object* v_a_22_; lean_object* v___x_24_; uint8_t v_isShared_25_; uint8_t v_isSharedCheck_30_; 
@@ -184,7 +184,7 @@ else
 lean_object* v_a_31_; lean_object* v___x_32_; lean_object* v___x_33_; uint8_t v___x_34_; lean_object* v___x_35_; lean_object* v___x_36_; 
 v_a_31_ = lean_ctor_get(v_a_21_, 0);
 lean_inc(v_a_31_);
-lean_dec_ref(v_a_21_);
+lean_dec_ref_known(v_a_21_, 1);
 v___x_32_ = lean_io_promise_result_opt(v_a_31_);
 lean_dec(v_a_31_);
 v___x_33_ = lean_unsigned_to_nat(0u);
@@ -449,7 +449,7 @@ else
 lean_object* v_a_111_; 
 v_a_111_ = lean_ctor_get(v_x_100_, 0);
 lean_inc(v_a_111_);
-lean_dec_ref(v_x_100_);
+lean_dec_ref_known(v_x_100_, 1);
 if (lean_obj_tag(v_a_111_) == 0)
 {
 lean_object* v_a_112_; lean_object* v___x_114_; uint8_t v_isShared_115_; uint8_t v_isSharedCheck_120_; 
@@ -500,7 +500,7 @@ else
 lean_object* v_a_121_; lean_object* v___x_122_; lean_object* v___x_123_; uint8_t v___x_124_; lean_object* v___x_125_; lean_object* v___x_126_; 
 v_a_121_ = lean_ctor_get(v_a_111_, 0);
 lean_inc(v_a_121_);
-lean_dec_ref(v_a_111_);
+lean_dec_ref_known(v_a_111_, 1);
 v___x_122_ = lean_io_promise_result_opt(v_a_121_);
 lean_dec(v_a_121_);
 v___x_123_ = lean_unsigned_to_nat(0u);
@@ -635,7 +635,7 @@ if (lean_obj_tag(v___x_152_) == 0)
 lean_object* v_a_153_; 
 v_a_153_ = lean_ctor_get(v___x_152_, 0);
 lean_inc(v_a_153_);
-lean_dec_ref(v___x_152_);
+lean_dec_ref_known(v___x_152_, 1);
 if (lean_obj_tag(v_a_153_) == 0)
 {
 lean_object* v_a_154_; lean_object* v___x_156_; uint8_t v_isShared_157_; uint8_t v_isSharedCheck_161_; 

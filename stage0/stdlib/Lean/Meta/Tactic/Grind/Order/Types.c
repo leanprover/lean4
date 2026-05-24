@@ -442,7 +442,7 @@ v_u_96_ = lean_ctor_get(v_t_94_, 0);
 lean_inc(v_u_96_);
 v_v_97_ = lean_ctor_get(v_t_94_, 1);
 lean_inc(v_v_97_);
-lean_dec_ref(v_t_94_);
+lean_dec_ref_known(v_t_94_, 2);
 v___x_98_ = lean_apply_2(v_k_95_, v_u_96_, v_v_97_);
 return v___x_98_;
 }

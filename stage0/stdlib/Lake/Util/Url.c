@@ -1088,7 +1088,7 @@ lean_ctor_set(v___x_453_, 2, v___x_452_);
 v___x_454_ = l_String_Slice_positions(v___x_453_);
 v___x_455_ = l_WellFounded_opaqueFix_u2083___at___00Lake_uriEncode_spec__0___redArg(v___x_453_, v_s_449_, v___x_454_, v_init_450_);
 lean_dec_ref(v_s_449_);
-lean_dec_ref(v___x_453_);
+lean_dec_ref_known(v___x_453_, 3);
 return v___x_455_;
 }
 }
@@ -1499,7 +1499,7 @@ else
 lean_object* v_val_632_; lean_object* v___x_633_; 
 v_val_632_ = lean_ctor_get(v___x_631_, 0);
 lean_inc(v_val_632_);
-lean_dec_ref(v___x_631_);
+lean_dec_ref_known(v___x_631_, 1);
 v___x_633_ = l_Option_fromJson_x3f___at___00Lake_getUrl_x3f_spec__0(v_val_632_);
 if (lean_obj_tag(v___x_633_) == 0)
 {
@@ -1508,7 +1508,7 @@ lean_dec(v___y_629_);
 lean_dec_ref(v___y_626_);
 v_a_634_ = lean_ctor_get(v___x_633_, 0);
 lean_inc(v_a_634_);
-lean_dec_ref(v___x_633_);
+lean_dec_ref_known(v___x_633_, 1);
 v___x_635_ = ((lean_object*)(l_Lake_getUrl_x3f___closed__7));
 v___x_636_ = lean_string_append(v___x_635_, v_a_634_);
 lean_dec(v_a_634_);
@@ -1526,7 +1526,7 @@ lean_dec(v___y_629_);
 lean_dec_ref(v___y_626_);
 v_a_637_ = lean_ctor_get(v___x_633_, 0);
 lean_inc(v_a_637_);
-lean_dec_ref(v___x_633_);
+lean_dec_ref_known(v___x_633_, 1);
 v___y_563_ = v___y_627_;
 v___y_564_ = v___y_628_;
 v_a_565_ = v_a_637_;
@@ -1537,7 +1537,7 @@ else
 lean_object* v_a_638_; 
 v_a_638_ = lean_ctor_get(v___x_633_, 0);
 lean_inc(v_a_638_);
-lean_dec_ref(v___x_633_);
+lean_dec_ref_known(v___x_633_, 1);
 v___y_586_ = v___y_626_;
 v___y_587_ = v___y_627_;
 v___y_588_ = v___y_628_;
@@ -1578,7 +1578,7 @@ v_a_652_ = lean_ctor_get(v___x_650_, 0);
 lean_inc(v_a_652_);
 v_a_653_ = lean_ctor_get(v___x_650_, 1);
 lean_inc(v_a_653_);
-lean_dec_ref(v___x_650_);
+lean_dec_ref_known(v___x_650_, 2);
 v_stderr_654_ = lean_ctor_get(v_a_652_, 1);
 lean_inc_ref(v_stderr_654_);
 v___x_655_ = l_Lean_Json_parse(v_stderr_654_);
@@ -1588,7 +1588,7 @@ lean_object* v_a_656_;
 lean_dec(v_a_652_);
 v_a_656_ = lean_ctor_get(v___x_655_, 0);
 lean_inc(v_a_656_);
-lean_dec_ref(v___x_655_);
+lean_dec_ref_known(v___x_655_, 1);
 v___y_577_ = v___x_651_;
 v___y_578_ = v_a_653_;
 v_a_579_ = v_a_656_;
@@ -1599,7 +1599,7 @@ else
 lean_object* v_a_657_; lean_object* v___x_658_; 
 v_a_657_ = lean_ctor_get(v___x_655_, 0);
 lean_inc(v_a_657_);
-lean_dec_ref(v___x_655_);
+lean_dec_ref_known(v___x_655_, 1);
 v___x_658_ = l_Lean_Json_getObj_x3f(v_a_657_);
 if (lean_obj_tag(v___x_658_) == 0)
 {
@@ -1607,7 +1607,7 @@ lean_object* v_a_659_;
 lean_dec(v_a_652_);
 v_a_659_ = lean_ctor_get(v___x_658_, 0);
 lean_inc(v_a_659_);
-lean_dec_ref(v___x_658_);
+lean_dec_ref_known(v___x_658_, 1);
 v___y_577_ = v___x_651_;
 v___y_578_ = v_a_653_;
 v_a_579_ = v_a_659_;
@@ -1618,7 +1618,7 @@ else
 lean_object* v_a_660_; lean_object* v___x_661_; lean_object* v___x_662_; 
 v_a_660_ = lean_ctor_get(v___x_658_, 0);
 lean_inc(v_a_660_);
-lean_dec_ref(v___x_658_);
+lean_dec_ref_known(v___x_658_, 1);
 v___x_661_ = ((lean_object*)(l_Lake_getUrl_x3f___closed__11));
 v___x_662_ = l_Lake_JsonObject_getJson_x3f(v_a_660_, v___x_661_);
 if (lean_obj_tag(v___x_662_) == 0)
@@ -1634,11 +1634,11 @@ else
 lean_object* v_val_663_; lean_object* v___x_664_; 
 v_val_663_ = lean_ctor_get(v___x_662_, 0);
 lean_inc(v_val_663_);
-lean_dec_ref(v___x_662_);
+lean_dec_ref_known(v___x_662_, 1);
 v___x_664_ = l_Option_fromJson_x3f___at___00Lake_getUrl_x3f_spec__0(v_val_663_);
 if (lean_obj_tag(v___x_664_) == 0)
 {
-lean_dec_ref(v___x_664_);
+lean_dec_ref_known(v___x_664_, 1);
 v___y_625_ = v_a_660_;
 v___y_626_ = v_a_652_;
 v___y_627_ = v___x_651_;
@@ -1650,7 +1650,7 @@ else
 {
 if (lean_obj_tag(v___x_664_) == 0)
 {
-lean_dec_ref(v___x_664_);
+lean_dec_ref_known(v___x_664_, 1);
 v___y_625_ = v_a_660_;
 v___y_626_ = v_a_652_;
 v___y_627_ = v___x_651_;
@@ -1664,7 +1664,7 @@ lean_object* v_a_665_;
 lean_dec(v_a_660_);
 v_a_665_ = lean_ctor_get(v___x_664_, 0);
 lean_inc(v_a_665_);
-lean_dec_ref(v___x_664_);
+lean_dec_ref_known(v___x_664_, 1);
 v___y_586_ = v_a_652_;
 v___y_587_ = v___x_651_;
 v___y_588_ = v_a_653_;
@@ -1682,7 +1682,7 @@ else
 lean_object* v_a_666_; 
 v_a_666_ = lean_ctor_get(v___x_650_, 1);
 lean_inc(v_a_666_);
-lean_dec_ref(v___x_650_);
+lean_dec_ref_known(v___x_650_, 2);
 v___y_559_ = v___x_651_;
 v_a_560_ = v_a_666_;
 goto v___jp_558_;

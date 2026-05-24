@@ -362,7 +362,7 @@ v_l_48_ = lean_ctor_get(v_x_46_, 3);
 lean_inc(v_l_48_);
 v_r_49_ = lean_ctor_get(v_x_46_, 4);
 lean_inc(v_r_49_);
-lean_dec_ref(v_x_46_);
+lean_dec_ref_known(v_x_46_, 5);
 v___x_50_ = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00__private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collect_spec__1_spec__1(v_init_45_, v_l_48_);
 v___x_51_ = lean_array_push(v___x_50_, v_k_47_);
 v_init_45_ = v___x_51_;
@@ -653,7 +653,7 @@ lean_object* v_val_158_; lean_object* v_seen_159_; lean_object* v_axioms_160_; l
 lean_dec_ref(v_extFind_x3f_153_);
 v_val_158_ = lean_ctor_get(v___x_157_, 0);
 lean_inc(v_val_158_);
-lean_dec_ref(v___x_157_);
+lean_dec_ref_known(v___x_157_, 1);
 v_seen_159_ = lean_ctor_get(v_a_156_, 0);
 v_axioms_160_ = lean_ctor_get(v_a_156_, 1);
 v_isSharedCheck_171_ = !lean_is_exclusive(v_a_156_);
@@ -739,7 +739,7 @@ lean_dec(v_c_154_);
 lean_dec_ref(v_extFind_x3f_153_);
 v_val_228_ = lean_ctor_get(v___x_227_, 0);
 lean_inc(v_val_228_);
-lean_dec_ref(v___x_227_);
+lean_dec_ref_known(v___x_227_, 1);
 v___x_229_ = l___private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_insertArray(v_axioms_173_, v_val_228_);
 lean_dec(v_val_228_);
 if (v_isShared_176_ == 0)
@@ -813,7 +813,7 @@ else
 lean_object* v_val_243_; 
 v_val_243_ = lean_ctor_get(v___x_242_, 0);
 lean_inc(v_val_243_);
-lean_dec_ref(v___x_242_);
+lean_dec_ref_known(v___x_242_, 1);
 switch(lean_obj_tag(v_val_243_))
 {
 case 0:
@@ -822,7 +822,7 @@ lean_object* v_val_244_; lean_object* v_toConstantVal_245_; lean_object* v_type_
 lean_dec_ref(v___x_240_);
 v_val_244_ = lean_ctor_get(v_val_243_, 0);
 lean_inc_ref(v_val_244_);
-lean_dec_ref(v_val_243_);
+lean_dec_ref_known(v_val_243_, 1);
 v_toConstantVal_245_ = lean_ctor_get(v_val_244_, 0);
 lean_inc_ref(v_toConstantVal_245_);
 lean_dec_ref(v_val_244_);
@@ -843,7 +843,7 @@ goto v___jp_224_;
 }
 case 4:
 {
-lean_dec_ref(v_val_243_);
+lean_dec_ref_known(v_val_243_, 1);
 lean_dec(v___x_237_);
 lean_dec_ref(v_extFind_x3f_153_);
 v___y_220_ = v___x_240_;
@@ -856,7 +856,7 @@ lean_object* v_val_251_; lean_object* v_toConstantVal_252_; lean_object* v_ctors
 lean_dec(v___x_237_);
 v_val_251_ = lean_ctor_get(v_val_243_, 0);
 lean_inc_ref(v_val_251_);
-lean_dec_ref(v_val_243_);
+lean_dec_ref_known(v_val_243_, 1);
 v_toConstantVal_252_ = lean_ctor_get(v_val_251_, 0);
 lean_inc_ref(v_toConstantVal_252_);
 v_ctors_253_ = lean_ctor_get(v_val_251_, 4);
@@ -883,7 +883,7 @@ lean_object* v_val_259_; lean_object* v_toConstantVal_260_; lean_object* v_type_
 lean_dec(v___x_237_);
 v_val_259_ = lean_ctor_get(v_val_243_, 0);
 lean_inc_ref(v_val_259_);
-lean_dec_ref(v_val_243_);
+lean_dec_ref_known(v_val_243_, 1);
 v_toConstantVal_260_ = lean_ctor_get(v_val_259_, 0);
 lean_inc_ref(v_toConstantVal_260_);
 lean_dec_ref(v_val_259_);
@@ -903,7 +903,7 @@ lean_object* v_val_264_; lean_object* v_toConstantVal_265_; lean_object* v_type_
 lean_dec(v___x_237_);
 v_val_264_ = lean_ctor_get(v_val_243_, 0);
 lean_inc_ref(v_val_264_);
-lean_dec_ref(v_val_243_);
+lean_dec_ref_known(v_val_243_, 1);
 v_toConstantVal_265_ = lean_ctor_get(v_val_264_, 0);
 lean_inc_ref(v_toConstantVal_265_);
 lean_dec_ref(v_val_264_);
@@ -1136,7 +1136,7 @@ v_head_285_ = lean_ctor_get(v_as_280_, 0);
 lean_inc(v_head_285_);
 v_tail_286_ = lean_ctor_get(v_as_280_, 1);
 lean_inc(v_tail_286_);
-lean_dec_ref(v_as_280_);
+lean_dec_ref_known(v_as_280_, 2);
 lean_inc_ref(v_extFind_x3f_279_);
 v___x_287_ = l___private_Lean_Util_CollectAxioms_0__Lean_CollectAxioms_collect(v_extFind_x3f_279_, v_head_285_, v___y_281_, v___y_282_);
 v_snd_288_ = lean_ctor_get(v___x_287_, 1);
@@ -1355,7 +1355,7 @@ lean_object* v_val_413_; lean_object* v___x_415_;
 lean_dec(v_c_403_);
 v_val_413_ = lean_ctor_get(v___x_412_, 0);
 lean_inc(v_val_413_);
-lean_dec_ref(v___x_412_);
+lean_dec_ref_known(v___x_412_, 1);
 if (v_isShared_410_ == 0)
 {
 lean_ctor_set(v___x_409_, 0, v_val_413_);
@@ -1540,7 +1540,7 @@ else
 lean_object* v_val_480_; lean_object* v___x_481_; uint8_t v___x_482_; 
 v_val_480_ = lean_ctor_get(v___x_478_, 0);
 lean_inc(v_val_480_);
-lean_dec_ref(v___x_478_);
+lean_dec_ref_known(v___x_478_, 1);
 v___x_481_ = lean_array_get_size(v_s_475_);
 v___x_482_ = lean_nat_dec_lt(v_val_480_, v___x_481_);
 if (v___x_482_ == 0)
@@ -1588,7 +1588,7 @@ v___x_494_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_494_, 0, v_c_477_);
 lean_ctor_set(v___x_494_, 1, v___x_493_);
 v___x_495_ = l_Array_binSearchAux___at___00__private_Lean_Util_CollectAxioms_0__Lean_ExportedAxiomsState_find_x3f_spec__0___redArg(v___x_484_, v___x_494_, v___x_485_, v___x_490_);
-lean_dec_ref(v___x_494_);
+lean_dec_ref_known(v___x_494_, 2);
 if (lean_obj_tag(v___x_495_) == 0)
 {
 lean_object* v___x_496_; 
@@ -1757,7 +1757,7 @@ return v_names_547_;
 else
 {
 lean_object* v___x_551_; 
-lean_dec_ref(v___x_550_);
+lean_dec_ref_known(v___x_550_, 1);
 v___x_551_ = lean_array_push(v_names_547_, v_name_548_);
 return v___x_551_;
 }

@@ -465,7 +465,7 @@ lean_ctor_set(v___x_71_, 13, v_inheritedTraceOptions_69_);
 lean_ctor_set_uint8(v___x_71_, sizeof(void*)*14, v_diag_66_);
 lean_ctor_set_uint8(v___x_71_, sizeof(void*)*14 + 1, v_suppressElabErrors_68_);
 v___x_72_ = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_Linter_EnvLinter_defLemma_spec__0_spec__0_spec__1_spec__2_spec__4_spec__6___redArg(v_msg_48_, v___y_49_, v___y_50_, v___x_71_, v___y_52_);
-lean_dec_ref(v___x_71_);
+lean_dec_ref_known(v___x_71_, 14);
 return v___x_72_;
 }
 }
@@ -1136,7 +1136,7 @@ if (lean_obj_tag(v___x_326_) == 0)
 lean_object* v_a_327_; uint8_t v___x_328_; 
 v_a_327_ = lean_ctor_get(v___x_326_, 0);
 lean_inc(v_a_327_);
-lean_dec_ref(v___x_326_);
+lean_dec_ref_known(v___x_326_, 1);
 v___x_328_ = l_Lean_ConstantInfo_isDefinition(v_a_327_);
 if (v___x_328_ == 0)
 {
@@ -1695,7 +1695,7 @@ lean_dec(v_i_546_);
 v_stop_boxed_550_ = lean_unbox_usize(v_stop_547_);
 lean_dec(v_stop_547_);
 v_b_boxed_551_ = lean_unbox_uint64(v_b_548_);
-lean_dec_ref(v_b_548_);
+lean_dec(v_b_548_);
 v_res_552_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Std_DHashMap_Internal_Raw_u2080_insertIfNew___at___00__private_Lean_Linter_EnvLinter_Builtin_0__Lean_Linter_EnvLinter_univParamsGrouped_spec__0_spec__2(v_as_545_, v_i_boxed_549_, v_stop_boxed_550_, v_b_boxed_551_);
 lean_dec_ref(v_as_545_);
 v_r_553_ = lean_box_uint64(v_res_552_);
@@ -2080,7 +2080,7 @@ v_head_682_ = lean_ctor_get(v_x_681_, 0);
 lean_inc(v_head_682_);
 v_tail_683_ = lean_ctor_get(v_x_681_, 1);
 lean_inc(v_tail_683_);
-lean_dec_ref(v_x_681_);
+lean_dec_ref_known(v_x_681_, 2);
 v___x_684_ = lean_obj_once(&l_List_foldl___at___00__private_Lean_Linter_EnvLinter_Builtin_0__Lean_Linter_EnvLinter_univParamsGrouped_spec__1___closed__3, &l_List_foldl___at___00__private_Lean_Linter_EnvLinter_Builtin_0__Lean_Linter_EnvLinter_univParamsGrouped_spec__1___closed__3_once, _init_l_List_foldl___at___00__private_Lean_Linter_EnvLinter_Builtin_0__Lean_Linter_EnvLinter_univParamsGrouped_spec__1___closed__3);
 v___x_685_ = l_Lean_CollectLevelParams_visitLevel(v_head_682_, v___x_684_);
 v_params_686_ = lean_ctor_get(v___x_685_, 2);
@@ -2133,7 +2133,7 @@ case 3:
 lean_object* v_u_715_; lean_object* v___x_716_; lean_object* v___x_717_; lean_object* v___x_718_; lean_object* v___x_719_; lean_object* v___x_720_; lean_object* v___x_721_; lean_object* v___x_722_; lean_object* v_params_723_; lean_object* v___x_724_; lean_object* v___x_725_; lean_object* v___x_726_; 
 v_u_715_ = lean_ctor_get(v_e_709_, 0);
 lean_inc(v_u_715_);
-lean_dec_ref(v_e_709_);
+lean_dec_ref_known(v_e_709_, 1);
 v___x_716_ = lean_st_ref_take(v_val_705_);
 v___x_717_ = lean_box(0);
 v___x_718_ = lean_mk_array(v___x_706_, v___x_717_);
@@ -2166,7 +2166,7 @@ v_declName_727_ = lean_ctor_get(v_e_709_, 0);
 lean_inc(v_declName_727_);
 v_us_728_ = lean_ctor_get(v_e_709_, 1);
 lean_inc(v_us_728_);
-lean_dec_ref(v_e_709_);
+lean_dec_ref_known(v_e_709_, 2);
 if (lean_obj_tag(v_declName_727_) == 1)
 {
 lean_object* v_pre_734_; lean_object* v_str_735_; uint8_t v___x_736_; 
@@ -2174,7 +2174,7 @@ v_pre_734_ = lean_ctor_get(v_declName_727_, 0);
 lean_inc(v_pre_734_);
 v_str_735_ = lean_ctor_get(v_declName_727_, 1);
 lean_inc_ref(v_str_735_);
-lean_dec_ref(v_declName_727_);
+lean_dec_ref_known(v_declName_727_, 2);
 v___x_736_ = lean_name_eq(v_pre_734_, v_nm_u2080_708_);
 lean_dec(v_pre_734_);
 if (v___x_736_ == 0)
@@ -2859,7 +2859,7 @@ lean_dec_ref(v_e_911_);
 lean_dec_ref(v_g_910_);
 v_val_951_ = lean_ctor_get(v___x_922_, 0);
 lean_inc(v_val_951_);
-lean_dec_ref(v___x_922_);
+lean_dec_ref_known(v___x_922_, 1);
 return v_val_951_;
 }
 v___jp_914_:
@@ -3599,7 +3599,7 @@ v_key_1258_ = lean_ctor_get(v_x_1257_, 0);
 lean_inc(v_key_1258_);
 v_tail_1259_ = lean_ctor_get(v_x_1257_, 2);
 lean_inc(v_tail_1259_);
-lean_dec_ref(v_x_1257_);
+lean_dec_ref_known(v_x_1257_, 3);
 v___x_1260_ = lean_array_push(v_x_1256_, v_key_1258_);
 v_x_1256_ = v___x_1260_;
 v_x_1257_ = v_tail_1259_;

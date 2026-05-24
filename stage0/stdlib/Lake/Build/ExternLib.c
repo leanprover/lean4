@@ -784,7 +784,7 @@ lean_dec(v_i_223_);
 v_stop_boxed_227_ = lean_unbox_usize(v_stop_224_);
 lean_dec(v_stop_224_);
 v_b_boxed_228_ = lean_unbox_uint64(v_b_225_);
-lean_dec_ref(v_b_225_);
+lean_dec(v_b_225_);
 v_res_229_ = l___private_Init_Data_Array_Basic_0__Array_foldlMUnsafe_fold___at___00Lake_buildLeanSharedLibOfStatic_spec__1(v_as_222_, v_i_boxed_226_, v_stop_boxed_227_, v_b_boxed_228_);
 lean_dec_ref(v_as_222_);
 v_r_230_ = lean_box_uint64(v_res_229_);
@@ -1440,7 +1440,7 @@ if (lean_obj_tag(v___x_504_) == 1)
 lean_object* v_val_505_; uint8_t v___x_506_; uint8_t v___y_508_; 
 v_val_505_ = lean_ctor_get(v___x_504_, 0);
 lean_inc(v_val_505_);
-lean_dec_ref(v___x_504_);
+lean_dec_ref_known(v___x_504_, 1);
 v___x_506_ = l_System_Platform_isWindows;
 if (v___x_506_ == 0)
 {
@@ -1560,7 +1560,7 @@ lean_ctor_set(v___x_533_, 0, v_val_505_);
 lean_ctor_set(v___x_533_, 1, v___x_531_);
 lean_ctor_set(v___x_533_, 2, v___x_532_);
 v___x_534_ = l_String_Slice_Pos_nextn(v___x_533_, v___x_531_, v___x_530_);
-lean_dec_ref(v___x_533_);
+lean_dec_ref_known(v___x_533_, 3);
 v___x_535_ = lean_string_utf8_extract(v_val_505_, v___x_534_, v___x_532_);
 lean_dec(v___x_534_);
 lean_dec(v_val_505_);

@@ -322,7 +322,7 @@ lean_object* v_val_78_; lean_object* v_snd_79_; lean_object* v_snd_80_; lean_obj
 lean_dec_ref(v_e_48_);
 v_val_78_ = lean_ctor_get(v___x_77_, 0);
 lean_inc(v_val_78_);
-lean_dec_ref(v___x_77_);
+lean_dec_ref_known(v___x_77_, 1);
 v_snd_79_ = lean_ctor_get(v_val_78_, 1);
 lean_inc(v_snd_79_);
 v_snd_80_ = lean_ctor_get(v_snd_79_, 1);
@@ -647,7 +647,7 @@ v___x_151_ = l_Lean_Elab_Tactic_Do_ProofMode_parseEmptyHyp_x3f(v_e_48_);
 if (lean_obj_tag(v___x_151_) == 1)
 {
 lean_object* v___x_152_; 
-lean_dec_ref(v___x_151_);
+lean_dec_ref_known(v___x_151_, 1);
 lean_dec_ref(v_e_48_);
 v___x_152_ = lean_box(0);
 return v___x_152_;
@@ -1032,7 +1032,7 @@ if (lean_obj_tag(v___x_315_) == 1)
 lean_object* v_val_316_; lean_object* v_focusHyp_317_; lean_object* v___x_318_; 
 v_val_316_ = lean_ctor_get(v___x_315_, 0);
 lean_inc(v_val_316_);
-lean_dec_ref(v___x_315_);
+lean_dec_ref_known(v___x_315_, 1);
 v_focusHyp_317_ = lean_ctor_get(v_val_316_, 0);
 lean_inc_ref(v_focusHyp_317_);
 v___x_318_ = l_Lean_Elab_Tactic_Do_ProofMode_parseHyp_x3f(v_focusHyp_317_);
@@ -1041,7 +1041,7 @@ if (lean_obj_tag(v___x_318_) == 1)
 lean_object* v_val_319_; lean_object* v_00_u03c3s_320_; uint8_t v___x_321_; lean_object* v___x_322_; 
 v_val_319_ = lean_ctor_get(v___x_318_, 0);
 lean_inc(v_val_319_);
-lean_dec_ref(v___x_318_);
+lean_dec_ref_known(v___x_318_, 1);
 v_00_u03c3s_320_ = lean_ctor_get(v_goal_307_, 1);
 lean_inc_ref(v_00_u03c3s_320_);
 lean_dec_ref(v_goal_307_);

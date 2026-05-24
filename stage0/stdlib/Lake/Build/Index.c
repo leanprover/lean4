@@ -1526,7 +1526,7 @@ v_resetjp_328_:
 lean_object* v_val_331_; lean_object* v_name_332_; lean_object* v_kind_333_; lean_object* v_config_334_; uint8_t v___x_335_; 
 v_val_331_ = lean_ctor_get(v___x_327_, 0);
 lean_inc(v_val_331_);
-lean_dec_ref(v___x_327_);
+lean_dec_ref_known(v___x_327_, 1);
 v_name_332_ = lean_ctor_get(v_val_331_, 1);
 lean_inc(v_name_332_);
 v_kind_333_ = lean_ctor_get(v_val_331_, 2);
@@ -1653,7 +1653,7 @@ lean_dec_ref(v_package_325_);
 lean_dec_ref(v_a_318_);
 v_val_361_ = lean_ctor_get(v___x_354_, 0);
 lean_inc(v_val_361_);
-lean_dec_ref(v___x_354_);
+lean_dec_ref_known(v___x_354_, 1);
 v___x_362_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_362_, 0, v_val_361_);
 lean_ctor_set(v___x_362_, 1, v_a_323_);
@@ -1703,7 +1703,7 @@ lean_object* v_val_385_; lean_object* v_kind_386_; lean_object* v_fetchFn_387_; 
 lean_inc(v_kind_380_);
 v_val_385_ = lean_ctor_get(v___x_384_, 0);
 lean_inc(v_val_385_);
-lean_dec_ref(v___x_384_);
+lean_dec_ref_known(v___x_384_, 1);
 v_kind_386_ = lean_ctor_get(v_val_385_, 0);
 lean_inc(v_kind_386_);
 v_fetchFn_387_ = lean_ctor_get(v_val_385_, 1);
@@ -1752,7 +1752,7 @@ lean_inc(v_data_381_);
 lean_inc_ref(v_target_379_);
 lean_dec(v_kind_386_);
 lean_dec(v_kind_380_);
-lean_dec_ref(v_info_317_);
+lean_dec_ref_known(v_info_317_, 4);
 if (v_memoize_388_ == 0)
 {
 lean_object* v___x_410_; 
@@ -1796,20 +1796,20 @@ return v___x_415_;
 }
 else
 {
-lean_dec_ref(v___x_413_);
+lean_dec_ref_known(v___x_413_, 2);
 return v___x_415_;
 }
 }
 else
 {
 lean_object* v_val_420_; lean_object* v___x_421_; 
-lean_dec_ref(v___x_413_);
+lean_dec_ref_known(v___x_413_, 2);
 lean_dec_ref(v_fetchFn_387_);
 lean_dec(v_data_381_);
 lean_dec_ref(v_a_318_);
 v_val_420_ = lean_ctor_get(v___x_414_, 0);
 lean_inc(v_val_420_);
-lean_dec_ref(v___x_414_);
+lean_dec_ref_known(v___x_414_, 1);
 v___x_421_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_421_, 0, v_val_420_);
 lean_ctor_set(v___x_421_, 1, v_a_323_);
@@ -2140,7 +2140,7 @@ lean_inc_ref(v___x_539_);
 v___f_540_ = lean_alloc_closure((void*)(l_Lake_recFetch___at___00Lake_recFetchAcyclic___at___00__private_Lake_Build_Index_0__Lake_recFetchWithIndex_spec__0_spec__2___redArg___lam__0___boxed), 8, 1);
 lean_closure_set(v___f_540_, 0, v___x_539_);
 v___x_541_ = l___private_Lake_Build_Index_0__Lake_recBuildWithIndex(v_a_530_, v___f_540_, v___y_531_, v___x_539_, v___y_533_, v___y_534_, v___y_535_);
-lean_dec_ref(v___x_539_);
+lean_dec_ref_known(v___x_539_, 2);
 return v___x_541_;
 }
 else

@@ -1529,7 +1529,7 @@ lean_object* v_head_378_; lean_object* v___x_379_;
 lean_dec(v_x_375_);
 v_head_378_ = lean_ctor_get(v_x_374_, 0);
 lean_inc(v_head_378_);
-lean_dec_ref(v_x_374_);
+lean_dec_ref_known(v_x_374_, 2);
 v___x_379_ = l_Std_Format_joinSep___at___00Array_repr___at___00Std_Async_System_instReprGroupInfo_repr_spec__0_spec__0___lam__0(v_head_378_);
 return v___x_379_;
 }
@@ -1539,7 +1539,7 @@ lean_object* v_head_380_; lean_object* v___x_381_; lean_object* v___x_382_;
 lean_inc(v_tail_377_);
 v_head_380_ = lean_ctor_get(v_x_374_, 0);
 lean_inc(v_head_380_);
-lean_dec_ref(v_x_374_);
+lean_dec_ref_known(v_x_374_, 2);
 v___x_381_ = l_Std_Format_joinSep___at___00Array_repr___at___00Std_Async_System_instReprGroupInfo_repr_spec__0_spec__0___lam__0(v_head_380_);
 v___x_382_ = l_List_foldl___at___00Std_Format_joinSep___at___00Array_repr___at___00Std_Async_System_instReprGroupInfo_repr_spec__0_spec__0_spec__1(v_x_375_, v___x_381_, v_tail_377_);
 return v___x_382_;
@@ -2578,7 +2578,7 @@ lean_object* v_head_851_;
 lean_dec(v_x_848_);
 v_head_851_ = lean_ctor_get(v_x_847_, 0);
 lean_inc(v_head_851_);
-lean_dec_ref(v_x_847_);
+lean_dec_ref_known(v_x_847_, 2);
 return v_head_851_;
 }
 else
@@ -2587,7 +2587,7 @@ lean_object* v_head_852_; lean_object* v___x_853_;
 lean_inc(v_tail_850_);
 v_head_852_ = lean_ctor_get(v_x_847_, 0);
 lean_inc(v_head_852_);
-lean_dec_ref(v_x_847_);
+lean_dec_ref_known(v_x_847_, 2);
 v___x_853_ = l_List_foldl___at___00Std_Format_joinSep___at___00Prod_repr___at___00List_repr___at___00Std_Async_System_instReprEnvironment_repr_spec__0_spec__0_spec__1_spec__4(v_x_848_, v_head_852_, v_tail_850_);
 return v___x_853_;
 }
@@ -2840,7 +2840,7 @@ lean_object* v_head_925_; lean_object* v___x_926_;
 lean_dec(v_x_922_);
 v_head_925_ = lean_ctor_get(v_x_921_, 0);
 lean_inc(v_head_925_);
-lean_dec_ref(v_x_921_);
+lean_dec_ref_known(v_x_921_, 2);
 v___x_926_ = l_Prod_repr___at___00List_repr___at___00Std_Async_System_instReprEnvironment_repr_spec__0_spec__0___redArg(v_head_925_);
 return v___x_926_;
 }
@@ -2850,7 +2850,7 @@ lean_object* v_head_927_; lean_object* v___x_928_; lean_object* v___x_929_;
 lean_inc(v_tail_924_);
 v_head_927_ = lean_ctor_get(v_x_921_, 0);
 lean_inc(v_head_927_);
-lean_dec_ref(v_x_921_);
+lean_dec_ref_known(v_x_921_, 2);
 v___x_928_ = l_Prod_repr___at___00List_repr___at___00Std_Async_System_instReprEnvironment_repr_spec__0_spec__0___redArg(v_head_927_);
 v___x_929_ = l_List_foldl___at___00Std_Format_joinSep___at___00List_repr___at___00Std_Async_System_instReprEnvironment_repr_spec__0_spec__1_spec__3(v_x_922_, v___x_928_, v_tail_924_);
 return v___x_929_;

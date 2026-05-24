@@ -429,7 +429,7 @@ lean_object* v___x_130_; uint64_t v___x_131_; size_t v___x_132_; lean_object* v_
 lean_inc(v_a_128_);
 v___x_130_ = lean_apply_1(v_x_126_, v_a_128_);
 v___x_131_ = lean_unbox_uint64(v___x_130_);
-lean_dec_ref(v___x_130_);
+lean_dec(v___x_130_);
 v___x_132_ = lean_uint64_to_usize(v___x_131_);
 v___x_133_ = l_Lean_PersistentHashMap_findKeyDAux___redArg(v_x_125_, v_s_127_, v___x_132_, v_a_128_, v_a_u2080_129_);
 return v___x_133_;
@@ -451,7 +451,7 @@ lean_object* v___x_146_; uint64_t v___x_147_; size_t v___x_148_; lean_object* v_
 lean_inc(v_a_144_);
 v___x_146_ = lean_apply_1(v_x_142_, v_a_144_);
 v___x_147_ = lean_unbox_uint64(v___x_146_);
-lean_dec_ref(v___x_146_);
+lean_dec(v___x_146_);
 v___x_148_ = lean_uint64_to_usize(v___x_147_);
 v___x_149_ = l_Lean_PersistentHashMap_findKeyDAux___redArg(v_x_141_, v_s_143_, v___x_148_, v_a_144_, v_a_u2080_145_);
 return v___x_149_;

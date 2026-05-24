@@ -896,7 +896,7 @@ lean_ctor_set(v___x_237_, 13, v_inheritedTraceOptions_235_);
 lean_ctor_set_uint8(v___x_237_, sizeof(void*)*14, v_diag_232_);
 lean_ctor_set_uint8(v___x_237_, sizeof(void*)*14 + 1, v_suppressElabErrors_234_);
 v___x_238_ = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstInfo___at___00Lean_isEnumType___at___00Lean_Server_Completion_getCompletionKindForDecl_spec__1_spec__1_spec__2_spec__3_spec__5_spec__7_spec__9___redArg(v_msg_214_, v___y_215_, v___y_216_, v___x_237_, v___y_218_);
-lean_dec_ref(v___x_237_);
+lean_dec_ref_known(v___x_237_, 14);
 return v___x_238_;
 }
 }
@@ -1102,7 +1102,7 @@ v_head_346_ = lean_ctor_get(v_x_337_, 0);
 lean_inc(v_head_346_);
 v_tail_347_ = lean_ctor_get(v_x_337_, 1);
 lean_inc(v_tail_347_);
-lean_dec_ref(v_x_337_);
+lean_dec_ref_known(v_x_337_, 2);
 v___x_348_ = l_Lean_getConstInfo___at___00Lean_isEnumType___at___00Lean_Server_Completion_getCompletionKindForDecl_spec__1_spec__1(v_head_346_, v___y_338_, v___y_339_, v___y_340_, v___y_341_);
 if (lean_obj_tag(v___x_348_) == 0)
 {
@@ -1131,7 +1131,7 @@ if (lean_obj_tag(v_a_349_) == 6)
 lean_object* v_val_357_; lean_object* v_numFields_358_; lean_object* v___x_359_; uint8_t v___x_360_; lean_object* v___x_361_; lean_object* v___x_363_; 
 v_val_357_ = lean_ctor_get(v_a_349_, 0);
 lean_inc_ref(v_val_357_);
-lean_dec_ref(v_a_349_);
+lean_dec_ref_known(v_a_349_, 1);
 v_numFields_358_ = lean_ctor_get(v_val_357_, 4);
 lean_inc(v_numFields_358_);
 lean_dec_ref(v_val_357_);
@@ -1291,7 +1291,7 @@ if (lean_obj_tag(v_a_394_) == 5)
 lean_object* v_val_398_; lean_object* v_toConstantVal_399_; lean_object* v_numParams_400_; lean_object* v_numIndices_401_; lean_object* v_ctors_402_; uint8_t v_isRec_403_; uint8_t v_isUnsafe_404_; lean_object* v_type_405_; uint8_t v___x_406_; 
 v_val_398_ = lean_ctor_get(v_a_394_, 0);
 lean_inc_ref(v_val_398_);
-lean_dec_ref(v_a_394_);
+lean_dec_ref_known(v_a_394_, 1);
 v_toConstantVal_399_ = lean_ctor_get(v_val_398_, 0);
 v_numParams_400_ = lean_ctor_get(v_val_398_, 1);
 lean_inc(v_numParams_400_);
@@ -2320,7 +2320,7 @@ else
 lean_object* v_a_750_; lean_object* v___x_751_; lean_object* v___x_752_; lean_object* v___x_754_; uint8_t v_isShared_755_; uint8_t v_isSharedCheck_759_; 
 v_a_750_ = lean_ctor_get(v___x_732_, 0);
 lean_inc(v_a_750_);
-lean_dec_ref(v___x_732_);
+lean_dec_ref_known(v___x_732_, 1);
 v___x_751_ = lean_box(0);
 v___x_752_ = l_Std_Mutex_atomically___at___00Lean_Server_Completion_getEligibleHeaderDecls_spec__3___redArg___lam__0(v_mutex_730_, v___x_751_);
 lean_dec(v_mutex_730_);
@@ -2935,7 +2935,7 @@ if (lean_obj_tag(v___x_970_) == 0)
 lean_object* v_a_971_; lean_object* v___x_972_; lean_object* v_a_973_; lean_object* v___f_974_; lean_object* v___f_975_; lean_object* v___x_977_; 
 v_a_971_ = lean_ctor_get(v___x_970_, 0);
 lean_inc(v_a_971_);
-lean_dec_ref(v___x_970_);
+lean_dec_ref_known(v___x_970_, 1);
 lean_inc(v_key_962_);
 v___x_972_ = l_Lean_Server_Completion_getCompletionTagsForDecl___redArg(v_key_962_, v___y_958_);
 v_a_973_ = lean_ctor_get(v___x_972_, 0);
@@ -3084,7 +3084,7 @@ lean_object* v_a_1018_; lean_object* v___x_1020_;
 lean_dec_ref(v_env_999_);
 v_a_1018_ = lean_ctor_get(v_a_1014_, 0);
 lean_inc(v_a_1018_);
-lean_dec_ref(v_a_1014_);
+lean_dec_ref_known(v_a_1014_, 1);
 if (v_isShared_1017_ == 0)
 {
 lean_ctor_set(v___x_1016_, 0, v_a_1018_);
@@ -3110,7 +3110,7 @@ lean_object* v_a_1022_; size_t v___x_1023_; size_t v___x_1024_;
 lean_del_object(v___x_1016_);
 v_a_1022_ = lean_ctor_get(v_a_1014_, 0);
 lean_inc(v_a_1022_);
-lean_dec_ref(v_a_1014_);
+lean_dec_ref_known(v_a_1014_, 1);
 v___x_1023_ = ((size_t)1ULL);
 v___x_1024_ = lean_usize_add(v_i_1002_, v___x_1023_);
 v_i_1002_ = v___x_1024_;

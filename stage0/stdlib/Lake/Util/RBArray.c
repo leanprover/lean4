@@ -1637,7 +1637,7 @@ v_l_374_ = lean_ctor_get(v_t_372_, 3);
 lean_inc(v_l_374_);
 v_r_375_ = lean_ctor_get(v_t_372_, 4);
 lean_inc(v_r_375_);
-lean_dec_ref(v_t_372_);
+lean_dec_ref_known(v_t_372_, 5);
 lean_inc_ref(v_cmp_370_);
 lean_inc(v_k_371_);
 v___x_376_ = lean_apply_2(v_cmp_370_, v_k_371_, v_k_373_);

@@ -370,7 +370,7 @@ _start:
 {
 uint64_t v_x2_64__boxed_153_; uint64_t v_res_154_; lean_object* v_r_155_; 
 v_x2_64__boxed_153_ = lean_unbox_uint64(v_x2_152_);
-lean_dec_ref(v_x2_152_);
+lean_dec(v_x2_152_);
 v_res_154_ = l_Lean_Grind_instCommRingUInt64___lam__0(v_x1_151_, v_x2_64__boxed_153_);
 lean_dec(v_x1_151_);
 v_r_155_ = lean_box_uint64(v_res_154_);
@@ -391,7 +391,7 @@ _start:
 {
 uint64_t v_x2_74__boxed_162_; uint64_t v_res_163_; lean_object* v_r_164_; 
 v_x2_74__boxed_162_ = lean_unbox_uint64(v_x2_161_);
-lean_dec_ref(v_x2_161_);
+lean_dec(v_x2_161_);
 v_res_163_ = l_Lean_Grind_instCommRingUInt64___lam__1(v_x1_160_, v_x2_74__boxed_162_);
 lean_dec(v_x1_160_);
 v_r_164_ = lean_box_uint64(v_res_163_);

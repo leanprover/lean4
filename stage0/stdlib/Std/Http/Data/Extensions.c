@@ -222,7 +222,7 @@ else
 lean_object* v_val_39_; lean_object* v___x_40_; 
 v_val_39_ = lean_ctor_get(v___x_37_, 0);
 lean_inc(v_val_39_);
-lean_dec_ref(v___x_37_);
+lean_dec_ref_known(v___x_37_, 1);
 v___x_40_ = l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___redArg(v_val_39_, v_inst_35_);
 lean_dec(v_inst_35_);
 lean_dec(v_val_39_);
@@ -249,7 +249,7 @@ else
 lean_object* v_val_47_; lean_object* v___x_48_; 
 v_val_47_ = lean_ctor_get(v___x_45_, 0);
 lean_inc(v_val_47_);
-lean_dec_ref(v___x_45_);
+lean_dec_ref_known(v___x_45_, 1);
 v___x_48_ = l___private_Init_Dynamic_0__Dynamic_get_x3fImpl___redArg(v_val_47_, v_inst_43_);
 lean_dec(v_inst_43_);
 lean_dec(v_val_47_);

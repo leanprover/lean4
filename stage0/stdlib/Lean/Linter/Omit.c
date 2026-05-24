@@ -322,12 +322,12 @@ else
 lean_object* v_val_79_; 
 v_val_79_ = lean_ctor_get(v___x_77_, 0);
 lean_inc(v_val_79_);
-lean_dec_ref(v___x_77_);
+lean_dec_ref_known(v___x_77_, 1);
 if (lean_obj_tag(v_val_79_) == 1)
 {
 uint8_t v_v_80_; 
 v_v_80_ = lean_ctor_get_uint8(v_val_79_, 0);
-lean_dec_ref(v_val_79_);
+lean_dec_ref_known(v_val_79_, 0);
 return v_v_80_;
 }
 else
@@ -547,7 +547,7 @@ if (lean_obj_tag(v___x_156_) == 0)
 lean_object* v_a_157_; lean_object* v___x_158_; 
 v_a_157_ = lean_ctor_get(v___x_156_, 0);
 lean_inc(v_a_157_);
-lean_dec_ref(v___x_156_);
+lean_dec_ref_known(v___x_156_, 1);
 v___x_158_ = l_Lean_Elab_Command_getScope___redArg(v___y_155_);
 if (lean_obj_tag(v___x_158_) == 0)
 {
@@ -838,7 +838,7 @@ v___x_232_ = l_Lean_MessageData_hasTag(v___f_231_, v_a_221_);
 if (v___x_232_ == 0)
 {
 lean_object* v___x_233_; lean_object* v___x_235_; 
-lean_dec_ref(v___x_227_);
+lean_dec_ref_known(v___x_227_, 1);
 lean_dec_ref(v___x_225_);
 lean_dec(v_a_221_);
 v___x_233_ = lean_box(0);
@@ -897,7 +897,7 @@ else
 lean_object* v_val_245_; 
 v_val_245_ = lean_ctor_get(v___x_244_, 0);
 lean_inc(v_val_245_);
-lean_dec_ref(v___x_244_);
+lean_dec_ref_known(v___x_244_, 1);
 v___y_211_ = v___y_239_;
 v___y_212_ = v___y_243_;
 v___y_213_ = v___y_241_;
@@ -915,7 +915,7 @@ if (lean_obj_tag(v___x_250_) == 0)
 lean_object* v_a_251_; lean_object* v_ref_252_; lean_object* v___x_253_; 
 v_a_251_ = lean_ctor_get(v___x_250_, 0);
 lean_inc(v_a_251_);
-lean_dec_ref(v___x_250_);
+lean_dec_ref_known(v___x_250_, 1);
 v_ref_252_ = l_Lean_replaceRef(v_ref_140_, v_a_251_);
 lean_dec(v_a_251_);
 v___x_253_ = l_Lean_Syntax_getPos_x3f(v_ref_252_, v___y_248_);
@@ -935,7 +935,7 @@ else
 lean_object* v_val_255_; 
 v_val_255_ = lean_ctor_get(v___x_253_, 0);
 lean_inc(v_val_255_);
-lean_dec_ref(v___x_253_);
+lean_dec_ref_known(v___x_253_, 1);
 v___y_239_ = v___y_247_;
 v___y_240_ = v_ref_252_;
 v___y_241_ = v___y_249_;
@@ -1312,7 +1312,7 @@ lean_object* v_val_394_; lean_object* v___x_395_; lean_object* v___x_396_;
 lean_del_object(v___x_385_);
 v_val_394_ = lean_ctor_get(v___x_393_, 0);
 lean_inc(v_val_394_);
-lean_dec_ref(v___x_393_);
+lean_dec_ref_known(v___x_393_, 1);
 v___x_395_ = lean_obj_once(&l_Lean_Linter_omit___lam__1___closed__1, &l_Lean_Linter_omit___lam__1___closed__1_once, _init_l_Lean_Linter_omit___lam__1___closed__1);
 v___x_396_ = l_Lean_Linter_logLint___at___00Lean_Linter_omit_spec__1(v___x_387_, v_val_394_, v___x_395_, v___y_379_, v___y_380_);
 lean_dec(v_val_394_);

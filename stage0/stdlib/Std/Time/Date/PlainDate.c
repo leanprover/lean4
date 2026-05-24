@@ -1734,7 +1734,7 @@ v___x_485_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_485_, 0, v_month_481_);
 lean_ctor_set(v___x_485_, 1, v_day_482_);
 v___x_486_ = l_Std_Time_ValidDate_dayOfYear(v___y_484_, v___x_485_);
-lean_dec_ref(v___x_485_);
+lean_dec_ref_known(v___x_485_, 2);
 return v___x_486_;
 }
 v___jp_490_:

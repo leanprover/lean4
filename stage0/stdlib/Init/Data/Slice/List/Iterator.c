@@ -151,7 +151,7 @@ v_resetjp_14_:
 lean_object* v_val_17_; lean_object* v___x_18_; lean_object* v___x_19_; lean_object* v___x_21_; 
 v_val_17_ = lean_ctor_get(v_stop_2_, 0);
 lean_inc(v_val_17_);
-lean_dec_ref(v_stop_2_);
+lean_dec_ref_known(v_stop_2_, 1);
 v___x_18_ = lean_unsigned_to_nat(1u);
 v___x_19_ = lean_nat_add(v_val_17_, v___x_18_);
 lean_dec(v_val_17_);
@@ -229,7 +229,7 @@ else
 lean_object* v_tail_39_; lean_object* v___x_40_; lean_object* v___x_42_; 
 v_tail_39_ = lean_ctor_get(v_inner_33_, 1);
 lean_inc(v_tail_39_);
-lean_dec_ref(v_inner_33_);
+lean_dec_ref_known(v_inner_33_, 2);
 v___x_40_ = lean_nat_sub(v_countdown_32_, v___x_37_);
 lean_dec(v_countdown_32_);
 if (v_isShared_36_ == 0)
@@ -360,7 +360,7 @@ v_resetjp_70_:
 lean_object* v_val_73_; lean_object* v___x_74_; lean_object* v___x_75_; lean_object* v___x_77_; 
 v_val_73_ = lean_ctor_get(v_stop_58_, 0);
 lean_inc(v_val_73_);
-lean_dec_ref(v_stop_58_);
+lean_dec_ref_known(v_stop_58_, 1);
 v___x_74_ = lean_unsigned_to_nat(1u);
 v___x_75_ = lean_nat_add(v_val_73_, v___x_74_);
 lean_dec(v_val_73_);
@@ -422,7 +422,7 @@ lean_dec_ref(v___x_91_);
 lean_dec(v_recur_90_);
 v_a_93_ = lean_ctor_get(v_____do__lift_92_, 0);
 lean_inc(v_a_93_);
-lean_dec_ref(v_____do__lift_92_);
+lean_dec_ref_known(v_____do__lift_92_, 1);
 v___x_94_ = lean_apply_2(v_toPure_89_, lean_box(0), v_a_93_);
 return v___x_94_;
 }
@@ -432,7 +432,7 @@ lean_object* v_a_95_; lean_object* v___x_96_;
 lean_dec(v_toPure_89_);
 v_a_95_ = lean_ctor_get(v_____do__lift_92_, 0);
 lean_inc(v_a_95_);
-lean_dec_ref(v_____do__lift_92_);
+lean_dec_ref_known(v_____do__lift_92_, 1);
 v___x_96_ = lean_apply_4(v_recur_90_, v___x_91_, v_a_95_, lean_box(0), lean_box(0));
 return v___x_96_;
 }
@@ -486,7 +486,7 @@ v_head_113_ = lean_ctor_get(v_inner_106_, 0);
 lean_inc(v_head_113_);
 v_tail_114_ = lean_ctor_get(v_inner_106_, 1);
 lean_inc(v_tail_114_);
-lean_dec_ref(v_inner_106_);
+lean_dec_ref_known(v_inner_106_, 2);
 v___x_115_ = lean_nat_sub(v_countdown_105_, v___x_110_);
 lean_dec(v_countdown_105_);
 if (v_isShared_109_ == 0)
@@ -618,7 +618,7 @@ v_resetjp_150_:
 lean_object* v_val_153_; lean_object* v___x_154_; lean_object* v___x_155_; lean_object* v___x_157_; 
 v_val_153_ = lean_ctor_get(v_stop_138_, 0);
 lean_inc(v_val_153_);
-lean_dec_ref(v_stop_138_);
+lean_dec_ref_known(v_stop_138_, 1);
 v___x_154_ = lean_unsigned_to_nat(1u);
 v___x_155_ = lean_nat_add(v_val_153_, v___x_154_);
 lean_dec(v_val_153_);
@@ -729,7 +729,7 @@ v_head_177_ = lean_ctor_get(v_inner_171_, 0);
 lean_inc(v_head_177_);
 v_tail_178_ = lean_ctor_get(v_inner_171_, 1);
 lean_inc(v_tail_178_);
-lean_dec_ref(v_inner_171_);
+lean_dec_ref_known(v_inner_171_, 2);
 v___x_179_ = lean_nat_sub(v_countdown_170_, v___x_175_);
 lean_dec(v_countdown_170_);
 if (v_isShared_174_ == 0)
@@ -850,7 +850,7 @@ v_resetjp_235_:
 lean_object* v_val_238_; lean_object* v___x_239_; lean_object* v___x_240_; lean_object* v___x_242_; 
 v_val_238_ = lean_ctor_get(v_stop_223_, 0);
 lean_inc(v_val_238_);
-lean_dec_ref(v_stop_223_);
+lean_dec_ref_known(v_stop_223_, 1);
 v___x_239_ = lean_unsigned_to_nat(1u);
 v___x_240_ = lean_nat_add(v_val_238_, v___x_239_);
 lean_dec(v_val_238_);
@@ -950,7 +950,7 @@ else
 lean_object* v_val_216_; lean_object* v___x_217_; lean_object* v___x_218_; lean_object* v___x_220_; 
 v_val_216_ = lean_ctor_get(v_stop_205_, 0);
 lean_inc(v_val_216_);
-lean_dec_ref(v_stop_205_);
+lean_dec_ref_known(v_stop_205_, 1);
 v___x_217_ = lean_unsigned_to_nat(1u);
 v___x_218_ = lean_nat_add(v_val_216_, v___x_217_);
 lean_dec(v_val_216_);
@@ -1032,7 +1032,7 @@ else
 lean_object* v_val_278_; lean_object* v___x_279_; lean_object* v___x_280_; lean_object* v___x_281_; 
 v_val_278_ = lean_ctor_get(v_stop_257_, 0);
 lean_inc(v_val_278_);
-lean_dec_ref(v_stop_257_);
+lean_dec_ref_known(v_stop_257_, 1);
 v___x_279_ = lean_unsigned_to_nat(1u);
 v___x_280_ = lean_nat_add(v_val_278_, v___x_279_);
 lean_dec(v_val_278_);
@@ -1210,7 +1210,7 @@ v_resetjp_324_:
 lean_object* v_val_327_; lean_object* v___x_328_; lean_object* v___x_329_; lean_object* v___x_331_; 
 v_val_327_ = lean_ctor_get(v_stop_312_, 0);
 lean_inc(v_val_327_);
-lean_dec_ref(v_stop_312_);
+lean_dec_ref_known(v_stop_312_, 1);
 v___x_328_ = lean_unsigned_to_nat(1u);
 v___x_329_ = lean_nat_add(v_val_327_, v___x_328_);
 lean_dec(v_val_327_);

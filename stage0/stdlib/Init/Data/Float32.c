@@ -473,7 +473,7 @@ _start:
 {
 uint64_t v_n_boxed_165_; float v_res_166_; lean_object* v_r_167_; 
 v_n_boxed_165_ = lean_unbox_uint64(v_n_164_);
-lean_dec_ref(v_n_164_);
+lean_dec(v_n_164_);
 v_res_166_ = lean_uint64_to_float32(v_n_boxed_165_);
 v_r_167_ = lean_box_float32(v_res_166_);
 return v_r_167_;

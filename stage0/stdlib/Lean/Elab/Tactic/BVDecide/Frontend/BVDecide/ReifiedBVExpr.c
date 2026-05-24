@@ -429,7 +429,7 @@ if (lean_obj_tag(v___x_155_) == 0)
 lean_object* v_a_156_; lean_object* v___x_157_; lean_object* v___x_158_; uint8_t v___x_159_; 
 v_a_156_ = lean_ctor_get(v___x_155_, 0);
 lean_inc(v_a_156_);
-lean_dec_ref(v___x_155_);
+lean_dec_ref_known(v___x_155_, 1);
 v___x_157_ = l_Lean_Expr_cleanupAnnotations(v_a_156_);
 v___x_158_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_getNatOrBvValue_x3f___redArg___closed__1));
 v___x_159_ = l_Lean_Expr_isConstOf(v___x_157_, v___x_158_);
@@ -836,14 +836,14 @@ if (lean_obj_tag(v___x_282_) == 0)
 lean_object* v_a_283_; lean_object* v___x_284_; 
 v_a_283_ = lean_ctor_get(v___x_282_, 0);
 lean_inc(v_a_283_);
-lean_dec_ref(v___x_282_);
+lean_dec_ref_known(v___x_282_, 1);
 v___x_284_ = l_Lean_Meta_whnfR(v_a_283_, v_a_277_, v_a_278_, v_a_279_, v_a_280_);
 if (lean_obj_tag(v___x_284_) == 0)
 {
 lean_object* v_a_285_; lean_object* v___x_286_; lean_object* v_a_287_; lean_object* v___x_289_; uint8_t v_isShared_290_; uint8_t v_isSharedCheck_345_; 
 v_a_285_ = lean_ctor_get(v___x_284_, 0);
 lean_inc(v_a_285_);
-lean_dec_ref(v___x_284_);
+lean_dec_ref_known(v___x_284_, 1);
 v___x_286_ = l_Lean_instantiateMVars___at___00Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_bitVecAtom_spec__0___redArg(v_a_285_, v_a_278_);
 v_a_287_ = lean_ctor_get(v___x_286_, 0);
 v_isSharedCheck_345_ = !lean_is_exclusive(v___x_286_);

@@ -1173,7 +1173,7 @@ if (lean_obj_tag(v___x_439_) == 0)
 lean_object* v_a_440_; lean_object* v___x_441_; lean_object* v___x_442_; 
 v_a_440_ = lean_ctor_get(v___x_439_, 0);
 lean_inc(v_a_440_);
-lean_dec_ref(v___x_439_);
+lean_dec_ref_known(v___x_439_, 1);
 v___x_441_ = l_Lean_Elab_Tactic_BVDecide_Frontend_bvNormalizeSimprocExt;
 v___x_442_ = l_Lean_Meta_Simp_SimprocExtension_getSimprocs___redArg(v___x_441_, v___y_436_);
 if (lean_obj_tag(v___x_442_) == 0)
@@ -1181,28 +1181,28 @@ if (lean_obj_tag(v___x_442_) == 0)
 lean_object* v_a_443_; lean_object* v___x_444_; 
 v_a_443_ = lean_ctor_get(v___x_442_, 0);
 lean_inc(v_a_443_);
-lean_dec_ref(v___x_442_);
+lean_dec_ref_known(v___x_442_, 1);
 v___x_444_ = l_Lean_Meta_getSEvalTheorems___redArg(v___y_436_);
 if (lean_obj_tag(v___x_444_) == 0)
 {
 lean_object* v_a_445_; lean_object* v___x_446_; 
 v_a_445_ = lean_ctor_get(v___x_444_, 0);
 lean_inc(v_a_445_);
-lean_dec_ref(v___x_444_);
+lean_dec_ref_known(v___x_444_, 1);
 v___x_446_ = l_Lean_Meta_Simp_getSEvalSimprocs___redArg(v___y_436_);
 if (lean_obj_tag(v___x_446_) == 0)
 {
 lean_object* v_a_447_; lean_object* v___x_448_; 
 v_a_447_ = lean_ctor_get(v___x_446_, 0);
 lean_inc(v_a_447_);
-lean_dec_ref(v___x_446_);
+lean_dec_ref_known(v___x_446_, 1);
 v___x_448_ = l_Lean_Meta_getSimpCongrTheorems___redArg(v___y_436_);
 if (lean_obj_tag(v___x_448_) == 0)
 {
 lean_object* v_a_449_; lean_object* v_maxSteps_450_; lean_object* v___x_451_; uint8_t v___x_452_; uint8_t v___x_453_; uint8_t v___x_454_; lean_object* v___x_455_; lean_object* v___x_456_; lean_object* v___x_457_; lean_object* v___x_458_; lean_object* v___x_459_; lean_object* v___x_460_; lean_object* v___x_461_; 
 v_a_449_ = lean_ctor_get(v___x_448_, 0);
 lean_inc(v_a_449_);
-lean_dec_ref(v___x_448_);
+lean_dec_ref_known(v___x_448_, 1);
 v_maxSteps_450_ = lean_ctor_get(v___y_431_, 1);
 v___x_451_ = lean_unsigned_to_nat(2u);
 v___x_452_ = 0;
@@ -1254,7 +1254,7 @@ if (lean_obj_tag(v___x_461_) == 0)
 lean_object* v_a_462_; lean_object* v___x_463_; 
 v_a_462_ = lean_ctor_get(v___x_461_, 0);
 lean_inc(v_a_462_);
-lean_dec_ref(v___x_461_);
+lean_dec_ref_known(v___x_461_, 1);
 lean_inc(v_goal_430_);
 v___x_463_ = l___private_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_Rewrite_0__Lean_Elab_Tactic_BVDecide_Frontend_Normalize_rewriteRulesPass_getHyps(v_goal_430_, v___y_431_, v___y_432_, v___y_433_, v___y_434_, v___y_435_, v___y_436_);
 if (lean_obj_tag(v___x_463_) == 0)

@@ -144,7 +144,7 @@ lean_dec_ref(v_inst_12_);
 lean_dec_ref(v_inst_11_);
 v_val_23_ = lean_ctor_get(v___x_22_, 0);
 lean_inc(v_val_23_);
-lean_dec_ref(v___x_22_);
+lean_dec_ref_known(v___x_22_, 1);
 if (v_isShared_20_ == 0)
 {
 lean_ctor_set(v___x_19_, 1, v_cache_13_);
@@ -227,7 +227,7 @@ lean_dec_ref(v_inst_36_);
 lean_dec_ref(v_inst_35_);
 v_val_47_ = lean_ctor_get(v___x_46_, 0);
 lean_inc(v_val_47_);
-lean_dec_ref(v___x_46_);
+lean_dec_ref_known(v___x_46_, 1);
 if (v_isShared_44_ == 0)
 {
 lean_ctor_set(v___x_43_, 1, v_cache_37_);
@@ -1107,7 +1107,7 @@ v___x_386_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_Elab_
 if (lean_obj_tag(v___x_386_) == 1)
 {
 lean_object* v_val_387_; 
-lean_dec_ref(v___x_385_);
+lean_dec_ref_known(v___x_385_, 2);
 lean_dec_ref(v_kind_355_);
 lean_dec_ref(v_excessArgs_341_);
 lean_dec_ref(v_instWP_340_);
@@ -1117,7 +1117,7 @@ lean_dec_ref(v_m_337_);
 lean_dec_ref(v_specThm_336_);
 v_val_387_ = lean_ctor_get(v___x_386_, 0);
 lean_inc(v_val_387_);
-lean_dec_ref(v___x_386_);
+lean_dec_ref_known(v___x_386_, 1);
 v_fst_374_ = v_val_387_;
 v_snd_375_ = v_specBackwardRuleCache_361_;
 goto v___jp_373_;
@@ -1133,7 +1133,7 @@ if (lean_obj_tag(v___x_388_) == 0)
 lean_object* v_a_389_; lean_object* v___x_390_; 
 v_a_389_ = lean_ctor_get(v___x_388_, 0);
 lean_inc_n(v_a_389_, 2);
-lean_dec_ref(v___x_388_);
+lean_dec_ref_known(v___x_388_, 1);
 v___x_390_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Elab_Tactic_Do_Internal_VCGen_mkBackwardRuleFromSpecCached_spec__1___redArg(v_specBackwardRuleCache_361_, v___x_385_, v_a_389_);
 v_fst_374_ = v_a_389_;
 v_snd_375_ = v___x_390_;
@@ -1141,7 +1141,7 @@ goto v___jp_373_;
 }
 else
 {
-lean_dec_ref(v___x_385_);
+lean_dec_ref_known(v___x_385_, 2);
 lean_del_object(v___x_371_);
 lean_dec_ref(v_inlineHandledInvariants_368_);
 lean_dec(v_fuel_367_);
@@ -1433,7 +1433,7 @@ v___x_509_ = l_Std_DHashMap_Internal_Raw_u2080_Const_get_x3f___at___00Lean_Elab_
 if (lean_obj_tag(v___x_509_) == 1)
 {
 lean_object* v_val_510_; 
-lean_dec_ref(v___x_508_);
+lean_dec_ref_known(v___x_508_, 2);
 lean_dec_ref(v_excessArgs_471_);
 lean_dec_ref(v_instWP_470_);
 lean_dec_ref(v_ps_469_);
@@ -1442,7 +1442,7 @@ lean_dec_ref(v_m_467_);
 lean_dec_ref(v_splitInfo_466_);
 v_val_510_ = lean_ctor_get(v___x_509_, 0);
 lean_inc(v_val_510_);
-lean_dec_ref(v___x_509_);
+lean_dec_ref_known(v___x_509_, 1);
 v_specBackwardRuleCache_481_ = v_specBackwardRuleCache_497_;
 v_invariants_482_ = v_invariants_499_;
 v_vcs_483_ = v_vcs_500_;
@@ -1465,7 +1465,7 @@ if (lean_obj_tag(v___x_511_) == 0)
 lean_object* v_a_512_; lean_object* v___x_513_; 
 v_a_512_ = lean_ctor_get(v___x_511_, 0);
 lean_inc_n(v_a_512_, 2);
-lean_dec_ref(v___x_511_);
+lean_dec_ref_known(v___x_511_, 1);
 v___x_513_ = l_Std_DHashMap_Internal_Raw_u2080_insert___at___00Lean_Elab_Tactic_Do_Internal_VCGen_mkBackwardRuleFromSpecCached_spec__1___redArg(v_splitBackwardRuleCache_498_, v___x_508_, v_a_512_);
 v_specBackwardRuleCache_481_ = v_specBackwardRuleCache_497_;
 v_invariants_482_ = v_invariants_499_;
@@ -1481,7 +1481,7 @@ goto v___jp_480_;
 }
 else
 {
-lean_dec_ref(v___x_508_);
+lean_dec_ref_known(v___x_508_, 2);
 lean_dec_ref(v_inlineHandledInvariants_504_);
 lean_dec(v_fuel_503_);
 lean_dec(v_jps_502_);

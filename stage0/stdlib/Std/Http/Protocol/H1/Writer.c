@@ -349,7 +349,7 @@ if (lean_obj_tag(v_t_12_) == 3)
 lean_object* v_n_14_; lean_object* v___x_15_; 
 v_n_14_ = lean_ctor_get(v_t_12_, 0);
 lean_inc(v_n_14_);
-lean_dec_ref(v_t_12_);
+lean_dec_ref_known(v_t_12_, 1);
 v___x_15_ = lean_apply_1(v_k_13_, v_n_14_);
 return v___x_15_;
 }

@@ -37,7 +37,7 @@ _start:
 {
 uint64_t v_timeout_boxed_8_; uint8_t v_repeating_boxed_9_; lean_object* v_res_10_; 
 v_timeout_boxed_8_ = lean_unbox_uint64(v_timeout_5_);
-lean_dec_ref(v_timeout_5_);
+lean_dec(v_timeout_5_);
 v_repeating_boxed_9_ = lean_unbox(v_repeating_6_);
 v_res_10_ = lean_uv_timer_mk(v_timeout_boxed_8_, v_repeating_boxed_9_);
 return v_res_10_;

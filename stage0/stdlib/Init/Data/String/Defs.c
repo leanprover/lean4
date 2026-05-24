@@ -477,7 +477,7 @@ v_head_124_ = lean_ctor_get(v_x_122_, 0);
 lean_inc(v_head_124_);
 v_tail_125_ = lean_ctor_get(v_x_122_, 1);
 lean_inc(v_tail_125_);
-lean_dec_ref(v_x_122_);
+lean_dec_ref_known(v_x_122_, 2);
 v___x_126_ = l___private_Init_Data_String_Defs_0__String_intercalate_go(v_head_124_, v_s_121_, v_tail_125_);
 lean_dec(v_tail_125_);
 return v___x_126_;

@@ -425,12 +425,12 @@ else
 lean_object* v_val_87_; 
 v_val_87_ = lean_ctor_get(v___x_85_, 0);
 lean_inc(v_val_87_);
-lean_dec_ref(v___x_85_);
+lean_dec_ref_known(v___x_85_, 1);
 if (lean_obj_tag(v_val_87_) == 1)
 {
 uint8_t v_v_88_; 
 v_v_88_ = lean_ctor_get_uint8(v_val_87_, 0);
-lean_dec_ref(v_val_87_);
+lean_dec_ref_known(v_val_87_, 0);
 return v_v_88_;
 }
 else
@@ -622,7 +622,7 @@ v___x_157_ = l_Lean_MessageData_hasTag(v___y_139_, v_a_149_);
 if (v___x_157_ == 0)
 {
 lean_object* v___x_158_; lean_object* v___x_160_; 
-lean_dec_ref(v___x_155_);
+lean_dec_ref_known(v___x_155_, 1);
 lean_dec_ref(v___x_153_);
 lean_dec(v_a_149_);
 v___x_158_ = lean_box(0);
@@ -685,7 +685,7 @@ else
 lean_object* v_val_173_; 
 v_val_173_ = lean_ctor_get(v___x_172_, 0);
 lean_inc(v_val_173_);
-lean_dec_ref(v___x_172_);
+lean_dec_ref_known(v___x_172_, 1);
 v___y_139_ = v___y_164_;
 v___y_140_ = v___y_165_;
 v___y_141_ = v___y_167_;
@@ -721,7 +721,7 @@ else
 lean_object* v_val_185_; 
 v_val_185_ = lean_ctor_get(v___x_183_, 0);
 lean_inc(v_val_185_);
-lean_dec_ref(v___x_183_);
+lean_dec_ref_known(v___x_183_, 1);
 v___y_164_ = v___y_175_;
 v___y_165_ = v___y_176_;
 v___y_166_ = v___y_178_;
@@ -865,7 +865,7 @@ v___x_250_ = l_Lean_logWarningAt___at___00__private_Lake_DSL_Attributes_0__Lake_
 if (lean_obj_tag(v___x_250_) == 0)
 {
 lean_object* v___x_251_; lean_object* v___x_252_; 
-lean_dec_ref(v___x_250_);
+lean_dec_ref_known(v___x_250_, 1);
 v___x_251_ = lean_box(v_attrKind_245_);
 lean_inc(v___y_247_);
 lean_inc_ref(v___y_246_);

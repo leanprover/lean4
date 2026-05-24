@@ -262,7 +262,7 @@ v_l_25_ = lean_ctor_get(v_x_23_, 3);
 lean_inc(v_l_25_);
 v_r_26_ = lean_ctor_get(v_x_23_, 4);
 lean_inc(v_r_26_);
-lean_dec_ref(v_x_23_);
+lean_dec_ref_known(v_x_23_, 5);
 lean_inc_n(v_setName_21_, 2);
 v___x_27_ = l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Linter_insertLinterSetEntry_spec__1_spec__1(v_setName_21_, v_init_22_, v_l_25_);
 v___x_28_ = ((lean_object*)(l_Std_DTreeMap_Internal_Impl_foldlM___at___00Std_DTreeMap_Internal_Impl_foldl___at___00Lean_Linter_insertLinterSetEntry_spec__1_spec__1___closed__0));
@@ -540,7 +540,7 @@ else
 lean_object* v_val_151_; lean_object* v___x_152_; 
 v_val_151_ = lean_ctor_get(v___x_150_, 0);
 lean_inc(v_val_151_);
-lean_dec_ref(v___x_150_);
+lean_dec_ref_known(v___x_150_, 1);
 v___x_152_ = lean_apply_1(v_ofDataValue_x3f_149_, v_val_151_);
 if (lean_obj_tag(v___x_152_) == 0)
 {
@@ -552,7 +552,7 @@ else
 lean_object* v_val_153_; 
 v_val_153_ = lean_ctor_get(v___x_152_, 0);
 lean_inc(v_val_153_);
-lean_dec_ref(v___x_152_);
+lean_dec_ref_known(v___x_152_, 1);
 return v_val_153_;
 }
 }
@@ -610,7 +610,7 @@ else
 lean_object* v_val_179_; lean_object* v___x_180_; 
 v_val_179_ = lean_ctor_get(v___x_177_, 0);
 lean_inc(v_val_179_);
-lean_dec_ref(v___x_177_);
+lean_dec_ref_known(v___x_177_, 1);
 v___x_180_ = lean_apply_1(v_ofDataValue_x3f_176_, v_val_179_);
 return v___x_180_;
 }
@@ -934,12 +934,12 @@ else
 lean_object* v_val_337_; 
 v_val_337_ = lean_ctor_get(v___x_336_, 0);
 lean_inc(v_val_337_);
-lean_dec_ref(v___x_336_);
+lean_dec_ref_known(v___x_336_, 1);
 if (lean_obj_tag(v_val_337_) == 1)
 {
 uint8_t v_v_338_; 
 v_v_338_ = lean_ctor_get_uint8(v_val_337_, 0);
-lean_dec_ref(v_val_337_);
+lean_dec_ref_known(v_val_337_, 0);
 return v_v_338_;
 }
 else
@@ -1042,7 +1042,7 @@ if (lean_obj_tag(v_val_371_) == 1)
 {
 uint8_t v_v_375_; lean_object* v___x_376_; lean_object* v___x_378_; 
 v_v_375_ = lean_ctor_get_uint8(v_val_371_, 0);
-lean_dec_ref(v_val_371_);
+lean_dec_ref_known(v_val_371_, 0);
 v___x_376_ = lean_box(v_v_375_);
 if (v_isShared_374_ == 0)
 {

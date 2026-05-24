@@ -159,7 +159,7 @@ lean_object* v_head_63_; lean_object* v___x_64_; lean_object* v___x_65_;
 lean_dec_ref(v_i_21_);
 v_head_63_ = lean_ctor_get(v_results_44_, 0);
 lean_inc(v_head_63_);
-lean_dec_ref(v_results_44_);
+lean_dec_ref_known(v_results_44_, 2);
 v___x_64_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_64_, 0, v_head_63_);
 v___x_65_ = lean_apply_2(v_toPure_18_, lean_box(0), v___x_64_);
@@ -304,7 +304,7 @@ if (lean_obj_tag(v_____do__lift_93_) == 1)
 lean_object* v_val_97_; 
 v_val_97_ = lean_ctor_get(v_____do__lift_93_, 0);
 lean_inc(v_val_97_);
-lean_dec_ref(v_____do__lift_93_);
+lean_dec_ref_known(v_____do__lift_93_, 1);
 if (lean_obj_tag(v_val_97_) == 1)
 {
 lean_object* v_val_98_; lean_object* v___x_100_; uint8_t v_isShared_101_; uint8_t v_isSharedCheck_107_; 

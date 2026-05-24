@@ -245,7 +245,7 @@ return v___x_53_;
 else
 {
 uint8_t v___x_57_; 
-lean_dec_ref(v___x_50_);
+lean_dec_ref_known(v___x_50_, 1);
 v___x_57_ = l_System_FilePath_pathExists(v_cfgFile_48_);
 lean_dec_ref(v_cfgFile_48_);
 return v___x_57_;
@@ -295,7 +295,7 @@ return v___x_73_;
 else
 {
 lean_object* v___x_74_; 
-lean_dec_ref(v___x_64_);
+lean_dec_ref_known(v___x_64_, 1);
 v___x_74_ = l_Lake_resolvePath(v_cfgFile_62_);
 return v___x_74_;
 }
@@ -377,7 +377,7 @@ if (lean_obj_tag(v___x_117_) == 1)
 lean_object* v_val_118_; lean_object* v___x_119_; lean_object* v___x_120_; lean_object* v___x_121_; uint8_t v___x_122_; 
 v_val_118_ = lean_ctor_get(v___x_117_, 0);
 lean_inc(v_val_118_);
-lean_dec_ref(v___x_117_);
+lean_dec_ref_known(v___x_117_, 1);
 lean_inc_ref(v_configFile_104_);
 v___x_119_ = l_Lake_resolvePath(v_configFile_104_);
 v___x_120_ = lean_string_utf8_byte_size(v___x_119_);
@@ -890,7 +890,7 @@ lean_dec(v_pkgName_208_);
 lean_dec(v_pkgIdx_207_);
 lean_dec_ref(v_wsDir_206_);
 lean_dec(v_lakeArgs_x3f_205_);
-lean_dec_ref(v_configLang_x3f_95_);
+lean_dec_ref_known(v_configLang_x3f_95_, 1);
 lean_dec_ref(v_lakeEnv_204_);
 v___x_233_ = ((lean_object*)(l_Lake_resolveConfigFile___closed__3));
 v___x_234_ = lean_string_append(v_name_91_, v___x_233_);
@@ -981,7 +981,7 @@ v_a_280_ = lean_ctor_get(v___x_279_, 0);
 lean_inc_n(v_a_280_, 2);
 v_a_281_ = lean_ctor_get(v___x_279_, 1);
 lean_inc(v_a_281_);
-lean_dec_ref(v___x_279_);
+lean_dec_ref_known(v___x_279_, 2);
 v___x_282_ = l_Lake_loadConfigFile___redArg(v_a_280_, v_a_281_);
 if (lean_obj_tag(v___x_282_) == 0)
 {

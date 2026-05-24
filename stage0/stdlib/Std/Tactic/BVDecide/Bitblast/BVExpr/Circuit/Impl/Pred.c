@@ -258,7 +258,7 @@ v_value_45_ = lean_ctor_get(v_x_42_, 1);
 lean_inc(v_value_45_);
 v_tail_46_ = lean_ctor_get(v_x_42_, 2);
 lean_inc(v_tail_46_);
-lean_dec_ref(v_x_42_);
+lean_dec_ref_known(v_x_42_, 3);
 v___x_47_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_instDecidableEqBVBit___boxed), 2, 0);
 lean_inc(v_a_41_);
 v___x_48_ = l_Std_Sat_AIG_instDecidableEqDecl_decEq___redArg(v___x_47_, v_key_44_, v_a_41_);
@@ -459,7 +459,7 @@ v_key_106_ = lean_ctor_get(v_x_104_, 0);
 lean_inc(v_key_106_);
 v_tail_107_ = lean_ctor_get(v_x_104_, 2);
 lean_inc(v_tail_107_);
-lean_dec_ref(v_x_104_);
+lean_dec_ref_known(v_x_104_, 3);
 v___x_108_ = lean_alloc_closure((void*)(l_Std_Tactic_BVDecide_instDecidableEqBVBit___boxed), 2, 0);
 lean_inc(v_a_103_);
 v___x_109_ = l_Std_Sat_AIG_instDecidableEqDecl_decEq___redArg(v___x_108_, v_key_106_, v_a_103_);
@@ -939,7 +939,7 @@ lean_dec_ref(v_cache_222_);
 lean_dec_ref(v_decls_221_);
 v_val_262_ = lean_ctor_get(v_lhsVal_257_, 0);
 lean_inc(v_val_262_);
-lean_dec_ref(v_lhsVal_257_);
+lean_dec_ref_known(v_lhsVal_257_, 1);
 v___x_263_ = lean_unbox(v_val_262_);
 lean_dec(v_val_262_);
 if (v___x_263_ == 0)
@@ -955,7 +955,7 @@ if (lean_obj_tag(v_rhsVal_258_) == 1)
 lean_object* v_val_264_; uint8_t v___x_265_; 
 v_val_264_ = lean_ctor_get(v_rhsVal_258_, 0);
 lean_inc(v_val_264_);
-lean_dec_ref(v_rhsVal_258_);
+lean_dec_ref_known(v_rhsVal_258_, 1);
 v___x_265_ = lean_unbox(v_val_264_);
 lean_dec(v_val_264_);
 if (v___x_265_ == 0)
@@ -987,7 +987,7 @@ lean_dec_ref(v_cache_222_);
 lean_dec_ref(v_decls_221_);
 v_val_266_ = lean_ctor_get(v_rhsVal_258_, 0);
 lean_inc(v_val_266_);
-lean_dec_ref(v_rhsVal_258_);
+lean_dec_ref_known(v_rhsVal_258_, 1);
 v___x_267_ = lean_unbox(v_val_266_);
 lean_dec(v_val_266_);
 if (v___x_267_ == 0)
@@ -1125,7 +1125,7 @@ v_resetjp_284_:
 lean_object* v_val_287_; lean_object* v___x_289_; 
 v_val_287_ = lean_ctor_get(v___x_239_, 0);
 lean_inc(v_val_287_);
-lean_dec_ref(v___x_239_);
+lean_dec_ref_known(v___x_239_, 1);
 if (v_isShared_225_ == 0)
 {
 v___x_289_ = v___x_224_;
@@ -3761,7 +3761,7 @@ lean_inc_ref(v_lhs_1021_);
 v_op_1022_ = lean_ctor_get_uint8(v_val_1015_, sizeof(void*)*3);
 v_rhs_1023_ = lean_ctor_get(v_val_1015_, 2);
 lean_inc_ref(v_rhs_1023_);
-lean_dec_ref(v_val_1015_);
+lean_dec_ref_known(v_val_1015_, 3);
 if (v_isShared_1019_ == 0)
 {
 lean_ctor_set(v___x_1018_, 0, v_lhs_1021_);

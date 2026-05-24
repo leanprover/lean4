@@ -43,7 +43,7 @@ _start:
 {
 uint64_t v_hash_boxed_9_; uint64_t v_res_10_; lean_object* v_r_11_; 
 v_hash_boxed_9_ = lean_unbox_uint64(v_hash_8_);
-lean_dec_ref(v_hash_8_);
+lean_dec(v_hash_8_);
 v_res_10_ = l_Std_DHashMap_Internal_scrambleHash(v_hash_boxed_9_);
 v_r_11_ = lean_box_uint64(v_res_10_);
 return v_r_11_;
@@ -72,7 +72,7 @@ _start:
 {
 uint64_t v_hash_boxed_27_; size_t v_res_28_; lean_object* v_r_29_; 
 v_hash_boxed_27_ = lean_unbox_uint64(v_hash_26_);
-lean_dec_ref(v_hash_26_);
+lean_dec(v_hash_26_);
 v_res_28_ = l_Std_DHashMap_Internal_mkIdx___redArg(v_sz_25_, v_hash_boxed_27_);
 lean_dec(v_sz_25_);
 v_r_29_ = lean_box_usize(v_res_28_);
@@ -102,7 +102,7 @@ _start:
 {
 uint64_t v_hash_boxed_47_; size_t v_res_48_; lean_object* v_r_49_; 
 v_hash_boxed_47_ = lean_unbox_uint64(v_hash_46_);
-lean_dec_ref(v_hash_46_);
+lean_dec(v_hash_46_);
 v_res_48_ = l_Std_DHashMap_Internal_mkIdx(v_sz_44_, v_h_45_, v_hash_boxed_47_);
 lean_dec(v_sz_44_);
 v_r_49_ = lean_box_usize(v_res_48_);

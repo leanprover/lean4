@@ -236,7 +236,7 @@ if (lean_obj_tag(v___x_100_) == 0)
 lean_object* v_a_101_; lean_object* v___x_102_; lean_object* v___x_103_; lean_object* v___x_104_; lean_object* v___x_105_; lean_object* v___x_106_; lean_object* v___x_107_; 
 v_a_101_ = lean_ctor_get(v___x_100_, 0);
 lean_inc(v_a_101_);
-lean_dec_ref(v___x_100_);
+lean_dec_ref_known(v___x_100_, 1);
 v___x_102_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__0___closed__0));
 v___x_103_ = ((lean_object*)(l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__0___closed__1));
 v___x_104_ = lean_alloc_ctor(0, 1, 2);
@@ -251,14 +251,14 @@ if (lean_obj_tag(v___x_107_) == 0)
 lean_object* v_a_108_; lean_object* v___x_109_; 
 v_a_108_ = lean_ctor_get(v___x_107_, 0);
 lean_inc(v_a_108_);
-lean_dec_ref(v___x_107_);
+lean_dec_ref_known(v___x_107_, 1);
 v___x_109_ = l_Lean_Meta_getSimpCongrTheorems___redArg(v___y_98_);
 if (lean_obj_tag(v___x_109_) == 0)
 {
 lean_object* v_a_110_; lean_object* v_maxSteps_111_; lean_object* v___x_112_; uint8_t v___x_113_; lean_object* v___x_114_; lean_object* v___x_115_; lean_object* v___x_116_; lean_object* v___x_117_; 
 v_a_110_ = lean_ctor_get(v___x_109_, 0);
 lean_inc(v_a_110_);
-lean_dec_ref(v___x_109_);
+lean_dec_ref_known(v___x_109_, 1);
 v_maxSteps_111_ = lean_ctor_get(v___y_93_, 1);
 v___x_112_ = lean_unsigned_to_nat(2u);
 v___x_113_ = 0;
@@ -304,14 +304,14 @@ if (lean_obj_tag(v___x_117_) == 0)
 lean_object* v_a_118_; lean_object* v___x_119_; 
 v_a_118_ = lean_ctor_get(v___x_117_, 0);
 lean_inc(v_a_118_);
-lean_dec_ref(v___x_117_);
+lean_dec_ref_known(v___x_117_, 1);
 v___x_119_ = l_Lean_Meta_getPropHyps(v___y_95_, v___y_96_, v___y_97_, v___y_98_);
 if (lean_obj_tag(v___x_119_) == 0)
 {
 lean_object* v_a_120_; lean_object* v___x_121_; lean_object* v___x_122_; lean_object* v___x_123_; lean_object* v___x_124_; lean_object* v___x_125_; lean_object* v___x_126_; size_t v___x_127_; lean_object* v___x_128_; lean_object* v___x_129_; lean_object* v___x_130_; lean_object* v___x_131_; 
 v_a_120_ = lean_ctor_get(v___x_119_, 0);
 lean_inc(v_a_120_);
-lean_dec_ref(v___x_119_);
+lean_dec_ref_known(v___x_119_, 1);
 v___x_121_ = lean_mk_empty_array_with_capacity(v___x_91_);
 v___x_122_ = lean_obj_once(&l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__0___closed__3, &l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__0___closed__3_once, _init_l_Lean_Elab_Tactic_BVDecide_Frontend_Normalize_shortCircuitPass___lam__0___closed__3);
 lean_inc_n(v___x_91_, 2);

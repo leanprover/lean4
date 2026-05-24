@@ -86,7 +86,7 @@ _start:
 {
 uint64_t v_size_boxed_25_; lean_object* v_res_26_; 
 v_size_boxed_25_ = lean_unbox_uint64(v_size_23_);
-lean_dec_ref(v_size_23_);
+lean_dec(v_size_23_);
 v_res_26_ = lean_uv_tcp_recv(v_socket_22_, v_size_boxed_25_);
 lean_dec(v_socket_22_);
 return v_res_26_;

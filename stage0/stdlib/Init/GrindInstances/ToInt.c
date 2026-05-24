@@ -182,7 +182,7 @@ _start:
 {
 uint64_t v_x_boxed_38_; lean_object* v_res_39_; 
 v_x_boxed_38_ = lean_unbox_uint64(v_x_37_);
-lean_dec_ref(v_x_37_);
+lean_dec(v_x_37_);
 v_res_39_ = l_Lean_Grind_instToIntUInt64UintOfNatNat___lam__0(v_x_boxed_38_);
 return v_res_39_;
 }

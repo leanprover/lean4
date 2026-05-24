@@ -675,7 +675,7 @@ else
 lean_object* v_val_84_; 
 v_val_84_ = lean_ctor_get(v_x_78_, 0);
 lean_inc(v_val_84_);
-lean_dec_ref(v_x_78_);
+lean_dec_ref_known(v_x_78_, 1);
 v___y_80_ = v_val_84_;
 goto v___jp_79_;
 }
@@ -1582,7 +1582,7 @@ return v___x_439_;
 else
 {
 lean_object* v_toPure_440_; lean_object* v___x_441_; lean_object* v___x_442_; 
-lean_dec_ref(v___x_429_);
+lean_dec_ref_known(v___x_429_, 2);
 lean_dec(v_inst_424_);
 lean_dec(v_toBind_423_);
 lean_dec(v_inst_422_);
@@ -3499,7 +3499,7 @@ else
 lean_object* v_val_1401_; 
 v_val_1401_ = lean_ctor_get(v___x_1399_, 0);
 lean_inc(v_val_1401_);
-lean_dec_ref(v___x_1399_);
+lean_dec_ref_known(v___x_1399_, 1);
 v___y_1387_ = v_val_1401_;
 goto v___jp_1386_;
 }
@@ -3613,7 +3613,7 @@ else
 lean_object* v_val_1457_; lean_object* v___x_1458_; lean_object* v_modules_1459_; lean_object* v___x_1460_; uint8_t v___x_1461_; 
 v_val_1457_ = lean_ctor_get(v___x_1456_, 0);
 lean_inc(v_val_1457_);
-lean_dec_ref(v___x_1456_);
+lean_dec_ref_known(v___x_1456_, 1);
 v___x_1458_ = l_Lean_Environment_header(v_env_1452_);
 v_modules_1459_ = lean_ctor_get(v___x_1458_, 3);
 lean_inc_ref(v_modules_1459_);

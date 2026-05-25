@@ -367,24 +367,37 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   let config := { config with clean := false, trace, verbose, useSorry }
   let only := only.isSome
   let paramStxs := if let some params := params? then params.getElems else #[]
+  let isCasesModifier (mod? : Option (TSyntax ``Parser.Attr.grindMod)) : TacticM Bool := do
+    match mod? with
+    | none => return false
+    | some mod =>
+      match ← Grind.getAttrKindCore mod with
+      | .cases _ => return true
+      | _ => return false
   -- Extract term parameters (non-ident params) to include in the suggestion.
   -- These are not tracked via E-matching, so we conservatively include them all.
   -- Plain ident params that resolve to global declarations are tracked via E-matching.
+  -- `cases` parameters are tracked through the case-split configuration rather
+  -- than E-matching, so we preserve them too.
   -- But idents with local variable dot notation (e.g., `cs.getD_rightInvSeq` where `cs`
   -- is a local variable) must be preserved because they produce anchors that need
   -- the original term to be loaded during replay.
   -- Non-ident terms (like `show P by tac`) need to be preserved explicitly.
   let termParamStxs : Array Grind.TParam ← paramStxs.filterM fun p => do
     match p with
-    | `(Parser.Tactic.grindParam| $[$_:grindMod]? $id:ident) =>
+    | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) =>
+      if ← isCasesModifier mod? then
+        return true
       -- Check if this ident resolves to local variable dot notation
       -- If so, keep it because it's not a simple global declaration
-      if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+      else if let some (_, _ :: _) := (← resolveLocalName id.getId) then
         return true
       else
         return false
-    | `(Parser.Tactic.grindParam| ! $[$_:grindMod]? $id:ident) =>
-      if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+    | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) =>
+      if ← isCasesModifier mod? then
+        return true
+      else if let some (_, _ :: _) := (← resolveLocalName id.getId) then
         return true
       else
         return false

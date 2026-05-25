@@ -417,6 +417,8 @@ def withOriginalHeartbeats (x : TryTacticM α) : TryTacticM α := do
     (fun ex => do
       if Exception.isMaxHeartbeat ex then
         throwError "tactic exceeded heartbeat limit"
+      else if ex.isMaxRecDepth then
+        throwError "tactic exceeded recursion depth limit"
       else
         throw ex)
 

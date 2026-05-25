@@ -49,3 +49,12 @@ example (h : 1 = 1) : 1 = 1 := by
 #guard_msgs (info) in
 example : 1 = 1 := by
   try? (max := 1) => attempt_all | rfl | simp_all
+
+-- A resource-limit error in one branch should not prevent other branches from producing suggestions.
+/--
+info: Try this:
+  [apply] grind
+-/
+#guard_msgs (substring := true) in
+example (f : Nat → Nat) (x : Nat) (h : x = f x) : x = f (f x) := by
+  try?

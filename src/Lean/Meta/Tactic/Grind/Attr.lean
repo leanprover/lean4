@@ -237,6 +237,15 @@ def getExtension? (attrName : Name) : CoreM (Option Extension) := do
     recordExtraModUseFromDecl (isMeta := true) ext.ext.name
   return ext?
 
+/-- Returns the registered grind attribute extensions. -/
+def getRegisteredExtensions : CoreM (Array Extension) := do
+  let map ← extensionMapRef.get
+  let mut exts := #[]
+  for (_, ext) in map.toArray do
+    recordExtraModUseFromDecl (isMeta := true) ext.ext.name
+    exts := exts.push ext
+  return exts
+
 def registerAttr (attrName : Name) (ref : Name := by exact decl_name%) : IO Extension := do
   let ext ← mkExtension ref
   mkGrindAttr attrName (minIndexable := false) (showInfo := true) (ext := ext) (ref := ref)

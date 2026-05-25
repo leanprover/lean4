@@ -31,8 +31,14 @@ builtin_initialize muteExt : SimplePersistentEnvExtension Name NameSet ←
 
 open Command Meta Grind
 
+def isEMatchTheorem (declName : Name) : CoreM Bool := do
+  for ext in (← Grind.getRegisteredExtensions) do
+    if (← ext.isEMatchTheorem declName) then
+      return true
+  return false
+
 def checkEMatchTheorem (declName : Name) : CoreM Unit := do
-  unless (← Grind.grindExt.isEMatchTheorem declName) do
+  unless (← isEMatchTheorem declName) do
     throwError "`{declName}` is not marked with the `@[grind]` attribute for theorem instantiation"
 
 @[builtin_command_elab Lean.Grind.grindLintSkip]
@@ -159,29 +165,30 @@ def nameEndsWithSuffix (name suff : Name) : Bool :=
 def getTheorems (prefixes? : Option (Array Name)) (inModule : Bool) : CoreM (List Name) := do
   let skip := skipExt.getState (← getEnv)
   let skipSuffixes := skipSuffixExt.getState (← getEnv)
-  let origins := (← Grind.grindExt.getEMatchTheorems).getOrigins
   let env ← getEnv
-  return origins.filterMap fun origin => Id.run do
-    let .decl declName := origin | return none
-    if skip.contains declName then return none
-    -- Check if declName's last component ends with any of the skip suffixes
-    if skipSuffixes.any fun suff => nameEndsWithSuffix declName suff then return none
-    let some prefixes := prefixes? | return some declName
-    if inModule then
-      let some modIdx := env.getModuleIdxFor? declName | return none
-      let modName := env.header.moduleNames[modIdx]!
-      if prefixes.any fun pre => pre.isPrefixOf modName then
-        return some declName
-      else
-        return none
-    else
-      let keep := prefixes.any fun pre =>
-        if pre == `_root_ then
-          declName.components.length == 1
+  let mut decls := #[]
+  for ext in (← Grind.getRegisteredExtensions) do
+    for origin in (← ext.getEMatchTheorems).getOrigins do
+      let .decl declName := origin | continue
+      if skip.contains declName then continue
+      -- Check if declName's last component ends with any of the skip suffixes
+      if skipSuffixes.any fun suff => nameEndsWithSuffix declName suff then continue
+      if let some prefixes := prefixes? then
+        if inModule then
+          let some modIdx := env.getModuleIdxFor? declName | continue
+          let modName := env.header.moduleNames[modIdx]!
+          unless prefixes.any fun pre => pre.isPrefixOf modName do
+            continue
         else
-          pre.isPrefixOf declName
-      unless keep do return none
-      return some declName
+          let keep := prefixes.any fun pre =>
+            if pre == `_root_ then
+              declName.components.length == 1
+            else
+              pre.isPrefixOf declName
+          unless keep do continue
+      unless decls.contains declName do
+        decls := decls.push declName
+  return decls.toList
 
 @[builtin_command_elab Lean.Grind.grindLintCheck]
 def elabGrindLintCheck : CommandElab := fun stx => liftTermElabM <| withTheReader Core.Context (fun c => { c with maxHeartbeats := 0 }) do

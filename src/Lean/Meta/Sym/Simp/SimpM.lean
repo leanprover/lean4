@@ -106,6 +106,8 @@ structure Config where
   Prevents infinite loops when conditional rewrite rules trigger recursive discharge attempts.
   -/
   maxDischargeDepth : Nat := 2
+  /-- User-facing name used in diagnostics emitted by this simplifier. -/
+  name : String := "simp"
   deriving Inhabited
 
 /--

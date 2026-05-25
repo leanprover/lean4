@@ -325,7 +325,7 @@ public def cbvEntry (e : Expr) : MetaM Result := do
       | .ok (Result.rfl ..)     => return m!"cbv: no change{indentExpr e}"
       | .error err              => return m!"cbv: {err.toMessageData}") do
   let simprocs ← getCbvSimprocs
-  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions), name := "cbv" }
   let methods := mkCbvMethods simprocs
   let e ← Sym.unfoldReducible e
   Sym.SymM.run do
@@ -347,7 +347,7 @@ type is `True`, the goal is closed. Otherwise, the target is replaced.
 
 After all reductions, attempts `refl` to close equation goals of the form `v = v`. -/
 public def cbvGoal (mvarId : MVarId) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) : MetaM (Option MVarId) := do
-  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions), name := "cbv" }
   Sym.SymM.run do
     let mvarId ← Sym.preprocessMVar mvarId
     mvarId.withContext do
@@ -408,7 +408,7 @@ public def cbvDecideGoal (m : MVarId) : MetaM Unit := do
   withTraceNode `Meta.Tactic.cbv (fun
       | .ok ()   => return m!"decide_cbv: closed goal"
       | .error err => return m!"decide_cbv: {err.toMessageData}") do
-  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions), name := "decide_cbv" }
   Sym.SymM.run do
     let m ← Sym.preprocessMVar m
     let mType ← m.getType

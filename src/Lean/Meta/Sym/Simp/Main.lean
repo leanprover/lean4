@@ -45,7 +45,7 @@ set_option compiler.ignoreBorrowAnnotation true in
 def simpImpl (e₁ : Expr) : SimpM Result := withIncRecDepth do
   let numSteps := (← get).numSteps
   if numSteps >= (← getConfig).maxSteps then
-    throwError "`simp` failed: maximum number of steps exceeded"
+    throwError "`{(← getConfig).name}` failed: maximum number of steps exceeded"
   let key : ExprPtr := { expr := e₁ }
   if let some result := (← get).persistentCache.find? key then
     trace[sym.simp.debug.cache] "persistent cache hit: {e₁}"

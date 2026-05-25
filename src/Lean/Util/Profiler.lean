@@ -203,7 +203,7 @@ where
       if !data.tag.isEmpty then
         funcName := s!"{funcName}: {data.tag}"
       if pp then
-        funcName := s!"{funcName}: {← msg.format ctx?}"
+        funcName := s!"{funcName}: {data.formatHeader (← msg.format ctx?)}"
       let strIdx ← modifyGet fun thread =>
         if let some idx := thread.stringMap[funcName]? then
           (idx, thread)

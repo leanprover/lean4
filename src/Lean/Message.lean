@@ -84,6 +84,19 @@ inductive TraceResult where
   | error
   deriving Inhabited, BEq, Repr
 
+/-- Emoji used when rendering trace nodes whose actions threw exceptions. -/
+def bombEmoji := "💥️"
+/-- Emoji used when rendering trace nodes whose actions succeeded. -/
+def checkEmoji := "✅️"
+/-- Emoji used when rendering trace nodes whose actions failed without throwing. -/
+def crossEmoji := "❌️"
+
+/-- Convert a `TraceResult` to its emoji representation. -/
+def TraceResult.toEmoji : TraceResult → String
+  | .success => checkEmoji
+  | .failure => crossEmoji
+  | .error   => bombEmoji
+
 structure TraceData where
   /-- Trace class, e.g. `Elab.step`. -/
   cls       : Name
@@ -98,6 +111,12 @@ structure TraceData where
   collapsed : Bool := true
   /-- Optional tag shown in `trace.profiler.output` output after the trace class name. -/
   tag       : String := ""
+
+/-- Add the result-status prefix to a trace header, if the trace has a structured result. -/
+def TraceData.formatHeader (data : TraceData) (header : Format) : Format :=
+  match data.result? with
+  | none => header
+  | some result => f!"{result.toEmoji} {header}"
 
 /-- Structured message data. We use it for reporting errors, trace messages, etc. -/
 inductive MessageData where
@@ -359,7 +378,7 @@ partial def formatAux : NamingContext → Option MessageDataContext → MessageD
     let mut msg := f!"[{data.cls}]"
     if data.startTime != 0 then
       msg := f!"{msg} [{data.stopTime - data.startTime}]"
-    msg := f!"{msg} {(← formatAux nCtx ctx header).nest 2}"
+    msg := f!"{msg} {data.formatHeader ((← formatAux nCtx ctx header).nest 2)}"
     let mut children := children
     if let some maxNum := ctx.map (maxTraceChildren.get ·.opts) then
       if maxNum > 0 && children.size > maxNum then

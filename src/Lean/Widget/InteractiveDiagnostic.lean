@@ -160,7 +160,7 @@ where
       -- to never put trace nodes on the same line.
       return .join (← children.mapM (go nCtx ctx)).toList
 
-    let mut header := (← go nCtx ctx header).nest 4
+    let mut header := data.formatHeader ((← go nCtx ctx header).nest 4)
     if data.startTime != 0 then
       header := f!"[{data.stopTime - data.startTime}] {header}"
     let nodes ←

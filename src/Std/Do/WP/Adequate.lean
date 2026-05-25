@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Do.WP.Monad
-public import Init.Control.Ensures
+public import Std.Do.Internal.Ensures.Def
 
 set_option linter.missingDocs true
 

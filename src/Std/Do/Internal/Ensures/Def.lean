@@ -23,7 +23,7 @@ action `y : m {a // p a}` that is bind-faithful w.r.t. `x`.
 `a` is in every postcondition of `x` ↔ `a` is reachable as a value of `x`.
 -/
 
-namespace Internal
+namespace Std.Do.Internal
 
 /--
 {lean}`ErasesTo x y` says the property-tagged {name}`x` is bind-faithful to {name}`y`: binding
@@ -55,4 +55,4 @@ public structure IsAttach {m : Type u → Type v} [Bind m]
   /-- For each `x`, the attached version is bind-faithful with `x`. -/
   erases {α} (x : m α) : ErasesTo (attach x) x
 
-end Internal
+end Std.Do.Internal

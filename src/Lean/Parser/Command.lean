@@ -560,7 +560,7 @@ Use `#check_assertions!` to only show unsatisfied assertions.
 @[builtin_command_parser] def checkAssertions := leading_parser
   "#check_assertions" >> optional "!"
 /--
-`#eval e` evaluates the expression `e` by compiling and evaluating it.
+`#eval e` compiles the expression `e` to executable code, runs it, and displays the result.
 
 * The command attempts to use `ToExpr`, `Repr`, or `ToString` instances to print the result.
 * If `e` is a monadic value of type `m ty`, then the command tries to adapt the monad `m`

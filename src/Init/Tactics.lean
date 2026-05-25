@@ -761,22 +761,22 @@ This is a "finishing" tactic modification of `simp`. It has two forms.
   (which has also been simplified). This construction also tends to be
   more robust under changes to the simp lemma set.
 
+  The final match between the simplified `e` and the simplified goal uses
+  **reducible** transparency, so it does not unfold semireducible definitions.
+  Write `simpa [rules, ⋯] using! e` to perform the match at the ambient
+  (default/semireducible) transparency instead.
+
 * `simpa [rules, ⋯]` will simplify the goal and the type of a
   hypothesis `this` if present in the context, then try to close the goal using
   the `assumption` tactic.
 
-The `using!` clause (`simpa [rules, ⋯] using! e`) is reserved for a future
-transparency split of the final unification. At present it behaves identically
-to `using`; both close the goal at the ambient (default/semireducible)
-transparency.
+As with `simp`, the `!` modifier after `simpa` enables auto-unfolding of
+definitions in the simp set.
 -/
 syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
 
 /-- The arguments to `simpa ... using! e` — like `simpaArgsRest`, but with a
-mandatory `using!` clause. At present the only difference between `using` and
-`using!` is forward-compatibility: a follow-up change will make `using` close
-at reducible transparency, leaving `using!` at the current default
-transparency. -/
+mandatory `using!` clause selecting the permissive default-transparency close. -/
 syntax simpaUsingBangArgsRest :=
   optConfig (discharger)? &" only "? (simpArgs)? " using! " term
 

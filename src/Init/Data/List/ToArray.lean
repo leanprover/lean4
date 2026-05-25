@@ -62,6 +62,13 @@ theorem toArray_inj {as bs : List α} (h : as.toArray = bs.toArray) : as = bs :=
     | nil => simp at h
     | cons b bs => simpa using h
 
+@[simp] theorem toArray_eq_toArray_iff {as bs : List α} : as.toArray = bs.toArray ↔ as = bs := by
+  constructor
+  · exact toArray_inj
+  · intro h
+    cases h
+    rfl
+
 theorem toArray_eq_iff {as : List α} {bs : Array α} : as.toArray = bs ↔ as = bs.toList := by
   cases bs
   simp

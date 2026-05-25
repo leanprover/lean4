@@ -118,4 +118,18 @@ def getLinterUnnecessarySimpa (o : LinterOptions) : Bool :=
     return stats.diag
     | _ => throwUnsupportedSyntax
 
+@[builtin_tactic Lean.Parser.Tactic.simpaUsingBang] def evalSimpaUsingBang : Tactic := fun stx => do
+  -- For now, `simpa ... using! e` is a no-op alias for `simpa ... using e`: both
+  -- close the goal at the ambient (default/semireducible) transparency. The two
+  -- syntaxes will diverge once `using` is restricted to reducible-transparency
+  -- close in a follow-up change; until then this elaborator just rewrites
+  -- `using!` to `using` and dispatches to `evalSimpa`.
+  match stx with
+  | `(tactic| simpa%$tk $[?%$squeeze]? $[!%$unfold]? $cfg:optConfig $(disch)? $[only%$only]?
+        $[[$args,*]]? using! $usingArg) => do
+    let stx' ← `(tactic| simpa%$tk $[?%$squeeze]? $[!%$unfold]? $cfg:optConfig $(disch)? $[only%$only]?
+        $[[$args,*]]? using $usingArg)
+    evalSimpa stx'
+  | _ => throwUnsupportedSyntax
+
 end Lean.Elab.Tactic.Simpa

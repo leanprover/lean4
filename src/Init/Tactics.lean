@@ -764,8 +764,24 @@ This is a "finishing" tactic modification of `simp`. It has two forms.
 * `simpa [rules, ⋯]` will simplify the goal and the type of a
   hypothesis `this` if present in the context, then try to close the goal using
   the `assumption` tactic.
+
+The `using!` clause (`simpa [rules, ⋯] using! e`) is reserved for a future
+transparency split of the final unification. At present it behaves identically
+to `using`; both close the goal at the ambient (default/semireducible)
+transparency.
 -/
 syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
+
+/-- The arguments to `simpa ... using! e` — like `simpaArgsRest`, but with a
+mandatory `using!` clause. At present the only difference between `using` and
+`using!` is forward-compatibility: a follow-up change will make `using` close
+at reducible transparency, leaving `using!` at the current default
+transparency. -/
+syntax simpaUsingBangArgsRest :=
+  optConfig (discharger)? &" only "? (simpArgs)? " using! " term
+
+@[tactic_alt simpa]
+syntax (name := simpaUsingBang) "simpa" "?"? "!"? simpaUsingBangArgsRest : tactic
 
 @[inherit_doc simpa] macro "simpa!" rest:simpaArgsRest : tactic =>
   `(tactic| simpa ! $rest:simpaArgsRest)
@@ -775,6 +791,18 @@ syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
 
 @[inherit_doc simpa] macro "simpa?!" rest:simpaArgsRest : tactic =>
   `(tactic| simpa ?! $rest:simpaArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa!" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ! $rest:simpaUsingBangArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa?" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ? $rest:simpaUsingBangArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa?!" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ?! $rest:simpaUsingBangArgsRest)
 
 /--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....

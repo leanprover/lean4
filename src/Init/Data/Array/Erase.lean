@@ -112,7 +112,7 @@ theorem eraseP_map {f : β → α} {xs : Array β} : (xs.map f).eraseP p = (xs.e
 theorem eraseP_filterMap {f : α → Option β} {xs : Array α} :
     (filterMap f xs).eraseP p = filterMap f (xs.eraseP (fun x => match f x with | some y => p y | none => false)) := by
   rcases xs with ⟨xs⟩
-  simpa using List.eraseP_filterMap
+  simpa using! List.eraseP_filterMap
 
 @[grind =]
 theorem eraseP_filter {f : α → Bool} {xs : Array α} :

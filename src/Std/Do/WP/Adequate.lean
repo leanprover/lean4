@@ -28,7 +28,7 @@ public class WPAdequate (m : Type u → Type v) (ps : outParam PostShape.{u}) [M
      (⊢ₛ wp⟦x⟧ (⇓? a => ⌜P a⌝)) → Internal.Ensures P x
 
 public instance : WPAdequate Id .pure where
-  ensures_of_wp hwp := ⟨⟨pure ⟨_, by simpa [WP.wp] using hwp⟩, ⟨fun {_} _ => rfl⟩⟩⟩
+  ensures_of_wp hwp := ⟨⟨pure ⟨_, by simpa [WP.wp] using! hwp⟩, ⟨fun {_} _ => rfl⟩⟩⟩
 
 public instance [Monad m] [WP m ps] [WPAdequate m ps] :
     WPAdequate (ReaderT ρ m) (.arg ρ ps) where

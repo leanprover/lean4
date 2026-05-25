@@ -732,7 +732,7 @@ theorem matchAt?_eq_none_iff {ρ : Type} {pat : ρ} [PatternModel pat]
     matchAt? pat startPos = none ↔ ¬ MatchesAt pat startPos := by
   fun_cases matchAt? with
   | case1 h => simpa using ⟨h⟩
-  | case2 h => simpa using fun ⟨h'⟩ => h h'
+  | case2 h => simpa using! fun ⟨h'⟩ => h h'
 
 theorem lt_of_matchAt?_eq_some {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat]
     {s : Slice} {startPos endPos : s.Pos} (h : matchAt? pat startPos = some endPos) :
@@ -772,7 +772,7 @@ theorem revMatchAt?_eq_none_iff {ρ : Type} {pat : ρ} [PatternModel pat]
     revMatchAt? pat endPos = none ↔ ¬ RevMatchesAt pat endPos := by
   fun_cases revMatchAt? with
   | case1 h => simpa using ⟨h⟩
-  | case2 h => simpa using fun ⟨h'⟩ => h h'
+  | case2 h => simpa using! fun ⟨h'⟩ => h h'
 
 theorem lt_of_revMatchAt?_eq_some {ρ : Type} {pat : ρ} [PatternModel pat] [StrictPatternModel pat]
     {s : Slice} {startPos endPos : s.Pos} (h : revMatchAt? pat endPos = some startPos) :

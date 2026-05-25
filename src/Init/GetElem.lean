@@ -384,7 +384,7 @@ instance : LawfulGetElem (List α) Nat α fun as i => i < as.length where
     | cons a as ih =>
       cases i with
       | zero => rfl
-      | succ i => simpa using ih i
+      | succ i => simpa using! ih i
 
 end List
 

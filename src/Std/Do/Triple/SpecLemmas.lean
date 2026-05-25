@@ -161,7 +161,7 @@ theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
 theorem length_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
     n = xs.length + ys.length + 1 := by
   have : n = (range' s n step).length := by simp
-  simpa [h] using this
+  simpa [h] using! this
 
 @[grind →]
 theorem mem_of_range'_eq_append_cons (h : range' s n step = xs ++ i :: ys) :
@@ -2258,7 +2258,7 @@ theorem _root_.whileM.IsPlausibleStep.acc_of_wp
   refine Acc.intro _ fun a' hStep => ?_
   have hwp : ⊢ₛ wp⟦f init⟧
       (⇓? r => ⌜P r ∧ ∀ a', r = .inl a' → measure a' < measure init⌝) := by
-    apply SPred.entails.trans (by simpa [hP] using h init)
+    apply SPred.entails.trans (by simpa [hP] using! h init)
     apply (wp _).mono; simp [PostCond.entails]
   have hpost := hStep.imp (WPAdequate.ensures_of_wp hwp)
   exact ih _ (hn ▸ hpost.2 a' rfl) _ hpost.1 rfl

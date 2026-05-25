@@ -53,18 +53,20 @@ def mepo (initialRelevant : NameSet) (score : NameSet → NameSet → Float) (ac
     trace[mepo] m!"Considering candidates with threshold {p}."
     trace[mepo] m!"Current relevant set: {relevant.toList}."
     let (newAccepted, candidates') := candidates.map
-      (fun (n, c) => (n, c, score relevant c))
-      |>.partition fun (_, _, s) => p ≤ s
+      (fun (n, c) => (n, c, score relevant c, (relevant ∩ c).size))
+      |>.partition fun (_, _, s, _) => p ≤ s
     if newAccepted.isEmpty then return accepted
-    trace[mepo] m!"Accepted {newAccepted.map fun (n, _, s) => (n, s)}."
+    trace[mepo] m!"Accepted {newAccepted.map fun (n, _, s, overlap) => (n, s, overlap)}."
     -- Scores from different iterations are not comparable: each iteration accepts
     -- against a strictly larger `relevant` set and a higher threshold. We order the
     -- output by `(iteration, score)`: earlier iterations always rank first, and
-    -- within an iteration we sort by descending score.
-    let newAccepted := newAccepted.qsort (fun (_, _, s₁) (_, _, s₂) => s₁ > s₂)
-    accepted := newAccepted.foldl (fun acc (n, _, s) => acc.push { name := n, score := s }) accepted
-    candidates := candidates'.map fun (n, c, _) => (n, c)
-    relevant := newAccepted.foldl (fun acc (_, ns, _) => acc ++ ns) relevant
+    -- within an iteration we sort by descending score, breaking equal-score ties
+    -- by the number of constants shared with the current relevant set.
+    let newAccepted := newAccepted.qsort fun (_, _, s₁, o₁) (_, _, s₂, o₂) =>
+      s₁ > s₂ || (s₁ == s₂ && o₁ > o₂)
+    accepted := newAccepted.foldl (fun acc (n, _, s, _) => acc.push { name := n, score := s }) accepted
+    candidates := candidates'.map fun (n, c, _, _) => (n, c)
+    relevant := newAccepted.foldl (fun acc (_, ns, _, _) => acc ++ ns) relevant
     p := p + (1 - p) / c
   return accepted
 

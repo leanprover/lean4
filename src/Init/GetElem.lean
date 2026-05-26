@@ -173,7 +173,7 @@ instance (priority := low) [GetElem coll idx elem valid] [∀ xs i, Decidable (v
   rw [getElem?_def]
   exact dif_pos h
 
-grind_pattern getElem?_pos => c[i] where
+grind_pattern getElem?_pos => c[i], c[i]? where
   guard dom c i
 
 @[simp, grind =] theorem getElem?_neg [GetElem? cont idx elem dom] [LawfulGetElem cont idx elem dom]

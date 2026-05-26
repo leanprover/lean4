@@ -26,8 +26,6 @@ import Lean.Elab.Tactic.Grind.Lint
 #grind_lint skip Array.count_singleton
 #grind_lint skip Array.foldl_empty
 #grind_lint skip Array.foldr_empty
-#grind_lint skip Array.getElem_zero_filter
-#grind_lint skip Array.getElem_zero_filterMap
 #grind_lint skip Std.ExtHashMap.getElem_filterMap'
 #grind_lint skip Std.ExtTreeMap.getElem_filterMap'
 #grind_lint skip Std.HashMap.getElem_filterMap'

@@ -55,10 +55,9 @@ class RepoChecker:
 
         if pr.merged:
             self.cl.success(f"PR merged: {util.fmt_pr(pr)}")
-        else:
-            self.cl.success(f"PR closed: {util.fmt_pr(pr)}")
+            return True
 
-        return True
+        return False
 
     def create_pr(
         self, base: str, head: str, title: str, nightly: ReleaseRepo | None = None
@@ -151,6 +150,19 @@ class DownstreamChecker(RepoChecker):
 
         self._bump_toolchain_deps(self.lrepo.path)
 
+    def _bump_toolchain_cslib(self) -> None:
+        mathlib_sha = util.find_merged_toolchain_bump_sha(
+            repos.MATHLIB4.local, self.version
+        )
+
+        util.edit(
+            self.lrepo.path / "lakefile.toml",
+            r'(name = "mathlib"\nscope = "leanprover-community"\nrev =) ".+?"',
+            rf'\1 "{mathlib_sha}"',
+        )
+
+        self._bump_toolchain_deps(self.lrepo.path)
+
     def _bump_toolchain_repl(self) -> None:
         self._bump_toolchain_deps(self.lrepo.path)
 
@@ -189,17 +201,12 @@ class DownstreamChecker(RepoChecker):
 
     def _bump_toolchain_lean_fro_org(self) -> None:
         self._bump_toolchain_deps(self.lrepo.path)
-
-        hero = self.lrepo.path / "examples" / "hero"
-        self._bump_toolchain(hero)
-        self._bump_toolchain_deps(hero)
-
         util.run("scripts/update.sh", cwd=self.lrepo.path)
 
     def _bump_toolchain_bibtex_query(self) -> None:
         lub = self.github.get_repo(repos.LEAN4_UNICODE_BASIC.gh_full_name)
         tag = util.get_lean_unicode_basic_release_for(lub, self.version)
-        rev = str(tag) if tag else "main"
+        rev = tag.name if tag else "main"
 
         util.edit(
             self.lrepo.path / "lakefile.toml",
@@ -209,12 +216,21 @@ class DownstreamChecker(RepoChecker):
 
         self._bump_toolchain_deps(self.lrepo.path)
 
+    def _bump_toolchain_leansqlite(self) -> None:
+        self._bump_toolchain_deps(self.lrepo.path)
+
+        tests = self.lrepo.path / "tests"
+        self._bump_toolchain(tests)
+        self._bump_toolchain_deps(tests)
+
     def _bump_toolchain_in_worktree(self) -> None:
         self._bump_toolchain(self.lrepo.path)
 
         # Special cases
         if self.rrepo.gh_full_name == repos.MATHLIB4.gh_full_name:
             self._bump_toolchain_mathlib4()
+        elif self.rrepo.gh_full_name == repos.CSLIB.gh_full_name:
+            self._bump_toolchain_cslib()
         elif self.rrepo.gh_full_name == repos.REPL.gh_full_name:
             self._bump_toolchain_repl()
         elif self.rrepo.gh_full_name == repos.VERSO.gh_full_name:
@@ -225,6 +241,8 @@ class DownstreamChecker(RepoChecker):
             self._bump_toolchain_lean_fro_org()
         elif self.rrepo.gh_full_name == repos.BIBTEX_QUERY.gh_full_name:
             self._bump_toolchain_bibtex_query()
+        elif self.rrepo.gh_full_name == repos.LEANSQLITE.gh_full_name:
+            self._bump_toolchain_leansqlite()
         elif self.rrepo.strong_deps:
             self._bump_toolchain_deps(self.lrepo.path)
 
@@ -615,8 +633,10 @@ class LeanChecker(RepoChecker):
         if not self.prompt(f"{what} does not exist. Create?"):
             self.cl.fatal(f"{what} does not exist")
 
+        branch_name = util.get_releases_branch(self.version)
         self.lrepo.prepare()
-        self.lrepo.create_tag(tag_name, util.get_releases_branch(self.version))
+        self.lrepo.switch(branch_name)
+        self.lrepo.create_tag(tag_name, branch_name)
 
         if not self.prompt(f"Push tag [b]{tag_name}[/b]?"):
             self.cl.fatal(f"{what} does not exist")

@@ -228,6 +228,7 @@ VERSO = ReleaseRepo(
 )
 _register(VERSO)
 
+
 # To create a new release, open a PR into `main`. In it, bump the toolchain and
 # all dependencies. For `v4.X.0-rc1` releases, you may need to merge
 # `nightly-testing` into the PR.
@@ -304,6 +305,7 @@ LEANSQLITE = ReleaseRepo(
 )
 _register(LEANSQLITE)
 
+
 # To create a new release, open a PR into `main`. In it, bump the toolchain and
 # all dependencies. For `v4.X.0-rc1` releases, you may need to merge
 # `nightly-testing` into the PR.
@@ -327,22 +329,21 @@ BATTERIES.ignored_deps.append(DOC_GEN4)
 # and all dependencies.
 #
 # Once the release PR is merged, tag the resulting commit with the lean version.
-COMPARATOR = ReleaseRepo(
-    github=("leanprover", "comparator"),
+LEAN4EXPORT = ReleaseRepo(
+    github=("leanprover", "lean4export"),
     release_tag="lean",
 )
-_register(COMPARATOR)
+_register(LEAN4EXPORT)
 
 
 # To create a new release, open a PR into `master`. In it, bump the toolchain
 # and all dependencies.
 #
 # Once the release PR is merged, tag the resulting commit with the lean version.
-LEAN4EXPORT = ReleaseRepo(
-    github=("leanprover", "lean4export"),
-    release_tag="lean",
+COMPARATOR = ReleaseRepo(
+    github=("leanprover", "comparator"), release_tag="lean", strong_deps=[LEAN4EXPORT]
 )
-_register(LEAN4EXPORT)
+_register(COMPARATOR)
 
 
 ###################

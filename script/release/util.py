@@ -368,7 +368,8 @@ def find_pr(grepo: Repository, head: str, base: str, title: str) -> PullRequest 
     for pr in grepo.get_pulls(
         state="all", base=base, sort="created", direction="desc"
     ).get_page(0):
-        if title in pr.title:
+        # Stable versions are prefixes of RC versions, so we can't just use "in"
+        if pr.title.endswith(title) or (title + " ") in pr.title:
             return pr
 
 

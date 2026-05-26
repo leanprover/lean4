@@ -624,13 +624,13 @@ private def parseWith (config : FormatConfig) (reserve : Option Nat) : (mod : Mo
   | .y format =>
     match format with
     | .any => Int.ofNat <$> parseVarWidthNum 1 reserve
-    | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
+    | .twoDigit => (fun x => (2000 + x : Int)) <$> Int.ofNat <$> parseNum 2
     | .fourDigit => parseFourDigitYear false reserve
     | .extended n => Int.ofNat <$> parseVarWidthNum n reserve
   | .u format | .Y format =>
     match format with
     | .any => parseSigned <| parseVarWidthNum 1 reserve
-    | .twoDigit => (2000 + ·) <$> Int.ofNat <$> parseNum 2
+    | .twoDigit => (fun x => (2000 + x : Int)) <$> Int.ofNat <$> parseNum 2
     | .fourDigit => parseFourDigitYear true reserve
     | .extended n => parseSigned <| parseVarWidthNum n reserve
   | .D format => Sigma.mk true <$> parseNatToBounded (parseField (.D format) format.padding reserve)

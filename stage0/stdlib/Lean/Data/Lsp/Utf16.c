@@ -172,7 +172,7 @@ lean_ctor_set(v___x_37_, 2, v___x_36_);
 v___x_38_ = l_String_Slice_revPositions(v___x_37_);
 v___x_39_ = l_WellFounded_opaqueFix_u2083___at___00String_utf16Length_spec__0___redArg(v___x_37_, v_s_34_, v___x_38_, v___x_35_);
 lean_dec_ref(v_s_34_);
-lean_dec_ref(v___x_37_);
+lean_dec_ref_known(v___x_37_, 3);
 return v___x_39_;
 }
 }

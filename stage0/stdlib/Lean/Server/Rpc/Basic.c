@@ -634,7 +634,7 @@ else
 lean_object* v_val_103_; lean_object* v___x_104_; uint8_t v___x_105_; 
 v_val_103_ = lean_ctor_get(v___x_101_, 0);
 lean_inc(v_val_103_);
-lean_dec_ref(v___x_101_);
+lean_dec_ref_known(v___x_101_, 1);
 v___x_104_ = ((lean_object*)(l_Lean_Lsp_instFromJsonRpcWireFormat_fromJson___closed__2));
 v___x_105_ = lean_string_dec_eq(v_val_103_, v___x_104_);
 if (v___x_105_ == 0)
@@ -941,7 +941,7 @@ lean_object* v_val_224_; lean_object* v___x_225_;
 lean_dec(v_inst_188_);
 v_val_224_ = lean_ctor_get(v___x_202_, 0);
 lean_inc_n(v_val_224_, 2);
-lean_dec_ref(v___x_202_);
+lean_dec_ref_known(v___x_202_, 1);
 v___x_225_ = l_Lean_PersistentHashMap_find_x3f___redArg(v___x_198_, v___x_199_, v_aliveRefs_191_, v_val_224_);
 if (lean_obj_tag(v___x_225_) == 1)
 {
@@ -972,7 +972,7 @@ v_resetjp_226_:
 lean_object* v_val_229_; lean_object* v_obj_230_; size_t v_id_231_; lean_object* v_rc_232_; lean_object* v___x_234_; uint8_t v_isShared_235_; uint8_t v_isSharedCheck_246_; 
 v_val_229_ = lean_ctor_get(v___x_225_, 0);
 lean_inc(v_val_229_);
-lean_dec_ref(v___x_225_);
+lean_dec_ref_known(v___x_225_, 1);
 v_obj_230_ = lean_ctor_get(v_val_229_, 0);
 v_id_231_ = lean_ctor_get_usize(v_val_229_, 2);
 v_rc_232_ = lean_ctor_get(v_val_229_, 1);
@@ -1380,7 +1380,7 @@ case 0:
 lean_object* v_key_386_; size_t v___x_387_; uint8_t v___x_388_; 
 v_key_386_ = lean_ctor_get(v_entry_385_, 0);
 lean_inc(v_key_386_);
-lean_dec_ref(v_entry_385_);
+lean_dec_ref_known(v_entry_385_, 2);
 v___x_387_ = lean_unbox_usize(v_key_386_);
 lean_dec(v_key_386_);
 v___x_388_ = lean_usize_dec_eq(v_x_378_, v___x_387_);
@@ -1533,7 +1533,7 @@ lean_dec_ref(v_newNode_407_);
 lean_del_object(v___x_403_);
 v_val_416_ = lean_ctor_get(v___x_408_, 0);
 lean_inc(v_val_416_);
-lean_dec_ref(v___x_408_);
+lean_dec_ref_known(v___x_408_, 1);
 v_fst_417_ = lean_ctor_get(v_val_416_, 0);
 v_snd_418_ = lean_ctor_get(v_val_416_, 1);
 v_isSharedCheck_429_ = !lean_is_exclusive(v_val_416_);
@@ -1657,7 +1657,7 @@ else
 lean_object* v_val_442_; lean_object* v_keys_x27_443_; lean_object* v_vals_x27_444_; lean_object* v___x_446_; 
 v_val_442_ = lean_ctor_get(v___x_438_, 0);
 lean_inc_n(v_val_442_, 2);
-lean_dec_ref(v___x_438_);
+lean_dec_ref_known(v___x_438_, 1);
 v_keys_x27_443_ = l_Array_eraseIdx___redArg(v_ks_433_, v_val_442_);
 v_vals_x27_444_ = l_Array_eraseIdx___redArg(v_vs_434_, v_val_442_);
 if (v_isShared_437_ == 0)
@@ -1959,7 +1959,7 @@ case 0:
 lean_object* v_key_560_; size_t v___x_561_; uint8_t v___x_562_; 
 v_key_560_ = lean_ctor_get(v_entry_559_, 0);
 lean_inc(v_key_560_);
-lean_dec_ref(v_entry_559_);
+lean_dec_ref_known(v_entry_559_, 2);
 v___x_561_ = lean_unbox_usize(v_key_560_);
 lean_dec(v_key_560_);
 v___x_562_ = lean_usize_dec_eq(v_x_552_, v___x_561_);
@@ -2112,7 +2112,7 @@ lean_dec_ref(v_newNode_581_);
 lean_del_object(v___x_577_);
 v_val_590_ = lean_ctor_get(v___x_582_, 0);
 lean_inc(v_val_590_);
-lean_dec_ref(v___x_582_);
+lean_dec_ref_known(v___x_582_, 1);
 v_fst_591_ = lean_ctor_get(v_val_590_, 0);
 v_snd_592_ = lean_ctor_get(v_val_590_, 1);
 v_isSharedCheck_603_ = !lean_is_exclusive(v_val_590_);
@@ -2236,7 +2236,7 @@ else
 lean_object* v_val_616_; lean_object* v_keys_x27_617_; lean_object* v_vals_x27_618_; lean_object* v___x_620_; 
 v_val_616_ = lean_ctor_get(v___x_612_, 0);
 lean_inc_n(v_val_616_, 2);
-lean_dec_ref(v___x_612_);
+lean_dec_ref_known(v___x_612_, 1);
 v_keys_x27_617_ = l_Array_eraseIdx___redArg(v_ks_607_, v_val_616_);
 v_vals_x27_618_ = l_Array_eraseIdx___redArg(v_vs_608_, v_val_616_);
 if (v_isShared_611_ == 0)
@@ -2861,7 +2861,7 @@ v_resetjp_827_:
 lean_object* v_val_830_; lean_object* v_obj_831_; size_t v_id_832_; lean_object* v_rc_833_; lean_object* v___x_835_; uint8_t v_isShared_836_; uint8_t v_isSharedCheck_853_; 
 v_val_830_ = lean_ctor_get(v___x_826_, 0);
 lean_inc(v_val_830_);
-lean_dec_ref(v___x_826_);
+lean_dec_ref_known(v___x_826_, 1);
 v_obj_831_ = lean_ctor_get(v_val_830_, 0);
 v_id_832_ = lean_ctor_get_usize(v_val_830_, 2);
 v_rc_833_ = lean_ctor_get(v_val_830_, 1);
@@ -3571,7 +3571,7 @@ else
 lean_object* v_a_1133_; 
 v_a_1133_ = lean_ctor_get(v___x_1124_, 0);
 lean_inc(v_a_1133_);
-lean_dec_ref(v___x_1124_);
+lean_dec_ref_known(v___x_1124_, 1);
 if (lean_obj_tag(v_a_1133_) == 0)
 {
 lean_object* v___x_1134_; 
@@ -3857,7 +3857,7 @@ else
 lean_object* v_a_1211_; lean_object* v_rpcDecode_1212_; size_t v_sz_1213_; size_t v___x_1214_; lean_object* v___x_662__overap_1215_; lean_object* v___x_1216_; 
 v_a_1211_ = lean_ctor_get(v___x_1202_, 0);
 lean_inc(v_a_1211_);
-lean_dec_ref(v___x_1202_);
+lean_dec_ref_known(v___x_1202_, 1);
 v_rpcDecode_1212_ = lean_ctor_get(v_inst_1198_, 1);
 lean_inc_ref(v_rpcDecode_1212_);
 lean_dec_ref(v_inst_1198_);
@@ -4069,7 +4069,7 @@ else
 lean_object* v_a_1304_; lean_object* v_fst_1305_; lean_object* v_snd_1306_; lean_object* v___x_1308_; uint8_t v_isShared_1309_; uint8_t v_isSharedCheck_1342_; 
 v_a_1304_ = lean_ctor_get(v___x_1295_, 0);
 lean_inc(v_a_1304_);
-lean_dec_ref(v___x_1295_);
+lean_dec_ref_known(v___x_1295_, 1);
 v_fst_1305_ = lean_ctor_get(v_a_1304_, 0);
 v_snd_1306_ = lean_ctor_get(v_a_1304_, 1);
 v_isSharedCheck_1342_ = !lean_is_exclusive(v_a_1304_);
@@ -4145,7 +4145,7 @@ else
 lean_object* v_a_1320_; lean_object* v_rpcDecode_1321_; lean_object* v___x_1322_; 
 v_a_1320_ = lean_ctor_get(v___x_1311_, 0);
 lean_inc(v_a_1320_);
-lean_dec_ref(v___x_1311_);
+lean_dec_ref_known(v___x_1311_, 1);
 v_rpcDecode_1321_ = lean_ctor_get(v_inst_1292_, 1);
 lean_inc_ref(v_rpcDecode_1321_);
 lean_dec_ref(v_inst_1292_);
@@ -4525,7 +4525,7 @@ v___x_1422_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_1422_, 0, v___x_1420_);
 lean_ctor_set(v___x_1422_, 1, v___x_1421_);
 v___x_1423_ = l_Lean_Json_mkObj(v___x_1422_);
-lean_dec_ref(v___x_1422_);
+lean_dec_ref_known(v___x_1422_, 2);
 v___x_1424_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_1424_, 0, v___x_1423_);
 lean_ctor_set(v___x_1424_, 1, v_snd_1410_);
@@ -4632,7 +4632,7 @@ else
 lean_object* v_a_1461_; size_t v___x_1462_; lean_object* v___x_1463_; 
 v_a_1461_ = lean_ctor_get(v___x_1452_, 0);
 lean_inc(v_a_1461_);
-lean_dec_ref(v___x_1452_);
+lean_dec_ref_known(v___x_1452_, 1);
 v___x_1462_ = lean_unbox_usize(v_a_1461_);
 lean_dec(v_a_1461_);
 v___x_1463_ = l_Lean_Server_rpcGetRef___redArg(v_inst_1445_, v___x_1462_, v_a_1447_);

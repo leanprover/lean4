@@ -10,7 +10,7 @@ example : True := by
   skip <;> skip
   trivial
 -- The component `Dup` appears consecutively in this declaration's name —
--- the builtin extra `dupNamespace` env linter should flag it.
+-- the builtin extra `dupNamespace` text linter should flag it.
 def Dup.Dup.violation : Nat := 2
 
 -- This uses `def` for a Prop — the default `defLemma` linter should flag this

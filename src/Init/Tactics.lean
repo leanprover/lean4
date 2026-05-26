@@ -761,11 +761,27 @@ This is a "finishing" tactic modification of `simp`. It has two forms.
   (which has also been simplified). This construction also tends to be
   more robust under changes to the simp lemma set.
 
+  The final match between the simplified `e` and the simplified goal uses
+  **reducible** transparency, so it does not unfold semireducible definitions.
+  Write `simpa [rules, ⋯] using! e` to perform the match at the ambient
+  (default/semireducible) transparency instead.
+
 * `simpa [rules, ⋯]` will simplify the goal and the type of a
   hypothesis `this` if present in the context, then try to close the goal using
   the `assumption` tactic.
+
+As with `simp`, the `!` modifier after `simpa` enables auto-unfolding of
+definitions in the simp set.
 -/
 syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
+
+/-- The arguments to `simpa ... using! e` — like `simpaArgsRest`, but with a
+mandatory `using!` clause selecting the permissive default-transparency close. -/
+syntax simpaUsingBangArgsRest :=
+  optConfig (discharger)? &" only "? (simpArgs)? " using! " term
+
+@[tactic_alt simpa]
+syntax (name := simpaUsingBang) "simpa" "?"? "!"? simpaUsingBangArgsRest : tactic
 
 @[inherit_doc simpa] macro "simpa!" rest:simpaArgsRest : tactic =>
   `(tactic| simpa ! $rest:simpaArgsRest)
@@ -775,6 +791,18 @@ syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
 
 @[inherit_doc simpa] macro "simpa?!" rest:simpaArgsRest : tactic =>
   `(tactic| simpa ?! $rest:simpaArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa!" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ! $rest:simpaUsingBangArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa?" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ? $rest:simpaUsingBangArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa?!" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ?! $rest:simpaUsingBangArgsRest)
 
 /--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....
@@ -1129,6 +1157,31 @@ Note that `classical` is a scoping tactic: it adds the instance only within the
 scope of the tactic.
 -/
 syntax (name := classical) "classical" ppDedent(tacticSeq) : tactic
+
+/--
+Configuration for the `impossible` tactic.
+-/
+structure ImpossibleConfig where
+  /-- If true (default: false), abstract the universe parameters of the surrounding
+  declaration as level metavariables in the goal handed to the inner tactic, so it
+  can specialize them by exhibiting witnesses at specific universes. By default
+  these parameters are kept fixed. -/
+  levels : Bool := false
+
+/--
+`impossible by t` uses the tactic `t` to prove that the current goal is impossible
+to prove.
+
+If the goal is `xs ⊢ P`, the tactic `t` sees the goal `¬(∀ xs, P)`. Any expression metavariables in
+the original goal turn into variables in the context.
+
+Universe parameters of the surrounding declaration are kept fixed (not abstracted); the `+levels`
+option turns them into fresh level metavariables instead. Universe metavariables in the goal are
+rejected.
+
+The original goal is closed as if `sorry` was used.
+-/
+syntax (name := impossible) "impossible" optConfig " by " ppDedent(tacticSeq) : tactic
 
 /--
 The `split` tactic is useful for breaking nested if-then-else and `match` expressions into separate cases.

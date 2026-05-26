@@ -20,6 +20,7 @@ public import Lean.Util.InstantiateLevelParams
 public import Lean.Util.FoldConsts
 public import Lean.PrivateName
 public import Lean.LoadDynlib
+public import Lean.CompactedRegion
 public import Init.Dynamic
 import Init.Data.Slice
 import Init.Data.String.TakeDrop
@@ -97,23 +98,6 @@ instance : GetElem? (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
   getElem! a i := a[i.toNat]!
 
 abbrev ConstMap := SMap Name ConstantInfo
-
-/--
-  A compacted region holds multiple Lean objects in a contiguous memory region, which can be read/written to/from disk.
-  Objects inside the region do not have reference counters and cannot be freed individually. The contents of .olean
-  files are compacted regions. -/
-@[expose] def CompactedRegion := USize
-
-@[extern "lean_compacted_region_is_memory_mapped"]
-opaque CompactedRegion.isMemoryMapped : CompactedRegion → Bool
-
-/-- Size in bytes. -/
-@[extern "lean_compacted_region_size"]
-opaque CompactedRegion.size : CompactedRegion → USize
-
-/-- Free a compacted region and its contents. No live references to the contents may exist at the time of invocation. -/
-@[extern "lean_compacted_region_free"]
-unsafe opaque CompactedRegion.free : CompactedRegion → IO Unit
 
 /-- Opaque persistent environment extension entry. -/
 opaque EnvExtensionEntrySpec : NonemptyType.{0}
@@ -1752,24 +1736,31 @@ duplicated. Thus the data cannot be loaded with individual `readModuleData` call
 passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to determine an
 arbitrary but deterministic base address for `mmap`.
 -/
-@[extern "lean_save_module_data_parts"]
-opaque saveModuleDataParts (mod : @& Name) (parts : @& Array (System.FilePath × ModuleData)) : IO Unit
+def saveModuleDataParts (mod : Name) (parts : Array (System.FilePath × ModuleData)) : IO Unit := do
+  let mut cs : Option Compactor := none
+  for h : i in [:parts.size] do
+    let (fname, data) := parts[i]
+    cs := some (← unsafe CompactedRegion.save fname mod data #[] cs)
 
 /--
 Loads the module data from the given file names. The files must be (a prefix of) the result of a
 `saveModuleDataParts` call.
 -/
-@[extern "lean_read_module_data_parts"]
-opaque readModuleDataParts (fnames : @& Array System.FilePath) : IO (Array (ModuleData × CompactedRegion))
+def readModuleDataParts (fnames : Array System.FilePath) :
+    IO (Array (ModuleData × CompactedRegion)) := do
+  let mut depRegions : Array CompactedRegion := #[]
+  let mut result : Array (ModuleData × CompactedRegion) := #[]
+  for fname in fnames do
+    let part ← unsafe CompactedRegion.read (α := ModuleData) fname depRegions
+    result := result.push part
+    depRegions := depRegions.push part.2
+  return result
 
-def saveModuleData (fname : System.FilePath) (mod : Name) (data : ModuleData) : IO Unit :=
-  saveModuleDataParts mod #[(fname, data)]
+def saveModuleData (fname : System.FilePath) (mod : Name) (data : ModuleData) : IO Unit := do
+  let _ ← unsafe CompactedRegion.save fname mod data #[] none
 
-def readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion) := do
-  let parts ← readModuleDataParts #[fname]
-  assert! parts.size == 1
-  let some part := parts[0]? | unreachable!
-  return part
+def readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion) :=
+  unsafe CompactedRegion.read fname #[]
 
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in

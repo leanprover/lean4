@@ -5,16 +5,20 @@ open Lean.Server.Test.Cancel
 Test that cancellation propagates into parallel tactic combinators (`attempt_all_par`,
 `first_par`).
 
-Each section's first elaboration runs `block_until_cancelled "<label>"`, which loops on
-`Core.checkInterrupted`. The test driver edits the preceding `example` to trigger
-re-elaboration; the second elaboration's invocation no-ops (label already seen) so the test can
-terminate. If cancellation reaches the (possibly subtask) tactic, the loop throws and the test
-completes; if not, the test hangs and the runner times out.
+Per section, chronological flow:
+1. `theorem t` elaborates; its body runs `try? => <combinator> | block_until_cancelled "<L>"`,
+   which on the first invocation registers test task `"<L>"`, resolves sync promise `"<L>"`,
+   and enters a `Core.checkInterrupted` loop.
+2. The gate theorem (`tGate`) elaborates; `wait_for_sync "<L>"` returns immediately (sync was
+   resolved in step 1), `trace "blocked"` emits the diagnostic the runner is waiting for.
+3. Runner inserts `; skip`, triggers re-elab; `cancelRec` walks `t`'s snapshot tree, setting
+   the cancel token of the `block_until_cancelled` subtask. The loop's `Core.checkInterrupted`
+   throws, the `finally` resolves the test task, the second invocation's wait returns.
 
-Section 1 uses sequential `first` (cancellation has always worked here — runs on the main
-elaboration thread). Sections 2 and 3 use `attempt_all_par` and `first_par`, which spawn the
-tactic on a fresh `asTask` cancel token; before the propagation fix in `CoreM.asTask`, those
-tasks would not see the parent's cancellation and the test would hang.
+Section 1 uses sequential `first`; sections 2 and 3 use the parallel combinators
+`attempt_all_par` and `first_par`, which spawn the inner tactic on a fresh `asTask` cancel
+token. The fix in `CoreM.asTask` (#13428) propagates the parent token to those subtasks;
+without it, `cancelRec` cannot reach the subtask's cancel token and the test times out.
 -/
 
 /-! ## Sequential `first` -/
@@ -26,9 +30,13 @@ example : True := by
        --^ sync
 
 theorem t : True := by
-  wait_for_cancel_once_async
   try? => first
     | block_until_cancelled "first"
+
+theorem tGate : True := by
+  wait_for_sync "first"
+  trace "blocked"
+  trivial
 
 -- RESET
 import Lean.Server.Test.Cancel
@@ -43,9 +51,13 @@ example : True := by
        --^ sync
 
 theorem t : True := by
-  wait_for_cancel_once_async
   try? => attempt_all_par
     | block_until_cancelled "attempt_all_par"
+
+theorem tGate : True := by
+  wait_for_sync "attempt_all_par"
+  trace "blocked"
+  trivial
 
 -- RESET
 import Lean.Server.Test.Cancel
@@ -60,6 +72,10 @@ example : True := by
        --^ sync
 
 theorem t : True := by
-  wait_for_cancel_once_async
   try? => first_par
     | block_until_cancelled "first_par"
+
+theorem tGate : True := by
+  wait_for_sync "first_par"
+  trace "blocked"
+  trivial

@@ -17,7 +17,7 @@
    "range":
    {"start": {"line": 3, "character": 6}, "end": {"line": 3, "character": 7}},
    "message":
-   "unused variable `y`\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
+   "Variable name `y` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly).\n\nNote: This linter can be disabled with `set_option linter.unusedVariables false`",
    "fullRange":
    {"start": {"line": 3, "character": 6}, "end": {"line": 3, "character": 7}}},
   {"source": "Lean 4",

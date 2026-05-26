@@ -381,7 +381,7 @@ inductive Code (pu : Purity) where
   | sset (fvarId : FVarId) (i : Nat) (offset : Nat) (y : FVarId) (ty : Expr) (k : Code pu) (h : pu = .impure := by purity_tac)
   | setTag (fvarId : FVarId) (cidx : Nat) (k : Code pu) (h : pu = .impure := by purity_tac)
   | inc (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (k : Code pu) (h : pu = .impure := by purity_tac)
-  | dec (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (k : Code pu) (h : pu = .impure := by purity_tac)
+  | dec (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (objs? : Option Nat) (k : Code pu) (h : pu = .impure := by purity_tac)
   | del (fvarId : FVarId) (k : Code pu) (h : pu = .impure := by purity_tac)
   deriving Inhabited
 
@@ -463,7 +463,7 @@ inductive CodeDecl (pu : Purity) where
   | sset (fvarId : FVarId) (i : Nat) (offset : Nat) (y : FVarId)  (ty : Expr) (h : pu = .impure := by purity_tac)
   | setTag (fvarId : FVarId) (cidx : Nat) (h : pu = .impure := by purity_tac)
   | inc (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (h : pu = .impure := by purity_tac)
-  | dec (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (h : pu = .impure := by purity_tac)
+  | dec (fvarId : FVarId) (n : Nat) (check : Bool) (persistent : Bool) (objs? : Option Nat) (h : pu = .impure := by purity_tac)
   | del (fvarId : FVarId) (h : pu = .impure := by purity_tac)
   deriving Inhabited
 
@@ -481,7 +481,7 @@ def Code.toCodeDecl! : Code pu → CodeDecl pu
   | .sset fvarId i offset ty y _ _ => .sset fvarId i offset ty y
   | .setTag fvarId cidx _ _ => .setTag fvarId cidx
   | .inc fvarId n check persistent _ _ => .inc fvarId n check persistent
-  | .dec fvarId n check persistent _ _ => .dec fvarId n check persistent
+  | .dec fvarId n check persistent objs? _ _ => .dec fvarId n check persistent objs?
   | .del fvarId _ _ => .del fvarId
   | _ => unreachable!
 
@@ -499,7 +499,7 @@ where
       | .sset fvarId idx offset y ty _ => go (i-1) (.sset fvarId idx offset y ty code)
       | .setTag fvarId cidx _ => go (i-1) (.setTag fvarId cidx code)
       | .inc fvarId n check persistent _ => go (i-1) (.inc fvarId n check persistent code)
-      | .dec fvarId n check persistent _ => go (i-1) (.dec fvarId n check persistent code)
+      | .dec fvarId n check persistent objs? _ => go (i-1) (.dec fvarId n check persistent objs? code)
       | .del fvarId _ => go (i-1) (.del fvarId code)
     else
       code
@@ -526,8 +526,8 @@ mutual
         v₁ == v₂ && c₁ == c₂ && eqImp k₁ k₂
       | .inc v₁ n₁ c₁ p₁ k₁ _, .inc v₂ n₂ c₂ p₂ k₂ _ =>
         v₁ == v₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && eqImp k₁ k₂
-      | .dec v₁ n₁ c₁ p₁ k₁ _, .dec v₂ n₂ c₂ p₂ k₂ _ =>
-        v₁ == v₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && eqImp k₁ k₂
+      | .dec v₁ n₁ c₁ p₁ o₁ k₁ _, .dec v₂ n₂ c₂ p₂ o₂ k₂ _ =>
+        v₁ == v₂ && n₁ == n₂ && c₁ == c₂ && p₁ == p₂ && o₁ == o₂ && eqImp k₁ k₂
       | .del v₁ k₁ _, .del v₂ k₂ _ =>
         v₁ == v₂ && eqImp k₁ k₂
       | _, _ => false
@@ -627,7 +627,8 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
   | .uset fvarId offset y k _ => if ptrEq k k' then c else .uset fvarId offset y k'
   | .setTag fvarId cidx k _ => if ptrEq k k' then c else .setTag fvarId cidx k'
   | .inc fvarId n check persistent k _ => if ptrEq k k' then c else .inc fvarId n check persistent k'
-  | .dec fvarId n check persistent k _ => if ptrEq k k' then c else .dec fvarId n check persistent k'
+  | .dec fvarId n check persistent o k _ =>
+    if ptrEq k k' then c else .dec fvarId n check persistent o k'
   | .del fvarId k _ => if ptrEq k k' then c else .del fvarId k'
   | _ => unreachable!
 
@@ -732,21 +733,22 @@ private unsafe def updateAltImp (alt : Alt pu) (ps' : Array (Param pu)) (k' : Co
     (check' : Bool) (persistent' : Bool) (k' : Code pu) : Code pu
 
 @[inline] private unsafe def updateDecImp (c : Code pu) (fvarId' : FVarId) (n' : Nat)
-    (check' : Bool) (persistent' : Bool) (k' : Code pu) : Code pu :=
+    (check' : Bool) (persistent' : Bool) (objs?' : Option Nat) (k' : Code pu) : Code pu :=
   match c with
-  | .dec fvarId n check persistent k _ =>
+  | .dec fvarId n check persistent objs? k _ =>
     if ptrEq fvarId fvarId'
         && n == n'
         && check == check'
         && persistent == persistent'
+        && ptrEq objs? objs?'
         && ptrEq k k' then
       c
     else
-      .dec fvarId' n' check' persistent' k'
+      .dec fvarId' n' check' persistent' objs?' k'
   | _ => unreachable!
 
-@[implemented_by updateDecImp] opaque Code.updateDec! (c : Code pu) (fvarId' : FVarId) (n' : Nat)
-    (check' : Bool) (persistent' : Bool) (k' : Code pu) : Code pu
+@[implemented_by updateDecImp] opaque Code.updateDec! (c : Code pu) (fvarId' : FVarId)
+    (n' : Nat) (check' : Bool) (persistent' : Bool) (objs? : Option Nat) (k' : Code pu) : Code pu
 
 @[inline] private unsafe def updateDelImp (c : Code pu) (fvarId' : FVarId) (k' : Code pu) :
     Code pu :=

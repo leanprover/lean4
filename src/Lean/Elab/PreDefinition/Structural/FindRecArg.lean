@@ -22,7 +22,8 @@ def prettyParam (xs : Array Expr) (i : Nat) : MetaM MessageData := do
   addMessageContextFull <| if n.hasMacroScopes then m!"#{i+1}" else m!"{x}"
 
 def prettyRecArg (xs : Array Expr) (value : Expr) (recArgInfo : RecArgInfo) : MetaM MessageData := do
-  lambdaTelescope value fun ys _ => prettyParam (xs ++ ys) recArgInfo.recArgPos
+  lambdaTelescope value fun ys _ =>
+    prettyParam (recArgInfo.fixedParamPerm.buildArgs xs ys) recArgInfo.recArgPos
 
 def prettyParameterSet (fnNames : Array Name) (xs : Array Expr) (values : Array Expr)
     (recArgInfos : Array RecArgInfo) : MetaM MessageData := do
@@ -195,7 +196,8 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
     -- Can this argument be understood as the auxiliary type former of a nested inductive?
     if nestedTypeFormers.isEmpty then return .none
     lambdaTelescope value fun ys _ => do
-      let x := (xs++ys)[recArgInfo.recArgPos]!
+      let args := recArgInfo.fixedParamPerm.buildArgs xs ys
+      let x := args[recArgInfo.recArgPos]!
       for nestedTypeFormer in nestedTypeFormers, indIdx in group.all.size...group.numMotives do
         let xType ← whnfD (← inferType x)
         let (indIndices, _, type) ← forallMetaTelescope nestedTypeFormer
@@ -211,7 +213,7 @@ def argsInGroup (group : IndGroupInst) (xs : Array Expr) (value : Expr)
           if let some (_index, _y) ← hasBadIndexDep? ys indIndices then
             -- throwError "its type {indInfo.name} is an inductive family{indentExpr xType}\nand index{indentExpr index}\ndepends on the non index{indentExpr y}"
             continue
-          let indicesPos := indIndices.map fun index => match (xs++ys).idxOf? index with | some i => i | none => unreachable!
+          let indicesPos := indIndices.map fun index => match args.idxOf? index with | some i => i | none => unreachable!
           return .some
             { fnName       := recArgInfo.fnName
               fixedParamPerm  := recArgInfo.fixedParamPerm

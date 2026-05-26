@@ -90,17 +90,7 @@ private def showParserName [Monad m] [MonadEnv m] (firsts : NameMap String) (n :
     env.constants.find?' n |>.map (·.levelParams.map Level.param) |>.getD []
 
   let tok := ((← customTacticName n) <|> firsts.get? n).map Std.Format.text |>.getD (format n)
-  pure <| .ofFormatWithInfos {
-    fmt := "`" ++ .tag 0 tok ++ "`",
-    infos :=
-      .ofList [(0, .ofTermInfo {
-        lctx := .empty,
-        expr := .const n params,
-        stx := .ident .none (toString n).toRawSubstring n [.decl n []],
-        elaborator := `Delab,
-        expectedType? := none
-      })] _
-  }
+  pure m!"`{.withExprHover tok (.const n params) {}}`"
 
 /--
 Displays all available tactic tags, with documentation.

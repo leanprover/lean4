@@ -6,6 +6,8 @@ Authors: Sofia Rodrigues
 module
 
 prelude
+public import Std.Time.Zoned.Offset
+public import Std.Time.DateTime.WallTime
 public import Std.Time.DateTime.Timestamp
 public import Std.Time.DateTime.PlainDateTime
 import all Std.Time.Date.Unit.Month
@@ -15,95 +17,116 @@ public section
 namespace Std
 namespace Time
 
-namespace Timestamp
-
 set_option linter.all true
 
-/--
-Converts a `PlainDateTime` to a `Timestamp`
--/
-@[inline]
-def ofPlainDateTimeAssumingUTC (pdt : PlainDateTime) : Timestamp :=
-  pdt.toTimestampAssumingUTC
+namespace Timestamp
 
 /--
-Converts a `Timestamp` to a `PlainDateTime`
+Converts a `Timestamp` to a `WallTime` for a given timezone `offset`. The result is the local
+civil time: `wall = UTC + offset`.
 -/
 @[inline]
-def toPlainDateTimeAssumingUTC (timestamp : Timestamp) : PlainDateTime :=
-  PlainDateTime.ofTimestampAssumingUTC timestamp
+def toWallTime (ts : Timestamp) (offset : TimeZone.Offset) : WallTime :=
+  WallTime.ofDuration (ts.val + offset.second)
 
 /--
-Converts a `PlainDate` to a `Timestamp`
+Creates a `Timestamp` from a `WallTime` and a timezone `offset`. Assumes the `WallTime` represents
+civil time at the given offset: `UTC = wall − offset`.
 -/
 @[inline]
-def ofPlainDateAssumingUTC (pd : PlainDate) : Timestamp :=
-  let days := pd.toDaysSinceUNIXEpoch
-  let secs := days.toSeconds
-  Timestamp.ofSecondsSinceUnixEpoch secs
-
-/--
-Converts a `Timestamp` to a `PlainDate`
--/
-@[inline]
-def toPlainDateAssumingUTC (timestamp : Timestamp) : PlainDate :=
-  let secs := timestamp.toSecondsSinceUnixEpoch
-  let days := Day.Offset.ofSeconds secs
-  PlainDate.ofDaysSinceUNIXEpoch days
-
-/--
-Converts a `Timestamp` to a `PlainTime`
--/
-@[inline]
-def getTimeAssumingUTC (timestamp : Timestamp) : PlainTime :=
-  let nanos := timestamp.toNanosecondsSinceUnixEpoch
-  PlainTime.ofNanoseconds nanos
+def ofWallTime (wt : WallTime) (offset : TimeZone.Offset) : Timestamp :=
+  Timestamp.ofDurationSinceUnixEpoch (wt.val - offset.second)
 
 end Timestamp
+
+namespace WallTime
+
+/--
+Converts a `WallTime` to a `Timestamp` given a timezone `offset`. The `WallTime` is treated as
+civil time at the given offset: `UTC = wall − offset`.
+-/
+@[inline]
+def toTimestamp (wt : WallTime) (offset : TimeZone.Offset) : Timestamp :=
+  Timestamp.ofWallTime wt offset
+
+/--
+Creates a `WallTime` from a `Timestamp` given a timezone `offset`. The result is the local
+civil time: `wall = UTC + offset`.
+-/
+@[inline]
+def ofTimestamp (ts : Timestamp) (offset : TimeZone.Offset) : WallTime :=
+  Timestamp.toWallTime ts offset
+
+end WallTime
+
 namespace PlainDate
 
 /--
-Converts a `PlainDate` to a `Timestamp`
+Converts a `PlainDate` to a `WallTime`.
 -/
 @[inline]
-def toTimestampAssumingUTC (pdt : PlainDate) : Timestamp :=
-  Timestamp.ofPlainDateAssumingUTC pdt
+def toWallTime (pd : PlainDate) : WallTime :=
+  WallTime.ofSeconds pd.toEpochDay.toSeconds
+
+/--
+Converts a `WallTime` to a `PlainDate`.
+-/
+@[inline]
+def ofWallTime (wt : WallTime) : PlainDate :=
+  PlainDate.ofEpochDay wt.toDays
 
 instance : HSub PlainDate PlainDate Duration where
-  hSub x y := x.toTimestampAssumingUTC - y.toTimestampAssumingUTC
+  hSub x y := x.toWallTime - y.toWallTime
 
 end PlainDate
+namespace PlainTime
+
+/--
+Converts a `PlainTime` to a `WallTime`.
+-/
+@[inline]
+def toWallTime (pt : PlainTime) : WallTime :=
+  WallTime.ofNanoseconds pt.toNanoseconds
+
+/--
+Converts a `WallTime` to a `PlainTime`.
+-/
+@[inline]
+def ofWallTime (wt : WallTime) : PlainTime :=
+  PlainTime.ofNanoseconds wt.toNanoseconds
+
+end PlainTime
 namespace PlainDateTime
 
 /--
-Converts a `PlainDate` to a `Timestamp`
+Wraps a `PlainDate` in a `PlainDateTime` with midnight as the time component.
 -/
 @[inline]
 def ofPlainDate (date : PlainDate) : PlainDateTime :=
   { date, time := PlainTime.midnight }
 
 /--
-Converts a `PlainDateTime` to a `PlainDate`
+Extracts the `PlainDate` component from a `PlainDateTime`.
 -/
 @[inline]
 def toPlainDate (pdt : PlainDateTime) : PlainDate :=
   pdt.date
 
 /--
-Converts a `PlainTime` to a `PlainDateTime`
+Wraps a `PlainTime` in a `PlainDateTime` with year 1, month 1, day 1 as the date component.
 -/
 @[inline]
 def ofPlainTime (time : PlainTime) : PlainDateTime :=
   { date := ⟨1, 1, 1, by decide⟩, time }
 
 /--
-Converts a `PlainDateTime` to a `PlainTime`
+Extracts the `PlainTime` component from a `PlainDateTime`.
 -/
 @[inline]
 def toPlainTime (pdt : PlainDateTime) : PlainTime :=
   pdt.time
 
 instance : HSub PlainDateTime PlainDateTime Duration where
-  hSub x y := x.toTimestampAssumingUTC - y.toTimestampAssumingUTC
+  hSub x y := x.toWallTime - y.toWallTime
 
 end PlainDateTime

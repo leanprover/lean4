@@ -120,12 +120,12 @@ else
 lean_object* v_val_8_; 
 v_val_8_ = lean_ctor_get(v___x_6_, 0);
 lean_inc(v_val_8_);
-lean_dec_ref(v___x_6_);
+lean_dec_ref_known(v___x_6_, 1);
 if (lean_obj_tag(v_val_8_) == 1)
 {
 uint8_t v_v_9_; 
 v_v_9_ = lean_ctor_get_uint8(v_val_8_, 0);
-lean_dec_ref(v_val_8_);
+lean_dec_ref_known(v_val_8_, 0);
 return v_v_9_;
 }
 else
@@ -510,7 +510,7 @@ v___x_145_ = l_Lean_MessageData_hasTag(v___y_127_, v_a_137_);
 if (v___x_145_ == 0)
 {
 lean_object* v___x_146_; lean_object* v___x_148_; 
-lean_dec_ref(v___x_143_);
+lean_dec_ref_known(v___x_143_, 1);
 lean_dec_ref(v___x_141_);
 lean_dec(v_a_137_);
 v___x_146_ = lean_box(0);
@@ -573,7 +573,7 @@ else
 lean_object* v_val_161_; 
 v_val_161_ = lean_ctor_get(v___x_160_, 0);
 lean_inc(v_val_161_);
-lean_dec_ref(v___x_160_);
+lean_dec_ref_known(v___x_160_, 1);
 v___y_127_ = v___y_152_;
 v___y_128_ = v___y_153_;
 v___y_129_ = v___y_154_;
@@ -609,7 +609,7 @@ else
 lean_object* v_val_173_; 
 v_val_173_ = lean_ctor_get(v___x_171_, 0);
 lean_inc(v_val_173_);
-lean_dec_ref(v___x_171_);
+lean_dec_ref_known(v___x_171_, 1);
 v___y_152_ = v___y_163_;
 v___y_153_ = v___y_164_;
 v___y_154_ = v___y_166_;
@@ -778,7 +778,7 @@ v___x_297_ = lean_obj_once(&l_Lean_Elab_Tactic_Conv_evalCbv___lam__0___closed__2
 v___x_298_ = l_Lean_logWarningAt___at___00Lean_Elab_Tactic_Conv_evalCbv_spec__1(v_stx_244_, v___x_297_, v___y_245_, v___y_246_, v___y_247_, v___y_248_, v___y_249_, v___y_250_, v___y_251_, v___y_252_);
 if (lean_obj_tag(v___x_298_) == 0)
 {
-lean_dec_ref(v___x_298_);
+lean_dec_ref_known(v___x_298_, 1);
 v___y_255_ = v___y_245_;
 v___y_256_ = v___y_246_;
 v___y_257_ = v___y_247_;
@@ -803,7 +803,7 @@ if (lean_obj_tag(v___x_263_) == 0)
 lean_object* v_a_264_; lean_object* v___x_265_; 
 v_a_264_ = lean_ctor_get(v___x_263_, 0);
 lean_inc(v_a_264_);
-lean_dec_ref(v___x_263_);
+lean_dec_ref_known(v___x_263_, 1);
 v___x_265_ = l_Lean_Meta_Tactic_Cbv_cbvEntry(v_a_264_, v___y_259_, v___y_260_, v___y_261_, v___y_262_);
 if (lean_obj_tag(v___x_265_) == 0)
 {
@@ -829,7 +829,7 @@ v_resetjp_267_:
 if (lean_obj_tag(v_a_266_) == 0)
 {
 lean_object* v___x_270_; lean_object* v___x_272_; 
-lean_dec_ref(v_a_266_);
+lean_dec_ref_known(v_a_266_, 0);
 v___x_270_ = lean_box(0);
 if (v_isShared_269_ == 0)
 {
@@ -858,7 +858,7 @@ v_e_x27_274_ = lean_ctor_get(v_a_266_, 0);
 lean_inc_ref(v_e_x27_274_);
 v_proof_275_ = lean_ctor_get(v_a_266_, 1);
 lean_inc_ref(v_proof_275_);
-lean_dec_ref(v_a_266_);
+lean_dec_ref_known(v_a_266_, 2);
 v___x_276_ = l_Lean_Elab_Tactic_Conv_updateLhs(v_e_x27_274_, v_proof_275_, v___y_255_, v___y_256_, v___y_257_, v___y_258_, v___y_259_, v___y_260_, v___y_261_, v___y_262_);
 return v___x_276_;
 }

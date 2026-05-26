@@ -99,7 +99,7 @@ v_fn_24_ = lean_ctor_get(v_x_13_, 0);
 lean_inc_ref(v_fn_24_);
 v_arg_25_ = lean_ctor_get(v_x_13_, 1);
 lean_inc_ref(v_arg_25_);
-lean_dec_ref(v_x_13_);
+lean_dec_ref_known(v_x_13_, 2);
 v___x_26_ = lean_array_set(v_x_14_, v_x_15_, v_arg_25_);
 v___x_27_ = lean_unsigned_to_nat(1u);
 v___x_28_ = lean_nat_sub(v_x_15_, v___x_27_);
@@ -252,7 +252,7 @@ if (lean_obj_tag(v___x_68_) == 0)
 lean_object* v_a_69_; lean_object* v___x_70_; lean_object* v___x_71_; lean_object* v___x_72_; lean_object* v___x_73_; lean_object* v___x_74_; lean_object* v___x_75_; lean_object* v___x_76_; lean_object* v___x_77_; lean_object* v___x_78_; lean_object* v___x_79_; lean_object* v___x_80_; lean_object* v___x_81_; lean_object* v___x_82_; lean_object* v___x_83_; lean_object* v___x_84_; 
 v_a_69_ = lean_ctor_get(v___x_68_, 0);
 lean_inc(v_a_69_);
-lean_dec_ref(v___x_68_);
+lean_dec_ref_known(v___x_68_, 1);
 v___x_70_ = ((lean_object*)(l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_BVDecide_Frontend_Normalize_applyIteSimproc_spec__0___redArg___closed__5));
 v___x_71_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_71_, 0, v_arg_50_);
@@ -368,8 +368,8 @@ return v___x_101_;
 else
 {
 lean_object* v_a_104_; lean_object* v___x_106_; uint8_t v_isShared_107_; uint8_t v_isSharedCheck_111_; 
-lean_dec_ref(v___x_60_);
-lean_dec_ref(v___x_59_);
+lean_dec_ref_known(v___x_60_, 1);
+lean_dec_ref_known(v___x_59_, 1);
 lean_dec_ref(v_fnApp_55_);
 lean_dec_ref(v_arg_50_);
 lean_dec_ref(v_arg_41_);
@@ -535,7 +535,7 @@ v_fn_197_ = lean_ctor_get(v_x_186_, 0);
 lean_inc_ref(v_fn_197_);
 v_arg_198_ = lean_ctor_get(v_x_186_, 1);
 lean_inc_ref(v_arg_198_);
-lean_dec_ref(v_x_186_);
+lean_dec_ref_known(v_x_186_, 2);
 v___x_199_ = lean_array_set(v_x_187_, v_x_188_, v_arg_198_);
 v___x_200_ = lean_unsigned_to_nat(1u);
 v___x_201_ = lean_nat_sub(v_x_188_, v___x_200_);
@@ -665,7 +665,7 @@ if (lean_obj_tag(v___x_236_) == 0)
 lean_object* v_a_237_; lean_object* v___x_238_; lean_object* v___x_239_; lean_object* v___x_240_; lean_object* v___x_241_; lean_object* v___x_242_; lean_object* v___x_243_; lean_object* v___x_244_; lean_object* v___x_245_; lean_object* v___x_246_; lean_object* v___x_247_; lean_object* v___x_248_; lean_object* v___x_249_; lean_object* v___x_250_; lean_object* v___x_251_; 
 v_a_237_ = lean_ctor_get(v___x_236_, 0);
 lean_inc(v_a_237_);
-lean_dec_ref(v___x_236_);
+lean_dec_ref_known(v___x_236_, 1);
 v___x_238_ = ((lean_object*)(l_Lean_Expr_withAppAux___at___00Lean_Elab_Tactic_BVDecide_Frontend_Normalize_applyCondSimproc_spec__0___redArg___closed__5));
 v___x_239_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_239_, 0, v_arg_220_);
@@ -780,7 +780,7 @@ return v___x_268_;
 else
 {
 lean_object* v_a_271_; lean_object* v___x_273_; uint8_t v_isShared_274_; uint8_t v_isSharedCheck_278_; 
-lean_dec_ref(v___x_229_);
+lean_dec_ref_known(v___x_229_, 1);
 lean_dec_ref(v_fnApp_225_);
 lean_dec_ref(v_arg_220_);
 lean_dec_ref(v_arg_214_);

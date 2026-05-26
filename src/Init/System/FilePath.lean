@@ -12,6 +12,8 @@ public import Init.Data.ToString.Basic
 import Init.Data.Iterators.Consumers.Collect
 import Init.System.Platform
 import Init.Data.String.Length
+import Init.Data.Iterators.Combinators.Take
+import Init.Data.Iterators.Consumers.Access
 
 public section
 
@@ -80,14 +82,23 @@ There is no guarantee that two equivalent paths normalize to the same path.
 -/
 -- TODO: normalize `a/`, `a//b`, etc.
 def normalize (p : FilePath) : FilePath := Id.run do
-  let mut p := p
-  -- normalize drive letter
-  if isWindows && p.toString.length >= 2 && p.toString.front.isLower && String.Pos.Raw.get p.toString ⟨1⟩ == ':' then
-    p := ⟨p.toString.capitalize⟩
+  let mut p := normalizeDriveLetter p
   -- normalize separator
   unless pathSeparators.length == 1 do
     p := ⟨p.toString.map fun c => if pathSeparators.contains c then pathSeparator else c⟩
   return p
+where
+  normalizeDriveLetter (p : FilePath) : FilePath := Id.run do
+    if !isWindows then
+      return p
+
+    if let [driveLetter, ':'] := (p.toString.chars.take 2).toList then
+      if driveLetter.isLower then
+        return ⟨p.toString.capitalize⟩
+      else
+        return p
+
+    return p
 
 -- the following functions follow the names and semantics from Rust's `std::path::Path`
 
@@ -95,8 +106,8 @@ def normalize (p : FilePath) : FilePath := Id.run do
 An absolute path starts at the root directory or a drive letter. Accessing files through an absolute
 path does not depend on the current working directory.
 -/
-def isAbsolute (p : FilePath) : Bool :=
-  pathSeparators.contains p.toString.front || (isWindows && p.toString.length > 1 && p.toString.startPos.next?.bind (·.get?) == some ':')
+def isAbsolute (p : FilePath) : Bool := Id.run do
+  pathSeparators.contains p.toString.front || (isWindows && p.toString.chars.atIdxSlow? 1 == some ':')
 
 /--
 A relative path is one that depends on the current working directory for interpretation. Relative
@@ -124,8 +135,14 @@ instance : Div FilePath where
 instance : HDiv FilePath String FilePath where
   hDiv p sub := FilePath.join p ⟨sub⟩
 
-private def posOfLastSep (p : FilePath) : Option String.Pos.Raw :=
-  p.toString.revFind? pathSeparators.contains |>.map String.Pos.offset
+private def posOfLastSep (p : FilePath) : Option p.toString.Pos :=
+  p.toString.revFind? pathSeparators.contains
+
+private def afterRootDirectory (p : FilePath) : p.toString.Pos :=
+  if pathSeparators.contains p.toString.front then
+    p.toString.startPos.nextn 1
+  else
+    p.toString.startPos.nextn 3
 
 /--
 Returns the parent directory of a path, if there is one.
@@ -134,15 +151,15 @@ If the path is that of the root directory or the root of a drive letter, `none` 
 Otherwise, the path's parent directory is returned.
 -/
 def parent (p : FilePath) : Option FilePath :=
-  let extractParentPath := FilePath.mk <$> String.Pos.Raw.extract p.toString {} <$> posOfLastSep p
+  let extractParentPath := FilePath.mk <$> String.Slice.copy <$> String.sliceTo _ <$> posOfLastSep p
   if p.isAbsolute then
-    let lengthOfRootDirectory := if pathSeparators.contains p.toString.front then 1 else 3
-    if p.toString.length == lengthOfRootDirectory then
+    let afterRootDirectory := afterRootDirectory p
+    if afterRootDirectory.IsAtEnd then
       -- `p` is a root directory
       none
-    else if posOfLastSep p == some (String.Pos.Raw.mk (lengthOfRootDirectory - 1)) then
+    else if (posOfLastSep p).bind String.Pos.next? = some afterRootDirectory then
       -- `p` is a direct child of the root
-      some ⟨String.Pos.Raw.extract p.toString 0 ⟨lengthOfRootDirectory⟩⟩
+      some ⟨String.sliceTo _ afterRootDirectory |>.copy⟩
     else
       -- `p` is an absolute path with at least two subdirectories
       extractParentPath
@@ -158,7 +175,7 @@ directory.
 -/
 def fileName (p : FilePath) : Option String :=
   let lastPart := match posOfLastSep p with
-    | some sepPos => String.Pos.Raw.extract p.toString (sepPos + '/') p.toString.rawEndPos
+    | some sepPos => (String.sliceFrom _ sepPos.next!).copy
     | none        => p.toString
   if lastPart.isEmpty || lastPart == "." || lastPart == ".." then none else some lastPart
 

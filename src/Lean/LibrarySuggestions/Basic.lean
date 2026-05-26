@@ -101,16 +101,26 @@ end Lean.Expr
 
 open Lean Meta MVarId in
 public def Lean.MVarId.getConstants (g : MVarId) : MetaM NameSet := withContext g do
-  let mut c := (← g.getType).getUsedConstantsAsSet
+  -- `instantiateMVars` is needed so that constants are not lost behind assigned
+  -- metavariables, e.g. the `?motive` left in a goal reached via `induction`.
+  -- Note: this does not recover constants behind non-ground delayed-assigned
+  -- metavariables. Without evidence this matters for premise selection,
+  -- for now we avoid the extra complexity of walking the metavariable graph.
+  let mut c := (← instantiateMVars (← g.getType)).getUsedConstantsAsSet
   for t in (← getLocalHyps) do
-    c := c ∪ (← inferType t).getUsedConstantsAsSet
+    c := c ∪ (← instantiateMVars (← inferType t)).getUsedConstantsAsSet
   return c
 
 open Lean Meta MVarId in
 public def Lean.MVarId.getRelevantConstants (g : MVarId) : MetaM NameSet := withContext g do
-  let mut c ← (← g.getType).relevantConstantsAsSet
+  -- `instantiateMVars` is needed so that constants are not lost behind assigned
+  -- metavariables, e.g. the `?motive` left in a goal reached via `induction`.
+  -- Note: this does not recover constants behind non-ground delayed-assigned
+  -- metavariables. Without evidence this matters for premise selection,
+  -- for now we avoid the extra complexity of walking the metavariable graph.
+  let mut c ← (← instantiateMVars (← g.getType)).relevantConstantsAsSet
   for t in (← getLocalHyps) do
-    c := c ∪ (← (← inferType t).relevantConstantsAsSet)
+    c := c ∪ (← (← instantiateMVars (← inferType t)).relevantConstantsAsSet)
   return c
 
 @[expose] public section

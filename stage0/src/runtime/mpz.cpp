@@ -61,7 +61,7 @@ mpz::mpz(mpz const & s) {
     mpz_init_set(m_val, s.m_val);
 }
 
-mpz::mpz(mpz && s):mpz() {
+mpz::mpz(mpz && s) noexcept : mpz() {
     mpz_swap(m_val, s.m_val);
 }
 
@@ -73,7 +73,7 @@ void mpz::set(mpz_t r) const {
     mpz_set(r, m_val);
 }
 
-void swap(mpz & a, mpz & b) {
+void swap(mpz & a, mpz & b) noexcept {
     mpz_swap(a.m_val, b.m_val);
 }
 
@@ -446,7 +446,7 @@ mpz::mpz(mpz const & s) {
     init_mpz(s);
 }
 
-mpz::mpz(mpz && s):
+mpz::mpz(mpz && s) noexcept :
     m_sign(s.m_sign),
     m_size(s.m_size),
     m_digits(s.m_digits) {
@@ -459,7 +459,7 @@ mpz::~mpz() {
     }
 }
 
-void swap(mpz & a, mpz & b) {
+void swap(mpz & a, mpz & b) noexcept {
     std::swap(a.m_sign, b.m_sign);
     std::swap(a.m_size, b.m_size);
     std::swap(a.m_digits, b.m_digits);

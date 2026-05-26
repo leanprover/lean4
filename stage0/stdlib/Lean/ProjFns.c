@@ -685,7 +685,7 @@ else
 lean_object* v_val_250_; lean_object* v_ctorName_251_; uint8_t v___x_252_; lean_object* v___x_253_; 
 v_val_250_ = lean_ctor_get(v___x_248_, 0);
 lean_inc(v_val_250_);
-lean_dec_ref(v___x_248_);
+lean_dec_ref_known(v___x_248_, 1);
 v_ctorName_251_ = lean_ctor_get(v_val_250_, 0);
 lean_inc(v_ctorName_251_);
 lean_dec(v_val_250_);
@@ -717,7 +717,7 @@ if (lean_obj_tag(v_val_254_) == 6)
 lean_object* v_val_258_; lean_object* v_induct_259_; lean_object* v___x_261_; 
 v_val_258_ = lean_ctor_get(v_val_254_, 0);
 lean_inc_ref(v_val_258_);
-lean_dec_ref(v_val_254_);
+lean_dec_ref_known(v_val_254_, 1);
 v_induct_259_ = lean_ctor_get(v_val_258_, 1);
 lean_inc(v_induct_259_);
 lean_dec_ref(v_val_258_);

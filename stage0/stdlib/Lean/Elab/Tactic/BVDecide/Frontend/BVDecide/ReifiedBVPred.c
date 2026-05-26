@@ -153,7 +153,7 @@ if (lean_obj_tag(v___x_18_) == 0)
 lean_object* v_a_19_; lean_object* v___x_20_; 
 v_a_19_ = lean_ctor_get(v___x_18_, 0);
 lean_inc(v_a_19_);
-lean_dec_ref(v___x_18_);
+lean_dec_ref_known(v___x_18_, 1);
 v___x_20_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_evalsAtAtoms(v_a_5_, v___y_12_, v___y_13_, v___y_14_, v___y_15_, v___y_16_);
 if (lean_obj_tag(v___x_20_) == 0)
 {
@@ -191,7 +191,7 @@ lean_object* v_val_37_;
 lean_dec(v_width_3_);
 v_val_37_ = lean_ctor_get(v_a_21_, 0);
 lean_inc(v_val_37_);
-lean_dec_ref(v_a_21_);
+lean_dec_ref_known(v_a_21_, 1);
 v___y_26_ = v_val_37_;
 goto v___jp_25_;
 }
@@ -736,7 +736,7 @@ lean_dec_ref(v_snd_191_);
 lean_dec(v___x_188_);
 v_val_214_ = lean_ctor_get(v_fproof_190_, 0);
 lean_inc(v_val_214_);
-lean_dec_ref(v_fproof_190_);
+lean_dec_ref_known(v_fproof_190_, 1);
 v_val_215_ = lean_ctor_get(v_sproof_192_, 0);
 v_isSharedCheck_223_ = !lean_is_exclusive(v_sproof_192_);
 if (v_isSharedCheck_223_ == 0)
@@ -793,21 +793,21 @@ if (lean_obj_tag(v___x_241_) == 0)
 lean_object* v_a_242_; lean_object* v___x_243_; 
 v_a_242_ = lean_ctor_get(v___x_241_, 0);
 lean_inc(v_a_242_);
-lean_dec_ref(v___x_241_);
+lean_dec_ref_known(v___x_241_, 1);
 v___x_243_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_mkEvalExpr(v_width_226_, v_expr_227_, v___y_235_, v___y_236_, v___y_237_, v___y_238_, v___y_239_);
 if (lean_obj_tag(v___x_243_) == 0)
 {
 lean_object* v_a_244_; lean_object* v___x_245_; 
 v_a_244_ = lean_ctor_get(v___x_243_, 0);
 lean_inc(v_a_244_);
-lean_dec_ref(v___x_243_);
+lean_dec_ref_known(v___x_243_, 1);
 v___x_245_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_evalsAtAtoms(v_lhs_228_, v___y_235_, v___y_236_, v___y_237_, v___y_238_, v___y_239_);
 if (lean_obj_tag(v___x_245_) == 0)
 {
 lean_object* v_a_246_; lean_object* v___x_247_; 
 v_a_246_ = lean_ctor_get(v___x_245_, 0);
 lean_inc(v_a_246_);
-lean_dec_ref(v___x_245_);
+lean_dec_ref_known(v___x_245_, 1);
 v___x_247_ = l_Lean_Elab_Tactic_BVDecide_Frontend_ReifiedBVExpr_evalsAtAtoms(v_rhs_229_, v___y_235_, v___y_236_, v___y_237_, v___y_238_, v___y_239_);
 if (lean_obj_tag(v___x_247_) == 0)
 {

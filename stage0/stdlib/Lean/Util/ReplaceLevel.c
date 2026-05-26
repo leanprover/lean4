@@ -86,7 +86,7 @@ v_a_4_ = lean_ctor_get(v_u_2_, 0);
 lean_inc(v_a_4_);
 v_a_5_ = lean_ctor_get(v_u_2_, 1);
 lean_inc(v_a_5_);
-lean_dec_ref(v_u_2_);
+lean_dec_ref_known(v_u_2_, 2);
 lean_inc_ref(v_f_x3f_1_);
 v___x_6_ = l_Lean_Level_replace(v_f_x3f_1_, v_a_4_);
 v___x_7_ = l_Lean_Level_replace(v_f_x3f_1_, v_a_5_);
@@ -100,7 +100,7 @@ v_a_9_ = lean_ctor_get(v_u_2_, 0);
 lean_inc(v_a_9_);
 v_a_10_ = lean_ctor_get(v_u_2_, 1);
 lean_inc(v_a_10_);
-lean_dec_ref(v_u_2_);
+lean_dec_ref_known(v_u_2_, 2);
 lean_inc_ref(v_f_x3f_1_);
 v___x_11_ = l_Lean_Level_replace(v_f_x3f_1_, v_a_9_);
 v___x_12_ = l_Lean_Level_replace(v_f_x3f_1_, v_a_10_);
@@ -112,7 +112,7 @@ case 1:
 lean_object* v_a_14_; lean_object* v___x_15_; lean_object* v___x_16_; 
 v_a_14_ = lean_ctor_get(v_u_2_, 0);
 lean_inc(v_a_14_);
-lean_dec_ref(v_u_2_);
+lean_dec_ref_known(v_u_2_, 1);
 v___x_15_ = l_Lean_Level_replace(v_f_x3f_1_, v_a_14_);
 v___x_16_ = l_Lean_Level_succ___override(v___x_15_);
 return v___x_16_;
@@ -131,7 +131,7 @@ lean_dec(v_u_2_);
 lean_dec_ref(v_f_x3f_1_);
 v_val_17_ = lean_ctor_get(v___x_3_, 0);
 lean_inc(v_val_17_);
-lean_dec_ref(v___x_3_);
+lean_dec_ref_known(v___x_3_, 1);
 return v_val_17_;
 }
 }
@@ -864,7 +864,7 @@ if (v___y_262_ == 0)
 {
 lean_object* v___x_263_; 
 lean_inc(v_binderName_255_);
-lean_dec_ref(v_x_254_);
+lean_dec_ref_known(v_x_254_, 3);
 v___x_263_ = l_Lean_Expr_forallE___override(v_binderName_255_, v_d_259_, v_b_260_, v_binderInfo_258_);
 return v___x_263_;
 }
@@ -876,7 +876,7 @@ if (v___x_264_ == 0)
 {
 lean_object* v___x_265_; 
 lean_inc(v_binderName_255_);
-lean_dec_ref(v_x_254_);
+lean_dec_ref_known(v_x_254_, 3);
 v___x_265_ = l_Lean_Expr_forallE___override(v_binderName_255_, v_d_259_, v_b_260_, v_binderInfo_258_);
 return v___x_265_;
 }
@@ -924,7 +924,7 @@ if (v___y_279_ == 0)
 {
 lean_object* v___x_280_; 
 lean_inc(v_binderName_272_);
-lean_dec_ref(v_x_254_);
+lean_dec_ref_known(v_x_254_, 3);
 v___x_280_ = l_Lean_Expr_lam___override(v_binderName_272_, v_d_276_, v_b_277_, v_binderInfo_275_);
 return v___x_280_;
 }
@@ -936,7 +936,7 @@ if (v___x_281_ == 0)
 {
 lean_object* v___x_282_; 
 lean_inc(v_binderName_272_);
-lean_dec_ref(v_x_254_);
+lean_dec_ref_known(v_x_254_, 3);
 v___x_282_ = l_Lean_Expr_lam___override(v_binderName_272_, v_d_276_, v_b_277_, v_binderInfo_275_);
 return v___x_282_;
 }
@@ -963,7 +963,7 @@ if (v___x_294_ == 0)
 {
 lean_object* v___x_295_; 
 lean_inc(v_data_289_);
-lean_dec_ref(v_x_254_);
+lean_dec_ref_known(v_x_254_, 2);
 v___x_295_ = l_Lean_Expr_mdata___override(v_data_289_, v_b_291_);
 return v___x_295_;
 }
@@ -1011,7 +1011,7 @@ if (v___y_305_ == 0)
 {
 lean_object* v___x_306_; 
 lean_inc(v_declName_296_);
-lean_dec_ref(v_x_254_);
+lean_dec_ref_known(v_x_254_, 4);
 v___x_306_ = l_Lean_Expr_letE___override(v_declName_296_, v_t_301_, v_v_302_, v_b_303_, v_nondep_300_);
 return v___x_306_;
 }
@@ -1025,7 +1025,7 @@ if (v___x_309_ == 0)
 {
 lean_object* v___x_310_; 
 lean_inc(v_declName_296_);
-lean_dec_ref(v_x_254_);
+lean_dec_ref_known(v_x_254_, 4);
 v___x_310_ = l_Lean_Expr_letE___override(v_declName_296_, v_t_301_, v_v_302_, v_b_303_, v_nondep_300_);
 return v___x_310_;
 }
@@ -1071,7 +1071,7 @@ v___jp_321_:
 if (v___y_322_ == 0)
 {
 lean_object* v___x_323_; 
-lean_dec_ref(v_x_254_);
+lean_dec_ref_known(v_x_254_, 2);
 v___x_323_ = l_Lean_Expr_app___override(v_f_319_, v_a_320_);
 return v___x_323_;
 }
@@ -1099,7 +1099,7 @@ if (v___x_336_ == 0)
 lean_object* v___x_337_; 
 lean_inc(v_idx_331_);
 lean_inc(v_typeName_330_);
-lean_dec_ref(v_x_254_);
+lean_dec_ref_known(v_x_254_, 3);
 v___x_337_ = l_Lean_Expr_proj___override(v_typeName_330_, v_idx_331_, v_b_333_);
 return v___x_337_;
 }
@@ -1121,7 +1121,7 @@ v___x_342_ = lean_usize_dec_eq(v___x_340_, v___x_341_);
 if (v___x_342_ == 0)
 {
 lean_object* v___x_343_; 
-lean_dec_ref(v_x_254_);
+lean_dec_ref_known(v_x_254_, 1);
 v___x_343_ = l_Lean_Expr_sort___override(v___x_339_);
 return v___x_343_;
 }
@@ -1144,7 +1144,7 @@ if (v___x_348_ == 0)
 {
 lean_object* v___x_349_; 
 lean_inc(v_declName_344_);
-lean_dec_ref(v_x_254_);
+lean_dec_ref_known(v_x_254_, 2);
 v___x_349_ = l_Lean_Expr_const___override(v_declName_344_, v___x_347_);
 return v___x_349_;
 }

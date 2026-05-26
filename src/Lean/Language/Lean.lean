@@ -505,7 +505,7 @@ where
         return { diagnostics, result? := none, metaSnap := default }
 
       let mut traceState := default
-      if trace.profiler.output.get? setup.opts |>.isSome then
+      if trace.profiler.isExporting setup.opts then
         traceState := {
           traces := #[{
             ref := .missing,

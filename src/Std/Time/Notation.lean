@@ -59,6 +59,7 @@ private meta def convertModifier : Modifier → MacroM (TSyntax `term)
   | .G p => do `(Std.Time.Modifier.G $(← convertText p))
   | .y p => do `(Std.Time.Modifier.y $(← convertYear p))
   | .u p => do `(Std.Time.Modifier.u $(← convertYear p))
+  | .Y p => do `(Std.Time.Modifier.Y $(← convertYear p))
   | .D p => do `(Std.Time.Modifier.D $(← convertNumber p))
   | .MorL p =>
     match p with
@@ -159,7 +160,6 @@ Example:
 -/
 syntax "zoned(" str "," term ")" : term
 
-
 /--
 Defines a syntax for datetime values without timezone. The input should be a string in an
 ISO8601-like format.
@@ -203,7 +203,6 @@ Example:
 `timezone("America/Sao_Paulo")`
 -/
 syntax "timezone(" str ")" : term
-
 
 macro_rules
   | `(zoned( $date:str )) => do

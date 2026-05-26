@@ -676,6 +676,18 @@ static inline b_lean_obj_res lean_ctor_get(b_lean_obj_arg o, unsigned i) {
     return lean_ctor_obj_cptr(o)[i];
 }
 
+static inline void lean_dec_ref_known(lean_object * o, unsigned objs) {
+    assert(lean_is_ref(o));
+    if (lean_is_exclusive(o)) {
+        for(unsigned i = 0; i < objs; i++) {
+            lean_dec(lean_ctor_get(o, i));
+        }
+        lean_del_object(o);
+    } else {
+        lean_dec_ref(o);
+    }
+}
+
 static inline void lean_ctor_set(b_lean_obj_arg o, unsigned i, lean_obj_arg v) {
     assert(i < lean_ctor_num_objs(o));
     lean_ctor_obj_cptr(o)[i] = v;
@@ -1240,6 +1252,7 @@ static inline bool lean_string_eq(b_lean_obj_arg s1, b_lean_obj_arg s2) {
 }
 static inline bool lean_string_ne(b_lean_obj_arg s1, b_lean_obj_arg s2) { return !lean_string_eq(s1, s2); }
 LEAN_EXPORT bool lean_string_lt(b_lean_obj_arg s1, b_lean_obj_arg s2);
+LEAN_EXPORT uint8_t lean_string_compare(b_lean_obj_arg s1, b_lean_obj_arg s2);
 static inline uint8_t lean_string_dec_eq(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_string_eq(s1, s2); }
 static inline uint8_t lean_string_dec_lt(b_lean_obj_arg s1, b_lean_obj_arg s2) { return lean_string_lt(s1, s2); }
 LEAN_EXPORT uint64_t lean_string_hash(b_lean_obj_arg);

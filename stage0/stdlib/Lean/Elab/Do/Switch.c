@@ -724,12 +724,12 @@ else
 lean_object* v_val_384_; 
 v_val_384_ = lean_ctor_get(v___x_382_, 0);
 lean_inc(v_val_384_);
-lean_dec_ref(v___x_382_);
+lean_dec_ref_known(v___x_382_, 1);
 if (lean_obj_tag(v_val_384_) == 1)
 {
 uint8_t v_v_385_; 
 v_v_385_ = lean_ctor_get_uint8(v_val_384_, 0);
-lean_dec_ref(v_val_384_);
+lean_dec_ref_known(v_val_384_, 0);
 return v_v_385_;
 }
 else

@@ -212,14 +212,14 @@ if (lean_obj_tag(v___x_40_) == 0)
 lean_object* v_a_41_; lean_object* v___x_42_; 
 v_a_41_ = lean_ctor_get(v___x_40_, 0);
 lean_inc(v_a_41_);
-lean_dec_ref(v___x_40_);
+lean_dec_ref_known(v___x_40_, 1);
 v___x_42_ = l_Lean_MVarId_applySymm(v_a_41_, v___y_35_, v___y_36_, v___y_37_, v___y_38_);
 if (lean_obj_tag(v___x_42_) == 0)
 {
 lean_object* v_a_43_; lean_object* v___x_44_; lean_object* v___x_45_; lean_object* v___x_46_; 
 v_a_43_ = lean_ctor_get(v___x_42_, 0);
 lean_inc(v_a_43_);
-lean_dec_ref(v___x_42_);
+lean_dec_ref_known(v___x_42_, 1);
 v___x_44_ = lean_box(0);
 v___x_45_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_45_, 0, v_a_43_);
@@ -501,14 +501,14 @@ if (lean_obj_tag(v___x_177_) == 0)
 lean_object* v_a_178_; lean_object* v___x_179_; 
 v_a_178_ = lean_ctor_get(v___x_177_, 0);
 lean_inc(v_a_178_);
-lean_dec_ref(v___x_177_);
+lean_dec_ref_known(v___x_177_, 1);
 v___x_179_ = l_Lean_MVarId_applySymmAt(v_h_167_, v_a_178_, v___y_172_, v___y_173_, v___y_174_, v___y_175_);
 if (lean_obj_tag(v___x_179_) == 0)
 {
 lean_object* v_a_180_; lean_object* v___x_181_; lean_object* v___x_182_; lean_object* v___x_183_; 
 v_a_180_ = lean_ctor_get(v___x_179_, 0);
 lean_inc(v_a_180_);
-lean_dec_ref(v___x_179_);
+lean_dec_ref_known(v___x_179_, 1);
 v___x_181_ = lean_box(0);
 v___x_182_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_182_, 0, v_a_180_);
@@ -677,7 +677,7 @@ v___x_270_ = lean_alloc_ctor(1, 1, 1);
 lean_ctor_set(v___x_270_, 0, v___x_269_);
 lean_ctor_set_uint8(v___x_270_, sizeof(void*)*1, v___x_261_);
 v___x_271_ = l_Lean_Elab_Tactic_withLocation(v___x_270_, v_atHyp_265_, v_atTarget_263_, v___f_264_, v_a_251_, v_a_252_, v_a_253_, v_a_254_, v_a_255_, v_a_256_, v_a_257_, v_a_258_);
-lean_dec_ref(v___x_270_);
+lean_dec_ref_known(v___x_270_, 1);
 return v___x_271_;
 }
 else
@@ -685,7 +685,7 @@ else
 lean_object* v_val_272_; lean_object* v___x_273_; lean_object* v___x_274_; 
 v_val_272_ = lean_ctor_get(v___x_268_, 0);
 lean_inc(v_val_272_);
-lean_dec_ref(v___x_268_);
+lean_dec_ref_known(v___x_268_, 1);
 v___x_273_ = l_Lean_Elab_Tactic_expandLocation(v_val_272_);
 lean_dec(v_val_272_);
 v___x_274_ = l_Lean_Elab_Tactic_withLocation(v___x_273_, v_atHyp_265_, v_atTarget_263_, v___f_264_, v_a_251_, v_a_252_, v_a_253_, v_a_254_, v_a_255_, v_a_256_, v_a_257_, v_a_258_);
@@ -783,14 +783,14 @@ if (lean_obj_tag(v___x_365_) == 0)
 lean_object* v_a_366_; lean_object* v___x_367_; 
 v_a_366_ = lean_ctor_get(v___x_365_, 0);
 lean_inc(v_a_366_);
-lean_dec_ref(v___x_365_);
+lean_dec_ref_known(v___x_365_, 1);
 v___x_367_ = l_Lean_MVarId_symmSaturate(v_a_366_, v___y_360_, v___y_361_, v___y_362_, v___y_363_);
 if (lean_obj_tag(v___x_367_) == 0)
 {
 lean_object* v_a_368_; lean_object* v___x_369_; lean_object* v___x_370_; lean_object* v___x_371_; 
 v_a_368_ = lean_ctor_get(v___x_367_, 0);
 lean_inc(v_a_368_);
-lean_dec_ref(v___x_367_);
+lean_dec_ref_known(v___x_367_, 1);
 v___x_369_ = lean_box(0);
 v___x_370_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_370_, 0, v_a_368_);

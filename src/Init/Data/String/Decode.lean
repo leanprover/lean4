@@ -208,7 +208,7 @@ theorem String.toBitVec_getElem_utf8EncodeChar_zero_of_utf8Size_eq_two {c : Char
 
 theorem String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_two {c : Char} (h : c.utf8Size = 2) :
     ((String.utf8EncodeChar c)[1]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
-  simpa [String.utf8EncodeChar_eq_cons_cons h] using helper₄ 0 c.val.toBitVec 2#2 6
+  simpa [String.utf8EncodeChar_eq_cons_cons h] using! helper₄ 0 c.val.toBitVec 2#2 6
 
 /-! ### Size three -/
 
@@ -222,7 +222,7 @@ theorem String.toBitVec_getElem_utf8EncodeChar_one_of_utf8Size_eq_three {c : Cha
 
 theorem String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_three {c : Char} (h : c.utf8Size = 3) :
     ((String.utf8EncodeChar c)[2]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
-  simpa [String.utf8EncodeChar_eq_cons_cons_cons h] using helper₄ 0 c.val.toBitVec 0b10#2 6
+  simpa [String.utf8EncodeChar_eq_cons_cons_cons h] using! helper₄ 0 c.val.toBitVec 0b10#2 6
 
 /-! ### Size four -/
 
@@ -240,7 +240,7 @@ theorem String.toBitVec_getElem_utf8EncodeChar_two_of_utf8Size_eq_four {c : Char
 
 theorem String.toBitVec_getElem_utf8EncodeChar_three_of_utf8Size_eq_four {c : Char} (h : c.utf8Size = 4) :
     ((String.utf8EncodeChar c)[3]'(by simp [h])).toBitVec = 0b10#2 ++ c.val.toBitVec.extractLsb' 0 6 := by
-  simpa [String.utf8EncodeChar_eq_cons_cons_cons_cons h] using helper₄ 0 c.val.toBitVec 0b10#2 6
+  simpa [String.utf8EncodeChar_eq_cons_cons_cons_cons h] using! helper₄ 0 c.val.toBitVec 0b10#2 6
 
 namespace ByteArray.utf8DecodeChar?
 
@@ -384,25 +384,25 @@ theorem parseFirstByte_eq_invalid_of_isInvalidContinuationByte_eq_false {b : UIn
   | .done =>
     rw [toBitVec_eq_of_parseFirstByte_eq_done h] at hb
     have := congrArg (·[7]) hb
-    simp only at this
+    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .oneMore =>
     rw [toBitVec_eq_of_parseFirstByte_eq_oneMore h] at hb
     have := congrArg (·[6]) hb
-    simp only at this
+    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .twoMore =>
     rw [toBitVec_eq_of_parseFirstByte_eq_twoMore h] at hb
     have := congrArg (·[6]) hb
-    simp only at this
+    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .threeMore =>
     rw [toBitVec_eq_of_parseFirstByte_eq_threeMore h] at hb
     have := congrArg (·[6]) hb
-    simp only at this
+    try simp only at this -- TODO(kmill) remove after stage0 update
     rw [BitVec.getElem_append, BitVec.getElem_append] at this
     simp at this
   | .invalid => rfl

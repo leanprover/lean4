@@ -78,12 +78,12 @@ if (lean_obj_tag(v___x_10_) == 0)
 lean_object* v_a_11_; lean_object* v___x_12_; 
 v_a_11_ = lean_ctor_get(v___x_10_, 0);
 lean_inc_n(v_a_11_, 2);
-lean_dec_ref(v___x_10_);
+lean_dec_ref_known(v___x_10_, 1);
 v___x_12_ = l_mkCtorIdx(v_a_11_, v___y_5_, v___y_6_, v___y_7_, v___y_8_);
 if (lean_obj_tag(v___x_12_) == 0)
 {
 lean_object* v___x_13_; 
-lean_dec_ref(v___x_12_);
+lean_dec_ref_known(v___x_12_, 1);
 v___x_13_ = l_Lean_Meta_mkInjectiveTheorems(v_a_11_, v___y_5_, v___y_6_, v___y_7_, v___y_8_);
 return v___x_13_;
 }

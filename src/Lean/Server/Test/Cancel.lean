@@ -192,39 +192,6 @@ elab_rules : tactic
   dbg_trace "blocked!"
   log "blocked"
 
-/-! ## Helpers for end-to-end testing of cancellation propagation -/
-
-meta initialize blockUntilCancelledOnce : IO.Ref (Std.HashMap String (Task Unit)) ← IO.mkRef {}
-
-/--
-Tactic for testing cancellation propagation. On the first invocation for a given `<label>`,
-prints `<label>: blocked` to stderr and loops on `Core.checkInterrupted` until the tactic's
-cancel token fires (at which point the loop throws and `finally` resolves the shared promise).
-Subsequent invocations (e.g. on re-elaboration) wait on that promise: they return as soon as
-the first invocation has actually exited the loop, and hang otherwise. So if cancellation
-propagates correctly, the test completes; if propagation is broken, the second invocation's
-`IO.wait` blocks forever and the test hangs (timeout = failure).
--/
-scoped syntax "block_until_cancelled" str : tactic
-elab_rules : tactic
-| `(tactic| block_until_cancelled $label) => do
-  let lbl := label.getString
-  let prom ← IO.Promise.new
-  let prior ← blockUntilCancelledOnce.modifyGet fun m =>
-    match m[lbl]? with
-    | some t => (some t, m)
-    | none   => (none, m.insert lbl prom.result!)
-  if let some t := prior then
-    IO.wait t
-    return
-  IO.eprintln s!"{lbl}: blocked"
-  try
-    while true do
-      Core.checkInterrupted
-      IO.sleep 10
-  finally
-    prom.resolve ()
-
 meta initialize cmdOnceRef : IO.Ref (Option (Task Unit)) ← IO.mkRef none
 
 /--
@@ -252,3 +219,96 @@ elab_rules : command
   let t ← BaseIO.asTask (act ())
   (Core.logSnapshotTask { stx? := none, task := t, cancelTk? := cancelTk })
   logInfo "blocked"
+
+/-- Registry of label-keyed `Task (Option Unit)` values for use by `mkTestTask` and
+`wait_for_test_task`. The stored task is `prom.result?` of the promise returned by
+`mkTestTask`; the registry itself does not keep that promise alive, so if no other
+reference exists, the promise drops and the task fires `none`. -/
+meta initialize testTasksRef : IO.Ref (Std.HashMap String (Task (Option Unit))) ← IO.mkRef {}
+
+/-- Register a fresh test task under `label`, returning the underlying `IO.Promise`.
+Returns `none` if a task is already registered under `label`. The caller is responsible
+for keeping the returned promise alive and arranging its resolution -- typically by
+capturing it in a `cancelTk.onSet` closure that calls `prom.resolve`. -/
+meta def mkTestTask (label : String) : BaseIO (Option (IO.Promise Unit)) := do
+  let prom ← IO.Promise.new
+  testTasksRef.modifyGet fun m =>
+    if m.contains label then (none, m) else (some prom, m.insert label prom.result?)
+
+/-- Block until the test task named `label` fires. Prints a diagnostic to stderr if
+the underlying promise was dropped without resolution, or if no task is registered for
+`label`. The diagnostic uses stderr rather than `throwError` so that the failure is
+visible even when this tactic is evaluated inside `try?` (or any other combinator that
+swallows tactic errors). -/
+scoped syntax "wait_for_test_task " str : tactic
+elab_rules : tactic
+| `(tactic| wait_for_test_task $label) => do
+  let label := label.getString
+  match (← testTasksRef.get).get? label with
+  | none =>
+    IO.eprintln s!"wait_for_test_task: no task registered for {label}"
+  | some t =>
+    match (← IO.wait t) with
+    | some _ => return
+    | none   => IO.eprintln s!"wait_for_test_task: task {label} dropped without resolution"
+
+/-- Registry of label-keyed `IO.Promise Unit` for synchronization between cooperating
+tactics/elaborators in tests. The promise is kept alive by the ref itself, so
+`prom.result?` only fires on explicit `resolveSyncPromise` -- there is no drop signal.
+Distinct from `testTasksRef`, which stores only the `Task` side and relies on caller
+liveness to detect dropped-without-resolved. -/
+meta initialize syncPromisesRef : IO.Ref (Std.HashMap String (IO.Promise Unit)) ← IO.mkRef {}
+
+/-- Return the sync promise for `label`, creating it if no entry exists. All callers
+receive the same promise. -/
+meta def getSyncPromise (label : String) : BaseIO (IO.Promise Unit) := do
+  let fresh ← IO.Promise.new
+  syncPromisesRef.modifyGet fun m =>
+    match m[label]? with
+    | some prom => (prom, m)
+    | none      => (fresh, m.insert label fresh)
+
+/-- Resolve the sync promise for `label`. Idempotent (subsequent resolves are no-ops). -/
+meta def resolveSyncPromise (label : String) : BaseIO Unit := do
+  (← getSyncPromise label).resolve ()
+
+/-- Block until `resolveSyncPromise label` has been called. Direct `IO.wait`, no polling. -/
+scoped syntax "wait_for_sync " str : tactic
+elab_rules : tactic
+| `(tactic| wait_for_sync $label) => do
+  let lbl := label.getString
+  match (← IO.wait (← getSyncPromise lbl).result?) with
+  | some _ => return
+  | none   =>
+    IO.eprintln s!"wait_for_sync: sync promise {lbl} dropped without resolution"
+
+/--
+Tactic for testing cancellation propagation. On the first invocation for a given `<label>`,
+prints `<label>: blocked` to stderr, resolves the sync promise `<label>` (so a separate
+theorem can gate the runner's `waitFor` on this invocation having actually started), and
+loops on `Core.checkInterrupted` until the tactic's cancel token fires (at which point the
+loop throws and `finally` resolves the shared task). Subsequent invocations (e.g. on
+re-elaboration) wait on that task: they return as soon as the first invocation has actually
+exited the loop, and hang otherwise. So if cancellation propagates correctly, the test
+completes; if propagation is broken, the second invocation's wait blocks forever and the
+test hangs (timeout = failure).
+-/
+scoped syntax "block_until_cancelled" str : tactic
+elab_rules : tactic
+| `(tactic| block_until_cancelled $label) => do
+  let lbl := label.getString
+  match (← mkTestTask lbl) with
+  | none =>
+    let some t := (← testTasksRef.get).get? lbl | unreachable!
+    discard <| IO.wait t
+  | some prom =>
+    IO.eprintln s!"{lbl}: blocked"
+    resolveSyncPromise lbl
+    try
+      while true do
+        Core.checkInterrupted
+        IO.sleep 10
+    finally
+      prom.resolve ()
+
+

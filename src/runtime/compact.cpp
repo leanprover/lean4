@@ -57,12 +57,25 @@ struct object_compactor::max_sharing_table {
     }
 };
 
-object_compactor::object_compactor(void * base_addr):
+object_compactor::object_compactor(void * base_addr, std::vector<compacted_region *> dep_regions):
     m_max_sharing_table(new max_sharing_table(this)),
+    m_dep_regions(std::move(dep_regions)),
     m_base_addr(base_addr),
     m_begin(malloc(LEAN_COMPACTOR_INIT_SZ)),
     m_end(m_begin),
     m_capacity(static_cast<char*>(m_begin) + LEAN_COMPACTOR_INIT_SZ) {
+    // Sort dep regions by `begin` address for binary search in `to_offset`.
+    // Extract keys into a flat array first to avoid pointer-chasing TLB misses through
+    // thousands of scattered `compacted_region` heap objects during sort comparisons.
+    size_t n = m_dep_regions.size();
+    std::vector<std::pair<void *, compacted_region *>> keyed(n);
+    for (size_t i = 0; i < n; i++)
+        keyed[i] = {m_dep_regions[i]->begin(), m_dep_regions[i]};
+    std::sort(keyed.begin(), keyed.end(),
+              [](std::pair<void *, compacted_region *> const & a,
+                 std::pair<void *, compacted_region *> const & b) { return a.first < b.first; });
+    for (size_t i = 0; i < n; i++)
+        m_dep_regions[i] = keyed[i].second;
 }
 
 object_compactor::~object_compactor() {
@@ -118,12 +131,30 @@ object_offset object_compactor::to_offset(object * o) {
         return o;
     } else {
         auto it = m_obj_table.find(o);
-        if (it == m_obj_table.end()) {
-            m_todo.push_back(o);
-            return g_null_offset;
-        } else {
+        if (it != m_obj_table.end()) {
             return it->second;
         }
+        // Only check dep regions for non-heap objects
+        if (!m_dep_regions.empty() && !lean_has_rc(o)) {
+            // Binary search dep regions (sorted by `begin`)
+            char * addr = reinterpret_cast<char *>(o);
+            std::vector<compacted_region *>::iterator upper = std::upper_bound(
+                m_dep_regions.begin(), m_dep_regions.end(), addr,
+                [](char * a, compacted_region * r) { return a < static_cast<char *>(r->begin()); });
+            if (upper != m_dep_regions.begin()) {
+                compacted_region * region = *(upper - 1);
+                char * region_end = static_cast<char *>(region->begin()) + region->size();
+                if (addr < region_end) {
+                    // Object is in this dep region; compute its `base_addr`-relative pointer
+                    object_offset off = reinterpret_cast<object_offset>(
+                        reinterpret_cast<size_t>(region->base_addr()) + (addr - static_cast<char *>(region->begin())));
+                    m_obj_table.insert(std::make_pair(o, off));
+                    return off;
+                }
+            }
+        }
+        m_todo.push_back(o);
+        return g_null_offset;
     }
 }
 
@@ -384,14 +415,40 @@ void object_compactor::operator()(object * o) {
     *root = to_offset(o);
 }
 
-compacted_region::compacted_region(size_t sz, void * data, void * base_addr, bool is_mmap, std::function<void()> free_data):
+compacted_region::compacted_region(size_t sz, void * data, void * base_addr, bool is_mmap, std::function<void()> free_data,
+                                   std::vector<compacted_region *> dep_regions):
     m_size(sz),
     m_base_addr(base_addr),
     m_is_mmap(is_mmap),
     m_free_data(free_data),
     m_begin(data),
     m_next(data),
-    m_end(static_cast<char*>(data)+sz) {
+    m_end(static_cast<char*>(data)+sz),
+    m_dep_regions(std::move(dep_regions)) {
+    // Sort dep regions by `base_addr` for binary search in `fix_object_ptr`
+    std::sort(m_dep_regions.begin(), m_dep_regions.end(),
+              [](compacted_region * a, compacted_region * b) { return a->base_addr() < b->base_addr(); });
+    // Reject overlapping saved address ranges: `fix_object_ptr` resolves cross-region pointers
+    // by binary-searching `base_addr`s, and would silently translate via the wrong region if
+    // two deps overlap (or if a dep overlaps our own range). This should not happen with regular
+    // .olean use as we use only use `read`'s `prev` instead of `dep_regions` there.
+    for (size_t i = 1; i < m_dep_regions.size(); i++) {
+        compacted_region * prev = m_dep_regions[i - 1];
+        compacted_region * curr = m_dep_regions[i];
+        if (reinterpret_cast<size_t>(prev->base_addr()) + prev->size()
+                > reinterpret_cast<size_t>(curr->base_addr())) {
+            throw exception("compacted_region: dep regions have overlapping `base_addr` ranges");
+        }
+    }
+    size_t self_base = reinterpret_cast<size_t>(m_base_addr);
+    size_t self_end = self_base + m_size;
+    for (compacted_region * dep : m_dep_regions) {
+        size_t dep_base = reinterpret_cast<size_t>(dep->base_addr());
+        size_t dep_end = dep_base + dep->size();
+        if (self_base < dep_end && dep_base < self_end) {
+            throw exception("compacted_region: own region overlaps a dep region's `base_addr` range");
+        }
+    }
 }
 
 compacted_region::~compacted_region() {
@@ -402,7 +459,25 @@ compacted_region::~compacted_region() {
 
 inline object * compacted_region::fix_object_ptr(object * o) {
     if (lean_is_scalar(o)) return o;
-    return reinterpret_cast<object*>(static_cast<char*>(m_begin) - reinterpret_cast<char*>(m_base_addr) + reinterpret_cast<ptrdiff_t>(o));
+    size_t addr = reinterpret_cast<size_t>(o);
+    size_t self_base = reinterpret_cast<size_t>(m_base_addr);
+    // Check own region first (most common case)
+    if (addr >= self_base && addr < self_base + m_size) {
+        return reinterpret_cast<object*>(static_cast<char*>(m_begin) + (addr - self_base));
+    }
+    // Binary search dep regions (sorted by `base_addr`)
+    char * addr_ptr = reinterpret_cast<char *>(addr);
+    std::vector<compacted_region *>::iterator upper = std::upper_bound(
+        m_dep_regions.begin(), m_dep_regions.end(), addr_ptr,
+        [](char * a, compacted_region * r) { return a < static_cast<char *>(r->base_addr()); });
+    if (upper != m_dep_regions.begin()) {
+        compacted_region * dep = *(upper - 1);
+        size_t dep_base = reinterpret_cast<size_t>(dep->base_addr());
+        if (addr < dep_base + dep->size()) {
+            return reinterpret_cast<object*>(static_cast<char*>(dep->begin()) + (addr - dep_base));
+        }
+    }
+    lean_unreachable();
 }
 
 inline void compacted_region::move(size_t d) {
@@ -475,11 +550,19 @@ object * compacted_region::read() {
     object * root = fix_object_ptr(*static_cast<object_offset *>(m_next));
     move(sizeof(object_offset));
     if (m_begin == m_base_addr) {
-        // no relocations needed
-        m_end = m_next;
-        return root;
+        // Own-region pointers are already correct (this region landed at its saved address).
+        // But if any dep region missed its `base_addr`, cross-region pointers in this region
+        // still hold the dep's saved address and need fixup, so fall through to the walk in
+        // that case.
+        bool needs_dep_reloc = false;
+        for (compacted_region * dep : m_dep_regions) {
+            if (dep->begin() != dep->base_addr()) { needs_dep_reloc = true; break; }
+        }
+        if (!needs_dep_reloc) {
+            m_end = m_next;
+            return root;
+        }
     }
-    lean_assert(!m_is_mmap);
 
     while (m_next < m_end) {
         object * curr = reinterpret_cast<object*>(m_next);

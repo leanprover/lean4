@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.DeprecatedSyntax
-// Imports: public import Lean.MonadEnv public import Lean.Linter.Basic public import Lean.Elab.Util
+// Imports: public import Lean.MonadEnv public import Lean.Linter.Init public import Lean.Elab.Util
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -581,7 +581,7 @@ lean_object* v_val_282_; lean_object* v_text_x3f_283_;
 lean_dec(v_toPure_189_);
 v_val_282_ = lean_ctor_get(v___x_281_, 0);
 lean_inc(v_val_282_);
-lean_dec_ref(v___x_281_);
+lean_dec_ref_known(v___x_281_, 1);
 v_text_x3f_283_ = lean_ctor_get(v_val_282_, 1);
 lean_inc(v_text_x3f_283_);
 lean_dec(v_val_282_);
@@ -597,7 +597,7 @@ else
 lean_object* v_val_285_; lean_object* v___x_286_; lean_object* v___x_287_; lean_object* v___x_288_; 
 v_val_285_ = lean_ctor_get(v_text_x3f_283_, 0);
 lean_inc(v_val_285_);
-lean_dec_ref(v_text_x3f_283_);
+lean_dec_ref_known(v_text_x3f_283_, 1);
 v___x_286_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__19, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__19_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__19);
 v___x_287_ = l_Lean_stringToMessageData(v_val_285_);
 v___x_288_ = lean_alloc_ctor(7, 2, 0);
@@ -962,7 +962,7 @@ return v_res_324_;
 }
 }
 lean_object* runtime_initialize_Lean_MonadEnv(uint8_t builtin);
-lean_object* runtime_initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_Util(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Elab_DeprecatedSyntax(uint8_t builtin) {
@@ -972,7 +972,7 @@ _G_runtime_initialized = true;
 res = runtime_initialize_Lean_MonadEnv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = runtime_initialize_Lean_Linter_Basic(builtin);
+res = runtime_initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_Util(builtin);
@@ -998,7 +998,7 @@ _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_MonadEnv(uint8_t builtin);
-lean_object* initialize_Lean_Linter_Basic(uint8_t builtin);
+lean_object* initialize_Lean_Linter_Init(uint8_t builtin);
 lean_object* initialize_Lean_Elab_Util(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Elab_DeprecatedSyntax(uint8_t builtin) {
@@ -1008,7 +1008,7 @@ _G_initialized = true;
 res = initialize_Lean_MonadEnv(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
-res = initialize_Lean_Linter_Basic(builtin);
+res = initialize_Lean_Linter_Init(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_Util(builtin);

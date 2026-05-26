@@ -75,7 +75,7 @@ theorem mul_length_le_sum_of_min?_eq_some_nat {xs : List Nat} (h : xs.min? = som
   cases xs
   · simp_all
   · simp only [min?_eq_some_min (cons_ne_nil _ _), Option.some.injEq] at h
-    simpa [← h] using min_mul_length_le_sum_nat _
+    simpa [← h] using! min_mul_length_le_sum_nat _
 
 theorem min_le_sum_div_length_nat {xs : List Nat} (h : xs ≠ []) :
     xs.min h ≤ xs.sum / xs.length := by
@@ -88,7 +88,7 @@ theorem le_sum_div_length_of_min?_eq_some_nat {xs : List Nat} (h : xs.min? = som
   cases xs
   · simp_all
   · simp only [min?_eq_some_min (cons_ne_nil _ _), Option.some.injEq] at h
-    simpa [← h] using min_le_sum_div_length_nat _
+    simpa [← h] using! min_le_sum_div_length_nat _
 
 theorem sum_le_max_mul_length_nat {xs : List Nat} (h : xs ≠ []) :
     xs.sum ≤ xs.max h * xs.length := by

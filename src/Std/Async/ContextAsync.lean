@@ -120,27 +120,6 @@ def concurrently (x : ContextAsync α) (y : ContextAsync β)
   return result
 
 /--
-Runs two computations concurrently and returns the result of the first to complete. Each computation runs
-in its own child context; when either completes, the other is cancelled immediately.
--/
-@[inline, specialize]
-def race [Inhabited α] (x : ContextAsync α) (y : ContextAsync α)
-    (prio := Task.Priority.default) : ContextAsync α := do
-  let parent ← getContext
-  let ctx1 ← CancellationContext.fork parent
-  let ctx2 ← CancellationContext.fork parent
-
-  let task1 ← async (x ctx1) prio
-  let task2 ← async (y ctx2) prio
-
-  let result ← Async.race
-    (await task1 <* ctx2.cancel .cancel)
-    (await task2 <* ctx1.cancel .cancel)
-    prio
-
-  pure result
-
-/--
 Runs all computations concurrently and collects results in the same order. Each runs in its own child context;
 if any computation fails, all others are cancelled and the exception is propagated.
 -/
@@ -253,6 +232,27 @@ instance [Inhabited α] : Inhabited (ContextAsync α) where
 
 instance : MonadAwait AsyncTask ContextAsync where
   await t := fun _ => await t
+
+/--
+Runs two computations concurrently and returns the result of the first to complete. Each computation runs
+in its own child context; when either completes, the other is cancelled immediately.
+-/
+@[inline, specialize]
+def race [Inhabited α] (x : ContextAsync α) (y : ContextAsync α)
+    (prio := Task.Priority.default) : ContextAsync α := do
+  let parent ← getContext
+  let ctx1 ← CancellationContext.fork parent
+  let ctx2 ← CancellationContext.fork parent
+
+  let task1 ← async (x ctx1) prio
+  let task2 ← async (y ctx2) prio
+
+  let promise ← IO.Promise.new
+  BaseIO.chainTask task1 fun result => liftM (promise.resolve result) *> ctx2.cancel .cancel
+  BaseIO.chainTask task2 fun result => liftM (promise.resolve result) *> ctx1.cancel .cancel
+
+  let result ← MonadAwait.await promise
+  Async.ofExcept result
 
 end ContextAsync
 

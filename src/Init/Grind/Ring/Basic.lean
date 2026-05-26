@@ -601,7 +601,8 @@ theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α]
     rw [IntModule.neg_zsmul]
     intro _ h
     replace h := congrArg (-·) h
-    dsimp only at h
+    -- TODO(kmill): remove after stage0 update
+    try dsimp only at h
     rw [neg_neg, neg_zero] at h
     rw [IntModule.zsmul_natCast_eq_nsmul] at h
     exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero (Nat.succ_ne_zero _) h

@@ -140,7 +140,7 @@ def testGetChecksExtra : CoreM (Array Name) := do
   let checks ← getChecks (scope := .extra) (runOnly := none)
   return checks.map (·.name)
 
-/-- info: #[`checkUnivs, `defLemma, `dummyBadName, `dummyExtraLinter, `dupNamespace] -/
+/-- info: #[`checkUnivs, `defLemma, `dummyBadName, `dummyExtraLinter] -/
 #guard_msgs in
 #eval testGetChecksExtra
 
@@ -149,7 +149,7 @@ def testGetChecksAll : CoreM (Array Name) := do
   let checks ← getChecks (scope := .all) (runOnly := none)
   return checks.map (·.name)
 
-/-- info: #[`checkUnivs, `defLemma, `dummyBadName, `dummyExtraLinter, `dupNamespace] -/
+/-- info: #[`checkUnivs, `defLemma, `dummyBadName, `dummyExtraLinter] -/
 #guard_msgs in
 #eval testGetChecksAll
 

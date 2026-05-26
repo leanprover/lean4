@@ -45,6 +45,7 @@ public import Lean.Elab.Tactic.DiscrTreeKey
 public import Lean.Elab.Tactic.BVDecide
 public import Lean.Elab.Tactic.BoolToPropSimps
 public import Lean.Elab.Tactic.Classical
+public import Lean.Elab.Tactic.Impossible
 public import Lean.Elab.Tactic.Grind
 public import Lean.Elab.Tactic.Monotonicity
 public import Lean.Elab.Tactic.Try

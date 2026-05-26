@@ -201,6 +201,11 @@ instance : Hashable CongrTheoremCacheKey where
 structure Counters where
   /-- Number of times E-match theorem has been instantiated. -/
   thm  : PHashMap Origin Nat := {}
+  /--
+  User names for theorem origins that are `.fvar`s. We need to store this information
+  because subgoals are created while we are solving subgoals.
+  -/
+  fvarUserNames : PHashMap FVarId Name := {}
   /-- Number of times a `cases` has been performed on an inductive type/predicate -/
   case : PHashMap Name Nat := {}
   /-- Number of applications per function symbol. This information is only collected if `set_option diagnostics true` -/
@@ -398,6 +403,12 @@ private def incCounter [Hashable α] [BEq α] (s : PHashMap α Nat) (k : α) : P
       s.insert k 1
 
 private def saveEMatchTheorem (thm : EMatchTheorem) : GrindM Unit := do
+  if let .fvar fvarId := thm.origin then
+    unless (← get).counters.fvarUserNames.contains fvarId do
+      let userName ← fvarId.getUserName
+      modify fun s => { s with
+        counters.fvarUserNames := s.counters.fvarUserNames.insert fvarId userName
+      }
   modify fun s => { s with counters.thm := incCounter s.counters.thm thm.origin }
 
 def getEMatchTheoremNumInstances (thm : EMatchTheorem) : GrindM Nat := do

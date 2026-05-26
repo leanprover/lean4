@@ -161,7 +161,7 @@ theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
 theorem length_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
     n = xs.length + ys.length + 1 := by
   have : n = (range' s n step).length := by simp
-  simpa [h] using this
+  simpa [h] using! this
 
 @[grind →]
 theorem mem_of_range'_eq_append_cons (h : range' s n step = xs ++ i :: ys) :

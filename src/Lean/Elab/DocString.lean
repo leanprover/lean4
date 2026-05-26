@@ -604,7 +604,8 @@ private def genWrapper (declName : Name) (argType : Option Expr) (retType : Expr
     let parserTy ← inferType parser
     let name ← mkFreshUserName (declName ++ `getArgs)
     let name := declName ++ `getArgs
-    addAndCompile <| .defnDecl {
+    let isMeta := isMarkedMeta (← getEnv) declName
+    addAndCompile (markMeta := isMeta) <| .defnDecl {
       name
       levelParams := []
       type := parserTy
@@ -803,11 +804,20 @@ builtin_initialize registerBuiltinAttribute {
       throwError "{.ofConstName decl} is not defined"
 }
 
+/--
+In module mode, docstring extensions are invoked at elaboration time, so the underlying definition
+must be marked `meta`.
+-/
+private def checkDocExtMeta (decl : Name) (kind : String) : CoreM Unit := do
+  if (← getEnv).header.isModule && !isMarkedMeta (← getEnv) decl then
+    throwError m!"`{.ofConstName decl}` must be marked `meta` to be used as a docstring {kind}"
+
 builtin_initialize registerBuiltinAttribute {
   name := `doc_role
   descr := "docstring role expander"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
+    checkDocExtMeta decl "role"
     let roleName ←
       if let `(attr|doc_role $x) := stx then
         realizeGlobalConstNoOverloadWithInfo x
@@ -859,6 +869,7 @@ builtin_initialize registerBuiltinAttribute {
   descr := "docstring code block expander"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
+    checkDocExtMeta decl "code block"
     let blockName ←
       if let `(attr|doc_code_block $x) := stx then
         realizeGlobalConstNoOverloadWithInfo x
@@ -968,6 +979,7 @@ builtin_initialize registerBuiltinAttribute {
   descr := "docstring directive expander"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
+    checkDocExtMeta decl "directive"
     let directiveName ←
       if let `(attr|doc_directive $x) := stx then
         realizeGlobalConstNoOverloadWithInfo x
@@ -1021,6 +1033,7 @@ builtin_initialize registerBuiltinAttribute {
   descr := "docstring command expander"
   applicationTime := .afterCompilation
   add := fun decl stx kind => do
+    checkDocExtMeta decl "command"
     let commandName ←
       if let `(attr|doc_command $x) := stx then
         realizeGlobalConstNoOverloadWithInfo x

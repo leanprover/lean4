@@ -3,7 +3,6 @@ import Lean.Elab.Tactic.Grind.LintExceptions
 
 /-! Check Array namespace: -/
 
--- TODO: think about more of these
 -- These go slightly over 20, but seem reasonable.
 #guard_msgs in
 #grind_lint inspect (min := 22) Array.count_singleton

@@ -61,6 +61,19 @@ register_builtin_option backward.isDefEq.respectTransparency.types : Bool := {
 }
 
 /--
+Controls whether, when checking the type of an assignment to an instance-implicit (`[..]`)
+metavariable, the transparency is capped at `.instances` so an ambient `.default`/`.all`
+does not let semireducible definitions be unfolded.
+
+This option only has an effect when `backward.isDefEq.respectTransparency.types` is `true`.
+-/
+register_builtin_option backward.isDefEq.respectTransparency.instances : Bool := {
+  defValue := true
+  descr    := "if true (the default), cap transparency at `.instances` when checking the type \
+  of an assignment to an instance-implicit metavariable"
+}
+
+/--
 Controls whether non-instance implicit arguments get their transparency bumped to
 `TransparencyMode.implicit` during `isDefEq`.
 
@@ -681,7 +694,8 @@ private def checkTypesAndAssign (mvar : Expr) (v : Expr) : MetaM Bool :=
         -- intentionally does not apply to ordinary implicit (`{..}`) metavariables that happen
         -- to have a class type, which are created with `.natural` kind.
         let isInstance ←
-          if (← mvar.mvarId!.getKind) matches .synthetic then
+          if backward.isDefEq.respectTransparency.instances.get (← getOptions) &&
+              (← mvar.mvarId!.getKind) matches .synthetic then
             pure (← isClass? mvarType).isSome
           else
             pure false

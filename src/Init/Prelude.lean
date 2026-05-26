@@ -1030,10 +1030,24 @@ theorem of_decide_eq_true [inst : Decidable p] : Eq (decide p) true → p := fun
   | isTrue  h₁ => h₁
   | isFalse h₁ => absurd h (ne_true_of_eq_false (decide_eq_false h₁))
 
+/--
+Variant of `of_decide_eq_true` that takes `Decidable` as an implicit argument, intended for
+forward reasoning.
+-/
+theorem of_decide_eq_true_forward {inst : Decidable p} : Eq (decide p) true → p :=
+  of_decide_eq_true
+
 theorem of_decide_eq_false [inst : Decidable p] : Eq (decide p) false → Not p := fun h =>
   match (generalizing := false) inst with
   | isTrue  h₁ => absurd h (ne_false_of_eq_true (decide_eq_true h₁))
   | isFalse h₁ => h₁
+
+/--
+Variant of `of_decide_eq_false` that takes `Decidable` as an implicit argument, intended for
+forward reasoning.
+-/
+theorem of_decide_eq_false_forward {inst : Decidable p} : Eq (decide p) false → Not p :=
+  of_decide_eq_false
 
 theorem of_decide_eq_self_eq_true [inst : DecidableEq α] (a : α) : Eq (decide (Eq a a)) true :=
   match (generalizing := false) inst a a with

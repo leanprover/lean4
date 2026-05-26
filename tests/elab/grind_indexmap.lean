@@ -80,8 +80,8 @@ variable [LawfulBEq α] [LawfulHashable α]
 
 local grind_pattern IndexMap.WF1 => self.keys[i]
 local grind_pattern IndexMap.WF2 => self.indices[a]
-attribute [grind ←] IndexMap.WF3
-attribute [grind ←] IndexMap.WF4
+attribute [local grind ←] IndexMap.WF3
+attribute [local grind ←] IndexMap.WF4
 
 instance : GetElem? (IndexMap α β) α β (fun m a => a ∈ m) where
   getElem m a h := m.values[m.indices[a]'h]'(by grind)

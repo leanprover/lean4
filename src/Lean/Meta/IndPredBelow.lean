@@ -354,8 +354,8 @@ public partial def mkBelowMatcher (matcherApp : MatcherApp) (belowParams : Array
     else
       k vars
   -- adjust match type by inserting `ABC.below ...`
-  input ← forallTelescope input.matchType fun vars body => do
-    let matchType ← addVars 0 vars (mkForallFVars · body)
+  input ← lambdaTelescope input.matchType fun vars body => do
+    let matchType ← addVars 0 vars (mkLambdaFVars · body)
     return { input with matchType }
   -- adjust motive by inserting `ABC.below ...`
   let motive ← lambdaTelescope matcherApp.motive fun vars body =>

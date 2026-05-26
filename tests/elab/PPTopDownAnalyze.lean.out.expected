@@ -1,1 +1,7 @@
 "prevent comment from parsing as part of previous expression"
+PPTopDownAnalyze.lean:376:1430592170-376:1430592170: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType
+PPTopDownAnalyze.lean:376:91624905386-376:91624905386: warning: Pi type syntax for match motive is deprecated; use a type family (lambda) instead.
+Deprecated: (x : T) → BodyType
+Preferred:  fun (x : T) => BodyType

@@ -110,7 +110,7 @@ attribute [simp] map_pure seq_pure
 @[simp] theorem pure_id_seq [Applicative f] [LawfulApplicative f] (x : f α) : pure id <*> x = x := by
   simp [pure_seq]
 
-@[simp] theorem pure_seqRight [Applicative f] [LawfulApplicative f] (x : f α) (y : f β) : pure x *> y = y := by
+@[simp] theorem pure_seqRight [Applicative f] [LawfulApplicative f] (x : α) (y : f β) : pure x *> y = y := by
   simp [seqRight_eq]
 
 @[simp] theorem seqLeft_pure [Applicative f] [LawfulApplicative f] (x : f α) (y : β) : x <* pure y = x := by

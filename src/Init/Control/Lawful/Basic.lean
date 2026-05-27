@@ -113,9 +113,15 @@ attribute [simp] map_pure seq_pure
 @[simp] theorem pure_seqRight [Applicative f] [LawfulApplicative f] (x : f α) (y : f β) : pure x *> y = y := by
   simp [seqRight_eq]
 
-@[simp] theorem seqRight_pure [Applicative f] [LawfulApplicative f] (x : f Unit) :
-    x *> pure () = x := by
+@[simp] theorem seqRight_pure [Applicative f] [LawfulApplicative f] (x : f Unit) : x *> pure () = x := by
   simp [seqRight_eq]
+
+@[simp] theorem seqLeft_pure [Applicative f] [LawfulApplicative f] (x : f α) (y : β) : x <* pure y = x := by
+  simp [seqLeft_eq]
+
+@[simp] theorem pure_seqLeft [Applicative f] [LawfulApplicative f] (x : f Unit) : pure () <* x = x := by
+  simp [seqLeft_eq, pure_seq, map_pure]
+  apply LawfulFunctor.id_map
 
 /--
 Lawful monads are those that satisfy a certain behavioral specification. While all instances of

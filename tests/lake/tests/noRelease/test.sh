@@ -3,6 +3,13 @@ source ../common.sh
 
 ./clean.sh
 
+# Copy test data to a working directory to avoid initializing a Git repository
+# inside the checked-in source tree
+WORK_DIR="$PWD/work"
+mkdir -p "$WORK_DIR"
+cp -r dep lakefile.lean Test.lean "$WORK_DIR/"
+cd "$WORK_DIR"
+
 NO_BUILD_CODE=3
 
 # ---
@@ -102,7 +109,3 @@ test_cmd_eq "$INIT_REV" git -C .lake/packages/dep rev-parse HEAD
 test_run update
 test_cmd_eq "$NEW_REV" git -C .lake/packages/dep rev-parse HEAD
 test_run build dep:release
-
-# Cleanup
-rm -rf dep/.git
-rm -f produced*

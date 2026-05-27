@@ -113,6 +113,10 @@ attribute [simp] map_pure seq_pure
 @[simp] theorem pure_seqRight [Applicative f] [LawfulApplicative f] (x : f α) (y : f β) : pure x *> y = y := by
   simp [seqRight_eq]
 
+@[simp] theorem seqRight_pure [Applicative f] [LawfulApplicative f] (x : f Unit) :
+    x *> pure () = x := by
+  simp [seqRight_eq]
+
 /--
 Lawful monads are those that satisfy a certain behavioral specification. While all instances of
 `Monad` should satisfy these laws, not all implementations are required to prove this.

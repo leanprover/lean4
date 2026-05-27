@@ -31,6 +31,28 @@ register_builtin_option backward.synthInstance.canonInstances : Bool := {
   descr := "use optimization that relies on 'morally canonical' instances during type class resolution"
 }
 
+/--
+Controls the transparency used by the post-synthesis check that unifies the original goal type
+with the synthesized result's type when the class has `outParam`s.
+
+When `true` (the default), the check uses `.instances` transparency, matching the transparency
+used by the rest of typeclass resolution. This means a non-reducible `def Bar := Nat` is *not*
+unfolded, so e.g. `#synth Foo Nat Bar` cannot be satisfied by `instance : Foo Nat Nat`.
+
+When `false`, the check bumps transparency to `.default`, which unfolds semireducible
+definitions. This was the historical behavior, retained because patterns like Mathlib's
+`def OrderDual (α : Type) : Type := α` rely on `OrderDual α` and `α` being defEq at `.default`
+during the outParam check.
+
+See `assignOutParams` for the implementation.
+-/
+register_builtin_option backward.isDefEq.respectTransparency.outParams : Bool := {
+  defValue := true
+  descr    := "if true (the default), do not bump transparency to `.default` \
+  when checking that a synthesized instance's type matches the original goal type \
+  for classes with `outParam`s"
+}
+
 namespace SynthInstance
 
 def getMaxHeartbeats (opts : Options) : Nat :=
@@ -795,8 +817,14 @@ private def assignOutParams (type : Expr) (result : Expr) : MetaM Bool := do
   ```
   Mathlib developers are currently trying to refactor the `OrderDual` declaration,
   but it will take time. We will try to remove the `withDefault` again after the refactoring.
+
+  The `backward.isDefEq.respectTransparency.outParams` option (defaulting to `true`) keeps the
+  check at `.instances` transparency. Setting it to `false` restores the historical `withDefault`
+  behavior.
   -/
-  let defEq ← withDefault <| withAssignableSyntheticOpaque <| isDefEq type resultType
+  let bumpTransparency := !backward.isDefEq.respectTransparency.outParams.get (← getOptions)
+  let defEq ← (if bumpTransparency then withDefault else id) <|
+    withAssignableSyntheticOpaque <| isDefEq type resultType
   unless defEq do
     trace[Meta.synthInstance] "{crossEmoji} result type{indentExpr resultType}\nis not definitionally equal to{indentExpr type}"
   return defEq

@@ -14,18 +14,24 @@ public section
 
 namespace Lean.Compiler.LCNF
 
-private builtin_initialize trivialStructureInfoExt : CacheExtension Name (Option TrivialStructureInfo) ←
-  CacheExtension.register
+private builtin_initialize trivialStructureInfoExt : MapDeclarationExtension (Option TrivialStructureInfo) ←
+  mkMapDeclarationExtension (asyncMode := .sync)
+
+/-- Eagerly computes and persists the trivial-structure info of `declName`; see `compileDecls`. -/
+def setHasTrivialStructure? (declName : Name) : CoreM Unit :=
+  Irrelevant.setHasTrivialStructure? trivialStructureInfoExt
+    (fun type => Meta.isProp type <||> Meta.isTypeFormerType type) declName
 
 /--
 Return `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
 - It does not have builtin support in the runtime.
 - It has only one constructor.
 - This constructor has only one computationally relevant field.
+
+Requires `compileDecls` to have been run for inductive `declName`.
 -/
-def hasTrivialStructure? (declName : Name) : CoreM (Option TrivialStructureInfo) := do
-  let irrelevantType type := Meta.isProp type <||> Meta.isTypeFormerType type
-  Irrelevant.hasTrivialStructure? trivialStructureInfoExt irrelevantType declName
+def hasTrivialStructure? (declName : Name) : CoreM (Option TrivialStructureInfo) :=
+  Irrelevant.hasTrivialStructure? trivialStructureInfoExt declName
 
 def getParamTypes (type : Expr) : Array Expr :=
   go type #[]
@@ -88,14 +94,21 @@ State for the environment extension used to save the LCNF mono phase type for de
 that do not have code associated with them.
 Example: constructors, inductive types, foreign functions.
 -/
-builtin_initialize monoTypeExt : CacheExtension Name Expr ← CacheExtension.register
+builtin_initialize monoTypeExt : MapDeclarationExtension Expr ←
+  mkMapDeclarationExtension (asyncMode := .sync)
 
+/-- Eagerly computes and persists the mono type of `declName`; see `compileDecls`. -/
+def setOtherDeclMonoType (declName : Name) : CoreM Unit := do
+  unless (monoTypeExt.find? (← getEnv) declName).isSome do
+    modifyEnv (monoTypeExt.insert · declName (← toMonoType (← getOtherDeclBaseType declName [])))
+
+/--
+Returns the LCNF mono-phase type of `declName`, a declaration without associated code (constructor,
+inductive type, or foreign function). Requires `compileDecls` to have been run for it.
+-/
 def getOtherDeclMonoType (declName : Name) : CoreM Expr := do
-  match (← monoTypeExt.find? declName) with
-  | some type => return type
-  | none =>
-    let type ← toMonoType (← getOtherDeclBaseType declName [])
-    monoTypeExt.insert declName type
-    return type
+  let some type := monoTypeExt.find? (← getEnv) declName
+    | throwError "`{declName}` was not compiled; `compileDecls` must run on inductive types first"
+  return type
 
 end Lean.Compiler.LCNF

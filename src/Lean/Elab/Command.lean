@@ -62,7 +62,7 @@ structure Context where
 abbrev CommandElabM := ReaderT Context $ StateRefT State $ EIO Exception
 abbrev CommandElab  := Syntax → CommandElabM Unit
 structure Linter where
-  run : Syntax → CommandElabM Unit
+  run : Environment → Syntax → CommandElabM Unit
   name : Name := by exact decl_name%
 
 /-
@@ -239,7 +239,7 @@ instance : MonadLog CommandElabM where
     let msg := { msg with data := MessageData.withNamingContext { currNamespace := currNamespace, openDecls := openDecls } msg.data }
     modify fun s => { s with messages := s.messages.add msg }
 
-def runLinters (stx : Syntax) : CommandElabM Unit := do
+def runLinters (stx : Syntax) (prevEnv : Environment) : CommandElabM Unit := do
   profileitM Exception "linting" (← getOptions) do
     withTraceNode `Elab.lint (fun _ => return m!"running linters") do
       let linters ← lintersRef.get
@@ -249,7 +249,7 @@ def runLinters (stx : Syntax) : CommandElabM Unit := do
               (tag := linter.name.toString) do
             let savedState ← get
             try
-              linter.run stx
+              linter.run prevEnv stx
             catch ex =>
               match ex with
               | Exception.error ref msg =>
@@ -330,10 +330,10 @@ def logSnapshotTask (task : Language.SnapshotTask Language.SnapshotTree) : Comma
   modify fun s => { s with snapshotTasks := s.snapshotTasks.push task }
 
 open Language in
-def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
+def runLintersAsync (stx : Syntax) (prevEnv : Environment) : CommandElabM Unit := do
   if !Elab.async.get (← getOptions) then
     withoutModifyingEnv do
-      runLinters stx
+      runLinters stx prevEnv
     return
 
   -- linters should have access to the complete info tree and message log
@@ -352,7 +352,7 @@ def runLintersAsync (stx : Syntax) : CommandElabM Unit := do
     let messages := messages.markAllReported
     modify fun st => { st with messages := st.messages ++ messages }
     modifyInfoState fun _ => infoSt
-    runLinters stx
+    runLinters stx prevEnv
 
   let task ← BaseIO.bindTask (sync := true) (t := (← getInfoState).substituteLazy) fun infoSt =>
     BaseIO.mapTask (t := treeTask) fun _ =>
@@ -603,6 +603,7 @@ macro expansion etc.
 def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do profileitM Exception "elaboration" (← getOptions) do
   withReader ({ · with suppressElabErrors :=
     stx.hasMissing && !showPartialSyntaxErrors.get (← getOptions) }) do
+  let prevEnv ← getEnv
   -- initialize quotation context using hash of input string
   let ss? := stx.getSubstring? (withLeading := false) (withTrailing := false)
   withInitQuotContext (ss?.map (hash ·.toString.trimAscii.copy)) do
@@ -629,7 +630,7 @@ def elabCommandTopLevel (stx : Syntax) : CommandElabM Unit := withRef stx do pro
   -- rather than engineer a general solution.
   unless (stx.find? (·.isOfKind ``Lean.guardMsgsCmd)).isSome do
     withLogging do
-      runLintersAsync stx
+      runLintersAsync stx prevEnv
 
 /-- Adapt a syntax transformation to a regular, command-producing elaborator. -/
 def adaptExpander (exp : Syntax → CommandElabM Syntax) : CommandElab := fun stx => do

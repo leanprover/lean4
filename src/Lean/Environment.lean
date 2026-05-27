@@ -2547,6 +2547,10 @@ where
       kenv ← ofExcept <| kenv.addDeclCore 0 decl none
     return kenv
 
+def newConstNamesSince (oldEnv newEnv : Environment) : Array Name :=
+  let n := newEnv.asyncConstsMap.private.size - oldEnv.asyncConstsMap.private.size
+  (newEnv.asyncConstsMap.private.revList.take n).reverse.toArray.map (·.constInfo.name)
+
 /-- Like `evalConst`, but first check that `constName` indeed is a declaration of type `typeName`.
     Note that this function cannot guarantee that `typeName` is in fact the name of the type `α`. -/
 unsafe def evalConstCheck (α) (env : Environment) (opts : Options) (typeName : Name) (constName : Name) : ExceptT String Id α :=

@@ -476,7 +476,7 @@ private def hasSorry (stx : Syntax) : Bool :=
 
 /-- Reports unused variable warnings on each command. Use `linter.unusedVariables` to disable. -/
 def unusedVariables : Linter where
-  run cmdStx := do
+  run _ cmdStx := do
     unless getLinterUnusedVariables (← getLinterOptions) do
       return
 

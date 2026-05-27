@@ -46,7 +46,8 @@ def getGlobalAttributesIn? : Syntax → Option (Ident × Array (TSyntax `attr))
     (id, xs)
   | _ => default
 
-def globalAttributeIn : Linter where run := withSetOptionIn fun stx => do
+def globalAttributeIn : Linter where
+  run _ := withSetOptionIn fun stx => do
   for s in topDownSkipQuot stx do
     if let some (id, nonScopedNorLocal) := getGlobalAttributesIn? s then
       for attr in nonScopedNorLocal do

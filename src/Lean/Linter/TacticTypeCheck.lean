@@ -28,7 +28,7 @@ register_builtin_option linter.tacticCheckInstances : Bool := {
 
 /-- A linter that runs `Meta.check _ .instances` on every tactic goal. -/
 def tacticCheckInstances : Linter where
-  run _cmdStx := do
+  run _ _cmdStx := do
     -- Do *not* check `linter.all` here, this linter is purely for debugging
     unless (← linter.tacticCheckInstances.getM) do
       return

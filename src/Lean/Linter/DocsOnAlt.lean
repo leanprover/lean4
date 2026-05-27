@@ -30,7 +30,7 @@ namespace DocsOnAlt
 
 
 private partial def docsOnAlt : Linter where
-  run stx := do
+  run _ stx := do
     if getLinterDocsOnAlt (← getLinterOptions) then
       if let some mods := stx.find? (·.getKind ∈ [``declModifiers, ``Command.syntax]) then
         if mods.find? isAltAttr |>.isSome then

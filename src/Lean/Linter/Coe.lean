@@ -36,7 +36,7 @@ def coercionsBannedInCore : Array Name := #[``optionCoe, ``instCoeSubarrayArray]
 
 /-- Validates that no coercions are used that are either deprecated or are banned in core. -/
 def coeLinter : Linter where
-  run := fun _ => do
+  run := fun _ _ => do
     let mainModule ← getMainModule
     let isCoreModule := mainModule = `elab.linterCoe ∨ (mainModule.getRoot ∈ [`Init, `Std])
     let shouldWarnOnDeprecated := getLinterValue linter.deprecatedCoercions (← getLinterOptions)

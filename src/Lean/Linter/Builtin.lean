@@ -21,7 +21,7 @@ register_builtin_option linter.suspiciousUnexpanderPatterns : Bool := {
 def getLinterSuspiciousUnexpanderPatterns (o : LinterOptions) : Bool := getLinterValue linter.suspiciousUnexpanderPatterns o
 
 def suspiciousUnexpanderPatterns : Linter where
-  run cmdStx := do
+  run _ cmdStx := do
     unless getLinterSuspiciousUnexpanderPatterns (← getLinterOptions) do
       return
 

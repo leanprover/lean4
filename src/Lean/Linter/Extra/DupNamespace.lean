@@ -69,19 +69,20 @@ def getAliasSyntax {m} [Monad m] [MonadResolveName m] (stx : Syntax) : m (Array 
   return aliases
 
 @[inherit_doc linter.extra.dupNamespace]
-def dupNamespace : Linter where run := withSetOptionIn fun stx ↦ do
-  if getLinterValueExtra linter.extra.dupNamespace (← getLinterOptions) then
-    let mut aliases := #[]
-    if let some exp := stx.find? (·.isOfKind `Lean.Parser.Command.export) then
-      aliases ← getAliasSyntax exp
-    for id in (← getNamesFrom (stx.getPos?.getD default)) ++ aliases do
-      let declName := id.getId
-      if declName.hasMacroScopes || isPrivateName declName then continue
-      let nm := declName.components
-      let some (dup, _) := nm.zip (nm.tailD []) |>.find? fun (x, y) ↦ x == y
-        | continue
-      Linter.logLintIfExtra linter.extra.dupNamespace id
-        m!"The namespace '{dup}' is duplicated in the declaration '{declName}'"
+def dupNamespace : Linter where
+  run _ := withSetOptionIn fun stx ↦ do
+    if getLinterValueExtra linter.extra.dupNamespace (← getLinterOptions) then
+      let mut aliases := #[]
+      if let some exp := stx.find? (·.isOfKind `Lean.Parser.Command.export) then
+        aliases ← getAliasSyntax exp
+      for id in (← getNamesFrom (stx.getPos?.getD default)) ++ aliases do
+        let declName := id.getId
+        if declName.hasMacroScopes || isPrivateName declName then continue
+        let nm := declName.components
+        let some (dup, _) := nm.zip (nm.tailD []) |>.find? fun (x, y) ↦ x == y
+          | continue
+        Linter.logLintIfExtra linter.extra.dupNamespace id
+          m!"The namespace '{dup}' is duplicated in the declaration '{declName}'"
 
 end DupNamespaceLinter
 

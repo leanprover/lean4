@@ -15,7 +15,7 @@ open Lean Meta Lean.Linter Lean.Elab.Command
 -- when `linter.extra = true`. Tags its warnings with `linter.extra` via
 -- `logLint`, which is how `lake lint --extra` identifies extra-scope entries.
 def dummyExtraTextLinter : Linter where
-  run cmdStx := do
+  run _ cmdStx := do
     unless getLinterExtra (← getLinterOptions) do return
     unless cmdStx.getKind == ``Lean.Parser.Command.declaration do return
     logLint linter.extra cmdStx m!"extra text linter saw a declaration"

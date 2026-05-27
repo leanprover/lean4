@@ -65,7 +65,7 @@ partial def sizeAux (acc : Nat) : InfoTree → Nat
 /-- Check that the infotrees within `withSetOptionIn` all have a context and match the size of the
 infotrees before `withSetOptionIn`. Noisy for confirmation when `pp.all` is true via
 `set_option ... in`. -/
-def checkInfoTrees : Linter where run cmd := do
+def checkInfoTrees : Linter where run _ cmd := do
   -- Get initial infotree size
   let initInfoTreeSize := (← getInfoTrees).foldl (init := 0) sizeAux
   if getPPAll (← getOptions) then throwError "`pp.all` should not be set ambiently for testing."

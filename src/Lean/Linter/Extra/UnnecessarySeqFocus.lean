@@ -164,27 +164,28 @@ partial def markUsedTactics {ω} : InfoTree → M ω Unit
 end
 
 @[inherit_doc Lean.Linter.Extra.linter.extra.unnecessarySeqFocus]
-def unnecessarySeqFocusLinter : Linter where run := withSetOptionIn fun stx => do
-  unless getLinterValueExtra linter.extra.unnecessarySeqFocus (← getLinterOptions)
-      && (← getInfoState).enabled do
-    return
-  if (← get).messages.hasErrors then
-    return
-  let trees ← getInfoTrees
-  let multigoals ← multigoalKindsRef.get
-  let go {ω} : M ω Unit := do
-    getTactics stx
-    markUsedTacticsList multigoals trees
-  let (_, map) := runST fun _ => go.run {}
-  let unused := map.fold (init := #[]) fun acc r { stx, used } =>
-    if used then acc.push (stx[1].getRange?.getD r, stx[1]) else acc
-  let key (r : Lean.Syntax.Range) := (r.start.byteIdx, (-r.stop.byteIdx : Int))
-  let mut last : Lean.Syntax.Range := ⟨0, 0⟩
-  for (r, stx) in let _ := @lexOrd; let _ := @ltOfOrd.{0}; unused.qsort (key ·.1 < key ·.1) do
-    if last.start ≤ r.start && r.stop ≤ last.stop then continue
-    logLintIfExtra linter.extra.unnecessarySeqFocus stx
-      "Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice"
-    last := r
+def unnecessarySeqFocusLinter : Linter where
+  run _ := withSetOptionIn fun stx => do
+    unless getLinterValueExtra linter.extra.unnecessarySeqFocus (← getLinterOptions)
+        && (← getInfoState).enabled do
+      return
+    if (← get).messages.hasErrors then
+      return
+    let trees ← getInfoTrees
+    let multigoals ← multigoalKindsRef.get
+    let go {ω} : M ω Unit := do
+      getTactics stx
+      markUsedTacticsList multigoals trees
+    let (_, map) := runST fun _ => go.run {}
+    let unused := map.fold (init := #[]) fun acc r { stx, used } =>
+      if used then acc.push (stx[1].getRange?.getD r, stx[1]) else acc
+    let key (r : Lean.Syntax.Range) := (r.start.byteIdx, (-r.stop.byteIdx : Int))
+    let mut last : Lean.Syntax.Range := ⟨0, 0⟩
+    for (r, stx) in let _ := @lexOrd; let _ := @ltOfOrd.{0}; unused.qsort (key ·.1 < key ·.1) do
+      if last.start ≤ r.start && r.stop ≤ last.stop then continue
+      logLintIfExtra linter.extra.unnecessarySeqFocus stx
+        "Used `tac1 <;> tac2` where `(tac1; tac2)` would suffice"
+      last := r
 
 end UnnecessarySeqFocus
 

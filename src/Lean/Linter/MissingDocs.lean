@@ -28,10 +28,10 @@ def getLinterMissingDocs (o : LinterOptions) : Bool := getLinterValue linter.mis
 namespace MissingDocs
 
 abbrev SimpleHandler := Syntax → CommandElabM Unit
-abbrev Handler := Bool → SimpleHandler
+abbrev Handler := Environment → Bool → SimpleHandler
 
 def SimpleHandler.toHandler (h : SimpleHandler) : Handler :=
-  fun enabled stx => if enabled then h stx else pure ()
+  fun _ enabled stx => if enabled then h stx else pure ()
 
 unsafe def mkHandlerUnsafe (constName : Name) : ImportM Handler := do
   let env  := (← read).env
@@ -69,9 +69,9 @@ def addHandler (env : Environment) (declName key : Name) (h : Handler) : Environ
 def getHandlers (env : Environment) : NameMap Handler := (missingDocsExt.getState env).2
 
 partial def missingDocs : Linter where
-  run stx := do
+  run prevEnv stx := do
     if let some h := (getHandlers (← getEnv)).find? stx.getKind then
-      h (getLinterMissingDocs (← getLinterOptions)) stx
+      h prevEnv (getLinterMissingDocs (← getLinterOptions)) stx
 
 builtin_initialize addLinter missingDocs
 
@@ -312,7 +312,7 @@ def checkRegisterOption : SimpleHandler := fun stx => do
 def checkRegisterSimpAttr : SimpleHandler := mkSimpleHandler "simp attr"
 
 @[builtin_missing_docs_handler «in»]
-def handleIn : Handler := fun _ stx => do
+def handleIn : Handler := fun prevEnv _ stx => do
   -- Note: the missing docs linter must descend into `in`s which are not of the form
   -- `set_option ... in`. This is unlike `withSetOptionIn`, which stops at the first `in` not of
   -- the form `set_option ... in`; as such, we must inline the functionality.
@@ -320,10 +320,10 @@ def handleIn : Handler := fun _ stx => do
     let opts ← Elab.withEnableInfoTree false try
         (·.1) <$> Elab.elabSetOption stx[0][1] stx[0][3]
       catch _ => getOptions
-    withScope ({ · with opts }) do missingDocs.run stx[2]
+    withScope ({ · with opts }) do missingDocs.run prevEnv stx[2]
   else
-    missingDocs.run stx[2]
+    missingDocs.run prevEnv stx[2]
 
 @[builtin_missing_docs_handler «mutual»]
-def handleMutual : Handler := fun _ stx => do
-  stx[1].getArgs.forM missingDocs.run
+def handleMutual : Handler := fun prevEnv _ stx => do
+  stx[1].getArgs.forM (missingDocs.run prevEnv)

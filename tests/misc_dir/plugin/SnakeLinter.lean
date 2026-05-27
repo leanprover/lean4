@@ -4,7 +4,7 @@ open Lean
 def oh_no : Nat := 0
 
 def snakeLinter : Linter where
-  run stx := do
+  run _ stx := do
     if stx.getKind == ``Lean.Parser.Command.declaration then
       let decl := stx[1]
       if decl.getKind == ``Lean.Parser.Command.definition then

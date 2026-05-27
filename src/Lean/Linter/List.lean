@@ -172,8 +172,8 @@ def allowedBitVecWidths : List String := ["w"]
 A linter which validates that the only variables used as "indices" (e.g. in `xs[i]` or `xs.take i`)
 are `i`, `j`, or `k`.
 -/
-def indexLinter : Linter
-  where run := withSetOptionIn fun stx => do
+def indexLinter : Linter where
+  run _ := withSetOptionIn fun stx => do
     -- We intentionally do not use `getLinterValue` here, as we do *not* want to opt in to `linter.all`.
     unless (← getOptions).get linter.indexVariables.name false do return
     if (← get).messages.hasErrors then return
@@ -230,7 +230,7 @@ def binders (t : InfoTree) (p : Expr → Bool := fun _ => true) : IO (List (Synt
 A linter which validates that all `List`/`Array`/`Vector` variables use allowed names.
 -/
 def listVariablesLinter : Linter
-  where run := withSetOptionIn fun stx => do
+  where run _ := withSetOptionIn fun stx => do
     unless (← getOptions).get linter.listVariables.name false do return
     if (← get).messages.hasErrors then return
     if ! (← getInfoState).enabled then return

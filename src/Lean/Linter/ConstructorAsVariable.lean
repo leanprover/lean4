@@ -33,7 +33,7 @@ especially new users that they have built a pattern that matches anything, rathe
 matches a particular constructor. Use `linter.constructorNameAsVariable` to disable.
 -/
 def constructorNameAsVariable : Linter where
-  run cmdStx := do
+  run _ cmdStx := do
     unless getLinterValue linter.constructorNameAsVariable (← getLinterOptions) do
       return
     let some cmdStxRange := cmdStx.getRange?

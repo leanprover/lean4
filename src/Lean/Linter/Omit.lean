@@ -20,7 +20,7 @@ register_builtin_option linter.omit : Bool := {
 }
 
 def «omit» : Linter where
-  run stx := do
+  run prevEnv stx := do
     unless getLinterValue linter.omit (← getLinterOptions) do
       return
     if let some stx := stx.find? (·.isOfKind ``Lean.Parser.Command.«omit») then

@@ -95,6 +95,17 @@ example : ⦃⌜True⌝⦄ F4 ⦃⇓ r _ => ⌜Q4 r⌝⦄ := by
     mvcgen' [F4]
     finish [hPQ4]
 
+-- `clear hk` drops `hk` from the lctx; `hk2` remains as a proof of `k = 0`. If
+-- `PreTac.run`'s `.tactic` branch inherited the parent `Grind.Goal` instead of
+-- building fresh ones, the E-graph (populated by `internalize_all`) would keep
+-- the now-dead `hk` fvar; `finish` constructs a proof citing it and the kernel
+-- rejects with `unknown free variable`.
+example (k : Nat) (hk : k = 0) (hk2 : k = 0) : ⦃⌜True⌝⦄ F4 ⦃⇓ _ _ => ⌜k = 0⌝⦄ := by
+  sym =>
+    internalize_all
+    mvcgen' [F4] with (clear hk)
+    finish
+
 /-! ## Inline invariants (bullet form) inside `sym =>` -/
 
 example :

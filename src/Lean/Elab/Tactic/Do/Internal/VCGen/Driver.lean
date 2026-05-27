@@ -32,8 +32,8 @@ Runs the `preTac` on the VC:
 - `.tactic`: runs the user-provided tactic on the VC, potentially emitting multiple subgoals.
 - `.none`: returns the VC as-is.
 -/
-public def PreTac.run : PreTac →  Grind.Goal → VCGenM (List MVarId)
-  | .none, goal => return [goal.mvarId]
+public def PreTac.run : PreTac → Grind.Goal → VCGenM (List Grind.Goal)
+  | .none, goal => return [goal]
   | .grind silent, goal => do
     let savedMCtx ← getMCtx
     match ← goal.grind with
@@ -44,10 +44,13 @@ public def PreTac.run : PreTac →  Grind.Goal → VCGenM (List MVarId)
         goal.mvarId.withContext do
           Lean.logError m!"`grind` failed on goal:{indentD (MessageData.ofGoal goal.mvarId)}"
         modify fun s => { s with preTacFailed := true }
-      return [goal.mvarId]
+      return [goal]
   | .tactic tac, goal => do
     let (gs, _) ← Lean.Elab.runTactic goal.mvarId tac {} {}
-    pure gs
+    -- Need to wrap `gs` in fresh `Grind.Goal`s, preprocessing the whole goal anew.
+    -- This is important because `tac` might call e.g., `revert` which violates the contract
+    -- of `SymM` (local contexts grow monotonically).
+    gs.mapM fun mv => Grind.mkGoalCore mv
 
 /--
 Try to elaborate the user's invariant alt for invariant number `n` inline,
@@ -120,9 +123,9 @@ public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
     else
       pure goal.mvarId
   let goal := { goal with mvarId := mvarId }
-  for mvarId in (← (← read).preTac.run goal) do
-    mvarId.setKind .syntheticOpaque
-    vcs := vcs.push { goal with mvarId }
+  for newGoal in (← (← read).preTac.run goal) do
+    newGoal.mvarId.setKind .syntheticOpaque
+    vcs := vcs.push newGoal
   modify fun s => { s with vcs := s.vcs ++ vcs }
 
 public def work (goal : Grind.Goal) : VCGenM Unit := do

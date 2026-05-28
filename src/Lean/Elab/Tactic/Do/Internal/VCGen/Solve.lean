@@ -162,6 +162,17 @@ private def tryFvarZeta (goal : MVarId) (head H σs ent : Expr) (args : Array Ex
   let e' ← shareCommonInc (val.betaRev e.getAppRevArgs)
   return some <| .goals [← replaceProgDefEq goal head H σs ent args wpConst m ps instWP α e']
 
+/-- Reduce a kernel `.proj` head in the program `e`. -/
+private def tryHeadReduceProg (goal : MVarId) (head H σs ent : Expr) (args : Array Expr)
+    (wpConst m ps instWP α e f : Expr) : VCGenM (Option SolveResult) := do
+  unless f matches .proj .. do return none
+  let some e' ← reduceHead? e | return none
+  -- `reduceHead?` does not unfold reducible definitions; normalize the result here so
+  -- abbrevs introduced by the instance body match `@[spec]` rule patterns.
+  let e' ← Sym.unfoldReducible e'
+  let e' ← Sym.shareCommonInc e'
+  return some <| .goals [← replaceProgDefEq goal head H σs ent args wpConst m ps instWP α e']
+
 /-- Look up a registered `@[spec]` theorem for the program head and apply its cached
 backward rule. Falls back to `.noSpecFoundForProgram` / `.noStrategyForProgram` when no
 spec applies. -/
@@ -255,6 +266,11 @@ public def solve (goal : MVarId) : VCGenM SolveResult := goal.withContext do
 
   -- Zeta-unfold local let bindings on demand
   if let some r ← tryFvarZeta goal head H σs ent args wpConst m ps instWP α e f then
+    VCGen.burnOne
+    return r
+
+  -- Reduce kernel `.proj` heads in the program (e.g., `instAddNat.1 a b`).
+  if let some r ← tryHeadReduceProg goal head H σs ent args wpConst m ps instWP α e f then
     VCGen.burnOne
     return r
 

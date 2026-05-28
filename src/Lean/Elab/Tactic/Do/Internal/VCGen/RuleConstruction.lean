@@ -13,6 +13,7 @@ public import Lean.Meta.Sym.AlphaShareBuilder
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.InstantiateMVarsS
 public import Lean.Meta.Sym.Util
+import Lean.Meta.WHNF
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr

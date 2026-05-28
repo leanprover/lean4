@@ -584,8 +584,11 @@ class LeanChecker(RepoChecker):
 
         head = f"dev-cycle-{self.version.next_minor}"
         title = f"chore: prepare development cycle for {self.version.next_minor}"
-        if self.check_pr(base=branch_name, head=head, title=title):
-            return
+        try:
+            if self.check_pr(base=branch_name, head=head, title=title):
+                return
+        except SystemExit:
+            return  # Not fatal
 
         self.lrepo.prepare()
         self.lrepo.create_branch(head, branch_name)

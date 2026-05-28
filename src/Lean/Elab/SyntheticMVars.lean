@@ -661,9 +661,8 @@ def synthesizeSyntheticMVarsUsingDefault : TermElabM Unit := do
 
 private partial def withSynthesizeImp (k : TermElabM α) (postpone : PostponeBehavior) : TermElabM α := do
   let pendingMVarsSaved := (← get).pendingMVars
-  let postponedLevelUnifs ← getPostponed
+  let postponedLevelUnifs ← getResetPostponed
   modify fun s => { s with pendingMVars := [] }
-  setPostponed {}
   try
     let a ← k
     synthesizeSyntheticMVars (postpone := postpone)

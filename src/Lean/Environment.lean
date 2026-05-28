@@ -656,20 +656,19 @@ def setExporting (env : Environment) (isExporting : Bool) : Environment :=
   else
     { env with isExporting }
 
-/-- Returns `true` iff `env` exports a value for `n` to downstream modules.
+/-- Returns `true` iff `n` resolves, in `env`'s exported view, to a `def` with a value.
 
-This is the case iff `n` is a definition (or `instance`, `theorem`, etc.) marked
-`@[expose]`, an `abbrev`, or otherwise a declaration whose body is visible across module
-boundaries.
+Concretely this checks whether downstream modules can see a reducible body for `n`
+(an exposed definition or an `abbrev`). Returns `false` for theorems and opaque
+declarations (this uses `hasValue` with `allowOpaque := false`), axioms, inductives,
+constructors, recursors, declarations not in the environment, and `def`s whose body
+is sealed by the module system.
 
-Returns `false` for axioms, opaques, declarations not present in the environment, and
-declarations whose body is sealed (i.e. lacking `@[expose]` under the module system).
-
-Note: when the current module is not using the module system (i.e. `env.header.isModule`
-is `false`), there is no sealing mechanism, so any declaration that has a value is
-"exposed" in that sense. Callers that wish to treat the non-module case uniformly as
-exposed (e.g. when deciding name privacy) should write
-`!env.header.isModule || env.hasExposedBody n`. -/
+Outside the module system, `setExporting true` is a no-op, so this collapses to
+"does `n` resolve to a `def` in the current environment?". Callers that instead
+want to *bypass* the body-exposed check entirely outside modules (e.g. for name-
+privacy decisions, where there is no sealing boundary anyway) should write that
+policy explicitly: `!env.header.isModule || env.hasExposedBody n`. -/
 def hasExposedBody (env : Environment) (n : Name) : Bool :=
   env.setExporting true |>.find? n |>.any (·.hasValue)
 

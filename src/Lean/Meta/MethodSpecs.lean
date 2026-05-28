@@ -65,7 +65,8 @@ def getMethodSpecsInfo (instName : Name) : MetaM MethodSpecsInfo := do
       unless xs == ys do
         throwError "function `{f}` does not take its arguments in the same order as the instance"
       let implName := f.constName!
-      let isExposed := !(← getEnv).header.isModule || (← getEnv).hasExposedBody implName
+      let env ← getEnv
+      let isExposed := !env.header.isModule || env.hasExposedBody implName
       unless isExposed do
         privateSpecs := true
       -- Construct the replacement theorems

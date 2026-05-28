@@ -7,7 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Sym.SymM
-public import Lean.Meta.WHNF
+import Lean.Meta.WHNF
+import Lean.Meta.Sym
 
 open Lean Meta Sym
 
@@ -48,6 +49,7 @@ public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
         -- projections
         if ← isProjectionFn name then
           let some e' ← Meta.unfoldDefinition? (mkAppRev f rargs) | return lastReduction
+          let e' ← Sym.unfoldReducible e'
           let e' ← Sym.shareCommonInc e'
           go lastReduction e'.getAppFn e'.getAppRevArgs  -- intentional lastReduction! see docstring
         -- iota reduction: match/recursor with concrete discriminant
@@ -56,10 +58,15 @@ public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
           go (some e') e'.getAppFn e'.getAppRevArgs
         else
           pure lastReduction
-      | .proj .. => match ← reduceProj? f with
+      | .proj .. =>
+        -- whnf at `instances` transparency: unfold `instMyAddInt32` (an instance) to
+        -- expose its `MyAdd.mk` constructor so `reduceProj?` can project the field,
+        -- but do not unfold arbitrary user definitions.
+        match ← withReducibleAndInstances (reduceProj? f) with
         | some f' =>
+          let f' ← Sym.unfoldReducible f'
+          let f' ← Sym.shareCommonInc f'
           let e' := mkAppRev f' rargs
-          let e' ← Sym.shareCommonInc e'
           go (some e') e'.getAppFn e'.getAppRevArgs
         | none    => pure lastReduction
       | _ => pure lastReduction

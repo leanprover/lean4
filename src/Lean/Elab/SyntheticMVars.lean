@@ -660,16 +660,19 @@ def synthesizeSyntheticMVarsUsingDefault : TermElabM Unit := do
   synthesizeUsingDefaultLoop
 
 private partial def withSynthesizeImp (k : TermElabM α) (postpone : PostponeBehavior) : TermElabM α := do
-   let pendingMVarsSaved := (← get).pendingMVars
-   modify fun s => { s with pendingMVars := [] }
-   try
-     let a ← k
-     synthesizeSyntheticMVars (postpone := postpone)
-     if postpone == .yes then
-       synthesizeUsingDefaultLoop
-     return a
-   finally
-     modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
+  let pendingMVarsSaved := (← get).pendingMVars
+  let postponedLevelUnifs ← getPostponed
+  modify fun s => { s with pendingMVars := [] }
+  setPostponed {}
+  try
+    let a ← k
+    synthesizeSyntheticMVars (postpone := postpone)
+    if postpone == .yes then
+      synthesizeUsingDefaultLoop
+    return a
+  finally
+    modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
+    setPostponed postponedLevelUnifs
 
 /--
   Execute `k`, and synthesize pending synthetic metavariables created while executing `k` are solved.

@@ -406,11 +406,13 @@ theorem existsRatHint_of_ratHintsExhaustive {n : Nat} (f : DefaultFormula n)
     List.mem_filterMap, id_eq, exists_eq_right] at c'_in_f
   rw [List.mem_iff_getElem] at c'_in_f
   rcases c'_in_f with ⟨i, hi, c'_in_f⟩
+  -- The following `simp only` leaves behind a term containing a `decide` where the embedded
+  -- `Decidable` instances does not typecheck at `instances` transparency.
   simp only [ratHintsExhaustive, getRatClauseIndices] at ratHintsExhaustive_eq_true
   have i_in_bounds : i < Array.size (Array.range (Array.size f.clauses)) := by grind
   have i_lt_f_clauses_size : i < f.clauses.size := by grind
   have h : i ∈ (ratHints.map (fun x => x.1)).toList := by
-    rw [← of_decide_eq_true ratHintsExhaustive_eq_true]
+    simp only [← of_decide_eq_true_forward ratHintsExhaustive_eq_true]
     have i_eq_range_i : i = (Array.range f.clauses.size)[i]'i_in_bounds := by grind
     rw [i_eq_range_i]
     rw [Array.mem_toList_iff]

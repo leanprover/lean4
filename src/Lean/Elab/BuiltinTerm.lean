@@ -368,6 +368,42 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
   let args := mvars ++ args.drop mvars.size
   instantiateMVars (mkAppN fn args)
 
+/--
+Best-effort unification of the user-supplied `type` against the `expectedType` to resolve
+user-placed `_` placeholders. We decompose both sides as applications of a common head and
+unify arguments position-by-position, skipping instance-implicit positions.
+
+Instance-implicit arguments of `type` are fresh synthetic class metavariables introduced by
+`elabType` that will be discarded by `resynthInstImplicitArgs`. Routing them through `isDefEq`
+serves no purpose and can spuriously fail: assigning a synthetic class metavariable triggers
+a transparency cap at `.instances` in the type-equality check (see
+`backward.isDefEq.respectTransparency.instances`), which prevents non-`[reducible]` definitions
+from unfolding — so, e.g., `Neg (Nat ⧸ n) =?= Neg (Zmod n)` fails even though `Zmod` reduces
+to `Nat ⧸ n` at `.default` transparency. The outer `isDefEq` then fails and rolls back the
+useful assignments made to user `_` placeholders.
+
+When the two sides do not share a common-shape head, we fall back to a plain `isDefEq`.
+Per-argument `isDefEq` calls are best-effort: a failure at one position does not roll back
+successes at others.
+-/
+private def unifyTypeForInferInstanceAs (type expectedType : Expr) : TermElabM Unit := do
+  let typeFn := type.getAppFn
+  let expectedFn := expectedType.getAppFn
+  let typeArgs := type.getAppArgs
+  let expectedArgs := expectedType.getAppArgs
+  unless typeFn.isConst && expectedFn.isConst
+      && typeFn.constName! == expectedFn.constName!
+      && typeArgs.size == expectedArgs.size do
+    discard <| isDefEq type expectedType
+    return
+  unless (← isDefEq typeFn expectedFn) do
+    return
+  let (_, bis, _) ← forallMetaTelescope (← inferType typeFn)
+  for i in [:typeArgs.size] do
+    if i < bis.size && bis[i]!.isInstImplicit then
+      continue
+    discard <| isDefEq typeArgs[i]! expectedArgs[i]!
+
 @[builtin_term_elab Lean.Parser.Term.inferInstanceAs] def elabInferInstanceAs : TermElab := fun stx expectedType? => do
   -- The type argument is the last child (works for both `inferInstanceAs T` and `inferInstanceAs <| T`)
   let typeStx := stx[stx.getNumArgs - 1]!
@@ -382,7 +418,7 @@ private def resynthInstImplicitArgs (type : Expr) : TermElabM Expr := do
   let type ← withSynthesize do
     let type ← elabType typeStx
     -- Unify with expected type to resolve metavariables (e.g., `_` placeholders)
-    discard <| isDefEq type expectedType
+    unifyTypeForInferInstanceAs type expectedType
     return type
   -- Re-infer instance-implicit args, so that synthesis is not influenced by the expected type's
   -- instance choices.

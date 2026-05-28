@@ -656,22 +656,6 @@ def setExporting (env : Environment) (isExporting : Bool) : Environment :=
   else
     { env with isExporting }
 
-/-- Returns `true` iff `n` resolves, in `env`'s exported view, to a `def` with a value.
-
-Concretely this checks whether downstream modules can see a reducible body for `n`
-(an exposed definition or an `abbrev`). Returns `false` for theorems and opaque
-declarations (this uses `hasValue` with `allowOpaque := false`), axioms, inductives,
-constructors, recursors, declarations not in the environment, and `def`s whose body
-is sealed by the module system.
-
-Outside the module system, `setExporting true` is a no-op, so this collapses to
-"does `n` resolve to a `def` in the current environment?". Callers that instead
-want to *bypass* the body-exposed check entirely outside modules (e.g. for name-
-privacy decisions, where there is no sealing boundary anyway) should write that
-policy explicitly: `!env.header.isModule || env.hasExposedBody n`. -/
-def hasExposedBody (env : Environment) (n : Name) : Bool :=
-  env.setExporting true |>.find? n |>.any (·.hasValue)
-
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
   { env with checked := env.checked.map (sync := true) f, base.private := f env.base.private }
@@ -856,6 +840,22 @@ def find? (env : Environment) (n : Name) (skipRealize := false) : Option Constan
   if let some c := env.base.get env |>.constants.map₁[n]? then
     return c
   env.findAsyncCore? n (skipRealize := skipRealize) |>.map (·.toConstantInfo)
+
+/-- Returns `true` iff `n` resolves, in `env`'s exported view, to a `def` with a value.
+
+Concretely this checks whether downstream modules can see a reducible body for `n`
+(an exposed definition or an `abbrev`). Returns `false` for theorems and opaque
+declarations (this uses `hasValue` with `allowOpaque := false`), axioms, inductives,
+constructors, recursors, declarations not in the environment, and `def`s whose body
+is sealed by the module system.
+
+Outside the module system, `setExporting true` is a no-op, so this collapses to
+"does `n` resolve to a `def` in the current environment?". Callers that instead
+want to *bypass* the body-exposed check entirely outside modules (e.g. for name-
+privacy decisions, where there is no sealing boundary anyway) should write that
+policy explicitly: `!env.header.isModule || env.hasExposedBody n`. -/
+def hasExposedBody (env : Environment) (n : Name) : Bool :=
+  env.setExporting true |>.find? n |>.any (·.hasValue)
 
 /--
 Allows `realizeConst` calls for the given declaration in all derived environment branches.

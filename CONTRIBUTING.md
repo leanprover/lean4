@@ -58,7 +58,8 @@ Because the change will be squashed, there is no need to polish the commit messa
 
 **Link to Relevant Issues**: Reference any issues that your PR addresses to provide context.
 
-**AI Contributions**: Any assistance by Generative AI must be noted in the PR description.
+**AI Contributions**: Any assistance by Generative AI contributing to the final PR must be noted in the PR description.
+Authors are responsible for manually checking these contributions before opening a PR.
 PRs authored solely by AI are not welcome and may be closed without further comment.
 
 **Stay Responsive**: Once the PR is submitted, stay responsive to feedback and be prepared to make necessary revisions. We will close any PR that has been inactive (no response or updates from the submitter) for more than a month.

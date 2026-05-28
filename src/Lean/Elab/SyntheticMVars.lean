@@ -671,7 +671,7 @@ private partial def withSynthesizeImp (k : TermElabM α) (postpone : PostponeBeh
     return a
   finally
     modify fun s => { s with pendingMVars := s.pendingMVars ++ pendingMVarsSaved }
-    setPostponed postponedLevelUnifs
+    modifyPostponed fun newPostponed => postponedLevelUnifs ++ newPostponed
 
 /--
   Execute `k`, and synthesize pending synthetic metavariables created while executing `k` are solved.

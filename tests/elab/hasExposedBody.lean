@@ -19,10 +19,8 @@ inductive AnInductive where | mk
 
 run_cmd do
   let env ← Lean.getEnv
-  guard <| env.hasExposedBody ``exposedDef
-  guard <| !env.hasExposedBody ``sealedDef
-  guard <| !env.hasExposedBody ``aTheorem
-  guard <| !env.hasExposedBody ``anOpaque
-  guard <| !env.hasExposedBody ``anAxiom
-  guard <| !env.hasExposedBody ``AnInductive
-  guard <| !env.hasExposedBody `nonexistent.name
+  unless env.hasExposedBody ``exposedDef do
+    throwError "`exposedDef` should have an exposed body"
+  for n in [``sealedDef, ``aTheorem, ``anOpaque, ``anAxiom, ``AnInductive, `nonexistent.name] do
+    if env.hasExposedBody n then
+      throwError "`{n}` should not have an exposed body"

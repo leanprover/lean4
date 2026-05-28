@@ -66,6 +66,7 @@ theorem IterM.step_intermediateDropWhileWithPostcondition {α m β} [Monad m] [I
   simp
   cases h : step.inflate using PlausibleIterStep.casesOn <;> rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem IterM.step_dropWhileWithPostcondition {α m β} [Monad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} :
     (it.dropWhileWithPostcondition P).step = (do
@@ -82,6 +83,7 @@ theorem IterM.step_dropWhileWithPostcondition {α m β} [Monad m] [Iterator α m
       return .deflate <| .done (.done h)) := by
   simp [dropWhileWithPostcondition_eq_intermediateDropWhileWithPostcondition, step_intermediateDropWhileWithPostcondition]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem IterM.step_intermediateDropWhileM {α m β} [Monad m] [MonadAttach m] [LawfulMonad m]
     [Iterator α m β] {it : IterM (α := α) m β} {P} {dropping} :
     (IterM.Intermediate.dropWhileM P dropping it).step = (do
@@ -114,6 +116,7 @@ theorem IterM.step_intermediateDropWhileM {α m β} [Monad m] [MonadAttach m] [L
   · rfl
   · rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem IterM.step_dropWhileM {α m β} [Monad m] [MonadAttach m] [LawfulMonad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} :
     (it.dropWhileM P).step = (do
@@ -130,6 +133,7 @@ theorem IterM.step_dropWhileM {α m β} [Monad m] [MonadAttach m] [LawfulMonad m
       return .deflate <| .done (.done h)) := by
   simp [dropWhileM_eq_intermediateDropWhileM, step_intermediateDropWhileM]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem IterM.step_intermediateDropWhile {α m β} [Monad m] [LawfulMonad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} {dropping} :
     (IterM.Intermediate.dropWhile P dropping it).step = (do
@@ -161,6 +165,7 @@ theorem IterM.step_intermediateDropWhile {α m β} [Monad m] [LawfulMonad m] [It
   · rfl
   · rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem IterM.step_dropWhile {α m β} [Monad m] [LawfulMonad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} :
     (it.dropWhile P).step = (do

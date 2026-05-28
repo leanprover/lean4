@@ -118,7 +118,9 @@ theorem v' (x : Vector Unit f) (y : Vector Unit 1) : x = y := testSorry
 
 theorem v'' (x : Vector Unit fexp) (y : Vector Unit 1) : x = y := testSorry
 
--- Check that rfl theorems are complained about if they aren't rfl in the context of their type
+-- Check that rfl theorems are complained about if they aren't rfl in the context of their type.
+-- `:= rfl` is auto-tagged `@[backward_defeq]`, so the validation message is the legacy
+-- (permissive) one, and adds a note about needing exposure for exported theorems.
 
 /--
 error: Not a definitional equality: the left-hand side
@@ -131,23 +133,22 @@ Note: This theorem is exported from the current module. This requires that all d
 #guard_msgs in
 public theorem trfl : f = 1 := rfl
 /--
-error: Not a definitional equality: the left-hand side
+error: Not a definitional equality at instance transparency: the left-hand side
   f
 is not definitionally equal to the right-hand side
   1
-
-Note: This theorem is exported from the current module. This requires that all definitions that need to be unfolded to prove this theorem must be exposed.
+at the transparency used by `dsimp`
 -/
 #guard_msgs in
 @[defeq] public theorem trfl' : f = 1 := (rfl)
 
 theorem trflprivate : f = 1 := rfl
 def trflprivate' : f = 1 := rfl
-@[defeq] def trflprivate''' : f = 1 := rfl
+def trflprivate''' : f = 1 := rfl
 theorem trflprivate'''' : f = 1 := (rfl)
 
 public theorem fexp_trfl : fexp = 1 := rfl
-@[defeq] public theorem fexp_trfl' : fexp = 1 := rfl
+public theorem fexp_trfl' : fexp = 1 := rfl
 
 public opaque P : Nat → Prop
 public axiom hP1 : P 1
@@ -163,22 +164,27 @@ example : P f := by dsimp only [trfl]; exact hP1
 /-- error: `dsimp` made no progress -/
 #guard_msgs in
 example : P f := by dsimp only [trfl']; exact hP1
+set_option backward.defeqAttrib.useBackward true in
 example : P f := by dsimp only [trflprivate]; exact hP1
+set_option backward.defeqAttrib.useBackward true in
 example : P f := by dsimp only [trflprivate']; exact hP1
 
 
-example : P fexp := by dsimp only [fexp_trfl]; exact hP1
-example : P fexp := by dsimp only [fexp_trfl]; exact hP1
+set_option backward.defeqAttrib.useBackward true in
+example : P fexp := by dsimp only [fexp_trfl']; exact hP1
+set_option backward.defeqAttrib.useBackward true in
+example : P fexp := by dsimp only [fexp_trfl']; exact hP1
 
 
 -- Check that the error message does not mention the export issue if
 -- it wouldn’t be a rfl otherwise either
 
 /--
-error: Not a definitional equality: the left-hand side
+error: Not a definitional equality at instance transparency: the left-hand side
   f
 is not definitionally equal to the right-hand side
   2
+at the transparency used by `dsimp`
 -/
 #guard_msgs in
 @[defeq] public theorem not_rfl : f = 2 := testSorry

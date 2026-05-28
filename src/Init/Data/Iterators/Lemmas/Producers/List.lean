@@ -23,11 +23,13 @@ open Std Std.Iterators
 
 variable {β : Type w}
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 theorem List.step_iter_nil :
     (([] : List β).iter).step = ⟨.done, rfl⟩ := by
   simp [Iter.step, IterM.step, Iterator.step, List.iter, List.iterM]
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 theorem List.step_iter_cons {x : β} {xs : List β} :
     ((x :: xs).iter).step = ⟨.yield xs.iter x, rfl⟩ := by

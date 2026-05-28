@@ -85,7 +85,7 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init
 
 @[simp, grind =] theorem toList_pop {xs : Array α} : xs.pop.toList = xs.toList.dropLast := rfl
 
-@[simp] theorem append_eq_append {xs ys : Array α} : xs.append ys = xs ++ ys := rfl
+@[defeq, simp] theorem append_eq_append {xs ys : Array α} : xs.append ys = xs ++ ys := rfl
 
 @[simp, grind =] theorem toList_append {xs ys : Array α} :
     (xs ++ ys).toList = xs.toList ++ ys.toList := by
@@ -93,7 +93,7 @@ theorem foldrM_eq_reverse_foldlM_toList [Monad m] {f : α → β → m β} {init
   rw [← foldl_toList]
   induction ys.toList generalizing xs <;> simp [*]
 
-@[simp] theorem toList_empty : (#[] : Array α).toList = [] := rfl
+@[defeq, simp] theorem toList_empty : (#[] : Array α).toList = [] := rfl
 
 @[simp, grind =] theorem append_empty {xs : Array α} : xs ++ #[] = xs := by
   apply ext'; simp only [toList_append, List.append_nil]
@@ -110,7 +110,7 @@ grind_pattern append_assoc => (xs ++ ys) ++ zs where
 grind_pattern append_assoc => xs ++ (ys ++ zs) where
   xs =/= #[]; ys =/= #[]; zs =/= #[]
 
-@[simp] theorem appendList_eq_append {xs : Array α} {l : List α} : xs.appendList l = xs ++ l := rfl
+@[defeq, simp] theorem appendList_eq_append {xs : Array α} {l : List α} : xs.appendList l = xs ++ l := rfl
 
 @[simp, grind =] theorem toList_appendList {xs : Array α} {l : List α} :
     (xs ++ l).toList = xs.toList ++ l := by

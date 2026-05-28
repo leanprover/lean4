@@ -358,9 +358,9 @@ protected theorem eq_false_of_le_false : ∀ {x : Bool}, x ≤ false → x = fal
 
 /-! ### min/max -/
 
-@[simp] protected theorem max_eq_or : max = or := rfl
+@[defeq, simp] protected theorem max_eq_or : max = or := rfl
 
-@[simp] protected theorem min_eq_and : min = and := rfl
+@[defeq, simp] protected theorem min_eq_and : min = and := rfl
 
 /-! ### injectivity lemmas -/
 
@@ -642,7 +642,7 @@ but may be used locally.
 
 /-! ### subtypes -/
 
-@[simp] theorem Subtype.beq_iff {α : Type u} [BEq α] {p : α → Prop} {x y : {a : α // p a}} :
+@[defeq, simp] theorem Subtype.beq_iff {α : Type u} [BEq α] {p : α → Prop} {x y : {a : α // p a}} :
     (x == y) = (x.1 == y.1) := rfl
 
 /-! ### Proof by reflection support  -/

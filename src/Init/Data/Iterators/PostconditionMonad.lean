@@ -135,6 +135,7 @@ instance {m : Type w → Type w'} [Monad m] : Monad (PostconditionT m) where
   pure := PostconditionT.pure
   bind := PostconditionT.bind
 
+@[defeq]
 theorem PostconditionT.pure_eq_pure {m : Type w → Type w'} [Monad m] {α} {a : α} :
     pure a = PostconditionT.pure (m := m) a :=
   rfl
@@ -167,6 +168,7 @@ theorem PostconditionT.ext_iff {m : Type w → Type w'} [Monad m] [LawfulMonad m
   · rintro ⟨h, h'⟩
     exact PostconditionT.ext h h'
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 protected theorem PostconditionT.map_eq_pure_bind {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type w} {β : Type w} {f : α → β} {x : PostconditionT m α} :

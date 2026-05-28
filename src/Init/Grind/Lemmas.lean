@@ -13,6 +13,7 @@ import Init.Data.Bool
 public section
 namespace Lean.Grind
 
+@[defeq]
 theorem rfl_true : true = true :=
   rfl
 

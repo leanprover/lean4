@@ -50,6 +50,7 @@ instance : Ord PlainTime where
   compare := compareLex (compareOn (·.hour)) <| compareLex (compareOn (·.minute)) <|
       compareLex (compareOn (·.second)) (compareOn (·.nanosecond))
 
+@[defeq]
 theorem PlainTime.compare_def :
     compare (α := PlainTime) =
       (compareLex (compareOn (·.hour)) <| compareLex (compareOn (·.minute)) <|

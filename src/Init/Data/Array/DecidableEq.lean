@@ -75,6 +75,7 @@ theorem isEqv_eq_decide (xs ys : Array α) (r) :
       Bool.not_eq_true]
     simpa [isEqv_iff_rel] using h'
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp, grind =] theorem isEqv_toList [BEq α] (xs ys : Array α) : (xs.toList.isEqv ys.toList r) = (xs.isEqv ys r) := by
   simp [isEqv_eq_decide, List.isEqv_eq_decide, Array.size]; rfl
 
@@ -153,6 +154,7 @@ theorem beq_eq_decide [BEq α] (xs ys : Array α) :
       decide (∀ (i : Nat) (h' : i < xs.size), xs[i] == ys[i]'(h ▸ h')) else false := by
   simp [BEq.beq, isEqv_eq_decide]
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp, grind =] theorem beq_toList [BEq α] (xs ys : Array α) : (xs.toList == ys.toList) = (xs == ys) := by
   simp [beq_eq_decide, List.beq_eq_decide, Array.size]; rfl
 

@@ -671,6 +671,7 @@ theorem sign_ediv (a b : Int) : sign (a / b) = if 0 ≤ a ∧ a < b.natAbs then 
 
 /-! ### emod -/
 
+@[defeq]
 theorem mod_def' (m n : Int) : m % n = emod m n := rfl
 
 theorem negSucc_emod (m : Nat) {b : Int} (bpos : 0 < b) : -[m+1] % b = b - 1 - m % b := by

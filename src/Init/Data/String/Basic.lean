@@ -200,7 +200,7 @@ theorem String.empty_append {s : String} : "" ++ s = s := by
 theorem String.append_empty {s : String} : s ++ "" = s := by
   simp [← String.toByteArray_inj]
 
-@[simp]
+@[defeq, simp]
 theorem String.ofList_nil : String.ofList [] = "" :=
   rfl
 
@@ -1102,7 +1102,7 @@ def Slice.replaceStartEnd! (s : Slice) (newStart newEnd : s.Pos) : Slice :=
 @[simp]
 theorem Slice.utf8ByteSize_sliceFrom {s : Slice} {pos : s.Pos} :
     (s.sliceFrom pos).utf8ByteSize = s.utf8ByteSize - pos.offset.byteIdx := by
-  simp only [utf8ByteSize_eq, str_sliceFrom, endExclusive_sliceFrom,
+  simp only [utf8ByteSize_eq, endExclusive_sliceFrom,
     startInclusive_sliceFrom, Pos.offset_str, Pos.Raw.byteIdx_offsetBy]
   omega
 

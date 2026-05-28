@@ -38,6 +38,7 @@ theorem Array.iterFromIdx_eq_toIter_iterFromIdxM {array : Array β} {pos : Nat} 
     array.iterFromIdx pos = (array.iterFromIdxM Id pos).toIter :=
   rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Array.step_iterFromIdx {array : Array β} {pos : Nat} :
     (array.iterFromIdx pos).step = if h : pos < array.size then
         .yield
@@ -50,6 +51,7 @@ theorem Array.step_iterFromIdx {array : Array β} {pos : Nat} :
     Array.step_iterFromIdxM, Id.run_pure, Shrink.inflate_deflate]
   split <;> rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Array.step_iter {array : Array β} :
     array.iter.step = if h : 0 < array.size then
         .yield

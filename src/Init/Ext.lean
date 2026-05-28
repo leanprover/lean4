@@ -88,6 +88,7 @@ protected def Subtype.eq_iff := @Subtype.ext_iff
 attribute [grind ext] funext Array.ext
 
 attribute [ext] PUnit.ext
+@[defeq]
 protected theorem Unit.ext (x y : Unit) : x = y := rfl
 
 @[ext] protected theorem Thunk.ext : {a b : Thunk α} → a.get = b.get → a = b

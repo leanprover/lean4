@@ -58,12 +58,12 @@ instance (priority := low) instSizeOfDefault (α : Sort u) : SizeOf α where
 instance : SizeOf Nat where
   sizeOf n := n
 
-@[simp] theorem sizeOf_nat (n : Nat) : sizeOf n = n := rfl
+@[defeq, simp] theorem sizeOf_nat (n : Nat) : sizeOf n = n := rfl
 
 instance [SizeOf α] : SizeOf (Unit → α) where
   sizeOf f := sizeOf (f ())
 
-@[simp] theorem sizeOf_thunk [SizeOf α] (f : Unit → α) : sizeOf f = sizeOf (f ()) :=
+@[defeq, simp] theorem sizeOf_thunk [SizeOf α] (f : Unit → α) : sizeOf f = sizeOf (f ()) :=
   rfl
 
 deriving instance SizeOf for PUnit

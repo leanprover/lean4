@@ -102,7 +102,7 @@ instance [Monad m] : MonadLift m (StateCpsT σ m) where
 @[simp] theorem runK_monadLift [Monad m] [MonadLiftT n m] (x : n α) (s : σ) (k : α → σ → m β)
     : (monadLift x : StateCpsT σ m α).runK s k = (monadLift x : m α) >>= (k . s) := rfl
 
-@[simp] theorem runK_bind_pure (a : α) (f : α → StateCpsT σ m β) (s : σ) (k : β → σ → m γ) : (pure a >>= f).runK s k = (f a).runK s k := rfl
+@[defeq, simp] theorem runK_bind_pure (a : α) (f : α → StateCpsT σ m β) (s : σ) (k : β → σ → m γ) : (pure a >>= f).runK s k = (f a).runK s k := rfl
 
 @[simp] theorem runK_bind_lift [Monad m] (x : m α) (f : α → StateCpsT σ m β) (s : σ) (k : β → σ → m γ)
     : (StateCpsT.lift x >>= f).runK s k = x >>= fun a => (f a).runK s k := rfl

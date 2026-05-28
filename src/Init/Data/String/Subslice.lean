@@ -151,6 +151,7 @@ theorem endExclusive_subsliceFrom {s : Slice} {newStart : s.Pos} :
 theorem subslice_endPos {s : Slice} {newStart : s.Pos} :
     s.subslice newStart s.endPos (Slice.Pos.le_endPos _) = s.subsliceFrom newStart := (rfl)
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 theorem toSlice_subsliceFrom {s : Slice} {newStart : s.Pos} :
     (s.subsliceFrom newStart).toSlice = s.sliceFrom newStart := by

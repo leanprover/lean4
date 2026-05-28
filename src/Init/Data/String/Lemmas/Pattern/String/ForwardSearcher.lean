@@ -544,7 +544,7 @@ theorem Invariants.isValidSearchFrom_toList {pat s : Slice} {stackPos needlePos 
 
     · --  Case 7: reached the end with empty partial match -> done
       simp only [base, ← hit'', Id.run_pure, Std.Shrink.inflate_deflate, Std.IterM.Step.toPure_done,
-        Std.PlausibleIterStep.done, Std.IterM.toIter_mk]
+        Std.PlausibleIterStep.done]
       apply IsValidSearchFrom.endPos_of_eq (Std.le_antisymm (Pos.le_endPos _) _) rfl
       simpa [Pos.Raw.le_iff, Pos.le_iff, Pos.Raw.lt_iff] using h₂
 
@@ -566,12 +566,14 @@ public theorem lawfulToForwardSearcherModel {pat : Slice} (hpat : pat.isEmpty = 
     rw (occs := [1]) [← Invariants.base_start hpat]
     apply Invariants.isValidSearchFrom_toList _ _ rfl rfl
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 public theorem toList_atEnd_eq {s : Slice} :
     (Std.Iter.mk (.atEnd : ForwardSliceSearcher s)).toList = [] := by
   rw [Std.Iter.toList_eq_match_step]
   simp [Std.Iter.step_eq]
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 public theorem toList_emptyAt_eq (s : Slice) (pos : s.Pos) (h : pos ≠ s.endPos) :
     (Std.Iter.mk (.emptyAt pos h : ForwardSliceSearcher s)).toList =
@@ -580,6 +582,7 @@ public theorem toList_emptyAt_eq (s : Slice) (pos : s.Pos) (h : pos ≠ s.endPos
   rw [Std.Iter.toList_eq_match_step]
   simp [Std.Iter.step_eq]
 
+set_option backward.defeqAttrib.useBackward true in
 public theorem toList_emptyBefore_eq (s : Slice) (pos : s.Pos) :
     (Std.Iter.mk (.emptyBefore pos : ForwardSliceSearcher s)).toList =
       if h : pos = s.endPos then

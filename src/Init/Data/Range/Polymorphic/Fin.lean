@@ -24,10 +24,10 @@ instance : UpwardEnumerable (Fin n) where
   succ? i := i.addNat? 1
   succMany? m i := i.addNat? m
 
-@[simp, grind =]
+@[defeq, simp, grind =]
 theorem pRangeSucc?_eq : PRange.succ? (α := Fin n) = (·.addNat? 1) := rfl
 
-@[simp, grind =]
+@[defeq, simp, grind =]
 theorem pRangeSuccMany?_eq : PRange.succMany? m (α := Fin n) = (·.addNat? m) :=
   rfl
 
@@ -48,7 +48,7 @@ instance : Least? (Fin 0) where
 instance : LawfulUpwardEnumerableLeast? (Fin 0) where
   least?_le a := False.elim (Nat.not_lt_zero _ a.isLt)
 
-@[simp]
+@[defeq, simp]
 theorem least?_eq_of_zero : Least?.least? (α := Fin 0) = none := rfl
 
 instance [NeZero n] : Least? (Fin n) where
@@ -57,7 +57,7 @@ instance [NeZero n] : Least? (Fin n) where
 instance [NeZero n] : LawfulUpwardEnumerableLeast? (Fin n) where
   least?_le a := ⟨0, rfl, (LawfulUpwardEnumerableLE.le_iff 0 a).1 (Fin.zero_le _)⟩
 
-@[simp]
+@[defeq, simp]
 theorem least?_eq [NeZero n] : Least?.least? (α := Fin n) = some 0 := rfl
 
 instance : LawfulUpwardEnumerableLT (Fin n) := inferInstance
@@ -65,7 +65,7 @@ instance : LawfulUpwardEnumerableLT (Fin n) := inferInstance
 instance : Rxc.HasSize (Fin n) where
   size lo hi := hi + 1 - lo
 
-@[grind =]
+@[defeq, grind =]
 theorem rxcHasSize_eq :
     Rxc.HasSize.size (α := Fin n) = fun (lo hi : Fin n) => (hi + 1 - lo : Nat) := rfl
 
@@ -83,7 +83,7 @@ instance : Rxo.IsAlwaysFinite (Fin n) := inferInstance
 instance : Rxi.HasSize (Fin n) where
   size lo := n - lo
 
-@[grind =]
+@[defeq, grind =]
 theorem rxiHasSize_eq :
     Rxi.HasSize.size (α := Fin n) = fun (lo : Fin n) => (n - lo : Nat) := rfl
 

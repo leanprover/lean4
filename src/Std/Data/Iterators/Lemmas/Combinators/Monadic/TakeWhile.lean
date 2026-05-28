@@ -41,7 +41,7 @@ theorem IterM.step_takeWhileM {α m β} [Monad m] [MonadAttach m] [LawfulMonad m
   apply bind_congr
   intro step
   cases step.inflate using PlausibleIterStep.casesOn
-  · simp only [Function.comp_apply, PostconditionT.operation_attachLift, PlausibleIterStep.yield,
+  · simp only [PlausibleIterStep.yield,
     PlausibleIterStep.done]
     apply bind_congr
     rintro ⟨⟨x⟩, hx⟩
@@ -49,6 +49,7 @@ theorem IterM.step_takeWhileM {α m β} [Monad m] [MonadAttach m] [LawfulMonad m
   · simp
   · simp
 
+set_option backward.defeqAttrib.useBackward true in
 theorem IterM.step_takeWhile {α m β} [Monad m] [LawfulMonad m] [Iterator α m β]
     {it : IterM (α := α) m β} {P} :
     (it.takeWhile P).step = (do

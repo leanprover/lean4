@@ -57,6 +57,7 @@ protected theorem not_le_iff_gt [LT α] {xs ys : Vector α n} :
 @[simp] theorem mk_le_mk [LT α] :
     Vector.mk (α := α) (n := n) data₁ size₁ ≤ Vector.mk data₂ size₂ ↔ data₁ ≤ data₂ := Iff.rfl
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp] theorem mk_lex_mk [BEq α] {lt : α → α → Bool} {xs ys : Array α} {n₁ : xs.size = n} {n₂ : ys.size = n} :
     (Vector.mk xs n₁).lex (Vector.mk ys n₂) lt = xs.lex ys lt := by
   simp [Vector.lex, Array.lex, n₁, n₂, Std.Rco.forIn'_eq_forIn'_toList]

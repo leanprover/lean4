@@ -115,6 +115,7 @@ theorem exists_lt_succ_left {p : Nat → Prop} :
 
 /-! ## succ/pred -/
 
+@[defeq]
 protected theorem sub_one (n) : n - 1 = pred n := rfl
 
 theorem one_add (n) : 1 + n = succ n := Nat.add_comm ..
@@ -383,6 +384,7 @@ protected theorem exists_eq_add_of_lt (h : m < n) : ∃ k : Nat, n = m + k + 1 :
   ⟨n - (m + 1), by rw [Nat.add_right_comm, add_sub_of_le h]⟩
 
 /-- A version of `Nat.sub_succ` in the form `_ - 1` instead of `Nat.pred _`. -/
+@[defeq]
 theorem sub_succ' (m n : Nat) : m - n.succ = m - n - 1 := rfl
 
 protected theorem sub_eq_of_eq_add' {a b c : Nat} (h : a = b + c) : a - b = c := by omega
@@ -1068,7 +1070,7 @@ theorem pow_succ' {m n : Nat} : m ^ n.succ = m * m ^ n := by
 theorem pow_add_one' {m n : Nat} : m ^ (n + 1) = m * m ^ n := by
   rw [Nat.pow_add_one, Nat.mul_comm]
 
-@[simp] theorem pow_eq {m n : Nat} : m.pow n = m ^ n := rfl
+@[defeq, simp] theorem pow_eq {m n : Nat} : m.pow n = m ^ n := rfl
 
 theorem one_shiftLeft (n : Nat) : 1 <<< n = 2 ^ n := by rw [shiftLeft_eq, Nat.one_mul]
 

@@ -1,3 +1,5 @@
+set_option backward.defeqAttrib.useBackward true
+
 namespace Ex1
 
 def f (n : Nat) : Option { r : Nat // r ≤ n } :=

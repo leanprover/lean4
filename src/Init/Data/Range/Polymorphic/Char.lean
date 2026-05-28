@@ -21,10 +21,10 @@ public instance : UpwardEnumerable Char where
   succ?
   succMany?
 
-@[simp]
+@[defeq, simp]
 public theorem pRangeSucc?_eq : PRange.succ? (α := Char) = Char.succ? := rfl
 
-@[simp]
+@[defeq, simp]
 public theorem pRangeSuccMany?_eq : PRange.succMany? (α := Char) = Char.succMany? := rfl
 
 public instance : Rxc.HasSize Char where
@@ -39,7 +39,7 @@ public instance : Rxi.HasSize Char where
 public instance : Least? Char where
   least? := some '\x00'
 
-@[simp]
+@[defeq, simp]
 public theorem least?_eq : Least?.least? (α := Char) = some '\x00' := rfl
 
 def map : Map Char (Fin Char.numCodePoints) where

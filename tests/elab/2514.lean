@@ -1,6 +1,8 @@
 -- dsimp can close goals by rfl
 -- but metadata would inhibit this
 
+set_option backward.defeqAttrib.useBackward true
+
 -- Easy case: no metadata, so expected to work even without fix.
 example : ∀ (x : α × α), x = id x := by
   intro p

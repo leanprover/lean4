@@ -81,12 +81,12 @@ namespace List
 
 /-! ### length -/
 
-@[simp, grind =] theorem length_nil : length ([] : List α) = 0 :=
+@[defeq, simp, grind =] theorem length_nil : length ([] : List α) = 0 :=
   rfl
 
-@[simp] theorem length_singleton {a : α} : length [a] = 1 := rfl
+@[defeq, simp] theorem length_singleton {a : α} : length [a] = 1 := rfl
 
-@[simp, grind =] theorem length_cons {a : α} {as : List α} : (cons a as).length = as.length + 1 :=
+@[defeq, simp, grind =] theorem length_cons {a : α} {as : List α} : (cons a as).length = as.length + 1 :=
   rfl
 
 /-! ### set -/
@@ -613,7 +613,7 @@ def appendTR (as bs : List α) : List α :=
 
 instance : Append (List α) := ⟨List.append⟩
 
-@[simp] theorem append_eq {as bs : List α} : List.append as bs = as ++ bs := rfl
+@[defeq, simp] theorem append_eq {as bs : List α} : List.append as bs = as ++ bs := rfl
 
 @[simp, grind =] theorem nil_append (as : List α) : [] ++ as = as := rfl
 @[simp, grind _=_] theorem cons_append {a : α} {as bs : List α} : (a::as) ++ bs = a::(as ++ bs) := rfl
@@ -755,7 +755,7 @@ def rightpad (n : Nat) (a : α) (l : List α) : List α := l ++ replicate (n - l
 
 instance : EmptyCollection (List α) := ⟨List.nil⟩
 
-@[simp] theorem empty_eq : (∅ : List α) = [] := rfl
+@[defeq, simp] theorem empty_eq : (∅ : List α) = [] := rfl
 
 /-! ### isEmpty -/
 
@@ -963,7 +963,7 @@ Examples:
 abbrev extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List α :=
   (l.drop start).take (stop - start)
 
-@[simp] theorem extract_eq_take_drop {l : List α} {start stop : Nat} :
+@[defeq, simp] theorem extract_eq_take_drop {l : List α} {start stop : Nat} :
     l.extract start stop = (l.drop start).take (stop - start) := rfl
 
 set_option linter.missingDocs false in

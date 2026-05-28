@@ -192,7 +192,7 @@ theorem singleton_inj {α : Type _} {a b : α} : [a] = [b] ↔ a = b := by
 We simplify `l.get i` to `l[i.1]'i.2` and `l.get? i` to `l[i]?`.
 -/
 
-@[simp, grind =]
+@[defeq, simp, grind =]
 theorem get_eq_getElem {l : List α} {i : Fin l.length} : l.get i = l[i.1]'i.2 := rfl
 
 /-! ### getElem!

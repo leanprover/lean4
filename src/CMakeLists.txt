@@ -125,6 +125,7 @@ set(LEANC_CC ${CMAKE_C_COMPILER} CACHE STRING "C compiler to use in `leanc`")
 # Temporary, core-only flags. Must be synced with stdlib_flags.h.
 string(APPEND LEAN_EXTRA_OPTS " -Dbackward.do.legacy=false")
 
+
 # option used by the CI to fail on warnings
 option(WFAIL "Fail build if warnings are emitted by Lean" ON)
 if(WFAIL MATCHES "ON")

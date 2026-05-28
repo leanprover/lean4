@@ -232,7 +232,7 @@ theorem dite_cond_congr {α} {b c : Prop} {s : Decidable b} [Decidable c]
   | inl h => rw [dif_pos h]; subst b; rw [dif_pos h]
   | inr h => rw [dif_neg h]; subst b; rw [dif_neg h]
 
-@[simp] theorem ne_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
+@[defeq, simp] theorem ne_eq (a b : α) : (a ≠ b) = ¬(a = b) := rfl
 norm_cast_add_elim ne_eq
 @[simp] theorem ite_true (a b : α) : (if True then a else b) = a := rfl
 @[simp] theorem ite_false (a b : α) : (if False then a else b) = b := rfl

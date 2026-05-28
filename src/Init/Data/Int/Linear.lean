@@ -459,7 +459,9 @@ theorem Poly.denote_combine_mul_k (ctx : Context) (a b : Int) (p₁ p₂ : Poly)
 
 attribute [local simp] Poly.denote_combine Poly.denote_combine_mul_k
 
+@[defeq]
 theorem sub_fold (a b : Int) : a.sub b = a - b := rfl
+@[defeq]
 theorem neg_fold (a : Int) : a.neg = -a := rfl
 
 attribute [local simp] sub_fold neg_fold

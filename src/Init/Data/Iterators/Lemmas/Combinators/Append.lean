@@ -32,6 +32,7 @@ theorem Iter.Intermediate.appendSnd_eq_toIter_appendSnd_toIterM {α₁ α₂ β 
     Iter.Intermediate.appendSnd α₁ it₂ = (IterM.Intermediate.appendSnd α₁ it₂.toIterM).toIter :=
   rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.step_append {α₁ α₂ β : Type w}
     [Iterator α₁ Id β] [Iterator α₂ Id β]
     {it₁ : Iter (α := α₁) β} {it₂ : Iter (α := α₂) β} :
@@ -45,6 +46,7 @@ theorem Iter.step_append {α₁ α₂ β : Type w}
   cases it₁.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;>
     simp [Intermediate.appendSnd_eq_toIter_appendSnd_toIterM]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.Intermediate.step_appendSnd {α₁ α₂ β : Type w}
     [Iterator α₁ Id β] [Iterator α₂ Id β]
     {it₂ : Iter (α := α₂) β} :

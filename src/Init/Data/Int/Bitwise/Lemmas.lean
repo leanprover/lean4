@@ -21,6 +21,7 @@ public section
 
 namespace Int
 
+@[defeq]
 theorem shiftRight_eq (n : Int) (s : Nat) : n >>> s = Int.shiftRight n s := rfl
 
 @[simp, norm_cast]

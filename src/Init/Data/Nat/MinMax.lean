@@ -16,6 +16,7 @@ namespace Nat
 
 /-! # min lemmas -/
 
+@[defeq]
 protected theorem min_eq_min (a : Nat) : Nat.min a b = min a b := rfl
 
 @[simp] protected theorem zero_min (a : Nat) : min 0 a = 0 := by
@@ -75,6 +76,7 @@ protected theorem lt_min {a b c : Nat} : a < min b c ↔ a < b ∧ a < c := Nat.
 
 /-! # max lemmas -/
 
+@[defeq]
 protected theorem max_eq_max (a : Nat) : Nat.max a b = max a b := rfl
 
 @[simp] protected theorem zero_max (a : Nat) : max 0 a = a := by

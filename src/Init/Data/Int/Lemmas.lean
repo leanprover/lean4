@@ -36,8 +36,8 @@ theorem neg_ofNat_succ (n : Nat) : -(succ n : Int) = -[n+1] := rfl
 
 theorem negOfNat_eq : negOfNat n = -ofNat n := rfl
 
-@[simp] theorem add_def {a b : Int} : Int.add a b = a + b := rfl
-@[simp] theorem mul_def {a b : Int} : Int.mul a b = a * b := rfl
+@[defeq, simp] theorem add_def {a b : Int} : Int.add a b = a + b := rfl
+@[defeq, simp] theorem mul_def {a b : Int} : Int.mul a b = a * b := rfl
 
 /-!
 ## These are only for internal use
@@ -72,7 +72,7 @@ theorem negSucc_eq (n : Nat) : -[n+1] = -((n : Int) + 1) := rfl
 
 @[simp] theorem zero_ne_negSucc (n : Nat) : 0 ≠ -[n+1] := nofun
 
-@[simp, norm_cast] theorem cast_ofNat_Int :
+@[defeq, simp, norm_cast] theorem cast_ofNat_Int :
   (Nat.cast (no_index (OfNat.ofNat n)) : Int) = OfNat.ofNat n := rfl
 
 @[simp] theorem beq'_eq (a b : Int) : Int.beq' a b = (a = b) := by
@@ -598,8 +598,10 @@ The following lemmas are later subsumed by e.g. `Nat.cast_add` and `Nat.cast_mul
 but it is convenient to have these earlier, for users who only need `Nat` and `Int`.
 -/
 
+@[defeq]
 protected theorem natCast_zero : ((0 : Nat) : Int) = (0 : Int) := rfl
 
+@[defeq]
 protected theorem natCast_one : ((1 : Nat) : Int) = (1 : Int) := rfl
 
 end Int

@@ -30,13 +30,15 @@ See issue #2685.
 /-- A wrapper which `dsimp` will eliminate after an appropriate `@[simp]` theorem is added. -/
 def w : Bool → Bool | b => b
 
+set_option backward.defeqAttrib.useBackward true
+
 /-! # Control: `dsimp` uses applied constants -/
 
 -- Check that `dsimp` makes no progress before we add the `@[simp]` theorem
 example : w true = true := by dsimp
 
 theorem foo_internal_with_arg (_ : Nat) : w true = true := rfl
-@[simp, defeq] theorem foo_using_arg : w true = true := foo_internal_with_arg 0
+@[backward_defeq, simp] theorem foo_using_arg : w true = true := foo_internal_with_arg 0
 
 example : w true = true := by dsimp
 
@@ -47,6 +49,6 @@ example : w true = true := by dsimp
 example : w false = false := by dsimp
 
 theorem foo_internal_without_arg : w false = false := rfl
-@[simp, defeq] theorem foo_without_arg : w false = false := foo_internal_without_arg
+@[backward_defeq, simp] theorem foo_without_arg : w false = false := foo_internal_without_arg
 
 example : w false = false := by dsimp

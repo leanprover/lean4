@@ -876,9 +876,11 @@ structure PLift (α : Sort u) : Type u where
   down : α
 
 /-- Bijection between `α` and `PLift α` -/
+@[defeq]
 theorem PLift.up_down {α : Sort u} (b : PLift α) : Eq (up (down b)) b := rfl
 
 /-- Bijection between `α` and `PLift α` -/
+@[defeq]
 theorem PLift.down_up {α : Sort u} (a : α) : Eq (down (up a)) a := rfl
 
 /--
@@ -925,9 +927,11 @@ structure ULift.{r, s} (α : Type s) : Type (max s r) where
   down : α
 
 /-- Bijection between `α` and `ULift.{v} α` -/
+@[defeq]
 theorem ULift.up_down {α : Type u} (b : ULift.{v} α) : Eq (up (down b)) b := rfl
 
 /-- Bijection between `α` and `ULift.{v} α` -/
+@[defeq]
 theorem ULift.down_up {α : Type u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
 instance [Inhabited α] : Inhabited (ULift α) where
@@ -949,9 +953,11 @@ structure PULift.{r, s} (α : Sort s) : Sort (max s r 1) where
   down : α
 
 /-- Bijection between `α` and `PULift.{v} α` -/
+@[defeq]
 theorem PULift.up_down {α : Sort u} (b : PULift.{v} α) : Eq (up (down b)) b := rfl
 
 /-- Bijection between `α` and `PULift.{v} α` -/
+@[defeq]
 theorem PULift.down_up {α : Sort u} (a : α) : Eq (down (up.{v} a)) a := rfl
 
 /--

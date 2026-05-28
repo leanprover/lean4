@@ -116,7 +116,7 @@ theorem Iter.forIn'_eq_match_step {α β : Type w} [Iterator α Id β]
     IteratorLoop.wellFounded_of_finite]
   simp only [Iter.step]
   cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn
-  · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIter_toIterM, toIterM_toIter,
+  · simp only [IterM.Step.toPure_yield, PlausibleIterStep.yield, toIterM_toIter,
       bind_assoc]
     apply bind_congr
     intro forInStep
@@ -162,7 +162,7 @@ theorem Iter.isPlausibleStep_iff_step_eq {α β} [Iterator α Id β]
   have hs := it.step.property
   simp only [Iter.IsPlausibleStep, hs'] at hs
   cases hs
-  simp only [IsPlausibleStep, hs', Iter.step, IterM.Step.toPure, toIter_toIterM,
+  simp only [IsPlausibleStep, hs', Iter.step, IterM.Step.toPure,
     IterStep.mapIterator_mapIterator, toIterM_comp_toIter, IterStep.mapIterator_id]
   simp only [Eq.comm (b := step)]
   constructor

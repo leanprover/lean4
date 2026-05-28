@@ -1086,6 +1086,7 @@ theorem isNone_findFinIdx? {l : List α} {p : α → Bool} :
     simp only [findFinIdx?_cons]
     split <;> simp_all
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp] theorem findFinIdx?_subtype {p : α → Prop} {l : List { x // p x }}
     {f : { x // p x } → Bool} {g : α → Bool} (hf : ∀ x h, f ⟨x, h⟩ = g x) :
     l.findFinIdx? f = (l.unattach.findFinIdx? g).map (fun i => i.cast (by simp)) := by

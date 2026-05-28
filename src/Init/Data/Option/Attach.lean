@@ -148,18 +148,22 @@ theorem mem_attach : ∀ (o : Option α) (x : {x // o = some x}), x ∈ o.attach
         · exact h _ (by simp)⟩ := by
   cases o <;> simp
 
+set_option backward.defeqAttrib.useBackward true in
 theorem toList_attach (o : Option α) :
     o.attach.toList = o.toList.attach.map fun x => ⟨x.1, by simpa using x.2⟩ := by
   cases o <;> simp
 
+set_option backward.defeqAttrib.useBackward true in
 theorem toList_attachWith {p : α → Prop} {o : Option α} {h} :
     (o.attachWith p h).toList = o.toList.attach.map fun x => ⟨x.1, h _ (by simpa using x.2)⟩ := by
   cases o <;> simp
 
+set_option backward.defeqAttrib.useBackward true in
 theorem toArray_attach (o : Option α) :
     o.attach.toArray = o.toArray.attach.map fun x => ⟨x.1, by simpa using x.2⟩ := by
   cases o <;> simp
 
+set_option backward.defeqAttrib.useBackward true in
 theorem toArray_attachWith {p : α → Prop} {o : Option α} {h} :
     (o.attachWith p h).toArray = o.toArray.attach.map fun x => ⟨x.1, h _ (by simpa using x.2)⟩ := by
   cases o <;> simp
@@ -200,6 +204,7 @@ theorem map_attach_eq_attachWith {o : Option α} {p : α → Prop} (f : ∀ a, o
     o.attach.map (fun x => ⟨x.1, f x.1 x.2⟩) = o.attachWith p f := by
   cases o <;> simp_all
 
+set_option backward.defeqAttrib.useBackward true in
 theorem attach_bind {o : Option α} {f : α → Option β} :
     (o.bind f).attach =
       o.attach.bind fun ⟨x, h⟩ => (f x).attach.map fun ⟨y, h'⟩ => ⟨y, bind_eq_some_iff.2 ⟨_, h, h'⟩⟩ := by
@@ -246,6 +251,7 @@ theorem toArray_pbind {o : Option α} {f : (a : α) → o = some a → Option β
     (o.pbind f).toArray = o.attach.toArray.flatMap (fun ⟨x, h⟩ => (f x h).toArray) := by
   cases o <;> simp
 
+set_option backward.defeqAttrib.useBackward true in
 theorem toList_pfilter {o : Option α} {p : (a : α) → o = some a → Bool} :
     (o.pfilter p).toList = (o.toList.attach.filter (fun x => p x.1 (by simpa using x.2))).unattach := by
   cases o with
@@ -256,6 +262,7 @@ theorem toList_pfilter {o : Option α} {p : (a : α) → o = some a → Bool} :
     · rw [List.filter_cons_of_pos h]; simp
     · rw [List.filter_cons_of_neg h]; simp
 
+set_option backward.defeqAttrib.useBackward true in
 theorem toArray_pfilter {o : Option α} {p : (a : α) → o = some a → Bool} :
     (o.pfilter p).toArray = (o.toArray.attach.filter (fun x => p x.1 (by simpa using x.2))).unattach := by
   cases o with
@@ -289,6 +296,7 @@ theorem attach_pfilter {o : Option α} {p : (a : α) → o = some a → Bool} :
     rw [attach_congr pfilter_some]
     split <;> simp [*]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem attach_guard {p : α → Bool} {x : α} :
     (guard p x).attach = if h : p x then some ⟨x, by simp_all⟩ else none := by
   simp only [guard_eq_ite]

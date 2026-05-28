@@ -31,7 +31,9 @@ noncomputable abbrev Var.denote {α : Sort u} (ctx : Context α) (x : Var) : α 
 noncomputable abbrev Expr.denote {α} (ctx : Context α) (e : Expr) : α :=
   Expr.rec (fun x => x.denote ctx) (fun _ _ ih₁ ih₂ => ctx.op ih₁ ih₂) e
 
+@[defeq]
 theorem Expr.denote_var {α} (ctx : Context α) (x : Var) : (Expr.var x).denote ctx = x.denote ctx := rfl
+@[defeq]
 theorem Expr.denote_op {α} (ctx : Context α) (a b : Expr) : (Expr.op a b).denote ctx = ctx.op (a.denote ctx) (b.denote ctx) := rfl
 
 attribute [local simp] Expr.denote_var Expr.denote_op

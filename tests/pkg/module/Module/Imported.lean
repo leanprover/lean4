@@ -88,7 +88,9 @@ example : P f := by dsimp only [trfl]; exact hP1
 #guard_msgs in
 example : P f := by dsimp only [trfl']; exact hP1
 
-example : P fexp := by dsimp only [fexp_trfl]; exact hP1
+set_option backward.defeqAttrib.useBackward true in
+example : P fexp := by dsimp only [fexp_trfl']; exact hP1
+set_option backward.defeqAttrib.useBackward true in
 example : P fexp := by dsimp only [fexp_trfl']; exact hP1
 example : t = t := by dsimp only [trfl]
 

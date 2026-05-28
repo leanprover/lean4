@@ -1,6 +1,7 @@
 module
 
 set_option warn.classDefReducibility false
+set_option backward.defeqAttrib.useBackward true
 @[expose] public section
 -- import Lean.Meta.Tactic.Grind
 universe v v₁ v₂ v₃ u u₁ u₂ u₃

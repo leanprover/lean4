@@ -176,6 +176,7 @@ instance instLawfulMonad : LawfulMonad (PredTrans ps) := by
   apply LawfulMonad.mk' _
   all_goals (intros; ext Q; simp)
 
+set_option backward.defeqAttrib.useBackward true in
 /--
 Adds the ability to make assertions about a state of type `σ` to a predicate transformer with
 postcondition shape `ps`, resulting in postcondition shape `.arg σ ps`. This is done by

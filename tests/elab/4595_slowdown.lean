@@ -1,3 +1,5 @@
+set_option backward.defeqAttrib.useBackward true
+
 -- The final declaration blew up by a factor of about 40x heartbeats on an earlier draft of
 -- https://github.com/leanprover/lean4/pull/4595, so this is here as a regression test.
 
@@ -61,11 +63,9 @@ notation "𝟭" => Functor.id
 
 variable {C}
 
-@[simp]
-theorem id_obj (X : C) : (𝟭 C).obj X = X := rfl
+@[simp] theorem id_obj (X : C) : (𝟭 C).obj X = X := rfl
 
-@[simp]
-theorem id_map {X Y : C} (f : X ⟶ Y) : (𝟭 C).map f = f := rfl
+@[simp] theorem id_map {X Y : C} (f : X ⟶ Y) : (𝟭 C).map f = f := rfl
 
 end
 
@@ -149,8 +149,7 @@ end Functor
 
 namespace NatTrans
 
-@[simp]
-theorem id_app (F : C ⥤ D) (X : C) : (𝟙 F : F ⟶ F).app X = 𝟙 (F.obj X) := rfl
+@[simp] theorem id_app (F : C ⥤ D) (X : C) : (𝟙 F : F ⟶ F).app X = 𝟙 (F.obj X) := rfl
 
 @[simp]
 theorem comp_app {F G H : C ⥤ D} (α : F ⟶ G) (β : G ⟶ H) (X : C) :
@@ -198,11 +197,9 @@ theorem hom_ext_iff {P Q : Karoubi C} {f g : P ⟶ Q} : f = g ↔ f.f = g.f := s
 @[ext]
 theorem hom_ext {P Q : Karoubi C} (f g : P ⟶ Q) (h : f.f = g.f) : f = g := sorry
 
-@[simp]
-theorem comp_f {P Q R : Karoubi C} (f : P ⟶ Q) (g : Q ⟶ R) : (f ≫ g).f = f.f ≫ g.f := rfl
+@[simp] theorem comp_f {P Q R : Karoubi C} (f : P ⟶ Q) (g : Q ⟶ R) : (f ≫ g).f = f.f ≫ g.f := rfl
 
-@[simp]
-theorem id_f {P : Karoubi C} : Hom.f (𝟙 P) = P.p := rfl
+@[simp] theorem id_f {P : Karoubi C} : Hom.f (𝟙 P) = P.p := rfl
 
 end Karoubi
 

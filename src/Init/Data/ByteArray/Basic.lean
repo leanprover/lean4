@@ -168,7 +168,7 @@ theorem append_eq_fastAppend : @ByteArray.append = @ByteArray.fastAppend := by
 instance : Append ByteArray where
   append := ByteArray.append
 
-@[simp]
+@[defeq, simp]
 theorem append_eq {a b : ByteArray} : a.append b = a ++ b := rfl
 
 @[simp]
@@ -365,6 +365,7 @@ abbrev iter := mkIterator
 instance : SizeOf Iterator where
   sizeOf i := i.array.size - i.idx
 
+@[defeq]
 theorem Iterator.sizeOf_eq (i : Iterator) : sizeOf i = i.array.size - i.idx :=
   rfl
 

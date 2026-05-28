@@ -88,7 +88,7 @@ theorem ext' {xs ys : Array α} (h : xs.toList = ys.toList) : xs = ys := by
 @[simp] theorem toArrayAux_eq {as : List α} {acc : Array α} : (as.toArrayAux acc).toList = acc.toList ++ as := by
   induction as generalizing acc <;> simp [*, List.toArrayAux, Array.push, List.append_assoc, List.concat_eq_append]
 
-@[simp, grind =] theorem toArray_toList {xs : Array α} : xs.toList.toArray = xs := rfl
+@[defeq, simp, grind =] theorem toArray_toList {xs : Array α} : xs.toList.toArray = xs := rfl
 
 @[simp, grind =] theorem getElem_toList {xs : Array α} {i : Nat} (h : i < xs.size) : xs.toList[i] = xs[i] := rfl
 
@@ -130,6 +130,7 @@ end Array
 namespace List
 
 -- This does not need to be a simp lemma, as already after the `whnfR` the right hand side is `as`.
+@[defeq]
 theorem toList_toArray {as : List α} : as.toArray.toList = as := rfl
 
 @[simp, grind =] theorem size_toArray {as : List α} : as.toArray.size = as.length := by simp [Array.size]
@@ -151,6 +152,7 @@ namespace Array
 @[simp, grind =] theorem getElem!_toList [Inhabited α] {xs : Array α} {i : Nat} : xs.toList[i]! = xs[i]! := by
   rw [List.getElem!_toArray]
 
+@[defeq]
 theorem size_eq_length_toList {xs : Array α} : xs.size = xs.toList.length := rfl
 
 /-! ### Externs -/
@@ -467,7 +469,7 @@ Examples:
 -/
 abbrev take (xs : Array α) (i : Nat) : Array α := extract xs 0 i
 
-@[simp, grind =] theorem take_eq_extract {xs : Array α} {i : Nat} : xs.take i = xs.extract 0 i := rfl
+@[defeq, simp, grind =] theorem take_eq_extract {xs : Array α} {i : Nat} : xs.take i = xs.extract 0 i := rfl
 
 /--
 Removes the first `i` elements of `xs`. If `xs` has fewer than `i` elements, the new array is empty.
@@ -481,7 +483,7 @@ Examples:
 -/
 abbrev drop (xs : Array α) (i : Nat) : Array α := extract xs i xs.size
 
-@[simp, grind =] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
+@[defeq, simp, grind =] theorem drop_eq_extract {xs : Array α} {i : Nat} : xs.drop i = xs.extract i xs.size := rfl
 
 @[inline]
 unsafe def modifyMUnsafe [Monad m] (xs : Array α) (i : Nat) (f : α → m α) : m (Array α) := do
@@ -595,7 +597,7 @@ instance [Monad m] : ForIn' m (Array α) α inferInstance where
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
 
 -- We simplify `Array.forIn'` to `forIn'`.
-@[simp] theorem forIn'_eq_forIn' [Monad m] : @Array.forIn' α β m _ = forIn' := rfl
+@[defeq, simp] theorem forIn'_eq_forIn' [Monad m] : @Array.forIn' α β m _ = forIn' := rfl
 
 /-- See comment at `forIn'Unsafe` -/
 @[inline]
@@ -1027,7 +1029,7 @@ instance [Monad m] : ForM m (Array α) α where
   forM xs f := Array.forM f xs
 
 -- We simplify `Array.forM` to `forM`.
-@[simp] theorem forM_eq_forM [Monad m] {f : α → m PUnit} :
+@[defeq, simp] theorem forM_eq_forM [Monad m] {f : α → m PUnit} :
     Array.forM f as 0 as.size = forM as f := rfl
 
 /--

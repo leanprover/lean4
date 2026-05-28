@@ -1,3 +1,5 @@
+set_option backward.defeqAttrib.useBackward true
+
 inductive Vec (α : Type u) : Nat → Type u
   | nil  : Vec α 0
   | cons : α → {n : Nat} → Vec α n → Vec α (n+1)

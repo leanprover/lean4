@@ -706,11 +706,13 @@ theorem toList_zip {as : Vector α n} {bs : Vector β n} :
   cases xs
   simp
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp] theorem finIdxOf?_toList [BEq α] {a : α} {xs : Vector α n} :
     xs.toList.finIdxOf? a = (xs.finIdxOf? a).map (Fin.cast (by exact xs.size_toArray.symm)) := by
   rcases xs with ⟨xs, rfl⟩
   simp
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp] theorem findFinIdx?_toList {p : α → Bool} {xs : Vector α n} :
     xs.toList.findFinIdx? p = (xs.findFinIdx? p).map (Fin.cast (by exact xs.size_toArray.symm)) := by
   rcases xs with ⟨xs, rfl⟩
@@ -2965,6 +2967,7 @@ theorem replace_extract {xs : Vector α n} {i : Nat} :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.replace_extract]
 
+set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem replace_replicate_self {a : α} (h : 0 < n) :
     (replicate n a).replace a b = (#v[b] ++ replicate (n - 1) a).cast (by omega) := by
@@ -2984,6 +2987,7 @@ set_option linter.indexVariables false in
 theorem getElem_push_last {xs : Vector α n} {x : α} : (xs.push x)[n] = x := by
   simp
 
+set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 @[simp] theorem push_pop_back (xs : Vector α (n + 1)) : xs.pop.push xs.back = xs := by
   ext i

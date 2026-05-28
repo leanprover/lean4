@@ -398,7 +398,7 @@ set_option linter.missingDocs false in
 @[deprecated IterM.mk_internalState (since := "2025-12-01")]
 def Iterators.toIterM_internalState := @IterM.mk_internalState
 
-@[simp]
+@[defeq, simp]
 theorem IterM.internalState_mk {α m β} (it : α) :
     (⟨it⟩ : IterM m β).internalState = it :=
   rfl

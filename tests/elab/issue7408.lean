@@ -1,3 +1,5 @@
+set_option backward.defeqAttrib.useBackward true
+
 def computeFuel (mass : Nat) : Nat :=
   let rec go acc cur :=
     let n := cur / 3 - 2

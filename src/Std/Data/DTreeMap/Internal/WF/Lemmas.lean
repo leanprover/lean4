@@ -1145,6 +1145,7 @@ theorem toListModel_alterₘ [Ord α] [TransOrd α] [LawfulEqOrd α] [BEq α] [L
     · simp [eraseKey]
     · simp [insertEntry, containsKey, replaceEntry]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem alter_eq_alterₘ [Ord α] [TransOrd α] [LawfulEqOrd α] {t : Impl α β} {a f}
     (htb : t.Balanced) (hto : t.Ordered) :
     (t.alter a f htb).impl = t.alterₘ a f htb := by

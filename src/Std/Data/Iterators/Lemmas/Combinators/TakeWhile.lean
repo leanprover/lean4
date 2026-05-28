@@ -24,6 +24,7 @@ theorem Iter.takeWhile_eq {α β} [Iterator α Id β] {P}
     it.takeWhile P = (it.toIterM.takeWhile P).toIter :=
   rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.step_takeWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
     (it.takeWhile P).step = (match it.step with
@@ -40,6 +41,7 @@ theorem Iter.step_takeWhile {α β} [Iterator α Id β] {P}
   · simp
   · simp
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.val_step_takeWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
     (it.takeWhile P).step.val = (match it.step.val with

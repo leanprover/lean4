@@ -44,6 +44,7 @@ theorem ofNat_pos {a : Nat} : 0 < (a : Int) ↔ 0 < a := by
 theorem ofNat_pos_of_pos {a : Nat} (h : 0 < a) : 0 < (a : Int) :=
   ofNat_pos.mpr h
 
+@[defeq]
 theorem natCast_ofNat {x : Nat} :
     @Nat.cast Int instNatCastInt (no_index (OfNat.ofNat x)) = OfNat.ofNat x := rfl
 
@@ -166,7 +167,9 @@ theorem add_nonneg_iff_neg_le {a b : Int} : 0 ≤ a + b ↔ -b ≤ a := by
 theorem add_nonneg_iff_neg_le' {a b : Int} : 0 ≤ a + b ↔ -a ≤ b := by
   rw [Int.add_comm, add_nonneg_iff_neg_le]
 
+@[defeq]
 theorem ofNat_fst_mk {β} {x : Nat} {y : β} : (Prod.mk x y).fst = (x : Int) := rfl
+@[defeq]
 theorem ofNat_snd_mk {α} {x : α} {y : Nat} : (Prod.mk x y).snd = (y : Int) := rfl
 
 
@@ -222,7 +225,9 @@ theorem of_not_lex {α} {r : α → α → Prop} [DecidableEq α] {β} {s : β �
   rw [Prod.lex_def, not_or, Decidable.not_and_iff_not_or_not] at w
   exact w
 
+@[defeq]
 theorem fst_mk : (Prod.mk x y).fst = x := rfl
+@[defeq]
 theorem snd_mk : (Prod.mk x y).snd = y := rfl
 
 end Prod

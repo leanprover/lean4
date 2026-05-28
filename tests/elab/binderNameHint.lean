@@ -1,3 +1,5 @@
+set_option backward.defeqAttrib.useBackward true
+
 theorem all_eq_not_any_not (l : List α) (p : α → Bool) :
     l.all p = !l.any fun x => binderNameHint x p (!p x)
   := List.all_eq_not_any_not

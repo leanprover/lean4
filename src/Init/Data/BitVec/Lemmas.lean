@@ -344,8 +344,8 @@ theorem ofNatLT_eq_ofNat {w : Nat} {n : Nat} (hn) : BitVec.ofNatLT n hn = BitVec
 
 @[simp, grind =] theorem toFin_ofNatLT {n : Nat} (h : n < 2 ^ w) : (BitVec.ofNatLT n h).toFin = Fin.mk n h := rfl
 
-@[simp] theorem toFin_ofFin (n : Fin (2 ^ w)) : (BitVec.ofFin n).toFin = n := rfl
-@[simp, grind =] theorem ofFin_toFin (x : BitVec w) : BitVec.ofFin x.toFin = x := rfl
+@[defeq, simp] theorem toFin_ofFin (n : Fin (2 ^ w)) : (BitVec.ofFin n).toFin = n := rfl
+@[defeq, simp, grind =] theorem ofFin_toFin (x : BitVec w) : BitVec.ofFin x.toFin = x := rfl
 
 @[simp, grind =] theorem ofNatLT_finVal (n : Fin (2 ^ w)) : BitVec.ofNatLT n.val n.isLt = BitVec.ofFin n := rfl
 
@@ -881,11 +881,11 @@ theorem lt_trichotomy (x y : BitVec w) :
 
 /-! ### setWidth, zeroExtend and truncate -/
 
-@[simp]
+@[defeq, simp]
 theorem truncate_eq_setWidth {v : Nat} {x : BitVec w} :
   truncate v x = setWidth v x := rfl
 
-@[simp]
+@[defeq, simp]
 theorem zeroExtend_eq_setWidth {v : Nat} {x : BitVec w} :
   zeroExtend v x = setWidth v x := rfl
 
@@ -2047,7 +2047,7 @@ theorem allOnes_shiftLeft_or_shiftLeft {x : BitVec w} {n : Nat} :
 
 /-! ### shiftLeft reductions from BitVec to Nat -/
 
-@[simp, grind =]
+@[defeq, simp, grind =]
 theorem shiftLeft_eq' {x : BitVec w₁} {y : BitVec w₂} : x <<< y = x <<< y.toNat := rfl
 
 theorem shiftLeft_zero' {x : BitVec w₁} : x <<< 0#w₂ = x := by simp
@@ -2210,7 +2210,7 @@ theorem setWidth_ushiftRight_eq_extractLsb {b : BitVec w} : (b >>> w').setWidth 
 
 /-! ### ushiftRight reductions from BitVec to Nat -/
 
-@[simp, grind =]
+@[defeq, simp, grind =]
 theorem ushiftRight_eq' (x : BitVec w₁) (y : BitVec w₂) :
     x >>> y = x >>> y.toNat := rfl
 

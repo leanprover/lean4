@@ -2,25 +2,62 @@ axiom testSorry : α
 
 opaque a : Nat
 opaque b : Nat
-def c := a
+def c := a -- non-reducible: `a = c` only at default transparency
+@[reducible] def c' := a -- reducible: `a = c'` holds at instance transparency
 @[irreducible] def d := a
 opaque P : Nat → Prop
 
 @[irreducible] def ac := a = c
+@[irreducible] def ac' := a = c'
 
 /--
-error: Not a definitional equality: the left-hand side
+error: Not a definitional equality at instance transparency: the left-hand side
   a
 is not definitionally equal to the right-hand side
   b
+at the transparency used by `dsimp`
 -/
 #guard_msgs in
 @[defeq] theorem a_eq_b : a = b := testSorry
-theorem a_eq_c : a = c := rfl
+theorem a_eq_c : a = c := rfl -- not auto-tagged
+/--
+error: Not a definitional equality at instance transparency: the left-hand side
+  a
+is not definitionally equal to the right-hand side
+  c
+at the transparency used by `dsimp`
+
+Note: The equality holds at default/all transparency. Use `@[backward_defeq]` instead, or rewrite the proof so that the equality holds at instance transparency.
+-/
+#guard_msgs in
 @[defeq] theorem a_eq_c' : a = c := Eq.refl _
-theorem a_eq_c'' : a = c := Eq.refl _
-@[defeq] theorem a_eq_c''' : ac := by with_unfolding_all rfl
+@[backward_defeq] theorem a_eq_c'' : a = c := Eq.refl _
+
+@[defeq] theorem a_eq_c''' : a = c' := Eq.refl _
+/--
+error: Not a definitional equality at instance transparency: the left-hand side
+  a
+is not definitionally equal to the right-hand side
+  c
+at the transparency used by `dsimp`
+
+Note: The equality holds at default/all transparency. Use `@[backward_defeq]` instead, or rewrite the proof so that the equality holds at instance transparency.
+-/
+#guard_msgs in
+@[defeq] theorem a_eq_c'''' : ac := by with_unfolding_all rfl
+@[backward_defeq] theorem a_eq_c''''' : ac := by with_unfolding_all rfl
+/--
+error: Not a definitional equality at instance transparency: the left-hand side
+  a
+is not definitionally equal to the right-hand side
+  d
+at the transparency used by `dsimp`
+
+Note: The equality holds at default/all transparency. Use `@[backward_defeq]` instead, or rewrite the proof so that the equality holds at instance transparency.
+-/
+#guard_msgs in
 @[defeq] theorem a_eq_d : a = d := by simp [d]
+@[backward_defeq] theorem a_eq_d' : a = d := by simp [d]
 
 /-- error: Not a definitional equality: the conclusion should be an equality, but is `True` -/
 #guard_msgs in
@@ -35,15 +72,15 @@ is not definitionally equal to the right-hand side
   b
 -/
 #guard_msgs in
-theorem Tricky.a_eq_b : a = b := rfl -- to confuse the heuristics
+theorem Tricky.a_eq_b : a = b := rfl -- to confuse the heuristics; auto-tagged `[backward_defeq]`
 
 /-! Does `#print` show the attribute? -/
 
-/-- info: @[defeq] theorem a_eq_c : a = c -/
+/-- info: @[defeq] theorem a_eq_c''' : a = c' -/
 #guard_msgs in
-#print sig a_eq_c
+#print sig a_eq_c'''
 
-/-! Does dsimp use it? -/
+/-! Does dsimp use `[defeq]`? -/
 
 /-- error: `dsimp` made no progress -/
 #guard_msgs in example (h : P b) : P a := by dsimp [a_eq_b]; exact h
@@ -51,31 +88,31 @@ theorem Tricky.a_eq_b : a = b := rfl -- to confuse the heuristics
 /-- error: `dsimp` made no progress -/
 #guard_msgs in example (h : P b) : P a := by dsimp [Tricky.a_eq_b]; exact h
 
+/-- error: `dsimp` made no progress -/
 #guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c]; exact h
 
-#guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c']; exact h
+#guard_msgs in example (h : P c') : P a := by dsimp [a_eq_c''']; exact h
 
 /-- error: `dsimp` made no progress -/
 #guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c'']; exact h
 
--- a_eq_c''' is correctly tagged, but not used by `a_eq_c` because simp does not look through `ac`.
-/-- error: `dsimp` made no progress -/
-#guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c''']; exact h
+set_option backward.defeqAttrib.useBackward true in
+#guard_msgs in example (h : P c) : P a := by dsimp [a_eq_c'']; exact h
 
-#guard_msgs in example (h : P d) : P a := by dsimp [a_eq_d]; exact h
-
--- Order of simp and rfl attribute
-def e1 := a
+-- Order of simp and defeq attribute
+def e1 := a -- not reducible, so `[defeq]` would fail strict
 @[simp] theorem e1_eq_a : e1 = a := rfl
+/-- error: `dsimp` made no progress -/
+#guard_msgs in example (h : P a) : P e1 := by dsimp; exact h
+set_option backward.defeqAttrib.useBackward true in
 #guard_msgs in example (h : P a) : P e1 := by dsimp; exact h
 
-def e2 := a
-@[defeq,simp] theorem e2_eq_a : e2 = a := (rfl)
+@[reducible] def e2 := a
+@[defeq, simp] theorem e2_eq_a : e2 = a := (rfl)
 #guard_msgs in example (h : P a) : P e2 := by dsimp; exact h
 
-def e3 := a
-@[simp,defeq] theorem e3_eq_a : e2 = a := (rfl) -- defeq has to come before simp
-/-- error: `dsimp` made no progress -/
+@[reducible] def e3 := a
+@[defeq, simp] theorem e3_eq_a : e3 = a := (rfl) -- defeq before simp also works
 #guard_msgs in example (h : P a) : P e3 := by dsimp; exact h
 
 -- Tests the `defeq` attribute on a realized constant: That they are set, and that they

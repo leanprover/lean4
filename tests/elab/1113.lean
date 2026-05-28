@@ -3,7 +3,7 @@ def foo: {n: Nat} → Fin n → Nat
 | n+1, _ => 0
 
 -- Local copy to make test more robust against staging issues
-@[simp] theorem Nat.succ_eq_add_one' (n : Nat) : succ n = n + 1 :=
+@[defeq, simp] theorem Nat.succ_eq_add_one' (n : Nat) : succ n = n + 1 :=
   rfl
 
 theorem t3 {f: Fin (n+1)}:

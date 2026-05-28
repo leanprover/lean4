@@ -373,7 +373,7 @@ info: siftDown.induct_unfolding (e : Nat) (motive : (a : Array Int) → Nat → 
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        let child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         a[root]! < a[child]! →
           let a_1 := a.swapIfInBounds root child;
           motive a_1 child ⋯ (siftDown a_1 child e ⋯) → motive a root h (siftDown a_1 child e ⋯))
@@ -381,7 +381,7 @@ info: siftDown.induct_unfolding (e : Nat) (motive : (a : Array Int) → Nat → 
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        have child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        have child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         ¬a[root]! < a[child]! → motive a root h a)
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h a) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h (siftDown a root e h)
@@ -395,7 +395,7 @@ info: siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.si
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        let child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        let child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         a[root]! < a[child]! →
           let a_1 := a.swapIfInBounds root child;
           motive a_1 child ⋯ → motive a root h)
@@ -403,7 +403,7 @@ info: siftDown.induct (e : Nat) (motive : (a : Array Int) → Nat → e ≤ a.si
     ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size),
       leftChild root < e →
         let child := leftChild root;
-        have child := if x : child + 1 < e then if h : a[child] < a[child + 1] then child + 1 else child else child;
+        have child := if x : child + 1 < e then if a[child] < a[child + 1] then child + 1 else child else child;
         ¬a[root]! < a[child]! → motive a root h)
   (case3 : ∀ (a : Array Int) (root : Nat) (h : e ≤ a.size), ¬leftChild root < e → motive a root h) (a : Array Int)
   (root : Nat) (h : e ≤ a.size) : motive a root h

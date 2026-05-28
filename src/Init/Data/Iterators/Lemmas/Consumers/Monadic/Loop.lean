@@ -21,6 +21,7 @@ public section
 namespace Std
 open Std.Iterators
 
+@[defeq]
 theorem IterM.DefaultConsumers.forIn_eq {α β : Type w} {m : Type w → Type w'}
     {n : Type x → Type x'} [Monad n] [Iterator α m β]
     {lift : (γ : Type w) → (δ : Type x) → (γ → n δ) → m γ → n δ}
@@ -262,6 +263,7 @@ theorem IterM.forIn_toArray {α β : Type w} [Monad m] [LawfulMonad m] [Iterator
     ForIn.forIn it.toArray.run init f = ForIn.forIn it init f := by
   simp [← toArray_toList, forIn_toList]
 
+@[defeq]
 theorem IterM.forM_eq_forIn {α β : Type w} {m : Type w → Type w'} [Iterator α m β]
     [Finite α m] {n : Type w → Type w''} [Monad m] [Monad n] [LawfulMonad n]
     [IteratorLoop α m n] [LawfulIteratorLoop α m n]

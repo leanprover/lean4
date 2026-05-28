@@ -2,6 +2,8 @@ def f (x : Nat) := x + 1
 
 theorem f_eq (x : Nat) : f (x + 1) = x + 2 := rfl
 
+set_option backward.defeqAttrib.useBackward true
+
 theorem ex1 : f (f (x + 1)) = x + 3 := by
   simp -implicitDefEqProofs only [f_eq]
 

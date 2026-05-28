@@ -342,6 +342,7 @@ theorem getElem_attach {xs : List α} {i : Nat} (h : i < xs.attach.length) :
     (xs.attachWith P H).tail = xs.tail.attachWith P (fun a h => H a (mem_of_mem_tail h)) := by
   cases xs <;> simp
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp, grind =] theorem tail_attach {xs : List α} :
     xs.attach.tail = xs.tail.attach.map (fun ⟨x, h⟩ => ⟨x, mem_of_mem_tail h⟩) := by
   cases xs <;> simp
@@ -402,6 +403,7 @@ theorem foldr_attach {l : List α} {f : α → β → β} {b : β} :
   | nil => simp
   | cons a l ih => rw [foldr_cons, attach_cons, foldr_cons, foldr_map, ih]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem attach_map {l : List α} {f : α → β} :
     (l.map f).attach = l.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem h⟩) := by
   induction l <;> simp [*]
@@ -437,6 +439,7 @@ theorem map_attach_eq_pmap {l : List α} {f : { x // x ∈ l } → β} :
     apply pmap_congr_left
     simp
 
+set_option backward.defeqAttrib.useBackward true in
 theorem attach_filterMap {l : List α} {f : α → Option β} :
     (l.filterMap f).attach = l.attach.filterMap
       fun ⟨x, h⟩ => (f x).pbind (fun b m => some ⟨b, mem_filterMap.mpr ⟨x, h, m⟩⟩) := by
@@ -503,6 +506,7 @@ theorem pmap_pmap {p : α → Prop} {q : β → Prop} {g : ∀ a, p a → β} {f
         (fun a _ => H₁ a a.2) := by
   simp [pmap_eq_map_attach, attach_map]
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp] theorem pmap_append {p : ι → Prop} {f : ∀ a : ι, p a → α} {l₁ l₂ : List ι}
     (h : ∀ a ∈ l₁ ++ l₂, p a) :
     (l₁ ++ l₂).pmap f h =

@@ -11,6 +11,7 @@ trace: x : Nat
 ⊢ P (1 + x).isZero
 -/
 #guard_msgs in
+set_option backward.defeqAttrib.useBackward true in
 example (x : Nat) : P (1 + id x.succ.pred).isZero := by
   dsimp
   trace_state
@@ -18,6 +19,7 @@ example (x : Nat) : P (1 + id x.succ.pred).isZero := by
   dsimp [Nat.isZero]
   apply P_false
 
+set_option backward.defeqAttrib.useBackward true in
 example (x : Nat) : P (id x.succ.succ).isZero := by
   dsimp [Nat.isZero]
   apply P_false

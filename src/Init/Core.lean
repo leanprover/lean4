@@ -744,8 +744,9 @@ inductive PNonScalar : Type u where
   /-- You should not use this function -/
   | mk (v : Nat) : PNonScalar
 
-@[simp] protected theorem Nat.add_zero (n : Nat) : n + 0 = n := rfl
+@[defeq, simp] protected theorem Nat.add_zero (n : Nat) : n + 0 = n := rfl
 
+@[defeq]
 theorem optParam_eq (α : Sort u) (default : α) : optParam α default = α := rfl
 
 /-! # Boolean operators -/
@@ -839,6 +840,7 @@ theorem not_not_intro {p : Prop} (h : p) : ¬ ¬ p :=
   fun hn : ¬ p => hn h
 
 -- proof irrelevance is built in
+@[defeq]
 theorem proof_irrel {a : Prop} (h₁ h₂ : a) : h₁ = h₂ := rfl
 
 /--
@@ -1469,6 +1471,7 @@ instance Prod.lexLtDec
 theorem Prod.lexLt_def [LT α] [LT β] (s t : α × β) : (Prod.lexLt s t) = (s.1 < t.1 ∨ (s.1 = t.1 ∧ s.2 < t.2)) :=
   rfl
 
+@[defeq]
 theorem Prod.eta (p : α × β) : (p.1, p.2) = p := rfl
 
 /--
@@ -1788,6 +1791,7 @@ Reference.
 -/
 axiom sound : ∀ {α : Sort u} {r : α → α → Prop} {a b : α}, r a b → Quot.mk r a = Quot.mk r b
 
+@[defeq]
 protected theorem liftBeta {α : Sort u} {r : α → α → Prop} {β : Sort v}
     (f : α → β)
     (c : (a b : α) → r a b → f a = f b)
@@ -1795,6 +1799,7 @@ protected theorem liftBeta {α : Sort u} {r : α → α → Prop} {β : Sort v}
     : lift f c (Quot.mk r a) = f a :=
   rfl
 
+@[defeq]
 protected theorem indBeta {α : Sort u} {r : α → α → Prop} {motive : Quot r → Prop}
     (p : (a : α) → motive (Quot.mk r a))
     (a : α)

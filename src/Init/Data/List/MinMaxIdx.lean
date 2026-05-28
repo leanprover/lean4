@@ -452,6 +452,7 @@ protected theorem minIdxOn_take_le [LE β] [DecidableLE β] [IsLinearPreorder β
   conv => rhs; simp +singlePass only [← this]
   apply List.left_le_minIdxOn_append
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 protected theorem minIdxOn_replicate [LE β] [DecidableLE β] [Refl (α := β) (· ≤ ·)]
     {n : Nat} {a : α} {f : α → β} (h : replicate n a ≠ []) :

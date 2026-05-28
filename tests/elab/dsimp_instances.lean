@@ -1,4 +1,6 @@
 import Lean
+
+set_option backward.defeqAttrib.useBackward true
 set_option warn.sorry false
 
 def f [Add α] (a : α) := a + a

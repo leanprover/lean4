@@ -106,12 +106,12 @@ theorem or_exists_add_one : p 0 ∨ (Exists fun n => p (n + 1)) ↔ Exists p :=
 
 /-! # Helper "packing" theorems -/
 
-@[simp] theorem zero_eq : Nat.zero = 0 := rfl
-@[simp] theorem add_eq : Nat.add x y = x + y := rfl
-@[simp] theorem mul_eq : Nat.mul x y = x * y := rfl
-@[simp] theorem sub_eq : Nat.sub x y = x - y := rfl
-@[simp] theorem lt_eq : Nat.lt x y = (x < y) := rfl
-@[simp] theorem le_eq : Nat.le x y = (x ≤ y) := rfl
+@[defeq, simp] theorem zero_eq : Nat.zero = 0 := rfl
+@[defeq, simp] theorem add_eq : Nat.add x y = x + y := rfl
+@[defeq, simp] theorem mul_eq : Nat.mul x y = x * y := rfl
+@[defeq, simp] theorem sub_eq : Nat.sub x y = x - y := rfl
+@[defeq, simp] theorem lt_eq : Nat.lt x y = (x < y) := rfl
+@[defeq, simp] theorem le_eq : Nat.le x y = (x ≤ y) := rfl
 
 /-! # Helper Bool relation theorems -/
 
@@ -143,13 +143,15 @@ theorem succ_add : ∀ (n m : Nat), (succ n) + m = succ (n + m)
   | _, 0   => rfl
   | n, m+1 => congrArg succ (succ_add n m)
 
+@[defeq]
 theorem add_succ (n m : Nat) : n + succ m = succ (n + m) :=
   rfl
 
+@[defeq]
 theorem add_one (n : Nat) : n + 1 = succ n :=
   rfl
 
-@[simp] theorem succ_eq_add_one (n : Nat) : succ n = n + 1 :=
+@[defeq, simp] theorem succ_eq_add_one (n : Nat) : succ n = n + 1 :=
   rfl
 
 theorem add_one_ne_zero (n : Nat) : n + 1 ≠ 0 := nofun
@@ -192,12 +194,14 @@ protected theorem eq_zero_of_add_eq_zero_left (h : n + m = 0) : m = 0 :=
 
 /-! # Nat.mul theorems -/
 
-@[simp] protected theorem mul_zero (n : Nat) : n * 0 = 0 :=
+@[defeq, simp] protected theorem mul_zero (n : Nat) : n * 0 = 0 :=
   rfl
 
+@[defeq]
 theorem mul_succ (n m : Nat) : n * succ m = n * m + n :=
   rfl
 
+@[defeq]
 theorem mul_add_one (n m : Nat) : n * (m + 1) = n * m + n :=
   rfl
 
@@ -265,7 +269,7 @@ theorem le_of_lt_add_one {n m : Nat} : n < m + 1 → n ≤ m := le_of_succ_le_su
 
 theorem lt_add_one_of_le {n m : Nat} : n ≤ m → n < m + 1 := succ_le_succ
 
-@[simp] protected theorem sub_zero (n : Nat) : n - 0 = n := rfl
+@[defeq, simp] protected theorem sub_zero (n : Nat) : n - 0 = n := rfl
 
 theorem not_add_one_le_zero (n : Nat) : ¬ n + 1 ≤ 0 := nofun
 
@@ -282,6 +286,7 @@ theorem sub_one_lt : ∀ {n : Nat}, n ≠ 0 → n - 1 < n := pred_lt
 theorem sub_lt_of_lt {a b c : Nat} (h : a < c) : a - b < c :=
   Nat.lt_of_le_of_lt (Nat.sub_le _ _) h
 
+@[defeq]
 theorem sub_succ (n m : Nat) : n - succ m = pred (n - m) := rfl
 
 theorem succ_sub_succ (n m : Nat) : succ n - succ m = n - m :=
@@ -728,7 +733,7 @@ theorem exists_eq_add_one_of_ne_zero : ∀ {n}, n ≠ 0 → Exists fun k => n = 
 
 /-! # Basic theorems for comparing numerals -/
 
-@[deprecated zero_eq (since := "2025-10-26")]
+@[defeq, deprecated zero_eq (since := "2025-10-26")]
 theorem ctor_eq_zero : Nat.zero = 0 :=
   rfl
 
@@ -741,7 +746,7 @@ theorem succ_ne_zero (n : Nat) : succ n ≠ 0 := by simp
 
 instance instNeZeroSucc {n : Nat} : NeZero (n + 1) := ⟨succ_ne_zero n⟩
 
-@[simp] theorem default_eq_zero : default = 0 := rfl
+@[defeq, simp] theorem default_eq_zero : default = 0 := rfl
 
 /-! # mul + order -/
 
@@ -868,7 +873,7 @@ Examples:
 -/
 protected abbrev min (n m : Nat) := min n m
 
-@[grind =] protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
+@[defeq, grind =] protected theorem min_def {n m : Nat} : min n m = if n ≤ m then n else m := rfl
 
 instance : Max Nat := maxOfLe
 
@@ -885,7 +890,7 @@ Examples:
 -/
 protected abbrev max (n m : Nat) := max n m
 
-@[grind =] protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
+@[defeq, grind =] protected theorem max_def {n m : Nat} : max n m = if n ≤ m then m else n := rfl
 
 
 /-! # Auxiliary theorems for well-founded recursion -/
@@ -906,7 +911,7 @@ theorem sub_one_lt_of_lt {n m : Nat} (h : m < n) : n - 1 < n :=
 protected theorem pred_zero : pred 0 = 0 := rfl
 protected theorem pred_succ (n : Nat) : pred n.succ = n := rfl
 
-@[simp] protected theorem zero_sub_one : 0 - 1 = 0 := rfl
+@[defeq, simp] protected theorem zero_sub_one : 0 - 1 = 0 := rfl
 @[simp] protected theorem add_one_sub_one (n : Nat) : n + 1 - 1 = n := rfl
 
 theorem sub_one_eq_self {n : Nat} : n - 1 = n ↔ n = 0 := by cases n <;> simp [ne_add_one]
@@ -932,7 +937,7 @@ theorem eq_zero_or_eq_sub_one_add_one : ∀ {n}, n = 0 ∨ n = n - 1 + 1
   | 0 => Or.inl rfl
   | _+1 => Or.inr rfl
 
-@[simp] theorem pred_eq_sub_one : pred n = n - 1 := rfl
+@[defeq, simp] theorem pred_eq_sub_one : pred n = n - 1 := rfl
 
 /-! # sub theorems -/
 

@@ -349,6 +349,7 @@ theorem dfold_zero
     dfold 0 f init = init := by
   simp [dfold, dfold.loop]
 
+set_option backward.defeqAttrib.useBackward true in
 private theorem dfold_loop_succ
     {α : (i : Nat) → (h : i ≤ n + 1 := by omega) → Type u}
     (f : (i : Nat) → (h : i < n + 1) → α i → α (i + 1))

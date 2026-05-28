@@ -466,7 +466,7 @@ instance [Monad m] : ForIn' m (List α) α inferInstance where
 -- No separate `ForIn` instance is required because it can be derived from `ForIn'`.
 
 -- We simplify `List.forIn'` to `forIn'`.
-@[simp, grind =] theorem forIn'_eq_forIn' [Monad m] : @List.forIn' α β m _ = forIn' := rfl
+@[defeq, simp, grind =] theorem forIn'_eq_forIn' [Monad m] : @List.forIn' α β m _ = forIn' := rfl
 
 @[simp, grind =] theorem forIn'_nil [Monad m] {f : (a : α) → a ∈ [] → β → m (ForInStep β)} {b : β} : forIn' [] b f = pure b :=
   rfl
@@ -478,7 +478,7 @@ instance [Monad m] : ForM m (List α) α where
   forM := List.forM
 
 -- We simplify `List.forM` to `forM`.
-@[simp, grind =] theorem forM_eq_forM [Monad m] : @List.forM m _ α = forM := rfl
+@[defeq, simp, grind =] theorem forM_eq_forM [Monad m] : @List.forM m _ α = forM := rfl
 
 @[simp, grind =] theorem forM_nil [Monad m] {f : α → m PUnit} : forM [] f = pure ⟨⟩ :=
   rfl

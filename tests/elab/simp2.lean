@@ -3,6 +3,7 @@ def p (x : Prop) := x
 @[simp] theorem lemma1 (x : Prop) : p x = x :=
  rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem ex1 (x : Prop) (h : x) : p x := by
   simp +implicitDefEqProofs
   assumption
@@ -14,6 +15,7 @@ fun x h => id h
 #guard_msgs in
 #print ex1
 
+set_option backward.defeqAttrib.useBackward true in
 theorem ex1' (x : Prop) (h : x) : p x := by
   simp -implicitDefEqProofs
   assumption

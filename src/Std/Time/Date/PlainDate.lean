@@ -46,6 +46,7 @@ instance : Inhabited PlainDate where
 instance : Ord PlainDate where
   compare := compareLex (compareOn (·.year)) <| compareLex (compareOn (·.month)) (compareOn (·.day))
 
+@[defeq]
 theorem PlainDate.compare_def :
     compare (α := PlainDate) =
       compareLex (compareOn (·.year)) (compareLex (compareOn (·.month)) (compareOn (·.day))) := rfl

@@ -41,7 +41,7 @@ theorem step_eq {it : Iter (α := SubarrayIterator α) α} :
         ⟨.done, (by
             simpa [Iter.IsPlausibleStep, IterM.IsPlausibleStep, Iterator.IsPlausibleStep, instIteratorSubarrayIteratorId, -- TODO
               SubarrayIterator.step] using h)⟩ := by
-  simp only [Iter.step, IterM.Step.toPure, Iter.toIter_toIterM, IterStep.mapIterator, IterM.step,
+  simp only [Iter.step, IterM.Step.toPure, IterStep.mapIterator, IterM.step,
     Iterator.step, SubarrayIterator.step, Id.run_pure, Shrink.inflate_deflate]
   by_cases h : it.internalState.xs.start < it.internalState.xs.stop
   · simp only [h, ↓reduceDIte]

@@ -12,6 +12,8 @@ theorem ex3 : ∀ (x : Nat), (if h : x = 0 ∧ True then x + 1 else 2 + x) = if 
 fun x =>
   of_eq_true
     (Eq.trans
-      (congr (congrArg Eq (dite_congr (and_true (x = 0)) (fun h => Eq.refl (x + 1)) fun h => Nat.add_comm 2 x))
-        (dite_congr (Eq.refl (x = 0)) (fun h => Nat.add_comm 1 x) fun h => Eq.refl (x + 2)))
+      (congr
+        (congrArg Eq
+          (Eq.trans (dite_congr (and_true (x = 0)) (fun h => Eq.refl (x + 1)) fun h => Nat.add_comm 2 x) dite_eq_ite))
+        (Eq.trans (dite_congr (Eq.refl (x = 0)) (fun h => Nat.add_comm 1 x) fun h => Eq.refl (x + 2)) dite_eq_ite))
       (eq_self (if x = 0 then x + 1 else x + 2)))

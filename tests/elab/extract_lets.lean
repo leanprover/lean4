@@ -523,7 +523,8 @@ example (h : let ok := True; let _not_ok := False; ok) : let _also_ok := 3; True
 `+proofs`
 -/
 /--
-trace: this✝ : (some true).isSome = true := of_eq_true (eq_self true)
+trace: this✝ : (some true).isSome = true :=
+  of_eq_true (Eq.trans (congrFun' (congrArg Eq Option.isSome_some) true) (eq_self true))
 ⊢ (some true).get this✝ = true
 -/
 #guard_msgs in

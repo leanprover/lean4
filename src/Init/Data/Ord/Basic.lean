@@ -524,6 +524,7 @@ protected def compareLex {α} (cmp : α → α → Ordering) :
 instance {α} [Ord α] : Ord (List α) where
   compare := List.compareLex compare
 
+@[defeq]
 protected theorem compare_eq_compareLex {α} [Ord α] :
     compare (α := List α) = List.compareLex compare := rfl
 

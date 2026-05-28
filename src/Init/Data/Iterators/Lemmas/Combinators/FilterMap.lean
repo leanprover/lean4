@@ -64,6 +64,7 @@ theorem Iter.filter_eq_toIter_filter_toIterM [Monad m] {f : β → Bool} :
     it.filter f = (it.toIterM.filter f).toIter :=
   rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.step_filterMapWithPostcondition {f : β → PostconditionT n (Option γ)}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
   (it.filterMapWithPostcondition f).step = (do
@@ -90,6 +91,7 @@ theorem Iter.step_filterMapWithPostcondition {f : β → PostconditionT n (Optio
   | .skip it' h => rfl
   | .done h => rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.step_filterWithPostcondition {f : β → PostconditionT n (ULift Bool)}
     [Monad n] [LawfulMonad n] [MonadLiftT m n] :
   (it.filterWithPostcondition f).step = (do
@@ -115,6 +117,7 @@ theorem Iter.step_filterWithPostcondition {f : β → PostconditionT n (ULift Bo
   | .skip it' h => rfl
   | .done h => rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.step_mapWithPostcondition {f : β → PostconditionT n γ}
     [Monad n] [LawfulMonad n] :
   (it.mapWithPostcondition f).step = (do
@@ -136,6 +139,7 @@ theorem Iter.step_mapWithPostcondition {f : β → PostconditionT n γ}
   | .skip it' h => rfl
   | .done h => rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.step_filterMapM {β' : Type w} {f : β → n (Option β')}
     [Monad n] [MonadAttach n] [LawfulMonad n] [MonadLiftT m n] :
   (it.filterMapM f).step = (do
@@ -161,6 +165,7 @@ theorem Iter.step_filterMapM {β' : Type w} {f : β → n (Option β')}
   | .skip it' h => rfl
   | .done h => rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.step_filterM {f : β → n (ULift Bool)}
     [Monad n] [MonadAttach n] [LawfulMonad n] [MonadLiftT m n] :
   (it.filterM f).step = (do
@@ -186,6 +191,7 @@ theorem Iter.step_filterM {f : β → n (ULift Bool)}
   | .skip it' h => rfl
   | .done h => rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.step_mapM {f : β → n γ}
     [Monad n] [MonadAttach n] [LawfulMonad n] :
   (it.mapM f).step = (do
@@ -207,6 +213,7 @@ theorem Iter.step_mapM {f : β → n γ}
   | .skip it' h => rfl
   | .done h => rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.step_filterMap {f : β → Option γ} :
     (it.filterMap f).step = match it.step with
       | .yield it' out h =>
@@ -247,6 +254,7 @@ theorem Iter.val_step_filterMap {f : β → Option γ} :
   · simp
   · simp
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.step_map {f : β → γ} :
     (it.map f).step = match it.step with
       | .yield it' out h =>
@@ -259,6 +267,7 @@ theorem Iter.step_map {f : β → γ} :
   generalize it.toIterM.step.run = step
   cases step.inflate using PlausibleIterStep.casesOn <;> simp
 
+set_option backward.defeqAttrib.useBackward true in
 def Iter.step_filter {f : β → Bool} :
     (it.filter f).step = match it.step with
       | .yield it' out h =>
@@ -278,6 +287,7 @@ def Iter.step_filter {f : β → Bool} :
   · simp
   · simp
 
+set_option backward.defeqAttrib.useBackward true in
 def Iter.val_step_filter {f : β → Bool} :
     (it.filter f).step.val = match it.step.val with
       | .yield it' out =>
@@ -320,6 +330,7 @@ theorem Iter.toList_map [Finite α Id] {f : β → γ} :
     (it.map f).toList = it.toList.map f := by
   simp [map_eq_toIter_map_toIterM, IterM.toList_map, Iter.toList_eq_toList_toIterM]
 
+set_option backward.defeqAttrib.useBackward true in
 @[cbv_eval, simp]
 theorem Iter.toList_filter [Finite α Id] {f : β → Bool} :
     (it.filter f).toList = it.toList.filter f := by
@@ -363,6 +374,7 @@ theorem Iter.toListRev_map [Finite α Id]
     (it.map f).toListRev = it.toListRev.map f := by
   simp [map_eq_toIter_map_toIterM, IterM.toListRev_map, Iter.toListRev_eq_toListRev_toIterM]
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 theorem Iter.toListRev_filter [Finite α Id]
     {f : β → Bool} :
@@ -392,6 +404,7 @@ theorem Iter.toArray_map [Finite α Id] {f : β → γ} :
     (it.map f).toArray = it.toArray.map f := by
   simp [map_eq_toIter_map_toIterM, IterM.toArray_map, Iter.toArray_eq_toArray_toIterM]
 
+set_option backward.defeqAttrib.useBackward true in
 @[cbv_eval, simp]
 theorem Iter.toArray_filter [Finite α Id] {f : β → Bool} :
     (it.filter f).toArray = it.toArray.filter f := by

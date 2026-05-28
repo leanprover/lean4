@@ -26,6 +26,7 @@ theorem Iter.uLift_eq_toIter_uLift_toIterM {it : Iter (α := α) β} :
     it.uLift = (it.toIterM.uLift Id).toIter :=
   rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iter.step_uLift [Iterator α Id β] {it : Iter (α := α) β} :
     it.uLift.step = match it.step with
       | .yield it' out h => .yield it'.uLift (.up out) ⟨_, h, rfl⟩

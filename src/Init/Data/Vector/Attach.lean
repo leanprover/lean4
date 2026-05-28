@@ -354,6 +354,7 @@ theorem pmap_append' {p : α → Prop} {f : ∀ a : α, p a → β} {xs : Vector
       xs.pmap f h₁ ++ ys.pmap f h₂ :=
   pmap_append _
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp] theorem attach_append {xs : Vector α n} {ys : Vector α m} :
     (xs ++ ys).attach = xs.attach.map (fun ⟨x, h⟩ => (⟨x, mem_append_left ys h⟩ : { x // x ∈ xs ++ ys })) ++
       ys.attach.map (fun ⟨y, h⟩ => (⟨y, mem_append_right xs h⟩ : { y // y ∈ xs ++ ys })) := by

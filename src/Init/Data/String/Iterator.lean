@@ -74,6 +74,7 @@ Recursive functions that iterate towards the end of a string will typically decr
 instance : SizeOf String.Legacy.Iterator where
   sizeOf i := i.1.utf8ByteSize - i.2.byteIdx
 
+@[defeq]
 theorem Iterator.sizeOf_eq (i : String.Legacy.Iterator) : sizeOf i = i.1.utf8ByteSize - i.2.byteIdx :=
   rfl
 

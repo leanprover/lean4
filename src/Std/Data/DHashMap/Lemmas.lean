@@ -3783,7 +3783,7 @@ theorem get?_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β 
 @[simp]
 theorem get?_alter_self [LawfulBEq α] {k : α} {f : Option (β k) → Option (β k)} :
     (m.alter k f).get? k = f (m.get? k) := by
-  simp only [get?_alter, beq_self_eq_true, reduceDIte, Function.comp_apply, cast_eq]
+  simp only [get?_alter, beq_self_eq_true, reduceDIte, cast_eq]
 
 @[grind =]
 theorem get_alter [LawfulBEq α] {k k' : α} {f : Option (β k) → Option (β k)}

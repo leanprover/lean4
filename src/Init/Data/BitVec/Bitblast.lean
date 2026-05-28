@@ -2642,6 +2642,7 @@ private theorem Nat.mul_add_le_mul_of_succ_le {a b c : Nat} (h : a + 1 ≤ c) :
   rw [← Nat.succ_mul]
   exact mul_le_mul_right b h
 
+set_option backward.defeqAttrib.useBackward true in
 /--
   The recursive addition of `w`-long words on two flattened bitvectors `x` and `y` (with different
   number of words `len` and `len'`, respectively) returns the same value, if we can prove

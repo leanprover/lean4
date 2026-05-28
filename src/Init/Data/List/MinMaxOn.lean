@@ -223,6 +223,7 @@ protected theorem apply_minOn_append_le_right [LE β] [DecidableLE β] [IsLinear
   apply List.apply_minOn_le_apply_minOn_of_subset
   apply subset_append_right
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 protected theorem minOn_append [LE β] [DecidableLE β] [IsLinearPreorder β] {xs ys : List α}
     {f : α → β} (hxs : xs ≠ []) (hys : ys ≠ []) :
@@ -241,6 +242,7 @@ protected theorem minOn_eq_head [LE β] [DecidableLE β] [IsLinearPreorder β]
     · simp only [foldl_cons, head_cons]
       rw [minOn_eq_left] <;> simp_all
 
+set_option backward.defeqAttrib.useBackward true in
 protected theorem min_map
     [LE β] [DecidableLE β] [Min β] [IsLinearPreorder β] [LawfulOrderLeftLeaningMin β] {xs : List α}
     {f : α → β} (h : xs ≠ []) :

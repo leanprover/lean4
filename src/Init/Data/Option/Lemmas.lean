@@ -20,7 +20,7 @@ public section
 
 namespace Option
 
-@[grind =] theorem default_eq_none : (default : Option α) = none := rfl
+@[defeq, grind =] theorem default_eq_none : (default : Option α) = none := rfl
 
 @[grind =] theorem mem_some {a b : α} : a ∈ some b ↔ b = a := by simp
 
@@ -193,13 +193,13 @@ theorem forall_ne_none {p : Option α → Prop} : (∀ x (_ : x ≠ none), p x) 
       simp [some_get] at this ⊢
       exact this⟩
 
-@[simp] theorem pure_def : pure = @some α := rfl
+@[defeq, simp] theorem pure_def : pure = @some α := rfl
 
-@[grind =] theorem pure_apply : pure x = some x := rfl
+@[defeq, grind =] theorem pure_apply : pure x = some x := rfl
 
-@[simp] theorem bind_eq_bind : bind = @Option.bind α β := rfl
+@[defeq, simp] theorem bind_eq_bind : bind = @Option.bind α β := rfl
 
-@[grind =] theorem bind_apply : bind x f = Option.bind x f := rfl
+@[defeq, grind =] theorem bind_apply : bind x f = Option.bind x f := rfl
 
 @[simp, grind =] theorem bind_fun_some (x : Option α) : x.bind some = x := by cases x <;> rfl
 
@@ -284,9 +284,9 @@ theorem bind_join {f : α → Option β} {o : Option (Option α)} :
     o.join.bind f = o.bind (·.bind f) := by
   cases o <;> simp
 
-@[simp] theorem map_eq_map : Functor.map f = Option.map f := rfl
+@[defeq, simp] theorem map_eq_map : Functor.map f = Option.map f := rfl
 
-@[grind =] theorem map_apply : Functor.map f x = Option.map f x := rfl
+@[defeq, grind =] theorem map_apply : Functor.map f x = Option.map f x := rfl
 
 @[simp] theorem map_eq_some_iff : x.map f = some b ↔ ∃ a, x = some a ∧ f a = b := by
   cases x <;> simp
@@ -902,9 +902,9 @@ theorem any_or_of_any_left {o₁ o₂ : Option α} {f : α → Bool} (h : o₁.a
 /-! ### `orElse` -/
 
 /-- The `simp` normal form of `o <|> o'` is `o.or o'` via `orElse_eq_orElse` and `orElse_eq_or`. -/
-@[simp] theorem orElse_eq_orElse : HOrElse.hOrElse = @Option.orElse α := rfl
+@[defeq, simp] theorem orElse_eq_orElse : HOrElse.hOrElse = @Option.orElse α := rfl
 
-@[grind =] theorem orElse_apply : HOrElse.hOrElse o o' = Option.orElse o o' := rfl
+@[defeq, grind =] theorem orElse_apply : HOrElse.hOrElse o o' = Option.orElse o o' := rfl
 
 theorem or_eq_orElse : or o o' = o.orElse (fun _ => o') := by
   cases o <;> rfl
@@ -1220,6 +1220,7 @@ theorem pmap_pred_congr {α : Type u}
   cases ho
   exact (hp y).mp (h y hy)
 
+set_option backward.defeqAttrib.useBackward true in
 @[congr]
 theorem pmap_congr {α : Type u} {β : Type v}
     {p p' : α → Prop} (hp : ∀ x, p x ↔ p' x)
@@ -1277,6 +1278,7 @@ theorem pelim_congr_left {o o' : Option α } {b : β} {f : (a : α) → (a ∈ o
     | false => by simp [pelim_congr_left (filter_some_neg h), h]
     | true => by simp [pelim_congr_left (filter_some_pos h), h]
 
+set_option backward.defeqAttrib.useBackward true in
 @[grind =] theorem pelim_join {o : Option (Option α)} {b : β} {f : (a : α) → a ∈ o.join → β} :
     o.join.pelim b f = o.pelim b (fun o' ho' => o'.pelim b (fun a ha => f a (by simp_all))) := by
   cases o <;> simp <;> congr

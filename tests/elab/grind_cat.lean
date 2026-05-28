@@ -1,5 +1,6 @@
 module
 @[expose] public section
+set_option backward.defeqAttrib.useBackward true
 universe v v₁ v₂ v₃ u u₁ u₂ u₃
 
 namespace CategoryTheory

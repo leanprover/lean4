@@ -19,7 +19,7 @@ public section
 
 open Function
 
-@[simp, grind =] theorem monadMap_refl {m : Type _ → Type _} {α} (f : ∀ {α}, m α → m α) :
+@[defeq, simp, grind =] theorem monadMap_refl {m : Type _ → Type _} {α} (f : ∀ {α}, m α → m α) :
     monadMap @f = @f α := rfl
 
 /-! # ExceptT -/
@@ -30,7 +30,7 @@ namespace ExceptT
   simp [run] at h
   assumption
 
-@[simp] theorem stM_eq [Monad m] : stM m (ExceptT ε m) α = Except ε α := rfl
+@[defeq, simp] theorem stM_eq [Monad m] : stM m (ExceptT ε m) α = Except ε α := rfl
 
 @[simp, grind =] theorem run_mk (x : m (Except ε α)) : run (mk x : ExceptT ε m α) = x := rfl
 
@@ -67,6 +67,7 @@ theorem run_bind [Monad m] (x : ExceptT ε m α) (f : α → ExceptT ε m β)
 @[simp, grind =] theorem run_monadMap [MonadFunctorT n m] (f : {β : Type u} → n β → n β) (x : ExceptT ε m α)
     : (monadMap @f x : ExceptT ε m α).run = monadMap @f (x.run) := rfl
 
+@[defeq]
 protected theorem seq_eq {α β ε : Type u} [Monad m] (mf : ExceptT ε m (α → β)) (x : ExceptT ε m α) : mf <*> x = mf >>= fun f => f <$> x :=
   rfl
 
@@ -186,6 +187,7 @@ namespace OptionT
 @[simp, grind =] theorem run_monadMap [MonadFunctorT n m] (f : {β : Type u} → n β → n β) (x : OptionT m α)
     : (monadMap @f x : OptionT m α).run = monadMap @f (x.run) := rfl
 
+@[defeq]
 protected theorem seq_eq {α β : Type u} [Monad m] (mf : OptionT m (α → β)) (x : OptionT m α) : mf <*> x = mf >>= fun f => f <$> x :=
   rfl
 
@@ -345,6 +347,7 @@ instance [Monad m] [LawfulMonad m] : LawfulMonad (ReaderT ρ m) where
     ReaderT.run (liftWith f) ctx = (f fun x => x.run ctx) :=
   rfl
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp] theorem run_controlAt [Monad m] [LawfulMonad m] (f : ({β : Type u} → ReaderT ρ m β → m (stM m (ReaderT ρ m) β)) → m (stM m (ReaderT ρ m) α)) (ctx : ρ) :
     ReaderT.run (controlAt m f) ctx = f fun x => x.run ctx := by
   simp [controlAt]

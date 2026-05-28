@@ -21,7 +21,7 @@ open Std
 
 namespace Fin
 
-@[simp, grind =] theorem ofNat_zero (n : Nat) [NeZero n] : Fin.ofNat n 0 = 0 := rfl
+@[defeq, simp, grind =] theorem ofNat_zero (n : Nat) [NeZero n] : Fin.ofNat n 0 = 0 := rfl
 
 theorem mod_def (a m : Fin n) : a % m = Fin.mk (a.val % m.val) (Nat.lt_of_le_of_lt (Nat.mod_le _ _) a.2) :=
   rfl
@@ -47,7 +47,7 @@ theorem pos_iff_nonempty {n : Nat} : 0 < n ↔ Nonempty (Fin n) :=
 
 /-! ### coercions and constructions -/
 
-@[simp] protected theorem eta (a : Fin n) (h : a < n) : (⟨a, h⟩ : Fin n) = a := rfl
+@[defeq, simp] protected theorem eta (a : Fin n) (h : a < n) : (⟨a, h⟩ : Fin n) = a := rfl
 
 @[ext, grind ext]
 protected theorem ext {a b : Fin n} (h : (a : Nat) = b) : a = b := eq_of_val_eq h
@@ -61,6 +61,7 @@ theorem forall_iff {p : Fin n → Prop} : (∀ i, p i) ↔ ∀ i h, p ⟨i, h⟩
 protected theorem mk.inj_iff {n a b : Nat} {ha : a < n} {hb : b < n} :
     (⟨a, ha⟩ : Fin n) = ⟨b, hb⟩ ↔ a = b := Fin.ext_iff
 
+@[defeq]
 theorem val_mk {m n : Nat} (h : m < n) : (⟨m, h⟩ : Fin n).val = m := rfl
 
 theorem eq_mk_iff_val_eq {a : Fin n} {k : Nat} {hk : k < n} :
@@ -278,6 +279,7 @@ grind_pattern val_rev => i.rev
 @[simp] theorem rev_inj {i j : Fin n} : rev i = rev j ↔ i = j :=
   ⟨fun h => by simpa using congrArg rev h, congrArg _⟩
 
+set_option backward.defeqAttrib.useBackward true in
 theorem rev_eq {n a : Nat} (i : Fin (n + 1)) (h : n = a + i) :
     rev i = ⟨a, Nat.lt_succ_of_le (h ▸ Nat.le_add_right ..)⟩ := by
   ext; dsimp

@@ -1,3 +1,5 @@
+set_option backward.defeqAttrib.useBackward true
+
 variable {R M : Type}
 
 /-- Typeclass for the `⊥` (`\bot`) notation -/
@@ -20,7 +22,7 @@ instance : Bot (Submodule R M) where
 instance : Zero (Submodule R M) where
   zero := ⊥
 
-@[simp]
+@[defeq, simp]
 theorem zero_eq_bot : (0 : Submodule R M) = ⊥ :=
   rfl
 

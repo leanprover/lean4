@@ -19,11 +19,13 @@ import Std.Data.DHashMap.Lemmas
 namespace Std.DHashMap.Internal.AssocList
 open Std.Iterators
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 public theorem step_iter_nil {α : Type u} {β : α → Type v} :
     ((.nil : AssocList α β).iter).step = ⟨.done, rfl⟩ := by
   simp [Iter.step_eq, iter]
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 public theorem step_iter_cons {α : Type u} {β : α → Type v} {k v} {l : AssocList α β} :
     ((AssocList.cons k v l).iter).step = ⟨.yield l.iter ⟨k, v⟩, rfl⟩ := by

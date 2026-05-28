@@ -64,6 +64,7 @@ instance : OfNat Duration n where
 instance : Ord Duration where
   compare := compareLex (compareOn (·.second)) (compareOn (·.nano))
 
+@[defeq]
 theorem Duration.compare_def :
     compare (α := Duration) = compareLex (compareOn (·.second)) (compareOn (·.nano)) := rfl
 

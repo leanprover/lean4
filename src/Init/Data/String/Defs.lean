@@ -458,15 +458,15 @@ instance : HAdd Slice Pos.Raw Pos.Raw where
 instance : HSub Pos.Raw Slice Pos.Raw where
   hSub p s := { byteIdx := p.byteIdx - s.utf8ByteSize }
 
-@[simp]
+@[defeq, simp]
 theorem Pos.Raw.byteIdx_add_slide {p : Pos.Raw} {s : Slice} :
     (p + s).byteIdx = p.byteIdx + s.utf8ByteSize := rfl
 
-@[simp]
+@[defeq, simp]
 theorem Pos.Raw.byteIdx_slice_add {s : Slice} {p : Pos.Raw} :
     (s + p).byteIdx = s.utf8ByteSize + p.byteIdx := rfl
 
-@[simp]
+@[defeq, simp]
 theorem Pos.Raw.byteIdx_sub_slice {p : Pos.Raw} {s : Slice} :
     (p - s).byteIdx = p.byteIdx - s.utf8ByteSize := rfl
 
@@ -633,7 +633,7 @@ def Slice.Pos.byte {s : Slice} (pos : s.Pos) (h : pos ≠ s.endPos) : UInt8 :=
     simp_all [Pos.ext_iff, String.Pos.Raw.ext_iff, Pos.Raw.le_iff, Pos.Raw.lt_iff]
     omega)
 
-@[simp] theorem default_eq : default = "" := rfl
+@[defeq, simp] theorem default_eq : default = "" := rfl
 
 theorem push_eq_append (c : Char) : String.push s c = s ++ singleton c := by
   simp

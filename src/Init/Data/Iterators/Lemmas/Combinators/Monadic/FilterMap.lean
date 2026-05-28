@@ -444,6 +444,7 @@ theorem IterM.toList_filterMapWithPostcondition_filterMapWithPostcondition {α �
   apply bind_congr; intro fx
   split <;> simp [*]
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 theorem IterM.toList_mapWithPostcondition_mapWithPostcondition {α β γ δ : Type w}
     {m : Type w → Type w'} {n : Type w → Type w''} {o : Type w → Type w'''}
@@ -1334,6 +1335,7 @@ theorem IterM.forIn_map
   rw [map, forIn_mapWithPostcondition]
   simp [PostconditionT.run_eq_map]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem IterM.forIn_filterWithPostcondition
     [Monad m] [LawfulMonad m] [Monad n] [LawfulMonad n] [Monad o] [LawfulMonad o]
     [MonadLiftT m n] [LawfulMonadLiftT m n] [MonadLiftT n o] [LawfulMonadLiftT n o]

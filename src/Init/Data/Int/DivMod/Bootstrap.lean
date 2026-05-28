@@ -26,6 +26,7 @@ namespace Int
 
 /-! ### dvd  -/
 
+@[defeq]
 protected theorem dvd_def (a b : Int) : (a ∣ b) = Exists (fun c => b = a * c) := rfl
 
 @[simp] protected theorem dvd_zero (n : Int) : n ∣ 0 := ⟨0, (Int.mul_zero _).symm⟩
@@ -148,6 +149,7 @@ theorem ediv_mul_self (a b : Int) : a / b * b = a - a % b := by
   | ofNat _, -[_+1] => (Int.neg_neg _).symm
   | ofNat _, succ _ | -[_+1], 0 | -[_+1], succ _ | -[_+1], -[_+1] => rfl
 
+@[defeq]
 protected theorem div_def (a b : Int) : a / b = Int.ediv a b := rfl
 
 theorem add_mul_ediv_right (a b : Int) {c : Int} (H : c ≠ 0) : (a + b * c) / c = a / c + b :=

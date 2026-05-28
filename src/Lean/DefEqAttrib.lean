@@ -24,6 +24,23 @@ register_builtin_option backward.defeqAttrib.useBackward : Bool := {
     pre-stricter-inference behavior for a specific proof."
 }
 
+register_builtin_option backward.inferDefEqOnRfl : Bool := {
+  defValue := false
+  descr    := "Adaption helper. When true, theorems written `:= rfl` (and that do not \
+    already carry a `[defeq]` or `[backward_defeq]` attribute) are inferred to be \
+    `[defeq]` (when the equation holds at instance transparency) or `[backward_defeq]` \
+    (otherwise). Use this option to opt out of the post-migration default of tagging \
+    `:= rfl` theorems with `[backward_defeq]` only, and instead tag with `[defeq]` \
+    whenever the strict check passes. Combine with `backward.inferDefEqOnRfl.trace` \
+    to log which attribute was inferred."
+}
+
+register_builtin_option backward.inferDefEqOnRfl.trace : Bool := {
+  defValue := false
+  descr    := "When true (and `backward.inferDefEqOnRfl` is also true), emit an info \
+    message for each `:= rfl` theorem inferred to be `[defeq]`."
+}
+
 /--
 There are defeq theorems that only hold at transparency `.all`, but also others that hold
 (from the kernel's point of view) but where the defeq checker here will run out of cycles.
@@ -38,18 +55,16 @@ private def withEqLhsRhs (type : Expr) (k : Expr → Expr → MetaM α) : MetaM 
   withTransparency .all do -- we want to look through defs in `info.type` all the way to `Eq`
     forallTelescopeReducing type fun _ type => do
       let type ← whnf type
-      -- NB: The warning wording should work both for explicit uses of `@[defeq]` as well as the implicit `:= rfl`.
       let some (_, lhs, rhs) := type.eq? |
         throwError m!"Not a definitional equality: the conclusion should be an equality, but is{inlineExpr type}"
       k lhs rhs
 
 /--
 Validates that `declName` is a definitional equality at `.default`/`.all` transparency
-(the legacy permissive check). Throws a diagnostic error if not. This is used both as
-the validator for the `@[defeq]` and `@[backward_defeq]` attributes and as a building
-block for `inferDefEqAttr`.
+(the legacy permissive check). Throws a diagnostic error if not. This is used as the
+validator for the `@[backward_defeq]` attribute.
 -/
-def validateDefEqAttr (declName : Name) : AttrM Unit := do
+def validateBackwardDefEqAttr (declName : Name) : AttrM Unit := do
   let info ← getConstVal declName
   MetaM.run' do withEqLhsRhs info.type fun lhs rhs => do
     let ok ← isDefEqCareful lhs rhs
@@ -60,6 +75,35 @@ def validateDefEqAttr (declName : Name) : AttrM Unit := do
           not definitionally equal to the right-hand side{indentExpr rhs}"
         if (← getEnv).isExporting then
           let okPrivately ← withoutExporting <| isDefEqCareful lhs rhs
+          if okPrivately then
+            msg := msg ++ .note m!"This theorem is exported from the current module. \
+              This requires that all definitions that need to be unfolded to prove this \
+              theorem must be exposed."
+        pure msg
+      throwError explanation
+
+/--
+Validates that `declName` is a definitional equality at `.instances` transparency
+(the strict check matching the transparency used by `dsimp`). Throws a diagnostic
+error if not. This is used as the validator for the `@[defeq]` attribute.
+-/
+def validateDefEqAttr (declName : Name) : AttrM Unit := do
+  let info ← getConstVal declName
+  MetaM.run' do withEqLhsRhs info.type fun lhs rhs => do
+    let ok ← withReducibleAndInstances <| isDefEq lhs rhs
+    unless ok do
+      let explanation := MessageData.ofLazyM (es := #[lhs, rhs]) do
+        let (lhs, rhs) ← addPPExplicitToExposeDiff lhs rhs
+        let mut msg := m!"Not a definitional equality at instance transparency: \
+          the left-hand side{indentExpr lhs}\nis not definitionally equal to the \
+          right-hand side{indentExpr rhs}\nat the transparency used by `dsimp`"
+        let okPermissive ← isDefEqCareful lhs rhs
+        if okPermissive then
+          msg := msg ++ .note m!"The equality holds at default/all transparency. \
+            Use `@[backward_defeq]` instead, or rewrite the proof so that the equality \
+            holds at instance transparency."
+        else if (← getEnv).isExporting then
+          let okPrivately ← withoutExporting <| withReducibleAndInstances <| isDefEq lhs rhs
           if okPrivately then
             msg := msg ++ .note m!"This theorem is exported from the current module. \
               This requires that all definitions that need to be unfolded to prove this \
@@ -87,16 +131,15 @@ builtin_initialize backwardDefeqAttr : TagAttribute ←
   registerTagAttribute `backward_defeq
     "mark theorem as a definitional equality under the permissive pre-stricter-inference \
       rules, used by `dsimp` when `set_option backward.defeqAttrib.useBackward true`"
-    (validate := validateDefEqAttr) (applicationTime := .afterTypeChecking)
+    (validate := validateBackwardDefEqAttr) (applicationTime := .afterTypeChecking)
     (asyncMode := .async .mainEnv)
 
 /--
 Marks the theorem as a definitional equality that can be used by `dsimp`.
 
-The theorem must be an equality that holds at `.instances` transparency. A theorem
-with a definition that is (syntactically) `:= rfl` is implicitly marked `@[defeq]`
-(and also `@[backward_defeq]`, since the latter is a superset); write `:= (rfl)`
-instead to suppress this.
+The theorem must be an equality that holds at `.instances` transparency, the
+transparency used by `dsimp`. If your theorem holds only at `.default`/`.all`
+transparency, use `@[backward_defeq]` instead.
 
 The attribute should be given before a `@[simp]` attribute to have effect.
 
@@ -111,7 +154,7 @@ theorems.
 builtin_initialize defeqAttr : TagAttribute ←
   registerTagAttribute `defeq "mark theorem as a definitional equality, to be used by `dsimp`"
     (validate := fun declName => do
-      -- Validate via the same check as `@[backward_defeq]`, then maintain the invariant
+      -- Validate the strict (instance-transparency) check. Then maintain the invariant
       -- `defeq ⊆ backward_defeq` by also tagging `backward_defeq`.
       validateDefEqAttr declName
       backwardDefeqAttr.setTag declName)
@@ -178,7 +221,7 @@ def inferDefEqAttr (declName : Name) : MetaM Unit := do
     -- restores the old behavior.
     try
       withExporting (isExporting := !isPrivateName declName) do
-        validateDefEqAttr declName
+        validateBackwardDefEqAttr declName
     catch e =>
       unless strict do
         logError m!"Theorem {declName} has a `rfl`-proof but could not be validated \
@@ -186,3 +229,26 @@ def inferDefEqAttr (declName : Name) : MetaM Unit := do
     if strict then
       defeqAttr.setTag declName
     backwardDefeqAttr.setTag declName
+
+/--
+Diagnostic attribute used by `MutualDef` when `backward.inferDefEqOnRfl` is set. It runs
+`inferDefEqAttr` (which tags the theorem with `[defeq]` when it holds at instance
+transparency, and with `[backward_defeq]` when it merely holds at default/all
+transparency). When `backward.inferDefEqOnRfl.trace` is also set, emits an info message
+for each `:= rfl` theorem inferred to be `[defeq]`.
+
+This attribute is internal: users should not apply it directly.
+-/
+@[builtin_doc]
+builtin_initialize inferDefEqAttribute : TagAttribute ←
+  registerTagAttribute `infer_defeq
+    "internal diagnostic attribute used to infer `[defeq]` or `[backward_defeq]` for \
+      `:= rfl` theorems"
+    (validate := fun declName => do
+      MetaM.run' <| inferDefEqAttr declName
+      if backward.inferDefEqOnRfl.trace.get (← getOptions) then
+        let env ← getEnv
+        if defeqAttr.hasTag env declName then
+          logInfo m!"`:= rfl` theorem `{declName}`: inferred @[defeq]")
+    (applicationTime := .afterTypeChecking)
+    (asyncMode := .async .mainEnv)

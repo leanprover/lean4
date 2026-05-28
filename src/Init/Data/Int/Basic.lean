@@ -75,21 +75,22 @@ scoped notation "-[" n "+1]" => negSucc n
 
 instance : Inhabited Int := ⟨ofNat 0⟩
 
-@[simp] theorem default_eq_zero : default = (0 : Int) := rfl
+@[defeq, simp] theorem default_eq_zero : default = (0 : Int) := rfl
 
 protected theorem zero_ne_one : (0 : Int) ≠ 1 := nofun
 
 /-! ## Coercions -/
 
-@[simp] theorem ofNat_eq_natCast (n : Nat) : Int.ofNat n = n := rfl
+@[defeq, simp] theorem ofNat_eq_natCast (n : Nat) : Int.ofNat n = n := rfl
 
-@[deprecated ofNat_eq_natCast (since := "2025-10-29")]
+@[defeq, deprecated ofNat_eq_natCast (since := "2025-10-29")]
 theorem ofNat_eq_coe : Int.ofNat n = Nat.cast n := rfl
 
-@[simp] theorem ofNat_zero : ((0 : Nat) : Int) = 0 := rfl
+@[defeq, simp] theorem ofNat_zero : ((0 : Nat) : Int) = 0 := rfl
 
-@[simp] theorem ofNat_one  : ((1 : Nat) : Int) = 1 := rfl
+@[defeq, simp] theorem ofNat_one  : ((1 : Nat) : Int) = 1 := rfl
 
+@[defeq]
 theorem ofNat_two : ((2 : Nat) : Int) = 2 := rfl
 
 /--
@@ -454,7 +455,7 @@ instance : IntCast Int where intCast n := n
 protected def Int.cast {R : Type u} [IntCast R] : Int → R :=
   IntCast.intCast
 
-@[simp] theorem Int.cast_eq (x : Int) : Int.cast x = x := rfl
+@[defeq, simp] theorem Int.cast_eq (x : Int) : Int.cast x = x := rfl
 
 -- see the notes about coercions into arbitrary types in the module doc-string
 instance [IntCast R] : CoeTail Int R where coe := Int.cast

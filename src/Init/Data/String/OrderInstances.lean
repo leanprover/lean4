@@ -39,7 +39,7 @@ instance : Lean.Grind.ToInt String.Pos.Raw (.ci 0) where
   toInt_inj p q := by simp [Pos.Raw.ext_iff, ← Int.ofNat_inj]
   toInt_mem := by simp
 
-@[simp]
+@[defeq, simp]
 theorem toInt_eq {p : Pos.Raw} : Lean.Grind.ToInt.toInt p = p.byteIdx := rfl
 
 instance : Lean.Grind.ToInt.LE String.Pos.Raw (.ci 0) where
@@ -66,7 +66,7 @@ instance {s : String} : Lean.Grind.ToInt s.Pos (.co 0 (s.utf8ByteSize + 1)) wher
   toInt_inj p q := by simp [Pos.ext_iff, Pos.Raw.ext_iff, ← Int.ofNat_inj]
   toInt_mem p := by have := p.isValid.le_utf8ByteSize; simp; omega
 
-@[simp]
+@[defeq, simp]
 theorem toInt_eq {s : String} {p : s.Pos} : Lean.Grind.ToInt.toInt p = p.offset.byteIdx := rfl
 
 instance {s : String} : Lean.Grind.ToInt.LE s.Pos (.co 0 (s.utf8ByteSize + 1)) where
@@ -93,7 +93,7 @@ instance {s : Slice} : Lean.Grind.ToInt s.Pos (.co 0 (s.utf8ByteSize + 1)) where
   toInt_inj p q := by simp [Pos.ext_iff, Pos.Raw.ext_iff, ← Int.ofNat_inj]
   toInt_mem p := by have := p.isValidForSlice.le_utf8ByteSize; simp; omega
 
-@[simp]
+@[defeq, simp]
 theorem toInt_eq {s : Slice} {p : s.Pos} : Lean.Grind.ToInt.toInt p = p.offset.byteIdx := rfl
 
 instance {s : Slice} : Lean.Grind.ToInt.LE s.Pos (.co 0 (s.utf8ByteSize + 1)) where

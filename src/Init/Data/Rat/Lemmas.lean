@@ -269,7 +269,7 @@ def numDenCasesOn''.{u} {C : Rat → Sort u} (a : Rat)
     rw [← mk_eq_divInt (c := h')]
     exact H n d (Nat.ne_of_gt h) _
 
-@[simp] protected theorem ofInt_ofNat : ofInt (OfNat.ofNat n) = OfNat.ofNat n := rfl
+@[defeq, simp] protected theorem ofInt_ofNat : ofInt (OfNat.ofNat n) = OfNat.ofNat n := rfl
 
 @[simp] theorem ofInt_num : (ofInt n : Rat).num = n := rfl
 @[simp] theorem ofInt_den : (ofInt n : Rat).den = 1 := rfl
@@ -654,7 +654,7 @@ theorem ofScientific_def : Rat.ofScientific m s e =
   cases s; exact ofScientific_false_def; exact ofScientific_true_def
 
 /-- `Rat.ofScientific` applied to numeric literals is the same as a scientific literal. -/
-@[simp]
+@[defeq, simp]
 theorem ofScientific_ofNat_ofNat :
     Rat.ofScientific (no_index (OfNat.ofNat m)) s (no_index (OfNat.ofNat e))
       = OfScientific.ofScientific m s e := rfl
@@ -1006,7 +1006,7 @@ The following lemmas are later subsumed by e.g. `Int.cast_add` and `Int.cast_mul
 but it is convenient to have these earlier, for users who only need `Int` and `Rat`.
 -/
 
-@[norm_cast] theorem intCast_natCast (n : Nat) : ((n : Int) : Rat) = n := rfl
+@[defeq, norm_cast] theorem intCast_natCast (n : Nat) : ((n : Int) : Rat) = n := rfl
 
 @[simp, norm_cast] theorem intCast_inj {a b : Int} : (a : Rat) = (b : Rat) ↔ a = b := by
   constructor
@@ -1028,16 +1028,18 @@ but it is convenient to have these earlier, for users who only need `Int` and `R
     no_index (OfNat.ofNat a : Rat) = no_index (OfNat.ofNat b : Rat) ↔ a = b :=
   natCast_inj
 
-@[simp, norm_cast] theorem intCast_ofNat {a : Nat} :
+@[defeq, simp, norm_cast] theorem intCast_ofNat {a : Nat} :
     (no_index (OfNat.ofNat a : Int) : Rat) = OfNat.ofNat a :=
   rfl
 
-@[simp, norm_cast] theorem natCast_ofNat {a : Nat} :
+@[defeq, simp, norm_cast] theorem natCast_ofNat {a : Nat} :
     (no_index (OfNat.ofNat a : Nat) : Rat) = OfNat.ofNat a :=
   rfl
 
+@[defeq]
 protected theorem intCast_zero : ((0 : Int) : Rat) = (0 : Rat) := rfl
 
+@[defeq]
 protected theorem intCast_one : ((1 : Int) : Rat) = (1 : Rat) := rfl
 
 @[simp, norm_cast] protected theorem intCast_add (a b : Int) :
@@ -1139,9 +1141,9 @@ theorem ofScientific_def_eq_if :
 # min and max
 -/
 
-@[grind =] protected theorem max_def {n m : Rat} : max n m = if n ≤ m then m else n := rfl
+@[defeq, grind =] protected theorem max_def {n m : Rat} : max n m = if n ≤ m then m else n := rfl
 
-@[grind =] protected theorem min_def {n m : Rat} : min n m = if n ≤ m then n else m := rfl
+@[defeq, grind =] protected theorem min_def {n m : Rat} : min n m = if n ≤ m then n else m := rfl
 
 
 /-!

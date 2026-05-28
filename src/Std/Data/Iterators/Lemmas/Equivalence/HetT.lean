@@ -328,6 +328,7 @@ theorem HetT.ext_iff {m : Type w → Type w'} [Monad m] [LawfulMonad m]
   · intro h
     exact HetT.ext h.1 h.2
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 protected theorem HetT.map_eq_pure_bind {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type u} {β : Type v} {f : α → β} {x : HetT m α} :
@@ -416,6 +417,7 @@ protected theorem HetT.map_pure {m : Type w → Type w'} [Monad m] [LawfulMonad 
     (HetT.pure a : HetT m α).map f = HetT.pure (f a) := by
   simp
 
+set_option backward.defeqAttrib.useBackward true in
 @[simp]
 protected theorem HetT.comp_map {m : Type w → Type w'} [Monad m] [LawfulMonad m]
     {α : Type u} {β : Type v} {γ : Type x} {f : α → β} {g : β → γ} {x : HetT m α} :

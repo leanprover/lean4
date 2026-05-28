@@ -19,52 +19,52 @@ Should modules within `Init` use `@[method_specs]` on such instances, they shoul
 
 public section
 
-@[method_specs_simp] theorem Add.add_eq_hAdd {α : Type u} [inst : Add α] :
+@[defeq, method_specs_simp] theorem Add.add_eq_hAdd {α : Type u} [inst : Add α] :
     Eq (@Add.add α inst) (@HAdd.hAdd α α α (@instHAdd α inst)) := rfl
 
-@[method_specs_simp] theorem Sub.sub_eq_hSub [Sub α] :
+@[defeq, method_specs_simp] theorem Sub.sub_eq_hSub [Sub α] :
     Eq (@Sub.sub α _) (@HSub.hSub α α α _) := rfl
 
-@[method_specs_simp] theorem Mul.mul_eq_hMul [Mul α] :
+@[defeq, method_specs_simp] theorem Mul.mul_eq_hMul [Mul α] :
     Eq (@Mul.mul α _) (@HMul.hMul α α α _) := rfl
 
-@[method_specs_simp] theorem Div.div_eq_hDiv [Div α] :
+@[defeq, method_specs_simp] theorem Div.div_eq_hDiv [Div α] :
     Eq (@Div.div α _) (@HDiv.hDiv α α α _) := rfl
 
-@[method_specs_simp] theorem Mod.mod_eq_hMod [Mod α] :
+@[defeq, method_specs_simp] theorem Mod.mod_eq_hMod [Mod α] :
     Eq (@Mod.mod α _) (@HMod.hMod α α α _) := rfl
 
-@[method_specs_simp] theorem Pow.pow_eq_hPow {α β} [Pow α β] :
+@[defeq, method_specs_simp] theorem Pow.pow_eq_hPow {α β} [Pow α β] :
     Eq (@Pow.pow α β _) (@HPow.hPow α β α _) := rfl
 
-@[method_specs_simp] theorem SMul.smul_eq_hSMul {α β} [SMul α β] :
+@[defeq, method_specs_simp] theorem SMul.smul_eq_hSMul {α β} [SMul α β] :
     Eq (@SMul.smul α β _) (@HSMul.hSMul α β β _) := rfl
 
-@[method_specs_simp] theorem Mul.mul_eq_smul {α} [Mul α] :
+@[defeq, method_specs_simp] theorem Mul.mul_eq_smul {α} [Mul α] :
     Eq (@Mul.mul α _) (@SMul.smul α α _) := rfl
 
-@[method_specs_simp] theorem Append.append_eq_hAppend [Append α] :
+@[defeq, method_specs_simp] theorem Append.append_eq_hAppend [Append α] :
     Eq (@Append.append α _) (@HAppend.hAppend α α α _) := rfl
 
-@[method_specs_simp] theorem OrElse.orElse_eq_hOrElse [OrElse α] :
+@[defeq, method_specs_simp] theorem OrElse.orElse_eq_hOrElse [OrElse α] :
     Eq (@OrElse.orElse α _) (@HOrElse.hOrElse α α α _) := rfl
 
-@[method_specs_simp] theorem AndThen.andThen_eq_hAndThen [AndThen α] :
+@[defeq, method_specs_simp] theorem AndThen.andThen_eq_hAndThen [AndThen α] :
     Eq (@AndThen.andThen α _) (@HAndThen.hAndThen α α α _) := rfl
 
-@[method_specs_simp] theorem AndOp.andOp_hAnd [AndOp α] :
+@[defeq, method_specs_simp] theorem AndOp.andOp_hAnd [AndOp α] :
     Eq (@AndOp.and α _) (@HAnd.hAnd α α α _) := rfl
 
-@[method_specs_simp] theorem XorOp.xor_hXor [XorOp α] :
+@[defeq, method_specs_simp] theorem XorOp.xor_hXor [XorOp α] :
     Eq (@XorOp.xor α _) (@HXor.hXor α α α _) := rfl
 
-@[method_specs_simp] theorem OrOp.or_hOr [OrOp α] :
+@[defeq, method_specs_simp] theorem OrOp.or_hOr [OrOp α] :
     Eq (@OrOp.or α _) (@HOr.hOr α α α _) := rfl
 
-@[method_specs_simp] theorem ShiftLeft.shiftLeft_hShiftLeft [ShiftLeft α] :
+@[defeq, method_specs_simp] theorem ShiftLeft.shiftLeft_hShiftLeft [ShiftLeft α] :
     Eq (@ShiftLeft.shiftLeft α _) (@HShiftLeft.hShiftLeft α α α _) := rfl
 
-@[method_specs_simp] theorem ShiftRight.shiftRight_hShiftRight [ShiftRight α] :
+@[defeq, method_specs_simp] theorem ShiftRight.shiftRight_hShiftRight [ShiftRight α] :
     Eq (@ShiftRight.shiftRight α _) (@HShiftRight.hShiftRight α α α _) := rfl
 
 end

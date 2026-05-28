@@ -151,7 +151,7 @@ theorem IterM.Equiv.step_eq {α₁ α₂ : Type w} {m : Type w → Type w'} [Mon
   simp only [HetT.map_pmap, IterStep.restrict_bundle (α₂ := α₂),
     IterStep.restrict_bundle (α₂ := α₁)] at h'
   replace h' := congrArg (HetT.prun · (fun x _ => pure (Shrink.deflate x))) h'
-  simp only [Equivalence.property_step, HetT.prun_pmap, Equivalence.prun_step, bind_pure_comp] at h'
+  simp only [HetT.prun_pmap, Equivalence.prun_step, bind_pure_comp] at h'
   simp only [QuotStep.transportAlongEquiv, Functor.map_map, Shrink.inflate_deflate, ← h']
   congr
   ext step
@@ -229,7 +229,7 @@ theorem IterM.Equiv.liftInner_stepAsHetT_bind_congr [Monad m] [LawfulMonad m]
     (hfg : ∀ sa (_ : (IterM.stepAsHetT ita).Property sa) sb (_ : (IterM.stepAsHetT itb).Property sb),
         sa.bundledQuotient = sb.bundledQuotient → f sa = g sb) :
     ((IterM.stepAsHetT ita).liftInner n).bind f = ((IterM.stepAsHetT itb).liftInner n).bind g := by
-  simp only [HetT.bind_eq_pbind, HetT.property_liftInner, Equivalence.property_step]
+  simp only [HetT.bind_eq_pbind]
   apply liftInner_stepAsHetT_pbind_congr h
   exact hfg
 

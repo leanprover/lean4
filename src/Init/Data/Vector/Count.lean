@@ -196,6 +196,7 @@ theorem boole_getElem_le_count {a : α} {xs : Vector α n} (h : i < n) :
   rcases xs with ⟨xs, rfl⟩
   simp [Array.boole_getElem_le_count]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem count_set {a b : α} {xs : Vector α n} (h : i < n) :
     (xs.set i a).count b = xs.count b - (if xs[i] == b then 1 else 0) + (if a == b then 1 else 0) := by
   rcases xs with ⟨xs, rfl⟩

@@ -157,6 +157,7 @@ public theorem Iter.step_flatMapM {α : Type w} {β : Type w} {α₂ : Type w}
     | .done h => return .deflate (.done (.outerDone_flatMapM_pure h))) := by
   simp [flatMapM, step_flatMapAfterM]
 
+set_option backward.defeqAttrib.useBackward true in
 public theorem Iter.step_flatMapAfter {α : Type w} {β : Type w} {α₂ : Type w}
     {γ : Type w} [Iterator α Id β] [Iterator α₂ Id γ]
     {f : β → Iter (α := α₂) γ} {it₁ : Iter (α := α) β} {it₂ : Option (Iter (α := α₂) γ)} :

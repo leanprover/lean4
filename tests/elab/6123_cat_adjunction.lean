@@ -1,3 +1,5 @@
+set_option backward.defeqAttrib.useBackward true
+
 set_option warn.classDefReducibility false
 
 section Mathlib.CategoryTheory.ConcreteCategory.Bundled

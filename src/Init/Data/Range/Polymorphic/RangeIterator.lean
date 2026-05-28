@@ -117,6 +117,7 @@ theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α] [LE α] [DecidableLE 
   · rintro rfl
     simp only [IterStep.mapIterator_mapIterator, Iter.toIterM_comp_toIter, IterStep.mapIterator_id]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iterator.step_eq_step [UpwardEnumerable α] [LE α] [DecidableLE α]
     {it : Iter (α := Rxc.Iterator α) α} :
     it.step = ⟨Iterator.step it, isPlausibleStep_iff.mpr rfl⟩ := by
@@ -697,6 +698,7 @@ theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α] [LT α] [DecidableLT 
   · rintro rfl
     simp only [IterStep.mapIterator_mapIterator, Iter.toIterM_comp_toIter, IterStep.mapIterator_id]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iterator.step_eq_step [UpwardEnumerable α] [LT α] [DecidableLT α]
     {it : Iter (α := Rxo.Iterator α) α} :
     it.step = ⟨Iterator.step it, isPlausibleStep_iff.mpr rfl⟩ := by
@@ -1256,6 +1258,7 @@ theorem Iterator.isPlausibleStep_iff [UpwardEnumerable α]
   · rintro rfl
     simp only [IterStep.mapIterator_mapIterator, Iter.toIterM_comp_toIter, IterStep.mapIterator_id]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Iterator.step_eq_step [UpwardEnumerable α]
     {it : Iter (α := Rxi.Iterator α) α} :
     it.step = ⟨Iterator.step it, isPlausibleStep_iff.mpr rfl⟩ := by

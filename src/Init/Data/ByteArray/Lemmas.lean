@@ -18,7 +18,7 @@ public section
 namespace ByteArray
 
 -- At present the preferred normal form for empty byte arrays is `ByteArray.empty`
-@[simp]
+@[defeq, simp]
 theorem emptyc_eq_empty : (∅ : ByteArray) = ByteArray.empty := rfl
 
 @[simp]

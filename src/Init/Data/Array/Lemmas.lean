@@ -53,7 +53,7 @@ namespace Array
 @[simp, grind =] theorem mem_toList_iff {a : α} {xs : Array α} : a ∈ xs.toList ↔ a ∈ xs := by
   cases xs <;> simp
 
-@[simp, grind =] theorem length_toList {xs : Array α} : xs.toList.length = xs.size := rfl
+@[defeq, simp, grind =] theorem length_toList {xs : Array α} : xs.toList.length = xs.size := rfl
 
 theorem eq_toArray : xs = List.toArray as ↔ xs.toList = as := by
   cases xs
@@ -68,7 +68,7 @@ theorem toArray_eq : List.toArray as = xs ↔ as = xs.toList := by
 @[simp] theorem empty_eq {xs : Array α} : #[] = xs ↔ xs = #[] := by
   cases xs <;> simp
 
-@[grind =] theorem size_empty : (#[] : Array α).size = 0 := rfl
+@[defeq, grind =] theorem size_empty : (#[] : Array α).size = 0 := rfl
 
 /-! ### size -/
 
@@ -1787,6 +1787,7 @@ theorem toArray_append {xs : List α} {ys : Array α} :
   cases ys
   simp
 
+@[defeq]
 theorem singleton_eq_toArray_singleton {a : α} : #[a] = [a].toArray := rfl
 
 @[simp, grind =] theorem mem_append {a : α} {xs ys : Array α} : a ∈ xs ++ ys ↔ a ∈ xs ∨ a ∈ ys := by

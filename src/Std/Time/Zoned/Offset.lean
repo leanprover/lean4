@@ -40,6 +40,7 @@ instance : Inhabited Offset where
 instance : Ord Offset where
   compare := compareOn (·.second)
 
+@[defeq]
 theorem Offset.compare_def :
     compare (α := Offset) = compareOn (·.second) := rfl
 

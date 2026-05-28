@@ -1528,8 +1528,23 @@ def elabMutualDef (ds : Array Syntax) : CommandElabM Unit := do
     let mut view ←
       withExporting (isExporting := modifiers.visibility.isInferredPublic (← getEnv)) do
         mkDefView modifiers d[1]
-    if view.kind != .example && view.value matches `(declVal| := rfl) then
-      view := view.markDefEq
+    -- Adaption helper: theorems written `:= rfl` without an explicit
+    -- `[defeq]`/`[backward_defeq]` attribute are auto-tagged `[backward_defeq]`
+    -- (the permissive variant), so existing proofs that opt into
+    -- `set_option backward.defeqAttrib.useBackward true` keep working without
+    -- the source theorem having to be touched. Once the backward escape hatch
+    -- is no longer in use, the special handling of `:= rfl` here can be dropped.
+    --
+    -- When `backward.inferDefEqOnRfl` is set, the diagnostic `[infer_defeq]`
+    -- attribute is used instead, which calls `inferDefEqAttr` to choose between
+    -- `[defeq]` and `[backward_defeq]` based on whether the equation holds at
+    -- instance transparency. With `backward.inferDefEqOnRfl.trace` also set,
+    -- it logs an info message when `[defeq]` is inferred.
+    if view.kind != .example && view.value matches `(declVal| := rfl) &&
+        !view.modifiers.attrs.any (fun a => a.name == `defeq || a.name == `backward_defeq) then
+      let attrName :=
+        if backward.inferDefEqOnRfl.get opts then `infer_defeq else `backward_defeq
+      view := { view with modifiers := view.modifiers.addAttr { name := attrName } }
     let fullHeaderRef := mkNullNode #[d[0], view.headerRef]
     if let some snap := snap? then
       view := { view with headerSnap? := some {

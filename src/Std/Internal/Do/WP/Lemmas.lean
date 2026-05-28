@@ -11,6 +11,9 @@ public import Std.Internal.Do.WP.Basic
 
 set_option linter.missingDocs true
 
+-- Remove and fix after stage0 update:
+set_option linter.unusedSimpArgs false
+
 /-!
 # Simp lemmas for weakest preconditions
 

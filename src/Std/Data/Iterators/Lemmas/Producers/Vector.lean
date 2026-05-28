@@ -77,6 +77,7 @@ theorem Vector.iter_toArray {xs : Vector β n} :
     xs.toArray.iter = xs.iter :=
   rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Vector.step_iterFromIdx {xs : Vector β n} {pos : Nat} :
     (xs.iterFromIdx pos).step = if h : pos < n then
         .yield
@@ -87,6 +88,7 @@ theorem Vector.step_iterFromIdx {xs : Vector β n} {pos : Nat} :
         .done (Vector.isPlausibleStep_iterFromIdx_of_not_lt h) := by
   split <;> simp [Vector.iterFromIdx_eq_toIter_iterFromIdxM, Iter.step, Vector.step_iterFromIdxM, *]
 
+set_option backward.defeqAttrib.useBackward true in
 theorem Vector.step_iter {xs : Vector β n} :
     xs.iter.step = if h : 0 < n then
         .yield

@@ -355,6 +355,7 @@ theorem Perm.rec_heq {β : List α → Sort _} {f : ∀ a l, β l → β (a :: l
   | swap a a' l => exact f_swap
   | trans _h₁ _h₂ ih₁ ih₂ => exact ih₁.trans ih₂
 
+set_option backward.defeqAttrib.useBackward true in
 /-- Lemma used to destruct perms element by element. -/
 theorem perm_inv_core {a : α} {l₁ l₂ r₁ r₂ : List α} :
     l₁ ++ a :: r₁ ~ l₂ ++ a :: r₂ → l₁ ++ r₁ ~ l₂ ++ r₂ := by

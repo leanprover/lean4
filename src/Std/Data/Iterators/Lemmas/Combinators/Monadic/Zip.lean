@@ -73,6 +73,7 @@ theorem IterM.step_intermediateZip [Monad m] [Iterator α₁ m β₁] [Iterator 
     intro step
     cases step.inflate using PlausibleIterStep.casesOn <;> rfl
 
+set_option backward.defeqAttrib.useBackward true in
 theorem IterM.step_zip [Monad m] [Iterator α₁ m β₁] [Iterator α₂ m β₂]
     {it₁ : IterM (α := α₁) m β₁}
     {it₂ : IterM (α := α₂) m β₂} :

@@ -1,3 +1,5 @@
+set_option backward.defeqAttrib.useBackward true
+
 set_option warn.classDefReducibility false
 
 /-!
@@ -100,8 +102,7 @@ notation "𝟭" => Functor.id
 
 variable {C}
 
-@[simp]
-theorem id_obj (X : C) : (𝟭 C).obj X = X := rfl
+@[simp] theorem id_obj (X : C) : (𝟭 C).obj X = X := rfl
 
 end
 
@@ -559,8 +560,7 @@ theorem whiskerRight_hom (X : Mon_ C) {Y Z : Mon_ C} (f : Y ⟶ Z) :
     (X ◁ f).hom = X.X ◁ f.hom := by
   rw [← id_tensorHom]; rfl
 
-@[simp]
-theorem rightUnitor_inv_hom (X : Mon_ C) : (ρ_ X).inv.hom = (ρ_ X.X).inv := rfl
+@[simp] theorem rightUnitor_inv_hom (X : Mon_ C) : (ρ_ X).inv.hom = (ρ_ X.X).inv := rfl
 
 instance monMonoidal : MonoidalCategory (Mon_ C) where
   id_whiskerRight := sorry

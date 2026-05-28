@@ -34,6 +34,7 @@ termination_by a₁.size - i
 instance {α} [Ord α] : Ord (Array α) where
   compare := Array.compareLex compare
 
+@[defeq]
 protected theorem compare_eq_compareLex {α} [Ord α] :
     compare (α := Array α) = Array.compareLex compare := rfl
 

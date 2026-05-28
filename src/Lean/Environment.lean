@@ -656,6 +656,23 @@ def setExporting (env : Environment) (isExporting : Bool) : Environment :=
   else
     { env with isExporting }
 
+/-- Returns `true` iff `env` exports a value for `n` to downstream modules.
+
+This is the case iff `n` is a definition (or `instance`, `theorem`, etc.) marked
+`@[expose]`, an `abbrev`, or otherwise a declaration whose body is visible across module
+boundaries.
+
+Returns `false` for axioms, opaques, declarations not present in the environment, and
+declarations whose body is sealed (i.e. lacking `@[expose]` under the module system).
+
+Note: when the current module is not using the module system (i.e. `env.header.isModule`
+is `false`), there is no sealing mechanism, so any declaration that has a value is
+"exposed" in that sense. Callers that wish to treat the non-module case uniformly as
+exposed (e.g. when deciding name privacy) should write
+`!env.header.isModule || env.hasExposedBody n`. -/
+def hasExposedBody (env : Environment) (n : Name) : Bool :=
+  env.setExporting true |>.find? n |>.any (·.hasValue)
+
 /-- Consistently updates synchronous and (private) asynchronous parts of the environment without blocking. -/
 private def modifyCheckedAsync (env : Environment) (f : Kernel.Environment → Kernel.Environment) : Environment :=
   { env with checked := env.checked.map (sync := true) f, base.private := f env.base.private }

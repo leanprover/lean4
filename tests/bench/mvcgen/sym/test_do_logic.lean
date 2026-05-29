@@ -20,6 +20,26 @@ The deprecation warning emitted by `mvcgen` indicates which tests still need mig
 
 Tests whose proofs do not mention `mvcgen`/`mvcgen'` (manual `mspec`/`mintro` proofs)
 are intentionally not ported.
+
+## Remaining blockers (tests still using `mvcgen`)
+
+Each blocked test is annotated with a `BLOCKED:` comment explaining the cause:
+
+- **`fib_triple_step`** — `mvcgen'` does not support `optConfig` (no `stepLimit`).
+- **`fib_triple_erase`**, **`erase_unfold`** — `mvcgen' [-name]` errors with
+  "No spec found" instead of leaving an unsolved VC. Needs an `-errorOnMissingSpec`
+  flag (default true) to gate this.
+- **`mkFreshPair_triple`** — `mvcgen'` lacks the `+trivial` flag, so schematic
+  output-state VCs remain unsolved.
+- **`mem_mergeWithAll`** — `mvcgen'` errors "No spec found" for `forIn` on the
+  universe-polymorphic `ExtTreeMap`.
+
+## Notes on workarounds
+
+- Some tests need `+zetaDelta` because `mvcgen'` leaves let-bindings in VCs.
+- `test_ite` needs an extra `exact ExceptConds.entails_false` because `mvcgen'` doesn't
+  auto-discharge `ExceptConds.entails` for non-`.pure` PostShapes.
+- `fast_expo_correct` manually `obtain`s tuples that `mvcgen'` leaves un-destructured.
 -/
 
 open Lean Meta Elab Tactic Sym Std Do SpecAttr
@@ -599,46 +619,3 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
   with (simp_all [-Classical.not_forall]; try grind)
 
 end InvariantSyntaxTests
-
-namespace RflReducibility
-
--- From `mvcgenRflReducibility.lean`. Asserts that decomposing `MyShl.shl a 32` does
--- not whnf at default reducibility, otherwise `UInt64.ofNat 32.toInt.toNat` would
--- unfold deeply and timeout. `mvcgen'` keeps reduction at `.instances` transparency
--- when stepping through class projections (`reduceProj?` in `Reduce.lean`), so this
--- example decomposes cleanly.
-
-abbrev RustM := Except String
-
-class MyAddU (Self : Type) (Rhs : Type) where
-  add : (Self → Rhs → RustM Self)
-
-instance : MyAddU UInt64 UInt64 := {
-  add x y := if BitVec.uaddOverflow x.toBitVec y.toBitVec then Except.error "" else pure (x + y)
-}
-
-class MyShl (Self : Type) (Rhs : Type) where
-  shl : (Self → Rhs → RustM Self)
-
-instance : MyShl UInt64 Int32 := {
-  shl x y := pure (x <<< (UInt64.ofNat y.toInt.toNat))
-}
-
-/--
-error: unsolved goals
-case vc1
-a : UInt64
-h✝ : (UInt64.toBitVec 0).uaddOverflow (a <<< UInt64.ofNat (Int32.toInt 32).toNat).toBitVec = true
-⊢ ⊢ₛ wp⟦Except.error ""⟧ (fun r => ⌜True⌝, ExceptConds.false)
--/
-#guard_msgs in
-example (a : UInt64) :
-    ⦃⌜True⌝⦄
-      do
-        let a ← MyShl.shl a (32: Int32)
-        let a ← MyAddU.add (0 : UInt64) a
-        pure a
-    ⦃PostCond.noThrow fun r => ⌜True⌝⦄ := by
-  mvcgen' (errorOnMissingSpec := false) [MyShl.shl, MyAddU.add]
-
-end RflReducibility

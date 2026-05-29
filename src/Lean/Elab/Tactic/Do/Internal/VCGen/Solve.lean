@@ -159,10 +159,6 @@ private def tryHeadReduceProg (goal : MVarId) (head H σs ent : Expr) (args : Ar
     (wpConst m ps instWP α e f : Expr) : VCGenM (Option MVarId) := do
   unless f matches .proj .. do return none
   let some e' ← reduceHead? e | return none
-  -- `reduceHead?` does not unfold reducible definitions; normalize the result here so
-  -- abbrevs introduced by the instance body match `@[spec]` rule patterns.
-  let e' ← Sym.unfoldReducible e'
-  let e' ← Sym.shareCommonInc e'
   return some (← replaceProgDefEq goal head H σs ent args wpConst m ps instWP α e')
 
 /-- Look up a registered `@[spec]` theorem for the program head and apply its cached

@@ -21,6 +21,16 @@ SymM-level head-redex reducer used throughout VCGen.
 -/
 
 /--
+Like `Meta.reduceProj?` but also `Sym.unfoldReducible`s the projected field when whnf
+reduced the structure. Transparency is the caller's choice.
+-/
+private def reduceProjAndUnfold? (e : Expr) : MetaM (Option Expr) := do
+  let .proj _ idx s := e | return none
+  let s' ← Lean.Meta.whnf s
+  let some f ← Lean.Meta.projectCore? s' idx | return none
+  if isSameExpr s s' then return some f else return some (← Sym.unfoldReducible f)
+
+/--
 Repeatedly reduces head redexes in `e`, cycling through the following reductions until
 no further progress is made:
 
@@ -31,11 +41,8 @@ no further progress is made:
 4. **Projection delta**: `Struct.field x` → `x.5` (unfolds projection *functions*,
    progress only if followed by proj-reduction)
 
-Returns `none` when no reduction was possible. Maintains maximal sharing via `shareCommonInc`.
-
-Note: `reduceHead?` does **not** unfold reducible definitions exposed by its reductions.
-Callers that need rule patterns to match against the unfolded form should run
-`Sym.unfoldReducible` on the result themselves; see `tryHeadReduceProg` in `Solve.lean`.
+Returns `none` when no reduction was possible. Maintains maximal sharing via `shareCommonInc`
+and the SymM no-exposed-reducibles invariant.
 -/
 public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
   withReducible <| go none e.getAppFn e.getAppRevArgs
@@ -62,10 +69,7 @@ public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
         else
           pure lastReduction
       | .proj .. =>
-        -- whnf at `instances` transparency: unfold `instMyAddInt32` (an instance) to
-        -- expose its `MyAdd.mk` constructor so `reduceProj?` can project the field,
-        -- but do not unfold arbitrary user definitions.
-        match ← withReducibleAndInstances (reduceProj? f) with
+        match ← withReducibleAndInstances <| reduceProjAndUnfold? f with
         | some f' =>
           let f' ← Sym.shareCommonInc f'
           let e' := mkAppRev f' rargs

@@ -4,7 +4,7 @@ set -euxo pipefail
 # run from root build directory (from inside nix-shell or otherwise defining GLIBC/ZLIB/GMP) as in
 # ```
 # eval cmake ../.. $(../../script/prepare-llvm-linux.sh ~/Downloads/lean-llvm-x86_64-linux-gnu.tar.zst)
-# ```A
+# ```
 
 # use full LLVM release for compiling C++ code, but subset for compiling C code and distribution
 

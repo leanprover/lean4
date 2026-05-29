@@ -178,15 +178,19 @@ public def mkSpecTheoremNewFromSimpDecl? (declName : Name) (prio : Nat) : MetaM 
 public def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : SimpTheorems) :
     SymM SpecTheoremsNew := do
   let mut specs : DiscrTree SpecTheoremNew := DiscrTree.empty
+  -- Erased entries are still inserted into `specs` below; `findSpecs` filters them out
+  -- at lookup time.
+  let erased : PHashSet SpecProof := simpThms.erased.fold (init := database.erased) fun acc o =>
+    match SpecProof.ofOrigin o with
+    | some p => acc.insert p
+    | none => acc
   for spec in database.specs.values do
-    if database.isErased spec.proof then continue
     let some newSpec ← mkSpecTheoremNew spec.proof spec.priority
       | throwError "could not migrate spec theorem {spec.proof}"
     specs := Sym.insertPattern specs newSpec.pattern newSpec
   -- Migrate simp spec theorems (equational lemmas registered via `@[spec]`)
   for simpThm in simpThms.post.values do
     if let .decl declName .. := simpThm.origin then
-      if simpThms.erased.contains simpThm.origin then continue
       try
         if let some newSpec ← mkSpecTheoremNewFromSimpDecl? declName simpThm.priority then
           specs := Sym.insertPattern specs newSpec.pattern newSpec
@@ -194,7 +198,6 @@ public def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : Sim
         trace[Elab.Tactic.Do.vcgen] "Failed to migrate simp spec {declName}: {e.toMessageData}"
   -- Migrate definitions to unfold (registered via `attribute [spec] foo`)
   for declName in simpThms.toUnfold.toList do
-    if simpThms.erased.contains (.decl declName) then continue
     let eqThms ← match simpThms.toUnfoldThms.find? declName with
       | some eqThms => pure eqThms
       | none =>
@@ -207,7 +210,7 @@ public def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : Sim
           specs := Sym.insertPattern specs newSpec.pattern newSpec
       catch e =>
         trace[Elab.Tactic.Do.vcgen] "Failed to migrate unfold spec {declName}/{eqThm}: {e.toMessageData}"
-  return { database with specs }
+  return { specs, erased }
 
 /--
 Look up `SpecTheoremNew`s in the `@[spec]` database.
@@ -218,6 +221,7 @@ public def SpecTheoremsNew.findSpecs (database : SpecTheoremsNew) (e : Expr) :
   let e ← instantiateMVars e
   let e ← shareCommon e
   let candidates := Sym.getMatch database.specs e
+  let candidates := candidates.filter fun spec => !database.erased.contains spec.proof
   if h : candidates.size = 1 then
     have : 0 < candidates.size := h ▸ Nat.zero_lt_one
     return .ok candidates[0]

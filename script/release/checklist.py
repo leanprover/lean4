@@ -161,6 +161,13 @@ class DownstreamChecker(RepoChecker):
             rf'\1 "{mathlib_sha}"',
         )
 
+        # For rc1 PRs
+        util.edit(
+            self.lrepo.path / "lakefile.toml",
+            r'name = "mathlib"\ngit = ".*"\nrev = ".+?"',
+            f'name = "mathlib"\nscope = "leanprover-community"\nrev = "{mathlib_sha}"',
+        )
+
         self._bump_toolchain_deps(self.lrepo.path)
 
     def _bump_toolchain_repl(self) -> None:

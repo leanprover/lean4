@@ -40,10 +40,11 @@ namespace VCGen
 /--
 Parse the optional `[...]` argument list for `mvcgen'`, partitioning entries into
 spec theorems and simp lemmas. Follows the same approach as
-`Lean.Elab.Tactic.Do.VCGen.mkSpecContext`: each entry is first tried as a spec theorem,
+`Lean.Elab.Tactic.Do.VCGen.mkContext`: each entry is first tried as a spec theorem,
 and on failure falls back to a simp/unfold lemma processed via `mkSimpContext`.
 -/
-public def mkSpecContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) : TermElabM VCGen.Context := do
+public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) :
+    TermElabM (VCGen.Context × VCGen.Scope) := do
   let mut specThms ← getSpecTheorems
   let mut simpStuff := #[]
   let mut starArg := false
@@ -123,8 +124,7 @@ public def mkSpecContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := fal
   let tripleOfEntailsWPRule ← mkBackwardRuleFromDecl ``Triple.of_entails_wp
   let andIntroRule ← mkBackwardRuleFromDecl ``And.intro
   let specThmsNew ← SymM.run <| migrateSpecTheoremsDatabase specThms simpThms
-  return {
-    specThms := specThmsNew,
+  let ctx : VCGen.Context := {
     entailsConsIntroRule,
     entailsNilPureIntroRule,
     entailsNilIntroRule,
@@ -142,6 +142,7 @@ public def mkSpecContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := fal
     tripleOfEntailsWPRule,
     andIntroRule,
   }
+  return (ctx, { specs := specThmsNew })
 
 end VCGen
 
@@ -298,6 +299,7 @@ private def elabRemainingInvariants (alts : Std.HashMap Nat Syntax)
 private structure ParsedArgs where
   config : VCGen.Config
   ctx : VCGen.Context
+  scope : VCGen.Scope
   params : Grind.Params
   invariantAlts? : Option (Std.HashMap Nat Syntax)
 
@@ -313,7 +315,7 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
   -- `case vcN bs* =>` patterns line up. Re-enabling on opt-in would require detecting
   -- explicit `(elimLets := true)` at the syntax level (upstream `Config` can't
   -- distinguish "default true" from "user-set true"); not yet wired.
-  let ctx ← VCGen.mkSpecContext stx[2] goal
+  let (ctx, scope) ← VCGen.mkContext stx[2] goal
   let hypSimpMethods ← elabSimplifyingAssumptions stx[4]
   let (preTac, params) ← elabPreTac goal stx[5]
   let invariantAlts? ← parseInvariantMap stx[3]
@@ -324,7 +326,7 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
     errorOnMissingSpec := config.errorOnMissingSpec,
     debug := config.debug,
     invariantAlts := invariantAlts?.getD {} }
-  return { config, ctx, params, invariantAlts? }
+  return { config, ctx, scope, params, invariantAlts? }
 
 /-- `mvcgen'` step inside `sym => …` blocks. -/
 @[builtin_grind_tactic Lean.Parser.Tactic.Grind.mvcgen']
@@ -334,7 +336,7 @@ def evalSymMVCGen' : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
   if args.invariantAlts?.isNone && !stx[3].isNone then
     throwError "`mvcgen' invariants?` (suggest mode) is not supported inside `sym => …` blocks"
   let result ← Lean.Elab.Tactic.Grind.liftGrindM do
-    let result ← VCGen.run goal args.ctx args.config.stepLimit
+    let result ← VCGen.run goal args.ctx args.scope args.config.stepLimit
     if let some alts := args.invariantAlts? then
       elabRemainingInvariants alts result.invariants result.inlineHandledInvariants
     return result
@@ -358,7 +360,7 @@ public def elabMVCGen' : Tactic := fun stx => withMainContext do
   let goal ← getMainGoal
   let args ← parseArgs stx goal
   let result ← Grind.GrindM.run (params := args.params) do
-    let result ← VCGen.run (← Grind.mkGoalCore goal) args.ctx args.config.stepLimit
+    let result ← VCGen.run (← Grind.mkGoalCore goal) args.ctx args.scope args.config.stepLimit
     if let some alts := args.invariantAlts? then
       elabRemainingInvariants alts result.invariants result.inlineHandledInvariants
     return result

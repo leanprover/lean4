@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Tactic.Do.VCGen.Basic
 public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
 public import Lean.Meta.Sym.Apply
+public import Lean.Meta.Sym.Simp.DiscrTree
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Tactic.Grind.Types
 
@@ -38,7 +39,6 @@ public def VCGen.PreTac.isGrind : VCGen.PreTac → Bool
   | _ => false
 
 public structure VCGen.Context where
-  specThms : SpecTheoremsNew
   /-- The backward rule for `SPred.entails_cons_intro`. -/
   entailsConsIntroRule : BackwardRule
   /-- The backward rule for `SPred.entails_nil_pure_intro`. Preferred over `entails_nil_intro`
@@ -105,6 +105,15 @@ public structure VCGen.Context where
   `invariants` clause is provided or in `invariants?` (suggest) mode (handled separately). -/
   invariantAlts : Std.HashMap Nat Syntax := {}
 
+public structure VCGen.Scope where
+  /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
+  specs : SpecTheoremsNew
+  /-- `__do_jp` fvars currently in scope. -/
+  jps : FVarIdMap JumpSiteInfo := {}
+  /-- Index of the next local declaration to consider for local specs. -/
+  nextDeclIdx : Nat := 0
+  deriving Inhabited
+
 public structure VCGen.State where
   /--
   A cache mapping registered SpecThms to their backward rule to apply.
@@ -134,12 +143,6 @@ public structure VCGen.State where
   -/
   simpState : Sym.Simp.State := {}
   /--
-  Map from `__do_jp` fvar id to its `JumpSiteInfo`. Populated when `tryLetIntro`
-  registers a join point (`Context.useJP = true`); consulted by `tryFvarZeta` /
-  `tryJumpSite` to short-circuit zeta-unfolding at call sites.
-  -/
-  jps : FVarIdMap JumpSiteInfo := {}
-  /--
   Remaining VC-generation steps. Initialized from `Context.config.stepLimit` (or
   `.unlimited` when no limit is set). Decremented at each successful program-shape
   step (`tryLetHoist`, `trySplit`, `tryFvarZeta`, `applySpec`). When exhausted,
@@ -159,14 +162,30 @@ public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.Grind
 
 namespace VCGen
 
-/-- Register a join-point `JumpSiteInfo` for the given fvar. Called when a
-`let __do_jp := …` is detected as a shared continuation. -/
-public def registerJP (fv : FVarId) (info : JumpSiteInfo) : VCGenM Unit :=
-  modify fun s => { s with jps := s.jps.insert fv info }
+public def Scope.registerJP (s : Scope) (fv : FVarId) (info : JumpSiteInfo) : Scope :=
+  { s with jps := s.jps.insert fv info }
 
-/-- Look up a previously-registered join point by fvar id. -/
-public def knownJP? (fv : FVarId) : VCGenM (Option JumpSiteInfo) :=
-  return (← get).jps.get? fv
+public def Scope.knownJP? (s : Scope) (fv : FVarId) : Option JumpSiteInfo :=
+  s.jps.get? fv
+
+public def Scope.insertSpec (s : Scope) (thm : SpecTheoremNew) : Scope :=
+  { s with specs := { s.specs with specs := Sym.insertPattern s.specs.specs thm.pattern thm } }
+
+/-- Walk `goal`'s local context from `scope.nextDeclIdx` onward, registering any
+spec-shaped hypotheses as local specs. Advances `nextDeclIdx` to the current
+context size so siblings share work. -/
+public def Scope.collectLocalSpecs (scope : Scope) (goal : MVarId) : VCGenM Scope :=
+  goal.withContext do
+    let lctx ← getLCtx
+    if scope.nextDeclIdx == lctx.decls.size then return scope
+    let scope ← lctx.foldlM (init := scope) (start := scope.nextDeclIdx) fun scope decl => do
+      if decl.isAuxDecl then return scope
+      try
+        if let some thm ← mkSpecTheoremNew (.local decl.fvarId) (eval_prio low) then
+          return scope.insertSpec thm
+      catch _ => pure ()
+      return scope
+    return { scope with nextDeclIdx := lctx.decls.size }
 
 /-- True iff fuel has been exhausted (`Fuel.limited 0`). -/
 public def outOfFuel : VCGenM Bool :=

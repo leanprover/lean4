@@ -25,7 +25,7 @@ struct lib_info {
 };
 
 /** Builds the sorted table of all currently loaded libraries. */
-std::vector<lib_info> get_loaded_libs();
+LEAN_EXPORT std::vector<lib_info> get_loaded_libs();
 
 class LEAN_EXPORT object_compactor {
     struct max_sharing_table;

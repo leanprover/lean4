@@ -15,6 +15,7 @@ Author: Leonardo de Moura
 #include "util/alloc.h"
 
 #ifdef LEAN_WINDOWS
+#include <windows.h>  // must precede <psapi.h>: it relies on `WINBOOL`/`DWORD`/`WINAPI` from here
 #include <psapi.h>
 #else
 #include <sys/mman.h>
@@ -67,7 +68,7 @@ struct object_compactor::max_sharing_table {
     }
 };
 
-std::vector<lib_info> get_loaded_libs() {
+LEAN_EXPORT std::vector<lib_info> get_loaded_libs() {
     std::vector<lib_info> libs;
 #ifdef LEAN_WINDOWS
     HANDLE proc = GetCurrentProcess();

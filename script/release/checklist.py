@@ -129,6 +129,8 @@ class DownstreamChecker(RepoChecker):
         util.run("lake", "update", cwd=path)
 
     def _bump_toolchain_mathlib4(self) -> None:
+        self._bump_toolchain(self.lrepo.path)
+
         pw = self.github.get_repo(repos.PROOFWIDGETS4.gh_full_name)
         tag = util.get_proofwidgets_release_for(pw, self.version)
         if not tag:
@@ -151,6 +153,8 @@ class DownstreamChecker(RepoChecker):
         self._bump_toolchain_deps(self.lrepo.path)
 
     def _bump_toolchain_cslib(self) -> None:
+        self._bump_toolchain(self.lrepo.path)
+
         mathlib_sha = util.find_merged_toolchain_bump_sha(
             repos.MATHLIB4.local, self.version
         )
@@ -171,6 +175,7 @@ class DownstreamChecker(RepoChecker):
         self._bump_toolchain_deps(self.lrepo.path)
 
     def _bump_toolchain_repl(self) -> None:
+        self._bump_toolchain(self.lrepo.path)
         self._bump_toolchain_deps(self.lrepo.path)
 
         mathlib = self.lrepo.path / "test" / "Mathlib"
@@ -190,10 +195,15 @@ class DownstreamChecker(RepoChecker):
                 raise e
 
     def _bump_toolchain_verso(self) -> None:
+        self._bump_toolchain(self.lrepo.path)
         self._bump_toolchain_deps(self.lrepo.path)
         util.run("./update-subverso.sh", cwd=self.lrepo.path)
 
+    def _bump_toolchain_verso_templates(self) -> None:
+        util.run("./update-lean-version.sh", self.version.raw, cwd=self.lrepo.path)
+
     def _bump_toolchain_reference_manual(self) -> None:
+        self._bump_toolchain(self.lrepo.path)
         self._bump_toolchain_deps(self.lrepo.path)
 
         if not self.prompt("Run release notes update script"):
@@ -207,10 +217,13 @@ class DownstreamChecker(RepoChecker):
         self.prompt("Check release notes before commit")
 
     def _bump_toolchain_lean_fro_org(self) -> None:
+        self._bump_toolchain(self.lrepo.path)
         self._bump_toolchain_deps(self.lrepo.path)
         util.run("scripts/update.sh", cwd=self.lrepo.path)
 
     def _bump_toolchain_bibtex_query(self) -> None:
+        self._bump_toolchain(self.lrepo.path)
+
         lub = self.github.get_repo(repos.LEAN4_UNICODE_BASIC.gh_full_name)
         tag = util.get_lean_unicode_basic_release_for(lub, self.version)
         rev = tag.name if tag else "main"
@@ -224,6 +237,7 @@ class DownstreamChecker(RepoChecker):
         self._bump_toolchain_deps(self.lrepo.path)
 
     def _bump_toolchain_leansqlite(self) -> None:
+        self._bump_toolchain(self.lrepo.path)
         self._bump_toolchain_deps(self.lrepo.path)
 
         tests = self.lrepo.path / "tests"
@@ -231,9 +245,6 @@ class DownstreamChecker(RepoChecker):
         self._bump_toolchain_deps(tests)
 
     def _bump_toolchain_in_worktree(self) -> None:
-        self._bump_toolchain(self.lrepo.path)
-
-        # Special cases
         if self.rrepo.gh_full_name == repos.MATHLIB4.gh_full_name:
             self._bump_toolchain_mathlib4()
         elif self.rrepo.gh_full_name == repos.CSLIB.gh_full_name:
@@ -242,6 +253,8 @@ class DownstreamChecker(RepoChecker):
             self._bump_toolchain_repl()
         elif self.rrepo.gh_full_name == repos.VERSO.gh_full_name:
             self._bump_toolchain_verso()
+        elif self.rrepo.gh_full_name == repos.VERSO_TEMPLATES.gh_full_name:
+            self._bump_toolchain_verso_templates()
         elif self.rrepo.gh_full_name == repos.REFERENCE_MANUAL.gh_full_name:
             self._bump_toolchain_reference_manual()
         elif self.rrepo.gh_full_name == repos.LEAN_FRO_ORG.gh_full_name:
@@ -251,7 +264,10 @@ class DownstreamChecker(RepoChecker):
         elif self.rrepo.gh_full_name == repos.LEANSQLITE.gh_full_name:
             self._bump_toolchain_leansqlite()
         elif self.rrepo.strong_deps:
+            self._bump_toolchain(self.lrepo.path)
             self._bump_toolchain_deps(self.lrepo.path)
+        else:
+            self._bump_toolchain(self.lrepo.path)
 
     def _bump_toolchain_unicode_basic(self) -> None:
         base = self.grepo.default_branch

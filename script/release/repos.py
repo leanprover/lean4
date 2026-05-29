@@ -216,6 +216,17 @@ _register(REPL)
 
 
 # To create a new release, open a PR into `main`. In it, bump the toolchain and
+# all dependencies.
+#
+# Once the release PR is merged, tag the resulting commit with the lean version.
+ILLUMINATE = ReleaseRepo(
+    github=("leanprover", "illuminate"),
+    release_tag="lean",
+)
+_register(ILLUMINATE)
+
+
+# To create a new release, open a PR into `main`. In it, bump the toolchain and
 # all dependencies, then run `update-subverso.sh`. For `v4.X.0-rc1` releases,
 # you may need to merge `nightly-testing` into the PR.
 #
@@ -223,7 +234,7 @@ _register(REPL)
 VERSO = ReleaseRepo(
     github=("leanprover", "verso"),
     release_tag="lean",
-    strong_deps=[PLAUSIBLE],
+    strong_deps=[PLAUSIBLE, ILLUMINATE],
     weak_deps=[MATHLIB4],  # For benchmarks
 )
 _register(VERSO)
@@ -240,6 +251,30 @@ VERSO_WEB_COMPONENTS = ReleaseRepo(
     strong_deps=[VERSO],
 )
 _register(VERSO_WEB_COMPONENTS)
+
+
+# To create a new release, open a PR into `main`. In it, bump the toolchain and
+# all dependencies.
+#
+# Once the release PR is merged, tag the resulting commit with the lean version.
+VERSO_SLIDES = ReleaseRepo(
+    github=("leanprover", "verso-slides"),
+    release_tag="lean",
+    strong_deps=[VERSO, ILLUMINATE],
+)
+_register(VERSO_SLIDES)
+
+
+# To create a new release, open a PR into `main`. In it, bump the toolchain and
+# all dependencies.
+#
+# Once the release PR is merged, tag the resulting commit with the lean version.
+VERSO_TEMPLATES = ReleaseRepo(
+    github=("leanprover", "verso-templates"),
+    release_tag="lean",
+    strong_deps=[VERSO, VERSO_SLIDES],
+)
+_register(VERSO_TEMPLATES)
 
 
 # To bump the toolchain, open a PR into `main`. In it, bump the toolchain and

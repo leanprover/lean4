@@ -97,7 +97,8 @@ public def introsSimp (mvarId : MVarId) (errorMsg : MessageData) : VCGenM MVarId
       return mvarId
     else
       throwError m!"Failed to intro on {mvarId}\nContext: {errorMsg}."
-  | .goal _ mvarId' => return mvarId'
+  | .goal _ mvarId' =>
+    return mvarId'
 
 /-- Internalize pending hypotheses into the E-graph for sharing before forking to multiple subgoals.
 If `processHypotheses` discovers a contradiction (`inconsistent = true`), the E-graph state

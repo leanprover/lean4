@@ -122,26 +122,23 @@ public def emitVC (goal : Grind.Goal) : VCGenM Unit := do
       pure mvarId
     else
       pure goal.mvarId
-  let goal := { goal with mvarId }
+  let goal := { goal with mvarId := mvarId }
   for newGoal in (← (← read).preTac.run goal) do
     newGoal.mvarId.setKind .syntheticOpaque
     vcs := vcs.push newGoal
   modify fun s => { s with vcs := s.vcs ++ vcs }
 
-private structure WorkItem where
-  goal : Grind.Goal
-  scope : Scope
-
-public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
+public def work (goal : Grind.Goal) : VCGenM Unit := do
   let mvarId ← preprocessMVar goal.mvarId
-  let mut worklist : Array WorkItem := #[{ goal := { goal with mvarId }, scope }]
-  while let some s := worklist.back? do
+  let goal := { goal with mvarId }
+  let mut worklist := #[goal] -- worklist is LIFO (popped from the back)
+  while let some goal := worklist.back? do
     worklist := worklist.pop
-    let goal := s.goal
     if ← outOfFuel then
       emitVC goal
       continue
-    match ← solve s.scope goal.mvarId with
+    let res ← solve goal.mvarId
+    match res with
     | .noEntailment .. | .noProgramFoundInTarget .. =>
       emitVC goal
     | .noSpecFoundForProgram prog monad thms =>
@@ -154,7 +151,7 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
         emitVC goal
     | .noStrategyForProgram prog => goal.mvarId.withContext do
       throwError "Did not know how to decompose weakest precondition for {prog}"
-    | .goals scope subgoals =>
+    | .goals subgoals =>
       -- Handle invariant subgoals eagerly here, so that VC subgoals popped
       -- from the worklist later see the invariant MVar already assigned.
       -- Non-invariant subgoals go to the worklist as usual and will eventually go through `emitVC`.
@@ -166,8 +163,7 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
           (← read).preTac.processHypotheses goal
         else
           pure goal
-      worklist := worklist ++ subgoals.reverse.map (fun mv =>
-        { goal := { goal with mvarId := mv }, scope })
+      worklist := worklist ++ subgoals.reverse.map (fun sg => { goal with mvarId := sg })
 
 public structure Result where
   /-- All invariant goals emitted during VC generation, in emit order. The MVarId at
@@ -191,10 +187,10 @@ Return the VCs and invariant goals.
 
 `stepLimit?`, when `some n`, seeds the fuel counter to `n`; when `none`, fuel is unlimited.
 -/
-public partial def run (goal : Grind.Goal) (ctx : Context) (scope : VCGen.Scope)
-    (stepLimit? : Option Nat := none) : Grind.GrindM Result := do
+public partial def run (goal : Grind.Goal) (ctx : Context) (stepLimit? : Option Nat := none) :
+    Grind.GrindM Result := do
   let initState : State := { fuel := match stepLimit? with | some n => .limited n | none => .unlimited }
-  let ((), state) ← StateRefT'.run (ReaderT.run (work scope goal) ctx) initState
+  let ((), state) ← StateRefT'.run (ReaderT.run (work goal) ctx) initState
   _ ← state.invariants.mapIdxM fun idx mv => do
     mv.setTag (Name.mkSimple ("inv" ++ toString (idx + 1)))
   _ ← state.vcs.mapIdxM fun idx g => do

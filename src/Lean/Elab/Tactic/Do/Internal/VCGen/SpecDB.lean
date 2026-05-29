@@ -8,9 +8,8 @@ module
 prelude
 public import Lean.Elab.Tactic.Do.Attr
 public import Lean.Meta.Sym.Pattern
-public import Lean.Meta.DiscrTree.Util
 import Lean.Meta.Sym.Simp.DiscrTree
-import Lean.Meta.Sym.Util
+public import Lean.Meta.DiscrTree.Util
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
@@ -95,29 +94,26 @@ public def mkTriplePatternFromExpr (expr : Expr) (levelParams : List Name := [])
     let_expr Triple _m _ps _inst _α prog _P _Q := type | throwError "conclusion is not a Triple {indentExpr type}"
     return (prog, ())
 
-public def mkSpecTheoremNew (proof : SpecProof) (prio : Nat) : SymM (Option SpecTheoremNew) := do
+public def mkSpecTheoremNew (proof : SpecProof) (prio : Nat) : SymM SpecTheoremNew := do
   -- cf. mkSimpTheoremCore
   let (levelParams, expr) ← proof.getProof
   let type ← Meta.inferType expr
   let type ← instantiateMVars type
   unless (← isProp type) do
-    return none
-  let type ← Sym.unfoldReducible type
-  unless type.getForallBody.getAppFn.isConstOf ``Triple do
-    return none
+    throwError "invalid 'spec', proposition expected{indentExpr type}"
   let pattern ← mkTriplePatternFromExpr expr levelParams
   withNewMCtxDepth do
   let (xs, _, type) ← withSimpGlobalConfig (forallMetaTelescopeReducing type)
   let type ← whnfR type
   let_expr c@Triple _m ps _inst _α _prog P _Q := type
-    | throwError "{type} was not a Triple. Should not happen with the previous tests in place."
+    | throwError "unexpected kind of spec theorem; not a triple{indentExpr type}"
   -- beta potential of `P` describes how many times we want to `mintro ∀s`, that is,
   -- *eta*-expand the goal.
   let σs := mkApp (mkConst ``PostShape.args [c.constLevels![0]!]) ps
   let etaPotential ← computeMVarBetaPotentialForSPred xs σs P
   -- logInfo m!"Beta potential {etaPotential} for {P}"
   -- logInfo m!"mkSpecTheorem: {keys}, proof: {proof}"
-  return some { pattern, proof, kind := .triple etaPotential, priority := prio }
+  return { pattern, proof, kind := .triple etaPotential, priority := prio }
 
 /--
 Eta-expand a pattern for a function-level equation.
@@ -183,8 +179,7 @@ public def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : Sim
   let mut specs : DiscrTree SpecTheoremNew := DiscrTree.empty
   for spec in database.specs.values do
     if database.isErased spec.proof then continue
-    let some newSpec ← mkSpecTheoremNew spec.proof spec.priority
-      | throwError "could not migrate spec theorem {spec.proof}"
+    let newSpec ← mkSpecTheoremNew spec.proof spec.priority
     specs := Sym.insertPattern specs newSpec.pattern newSpec
   -- Migrate simp spec theorems (equational lemmas registered via `@[spec]`)
   for simpThm in simpThms.post.values do

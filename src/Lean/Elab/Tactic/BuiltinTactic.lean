@@ -389,7 +389,7 @@ where
 @[builtin_tactic Lean.Parser.Tactic.revert] def evalRevert : Tactic := fun stx =>
   match stx with
   | `(tactic| revert $hs*) => do
-     let (_, mvarId) ← (← getMainGoal).revert (← getFVarIds hs)
+     let (_, mvarId) ← (← getMainGoal).revert (← getFVarIds hs) (preserveOrder := true)
      replaceMainGoal [mvarId]
   | _                     => throwUnsupportedSyntax
 

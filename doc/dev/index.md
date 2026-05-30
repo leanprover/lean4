@@ -17,7 +17,7 @@ Please see below for specific instructions for VS Code.
 
 You can use [`elan`](https://github.com/leanprover/elan) to easily
 switch between stages and build configurations based on the current
-directory, both for the `lean`, `leanc`, and `leanmake` binaries in your shell's
+directory, both for the `lean` and `leanc` binaries in your shell's
 PATH and inside your editor.
 
 To install elan, you can do so, without installing a default version of Lean, using (Unix)

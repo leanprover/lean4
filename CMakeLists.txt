@@ -25,7 +25,7 @@ foreach(var ${vars})
     if(var MATCHES "USE_GMP|CHECK_OLEAN_VERSION|LEAN_VERSION_.*|LEAN_SPECIAL_VERSION_DESC")
       # must forward options that generate incompatible .olean format
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
-    elseif(var MATCHES "LLVM*|PKG_CONFIG|USE_LAKE|USE_MIMALLOC")
+    elseif(var MATCHES "LLVM*|PKG_CONFIG|USE_MIMALLOC")
       list(APPEND STAGE0_ARGS "-D${var}=${${var}}")
     endif()
   elseif(var MATCHES "USE_MIMALLOC")

@@ -17,8 +17,6 @@ stage1/
   include/
     config.h  # config variables used to build `lean` such as used allocator
     runtime/lean.h  # runtime header, used by extracted C code, uses `config.h`
-  share/lean/
-    lean.mk  # used by `leanmake`
   lib/
     lean/**/*.olean  # the Lean library (incl. the compiler) compiled by the previous stage's `lean`
     temp/**/*.{c,o}  # the library extracted to C and compiled by `leanc`
@@ -28,7 +26,6 @@ stage1/
   bin/
     lean  # the Lean compiler & server, a small executable that calls directly into libleanshared.so
     leanc  # a wrapper around a C compiler supplying search paths etc
-    leanmake  # a wrapper around `make` supplying the Makefile above
 stage2/...
 stage3/...
 ```

@@ -114,12 +114,10 @@ set(LEAN_MI_SECURE 0 CACHE STRING "Configure mimalloc memory safety mitigations 
 
 # development-specific options
 option(CHECK_OLEAN_VERSION "Only load .olean files compiled with the current version of Lean" OFF)
-option(USE_LAKE "Use Lake instead of lean.mk for building core libs from language server" ON)
-option(USE_LAKE_CACHE "Use the Lake artifact cache for stage 1 builds (requires USE_LAKE)" OFF)
+option(USE_LAKE_CACHE "Use the Lake artifact cache for stage 1 builds" OFF)
 
-set(LEAN_EXTRA_OPTS "" CACHE STRING "extra options to lean (via lake or make)")
+set(LEAN_EXTRA_OPTS "" CACHE STRING "extra options to lean (via lake)")
 set(LEAN_EXTRA_LAKE_OPTS "" CACHE STRING "extra options to lake")
-set(LEAN_EXTRA_MAKE_OPTS "" CACHE STRING "extra options to leanmake")
 set(LEANC_CC ${CMAKE_C_COMPILER} CACHE STRING "C compiler to use in `leanc`")
 
 # Temporary, core-only flags. Must be synced with stdlib_flags.h.
@@ -129,7 +127,6 @@ string(APPEND LEAN_EXTRA_OPTS " -Dbackward.do.legacy=false")
 option(WFAIL "Fail build if warnings are emitted by Lean" ON)
 if(WFAIL MATCHES "ON")
   string(APPEND LEAN_EXTRA_LAKE_OPTS " --wfail")
-  string(APPEND LEAN_EXTRA_MAKE_OPTS " -DwarningAsError=true")
 endif()
 
 if(LAZY_RC MATCHES "ON")
@@ -618,7 +615,7 @@ if(USE_GITHASH)
     message(STATUS "git commit sha1: ${GIT_SHA1}")
   endif()
 else()
-  if(USE_LAKE AND STAGE EQUAL 0)
+  if(STAGE EQUAL 0)
     # we need to embed *some* hash for Lake to invalidate stage 1 on stage 0 changes
     execute_process(
       COMMAND git ls-tree HEAD "${CMAKE_CURRENT_SOURCE_DIR}/../../stage0" --object-only
@@ -658,30 +655,12 @@ else()
       endif()
     endif()
     message(STATUS "stage0 sha1: ${GIT_SHA1}")
-    # Now that we've prepared the information for the next stage, we can forget that we will use
-    # Lake in the future as we won't use it in this stage
-    set(USE_LAKE OFF)
   else()
     set(GIT_SHA1 "")
   endif()
 endif()
 configure_file("${LEAN_SOURCE_DIR}/githash.h.in" "${LEAN_BINARY_DIR}/githash.h")
 
-if(USE_LAKE AND STAGE EQUAL 0)
-  # Now that we've prepared the information for the next stage, we can forget that we will use
-  # Lake in the future as we won't use it in this stage
-  set(USE_LAKE OFF)
-endif()
-
-# Windows uses ";" as a path separator. We use `LEAN_PATH_SEPARATOR` on scripts such as lean.mk.in
-if(CMAKE_SYSTEM_NAME MATCHES "Windows")
-  set(LEAN_PATH_SEPARATOR ";")
-else()
-  set(LEAN_PATH_SEPARATOR ":")
-endif()
-
-# inherit genral options for lean.mk.in and stdlib.make.in
-string(APPEND LEAN_EXTRA_MAKE_OPTS " ${LEAN_EXTRA_OPTS}")
 
 # Version
 configure_file("${LEAN_SOURCE_DIR}/version.h.in" "${LEAN_BINARY_DIR}/include/lean/version.h")
@@ -698,8 +677,6 @@ if(USE_MIMALLOC)
   )
 endif()
 install(DIRECTORY ${LEAN_BINARY_DIR}/include/ DESTINATION include)
-configure_file(${LEAN_SOURCE_DIR}/lean.mk.in ${LEAN_BINARY_DIR}/share/lean/lean.mk)
-install(DIRECTORY ${LEAN_BINARY_DIR}/share/ DESTINATION share)
 
 include_directories(${LEAN_SOURCE_DIR})
 include_directories(${CMAKE_BINARY_DIR}) # version.h etc., "private" headers
@@ -816,10 +793,7 @@ if(LEANTAR AND INSTALL_LEANTAR)
   add_dependencies(leancpp copy-leantar)
 endif()
 
-# MSYS2 bash usually handles Windows paths relatively well, but not when putting them in the PATH
-string(REGEX REPLACE "^([a-zA-Z]):" "/\\1" LEAN_BIN "${CMAKE_BINARY_DIR}/bin")
-
-# ...and Make doesn't like absolute Windows paths either
+# Make doesn't like absolute Windows paths
 # (also looks nicer in the build log)
 file(RELATIVE_PATH LIB ${LEAN_SOURCE_DIR} ${CMAKE_BINARY_DIR}/lib)
 
@@ -835,12 +809,6 @@ if(CMAKE_SYSTEM_NAME MATCHES "Emscripten")
     APPEND LEAN_EXE_LINKER_FLAGS
     " ${LIB}/temp/libleanshell.a ${TOOLCHAIN_STATIC_LINKER_FLAGS} ${EMSCRIPTEN_SETTINGS} -lnodefs.js -s EXIT_RUNTIME=1 -s MAIN_MODULE=1 -s LINKABLE=1 -s EXPORT_ALL=1 -s ERROR_ON_UNDEFINED_SYMBOLS=0"
   )
-endif()
-
-# Build the compiler using the bootstrapped C sources for stage0, and use
-# the LLVM build for stage1 and further.
-if(LLVM AND STAGE GREATER 0)
-  set(EXTRA_LEANMAKE_OPTS "LLVM=1")
 endif()
 
 set(
@@ -975,8 +943,6 @@ if(STAGE GREATER 0 AND NOT CMAKE_SYSTEM_NAME MATCHES "Emscripten")
   )
 endif()
 
-file(COPY ${LEAN_SOURCE_DIR}/bin/leanmake DESTINATION ${CMAKE_BINARY_DIR}/bin)
-
 install(DIRECTORY "${CMAKE_BINARY_DIR}/bin/" USE_SOURCE_PERMISSIONS DESTINATION bin)
 
 if(STAGE GREATER 0 AND CADICAL AND INSTALL_CADICAL)
@@ -1083,7 +1049,7 @@ else()
   set(CMAKE_BUILD_TYPE_TOML "Release")
 endif()
 
-if(USE_LAKE)
+if(STAGE GREATER 0)
   configure_file(${LEAN_SOURCE_DIR}/lakefile.toml.in ${CMAKE_BINARY_DIR}/lakefile.toml)
   # copy for editing
   if(STAGE EQUAL 1)

@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.TryThis
 public import Lean.Elab.Tactic.Grind.Config
 public import Lean.LibrarySuggestions.Basic
 import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Meta.Tactic.Grind.EMatchAction
 import Lean.Elab.Tactic.Grind.Param
 import Lean.Meta.Tactic.Grind.Finish
 import Lean.Meta.Tactic.Grind.CollectParams
@@ -393,6 +394,8 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
     | _ => return true
   let mvarId ← getMainGoal
   let params ← mkGrindParams config only paramStxs mvarId
+  let params := if trace then { params with config.markInstances := true } else params
+  let config := params.config
   Grind.withProtectedMCtx config mvarId fun mvarId' => do
     let (tacs, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
       let finish ← Grind.Action.mkFinish
@@ -411,7 +414,9 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
         match (← finish.run goal) with
         | .closed seq =>
           let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
-          let tacs ← Grind.mkGrindOnlyTactics configStx' seq termParamStxs
+          let proof ← instantiateMVars (mkMVar goal.mvarId)
+          let usedThms := Grind.Action.collect proof (← get).instanceMap
+          let tacs ← Grind.mkGrindOnlyTacticsUsingTheorems configStx' seq usedThms termParamStxs
           let seq := Grind.Action.mkGrindSeq seq
           let tac ← `(tactic| grind $configStx':optConfig => $seq:grindSeq)
           let tacs := tacs.push tac

@@ -6,6 +6,8 @@ Authors: Leonardo de Moura
 module
 prelude
 public import Lean.Meta.Tactic.Grind.Types
+import Lean.Meta.Tactic.Grind.EMatchTheoremParam
+import Lean.Meta.Match.Basic
 namespace Lean.Meta.Grind
 /-!
 Given an auto-generated `grind` tactic script, collect params for
@@ -114,5 +116,76 @@ where
       `(tactic| grind $cfg:optConfig only)
     else
       `(tactic| grind $cfg:optConfig only [$params,*])
+
+
+public def mkGrindOnlyTacticsUsingTheorems (cfg : TSyntax `Lean.Parser.Tactic.optConfig)
+    (seq : List TGrind) (usedThms : Array EMatchTheorem) (extraParams : Array TParam := #[]) : MetaM (Array (TSyntax `tactic)) := do
+  let (hasSorry, syntaxParams, anchors) ← collectParamsCore seq
+  if hasSorry then
+    return #[]
+  let existingDecls ← collectSimpleDeclParams syntaxParams
+  let init : NameSet × Array TParam := ({}, #[])
+  let (_, theoremParams) ← usedThms.foldlM (init := init) fun (foundFns, params) thm => do
+    match thm.origin with
+    | .decl declName =>
+      if declName.isAtomic then
+        if existingDecls.contains declName then
+          return (foundFns, params)
+        let param ← globalDeclToGrindParamSyntax declName thm.kind thm.minIndexable
+        return (foundFns, pushUnique params param)
+      else if Lean.Meta.Match.isCongrEqnReservedNameSuffix declName.getString! then
+        return (foundFns, params)
+      else if let some fnName ← isEqnThm? declName then
+        if foundFns.contains fnName || existingDecls.contains fnName then
+          return (foundFns, params)
+        else
+          let param ← globalDeclToGrindParamSyntax fnName thm.kind thm.minIndexable
+          return (foundFns.insert fnName, pushUnique params param)
+      else
+        if existingDecls.contains declName then
+          return (foundFns, params)
+        let param ← globalDeclToGrindParamSyntax declName thm.kind thm.minIndexable
+        return (foundFns, pushUnique params param)
+    | _ =>
+      return (foundFns, params)
+  let params := syntaxParams.foldl pushUnique theoremParams
+  mkGrindOnlyTacticsFromParams (params ++ anchors ++ extraParams) (params ++ extraParams)
+where
+  mkTac (params : Array TParam) : CoreM (TSyntax `tactic) :=
+    if params.isEmpty then
+      `(tactic| grind $cfg:optConfig only)
+    else
+      `(tactic| grind $cfg:optConfig only [$params,*])
+
+  mkGrindOnlyTacticsFromParams (withAnchors withoutAnchors : Array TParam) : MetaM (Array (TSyntax `tactic)) := do
+    let withAnchorsTac ← mkTac withAnchors
+    let withoutAnchorsTac ← mkTac withoutAnchors
+    if withAnchorsTac.raw == withoutAnchorsTac.raw then
+      return #[withAnchorsTac]
+    else
+      return #[withAnchorsTac, withoutAnchorsTac]
+
+  pushUnique (params : Array TParam) (param : TParam) : Array TParam :=
+    if params.contains param then params else params.push param
+
+  collectSimpleDeclParams (params : Array TParam) : MetaM NameSet := do
+    let mut result := ({ } : NameSet)
+    for p in params do
+      match p with
+      | `(Parser.Tactic.grindParam| $[$_:grindMod]? $id:ident) =>
+        result ← insertDecl result id.getId
+      | `(Parser.Tactic.grindParam| ! $[$_:grindMod]? $id:ident) =>
+        result ← insertDecl result id.getId
+      | _ =>
+        pure ()
+    return result
+
+  insertDecl (result : NameSet) (declName : Name) : MetaM NameSet := do
+    let declName := declName.eraseMacroScopes
+    let result := result.insert declName
+    if let some fnName ← isEqnThm? declName then
+      return result.insert fnName
+    else
+      return result
 
 end Lean.Meta.Grind

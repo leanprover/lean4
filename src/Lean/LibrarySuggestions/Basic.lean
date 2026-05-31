@@ -247,12 +247,8 @@ The parameter `ratio` (defaulting to 0.5) controls the ratio of suggestions from
 while results are available from both.
 -/
 def intersperse (selector₁ selector₂ : Selector) (ratio : Float := 0.5) : Selector := fun g c => do
-  -- Calculate how many suggestions to request from each selector based on the ratio
-  let max₁ := (c.maxSuggestions.toFloat * ratio).toUInt32.toNat
-  let max₂ := (c.maxSuggestions.toFloat * (1 - ratio)).toUInt32.toNat
-
-  let suggestions₁ ← selector₁ g { c with maxSuggestions := max₁ }
-  let suggestions₂ ← selector₂ g { c with maxSuggestions := max₂ }
+  let suggestions₁ ← selector₁ g { c with maxSuggestions := c.maxSuggestions }
+  let suggestions₂ ← selector₂ g { c with maxSuggestions := c.maxSuggestions }
 
   let mut result := #[]
   let mut i₁ := 0

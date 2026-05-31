@@ -443,6 +443,7 @@ where
 
   closesGoal (savedState : Tactic.SavedState) (tac : TSyntax `tactic) : TacticM Bool := do
     let currState ← saveState
+    let coreState ← getThe Core.State
     savedState.restore
     try
       Term.withoutErrToSorry <| withoutRecover <| evalTactic tac
@@ -451,6 +452,20 @@ where
       return false
     finally
       currState.restore
+      /-
+      `restore` only backtracks the environment/messages portion of `Core.State`.
+      Internal validation must also restore the name generators and tracing/info
+      state, otherwise replaying a suggestion perturbs later private theorem names
+      such as `_proof_1_1`.
+      -/
+      modifyThe Core.State fun s => { s with
+        nextMacroScope := coreState.nextMacroScope
+        ngen := coreState.ngen
+        auxDeclNGen := coreState.auxDeclNGen
+        traceState := coreState.traceState
+        cache := coreState.cache
+        infoState := coreState.infoState
+      }
 
 @[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do
   let tacs ← evalGrindTraceCore stx

@@ -152,7 +152,7 @@ where
   | ctx,      tagged _ d               => go nCtx ctx d
   | ctx,      nest n d                 => Format.nest n <$> go nCtx ctx d
   | ctx,      compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
-  | ctx,      group d                  => Format.group <$> go nCtx ctx d
+  | ctx,      group d b                => Format.group (behavior := b) <$> go nCtx ctx d
   | ctx,      .trace data header children => do
     if data.cls.isAnonymous then
       -- Sequence of top-level traces collected by `addTraceAsMessages`, do not indent.

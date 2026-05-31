@@ -95,7 +95,7 @@ private partial def noContext : MessageData → MessageData
   | MessageData.withContext _   msg => noContext msg
   | MessageData.withNamingContext ctx msg => MessageData.withNamingContext ctx (noContext msg)
   | MessageData.nest n msg => MessageData.nest n (noContext msg)
-  | MessageData.group msg  => MessageData.group (noContext msg)
+  | MessageData.group msg behavior  => MessageData.group (noContext msg) behavior
   | MessageData.compose msg₁ msg₂ => MessageData.compose (noContext msg₁) (noContext msg₂)
   | MessageData.tagged tag msg => MessageData.tagged tag (noContext msg)
   | MessageData.trace data header children =>

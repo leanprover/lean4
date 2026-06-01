@@ -245,10 +245,14 @@ def filterGrindAnnotated (selector : Selector) : Selector := fun g c => do
 Combine two premise selectors by interspersing their results (ignoring scores).
 The parameter `ratio` (defaulting to 0.5) controls the ratio of suggestions from each selector
 while results are available from both.
+
+Both selectors are asked for the full `maxSuggestions`, rather than a `ratio`-split share, so that
+if one selector returns fewer than its share the other can compensate. This doubles the retrieval
+work compared to splitting the budget.
 -/
 def intersperse (selector₁ selector₂ : Selector) (ratio : Float := 0.5) : Selector := fun g c => do
-  let suggestions₁ ← selector₁ g { c with maxSuggestions := c.maxSuggestions }
-  let suggestions₂ ← selector₂ g { c with maxSuggestions := c.maxSuggestions }
+  let suggestions₁ ← selector₁ g c
+  let suggestions₂ ← selector₂ g c
 
   let mut result := #[]
   let mut i₁ := 0

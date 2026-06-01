@@ -817,11 +817,17 @@ private partial def expandNestedActionsAux (baseId : Name) (inQuot : Bool) (inBi
     else if k == ``Parser.Term.nestedAction && !inQuot then withFreshMacroScope do
       if inBinder then
         throwErrorAt stx "Cannot lift nested action `{stx}` over a binder.\nThis error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`."
-      let term := args[1]!
-      let term ← expandNestedActionsAux baseId inQuot inBinder term
+      let arg ← expandNestedActionsAux baseId inQuot inBinder args[1]!
+      -- Pre-stage0-update format stored a term in `args[1]`; the new format stores a doElem.
+      -- Wrap raw terms in `doExpr` so the subsequent `let _ ← _` quotation parses correctly.
+      let isDoElem :=
+        (Parser.getParserCategory? (← getEnv) `doElem).any (·.kinds.contains arg.getKind)
+      let act : TSyntax `doElem ←
+        if isDoElem then pure ⟨arg⟩
+        else let t : Term := ⟨arg⟩; `(doElem| $t:term)
       -- keep name deterministic across choice branches
       let id ← mkIdentFromRef (.num baseId (← get).size)
-      let auxDoElem ← `(doElem| let $id:ident ← $(⟨term⟩):term)
+      let auxDoElem ← `(doElem| let $id:ident ← $act)
       modify fun s => s.push auxDoElem
       return id
     else do

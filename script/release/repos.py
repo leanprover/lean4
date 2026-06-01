@@ -141,6 +141,7 @@ PROOFWIDGETS4 = ReleaseRepo(
 )
 _register(PROOFWIDGETS4)
 
+
 # To create a new release, open a PR into `main`. In it, bump the toolchain. For
 # `v4.X.0-rc1` releases, you may need to merge `nightly-testing` into the PR.
 #
@@ -328,6 +329,7 @@ BIBTEX_QUERY = ReleaseRepo(
     strong_deps=[LEAN4_UNICODE_BASIC],
 )
 _register(BIBTEX_QUERY)
+
 
 # To create a new release, open a PR into `master`. In it, bump the toolchain
 # and all dependencies.

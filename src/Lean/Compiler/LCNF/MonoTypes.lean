@@ -104,11 +104,21 @@ def setOtherDeclMonoType (declName : Name) : CoreM Unit := do
 
 /--
 Returns the LCNF mono-phase type of `declName`, a declaration without associated code (constructor,
-inductive type, or foreign function). Requires `compileDecls` to have been run for it.
+inductive type, foreign function, or `noncomputable` definition).
+
+Inductive types and their constructors are compiled eagerly by `compileInductives` (their mono type
+can depend on private constructor field types and so must be precomputed in the defining module); a
+miss for those is reported as an error. Other declarations have their mono type computed from the
+signature on demand and cached for the current module.
 -/
 def getOtherDeclMonoType (declName : Name) : CoreM Expr := do
-  let some type := monoTypeExt.find? (← getEnv) declName
-    | throwError "`{declName}` was not compiled; `compileDecls` must run on inductive types first"
+  if let some type := monoTypeExt.find? (← getEnv) declName then
+    return type
+  if (← getEnv).find? declName matches some (.inductInfo _) | some (.ctorInfo _) then
+    throwError "`{declName}` was not compiled; `compileDecls` must run on inductive types first"
+  let type ← toMonoType (← getOtherDeclBaseType declName [])
+  -- avoid `addEntry` for local-only caching
+  modifyEnv (monoTypeExt.modifyState · (monoTypeExt.addEntryFn · (declName, type)))
   return type
 
 end Lean.Compiler.LCNF

@@ -6,9 +6,10 @@ Authors: Henrik Böving
 module
 
 prelude
-public import Lean.Elab.Tactic.BVDecide.LRAT
-public import Lean.Elab.Tactic.BVDecide.External
-public import Lean.Elab.Tactic.BVDecide.Frontend
+public import Lean.Elab.Tactic.BVDecide.BVDecide
+public import Lean.Elab.Tactic.BVDecide.Normalize
+public import Lean.Elab.Tactic.BVDecide.BVTrace
+public import Lean.Elab.Tactic.BVDecide.BVCheck
 
 public section
 

@@ -8,3 +8,5 @@ public import Lean.Meta.Tactic.BVDecide.External
 public import Lean.Meta.Tactic.BVDecide.LRAT
 public import Lean.Meta.Tactic.BVDecide.Normalize
 public import Lean.Meta.Tactic.BVDecide.Attr
+public import Lean.Meta.Tactic.BVDecide.Prover
+public import Lean.Meta.Tactic.BVDecide.Counterexample

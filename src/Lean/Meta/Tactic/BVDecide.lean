@@ -4,6 +4,7 @@ Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Henrik Böving
 -/
 module
+prelude
 public import Lean.Meta.Tactic.BVDecide.External
 public import Lean.Meta.Tactic.BVDecide.LRAT
 public import Lean.Meta.Tactic.BVDecide.Normalize

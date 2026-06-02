@@ -426,7 +426,8 @@ theorem throw_Except :
   -- `inferInstanceAs` in `Except.instWP` wraps the `WP.wp` field into an auxiliary lemma that isn't
   -- a simp lemma (for good reasons since its definitional lemma only holds up to default
   -- transparency).
-  simp [wp, MonadExceptOf.throw, Except.instWP._aux_1, Id.run, ExceptT.run]
+  try simp [wp, MonadExceptOf.throw, Except.instWP._aux_1, Id.run, ExceptT.run]
+  try simp [wp, MonadExceptOf.throw, Id.run, ExceptT.run]
 
 @[simp]
 theorem throw_ExceptT [Monad m] [WPMonad m ps] :
@@ -439,7 +440,8 @@ theorem throw_Option :
   -- TODO: Because `OptionT Id` is not defeq to `Option` at implicit transparency,
   -- `inferInstanceAs` wraps the `WP.wp` field into an auxiliary lemma that isn't a simp lemma
   -- (for good reasons since its definitional lemma only holds up to default transparency).
-  simp [wp, MonadExceptOf.throw, Option.instWP._aux_1, Id.run, OptionT.run]
+  try simp [wp, MonadExceptOf.throw, Option.instWP._aux_1, Id.run, OptionT.run]
+  try simp [wp, MonadExceptOf.throw, Id.run, OptionT.run]
 
 @[simp]
 theorem throw_OptionT [Monad m] [WPMonad m ps] :
@@ -495,7 +497,9 @@ theorem tryCatch_Except :
   -- `inferInstanceAs` in `Except.instWP` wraps the `WP.wp` field into an auxiliary lemma that isn't
   -- a simp lemma (for good reasons since its definitional lemma only holds up to default
   -- transparency).
-  simp only [wp, Except.instWP._aux_1, ExceptT.run, Id.run, MonadExceptOf.tryCatch, Except.tryCatch,
+  try simp only [wp, Except.instWP._aux_1, ExceptT.run, Id.run, MonadExceptOf.tryCatch, Except.tryCatch,
+    PredTrans.apply_pushExcept]
+  try simp only [wp, ExceptT.run, Id.run, MonadExceptOf.tryCatch, Except.tryCatch,
     PredTrans.apply_pushExcept]
   cases x <;> simp
 
@@ -515,7 +519,9 @@ theorem tryCatch_Option :
   -- TODO: Because `OptionT Id` is not defeq to `Option` at implicit transparency,
   -- `inferInstanceAs` wraps the `WP.wp` field into an auxiliary lemma that isn't a simp lemma
   -- (for good reasons since its definitional lemma only holds up to default transparency).
-  simp only [wp, Option.instWP._aux_1, Id.run, OptionT.run, MonadExceptOf.tryCatch, Option.tryCatch,
+  try simp only [wp, Option.instWP._aux_1, Id.run, OptionT.run, MonadExceptOf.tryCatch, Option.tryCatch,
+    PredTrans.apply_pushOption]
+  try simp only [wp, Id.run, OptionT.run, MonadExceptOf.tryCatch, Option.tryCatch,
     PredTrans.apply_pushOption]
   cases x <;> simp
 
@@ -607,7 +613,9 @@ theorem orElse_Option  :
   -- TODO: Because `OptionT Id` is not defeq to `Option` at implicit transparency,
   -- `inferInstanceAs` wraps the `WP.wp` field into an auxiliary lemma that isn't a simp lemma
   -- (for good reasons since its definitional lemma only holds up to default transparency).
-  cases x <;> simp [OrElse.orElse, Option.orElse, wp, Option.instWP._aux_1, Id.run, OptionT.run]
+  cases x <;>
+    (try simp [OrElse.orElse, Option.orElse, wp, Option.instWP._aux_1, Id.run, OptionT.run]) <;>
+      try simp [OrElse.orElse, Option.orElse, wp, Id.run, OptionT.run]
 
 @[simp]
 theorem orElse_OptionT [Monad m] [WPMonad m ps] :

@@ -23,8 +23,17 @@ definition's RHS is not leaked when reduced at lower than semireducible transpar
 ## Algorithm
 
 Given an instance `i : I` and expected type `I'` (where `I'` must be mvar-free),
-`wrapInstance` constructs a result instance as follows, executing all steps at
-`instances` transparency:
+`wrapInstance` constructs a result instance as follows. Reduction to a constructor is performed at
+`instances` transparency, but the definitional-equality checks that decide whether each component
+needs wrapping are performed at `implicit` transparency:
+
+Checking typability at `implicit` transparency means a component is only wrapped when its type and
+the type demanded by the target differ under unfolding of a *semireducible* (or weaker) definition,
+i.e. a difference that would leak below `semireducible`. Differences that vanish at `implicit`
+(unfolding `[reducible]`/`[instance_reducible]`/`[implicit_reducible]` definitions) need no wrapper,
+so the component is used directly. Consequently every auxiliary definition created here is
+`semireducible`: it unfolds exactly at `default`, where its declared type and body type
+agree, and stays opaque below that.
 
 1. If `I'` is not a class application, return `i` unchanged.
 2. If `I'` is a proposition, wrap `i` in an auxiliary theorem of type `I'` and return it
@@ -172,7 +181,7 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
       | do
         trace[Meta.wrapInstance] "did not reduce to constructor application: {inst}"
         let instType ← inferType inst
-        if ← isDefEq expectedType instType then
+        if ← withImplicit <| isDefEq expectedType instType then
           return inst
 
         if backward.inferInstanceAs.wrap.reuseSubInstances.get (← getOptions) then
@@ -183,11 +192,6 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
         if backward.inferInstanceAs.wrap.instances.get (← getOptions) then
           let name ← mkAuxDeclName
           let wrapped ← mkAuxDefinition name expectedType inst (compile := false)
-          setReducibilityStatus name <|
-            if (← withImplicit <| isDefEq expectedType instType) then
-              .implicitReducible
-            else
-              .semireducible
           if isMeta then modifyEnv (markMeta · name)
           if compile then
             compileDecls (logErrors := logCompileErrors) #[name]
@@ -200,7 +204,7 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
       throwError "wrapInstance: incorrect number of arguments for \
         constructor application `{f}`: {args}"
     else
-      unless ← isDefEq expectedType cls do
+      unless ← withImplicit <| isDefEq expectedType cls do
         throwError "wrapInstance: `{expectedType}` does not unify with the conclusion of \
           `{.ofConstName ci.name}`"
       let mut isEta := isEta
@@ -215,7 +219,7 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
         let arg := args[i]
         if ← isProp argExpectedType then
           let argType ← inferType arg
-          if ← isDefEq argExpectedType argType then
+          if ← withImplicit <| isDefEq argExpectedType argType then
             mvarId.assign arg
           else
             trace[Meta.wrapInstance] "proof field {i} does not have expected type {argExpectedType} but {argType}, wrapping in auxiliary theorem: {arg}"
@@ -273,16 +277,11 @@ where go (inst expectedType : Expr) (isEta : Bool) : MetaM (Option Expr) := do
         -- For data fields, assign directly or wrap in aux def to fix types.
         if backward.inferInstanceAs.wrap.data.get (← getOptions) then
           let argType ← inferType arg
-          if ← isDefEq argExpectedType argType then
+          if ← withImplicit <| isDefEq argExpectedType argType then
             mvarId.assign arg
           else
             let name ← mkAuxDeclName
             mvarId.assign (← mkAuxDefinition name argExpectedType arg (compile := false))
-            setReducibilityStatus name <|
-              if (← withImplicit <| isDefEq argExpectedType argType) then
-                .implicitReducible
-              else
-                .semireducible
             setInlineAttribute name
             if isMeta then modifyEnv (markMeta · name)
             if compile then

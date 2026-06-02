@@ -9,6 +9,7 @@ import Lean.Compiler.Options
 import Lean.Compiler.IR
 import Lean.Compiler.LCNF.Passes
 import Lean.Compiler.LCNF.ToDecl
+import Lean.Compiler.LCNF.ToImpureType
 import Lean.Compiler.LCNF.Check
 import Lean.Meta.Match.MatcherInfo
 import Lean.Compiler.LCNF.SplitSCC
@@ -125,6 +126,17 @@ partial def run (declNames : Array Name) (baseOpts : Options) : CompilerM Unit :
   and it often creates a very deep recursion.
   Moreover, some declarations get very big during simplification.
   -/
+
+  if (← declNames.anyM isInductive) then
+    -- Eagerly compute and persist the cross-module inductive infos for these inductive types in
+    -- their defining module. The computation walks each constructor's field types, which can
+    -- reference constants from non-transitively (privately) imported modules; the defining module is
+    -- the only place where that walk is guaranteed to succeed, so consumers rely on the persisted
+    -- result. This could be postponed as well but the added complexity is likely not worth the
+    -- slight gain in rebuild avoidance/parallelism.
+    compileInductives declNames
+    return
+
   for declName in declNames do
     if let some fnName := Compiler.getImplementedBy? (← getEnv) declName then
       if !isDeclPublic (← getEnv) fnName then

@@ -248,9 +248,10 @@ def addDSimpArgs (pre : DSimproc) (args : DSimpArgs) : DSimproc := Id.run do
   return pre
 
 def mkDSimpDefaultMethods (args : DSimpArgs) : GrindTacticM Sym.DSimp.Methods := do
-  let pre := beta >> dsimpProj >> dsimpMatch
-  let pre := addDSimpArgs pre args
-  return { pre }
+  let pre  := beta >> dsimpProj >> dsimpMatch
+  let pre  := addDSimpArgs pre args
+  let post := evalGround
+  return { pre, post }
 
 def trivialDSimproc : DSimproc := fun _ =>
   return .rfl

@@ -1566,6 +1566,8 @@ private def elabInductiveViews (vars : Array Expr) (elabs : Array InductiveElabS
   Term.withDeclName view0.declName do withRef ref do
   withExporting (isExporting := !isPrivateName view0.declName) do
     let res ← mkInductiveDecl vars elabs
+    -- Must happen *before* `sizeOf` etc are compiled below
+    Lean.compileDecls (elabs.map (·.view.declName))
     -- This might be too coarse, consider reconsidering on construction-by-construction basis
     withoutExporting (when := view0.ctors.any (isPrivateName ·.declName)) do
       mkAuxConstructions (elabs.map (·.view.declName))
@@ -1587,6 +1589,7 @@ private def elabFlatInductiveViews (vars : Array Expr) (elabs : Array InductiveE
   withExporting (isExporting := !isPrivateName view0.declName) do
     withElaboratedHeaders vars elabs <| mkInductiveDeclCore (fun context =>
      mkFlatInductive context.views context.indFVars context.levelParams context.numVars context.numParams context.indTypes)
+    Lean.compileDecls (elabs.map (·.view.declName))
     -- This might be too coarse, consider reconsidering on construction-by-construction basis
     withoutExporting (when := view0.ctors.any (isPrivateName ·.declName)) do
       mkAuxConstructions (elabs.map (·.view.declName))

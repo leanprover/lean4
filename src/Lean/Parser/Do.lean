@@ -24,8 +24,6 @@ def leftArrow : Parser := unicodeSymbol "← " "<- "
 @[builtin_term_parser] def nestedAction := leading_parser:minPrec
   leftArrow >> termParser
 
-def liftMethod := nestedAction -- remove after stage0 update
-
 def doSeqItem      := leading_parser
   ppLine >> doElemParser >> optional "; "
 def doSeqIndent    := leading_parser

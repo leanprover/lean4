@@ -2901,10 +2901,10 @@ LEAN_EXPORT lean_object* l_Lean_Elab_Term_isLetRecAuxMVar(lean_object*, lean_obj
 LEAN_EXPORT lean_object* l_Lean_Elab_Term_isLetRecAuxMVar___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getDelayedMVarAssignment_x3f___at___00Lean_getDelayedMVarRoot___at___00Lean_Elab_Term_isLetRecAuxMVar_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Lean_getDelayedMVarAssignment_x3f___at___00Lean_getDelayedMVarRoot___at___00Lean_Elab_Term_isLetRecAuxMVar_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_checkDeprecatedCore___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_checkDeprecatedCore___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_checkDeprecatedCore(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_checkDeprecatedCore___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_Elab_Term_mkConst_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__0_once = LEAN_ONCE_CELL_INITIALIZER;
 static lean_object* l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_Elab_Term_mkConst_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__0;
 static lean_once_cell_t l_Lean_mkUnknownIdentifierMessageCore___at___00Lean_mkUnknownIdentifierMessage___at___00Lean_throwUnknownIdentifierAt___at___00Lean_throwUnknownConstantAt___at___00Lean_throwUnknownConstant___at___00Lean_getConstVal___at___00Lean_Elab_Term_mkConst_spec__0_spec__0_spec__1_spec__2_spec__3_spec__4___redArg___closed__1_once = LEAN_ONCE_CELL_INITIALIZER;
@@ -58692,7 +58692,7 @@ lean_dec(v_mvarId_20958_);
 return v_res_20966_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore___redArg(lean_object* v_constName_20967_, lean_object* v_a_20968_, lean_object* v_a_20969_, lean_object* v_a_20970_, lean_object* v_a_20971_, lean_object* v_a_20972_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_checkDeprecatedCore___redArg(lean_object* v_constName_20967_, lean_object* v_a_20968_, lean_object* v_a_20969_, lean_object* v_a_20970_, lean_object* v_a_20971_, lean_object* v_a_20972_){
 _start:
 {
 uint8_t v_checkDeprecated_20974_; 
@@ -58714,11 +58714,11 @@ return v___x_20977_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore___redArg___boxed(lean_object* v_constName_20978_, lean_object* v_a_20979_, lean_object* v_a_20980_, lean_object* v_a_20981_, lean_object* v_a_20982_, lean_object* v_a_20983_, lean_object* v_a_20984_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_checkDeprecatedCore___redArg___boxed(lean_object* v_constName_20978_, lean_object* v_a_20979_, lean_object* v_a_20980_, lean_object* v_a_20981_, lean_object* v_a_20982_, lean_object* v_a_20983_, lean_object* v_a_20984_){
 _start:
 {
 lean_object* v_res_20985_; 
-v_res_20985_ = l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore___redArg(v_constName_20978_, v_a_20979_, v_a_20980_, v_a_20981_, v_a_20982_, v_a_20983_);
+v_res_20985_ = l_Lean_Elab_Term_checkDeprecatedCore___redArg(v_constName_20978_, v_a_20979_, v_a_20980_, v_a_20981_, v_a_20982_, v_a_20983_);
 lean_dec(v_a_20983_);
 lean_dec_ref(v_a_20982_);
 lean_dec(v_a_20981_);
@@ -58727,19 +58727,19 @@ lean_dec_ref(v_a_20979_);
 return v_res_20985_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore(lean_object* v_constName_20986_, lean_object* v_a_20987_, lean_object* v_a_20988_, lean_object* v_a_20989_, lean_object* v_a_20990_, lean_object* v_a_20991_, lean_object* v_a_20992_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_checkDeprecatedCore(lean_object* v_constName_20986_, lean_object* v_a_20987_, lean_object* v_a_20988_, lean_object* v_a_20989_, lean_object* v_a_20990_, lean_object* v_a_20991_, lean_object* v_a_20992_){
 _start:
 {
 lean_object* v___x_20994_; 
-v___x_20994_ = l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore___redArg(v_constName_20986_, v_a_20987_, v_a_20989_, v_a_20990_, v_a_20991_, v_a_20992_);
+v___x_20994_ = l_Lean_Elab_Term_checkDeprecatedCore___redArg(v_constName_20986_, v_a_20987_, v_a_20989_, v_a_20990_, v_a_20991_, v_a_20992_);
 return v___x_20994_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore___boxed(lean_object* v_constName_20995_, lean_object* v_a_20996_, lean_object* v_a_20997_, lean_object* v_a_20998_, lean_object* v_a_20999_, lean_object* v_a_21000_, lean_object* v_a_21001_, lean_object* v_a_21002_){
+LEAN_EXPORT lean_object* l_Lean_Elab_Term_checkDeprecatedCore___boxed(lean_object* v_constName_20995_, lean_object* v_a_20996_, lean_object* v_a_20997_, lean_object* v_a_20998_, lean_object* v_a_20999_, lean_object* v_a_21000_, lean_object* v_a_21001_, lean_object* v_a_21002_){
 _start:
 {
 lean_object* v_res_21003_; 
-v_res_21003_ = l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore(v_constName_20995_, v_a_20996_, v_a_20997_, v_a_20998_, v_a_20999_, v_a_21000_, v_a_21001_);
+v_res_21003_ = l_Lean_Elab_Term_checkDeprecatedCore(v_constName_20995_, v_a_20996_, v_a_20997_, v_a_20998_, v_a_20999_, v_a_21000_, v_a_21001_);
 lean_dec(v_a_21001_);
 lean_dec_ref(v_a_21000_);
 lean_dec(v_a_20999_);
@@ -59321,7 +59321,7 @@ _start:
 {
 lean_object* v___x_21250_; 
 lean_inc(v_constName_21241_);
-v___x_21250_ = l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore___redArg(v_constName_21241_, v_a_21243_, v_a_21245_, v_a_21246_, v_a_21247_, v_a_21248_);
+v___x_21250_ = l_Lean_Elab_Term_checkDeprecatedCore___redArg(v_constName_21241_, v_a_21243_, v_a_21245_, v_a_21246_, v_a_21247_, v_a_21248_);
 if (lean_obj_tag(v___x_21250_) == 0)
 {
 lean_object* v___x_21251_; 
@@ -59706,7 +59706,7 @@ lean_ctor_set(v___x_21422_, 12, v_cancelTk_x3f_21418_);
 lean_ctor_set(v___x_21422_, 13, v_inheritedTraceOptions_21420_);
 lean_ctor_set_uint8(v___x_21422_, sizeof(void*)*14, v_diag_21417_);
 lean_ctor_set_uint8(v___x_21422_, sizeof(void*)*14 + 1, v_suppressElabErrors_21419_);
-v___x_21423_ = l___private_Lean_Elab_Term_TermElabM_0__Lean_Elab_Term_checkDeprecatedCore___redArg(v_declName_21404_, v_a_21397_, v_a_21398_, v_a_21399_, v___x_21422_, v_a_21401_);
+v___x_21423_ = l_Lean_Elab_Term_checkDeprecatedCore___redArg(v_declName_21404_, v_a_21397_, v_a_21398_, v_a_21399_, v___x_21422_, v_a_21401_);
 lean_dec_ref_known(v___x_21422_, 14);
 return v___x_21423_;
 }

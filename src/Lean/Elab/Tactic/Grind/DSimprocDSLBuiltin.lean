@@ -9,10 +9,15 @@ import Lean.Elab.Tactic.Grind.DSimprocDSL
 import Init.Sym.DSimp.DSimprocDSL
 import Lean.Meta.Sym.DSimp.Reduce
 import Lean.Meta.Sym.DSimp.DSimproc
+import Lean.Meta.Sym.DSimp.EvalGround
 namespace Lean.Elab.Tactic.Grind
 open Meta Sym.DSimp
 
 -- DSimproc elaborators
+
+@[builtin_sym_dsimproc Lean.Parser.Sym.DSimp.ground]
+def elabGround : SymDSimprocElab := fun _ =>
+  return evalGround
 
 @[builtin_sym_dsimproc Lean.Parser.Sym.DSimp.zetaDelta]
 def elabZetaDeltaAll : SymDSimprocElab := fun _ =>

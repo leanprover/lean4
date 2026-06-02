@@ -171,6 +171,7 @@ def insertKeyValue [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : Dis
       let c := createNodes keys v 1
       { root := d.root.insert k c }
     | some c =>
+      let d := { d with root := d.root.erase k }
       let c := insertAux keys v 1 c
       { root := d.root.insert k c }
 

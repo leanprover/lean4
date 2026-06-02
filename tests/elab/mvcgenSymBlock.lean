@@ -5,6 +5,7 @@ import Std.Tactic.Do
 open Std.Do
 
 set_option mvcgen.warning false
+set_option warn.sorry false
 
 /-! ## Trivial postcondition: `mvcgen'` closes the goal -/
 
@@ -44,7 +45,7 @@ axiom H2_spec : ⦃fun n => ⌜P n⌝⦄ H2 ⦃⇓ _ n => ⌜True⌝⦄
 
 example : ⦃⌜True⌝⦄ F2 ⦃⇓ _ n => ⌜True⌝⦄ := by
   sym =>
-    mvcgen' [F2] with grind
+    mvcgen' [F2] <;> finish
 
 /-! ## VC leftover; closed by a subsequent grind step -/
 
@@ -95,17 +96,6 @@ example : ⦃⌜True⌝⦄ F4 ⦃⇓ r _ => ⌜Q4 r⌝⦄ := by
     mvcgen' [F4]
     finish [hPQ4]
 
--- `clear hk` drops `hk` from the lctx; `hk2` remains as a proof of `k = 0`. If
--- `PreTac.run`'s `.tactic` branch inherited the parent `Grind.Goal` instead of
--- building fresh ones, the E-graph (populated by `internalize_all`) would keep
--- the now-dead `hk` fvar; `finish` constructs a proof citing it and the kernel
--- rejects with `unknown free variable`.
-example (k : Nat) (hk : k = 0) (hk2 : k = 0) : ⦃⌜True⌝⦄ F4 ⦃⇓ _ _ => ⌜k = 0⌝⦄ := by
-  sym =>
-    internalize_all
-    mvcgen' [F4] with (clear hk)
-    finish
-
 /-! ## Inline invariants (bullet form) inside `sym =>` -/
 
 example :
@@ -119,14 +109,25 @@ example :
   sym =>
     mvcgen' invariants
       · ⇓(xs, r) => ⌜r + xs.suffix.length * 5 ≤ 25⌝
-    with (simp_all; try grind)
+    <;> finish
 
-/-! ## `invariants?` (suggest mode) is rejected inside `sym =>` -/
+/-! ## `invariants?` (suggest mode) works inside `sym =>` -/
+
+def mySum (l : List Nat) : Nat := Id.run do
+  let mut acc := 0
+  for x in l do
+    acc := acc + x
+  return acc
 
 /--
-error: `mvcgen' invariants?` (suggest mode) is not supported inside `sym => …` blocks
+info: Try this:
+  [apply] invariants
+  · ⇓⟨xs, letMuts⟩ => ⌜xs.prefix = [] ∧ letMuts = 0 ∨ xs.suffix = [] ∧ letMuts = l.sum⌝
 -/
-#guard_msgs in
-example : ⦃⌜True⌝⦄ F ⦃⇓ _ n => ⌜n = n⌝⦄ := by
+#guard_msgs (info) in
+theorem mySum_suggest (l : List Nat) : mySum l = l.sum := by
+  generalize h : mySum l = r
+  apply Id.of_wp_run_eq h
   sym =>
-    mvcgen' [F] invariants?
+    mvcgen' [mySum] invariants?
+    all_goals tactic => admit

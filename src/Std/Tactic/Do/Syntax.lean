@@ -60,6 +60,14 @@ structure Config where
   rule and the missing reduction. Off by default; only consulted by `mvcgen'`.
   -/
   debug : Bool := false
+  /--
+  If `true` (the default in grind mode), `mvcgen'` calls `Grind.processHypotheses` on
+  each emitted VC, internalising local hypotheses into the parent's E-graph so that
+  downstream grind steps share context. The tactic-level entry point disables this
+  when there is no `with` clause (no grind step will consume the E-graph anyway).
+  Ignored by `mvcgen`.
+  -/
+  internalize : Bool := true
 end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser
@@ -429,20 +437,25 @@ syntax (name := mvcgenHint) "mvcgen?" optConfig
 
 -- Prototypical Sym-based variant of `mvcgen`; see `mvcgen` for documentation.
 -- Same surface syntax modulo `vcAlts`, replaced by `simplifying_assumptions … with …`.
+-- The optional `with $g` form is sugar for `sym => mvcgen' … <;> $g`: it enters grind
+-- mode to share the internalised goal context with the user-supplied grind step (the only
+-- way to do so from tactic mode). `$g` is a single grind-mode step, so passing a
+-- multi-step sequence requires explicit grouping (e.g. `with (s₁; s₂)`).
 @[tactic_alt Lean.Parser.Tactic.mvcgen'Macro]
 syntax (name := mvcgen') "mvcgen'" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
   (invariantAlts)?
   (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
-  (&" with " tactic)? : tactic
+  (&" with " grind)? : tactic
 
 namespace Grind
 
-/-- `mvcgen'` step for `sym => …` blocks; same surface as the tactic form. -/
+/-- `mvcgen'` step for `sym => …` blocks. No `with` clause: compose with subsequent grind
+steps using `<;>` instead. -/
 syntax (name := mvcgen') "mvcgen'" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
   (invariantAlts)?
   (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
-  (&" with " tactic)? : grind
+  : grind
 
 end Grind

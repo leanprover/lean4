@@ -20,23 +20,10 @@ open Std.Do
 namespace Lean.Elab.Tactic.Do.Internal
 
 /-!
-The `VCGenM` monad: its read-only `Context` (spec database + a fixed bundle of
-pre-built `BackwardRule`s + user-customisable simp methods + pre-tactic) and
-its mutable `State` (rule caches, accumulated invariants/VCs, simp cache).
+The `VCGenM` monad: its read-only `Context` (a fixed bundle of pre-built
+`BackwardRule`s + user-customisable simp methods) and its mutable `State`
+(rule caches, accumulated invariants/VCs, simp cache).
 -/
-
-/-- Pre-tactic to try on each emitted VC before returning it to the user. -/
-public inductive VCGen.PreTac where
-  /-- No pre-tactic; VCs are returned as-is. -/
-  | none
-  /-- Use grind with the given hypothesis simplification methods. -/
-  | grind (silent : Bool := false)
-  /-- Use a user-provided tactic syntax. -/
-  | tactic (tac : Syntax)
-
-public def VCGen.PreTac.isGrind : VCGen.PreTac → Bool
-  | .grind .. => true
-  | _ => false
 
 public structure VCGen.Context where
   /-- The backward rule for `SPred.entails_cons_intro`. -/
@@ -78,8 +65,6 @@ public structure VCGen.Context where
   andIntroRule : BackwardRule
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
-  /-- Pre-tactic to try on each emitted VC. -/
-  preTac : PreTac := .none
   /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
   `repeatAndRfl` to collapse trivial `And.intro` chains; when `false`, the goal is
   emitted as-is. -/
@@ -99,6 +84,10 @@ public structure VCGen.Context where
   `BackwardRule.apply` calls after `unfoldReducible` and reports an error when the
   retry succeeds, pinpointing missing normalization steps in `mvcgen'`. -/
   debug : Bool := false
+  /-- The `internalize` config option: when `true` (default), `emitVC` and the
+  multi-subgoal fork in `Driver.work` call `Grind.processHypotheses`. The tactic-mode
+  entry point disables this when there is no `with` clause. -/
+  internalize : Bool := true
   /-- Pre-parsed `invariants`/`invariants?` alternatives, indexed by 1-based invariant
   number. Bullet form maps positions to entries (`bullet n+1 → alt`); labelled form maps
   the parsed `inv<n>` numbers (out-of-order labels are supported). Empty when no
@@ -155,8 +144,6 @@ public structure VCGen.State where
   this to know which user-provided alts have already been consumed (so it doesn't
   warn about them). -/
   inlineHandledInvariants : Std.HashSet Nat := {}
-  /-- Set when a pre-tactic failed on some VC; `elabMVCGen'` throws if true. -/
-  preTacFailed : Bool := false
 
 public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 

@@ -43,11 +43,12 @@ fun {α} {x} {xs} {y} {ys} h =>
       fun h_1 =>
       id
         (Eq.mp
-          (Eq.trans (Eq.symm (eq_true (L.cons.inj (id h)).1))
+          (Eq.trans (Eq.symm (eq_true (id (L.cons.inj (id h)).1)))
             (Lean.Grind.eq_false_of_not_eq_true
               (Eq.trans
                 (Eq.symm
-                  (Lean.Grind.or_eq_of_eq_false_right (Lean.Grind.not_eq_of_eq_true (eq_true (L.cons.inj (id h)).2))))
+                  (Lean.Grind.or_eq_of_eq_false_right
+                    (Lean.Grind.not_eq_of_eq_true (eq_true (id (L.cons.inj (id h)).2)))))
                 (eq_true h_1))))
           True.intro))
 -/

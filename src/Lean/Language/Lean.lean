@@ -298,7 +298,7 @@ structure SetupImportsResult where
   /-- Pre-resolved artifacts of transitively imported modules. -/
   importArts : NameMap ImportArtifacts := {}
   /-- Lean plugins to load as part of the environment setup. -/
-  plugins : Array System.FilePath := #[]
+  plugins : Array Plugin := #[]
 
 /--
 Parses an option value from a string and inserts it into `opts`.
@@ -505,7 +505,7 @@ where
         return { diagnostics, result? := none, metaSnap := default }
 
       let mut traceState := default
-      if trace.profiler.output.get? setup.opts |>.isSome then
+      if trace.profiler.isExporting setup.opts then
         traceState := {
           traces := #[{
             ref := .missing,

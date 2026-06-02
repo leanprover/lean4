@@ -182,10 +182,10 @@ lean_object* v_val_24_; lean_object* v_val_25_; lean_object* v___x_26_;
 lean_dec(v_h__2_23_);
 v_val_24_ = lean_ctor_get(v_x_20_, 0);
 lean_inc(v_val_24_);
-lean_dec_ref(v_x_20_);
+lean_dec_ref_known(v_x_20_, 1);
 v_val_25_ = lean_ctor_get(v_x_21_, 0);
 lean_inc(v_val_25_);
-lean_dec_ref(v_x_21_);
+lean_dec_ref_known(v_x_21_, 1);
 v___x_26_ = lean_apply_2(v_h__1_22_, v_val_24_, v_val_25_);
 return v___x_26_;
 }
@@ -217,10 +217,10 @@ lean_object* v_val_36_; lean_object* v_val_37_; lean_object* v___x_38_;
 lean_dec(v_h__2_35_);
 v_val_36_ = lean_ctor_get(v_x_32_, 0);
 lean_inc(v_val_36_);
-lean_dec_ref(v_x_32_);
+lean_dec_ref_known(v_x_32_, 1);
 v_val_37_ = lean_ctor_get(v_x_33_, 0);
 lean_inc(v_val_37_);
-lean_dec_ref(v_x_33_);
+lean_dec_ref_known(v_x_33_, 1);
 v___x_38_ = lean_apply_2(v_h__1_34_, v_val_36_, v_val_37_);
 return v___x_38_;
 }
@@ -266,7 +266,7 @@ else
 lean_object* v_val_47_; 
 v_val_47_ = lean_ctor_get(v___x_45_, 0);
 lean_inc(v_val_47_);
-lean_dec_ref(v___x_45_);
+lean_dec_ref_known(v___x_45_, 1);
 return v_val_47_;
 }
 }
@@ -457,7 +457,7 @@ else
 lean_object* v_val_96_; 
 v_val_96_ = lean_ctor_get(v___x_94_, 0);
 lean_inc(v_val_96_);
-lean_dec_ref(v___x_94_);
+lean_dec_ref_known(v___x_94_, 1);
 return v_val_96_;
 }
 }
@@ -731,7 +731,7 @@ v_head_155_ = lean_ctor_get(v_x_151_, 0);
 lean_inc(v_head_155_);
 v_tail_156_ = lean_ctor_get(v_x_151_, 1);
 lean_inc(v_tail_156_);
-lean_dec_ref(v_x_151_);
+lean_dec_ref_known(v_x_151_, 2);
 v_head_157_ = lean_ctor_get(v_x_152_, 0);
 v_tail_158_ = lean_ctor_get(v_x_152_, 1);
 v_isSharedCheck_167_ = !lean_is_exclusive(v_x_152_);
@@ -1214,7 +1214,7 @@ v_head_274_ = lean_ctor_get(v_x_270_, 0);
 lean_inc(v_head_274_);
 v_tail_275_ = lean_ctor_get(v_x_270_, 1);
 lean_inc(v_tail_275_);
-lean_dec_ref(v_x_270_);
+lean_dec_ref_known(v_x_270_, 2);
 v_head_276_ = lean_ctor_get(v_x_271_, 0);
 v_tail_277_ = lean_ctor_get(v_x_271_, 1);
 v_isSharedCheck_286_ = !lean_is_exclusive(v_x_271_);
@@ -1694,7 +1694,7 @@ v_head_416_ = lean_ctor_get(v_x_412_, 0);
 lean_inc(v_head_416_);
 v_tail_417_ = lean_ctor_get(v_x_412_, 1);
 lean_inc(v_tail_417_);
-lean_dec_ref(v_x_412_);
+lean_dec_ref_known(v_x_412_, 2);
 v_head_418_ = lean_ctor_get(v_x_413_, 0);
 v_tail_419_ = lean_ctor_get(v_x_413_, 1);
 v_isSharedCheck_430_ = !lean_is_exclusive(v_x_413_);

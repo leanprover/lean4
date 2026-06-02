@@ -164,7 +164,7 @@ public syntax depSpec :=
 Adds a new package dependency to the workspace. The general syntax is:
 
 ```
-require ["<scope>" /] <pkg-name> [@ <version>]
+require ["<scope>" /] <pkg-name> [@ [git]? <version>]
   [from <source>] [with <options>]
 ```
 

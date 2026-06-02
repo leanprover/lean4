@@ -178,9 +178,9 @@ end TimeZone
 namespace PlainDate
 
 /--
-Formats a `PlainDate` using a specific format.
+Formats a `PlainDate` using a specific format and locale.
 -/
-def format (date : PlainDate) (format : String) : String :=
+def format (date : PlainDate) (format : String) (locale : DateFormat := .enUS) : String :=
   let format : Except String (GenericFormat .any) := GenericFormat.spec format
   match format with
   | .error err => s!"error: {err}"
@@ -189,10 +189,11 @@ def format (date : PlainDate) (format : String) : String :=
       | .G _ => some date.era
       | .y _ => some date.year
       | .u _ => some date.year
+      | .Y _ => some (date.weekYear locale.firstDayOfWeek)
       | .D _ => some (Sigma.mk date.year.isLeap date.dayOfYear)
       | .Qorq _ => some date.quarter
-      | .w _ => some date.weekOfYear
-      | .W _ => some date.alignedWeekOfMonth
+      | .w _ => some (date.weekOfYear locale.firstDayOfWeek)
+      | .W _ => some (date.alignedWeekOfMonth locale.firstDayOfWeek)
       | .MorL _ => some date.month
       | .d _ => some date.day
       | .E _ => some date.weekday
@@ -442,9 +443,9 @@ end ZonedDateTime
 namespace PlainDateTime
 
 /--
-Formats a `PlainDateTime` using a specific format.
+Formats a `PlainDateTime` using a specific format and locale.
 -/
-def format (date : PlainDateTime) (format : String) : String :=
+def format (date : PlainDateTime) (format : String) (locale : DateFormat := .enUS) : String :=
   let format : Except String (GenericFormat .any) := GenericFormat.spec format
   match format with
   | .error err => s!"error: {err}"
@@ -453,10 +454,11 @@ def format (date : PlainDateTime) (format : String) : String :=
       | .G _ => some date.era
       | .y _ => some date.year
       | .u _ => some date.year
+      | .Y _ => some (date.weekYear locale.firstDayOfWeek)
       | .D _ => some (Sigma.mk date.year.isLeap date.dayOfYear)
       | .Qorq _ => some date.quarter
-      | .w _ => some date.weekOfYear
-      | .W _ => some date.alignedWeekOfMonth
+      | .w _ => some (date.weekOfYear locale.firstDayOfWeek)
+      | .W _ => some (date.alignedWeekOfMonth locale.firstDayOfWeek)
       | .MorL _ => some date.month
       | .d _ => some date.day
       | .E _ => some date.weekday
@@ -489,7 +491,7 @@ def fromAscTimeString (input : String) : Except String PlainDateTime :=
 Formats a `PlainDateTime` value into an AscTime format string.
 -/
 def toAscTimeString (pdt : PlainDateTime) : String :=
-  Formats.ascTime.format (DateTime.ofPlainDateTimeAssumingUTC pdt .UTC)
+  Formats.ascTime.format (DateTime.ofPlainDateTime pdt .UTC)
 
 /--
 Parses a `String` in the `LongDateFormat` and returns a `PlainDateTime` object in the GMT time zone.
@@ -502,7 +504,7 @@ def fromLongDateFormatString (input : String) : Except String PlainDateTime :=
 Formats a `PlainDateTime` value into a LongDateFormat string.
 -/
 def toLongDateFormatString (pdt : PlainDateTime) : String :=
-  Formats.longDateFormat.format (DateTime.ofPlainDateTimeAssumingUTC pdt .UTC)
+  Formats.longDateFormat.format (DateTime.ofPlainDateTime pdt .UTC)
 
 /--
 Parses a `String` in the `DateTime` format and returns a `PlainDateTime`.

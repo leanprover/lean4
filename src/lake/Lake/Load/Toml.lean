@@ -92,7 +92,7 @@ partial def takeName (ss : Substring.Raw) : (Substring.Raw × Name) :=
   let (ss, n) := takeNamePart ss .anonymous
   if n.isAnonymous then (ss, .anonymous) else takeRest ss n
 
-def Glob.ofString? (v : String) : Option Glob := do
+public def Glob.ofString? (v : String) : Option Glob := do
   let (ss, n) := takeName v.toRawSubstring
   if n.isAnonymous then failure
   if h : ss.startPos.atEnd ss.str then

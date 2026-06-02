@@ -4,7 +4,6 @@ import Lake
 open Lean Parser Meta Elab Do
 
 set_option linter.unusedVariables false
-set_option backward.do.legacy false
 
 /-!
 Miscellaneous tests for the new `do` elaborator.

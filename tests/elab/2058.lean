@@ -40,7 +40,7 @@ def foo : IO Unit := do
 /--
 info: def foo : IO Unit :=
 have x := PUnit.unit.{0};
-pure.{0, 0} Unit.unit
+pure.{0, 0} ()
 -/
 #guard_msgs in set_option pp.universes true in #print foo
 

@@ -100,51 +100,6 @@ is marked done regardless of whether a rule fires. Otherwise it tries in order:
 namespace Lean.Meta.Tactic.Cbv
 open Lean.Meta.Sym.Simp
 
-/-- Like `Sym.unfoldReducibleStep` but skips `@[cbv_opaque]` declarations. -/
-private def unfoldReducibleStep (e : Expr) : MetaM TransformStep := do
-  let .const declName _ := e.getAppFn | return .continue
-  unless (← isReducible declName) do return .continue
-  if (← getEnv).isProjectionFn declName then return .continue
-  if (← isCbvOpaque declName) then return .continue
-  let some v ← unfoldDefinition? e | return .continue
-  return .visit v
-
-/-- Like `Sym.unfoldReducible` but skips `@[cbv_opaque]` declarations. -/
-private def unfoldReducible (e : Expr) : MetaM Expr := do
-  Meta.transform e (pre := unfoldReducibleStep)
-
-/-- Like `Sym.preprocessExpr` but skips `@[cbv_opaque]` declarations during unfolding. -/
-private def preprocessExpr (e : Expr) : Sym.SymM Expr := do
-  Sym.shareCommon (← unfoldReducible (← instantiateMVars e))
-
-/-- Like `Sym.preprocessMVar` but skips `@[cbv_opaque]` declarations during unfolding. -/
-private def preprocessMVar (mvarId : MVarId) : Sym.SymM MVarId := do
-  let mvarDecl ← mvarId.getDecl
-  let lctx ← preprocessLCtx mvarDecl.lctx
-  let type ← preprocessExpr mvarDecl.type
-  let mvarNew ← mkFreshExprMVarAt lctx mvarDecl.localInstances type .syntheticOpaque mvarDecl.userName
-  mvarId.assign mvarNew
-  return mvarNew.mvarId!
-where
-  preprocessLCtx (lctx : LocalContext) : Sym.SymM LocalContext := do
-    let auxDeclToFullName := lctx.auxDeclToFullName
-    let mut fvarIdToDecl := {}
-    let mut decls := {}
-    let mut index := 0
-    for decl in lctx do
-      let decl ← match decl with
-        | .cdecl _ fvarId userName type bi kind =>
-          let type ← preprocessExpr type
-          pure <| LocalDecl.cdecl index fvarId userName type bi kind
-        | .ldecl _ fvarId userName type value nondep kind =>
-          let type ← preprocessExpr type
-          let value ← preprocessExpr value
-          pure <| LocalDecl.ldecl index fvarId userName type value nondep kind
-      index := index + 1
-      decls := decls.push (some decl)
-      fvarIdToDecl := fvarIdToDecl.insert decl.fvarId decl
-    return { fvarIdToDecl, decls, auxDeclToFullName }
-
 public register_builtin_option cbv.warning : Bool := {
   defValue := false
   descr    := "When enabled, displays a warning that the `cbv` tactic is being used."
@@ -249,39 +204,41 @@ def handleProj : Simproc := fun e => do
   -- We recursively simplify the projection
   let res ← simp struct
   match res with
-  | .rfl _ _ =>
+  | .rfl _ cd =>
     let some reduced ← withCbvOpaqueGuard <| reduceProj? <| .proj typeName idx struct | do
-      return .rfl (done := true)
+      return .rfl (done := true) cd
 
-    -- TODO: Figure if we can share this term incrementally
     let reduced ← Sym.share reduced
-    return .step reduced (← Sym.mkEqRefl reduced)
-  | .step e' proof _ _ =>
+    return .step reduced (← Sym.mkEqRefl reduced) cd
+  | .step e' proof _ cd =>
     let type ← Sym.inferType e'
     let congrArgFun := Lean.mkLambda `x .default type <| .proj typeName idx <| .bvar 0
-    let congrArgFunType ← inferType congrArgFun
+    let congrArgFunType ← Sym.inferType congrArgFun
     -- If the type of a projection function is non-dependent, we can safely prove `e.i = e'.i` from `e = e'`
-    if (congrArgFunType.isArrow) then
-      let newProof ← mkCongrArg congrArgFun proof
-      return .step (← Lean.Expr.updateProjS! e e') newProof
+    if congrArgFunType.isArrow then
+      let .forallE _ α β _ := congrArgFunType | unreachable!
+      let u ← Sym.getLevel α
+      let v ← Sym.getLevel β
+      let newProof := mkApp6 (mkConst ``congrArg [u, v]) α β struct e' congrArgFun proof
+      return .step (← Lean.Expr.updateProjS! e e') newProof cd
     else
       -- If the type of the projection function is dependent, we first try to reduce the projection
       let reduced ← withCbvOpaqueGuard <| reduceProj? e
       match reduced with
       | .some reduced =>
         let reduced ← Sym.share reduced
-        return .step reduced (← Sym.mkEqRefl reduced)
+        return .step reduced (← Sym.mkEqRefl reduced) cd
       | .none =>
        -- If we failed to reduce it, we turn to a last resort; we try use heterogeneous congruence lemma that we then try to turn into an equality.
-        unless (← isDefEq struct e') do
+        unless (← Sym.isDefEqI struct e') do
           -- If we rewrote the projection body using something that holds up to propositional equality, then there is nothing we can do.
           -- TODO: Check if there is a need to report this to a user, or shall we fail silently.
-          return .rfl (done := true)
+          return .rfl (done := true) cd
         let hcongr ← mkHCongr congrArgFun
         let newProof := mkApp3 (hcongr.proof) struct e' proof
         -- We have already checked if `struct` and `e'` are defEq, so we can skip the check.
         let newProof ← mkEqOfHEq newProof (check := false)
-        return .step (← Lean.Expr.updateProjS! e e') newProof
+        return .step (← Lean.Expr.updateProjS! e e') newProof cd
 
 open Sym.Internal in
 /--
@@ -297,13 +254,16 @@ def simplifyAppFn : Simproc := fun e => do
     let res ← simp fn
     match res with
     | .rfl _ _ => return res
-    | .step e' proof _ _ =>
+    | .step e' proof _ cd =>
       let newType ← Sym.inferType e'
       let congrArgFun := Lean.mkLambda `x .default newType (mkAppN (.bvar 0) e.getAppArgs)
       let newValue ← mkAppNS e' e.getAppArgs
-      let newProof ← mkCongrArg congrArgFun proof
+      let resultType ← Sym.inferType e
+      let u ← Sym.getLevel newType
+      let v ← Sym.getLevel resultType
+      let newProof := mkApp6 (mkConst ``congrArg [u, v]) newType resultType fn e' congrArgFun proof
       trace[Debug.Meta.Tactic.cbv.reduce] "simplifyAppFn:{indentExpr e}\n==>{indentExpr newValue}"
-      return .step newValue newProof
+      return .step newValue newProof cd
 
 def handleConst : Simproc := fun e => do
   let .const n lvls := e | return .rfl
@@ -314,6 +274,7 @@ def handleConst : Simproc := fun e => do
   if eType matches .forallE .. then return .rfl
   unless info.hasValue && info.levelParams.length == lvls.length do return .rfl
   let fBody ← instantiateValueLevelParams info lvls
+  let fBody ← Sym.unfoldReducible fBody
   let eNew ← Sym.share fBody
   trace[Meta.Tactic.cbv.unfold] "const `{n}`:{indentExpr e}\n==>{indentExpr eNew}"
   return .step eNew (← Sym.mkEqRefl eNew)
@@ -366,7 +327,7 @@ public def cbvEntry (e : Expr) : MetaM Result := do
   let simprocs ← getCbvSimprocs
   let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
   let methods := mkCbvMethods simprocs
-  let e ← unfoldReducible e
+  let e ← Sym.unfoldReducible e
   Sym.SymM.run do
     let e ← Sym.shareCommon e
     SimpM.run' (simp e) (methods := methods) (config := config)
@@ -388,7 +349,7 @@ After all reductions, attempts `refl` to close equation goals of the form `v = v
 public def cbvGoal (mvarId : MVarId) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) : MetaM (Option MVarId) := do
   let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
   Sym.SymM.run do
-    let mvarId ← preprocessMVar mvarId
+    let mvarId ← Sym.preprocessMVar mvarId
     mvarId.withContext do
       let mut mvarIdNew := mvarId
       let mut toAssert : Array Hypothesis := #[]
@@ -405,11 +366,11 @@ public def cbvGoal (mvarId : MVarId) (simplifyTarget : Bool := true) (fvarIdsToS
         | .rfl _ _ => pure ()
         | .step type' proof _ _ =>
           if type'.isFalse then
-            let u ← getLevel type
+            let u ← Sym.getLevel type
             mvarIdNew.assign (← mkFalseElim (← mvarIdNew.getType) (mkApp4 (mkConst ``Eq.mp [u]) type type' proof (mkFVar fvarId)))
             return none
           else
-            let u ← getLevel type
+            let u ← Sym.getLevel type
             toAssert := toAssert.push { userName := localDecl.userName, type := type', value := mkApp4 (mkConst ``Eq.mp [u]) type type' proof (mkFVar fvarId) }
       -- Process target
       if simplifyTarget then
@@ -449,7 +410,7 @@ public def cbvDecideGoal (m : MVarId) : MetaM Unit := do
       | .error err => return m!"decide_cbv: {err.toMessageData}") do
   let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
   Sym.SymM.run do
-    let m ← preprocessMVar m
+    let m ← Sym.preprocessMVar m
     let mType ← m.getType
     let some (_, lhs, _) := mType.eq? |
       throwError "`decide_cbv`: expected goal of the form `decide _ = true`, got: {indentExpr mType}"
@@ -465,6 +426,5 @@ public def cbvDecideGoal (m : MVarId) : MetaM Unit := do
     match result with
     | .rfl _ _ => checkResult lhs (m.refl)
     | .step e' proof _ _ => checkResult e' (m.assign proof)
-
 
 end Lean.Meta.Tactic.Cbv

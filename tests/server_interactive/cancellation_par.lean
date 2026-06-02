@@ -2,24 +2,26 @@ import Lean.Server.Test.Cancel
 open Lean.Server.Test.Cancel
 
 /-!
-Test contrasting cancellation behavior between sequential and parallel combinators.
+Test that cancellation propagates into parallel tactic combinators (`attempt_all_par`,
+`first_par`).
 
-Each section uses `check_cancel <label>`: on first invocation it loops checking
-`Core.checkInterrupted`, waiting for the second invocation (triggered by re-elaboration) to
-signal it. If the cancel token was properly set, `checkInterrupted` fires first and the tactic
-is interrupted. Otherwise the signal arrives, the tactic finds `cancelTk` unset, and prints
-`"{label}: leaked!"`.
+Per section, chronological flow:
+1. `theorem t` elaborates; its body runs `try? => <combinator> | block_until_cancelled "<L>"`,
+   which on the first invocation registers test task `"<L>"`, resolves sync promise `"<L>"`,
+   and enters a `Core.checkInterrupted` loop.
+2. The gate theorem (`tGate`) elaborates; `wait_for_sync "<L>"` returns immediately (sync was
+   resolved in step 1), `trace "blocked"` emits the diagnostic the runner is waiting for.
+3. Runner inserts `; skip`, triggers re-elab; `cancelRec` walks `t`'s snapshot tree, setting
+   the cancel token of the `block_until_cancelled` subtask. The loop's `Core.checkInterrupted`
+   throws, the `finally` resolves the test task, the second invocation's wait returns.
 
-**Sequential `first`** (section 1): runs on the main elaboration thread, sharing the command's
-cancel token. On re-elaboration, `checkInterrupted` fires — no leak.
-
-**Parallel `attempt_all_par`** (section 2): runs in a subtask via `asTask` with its own fresh
-cancel token. Nobody sets that token on re-elaboration — **leak**.
-
-**Parallel `first_par`** (section 3): same bug as `attempt_all_par`.
+Section 1 uses sequential `first`; sections 2 and 3 use the parallel combinators
+`attempt_all_par` and `first_par`, which spawn the inner tactic on a fresh `asTask` cancel
+token. The fix in `CoreM.asTask` (#13428) propagates the parent token to those subtasks;
+without it, `cancelRec` cannot reach the subtask's cancel token and the test times out.
 -/
 
-/-! ## Sequential `first`: cancellation works -/
+/-! ## Sequential `first` -/
 
 example : True := by
   trivial
@@ -28,15 +30,19 @@ example : True := by
        --^ sync
 
 theorem t : True := by
-  wait_for_cancel_once_async
   try? => first
-    | check_cancel first
+    | block_until_cancelled "first"
+
+theorem tGate : True := by
+  wait_for_sync "first"
+  trace "blocked"
+  trivial
 
 -- RESET
 import Lean.Server.Test.Cancel
 open Lean.Server.Test.Cancel
 
-/-! ## Parallel `attempt_all_par`: cancellation is broken -/
+/-! ## Parallel `attempt_all_par` -/
 
 example : True := by
   trivial
@@ -45,15 +51,19 @@ example : True := by
        --^ sync
 
 theorem t : True := by
-  wait_for_cancel_once_async
   try? => attempt_all_par
-    | check_cancel attempt_all_par
+    | block_until_cancelled "attempt_all_par"
+
+theorem tGate : True := by
+  wait_for_sync "attempt_all_par"
+  trace "blocked"
+  trivial
 
 -- RESET
 import Lean.Server.Test.Cancel
 open Lean.Server.Test.Cancel
 
-/-! ## Parallel `first_par`: cancellation is broken -/
+/-! ## Parallel `first_par` -/
 
 example : True := by
   trivial
@@ -62,6 +72,10 @@ example : True := by
        --^ sync
 
 theorem t : True := by
-  wait_for_cancel_once_async
   try? => first_par
-    | check_cancel first_par
+    | block_until_cancelled "first_par"
+
+theorem tGate : True := by
+  wait_for_sync "first_par"
+  trace "blocked"
+  trivial

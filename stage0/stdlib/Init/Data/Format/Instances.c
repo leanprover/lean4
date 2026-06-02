@@ -270,7 +270,7 @@ else
 lean_object* v_val_74_; lean_object* v___x_75_; lean_object* v___x_76_; lean_object* v___x_77_; 
 v_val_74_ = lean_ctor_get(v_x_72_, 0);
 lean_inc(v_val_74_);
-lean_dec_ref(v_x_72_);
+lean_dec_ref_known(v_x_72_, 1);
 v___x_75_ = ((lean_object*)(l_Option_format___redArg___closed__3));
 v___x_76_ = lean_apply_1(v_inst_71_, v_val_74_);
 v___x_77_ = lean_alloc_ctor(5, 2, 0);
@@ -536,7 +536,7 @@ lean_object* v_head_160_; lean_object* v_str_161_; lean_object* v_startInclusive
 lean_dec(v_x_157_);
 v_head_160_ = lean_ctor_get(v_x_156_, 0);
 lean_inc(v_head_160_);
-lean_dec_ref(v_x_156_);
+lean_dec_ref_known(v_x_156_, 2);
 v_str_161_ = lean_ctor_get(v_head_160_, 0);
 lean_inc_ref(v_str_161_);
 v_startInclusive_162_ = lean_ctor_get(v_head_160_, 1);
@@ -558,7 +558,7 @@ lean_object* v_head_166_; lean_object* v_str_167_; lean_object* v_startInclusive
 lean_inc(v_tail_159_);
 v_head_166_ = lean_ctor_get(v_x_156_, 0);
 lean_inc(v_head_166_);
-lean_dec_ref(v_x_156_);
+lean_dec_ref_known(v_x_156_, 2);
 v_str_167_ = lean_ctor_get(v_head_166_, 0);
 lean_inc_ref(v_str_167_);
 v_startInclusive_168_ = lean_ctor_get(v_head_166_, 1);
@@ -741,7 +741,7 @@ lean_ctor_set(v___x_224_, 2, v___x_223_);
 v___x_225_ = l_String_Slice_splitToSubslice___at___00String_toFormat_spec__0(v___x_224_);
 v___x_226_ = ((lean_object*)(l_String_toFormat___closed__0));
 v___x_227_ = l___private_Init_WFExtrinsicFix_0__WellFounded_opaqueFix_u2082___at___00String_toFormat_spec__1___redArg(v_s_221_, v___x_224_, v___x_223_, v___x_225_, v___x_226_);
-lean_dec_ref(v___x_224_);
+lean_dec_ref_known(v___x_224_, 3);
 v___x_228_ = lean_array_to_list(v___x_227_);
 v___x_229_ = lean_box(1);
 v___x_230_ = l_Std_Format_joinSep___at___00String_toFormat_spec__2(v___x_228_, v___x_229_);

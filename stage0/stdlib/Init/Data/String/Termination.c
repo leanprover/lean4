@@ -440,7 +440,7 @@ lean_ctor_set(v___x_30_, 0, v_s_26_);
 lean_ctor_set(v___x_30_, 1, v___x_28_);
 lean_ctor_set(v___x_30_, 2, v___x_29_);
 v___x_31_ = l_String_Slice_Pos_remainingBytes(v___x_30_, v_p_27_);
-lean_dec_ref(v___x_30_);
+lean_dec_ref_known(v___x_30_, 3);
 return v___x_31_;
 }
 }

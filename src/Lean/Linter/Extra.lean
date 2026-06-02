@@ -1,0 +1,12 @@
+/-
+Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Wojciech Różowski
+-/
+module
+
+prelude
+public import Lean.Linter.Extra.DupNamespace
+public import Lean.Linter.Extra.UnnecessarySeqFocus
+public import Lean.Linter.Extra.UnreachableTactic
+public import Lean.Linter.Extra.UnusedDecidableInType

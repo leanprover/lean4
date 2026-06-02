@@ -168,6 +168,7 @@ structure VarInfo where
   isDefiniteRef : Bool
   persistent : Bool
   idx : Nat
+  ctorInfo : Option CtorInfo
   deriving Inhabited
 
 abbrev VarMap := FVarIdMap VarInfo
@@ -268,18 +269,24 @@ def withParams (ps : Array (Param .impure)) (x : RcM α) : RcM α := do
         isDefiniteRef := p.type.isDefiniteRef
         persistent := false
         idx := ctx.idx,
+        ctorInfo := none,
       }
       { ctx with idx := ctx.idx + 1, varMap }
   withReader update x
 
 @[inline]
 def withLetDecl (decl : LetDecl .impure) (x : RcM α) : RcM α := do
+  let ctorInfo :=
+    match decl.value with
+    | .ctor ctorInfo .. => some ctorInfo
+    | _ => none
   let update := fun ctx =>
     let varInfo := {
       isPossibleRef := decl.type.isPossibleRef
       isDefiniteRef := decl.type.isDefiniteRef
       persistent := decl.value.isPersistent
-      idx := ctx.idx
+      idx := ctx.idx,
+      ctorInfo := ctorInfo
     }
     { ctx with varMap := ctx.varMap.insert decl.fvarId varInfo, idx := ctx.idx + 1 }
   withReader update do
@@ -293,9 +300,10 @@ def withCtorAlt (discr : FVarId) (c : CtorInfo) (x : RcM α) : RcM α := do
         varMap :=
           match ctx.varMap.get? discr with
           | some info =>
-            let isPossibleRef := c.type.isPossibleRef
-            let isDefiniteRef := c.type.isDefiniteRef
-            ctx.varMap.insert discr { info with isPossibleRef, isDefiniteRef, idx := ctx.idx + 1 }
+            let isPossibleRef := c.isRef
+            let isDefiniteRef := c.isRef
+            ctx.varMap.insert discr
+              { info with isPossibleRef, isDefiniteRef, idx := ctx.idx + 1, ctorInfo := some c }
           | none => ctx.varMap
         idx := ctx.idx + 1
       }) do x
@@ -394,10 +402,16 @@ def addInc (fvarId : FVarId) (k : Code .impure) (n : Nat := 1) : RcM (Code .impu
     let info ← getVarInfo fvarId
     return .inc fvarId n (!info.isDefiniteRef) info.persistent k
 
-@[inline]
 def addDec (fvarId : FVarId) (k : Code .impure) : RcM (Code .impure) := do
   let info ← getVarInfo fvarId
-  return .dec fvarId 1 (!info.isDefiniteRef) info.persistent k
+  match info.ctorInfo with
+  | some ctorInfo =>
+    if ctorInfo.isRef then
+      return .dec fvarId 1 false info.persistent (some ctorInfo.size) k
+    else
+      return k
+  | none =>
+    return .dec fvarId 1 (!info.isDefiniteRef) info.persistent none k
 
 /--
 Insert the alternative specific prolog for the alternative contained in `k`. `altLiveVars` is the

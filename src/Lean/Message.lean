@@ -14,6 +14,7 @@ public import Lean.Util.Sorry
 import Init.Data.String.Search
 import Init.Data.Format.Macro
 import Init.Data.Iterators.Consumers.Collect
+import Init.Data.String.Length
 
 public section
 
@@ -273,6 +274,47 @@ def ofConstName (constName : Name) (fullNames : Bool := false) : MessageData :=
           ppConstNameWithInfos ctx constName
       return Dynamic.mk msg)
     (fun _ => false)
+
+/--
+Creates message data wrapping `fmt` that gives information about `expr` when hovered over.
+
+Options:
+- `location?` overrides what "go to definition" does
+- `docString?` allows overriding the docstring for the expression
+- `mkDocString?` allows generating a dynamic docstring; if this is provided, `docString?` is ignored
+- `explicit` makes the hover pretty print the head application in explicit mode;
+  the default value is `false` (note: delaboration expression hovers normally set this to `true`,
+  since their purpose is to get more information about a given expression)
+-/
+def withExprHover (fmt : Format) (expr : Expr) (lctx : LocalContext)
+    (location? : Option DeclarationLocation := none)
+    (docString? : Option String := none)
+    (mkDocString? : Option (PPContext → IO String) := none)
+    (explicit : Bool := false) : MessageData :=
+  .ofFormatWithInfos {
+      fmt := .tag 0 fmt
+      infos :=
+        .ofList [(0, Elab.Info.ofDelabTermInfo {
+          expr, lctx, location?, explicit,
+          stx := .missing, -- unused for delaborator hovers
+          expectedType? := none, -- unused for delaborator hovers
+          elaborator := `Delab.withExprHover,
+          mkDocString? := mkDocString? <|> docString?.map (fun _ => pure ·)
+        })]
+  }
+
+/--
+Calls `withExprHover`, but uses the current local context if one is not given.
+See `withExprHover` for a description of each parameter.
+-/
+def withExprHoverM {m} [Monad m] [MonadLCtx m]
+    (fmt : Format) (expr : Expr) (lctx? : Option LocalContext := none)
+    (location? : Option DeclarationLocation := none)
+    (docString? : Option String := none)
+    (mkDocString? : Option (PPContext → IO String) := none)
+    (explicit : Bool := false) : m MessageData := do
+  let lctx ← lctx?.getDM getLCtx
+  return withExprHover fmt expr lctx location? docString? mkDocString? explicit
 
 partial def hasSyntheticSorry (msg : MessageData) : Bool :=
   visit none msg
@@ -688,7 +730,7 @@ def inlineExpr (e : Expr) (maxInlineLength := 30) : MessageData :=
     (fun ctx => do
       let msg := MessageData.ofExpr e
       let render ← msg.formatExpensively ctx
-      if render.length > maxInlineLength || render.any (· == '\n') then
+      if render.positions.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg ++ "\n"
       else
         return " `" ++ msg ++ "` ")
@@ -704,7 +746,7 @@ def inlineExprTrailing (e : Expr) (maxInlineLength := 30) : MessageData :=
     (fun ctx => do
       let msg := MessageData.ofExpr e
       let render ← msg.formatExpensively ctx
-      if render.length > maxInlineLength || render.any (· == '\n') then
+      if render.positions.length > maxInlineLength || render.any (· == '\n') then
         return indentD msg
       else
         return " `" ++ msg ++ "`")

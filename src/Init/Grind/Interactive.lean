@@ -318,6 +318,17 @@ Only available in `sym =>` mode.
 -/
 syntax (name := symSimp) "simp" (ppSpace colGt ident)? (" [" ident,* "]")? : grind
 
+/--
+`dsimp` applies the definitional simplifier to the goal target.
+Only available in `sym =>` mode.
+
+- `dsimp` — uses the default (identity) variant
+- `dsimp myVariant` — uses a named variant registered via `register_sym_dsimp`
+- `dsimp [id₁, id₂, ...]` — default variant with extra declarations to unfold
+- `dsimp myVariant [id₁, id₂, ...]` — named variant with extra declarations
+-/
+syntax (name := symDSimp) "dsimp" (ppSpace colGt ident)? (" [" ("*" <|> ident),* "]")? : grind
+
 /-- `exact e` closes the main goal if its target type matches that of `e`. -/
 macro "exact " e:term : grind => `(grind| tactic => exact $e:term)
 

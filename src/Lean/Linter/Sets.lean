@@ -6,7 +6,7 @@ Authors: Anne Baanen
 module
 
 prelude
-public meta import Lean.Linter.Basic
+public meta import Lean.Linter.Init
 public meta import Lean.Elab.Command
 public import Init.Notation
 import Lean.Data.KVMap

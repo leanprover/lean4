@@ -2072,7 +2072,7 @@ lean_ctor_set(v___x_548_, 0, v___y_544_);
 lean_ctor_set(v___x_548_, 1, v___x_546_);
 lean_ctor_set(v___x_548_, 2, v___x_547_);
 v___x_549_ = l_String_Slice_Pos_prevn(v___x_548_, v___x_547_, v___x_545_);
-lean_dec_ref(v___x_548_);
+lean_dec_ref_known(v___x_548_, 3);
 v___x_550_ = lean_string_utf8_extract(v___y_544_, v___x_546_, v___x_549_);
 lean_dec(v___x_549_);
 lean_dec_ref(v___y_544_);

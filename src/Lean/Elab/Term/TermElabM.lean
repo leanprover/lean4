@@ -2092,7 +2092,7 @@ def isLetRecAuxMVar (mvarId : MVarId) : TermElabM Bool := do
   trace[Elab.letrec] "mvarId root: {mkMVar mvarId}"
   return (← get).letRecsToLift.any (·.mvarId == mvarId)
 
-private def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
+public def checkDeprecatedCore (constName : Name) : TermElabM Unit := do
   if (← read).checkDeprecated then
     Linter.checkDeprecated constName
 

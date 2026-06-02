@@ -29,7 +29,7 @@ lean_object* l_Lean_Elab_Do_elabDoElem(lean_object*, lean_object*, uint8_t, lean
 lean_object* l_Lean_Syntax_node4(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Term_elabTerm(lean_object*, lean_object*, uint8_t, uint8_t, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 extern lean_object* l_Lean_Elab_Do_doElemElabAttribute;
-lean_object* l_Lean_Elab_Do_mkMonadicType___redArg(lean_object*, lean_object*);
+lean_object* l_Lean_Elab_Do_mkMonadApp(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_Elab_Do_DoElemCont_ensureUnitAt(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 lean_object* l_Lean_MessageData_ofFormat(lean_object*);
 lean_object* l_Lean_Elab_Do_DoElemCont_continueWithUnit___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -344,7 +344,7 @@ if (lean_obj_tag(v___x_55_) == 0)
 lean_object* v_a_56_; lean_object* v___x_57_; 
 v_a_56_ = lean_ctor_get(v___x_55_, 0);
 lean_inc(v_a_56_);
-lean_dec_ref(v___x_55_);
+lean_dec_ref_known(v___x_55_, 1);
 v___x_57_ = l_Lean_Elab_Do_DoElemCont_continueWithUnit(v_a_56_, v_a_42_, v_a_43_, v_a_44_, v_a_45_, v_a_46_, v_a_47_, v_a_48_);
 return v___x_57_;
 }
@@ -447,7 +447,7 @@ else
 lean_object* v_resultType_112_; lean_object* v___x_113_; 
 v_resultType_112_ = lean_ctor_get(v_dec_100_, 1);
 lean_inc_ref(v_resultType_112_);
-v___x_113_ = l_Lean_Elab_Do_mkMonadicType___redArg(v_resultType_112_, v_a_101_);
+v___x_113_ = l_Lean_Elab_Do_mkMonadApp(v_resultType_112_, v_a_101_, v_a_102_, v_a_103_, v_a_104_, v_a_105_, v_a_106_, v_a_107_);
 if (lean_obj_tag(v___x_113_) == 0)
 {
 lean_object* v_a_114_; lean_object* v___x_116_; uint8_t v_isShared_117_; uint8_t v_isSharedCheck_127_; 
@@ -497,7 +497,7 @@ if (lean_obj_tag(v___x_123_) == 0)
 lean_object* v_a_124_; lean_object* v___x_125_; 
 v_a_124_ = lean_ctor_get(v___x_123_, 0);
 lean_inc(v_a_124_);
-lean_dec_ref(v___x_123_);
+lean_dec_ref_known(v___x_123_, 1);
 v___x_125_ = l_Lean_Elab_Do_DoElemCont_mkBindUnlessPure(v_dec_100_, v_a_124_, v_a_101_, v_a_102_, v_a_103_, v_a_104_, v_a_105_, v_a_106_, v_a_107_);
 return v___x_125_;
 }
@@ -801,13 +801,13 @@ else
 lean_object* v_doBlockResultType_384_; lean_object* v___x_385_; 
 v_doBlockResultType_384_ = lean_ctor_get(v_a_370_, 3);
 lean_inc_ref(v_doBlockResultType_384_);
-v___x_385_ = l_Lean_Elab_Do_mkMonadicType___redArg(v_doBlockResultType_384_, v_a_370_);
+v___x_385_ = l_Lean_Elab_Do_mkMonadApp(v_doBlockResultType_384_, v_a_370_, v_a_371_, v_a_372_, v_a_373_, v_a_374_, v_a_375_, v_a_376_);
 if (lean_obj_tag(v___x_385_) == 0)
 {
 lean_object* v_a_386_; lean_object* v___x_387_; lean_object* v_tk_388_; lean_object* v___x_389_; 
 v_a_386_ = lean_ctor_get(v___x_385_, 0);
 lean_inc(v_a_386_);
-lean_dec_ref(v___x_385_);
+lean_dec_ref_known(v___x_385_, 1);
 v___x_387_ = lean_unsigned_to_nat(0u);
 v_tk_388_ = l_Lean_Syntax_getArg(v_stx_368_, v___x_387_);
 v___x_389_ = l_Lean_Elab_Do_DoElemCont_ensureUnitAt(v_dec_369_, v_tk_388_, v_a_370_, v_a_371_, v_a_372_, v_a_373_, v_a_374_, v_a_375_, v_a_376_);
@@ -817,7 +817,7 @@ if (lean_obj_tag(v___x_389_) == 0)
 lean_object* v_a_390_; lean_object* v___x_391_; lean_object* v___x_392_; lean_object* v___x_393_; lean_object* v___f_394_; lean_object* v___x_395_; lean_object* v___x_396_; lean_object* v___x_397_; lean_object* v___x_398_; 
 v_a_390_ = lean_ctor_get(v___x_389_, 0);
 lean_inc(v_a_390_);
-lean_dec_ref(v___x_389_);
+lean_dec_ref_known(v___x_389_, 1);
 v___x_391_ = lean_unsigned_to_nat(1u);
 v___x_392_ = l_Lean_Syntax_getArg(v_stx_368_, v___x_391_);
 lean_dec(v_stx_368_);
@@ -997,13 +997,13 @@ else
 lean_object* v_doBlockResultType_505_; lean_object* v___x_506_; 
 v_doBlockResultType_505_ = lean_ctor_get(v_a_491_, 3);
 lean_inc_ref(v_doBlockResultType_505_);
-v___x_506_ = l_Lean_Elab_Do_mkMonadicType___redArg(v_doBlockResultType_505_, v_a_491_);
+v___x_506_ = l_Lean_Elab_Do_mkMonadApp(v_doBlockResultType_505_, v_a_491_, v_a_492_, v_a_493_, v_a_494_, v_a_495_, v_a_496_, v_a_497_);
 if (lean_obj_tag(v___x_506_) == 0)
 {
 lean_object* v_a_507_; lean_object* v___x_508_; lean_object* v_tk_509_; lean_object* v___x_510_; 
 v_a_507_ = lean_ctor_get(v___x_506_, 0);
 lean_inc(v_a_507_);
-lean_dec_ref(v___x_506_);
+lean_dec_ref_known(v___x_506_, 1);
 v___x_508_ = lean_unsigned_to_nat(0u);
 v_tk_509_ = l_Lean_Syntax_getArg(v_stx_489_, v___x_508_);
 v___x_510_ = l_Lean_Elab_Do_DoElemCont_ensureUnitAt(v_dec_490_, v_tk_509_, v_a_491_, v_a_492_, v_a_493_, v_a_494_, v_a_495_, v_a_496_, v_a_497_);
@@ -1013,7 +1013,7 @@ if (lean_obj_tag(v___x_510_) == 0)
 lean_object* v_a_511_; lean_object* v___x_512_; lean_object* v___x_513_; lean_object* v___x_514_; lean_object* v___f_515_; lean_object* v___x_516_; lean_object* v___x_517_; lean_object* v___x_518_; lean_object* v___x_519_; 
 v_a_511_ = lean_ctor_get(v___x_510_, 0);
 lean_inc(v_a_511_);
-lean_dec_ref(v___x_510_);
+lean_dec_ref_known(v___x_510_, 1);
 v___x_512_ = lean_unsigned_to_nat(1u);
 v___x_513_ = l_Lean_Syntax_getArg(v_stx_489_, v___x_512_);
 lean_dec(v_stx_489_);
@@ -1193,13 +1193,13 @@ else
 lean_object* v_doBlockResultType_626_; lean_object* v___x_627_; 
 v_doBlockResultType_626_ = lean_ctor_get(v_a_612_, 3);
 lean_inc_ref(v_doBlockResultType_626_);
-v___x_627_ = l_Lean_Elab_Do_mkMonadicType___redArg(v_doBlockResultType_626_, v_a_612_);
+v___x_627_ = l_Lean_Elab_Do_mkMonadApp(v_doBlockResultType_626_, v_a_612_, v_a_613_, v_a_614_, v_a_615_, v_a_616_, v_a_617_, v_a_618_);
 if (lean_obj_tag(v___x_627_) == 0)
 {
 lean_object* v_a_628_; lean_object* v___x_629_; lean_object* v_tk_630_; lean_object* v___x_631_; 
 v_a_628_ = lean_ctor_get(v___x_627_, 0);
 lean_inc(v_a_628_);
-lean_dec_ref(v___x_627_);
+lean_dec_ref_known(v___x_627_, 1);
 v___x_629_ = lean_unsigned_to_nat(0u);
 v_tk_630_ = l_Lean_Syntax_getArg(v_stx_610_, v___x_629_);
 v___x_631_ = l_Lean_Elab_Do_DoElemCont_ensureUnitAt(v_dec_611_, v_tk_630_, v_a_612_, v_a_613_, v_a_614_, v_a_615_, v_a_616_, v_a_617_, v_a_618_);
@@ -1209,7 +1209,7 @@ if (lean_obj_tag(v___x_631_) == 0)
 lean_object* v_a_632_; lean_object* v___x_633_; lean_object* v___x_634_; lean_object* v___x_635_; lean_object* v___f_636_; lean_object* v___x_637_; lean_object* v___x_638_; lean_object* v___x_639_; lean_object* v___x_640_; 
 v_a_632_ = lean_ctor_get(v___x_631_, 0);
 lean_inc(v_a_632_);
-lean_dec_ref(v___x_631_);
+lean_dec_ref_known(v___x_631_, 1);
 v___x_633_ = lean_unsigned_to_nat(1u);
 v___x_634_ = l_Lean_Syntax_getArg(v_stx_610_, v___x_633_);
 lean_dec(v_stx_610_);

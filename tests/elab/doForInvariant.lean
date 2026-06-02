@@ -4,7 +4,6 @@ import Std.Tactic.Do
 open Lean Parser Meta Elab Do
 
 set_option linter.unusedVariables false
-set_option backward.do.legacy false
 
 /-!
 Hypothetical intrinsic invariant syntax support:

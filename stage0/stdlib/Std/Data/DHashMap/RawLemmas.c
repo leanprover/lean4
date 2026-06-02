@@ -1103,7 +1103,7 @@ else
 lean_object* v_val_801_; lean_object* v___x_802_; lean_object* v___x_803_; lean_object* v___x_804_; 
 v_val_801_ = lean_ctor_get(v_using_x3f_728_, 0);
 lean_inc(v_val_801_);
-lean_dec_ref(v_using_x3f_728_);
+lean_dec_ref_known(v_using_x3f_728_, 1);
 v___x_802_ = lean_unsigned_to_nat(1u);
 v___x_803_ = lean_mk_empty_array_with_capacity(v___x_802_);
 v___x_804_ = lean_array_push(v___x_803_, v_val_801_);

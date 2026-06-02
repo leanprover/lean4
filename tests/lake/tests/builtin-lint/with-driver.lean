@@ -12,4 +12,4 @@ script lintDriver args do
 lean_lib Main
 lean_lib Clean
 lean_lib Linters
-lean_lib ClippyViolations
+lean_lib ExtraViolations

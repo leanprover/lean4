@@ -89,7 +89,7 @@ def ControlStack.optionT (baseMonadInfo : MonadInfo) (optionTWrapper casesOnWrap
         mkLambdaFVars #[r] (← outerCont)
       let ksuccess ← withLocalDeclD dec.resultName dec.resultType fun r => do
         mkLambdaFVars #[r] (← dec.k)
-      let β ← mkMonadicType (← read).doBlockResultType
+      let β ← mkMonadApp (← read).doBlockResultType
       return mkApp5 (mkConst casesOnWrapper [baseMonadInfo.u, baseMonadInfo.v]) dec.resultType β e kexit ksuccess
     base.restoreCont { resultName, resultType, k }
 where
@@ -150,7 +150,7 @@ def ControlStack.mkBreak (base : ControlStack) (hasContinue : Bool) : DoElabM Ex
   -- When there's an outer `continue` layer as well, we account for that by applying `stM` of
   -- `OptionT` to `α`.
   let α := if hasContinue then mkApp (mkConst ``Option [mi.u]) α else α
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadApp (← read).doBlockResultType
   let res ← base.runInBase <| mkApp3 (mkConst ``BreakT.break [mi.u, mi.v]) α mi.m inst
   let ty ← inferType res
   -- Now instantiate `α`
@@ -161,7 +161,7 @@ def ControlStack.mkContinue (base : ControlStack) : DoElabM Expr := do
   let mi := { (← read).monadInfo with m := (← base.m) }
   let inst ← mkInstMonad mi
   let α ← mkFreshResultType `α
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadApp (← read).doBlockResultType
   let res ← base.runInBase <| mkApp3 (mkConst ``ContinueT.continue [mi.u, mi.v]) α mi.m inst
   let ty ← inferType res
   -- Now instantiate `α`
@@ -173,7 +173,7 @@ def ControlStack.mkReturn (base : ControlStack) (r : Expr) : DoElabM Expr := do
   let instMonad ← mkInstMonad mi
   let ρ ← inferType r
   let δ ← mkFreshResultType `δ
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadApp (← read).doBlockResultType
   let mγ' := mkApp mi.m (mkApp2 (mkConst ``Except [mi.u, mi.v]) ρ δ)
   synthUsingDefEq "early return result type" mγ mγ'
   base.runInBase <| mkApp5 (mkConst ``EarlyReturnT.return [mi.u, mi.v]) ρ mi.m δ instMonad r

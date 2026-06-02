@@ -500,6 +500,21 @@ Note: A private declaration `S.s` (from the current module) exists but would nee
 #guard_msgs in
 @[expose] public def useS (s : S) := s.s
 
+/-! Private dot notation access through structure inheritance should still
+identify the private declaration on the base structure. -/
+
+public structure SDerived extends S
+
+/--
+error: Invalid field `s`: The environment does not contain `SDerived.s`, so it is not possible to project the field `s` from an expression
+  s
+of type `SDerived`
+
+Note: A private declaration `S.s` (from the current module) exists but would need to be public to access here.
+-/
+#guard_msgs in
+@[expose] public def useSDerived (s : SDerived) := s.s
+
 /- `meta` should trump `noncomputable`. -/
 
 noncomputable section

@@ -8,29 +8,9 @@ prelude
 import Init.Sym.Simp.SimprocDSL
 import Lean.Meta.Sym.Simp.Variant
 import Lean.Elab.Tactic.Grind.SimprocDSL
-import Lean.Elab.Command
+import Lean.Elab.Tactic.Grind.WithGrindTacticM
 namespace Lean.Elab.Command
 open Meta Sym.Simp
-
-/--
-Runs a `GrindTacticM` computation in a minimal context for validation.
--/
-def withGrindTacticM (k : Tactic.Grind.GrindTacticM α) : CommandElabM α := do
-  liftTermElabM do
-  let params ← Grind.mkDefaultParams {}
-  let (ctx, state) ← Grind.GrindM.run (params := params) do
-    let methods ← Grind.getMethods
-    let grindCtx ← readThe Meta.Grind.Context
-    let symCtx ← readThe Sym.Context
-    let grindState ← get
-    let symState ← getThe Sym.State
-    let ctx := {
-      elaborator := `registerSymSimp,
-      ctx := grindCtx, sctx := symCtx, methods, params
-    }
-    return (ctx, { grindState, symState, goals := [] })
-  let (a, _) ← Tactic.Grind.GrindTacticM.run k ctx state
-  return a
 
 def validateOptionSimprocSyntax (proc? : Option Syntax) : CommandElabM Unit := do
   let some proc := proc? | return ()

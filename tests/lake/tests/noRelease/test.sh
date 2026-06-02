@@ -3,6 +3,13 @@ source ../common.sh
 
 ./clean.sh
 
+# Copy test data to a working directory to avoid initializing a Git repository
+# inside the checked-in source tree
+WORK_DIR="$PWD/work"
+mkdir -p "$WORK_DIR"
+cp -r dep lakefile.lean Test.lean "$WORK_DIR/"
+cd "$WORK_DIR"
+
 NO_BUILD_CODE=3
 
 # ---
@@ -42,23 +49,26 @@ test_status $NO_BUILD_CODE build dep:release -v --no-build
 test_cmd git -C .lake/packages/dep tag -d release
 
 # Test that a direct invocation of `lake build *:release` fails
+diff_out() {
+  sed "/$1/ s/^[^${1:0:1}]*//" | diff -u --strip-trailing-cr $2 -
+}
 echo "# TEST: Direct fetch"
-test_err_diff <(cat << EOF
-✖ [2/2] Running dep:release
+($LAKE build dep:release 2>&1 && exit 1 || true) | diff_out "Running" <(cat << 'EOF'
+Running dep:release
 error: failed to fetch GitHub release (run with '-v' for details)
 Some required targets logged failures:
 - dep:release
 error: build failed
 EOF
-) build dep:release
+)
 
 # Test that an indirect fetch on the release does not cause the build to fail
 echo "# TEST: Indirect fetch"
-test_out_diff <(cat << EOF
-⚠ [3/6] Ran dep:extraDep
+$LAKE build Test -q 2>&1 | diff_out "Ran" <(cat << EOF
+Ran dep:extraDep
 warning: building from source; failed to fetch GitHub release (run with '-v' for details)
 EOF
-) build Test -q
+)
 
 # Test download failure
 echo "# TEST: Download failure"
@@ -99,7 +109,3 @@ test_cmd_eq "$INIT_REV" git -C .lake/packages/dep rev-parse HEAD
 test_run update
 test_cmd_eq "$NEW_REV" git -C .lake/packages/dep rev-parse HEAD
 test_run build dep:release
-
-# Cleanup
-rm -rf dep/.git
-rm -f produced*

@@ -157,7 +157,37 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
     elabTerm b expectedType?
   | _ => throwUnsupportedSyntax
 
-@[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
+register_builtin_option tactic.tryOnEmptyBy : Bool := {
+  defValue := false
+  descr    := "when an empty `by` block is encountered interactively, run `try?` to suggest \
+    a proof (currently disabled by default; may become the default in a future release)"
+}
+
+/-- Returns `true` if `stx` is a `by` expression with an empty tactic body
+(not a parse error producing `.missing`).
+The structure is: `node byTactic [atom "by", node tacticSeq [node tacticSeq1Indented [node null []]]]` -/
+def isEmptyByBlock (stx : Syntax) : Bool :=
+  stx.getNumArgs == 2 &&
+  stx[1].getNumArgs >= 1 &&
+  stx[1][0].isOfKind ``Lean.Parser.Tactic.tacticSeq1Indented &&
+  stx[1][0].getNumArgs >= 1 &&
+  stx[1][0][0].getNumArgs == 0 &&
+  !stx[1][0][0].isMissing
+
+/-- Returns `true` if all conditions are met for empty `by` to be elaborated as `try?`:
+the body is empty, the option is enabled, we are in an interactive (non-combinator) context,
+and the `try?` infrastructure (parser `Lean.Parser.Tactic.tryTrace`) is available — the latter
+matters when working on the prelude, before `Init.Try` is imported. -/
+def shouldElabEmptyByAsTry (stx : Syntax) : TermElabM Bool := do
+  return isEmptyByBlock stx
+    && tactic.tryOnEmptyBy.get (← getOptions)
+    && (← read).errToSorry
+    && (← getEnv).contains `Lean.Parser.Tactic.tryTrace
+
+/-- Body of the `byTactic` term elaborator: registers a tactic mvar for the body, or
+errors when there's no expected type. Shared between `elabByTactic` and
+`Lean.Elab.Tactic.Try`'s `elabEmptyByAsTry` so the two paths can't drift. -/
+def elabByTacticCore : TermElab := fun stx expectedType? => do
   match expectedType? with
   | some expectedType =>
     -- `by` switches from an exported to a private context, so we must disallow unassigned
@@ -167,6 +197,13 @@ private def getMVarFromUserName (ident : Syntax) : MetaM Expr := do
   | none =>
     tryPostpone
     throwError ("invalid 'by' tactic, expected type has not been provided")
+
+@[builtin_term_elab byTactic] def elabByTactic : TermElab := fun stx expectedType? => do
+  -- When the conditions for `try?` on empty `by` are met, skip this elaborator so a later one
+  -- (in Lean.Elab.Tactic.Try) can handle it with try?.
+  if (← shouldElabEmptyByAsTry stx) then
+    throwUnsupportedSyntax
+  elabByTacticCore stx expectedType?
 
 @[builtin_term_elab noImplicitLambda] def elabNoImplicitLambda : TermElab := fun stx expectedType? =>
   elabTerm stx[1] (mkNoImplicitLambdaAnnotation <$> expectedType?)

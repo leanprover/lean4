@@ -79,7 +79,7 @@ structure EnvLinter where
   noErrorsFound : MessageData
   /-- `errorsFound` is printed when at least one test is positive -/
   errorsFound : MessageData
-  /-- If `isDefault` is false, this linter is only run when `--clippy` is passed. -/
+  /-- If `isDefault` is false, this linter is only run when `--extra` is passed. -/
   isDefault := true
 
 /-- A `NamedEnvLinter` is an environment linter associated to a particular declaration. -/
@@ -105,12 +105,12 @@ builtin_initialize envLinterExt :
 
 /--
 Defines the `@[builtin_env_linter]` attribute for adding a linter to the default set.
-The form `@[builtin_env_linter clippy]` will not add the linter to the default set,
-but it can be selected by `lake builtin-lint --clippy`.
+The form `@[builtin_env_linter extra]` will not add the linter to the default set,
+but it can be selected by `lake builtin-lint --extra`.
 
 Linters are named using their declaration names, without the namespace. These must be distinct.
 -/
-syntax (name := builtin_env_linter) "builtin_env_linter" &" clippy"? : attr
+syntax (name := builtin_env_linter) "builtin_env_linter" &" extra"? : attr
 
 builtin_initialize registerBuiltinAttribute {
   name := `builtin_env_linter

@@ -522,7 +522,7 @@ if (lean_obj_tag(v___x_156_) == 1)
 lean_object* v_val_157_; lean_object* v___x_158_; lean_object* v___x_159_; 
 v_val_157_ = lean_ctor_get(v___x_156_, 0);
 lean_inc(v_val_157_);
-lean_dec_ref(v___x_156_);
+lean_dec_ref_known(v___x_156_, 1);
 v___x_158_ = lean_box(0);
 v___x_159_ = lean_io_promise_resolve(v___x_158_, v_val_157_);
 lean_dec(v_val_157_);

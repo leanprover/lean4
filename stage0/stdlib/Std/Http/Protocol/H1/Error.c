@@ -239,7 +239,7 @@ if (lean_obj_tag(v_t_16_) == 11)
 lean_object* v_message_18_; lean_object* v___x_19_; 
 v_message_18_ = lean_ctor_get(v_t_16_, 0);
 lean_inc_ref(v_message_18_);
-lean_dec_ref(v_t_16_);
+lean_dec_ref_known(v_t_16_, 1);
 v___x_19_ = lean_apply_1(v_k_17_, v_message_18_);
 return v___x_19_;
 }

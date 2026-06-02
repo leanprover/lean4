@@ -34,6 +34,10 @@ theorem Ref.cast_eq {aig1 aig2 : AIG α} (ref : Ref aig1)
     (ref.cast h) = ⟨ref.gate, ref.invert, by have := ref.hgate; omega⟩ := rfl
 
 @[simp]
+theorem Ref.gate_flip {aig : AIG α} (ref : Ref aig) (inv : Bool) :
+    (ref.flip inv).gate = ref.gate := rfl
+
+@[simp]
 theorem BinaryInput.lhs_cast {aig1 aig2 : AIG α} (input : BinaryInput aig1)
     (h : aig1.decls.size ≤ aig2.decls.size) :
     (input.cast h).lhs = input.lhs.cast h := rfl

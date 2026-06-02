@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Sat.CNF
 public import Std.Sat.AIG.Lemmas
+import Std.Sat.AIG.DetectGates
 import Init.ByCases
 import Init.Omega
 
@@ -51,6 +52,17 @@ def gateToCNF (output : α) (lhs rhs : α) (linv rinv : Bool) : CNF α :=
     |>.add [(output, .false), (rhs, !rinv)]
     |>.add [(output, true),  (lhs, linv), (rhs, rinv)]
 
+/--
+Produce a Tseitin style CNF for an XOR gate, using `output` as the tree node variable.
+-/
+def xorToCNF (output : α) (lhs rhs : α) (linv rinv : Bool) : CNF α :=
+  -- a ↔ (b xor c) as cnf: (¬a ∨ b ∨ c) ∧ (¬a ∨ ¬b ∨ ¬c) ∧ (a ∨ b ∨ ¬c) ∧ (a ∨ ¬b ∨ c)
+  CNF.empty
+    |>.add [(output, .false), (lhs, linv), (rhs, rinv)]
+    |>.add [(output, .false), (lhs, !linv), (rhs, !rinv)]
+    |>.add [(output, true), (lhs, linv), (rhs, !rinv)]
+    |>.add [(output, true), (lhs, !linv), (rhs, rinv)]
+
 @[simp]
 theorem falseToCNF_eval :
     (falseToCNF output).eval assign
@@ -73,6 +85,20 @@ theorem gateToCNF_eval :
       =
     (assign output == (((assign lhs) ^^ linv) && ((assign rhs) ^^ rinv))) := by
   simp only [gateToCNF, CNF.eval_add, CNF.Clause.eval_cons, beq_true, CNF.Clause.eval_nil,
+    Bool.or_false, beq_false, CNF.eval_empty, Bool.and_true]
+  cases assign output
+    <;> cases assign lhs
+      <;> cases assign rhs
+        <;> cases linv
+          <;> cases rinv
+            <;> decide
+
+@[simp]
+theorem xorToCNF_eval :
+    (xorToCNF output lhs rhs linv rinv).eval assign
+      =
+    (assign output == (((assign lhs) ^^ linv) ^^ ((assign rhs) ^^ rinv))) := by
+  simp only [xorToCNF, CNF.eval_add, CNF.Clause.eval_cons, beq_true, CNF.Clause.eval_nil,
     Bool.or_false, beq_false, CNF.eval_empty, Bool.and_true]
   cases assign output
     <;> cases assign lhs
@@ -349,6 +375,48 @@ def Cache.addGate (cache : Cache aig cnf) {hlb} {hrb} (idx : Nat) (h : idx < aig
   ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
 
 /--
+Add an XOR gate to a cache.
+-/
+def Cache.addXor (cache : Cache aig cnf) {lhs rhs : Fanin} {hlb} {hrb} (idx : Nat)
+    (h : idx < aig.decls.size)
+    (hltl : lhs.gate < idx)
+    (hltr : rhs.gate < idx)
+    (hl : cache.marks[lhs.gate]'hlb = true)
+    (hr : cache.marks[rhs.gate]'hrb = true)
+    (hdenote : ∀ assign, ⟦aig, ⟨idx, false, h⟩, assign⟧ =
+      (⟦aig, ⟨lhs.gate, lhs.invert, by omega⟩, assign⟧ ^^ ⟦aig, ⟨rhs.gate, rhs.invert, by omega⟩, assign⟧)) :
+    {
+      out : Cache aig (cnf ++ Decl.xorToCNF idx lhs.gate rhs.gate lhs.invert rhs.invert)
+        //
+      Cache.IsExtensionBy cache out idx h
+    } :=
+  have hmarkbound : idx < cache.marks.size := by have := cache.hmarks; omega
+  let out :=
+    { cache with
+      marks := cache.marks.set idx true
+      hmarks := by simp [cache.hmarks]
+      inv := by
+        intro assign heval idx hbound hmarked
+        rw [Array.getElem_set] at hmarked
+        split at hmarked
+        next heq =>
+          simp only [heq, CNF.eval_append, Decl.xorToCNF_eval, Bool.and_eq_true, beq_iff_eq]
+            at heval
+          have hleval := cache.inv assign heval.left lhs.gate (by omega) hl
+          have hreval := cache.inv assign heval.left rhs.gate (by omega) hr
+          subst heq
+          simp only [hdenote, projectRightAssign_property, heval]
+          generalize lhs.invert = linv
+          generalize rhs.invert = rinv
+          cases linv <;> cases rinv <;> simp [hleval, hreval]
+        next heq =>
+          simp only [CNF.eval_append, Decl.xorToCNF_eval, Bool.and_eq_true, beq_iff_eq] at heval
+          have := cache.inv assign heval.left idx hbound hmarked
+          rw [this]
+    }
+  ⟨out, IsExtensionBy_set cache out idx hmarkbound (by simp [out])⟩
+
+/--
 The key invariant about the `State` itself (without cache): The CNF we produce is always satisfiable
 at `cnfSatAssignment`.
 -/
@@ -403,6 +471,22 @@ theorem State.Inv_gateToCNF {aig : AIG Nat} {h}
   generalize hrinv : rhs.invert = rinv
   rw [CNF.sat_def]
   cases linv <;> cases rinv <;> simp [denote_idx_gate heq, hlinv, hrinv, h, hlhs, hrhs]
+
+/--
+`State.Inv` holds for the CNF that we produce for an XOR.
+-/
+theorem State.Inv_xorToCNF {aig : AIG Nat} {lhs rhs : Fanin}
+    (h : idx < aig.decls.size)
+    (hltl : lhs.gate < idx)
+    (hltr : rhs.gate < idx)
+    (hdenote : ∀ assign, ⟦aig, ⟨idx, false, h⟩, assign⟧ =
+      (⟦aig, ⟨lhs.gate, lhs.invert, by omega⟩, assign⟧ ^^ ⟦aig, ⟨rhs.gate, rhs.invert, by omega⟩, assign⟧)) :
+    State.Inv aig (Decl.xorToCNF idx lhs.gate rhs.gate lhs.invert rhs.invert) := by
+  intro assign1
+  rw [CNF.sat_def, Decl.xorToCNF_eval, satAssignment_inr h, hdenote, satAssignment_inr (by omega), satAssignment_inr (by omega)]
+  generalize hlinv : lhs.invert = linv
+  generalize hrinv : rhs.invert = rinv
+  cases linv <;> cases rinv <;> simp
 
 /--
 The state to accumulate CNF clauses as we run our Tseitin transformation on the AIG.
@@ -497,6 +581,25 @@ def State.addGate (state : State aig) {hlb} {hrb} (idx : Nat) (h : idx < aig.dec
   ⟨⟨cnf ++ newCnf, cache, State.Inv_append inv hinv⟩, by simp [newCnf, hcache]⟩
 
 /--
+Add the CNF for an XOR to the state.
+-/
+def State.addXor (state : State aig) {lhs rhs : Fanin} {hlb} {hrb} (idx : Nat)
+    (h : idx < aig.decls.size)
+    (hltl : lhs.gate < idx)
+    (hltr : rhs.gate < idx)
+    (hl : state.cache.marks[lhs.gate]'hlb = true)
+    (hr : state.cache.marks[rhs.gate]'hrb = true)
+    (hdenote : ∀ assign, ⟦aig, ⟨idx, false, h⟩, assign⟧ =
+      (⟦aig, ⟨lhs.gate, lhs.invert, by omega⟩, assign⟧ ^^ ⟦aig, ⟨rhs.gate, rhs.invert, by omega⟩, assign⟧)) :
+    { out : State aig // State.IsExtensionBy state out idx h } :=
+  -- have := aig.hdag h htip
+  let ⟨cnf, cache, inv⟩ := state
+  let newCnf := Decl.xorToCNF idx lhs.gate rhs.gate lhs.invert rhs.invert
+  have hinv := toCNF.State.Inv_xorToCNF h hltl hltr hdenote
+  let ⟨cache, hcache⟩ := cache.addXor idx h hltl hltr hl hr hdenote
+  ⟨⟨cnf ++ newCnf, cache, State.Inv_append inv hinv⟩, by simp [newCnf, hcache]⟩
+
+/--
 Evaluate the CNF contained within the state.
 -/
 def State.eval (assign : Nat → Bool) (state : State aig) : Bool :=
@@ -543,25 +646,56 @@ where
       | .false => state.addFalse upper h heq
       | .atom _ => state.addAtom upper h heq
       | .gate lhs rhs =>
-        have := aig.hdag h heq
-        let ⟨lstate, hlstate⟩ := go aig lhs.gate (by omega) state
-        let ⟨rstate, hrstate⟩ := go aig rhs.gate (by omega) lstate
+        match hxor : detectXor ⟨aig, ⟨upper, false, h⟩⟩ with
+        | some xor =>
+          let lhs : Fanin := .mk xor.lhs.gate xor.lhs.invert
+          let rhs : Fanin := .mk xor.rhs.gate xor.rhs.invert
 
-        have : toCNF.State.IsExtensionBy state rstate lhs.gate (by omega) := by
-          apply toCNF.State.IsExtensionBy_trans_left
-          · exact hlstate
-          · exact hrstate
+          have hltl : lhs.gate < upper := by simp [detectXor_lhs_lt hxor, lhs]
+          have hltr : rhs.gate < upper := by simp [detectXor_rhs_lt hxor, rhs]
 
-        let ⟨ret, hretstate⟩ := rstate.addGate upper h heq this.trueAt hrstate.trueAt
-        ⟨
-          ret,
-          by
-            apply toCNF.State.IsExtensionBy_trans_right
+          let ⟨lstate, hlstate⟩ := go aig lhs.gate (by omega) state
+          let ⟨rstate, hrstate⟩ := go aig rhs.gate (by omega) lstate
+
+          have : toCNF.State.IsExtensionBy state rstate lhs.gate (by omega) := by
+            apply toCNF.State.IsExtensionBy_trans_left
             · exact hlstate
-            · apply toCNF.State.IsExtensionBy_trans_right
-              · exact hrstate
-              · exact hretstate
-        ⟩
+            · exact hrstate
+
+          let ⟨ret, hretstate⟩ := rstate.addXor upper h hltl hltr this.trueAt hrstate.trueAt
+            (by simp [denote_detectXor hxor, lhs, rhs])
+          ⟨
+            ret,
+            by
+              apply toCNF.State.IsExtensionBy_trans_right
+              · exact hlstate
+              · apply toCNF.State.IsExtensionBy_trans_right
+                · exact hrstate
+                · exact hretstate
+          ⟩
+
+        | none =>
+          have := aig.hdag h heq
+          let ⟨lstate, hlstate⟩ := go aig lhs.gate (by omega) state
+          let ⟨rstate, hrstate⟩ := go aig rhs.gate (by omega) lstate
+
+          have : toCNF.State.IsExtensionBy state rstate lhs.gate (by omega) := by
+            apply toCNF.State.IsExtensionBy_trans_left
+            · exact hlstate
+            · exact hrstate
+
+          let ⟨ret, hretstate⟩ := rstate.addGate upper h heq this.trueAt hrstate.trueAt
+          ⟨
+            ret,
+            by
+              apply toCNF.State.IsExtensionBy_trans_right
+              · exact hlstate
+              · apply toCNF.State.IsExtensionBy_trans_right
+                · exact hrstate
+                · exact hretstate
+          ⟩
+  termination_by upper
+  decreasing_by all_goals omega
 
 /--
 The node that we started CNF conversion at will always be marked as visited in the CNF cache.

@@ -186,20 +186,27 @@ def ControlStack.mkPure (base : ControlStack) (resultName : Name) : DoElabM Expr
   let r ← getFVarFromUserName resultName
   base.runInBase <| mkApp4 (mkConst ``Pure.pure [mi.u, mi.v]) mi.m instPure (← inferType r) r
 
-structure ControlLifter where
+/-- Plan for embedding a non-tail-resumptive body inside `origCont` via a monad-transformer stack. -/
+structure EffectForwarder where
+  /-- Continuation of the surrounding `do` block; restored after the body. -/
   origCont : DoElemCont
+  /-- Substack at which the early-return handler was installed, if any. -/
   returnBase? : Option ControlStack
+  /-- Substack at which the `break` handler was installed, if any. -/
   breakBase? : Option ControlStack
+  /-- Substack at which the `continue` handler was installed, if any. -/
   continueBase? : Option ControlStack
-  pureBase : ControlStack
-  pureDeadCode : CodeLiveness
+  /-- The full transformer stack over the base monad. -/
+  liftedStack : ControlStack
+  /-- The body's elaboration type, `stM dec.resultType`. -/
   liftedDoBlockResultType : Expr
 
 -- abbrev M := List
 -- #reduce (types := true) M (Except Nat (Option (Option Bool) × String))
 -- #reduce (types := true) OptionT (OptionT (StateT String (ExceptT Nat M))) Bool
 
-def ControlLifter.ofCont (info : ControlInfo) (dec : DoElemCont) : DoElabM ControlLifter := do
+/-- Build the lifter plan for a body whose effects are summarised by `info`. -/
+def EffectForwarder.ofCont (info : ControlInfo) (dec : DoElemCont) : DoElabM EffectForwarder := do
   let mi := (← read).monadInfo
   let reassignedMutVars := (← read).mutVars |>.filter (info.reassigns.contains ·.getId)
   let reassignedMutVarNames := reassignedMutVars.map (·.getId)
@@ -231,21 +238,20 @@ def ControlLifter.ofCont (info : ControlInfo) (dec : DoElemCont) : DoElabM Contr
     returnBase?,
     breakBase?,
     continueBase?,
-    pureBase := controlStack,
-    -- The success continuation `origCont` is dead code iff the `ControlInfo` says so semantically.
-    pureDeadCode := if info.noFallthrough then .deadSemantically else .alive,
+    liftedStack := controlStack,
     liftedDoBlockResultType := (← controlStack.stM dec.resultType),
   }
 
 /--
-This function is like `MonadControl.liftWith fun runInBase => elabElem (runInBase pure)`.
-All continuations should be thought of as wrapped in `runInBase`, so that their effects are embedded
-in the terminal `stM m (t m)` result type. This wrapping will be realized by
-`ControlStack.synthesizeConts`, after we know what the transformer stack `t` looks like.
-What `t` looks like depends on whether reassignments, early `return`, `break` and `continue` are
-used, considering *all* the use sites of `ControlLifter.lift`.
+Elaborate `elabElem` in the lifted stack: install `break`/`continue`/`return`
+handlers funnelling into `liftedStack` and set the doBlock result type to
+`liftedDoBlockResultType`. Semantically
+`MonadControl.liftWith fun runInBase => elabElem (runInBase pure)`. Conts
+passed to `elabElem` are implicitly wrapped in `runInBase`, realised later by
+`ControlStack.synthesizeConts` once the transformer stack `t` is fixed by
+aggregating effects across *all* `lift` sites for this lifter.
 -/
-def ControlLifter.lift (l : ControlLifter) (elabElem : DoElemCont → DoElabM Expr) : DoElabM Expr := do
+def EffectForwarder.lift (l : EffectForwarder) (elabElem : DoElemCont → DoElabM Expr) : DoElabM Expr := do
   let oldBreakCont ← getBreakCont
   let oldContinueCont ← getContinueCont
   let oldReturnCont ← getReturnCont
@@ -262,9 +268,10 @@ def ControlLifter.lift (l : ControlLifter) (elabElem : DoElemCont → DoElabM Ex
     | some returnBase => { oldReturnCont with k := returnBase.mkReturn }
     | _ => oldReturnCont
   let contInfo := ContInfo.toContInfoRef { breakCont, continueCont, returnCont }
-  let pureCont := { l.origCont with k := l.pureBase.mkPure l.origCont.resultName, kind := .duplicable }
+  let pureCont := { l.origCont with k := l.liftedStack.mkPure l.origCont.resultName, kind := .duplicable }
   withReader (fun ctx => { ctx with contInfo, doBlockResultType := l.liftedDoBlockResultType }) do
     elabElem pureCont
 
-def ControlLifter.restoreCont (l : ControlLifter) : DoElabM DoElemCont := do
-  l.pureBase.restoreCont { l.origCont with k := withDeadCode l.pureDeadCode l.origCont.k }
+/-- Build a `DoElemCont` that unpacks the lifted body's result and resumes `origCont.k`. -/
+def EffectForwarder.restoreCont (l : EffectForwarder) : DoElabM DoElemCont :=
+  l.liftedStack.restoreCont l.origCont

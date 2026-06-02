@@ -1660,11 +1660,6 @@ private def isLambdaWithImplicit (stx : Syntax) : Bool :=
   | `(fun $binders* => $_) => binders.raw.any fun b => b.isOfKind ``Lean.Parser.Term.implicitBinder || b.isOfKind `Lean.Parser.Term.instBinder
   | _                      => false
 
-private partial def dropTermParens : Syntax → Syntax := fun stx =>
-  match stx with
-  | `(($stx)) => dropTermParens stx
-  | _         => stx
-
 private def isHole (stx : Syntax) : Bool :=
   stx.isOfKind ``Lean.Parser.Term.hole || stx.isOfKind ``Lean.Parser.Term.syntheticHole
 
@@ -1692,7 +1687,7 @@ def mkNoImplicitLambdaAnnotation (type : Expr) : Expr :=
 
 /-- Block usage of implicit lambdas if `stx` is `@f` or `@f arg1 ...` or `fun` with an implicit binder annotation. -/
 def blockImplicitLambda (stx : Syntax) : Bool :=
-  let stx := dropTermParens stx
+  let stx := Parser.Term.dropParens stx
   -- TODO: make it extensible
   isExplicit stx || isExplicitApp stx || isLambdaWithImplicit stx || isHole stx || isTacticBlock stx ||
   isNoImplicitLambda stx || isTypeAscription stx

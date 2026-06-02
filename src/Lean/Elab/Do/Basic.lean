@@ -542,6 +542,10 @@ def DoElemCont.elabAsSyntacticallyDeadCode (dec : DoElemCont) : DoElabM Unit :=
     s.restore
     Core.setMessageLog (log ++ warnings)
 
+/-- Wrap `dec.k` so it elaborates as dead iff `info.noFallthrough`. -/
+def DoElemCont.withDeadCodeFromInfo (dec : DoElemCont) (info : ControlInfo) : DoElemCont :=
+  { dec with k := withDeadCode (if info.noFallthrough then .deadSemantically else .alive) dec.k }
+
 /--
 Given a list of mut vars `vars` and an FVar `tupleVar` binding a tuple, bind the mut vars to the
 fields of the tuple and call `k` in the resulting local context.
@@ -646,8 +650,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND (mutDecls.map fun (d : LocalDecl) => (d.userName, d.type)) fun muts => do
     for (x, newX) in mutVars.zip muts do Term.addTermInfo' x newX
-    withDeadCode (if callerInfo.noFallthrough then .deadSemantically else .alive) do
-    let e ← nondupDec.k
+    let e ← (nondupDec.withDeadCodeFromInfo callerInfo).k
     mkLambdaFVars (#[r] ++ muts) e
   unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do
     joinRhsMVar.mvarId!.withContext do

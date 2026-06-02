@@ -86,10 +86,23 @@ Like `getLinterValue`, but the cross-linter fallback is `linter.extra` instead o
 def getLinterValueExtra (opt : Lean.Option Bool) (o : LinterOptions) : Bool :=
   o.get opt.name (getLinterExtra o opt.defValue)
 
+/--
+Tag attached by `logLint` to every linter warning so consumers
+(e.g. `Lean.Linter.recordLints`) can distinguish linter-produced messages
+from other tagged messages such as named errors or unknown-identifier messages.
+-/
+def linterMessageTag : Name := `Lean.Linter._linter
+
 def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
   let disable := .note m!"This linter can be disabled with `set_option {linterOption.name} false`"
-  logWarningAt stx (.tagged linterOption.name m!"{msg}{disable}")
+  logWarningAt stx <|
+    .tagged linterOption.name <|
+    .tagged linterMessageTag m!"{msg}{disable}"
+
+/-- Returns true if `msg` was produced by `Lean.Linter.logLint` (and therefore by a linter). -/
+def _root_.Lean.MessageData.isLinterMessage (msg : MessageData) : Bool :=
+  msg.hasTag (· == linterMessageTag)
 
 /--
 If `linterOption` is enabled, print a linter warning message at the position determined by `stx`.

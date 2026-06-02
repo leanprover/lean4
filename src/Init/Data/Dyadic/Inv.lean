@@ -71,7 +71,7 @@ theorem eq_toDyadic_of_precision_le {q : Rat} {y : Dyadic} {prec : Int}
   -- Multiplied form: `y.toRat * 2 ^ prec` equals its own floor cast back.
   have hL : y.toRat * (2 : Rat) ^ prec = (((y.toRat * 2 ^ prec).floor : Int) : Rat) := by
     have := congrArg (· * (2 : Rat) ^ prec) hcan
-    simp only at this
+    try simp only at this -- TODO(kmill) remove after stage0 update
     rwa [Rat.div_mul_cancel h2ne] at this
   -- Multiply `h1`, `h2` by `2 ^ prec`.
   have h1' : y.toRat * 2 ^ prec ≤ q * 2 ^ prec :=

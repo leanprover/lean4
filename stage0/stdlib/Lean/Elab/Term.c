@@ -450,12 +450,12 @@ else
 lean_object* v_val_41_; 
 v_val_41_ = lean_ctor_get(v___x_39_, 0);
 lean_inc(v_val_41_);
-lean_dec_ref(v___x_39_);
+lean_dec_ref_known(v___x_39_, 1);
 if (lean_obj_tag(v_val_41_) == 1)
 {
 uint8_t v_v_42_; 
 v_v_42_ = lean_ctor_get_uint8(v_val_41_, 0);
-lean_dec_ref(v_val_41_);
+lean_dec_ref_known(v_val_41_, 0);
 return v_v_42_;
 }
 else
@@ -741,7 +741,7 @@ return v___x_156_;
 else
 {
 lean_object* v___x_161_; lean_object* v___x_162_; lean_object* v___x_163_; lean_object* v___x_164_; lean_object* v___x_165_; lean_object* v___x_166_; lean_object* v_a_167_; lean_object* v___x_169_; uint8_t v_isShared_170_; uint8_t v_isSharedCheck_174_; 
-lean_dec_ref(v___x_156_);
+lean_dec_ref_known(v___x_156_, 1);
 v___x_161_ = lean_obj_once(&l_Lean_Elab_Term_expandDeclId___closed__1, &l_Lean_Elab_Term_expandDeclId___closed__1_once, _init_l_Lean_Elab_Term_expandDeclId___closed__1);
 v___x_162_ = l_Lean_MessageData_ofName(v_shortName_159_);
 v___x_163_ = lean_alloc_ctor(7, 2, 0);
@@ -908,19 +908,19 @@ v___x_303_ = l_Lean_registerTraceClass(v___x_300_, v___x_301_, v___x_302_);
 if (lean_obj_tag(v___x_303_) == 0)
 {
 lean_object* v___x_304_; lean_object* v___x_305_; 
-lean_dec_ref(v___x_303_);
+lean_dec_ref_known(v___x_303_, 1);
 v___x_304_ = ((lean_object*)(l___private_Lean_Elab_Term_0__Lean_Elab_initFn___closed__27_00___x40_Lean_Elab_Term_2544510742____hygCtx___hyg_2_));
 v___x_305_ = l_Lean_registerTraceClass(v___x_304_, v___x_301_, v___x_302_);
 if (lean_obj_tag(v___x_305_) == 0)
 {
 lean_object* v___x_306_; lean_object* v___x_307_; 
-lean_dec_ref(v___x_305_);
+lean_dec_ref_known(v___x_305_, 1);
 v___x_306_ = ((lean_object*)(l___private_Lean_Elab_Term_0__Lean_Elab_initFn___closed__29_00___x40_Lean_Elab_Term_2544510742____hygCtx___hyg_2_));
 v___x_307_ = l_Lean_registerTraceClass(v___x_306_, v___x_301_, v___x_302_);
 if (lean_obj_tag(v___x_307_) == 0)
 {
 lean_object* v___x_308_; lean_object* v___x_309_; 
-lean_dec_ref(v___x_307_);
+lean_dec_ref_known(v___x_307_, 1);
 v___x_308_ = ((lean_object*)(l___private_Lean_Elab_Term_0__Lean_Elab_initFn___closed__31_00___x40_Lean_Elab_Term_2544510742____hygCtx___hyg_2_));
 v___x_309_ = l_Lean_registerTraceClass(v___x_308_, v___x_301_, v___x_302_);
 return v___x_309_;
@@ -1347,7 +1347,7 @@ v___x_513_ = l_Lean_Attribute_Builtin_ensureNoArgs(v_stx_498_, v___y_500_, v___y
 if (lean_obj_tag(v___x_513_) == 0)
 {
 uint8_t v___x_514_; uint8_t v___x_515_; 
-lean_dec_ref(v___x_513_);
+lean_dec_ref_known(v___x_513_, 1);
 v___x_514_ = 0;
 v___x_515_ = l_Lean_instBEqAttributeKind_beq(v_kind_499_, v___x_514_);
 if (v___x_515_ == 0)

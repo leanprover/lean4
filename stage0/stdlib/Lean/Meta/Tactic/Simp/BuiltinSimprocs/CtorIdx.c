@@ -59,7 +59,7 @@ v_fn_11_ = lean_ctor_get(v_x_3_, 0);
 lean_inc_ref(v_fn_11_);
 v_arg_12_ = lean_ctor_get(v_x_3_, 1);
 lean_inc_ref(v_arg_12_);
-lean_dec_ref(v_x_3_);
+lean_dec_ref_known(v_x_3_, 2);
 v___x_13_ = lean_array_set(v_x_4_, v_x_5_, v_arg_12_);
 v___x_14_ = lean_unsigned_to_nat(1u);
 v___x_15_ = lean_nat_sub(v_x_5_, v___x_14_);
@@ -80,7 +80,7 @@ if (lean_obj_tag(v___x_17_) == 1)
 lean_object* v_val_18_; lean_object* v___x_19_; 
 v_val_18_ = lean_ctor_get(v___x_17_, 0);
 lean_inc(v_val_18_);
-lean_dec_ref(v___x_17_);
+lean_dec_ref_known(v___x_17_, 1);
 v___x_19_ = l_isCtorIdx_x3f___redArg(v_val_18_, v___y_9_);
 if (lean_obj_tag(v___x_19_) == 0)
 {
@@ -108,7 +108,7 @@ if (lean_obj_tag(v_a_20_) == 1)
 lean_object* v_val_24_; lean_object* v_numParams_25_; lean_object* v_numIndices_26_; lean_object* v___x_27_; lean_object* v___x_28_; lean_object* v___x_29_; lean_object* v___x_30_; uint8_t v___x_31_; 
 v_val_24_ = lean_ctor_get(v_a_20_, 0);
 lean_inc(v_val_24_);
-lean_dec_ref(v_a_20_);
+lean_dec_ref_known(v_a_20_, 1);
 v_numParams_25_ = lean_ctor_get(v_val_24_, 1);
 lean_inc(v_numParams_25_);
 v_numIndices_26_ = lean_ctor_get(v_val_24_, 2);

@@ -122,7 +122,7 @@ if (lean_obj_tag(v_t_6_) == 0)
 lean_object* v_dir_8_; lean_object* v___x_9_; 
 v_dir_8_ = lean_ctor_get(v_t_6_, 0);
 lean_inc_ref(v_dir_8_);
-lean_dec_ref(v_t_6_);
+lean_dec_ref_known(v_t_6_, 1);
 v___x_9_ = lean_apply_1(v_k_7_, v_dir_8_);
 return v___x_9_;
 }
@@ -135,7 +135,7 @@ v_rev_11_ = lean_ctor_get(v_t_6_, 1);
 lean_inc(v_rev_11_);
 v_subDir_12_ = lean_ctor_get(v_t_6_, 2);
 lean_inc(v_subDir_12_);
-lean_dec_ref(v_t_6_);
+lean_dec_ref_known(v_t_6_, 3);
 v___x_13_ = lean_apply_3(v_k_7_, v_url_10_, v_rev_11_, v_subDir_12_);
 return v___x_13_;
 }
@@ -450,7 +450,7 @@ v_rev_140_ = lean_ctor_get(v_x_112_, 1);
 lean_inc(v_rev_140_);
 v_subDir_141_ = lean_ctor_get(v_x_112_, 2);
 lean_inc(v_subDir_141_);
-lean_dec_ref(v_x_112_);
+lean_dec_ref_known(v_x_112_, 3);
 v___x_160_ = lean_unsigned_to_nat(1024u);
 v___x_161_ = lean_nat_dec_le(v___x_160_, v_prec_113_);
 if (v___x_161_ == 0)

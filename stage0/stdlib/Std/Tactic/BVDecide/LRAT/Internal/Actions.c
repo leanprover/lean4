@@ -386,7 +386,7 @@ else
 lean_object* v_val_92_; lean_object* v___x_93_; 
 v_val_92_ = lean_ctor_get(v___x_90_, 0);
 lean_inc(v_val_92_);
-lean_dec_ref(v___x_90_);
+lean_dec_ref_known(v___x_90_, 1);
 v___x_93_ = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(v_n_70_, v_val_92_);
 lean_dec(v_val_92_);
 if (lean_obj_tag(v___x_93_) == 0)
@@ -574,7 +574,7 @@ else
 lean_object* v_val_129_; lean_object* v___x_130_; 
 v_val_129_ = lean_ctor_get(v___x_127_, 0);
 lean_inc(v_val_129_);
-lean_dec_ref(v___x_127_);
+lean_dec_ref_known(v___x_127_, 1);
 v___x_130_ = l_Std_Tactic_BVDecide_LRAT_Internal_DefaultClause_ofArray(v_n_70_, v_val_129_);
 lean_dec(v_val_129_);
 if (lean_obj_tag(v___x_130_) == 0)

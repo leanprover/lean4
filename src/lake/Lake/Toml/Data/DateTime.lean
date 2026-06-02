@@ -84,7 +84,7 @@ public protected def toString (t : Time) : String :=
   if t.fracMantissa = 0 then
     s
   else
-    s!"{s}.{rpad (zpad t.fracMantissa t.fracExponent) '0' 3}"
+    s!"{s}.{rpadAscii (zpad t.fracMantissa t.fracExponent) '0' 3}"
 
 public instance : ToString Time := ⟨Time.toString⟩
 

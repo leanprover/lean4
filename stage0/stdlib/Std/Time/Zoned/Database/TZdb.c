@@ -227,7 +227,7 @@ else
 lean_object* v_a_14_; lean_object* v___x_15_; 
 v_a_14_ = lean_ctor_get(v___x_5_, 0);
 lean_inc(v_a_14_);
-lean_dec_ref(v___x_5_);
+lean_dec_ref_known(v___x_5_, 1);
 v___x_15_ = l_Std_Time_TimeZone_convertTZif(v_a_14_, v_id_3_);
 lean_dec(v_a_14_);
 return v___x_15_;
@@ -361,7 +361,7 @@ if (lean_obj_tag(v___x_52_) == 0)
 lean_object* v_a_53_; lean_object* v___x_54_; lean_object* v___x_55_; 
 v_a_53_ = lean_ctor_get(v___x_52_, 0);
 lean_inc(v_a_53_);
-lean_dec_ref(v___x_52_);
+lean_dec_ref_known(v___x_52_, 1);
 v___x_54_ = l_Std_Time_Database_TZdb_parseTZif(v_a_53_, v_id_50_);
 v___x_55_ = l_IO_ofExcept___at___00Std_Time_Database_TZdb_parseTZIfFromDisk_spec__0___redArg(v___x_54_);
 return v___x_55_;
@@ -671,7 +671,7 @@ lean_object* v_val_147_; lean_object* v___x_148_;
 lean_del_object(v___x_144_);
 v_val_147_ = lean_ctor_get(v___x_146_, 0);
 lean_inc(v_val_147_);
-lean_dec_ref(v___x_146_);
+lean_dec_ref_known(v___x_146_, 1);
 v___x_148_ = l_Std_Time_Database_TZdb_parseTZIfFromDisk(v_path_139_, v_val_147_);
 lean_dec_ref(v_path_139_);
 return v___x_148_;
@@ -1139,13 +1139,13 @@ lean_ctor_set(v___x_310_, 0, v_tz_295_);
 lean_ctor_set(v___x_310_, 1, v___x_307_);
 lean_ctor_set(v___x_310_, 2, v___x_304_);
 v___x_311_ = l_String_Slice_Pos_nextn(v___x_310_, v___x_307_, v___x_309_);
-lean_dec_ref(v___x_310_);
+lean_dec_ref_known(v___x_310_, 3);
 v___x_312_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_312_, 0, v_tz_295_);
 lean_ctor_set(v___x_312_, 1, v___x_311_);
 lean_ctor_set(v___x_312_, 2, v___x_304_);
 v_p_313_ = l_String_Slice_toString(v___x_312_);
-lean_dec_ref(v___x_312_);
+lean_dec_ref_known(v___x_312_, 3);
 v___x_314_ = lean_string_utf8_byte_size(v_p_313_);
 v___x_315_ = lean_nat_dec_eq(v___x_314_, v___x_307_);
 if (v___x_315_ == 0)
@@ -1317,7 +1317,7 @@ else
 lean_object* v_val_367_; lean_object* v___x_369_; 
 v_val_367_ = lean_ctor_get(v_fst_363_, 0);
 lean_inc(v_val_367_);
-lean_dec_ref(v_fst_363_);
+lean_dec_ref_known(v_fst_363_, 1);
 if (v_isShared_362_ == 0)
 {
 lean_ctor_set(v___x_361_, 0, v_val_367_);
@@ -1436,7 +1436,7 @@ lean_object* v_val_401_;
 lean_del_object(v___x_398_);
 v_val_401_ = lean_ctor_get(v___x_400_, 0);
 lean_inc(v_val_401_);
-lean_dec_ref(v___x_400_);
+lean_dec_ref_known(v___x_400_, 1);
 if (lean_obj_tag(v_val_401_) == 0)
 {
 lean_object* v_p_402_; lean_object* v___x_404_; uint8_t v_isShared_405_; uint8_t v_isSharedCheck_445_; 
@@ -1534,7 +1534,7 @@ lean_dec_ref(v_p_402_);
 lean_dec(v_val_396_);
 v_val_412_ = lean_ctor_get(v_a_408_, 0);
 lean_inc(v_val_412_);
-lean_dec_ref(v_a_408_);
+lean_dec_ref_known(v_a_408_, 1);
 if (v_isShared_411_ == 0)
 {
 lean_ctor_set(v___x_410_, 0, v_val_412_);
@@ -1641,7 +1641,7 @@ else
 lean_object* v_id_446_; lean_object* v___x_447_; 
 v_id_446_ = lean_ctor_get(v_val_401_, 0);
 lean_inc_ref(v_id_446_);
-lean_dec_ref(v_val_401_);
+lean_dec_ref_known(v_val_401_, 1);
 v___x_447_ = l_Std_Time_Database_TZdb_findInPaths(v_zonesPaths_392_, v_id_446_);
 if (lean_obj_tag(v___x_447_) == 0)
 {
@@ -1670,7 +1670,7 @@ lean_object* v_val_452_; lean_object* v___x_454_;
 lean_dec(v_val_396_);
 v_val_452_ = lean_ctor_get(v_a_448_, 0);
 lean_inc(v_val_452_);
-lean_dec_ref(v_a_448_);
+lean_dec_ref_known(v_a_448_, 1);
 if (v_isShared_451_ == 0)
 {
 lean_ctor_set(v___x_450_, 0, v_val_452_);
@@ -1959,7 +1959,7 @@ if (lean_obj_tag(v___x_533_) == 0)
 lean_object* v_a_534_; lean_object* v___x_535_; 
 v_a_534_ = lean_ctor_get(v___x_533_, 0);
 lean_inc(v_a_534_);
-lean_dec_ref(v___x_533_);
+lean_dec_ref_known(v___x_533_, 1);
 v___x_535_ = l_Std_Time_Database_TZdb_localRules(v_a_534_);
 return v___x_535_;
 }
@@ -2232,7 +2232,7 @@ lean_object* v_val_618_; lean_object* v___x_620_;
 lean_dec_ref(v_id_597_);
 v_val_618_ = lean_ctor_get(v_fst_609_, 0);
 lean_inc(v_val_618_);
-lean_dec_ref(v_fst_609_);
+lean_dec_ref_known(v_fst_609_, 1);
 if (v_isShared_608_ == 0)
 {
 lean_ctor_set(v___x_607_, 0, v_val_618_);

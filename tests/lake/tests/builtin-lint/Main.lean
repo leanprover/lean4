@@ -1,14 +1,20 @@
 import Main.Sub
 
--- This uses `def` for a Prop — the `defLemma` linter should flag this.
+-- `linter.defProp` and `linter.checkUnivs` are off by default for bootstrapping
+-- reasons; enable them here so the test scenarios that exercise default lint
+-- mode still trigger them.
+set_option linter.defProp true
+set_option linter.checkUnivs true
+
+-- This uses `def` for a Prop — the `defProp` linter should flag this.
 def shouldBeTheorem : 1 = 1 := rfl
 
--- This is annotated to be skipped by `defLemma` — no import needed.
-@[builtin_nolint defLemma]
+-- `set_option` disables `defProp` locally so this violation is not flagged.
+set_option linter.defProp false in
 def skippedViolation : 2 = 2 := rfl
 
 -- A `@[reducible, instance] def` of Prop type is still elaborated as a `def`,
--- so `defLemma` should flag it.
+-- so `defProp` should flag it.
 @[reducible, instance]
 def reducibleInstShouldBeTheorem : Nonempty Bool := ⟨true⟩
 
@@ -20,7 +26,7 @@ instance plainInstIsOk : Nonempty String := ⟨""⟩
 universe u v in
 def badUnivDecl (α : Type (max u v)) : Type (max u v) := α
 
--- Annotated to be skipped by `checkUnivs`.
+-- `set_option` disables `checkUnivs` locally so this violation is not flagged.
+set_option linter.checkUnivs false in
 universe u v in
-@[builtin_nolint checkUnivs]
 def badUnivSkipped (α : Type (max u v)) : Type (max u v) := α

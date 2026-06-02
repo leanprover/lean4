@@ -1095,7 +1095,7 @@ lean_dec_ref(v_vars_339_);
 lean_dec_ref(v_e_320_);
 v_val_342_ = lean_ctor_get(v___x_341_, 0);
 lean_inc(v_val_342_);
-lean_dec_ref(v___x_341_);
+lean_dec_ref_known(v___x_341_, 1);
 if (v_isShared_338_ == 0)
 {
 lean_ctor_set(v___x_337_, 0, v_val_342_);
@@ -1134,7 +1134,7 @@ v___x_349_ = l___private_Lean_Meta_Tactic_Grind_Types_0__Lean_Meta_Grind_SolverE
 if (lean_obj_tag(v___x_349_) == 0)
 {
 lean_object* v___x_350_; 
-lean_dec_ref(v___x_349_);
+lean_dec_ref_known(v___x_349_, 1);
 lean_inc_ref(v_e_320_);
 v___x_350_ = l_Lean_Meta_Grind_Arith_Linear_setTermStructId___redArg(v_e_320_, v_a_322_, v_a_323_, v_a_327_, v_a_328_, v_a_329_, v_a_330_, v_a_331_, v_a_332_);
 if (lean_obj_tag(v___x_350_) == 0)

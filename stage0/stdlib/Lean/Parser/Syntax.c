@@ -3467,7 +3467,7 @@ v___x_77_ = l_Lean_Parser_registerBuiltinParserAttribute(v___x_73_, v___x_74_, v
 if (lean_obj_tag(v___x_77_) == 0)
 {
 lean_object* v___x_78_; lean_object* v___x_79_; lean_object* v___x_80_; 
-lean_dec_ref(v___x_77_);
+lean_dec_ref_known(v___x_77_, 1);
 v___x_78_ = ((lean_object*)(l___private_Lean_Parser_Syntax_0__Lean_Parser_initFn___closed__30_00___x40_Lean_Parser_Syntax_3213497322____hygCtx___hyg_2_));
 v___x_79_ = ((lean_object*)(l___private_Lean_Parser_Syntax_0__Lean_Parser_initFn___closed__31_00___x40_Lean_Parser_Syntax_3213497322____hygCtx___hyg_2_));
 v___x_80_ = l_Lean_Parser_registerBuiltinDynamicParserAttribute(v___x_78_, v___x_79_, v___x_76_);
@@ -3499,7 +3499,7 @@ v___x_114_ = l_Lean_Parser_registerBuiltinParserAttribute(v___x_110_, v___x_111_
 if (lean_obj_tag(v___x_114_) == 0)
 {
 lean_object* v___x_115_; lean_object* v___x_116_; lean_object* v___x_117_; 
-lean_dec_ref(v___x_114_);
+lean_dec_ref_known(v___x_114_, 1);
 v___x_115_ = ((lean_object*)(l___private_Lean_Parser_Syntax_0__Lean_Parser_initFn___closed__9_00___x40_Lean_Parser_Syntax_1451715088____hygCtx___hyg_2_));
 v___x_116_ = ((lean_object*)(l___private_Lean_Parser_Syntax_0__Lean_Parser_initFn___closed__10_00___x40_Lean_Parser_Syntax_1451715088____hygCtx___hyg_2_));
 v___x_117_ = l_Lean_Parser_registerBuiltinDynamicParserAttribute(v___x_115_, v___x_116_, v___x_113_);

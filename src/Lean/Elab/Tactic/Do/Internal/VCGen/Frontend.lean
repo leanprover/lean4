@@ -16,7 +16,8 @@ public import Lean.Meta.Sym.Simp.EvalGround
 public import Lean.Meta.Sym.Simp.Forall
 public import Lean.Meta.Sym.Simp.Rewrite
 public import Lean.Meta.Sym.Simp.Simproc
-import Lean.Elab.Tactic.Grind.Main
+public import Lean.Elab.Tactic.Grind.Main
+public import Lean.Elab.Tactic.Grind.Basic
 
 open Lean Parser Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.SpecAttr
@@ -26,19 +27,24 @@ namespace Lean.Elab.Tactic.Do.Internal
 
 /-!
 `mvcgen'` tactic frontend: parse the user-facing argument syntax into a
-`VCGen.Context`, run `VCGen.main`, and replace the main goal with the
+`VCGen.Context`, run `VCGen.run`, and replace the main goal with the
 resulting invariants and VCs.
 -/
+
+/-- A local helper for running config elaborators in TermElabM. -/
+private def runTacticM (x : TacticM α) (goals : List MVarId := [])  : TermElabM α :=
+  x.run { elaborator := `mvcgen } |>.run' { goals }
 
 namespace VCGen
 
 /--
 Parse the optional `[...]` argument list for `mvcgen'`, partitioning entries into
 spec theorems and simp lemmas. Follows the same approach as
-`Lean.Elab.Tactic.Do.VCGen.mkSpecContext`: each entry is first tried as a spec theorem,
+`Lean.Elab.Tactic.Do.VCGen.mkContext`: each entry is first tried as a spec theorem,
 and on failure falls back to a simp/unfold lemma processed via `mkSimpContext`.
 -/
-public def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VCGen.Context := do
+public def mkContext (lemmas : Syntax) (goal : MVarId) (ignoreStarArg := false) :
+    TermElabM (VCGen.Context × VCGen.Scope) := do
   let mut specThms ← getSpecTheorems
   let mut simpStuff := #[]
   let mut starArg := false
@@ -87,7 +93,7 @@ public def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VC
   -- spec simp theorems database (which contains `@[spec]`-registered simp equations
   -- and definitions to unfold).
   let stx ← `(tactic| simp +unfoldPartialApp -zeta [$(Syntax.TSepArray.ofElems simpStuff),*])
-  let res ← mkSimpContext stx.raw
+  let res ← runTacticM (goals := [goal]) <| mkSimpContext stx.raw
     (eraseLocal := false)
     (simpTheorems := getSpecSimpTheorems)
     (ignoreStarArg := ignoreStarArg)
@@ -118,8 +124,7 @@ public def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VC
   let tripleOfEntailsWPRule ← mkBackwardRuleFromDecl ``Triple.of_entails_wp
   let andIntroRule ← mkBackwardRuleFromDecl ``And.intro
   let specThmsNew ← SymM.run <| migrateSpecTheoremsDatabase specThms simpThms
-  return {
-    specThms := specThmsNew,
+  let ctx : VCGen.Context := {
     entailsConsIntroRule,
     entailsNilPureIntroRule,
     entailsNilIntroRule,
@@ -137,6 +142,7 @@ public def mkSpecContext (lemmas : Syntax) (ignoreStarArg := false) : TacticM VC
     tripleOfEntailsWPRule,
     andIntroRule,
   }
+  return (ctx, { specs := specThmsNew })
 
 end VCGen
 
@@ -144,17 +150,17 @@ end VCGen
 ignored at runtime. As more options gain implementation support, drop their checks
 here. Options with implemented semantics (`trivial`, `elimLets`, `stepLimit`,
 `invariants?`) are silently accepted. -/
-private def warnIgnoredConfig (config : VCGen.Config) : TacticM Unit := do
+private def warnIgnoredConfig (config : VCGen.Config) : MetaM Unit := do
   let default : VCGen.Config := {}
   if config.leave != default.leave then
     logWarning "mvcgen': the `leave` config option is currently ignored."
 
 /-- Parse grind configuration from the `with grind ...` clause and build `Grind.Params`.
 Overrides the internal simp step limit to accommodate large unrolled goals. -/
-private def elabGrindParams (grindStx : Syntax) (goal : MVarId) : TacticM Grind.Params := do
+private def elabGrindParams (grindStx : Syntax) (goal : MVarId) : TermElabM Grind.Params := do
   let `(tactic| grind $config:optConfig $[only%$only]? $[ [$grindParams:grindParam,*] ]? $[=> $_:grindSeq]?) := grindStx
     | throwUnsupportedSyntax
-  let grindConfig ← elabGrindConfig config
+  let grindConfig ← runTacticM <| elabGrindConfig config
   mkGrindParams grindConfig only.isSome (grindParams.getD {}).getElems goal
 
 /--
@@ -165,7 +171,7 @@ Supports the anonymous (default) variant. Named variants require a public
 private def elabSymSimpParts
     (variantId? : Option (TSyntax `ident))
     (extraIds? : Option (Array (TSyntax `ident)))
-    : TacticM Sym.Simp.Methods := do
+    : MetaM Sym.Simp.Methods := do
   let variantName := variantId?.map (·.getId) |>.getD .anonymous
   if !variantName.isAnonymous then
     -- TODO: `resolveExtraTheorems`, `elabVariant`, and `elabSymSimproc` in
@@ -196,14 +202,15 @@ private def elabSymSimpParts
     post := post >> thms.rewrite
   return { pre, post }
 
-private def elabSimplifyingAssumptions (simpClause : Syntax) : TacticM (Option Sym.Simp.Methods) := do
+private def elabSimplifyingAssumptions (simpClause : Syntax) : MetaM (Option Sym.Simp.Methods) := do
   if simpClause.getNumArgs == 0 then return none
   let variantId? := if simpClause[1].getNumArgs != 0 then some ⟨simpClause[1][0]⟩ else none
   let extraIds? := if simpClause[2].getNumArgs != 0
     then some (simpClause[2][1].getSepArgs.map (⟨·⟩)) else none
   pure (some (← elabSymSimpParts variantId? extraIds?))
 
-private def elabPreTac (goal : MVarId) (withPreTac : Syntax) : TacticM (VCGen.PreTac × Grind.Params) := do
+-- The goal is for `elabGrindParams` which uses it for library suggestions.
+private def elabPreTac (goal : MVarId) (withPreTac : Syntax) : TermElabM (VCGen.PreTac × Grind.Params) := do
   let mut params ← Grind.mkDefaultParams {}
   if withPreTac.getNumArgs == 0 then return (.none, params)
   let preTac := withPreTac[1]
@@ -231,7 +238,7 @@ forms (one or the other is enforced by the `dotOrCase` flag in the upstream
 elaborator; we replicate that check here).
 -/
 private def parseInvariantMap (stx : Syntax) :
-    TacticM (Option (Std.HashMap Nat Syntax)) := do
+    TermElabM (Option (Std.HashMap Nat Syntax)) := do
   let some altsStx := stx.getOptional? | return none
   -- The `invariants?` (suggest) form is handled separately by upstream's `elabInvariants`.
   match altsStx with
@@ -269,43 +276,46 @@ private def parseInvariantMap (stx : Syntax) :
 
 /--
 Run after VC generation: iterate the (unfiltered) `invariants` array returned by
-`Driver.main`, look up each entry in the pre-parsed `alts` map by its 1-based
-position (which equals the `inv<n>` tag the entry carries — `Driver.main` assigns
+`VCGen.run`, look up each entry in the pre-parsed `alts` map by its 1-based
+position (which equals the `inv<n>` tag the entry carries — `VCGen.run` assigns
 tags consecutively), and elaborate the matching alt. Invariants that were already
 elaborated inline by `Driver.emitVC` (tracked in `inlineHandled`) are skipped, so
 we don't warn about alts that were already consumed there. -/
 private def elabRemainingInvariants (alts : Std.HashMap Nat Syntax)
-    (invariants : Array MVarId) (inlineHandled : Std.HashSet Nat) : TacticM Unit := do
+    (invariants : Array MVarId) (inlineHandled : Std.HashSet Nat) : SymM Unit := do
   let mut handled := inlineHandled
   for h : i in 0...invariants.size do
     let n := i + 1
     if handled.contains n then continue
     let some alt := alts[n]? | continue
     handled := handled.insert n
-    let tac ← match alt with
-      | `(invariantDotAlt| · $rhs) => `(tactic| exact $rhs)
-      | `(invariantCaseAlt| | $_tag $args* => $rhs) => `(tactic| (rename_i $args*; exact $rhs))
-      | _ => continue
-    withRef alt <| discard <| evalTacticAt tac invariants[i]
+    discard <| VCGen.elabInvariant alts n invariants[i]
   -- Warn on user-provided alts that matched no invariant goal (neither inline nor post-hoc).
   for (n, alt) in alts.toArray do
     unless handled.contains n do
       logWarningAt alt s!"Invariant alternative `inv{n}` does not match any invariant goal."
 
-@[builtin_tactic Lean.Parser.Tactic.mvcgen']
-public def elabMVCGen' : Tactic := fun stx => withMainContext do
+/-- Parsed `mvcgen'` arguments shared by the two entry points. -/
+private structure ParsedArgs where
+  config : VCGen.Config
+  ctx : VCGen.Context
+  scope : VCGen.Scope
+  params : Grind.Params
+  invariantAlts? : Option (Std.HashMap Nat Syntax)
+
+/-- Parse `mvcgen'` arguments. -/
+private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.withContext do
   if mvcgen.warning.get (← getOptions) then
     logWarningAt stx "The `mvcgen'` tactic is an experimental drop-in replacement for `mvcgen` \
       that will eventually replace it. Avoid using it in production projects."
-  let config ← elabConfig stx[1]
+  let config ← runTacticM <| elabConfig stx[1]
   warnIgnoredConfig config
-  let goal ← getMainGoal
   -- `elimLets` defaults to `false` in `mvcgen'` (vs. `true` in upstream `mvcgen`):
   -- existing tests rely on let-bindings being preserved in VC local contexts so that
   -- `case vcN bs* =>` patterns line up. Re-enabling on opt-in would require detecting
   -- explicit `(elimLets := true)` at the syntax level (upstream `Config` can't
   -- distinguish "default true" from "user-set true"); not yet wired.
-  let ctx ← VCGen.mkSpecContext stx[2]
+  let (ctx, scope) ← VCGen.mkContext stx[2] goal
   let hypSimpMethods ← elabSimplifyingAssumptions stx[4]
   let (preTac, params) ← elabPreTac goal stx[5]
   let invariantAlts? ← parseInvariantMap stx[3]
@@ -316,15 +326,49 @@ public def elabMVCGen' : Tactic := fun stx => withMainContext do
     errorOnMissingSpec := config.errorOnMissingSpec,
     debug := config.debug,
     invariantAlts := invariantAlts?.getD {} }
-  let result ← Grind.GrindM.run (VCGen.main goal ctx config.stepLimit) params
-  -- For `invariants?` (suggest), defer entirely to the upstream elaborator.
-  -- Otherwise, dispatch any still-unassigned invariants via the pre-parsed map.
-  if let some alts := invariantAlts? then
-    elabRemainingInvariants alts result.invariants result.inlineHandledInvariants
-  else
-    elabInvariants stx[3] result.invariants (suggestInvariant result.vcs)
+  return { config, ctx, scope, params, invariantAlts? }
+
+/-- `mvcgen'` step inside `sym => …` blocks. -/
+@[builtin_grind_tactic Lean.Parser.Tactic.Grind.mvcgen']
+def evalSymMVCGen' : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
+  let goal ← Lean.Elab.Tactic.Grind.getMainGoal
+  let args ← parseArgs stx goal.mvarId
+  if args.invariantAlts?.isNone && !stx[3].isNone then
+    throwError "`mvcgen' invariants?` (suggest mode) is not supported inside `sym => …` blocks"
+  let result ← Lean.Elab.Tactic.Grind.liftGrindM do
+    let result ← VCGen.run goal args.ctx args.scope args.config.stepLimit
+    if let some alts := args.invariantAlts? then
+      elabRemainingInvariants alts result.invariants result.inlineHandledInvariants
+    return result
   let invariants ← result.invariants.filterM (not <$> ·.isAssigned)
-  replaceMainGoal (invariants ++ result.vcs).toList
+  let newGoals ← Lean.Elab.Tactic.Grind.liftGrindM do
+    let invGoals ← invariants.toList.mapM Grind.mkGoalCore
+    -- Need to internalize all remaining hypotheses in the goal. As of May 26, it is still unclear
+    -- whether it is the job of downstream tactics such as `finish` in `sym => mvcgen'; finish`
+    -- to internalize.
+    let vcGoals ← result.vcs.toList.mapM Grind.processHypotheses
+    return invGoals ++ vcGoals
+  Lean.Elab.Tactic.Grind.replaceMainGoal newGoals
+  if result.preTacFailed then
+    throwError "pre-tactic failed on at least one VC; see errors above"
+
+/-- Tactic-level `mvcgen'`. -/
+-- Cannot wrap `evalSymMVCGen'` because routing through `runAtGoal`/`withProtectedMCtx` wraps the
+-- proof in an aux theorem, which rejects unsolved leftover VCs.
+@[builtin_tactic Lean.Parser.Tactic.mvcgen']
+public def elabMVCGen' : Tactic := fun stx => withMainContext do
+  let goal ← getMainGoal
+  let args ← parseArgs stx goal
+  let result ← Grind.GrindM.run (params := args.params) do
+    let result ← VCGen.run (← Grind.mkGoalCore goal) args.ctx args.scope args.config.stepLimit
+    if let some alts := args.invariantAlts? then
+      elabRemainingInvariants alts result.invariants result.inlineHandledInvariants
+    return result
+  if args.invariantAlts?.isNone then
+    -- handle `mvcgen invariants?` suggestions. TODO: re-implement
+    elabInvariants stx[3] result.invariants (suggestInvariant (result.vcs.map (·.mvarId)))
+  let invariants ← result.invariants.filterM (not <$> ·.isAssigned)
+  replaceMainGoal (invariants.toList ++ result.vcs.toList.map (·.mvarId))
   if result.preTacFailed then
     throwError "pre-tactic failed on at least one VC; see errors above"
 

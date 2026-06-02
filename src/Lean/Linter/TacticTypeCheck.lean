@@ -77,7 +77,7 @@ def tacticCheckInstances : Linter where
             try
               Meta.check target .instances
               return none
-            catch _ =>
+            catch e =>
               let counterInst := (← get).diag.unfoldCounter
               let diff := Meta.subCounters counterDefault counterInst
               let env ← getEnv
@@ -95,7 +95,9 @@ def tacticCheckInstances : Linter where
               return some m!"{kind} tactic goal is not type-correct at \
                 `.instances` transparency; {remedy} some of the following as \
                 `@[implicit_reducible]`:\
-                {indentD (.joinSep candidates Format.line)}"
+                {indentD (.joinSep candidates Format.line)}\n\
+                Full error:\
+                {indentD e.toMessageData}"
           -- Always restore the original diagnostics snapshot.
           modify ({ · with diag := origDiag })
           return result

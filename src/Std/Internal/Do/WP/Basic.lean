@@ -401,8 +401,8 @@ theorem Except.of_wp_eq {ε α : Type} {x prog : Except ε α}
   (hwp : wp prog (fun a => P (.ok a)) epost⟨fun e => P (.error e)⟩) : P x := by
   subst h
   cases prog with
-  | ok a => simpa only [wp] using hwp
-  | error e => simpa only [wp] using hwp
+  | ok a => simpa only [wp] using! hwp
+  | error e => simpa only [wp] using! hwp
 
 /-- Adequacy for `EStateM`: if `wp prog P s` holds, then `P` holds of `(prog.run s)`. -/
 theorem EStateM.of_wp_run_eq {ε σ α : Type} {x : EStateM.Result ε σ α}

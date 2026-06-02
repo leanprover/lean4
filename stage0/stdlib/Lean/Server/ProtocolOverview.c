@@ -738,7 +738,7 @@ case 2:
 lean_object* v_fieldNames_12_; lean_object* v___x_13_; 
 v_fieldNames_12_ = lean_ctor_get(v_t_10_, 0);
 lean_inc_ref(v_fieldNames_12_);
-lean_dec_ref(v_t_10_);
+lean_dec_ref_known(v_t_10_, 1);
 v___x_13_ = lean_apply_1(v_k_11_, v_fieldNames_12_);
 return v___x_13_;
 }
@@ -747,7 +747,7 @@ case 3:
 lean_object* v_fieldNames_14_; lean_object* v___x_15_; 
 v_fieldNames_14_ = lean_ctor_get(v_t_10_, 0);
 lean_inc_ref(v_fieldNames_14_);
-lean_dec_ref(v_t_10_);
+lean_dec_ref_known(v_t_10_, 1);
 v___x_15_ = lean_apply_1(v_k_11_, v_fieldNames_14_);
 return v___x_15_;
 }
@@ -758,7 +758,7 @@ v_parameterFieldNames_16_ = lean_ctor_get(v_t_10_, 0);
 lean_inc_ref(v_parameterFieldNames_16_);
 v_responseFieldNames_17_ = lean_ctor_get(v_t_10_, 1);
 lean_inc_ref(v_responseFieldNames_17_);
-lean_dec_ref(v_t_10_);
+lean_dec_ref_known(v_t_10_, 2);
 v___x_18_ = lean_apply_2(v_k_11_, v_parameterFieldNames_16_, v_responseFieldNames_17_);
 return v___x_18_;
 }
@@ -767,7 +767,7 @@ case 5:
 lean_object* v_description_19_; lean_object* v___x_20_; 
 v_description_19_ = lean_ctor_get(v_t_10_, 0);
 lean_inc_ref(v_description_19_);
-lean_dec_ref(v_t_10_);
+lean_dec_ref_known(v_t_10_, 1);
 v___x_20_ = lean_apply_1(v_k_11_, v_description_19_);
 return v___x_20_;
 }

@@ -1,4 +1,3 @@
-set_option backward.do.legacy false
 /--
 error: typeclass instance problem is stuck
   HMul ?m.9 ?m.9 String

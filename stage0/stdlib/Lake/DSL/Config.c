@@ -402,12 +402,12 @@ else
 lean_object* v_val_8_; 
 v_val_8_ = lean_ctor_get(v___x_6_, 0);
 lean_inc(v_val_8_);
-lean_dec_ref(v___x_6_);
+lean_dec_ref_known(v___x_6_, 1);
 if (lean_obj_tag(v_val_8_) == 1)
 {
 uint8_t v_v_9_; 
 v_v_9_ = lean_ctor_get_uint8(v_val_8_, 0);
-lean_dec_ref(v_val_8_);
+lean_dec_ref_known(v_val_8_, 0);
 return v_v_9_;
 }
 else
@@ -1384,7 +1384,7 @@ else
 lean_object* v_a_326_; lean_object* v___x_327_; lean_object* v___x_328_; 
 v_a_326_ = lean_ctor_get(v_r_300_, 0);
 lean_inc(v_a_326_);
-lean_dec_ref(v_r_300_);
+lean_dec_ref_known(v_r_300_, 1);
 v___x_327_ = lean_box(0);
 v___x_328_ = l_Lean_Elab_withInfoTreeContext___at___00Lean_Elab_withMacroExpansionInfo___at___00Lean_Elab_Term_withMacroExpansion___at___00__private_Lake_DSL_Config_0__Lake_DSL_elabNameConst_spec__0_spec__0_spec__1___redArg___lam__0(v___y_292_, v_mkInfoTree_286_, v___y_287_, v___y_288_, v___y_289_, v___y_290_, v___y_291_, v_a_299_, v___x_327_);
 if (lean_obj_tag(v___x_328_) == 0)
@@ -1978,7 +1978,7 @@ if (lean_obj_tag(v___x_718_) == 1)
 lean_object* v_val_719_; uint8_t v___x_720_; lean_object* v___x_721_; lean_object* v___x_722_; lean_object* v___x_723_; lean_object* v___x_724_; lean_object* v___x_725_; lean_object* v___x_726_; lean_object* v___x_727_; lean_object* v___x_728_; 
 v_val_719_ = lean_ctor_get(v___x_718_, 0);
 lean_inc(v_val_719_);
-lean_dec_ref(v___x_718_);
+lean_dec_ref_known(v___x_718_, 1);
 v___x_720_ = 0;
 v___x_721_ = l_Lean_SourceInfo_fromRef(v_stx_696_, v___x_720_);
 v___x_722_ = l_Lean_Syntax_mkStrLit(v_val_719_, v___x_721_);
@@ -2181,7 +2181,7 @@ v___x_954_ = l_Lean_Elab_Term_tryPostponeIfNoneOrMVar(v_expectedType_x3f_946_, v
 if (lean_obj_tag(v___x_954_) == 0)
 {
 lean_object* v___x_955_; uint8_t v___x_956_; lean_object* v_a_958_; 
-lean_dec_ref(v___x_954_);
+lean_dec_ref_known(v___x_954_, 1);
 v___x_955_ = ((lean_object*)(l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__1));
 lean_inc(v_stx_945_);
 v___x_956_ = l_Lean_Syntax_isOfKind(v_stx_945_, v___x_955_);
@@ -2212,7 +2212,7 @@ if (lean_obj_tag(v___x_972_) == 1)
 lean_object* v_val_973_; lean_object* v___x_974_; lean_object* v___x_975_; 
 v_val_973_ = lean_ctor_get(v___x_972_, 0);
 lean_inc(v_val_973_);
-lean_dec_ref(v___x_972_);
+lean_dec_ref_known(v___x_972_, 1);
 v___x_974_ = l_Lean_TSyntax_getId(v___x_969_);
 lean_dec(v___x_969_);
 v___x_975_ = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(v_val_973_, v___x_974_);
@@ -2223,7 +2223,7 @@ if (lean_obj_tag(v___x_975_) == 1)
 lean_object* v_val_976_; lean_object* v_ref_977_; lean_object* v_quotContext_978_; lean_object* v_currMacroScope_979_; uint8_t v___x_980_; lean_object* v___x_981_; lean_object* v___x_982_; lean_object* v___x_983_; lean_object* v___x_984_; lean_object* v___x_985_; lean_object* v___x_986_; lean_object* v___x_987_; lean_object* v___x_988_; lean_object* v___x_989_; lean_object* v___x_990_; lean_object* v___x_991_; 
 v_val_976_ = lean_ctor_get(v___x_975_, 0);
 lean_inc(v_val_976_);
-lean_dec_ref(v___x_975_);
+lean_dec_ref_known(v___x_975_, 1);
 v_ref_977_ = lean_ctor_get(v_a_951_, 5);
 v_quotContext_978_ = lean_ctor_get(v_a_951_, 10);
 v_currMacroScope_979_ = lean_ctor_get(v_a_951_, 11);
@@ -2348,7 +2348,7 @@ lean_object* v_val_1045_; lean_object* v___x_1046_; lean_object* v___x_1047_; le
 lean_dec(v___x_1041_);
 v_val_1045_ = lean_ctor_get(v___x_1043_, 0);
 lean_inc(v_val_1045_);
-lean_dec_ref(v___x_1043_);
+lean_dec_ref_known(v___x_1043_, 1);
 v___x_1046_ = ((lean_object*)(l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__63));
 v___x_1047_ = ((lean_object*)(l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__64));
 v___x_1048_ = ((lean_object*)(l___private_Lake_DSL_Config_0__Lake_DSL_elabGetConfig___closed__65));

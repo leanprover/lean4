@@ -785,7 +785,7 @@ else
 lean_object* v_val_172_; 
 v_val_172_ = lean_ctor_get(v_fst_171_, 0);
 lean_inc(v_val_172_);
-lean_dec_ref(v_fst_171_);
+lean_dec_ref_known(v_fst_171_, 1);
 return v_val_172_;
 }
 }

@@ -860,7 +860,7 @@ v___x_273_ = l_Lean_Compiler_LCNF_eraseParams___redArg(v___x_264_, v_params_271_
 if (lean_obj_tag(v___x_273_) == 0)
 {
 uint8_t v___x_274_; 
-lean_dec_ref(v___x_273_);
+lean_dec_ref_known(v___x_273_, 1);
 v___x_274_ = lean_unbox(v_snd_252_);
 lean_dec(v_snd_252_);
 if (v___x_274_ == 0)
@@ -869,7 +869,7 @@ lean_object* v___x_275_;
 v___x_275_ = l_Lean_Compiler_LCNF_eraseCode___redArg(v___x_264_, v_code_272_, v___y_240_);
 if (lean_obj_tag(v___x_275_) == 0)
 {
-lean_dec_ref(v___x_275_);
+lean_dec_ref_known(v___x_275_, 1);
 goto v___jp_258_;
 }
 else
@@ -977,7 +977,7 @@ v___x_293_ = l_panic___at___00Lean_Compiler_LCNF_Simp_addDefaultAlt_spec__0(v___
 if (lean_obj_tag(v___x_293_) == 0)
 {
 lean_object* v___x_294_; 
-lean_dec_ref(v___x_293_);
+lean_dec_ref_known(v___x_293_, 1);
 v___x_294_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_294_, 0, v_fst_251_);
 lean_ctor_set(v___x_294_, 1, v_snd_252_);
@@ -1223,7 +1223,7 @@ v___x_379_ = l_Lean_Compiler_LCNF_Simp_markSimplified___redArg(v_a_358_);
 if (lean_obj_tag(v___x_379_) == 0)
 {
 lean_object* v___x_380_; size_t v_sz_381_; size_t v___x_382_; lean_object* v___x_383_; 
-lean_dec_ref(v___x_379_);
+lean_dec_ref_known(v___x_379_, 1);
 v___x_380_ = ((lean_object*)(l_Lean_Compiler_LCNF_Simp_addDefaultAlt___closed__1));
 v_sz_381_ = lean_array_size(v_alts_356_);
 v___x_382_ = ((size_t)0ULL);
@@ -1236,7 +1236,7 @@ if (lean_obj_tag(v___x_383_) == 0)
 lean_object* v_a_384_; 
 v_a_384_ = lean_ctor_get(v___x_383_, 0);
 lean_inc(v_a_384_);
-lean_dec_ref(v___x_383_);
+lean_dec_ref_known(v___x_383_, 1);
 switch(lean_obj_tag(v_fst_376_))
 {
 case 0:
@@ -1247,7 +1247,7 @@ lean_inc(v_fst_385_);
 lean_dec(v_a_384_);
 v_code_386_ = lean_ctor_get(v_fst_376_, 2);
 lean_inc_ref(v_code_386_);
-lean_dec_ref(v_fst_376_);
+lean_dec_ref_known(v_fst_376_, 3);
 v___y_366_ = v_fst_385_;
 v___y_367_ = v_code_386_;
 goto v___jp_365_;
@@ -1260,7 +1260,7 @@ lean_inc(v_fst_387_);
 lean_dec(v_a_384_);
 v_code_388_ = lean_ctor_get(v_fst_376_, 1);
 lean_inc_ref(v_code_388_);
-lean_dec_ref(v_fst_376_);
+lean_dec_ref_known(v_fst_376_, 2);
 v___y_366_ = v_fst_387_;
 v___y_367_ = v_code_388_;
 goto v___jp_365_;
@@ -1273,7 +1273,7 @@ lean_inc(v_fst_389_);
 lean_dec(v_a_384_);
 v_code_390_ = lean_ctor_get(v_fst_376_, 0);
 lean_inc_ref(v_code_390_);
-lean_dec_ref(v_fst_376_);
+lean_dec_ref_known(v_fst_376_, 1);
 v___y_366_ = v_fst_389_;
 v___y_367_ = v_code_390_;
 goto v___jp_365_;

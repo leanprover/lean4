@@ -1595,14 +1595,14 @@ private def elabFlatInductiveViews (vars : Array Expr) (elabs : Array InductiveE
       enableRealizationsForConst e.view.declName
 
 /-- Ensures that there are no conflicts among or between the type and constructor names defined in `elabs`. -/
-private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) (isCoinductive : Bool := false) : TermElabM Unit := do
-  let throwErrorsAt (init cur : Syntax) (msg : MessageData) : TermElabM Unit := do
+private def checkNoInductiveNameConflicts (elabs : Array InductiveElabStep1) (isCoinductive : Bool := false) : CommandElabM Unit := do
+  let throwErrorsAt (init cur : Syntax) (msg : MessageData) : CommandElabM Unit := do
     logErrorAt init msg
     throwErrorAt cur msg
   -- Maps names of inductive types to `true` and those of constructors to `false`, along with syntax refs
   let mut uniqueNames : Std.HashMap Name (Bool × Syntax) := {}
   let declString := if isCoinductive then "coinductive predicate" else "inductive type"
-  trace[Elab.inductive] "deckString: {declString}"
+  trace[Elab.inductive] "declString: {declString}"
   for { view, .. } in elabs do
     let typeDeclName := privateToUserName view.declName
     if let some (prevNameIsType, prevRef) := uniqueNames[typeDeclName]? then
@@ -1656,46 +1656,23 @@ private def applyDerivingHandlers (views : Array InductiveView) : CommandElabM U
             declNames := declNames.push view.declName
         classView.applyHandlers declNames
 
-private def elabInductiveViewsPostprocessing (views : Array InductiveView) (res : FinalizeContext)
-     : CommandElabM Unit := do
-  let view0 := views[0]!
-  let ref := view0.ref
+private def elabInductiveViewsFinalize (views : Array InductiveView) (res : FinalizeContext) :
+    CommandElabM Unit := do
   applyComputedFields views -- NOTE: any generated code before this line is invalid
   liftTermElabM <| withMCtx res.mctx <| withLCtx res.lctx res.localInsts do
     let finalizers ← res.elabs.mapM fun elab' => elab'.prefinalize res.levelParams res.params res.replaceIndFVars
     for view in views do withRef view.declId <|
       Term.applyAttributesAt view.declName view.modifiers.attrs .afterTypeChecking
     for elab' in finalizers do elab'.finalize
-  applyDerivingHandlers views
-  -- Docstrings are added during postprocessing to allow them to have checked references to
-  -- the type and its constructors, but before attributes to enable e.g. `@[inherit_doc X]`
-  runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
-    for view in views do
-      withRef view.declId do
-        if let some (doc, verso) := view.docString? then
-          addDocStringOf verso view.declName view.binders doc
-      for ctor in view.ctors do
-        withRef ctor.declId do
-          if let some (doc, verso) := ctor.modifiers.docString? then
-            addDocStringOf verso ctor.declName ctor.binders doc
 
-  runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
-    for view in views do withRef view.declId <|
-      unless (views.any (·.isCoinductive)) do
-        Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
-
-  -- Term info is added here so that docstrings are maximally available in the environment for hovers
-  runTermElabM fun _ => Term.withDeclName view0.declName <| withRef ref <| addTermInfoViews views
-
-private def elabInductiveViewsPostprocessingCoinductive (views : Array InductiveView)
-     : CommandElabM Unit := do
+private def elabInductiveViewsPostprocessing (views : Array InductiveView) :
+    CommandElabM Unit := do
   let view0 := views[0]!
   let ref := view0.ref
-
   applyDerivingHandlers views
   -- Docstrings are added during postprocessing to allow them to have checked references to
   -- the type and its constructors, but before attributes to enable e.g. `@[inherit_doc X]`
-  runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
+  liftTermElabM <| Term.withDeclName view0.declName do withRef ref do
     for view in views do
       withRef view.declId do
         if let some (doc, verso) := view.docString? then
@@ -1705,13 +1682,12 @@ private def elabInductiveViewsPostprocessingCoinductive (views : Array Inductive
           if let some (doc, verso) := ctor.modifiers.docString? then
             addDocStringOf verso ctor.declName ctor.binders doc
 
-  runTermElabM fun _ => Term.withDeclName view0.declName do withRef ref do
     for view in views do withRef view.declId <|
       unless (views.any (·.isCoinductive)) do
         Term.applyAttributesAt view.declName view.modifiers.attrs .afterCompilation
 
-  -- Term info is added here so that docstrings are maximally available in the environment for hovers
-  runTermElabM fun _ => Term.withDeclName view0.declName <| withRef ref <| addTermInfoViews views
+    -- Term info is added here so that docstrings are maximally available in the environment for hovers
+    addTermInfoViews views
 
 def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabData where
   declId := e.view.declId
@@ -1722,26 +1698,23 @@ def InductiveViewToCoinductiveElab (e : InductiveElabStep1) : CoinductiveElabDat
   isGreatest := e.view.isCoinductive
 
 def elabInductives (inductives : Array (Modifiers × Syntax)) : CommandElabM Unit := do
-  let elabs ← runTermElabM fun _ =>
-      inductives.mapM fun (modifiers, stx) => mkInductiveView modifiers stx
-
+  let elabs ← runTermElabM fun _ => inductives.mapM fun (modifiers, stx) => mkInductiveView modifiers stx
   let isCoinductive := elabs.any (·.view.isCoinductive)
-
+  checkNoInductiveNameConflicts elabs (isCoinductive := isCoinductive)
+  elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
+  liftTermElabM <| elabs.forM fun e => withRef e.view.ref do
+    Term.applyAttributesAt e.view.declName e.view.modifiers.attrs .beforeElaboration
   if isCoinductive then
     runTermElabM fun vars => do
-      checkNoInductiveNameConflicts elabs (isCoinductive := true)
       let flatElabs := elabs.map fun e => {e with view := updateViewWithFunctorName e.view}
-      flatElabs.forM fun e => checkValidInductiveModifier e.view.modifiers
       elabFlatInductiveViews vars flatElabs
       discard <| flatElabs.mapM fun e => MetaM.run' do mkSumOfProducts e.view.declName
       elabCoinductive (flatElabs.map InductiveViewToCoinductiveElab)
-    elabInductiveViewsPostprocessingCoinductive (elabs.map (·.view))
   else
     let res ← runTermElabM fun vars => do
-      elabs.forM fun e => checkValidInductiveModifier e.view.modifiers
-      checkNoInductiveNameConflicts elabs
       elabInductiveViews vars elabs
-    elabInductiveViewsPostprocessing (elabs.map (·.view)) res
+    elabInductiveViewsFinalize (elabs.map (·.view)) res
+  elabInductiveViewsPostprocessing (elabs.map (·.view))
 
 def elabInductive (modifiers : Modifiers) (stx : Syntax) : CommandElabM Unit := do
   elabInductives #[(modifiers, stx)]

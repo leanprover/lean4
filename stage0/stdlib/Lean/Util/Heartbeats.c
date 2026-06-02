@@ -605,12 +605,12 @@ else
 lean_object* v_val_180_; 
 v_val_180_ = lean_ctor_get(v___x_178_, 0);
 lean_inc(v_val_180_);
-lean_dec_ref(v___x_178_);
+lean_dec_ref_known(v___x_178_, 1);
 if (lean_obj_tag(v_val_180_) == 1)
 {
 uint8_t v_v_181_; 
 v_v_181_ = lean_ctor_get_uint8(v_val_180_, 0);
-lean_dec_ref(v_val_180_);
+lean_dec_ref_known(v_val_180_, 0);
 return v_v_181_;
 }
 else
@@ -918,7 +918,7 @@ v___x_286_ = l_Lean_MessageData_hasTag(v___y_268_, v_a_278_);
 if (v___x_286_ == 0)
 {
 lean_object* v___x_287_; lean_object* v___x_289_; 
-lean_dec_ref(v___x_284_);
+lean_dec_ref_known(v___x_284_, 1);
 lean_dec_ref(v___x_282_);
 lean_dec(v_a_278_);
 v___x_287_ = lean_box(0);
@@ -981,7 +981,7 @@ else
 lean_object* v_val_302_; 
 v_val_302_ = lean_ctor_get(v___x_301_, 0);
 lean_inc(v_val_302_);
-lean_dec_ref(v___x_301_);
+lean_dec_ref_known(v___x_301_, 1);
 v___y_268_ = v___y_293_;
 v___y_269_ = v___y_294_;
 v___y_270_ = v___y_300_;
@@ -1017,7 +1017,7 @@ else
 lean_object* v_val_314_; 
 v_val_314_ = lean_ctor_get(v___x_312_, 0);
 lean_inc(v_val_314_);
-lean_dec_ref(v___x_312_);
+lean_dec_ref_known(v___x_312_, 1);
 v___y_293_ = v___y_304_;
 v___y_294_ = v___y_305_;
 v___y_295_ = v___y_307_;

@@ -9,6 +9,7 @@ prelude
 public import Std.Do
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
 public import Init.Data.Array.GetLit
+public import Init.Grind.Interactive
                                       -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
 @[expose] public section
@@ -434,3 +435,14 @@ syntax (name := mvcgen') "mvcgen'" optConfig
   (invariantAlts)?
   (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
   (&" with " tactic)? : tactic
+
+namespace Grind
+
+/-- `mvcgen'` step for `sym => …` blocks; same surface as the tactic form. -/
+syntax (name := mvcgen') "mvcgen'" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (invariantAlts)?
+  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
+  (&" with " tactic)? : grind
+
+end Grind

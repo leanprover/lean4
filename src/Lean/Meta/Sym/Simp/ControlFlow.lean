@@ -124,9 +124,8 @@ def simpMatch (declName : Name) : Simproc := fun e => do
   if let some e' ← reduceRecMatcher? e then
     -- Iota-reduction may expose kernel `Expr.proj` terms via struct-eta,
     -- which the structural simplifier cannot consume directly.
-    let mut e'' ← Sym.foldProjs e'
-    unless isSameExpr e' e'' do
-      e'' ← share e''
+    let e'' ← Sym.foldProjs e'
+    let e'' ← share e''
     return .step e'' (← mkEqRefl e'')
   let some info ← getMatcherInfo? declName
     | return .rfl

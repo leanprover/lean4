@@ -101,7 +101,7 @@ jobs:
           # NOTE: must be in sync with `save` below and with `restore-cache` in `update-stage0.yml`
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
+            ${{ matrix.lake-actions-cache && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
             build/stage1/**/*.ir
@@ -145,9 +145,8 @@ jobs:
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
             PREPARE="$(${{ matrix.prepare-llvm }})"
-            if [ "$TARGET_STAGE" == "stage2" ]; then
-              cp -r stage1 stage2
-            fi
+            cp -r stage1 stage2
+            cp -r stage1 stage3
             eval "OPTIONS+=($PREPARE)"
           fi
           if [[ -n '${{ matrix.release }}' && -n '${{ inputs.nightly }}' ]]; then
@@ -188,17 +187,18 @@ jobs:
           # NOTE: must be in sync with `restore` above
           path: |
             .ccache
-            ${{ matrix.name == 'Linux Lake' && 'build/stage1/**/*.trace
+            ${{ matrix.lake-actions-cache && 'build/stage1/**/*.trace
             build/stage1/**/*.olean*
             build/stage1/**/*.ilean
             build/stage1/**/*.ir
             build/stage1/**/*.c
             build/stage1/**/*.c.o*' || '' }}
           key: ${{ steps.restore-cache.outputs.cache-primary-key }}
-      - name: Upload Lake Cache
+      - id: upload-lake-cache
+        name: Upload Lake Cache
         # Caching on cancellation created some mysterious issues perhaps related to improper build
         # shutdown. Also, since this needs access to secrets, it cannot be run on forks.
-        if: matrix.name == 'Linux Lake' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+        if: matrix.name == 'Linux release' && !cancelled() && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
         run: |
           curl --version
           cd src
@@ -210,6 +210,20 @@ jobs:
           LAKE_CACHE_REVISION_ENDPOINT: ${{ vars.LAKE_CACHE_ENDPOINT }}/r1
         timeout-minutes: 20 # prevent excessive hanging from network issues
         continue-on-error: true
+      - name: Verify Lake Cache
+        if: steps.upload-lake-cache.outcome == 'success'
+        run: |
+          mv build/stage1/lib/lean build/stage1/lib/lean.bak
+          cd src
+          ../build/stage0/bin/lake cache clean
+          ../build/stage0/bin/lake cache get --repo=${{ github.repository }}
+          ../build/stage0/bin/lake build --no-build
+        continue-on-error: true
+      - name: Restore Build
+        if: steps.upload-lake-cache.outcome == 'success'
+        run: |
+          rm -rf build/stage1/lib/lean
+          mv build/stage1/lib/lean.bak build/stage1/lib/lean
       - name: Install
         run: |
           make -C build/$TARGET_STAGE install

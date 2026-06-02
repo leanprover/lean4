@@ -384,7 +384,7 @@ if (lean_obj_tag(v_pre_17_) == 0)
 lean_object* v_str_18_; uint8_t v___x_19_; lean_object* v___x_20_; 
 v_str_18_ = lean_ctor_get(v_n_15_, 1);
 lean_inc_ref(v_str_18_);
-lean_dec_ref(v_n_15_);
+lean_dec_ref_known(v_n_15_, 2);
 v___x_19_ = 0;
 v___x_20_ = l___private_Init_Data_ToString_Name_0__Lean_Name_toStringWithSep_maybeEscape(v_escape_14_, v_str_18_, v___x_19_);
 return v___x_20_;
@@ -395,7 +395,7 @@ lean_object* v_str_21_; lean_object* v_r_22_; lean_object* v___x_23_; uint8_t v_
 lean_inc(v_pre_17_);
 v_str_21_ = lean_ctor_get(v_n_15_, 1);
 lean_inc_ref(v_str_21_);
-lean_dec_ref(v_n_15_);
+lean_dec_ref_known(v_n_15_, 2);
 v_r_22_ = l_Lean_Name_toStringWithSep___at___00Lean_Name_toStringWithSep___at___00Lake_instInhabitedLeanExeConfig_default_spec__0_spec__0(v_sep_13_, v_escape_14_, v_pre_17_);
 v___x_23_ = lean_string_append(v_r_22_, v_sep_13_);
 v___x_24_ = 0;
@@ -414,7 +414,7 @@ if (lean_obj_tag(v_pre_27_) == 0)
 lean_object* v_i_28_; lean_object* v___x_29_; 
 v_i_28_ = lean_ctor_get(v_n_15_, 1);
 lean_inc(v_i_28_);
-lean_dec_ref(v_n_15_);
+lean_dec_ref_known(v_n_15_, 2);
 v___x_29_ = l_Nat_reprFast(v_i_28_);
 return v___x_29_;
 }
@@ -424,7 +424,7 @@ lean_object* v_i_30_; lean_object* v___x_31_; lean_object* v___x_32_; lean_objec
 lean_inc(v_pre_27_);
 v_i_30_ = lean_ctor_get(v_n_15_, 1);
 lean_inc(v_i_30_);
-lean_dec_ref(v_n_15_);
+lean_dec_ref_known(v_n_15_, 2);
 v___x_31_ = l_Lean_Name_toStringWithSep___at___00Lean_Name_toStringWithSep___at___00Lake_instInhabitedLeanExeConfig_default_spec__0_spec__0(v_sep_13_, v_escape_14_, v_pre_27_);
 v___x_32_ = lean_string_append(v___x_31_, v_sep_13_);
 v___x_33_ = l_Nat_reprFast(v_i_30_);
@@ -464,7 +464,7 @@ v_pre_44_ = lean_ctor_get(v_n_42_, 0);
 lean_inc(v_pre_44_);
 v_str_45_ = lean_ctor_get(v_n_42_, 1);
 lean_inc_ref(v_str_45_);
-lean_dec_ref(v_n_42_);
+lean_dec_ref_known(v_n_42_, 2);
 v___x_46_ = 0;
 if (lean_obj_tag(v_pre_44_) == 0)
 {
@@ -492,7 +492,7 @@ if (lean_obj_tag(v_pre_52_) == 0)
 lean_object* v_i_53_; lean_object* v___x_54_; 
 v_i_53_ = lean_ctor_get(v_n_42_, 1);
 lean_inc(v_i_53_);
-lean_dec_ref(v_n_42_);
+lean_dec_ref_known(v_n_42_, 2);
 v___x_54_ = l_Nat_reprFast(v_i_53_);
 return v___x_54_;
 }
@@ -502,7 +502,7 @@ lean_object* v_i_55_; lean_object* v___x_56_; lean_object* v___x_57_; lean_objec
 lean_inc(v_pre_52_);
 v_i_55_ = lean_ctor_get(v_n_42_, 1);
 lean_inc(v_i_55_);
-lean_dec_ref(v_n_42_);
+lean_dec_ref_known(v_n_42_, 2);
 v___x_56_ = l_Lean_Name_toStringWithSep___at___00Lean_Name_toStringWithSep___at___00Lake_instInhabitedLeanExeConfig_default_spec__0_spec__0(v_sep_40_, v_escape_41_, v_pre_52_);
 v___x_57_ = lean_string_append(v___x_56_, v_sep_40_);
 v___x_58_ = l_Nat_reprFast(v_i_55_);

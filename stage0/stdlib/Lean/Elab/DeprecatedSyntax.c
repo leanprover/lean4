@@ -581,7 +581,7 @@ lean_object* v_val_282_; lean_object* v_text_x3f_283_;
 lean_dec(v_toPure_189_);
 v_val_282_ = lean_ctor_get(v___x_281_, 0);
 lean_inc(v_val_282_);
-lean_dec_ref(v___x_281_);
+lean_dec_ref_known(v___x_281_, 1);
 v_text_x3f_283_ = lean_ctor_get(v_val_282_, 1);
 lean_inc(v_text_x3f_283_);
 lean_dec(v_val_282_);
@@ -597,7 +597,7 @@ else
 lean_object* v_val_285_; lean_object* v___x_286_; lean_object* v___x_287_; lean_object* v___x_288_; 
 v_val_285_ = lean_ctor_get(v_text_x3f_283_, 0);
 lean_inc(v_val_285_);
-lean_dec_ref(v_text_x3f_283_);
+lean_dec_ref_known(v_text_x3f_283_, 1);
 v___x_286_ = lean_obj_once(&l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__19, &l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__19_once, _init_l_Lean_Elab_checkDeprecatedSyntax___redArg___lam__0___closed__19);
 v___x_287_ = l_Lean_stringToMessageData(v_val_285_);
 v___x_288_ = lean_alloc_ctor(7, 2, 0);

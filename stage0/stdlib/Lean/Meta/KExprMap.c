@@ -327,7 +327,7 @@ v_value_83_ = lean_ctor_get(v_x_75_, 1);
 lean_inc(v_value_83_);
 v_tail_84_ = lean_ctor_get(v_x_75_, 2);
 lean_inc(v_tail_84_);
-lean_dec_ref(v_x_75_);
+lean_dec_ref_known(v_x_75_, 3);
 lean_inc_ref(v_e_73_);
 v___x_85_ = l_Lean_Meta_isExprDefEq(v_e_73_, v_key_82_, v___y_76_, v___y_77_, v___y_78_, v___y_79_);
 if (lean_obj_tag(v___x_85_) == 0)
@@ -479,7 +479,7 @@ else
 lean_object* v_val_129_; lean_object* v___x_130_; lean_object* v___x_131_; lean_object* v___x_132_; 
 v_val_129_ = lean_ctor_get(v___x_126_, 0);
 lean_inc(v_val_129_);
-lean_dec_ref(v___x_126_);
+lean_dec_ref_known(v___x_126_, 1);
 v___x_130_ = lean_box(0);
 v___x_131_ = ((lean_object*)(l___private_Lean_Data_AssocList_0__Lean_AssocList_forIn_loop___at___00Lean_Meta_KExprMap_find_x3f_spec__1___redArg___closed__0));
 v___x_132_ = l___private_Lean_Data_AssocList_0__Lean_AssocList_forIn_loop___at___00Lean_Meta_KExprMap_find_x3f_spec__1___redArg(v_e_119_, v___x_131_, v_val_129_, v_a_120_, v_a_121_, v_a_122_, v_a_123_);
@@ -535,7 +535,7 @@ else
 lean_object* v_val_141_; lean_object* v___x_143_; 
 v_val_141_ = lean_ctor_get(v_fst_137_, 0);
 lean_inc(v_val_141_);
-lean_dec_ref(v_fst_137_);
+lean_dec_ref_known(v_fst_137_, 1);
 if (v_isShared_136_ == 0)
 {
 lean_ctor_set(v___x_135_, 0, v_val_141_);
@@ -1497,7 +1497,7 @@ else
 lean_object* v_val_477_; lean_object* v___x_478_; 
 v_val_477_ = lean_ctor_get(v___x_472_, 0);
 lean_inc(v_val_477_);
-lean_dec_ref(v___x_472_);
+lean_dec_ref_known(v___x_472_, 1);
 v___x_478_ = l___private_Lean_Meta_KExprMap_0__Lean_Meta_updateList___redArg(v_val_477_, v_e_464_, v_v_465_, v_a_466_, v_a_467_, v_a_468_, v_a_469_);
 if (lean_obj_tag(v___x_478_) == 0)
 {

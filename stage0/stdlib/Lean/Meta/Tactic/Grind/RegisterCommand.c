@@ -503,7 +503,7 @@ if (lean_obj_tag(v___y_456_) == 1)
 lean_object* v_val_488_; lean_object* v___x_489_; 
 v_val_488_ = lean_ctor_get(v___y_456_, 0);
 lean_inc(v_val_488_);
-lean_dec_ref(v___y_456_);
+lean_dec_ref_known(v___y_456_, 1);
 v___x_489_ = l_Array_mkArray1___redArg(v_val_488_);
 v___y_369_ = v_str1_458_;
 v___y_370_ = v___x_457_;
@@ -856,7 +856,7 @@ lean_object* v_val_435_; lean_object* v___x_436_; lean_object* v___x_437_; lean_
 lean_dec(v___y_370_);
 v_val_435_ = lean_ctor_get(v___x_433_, 0);
 lean_inc(v_val_435_);
-lean_dec_ref(v___x_433_);
+lean_dec_ref_known(v___x_433_, 1);
 v___x_436_ = ((lean_object*)(l_Lean_Meta_Grind___aux__Lean__Meta__Tactic__Grind__RegisterCommand______macroRules__Lean__Meta__Grind____root____Lean__Parser__Command__registerGrindAttr__1___closed__64));
 v___x_437_ = ((lean_object*)(l_Lean_Meta_Grind___aux__Lean__Meta__Tactic__Grind__RegisterCommand______macroRules__Lean__Meta__Grind____root____Lean__Parser__Command__registerGrindAttr__1___closed__65));
 v___x_438_ = ((lean_object*)(l_Lean_Meta_Grind___aux__Lean__Meta__Tactic__Grind__RegisterCommand______macroRules__Lean__Meta__Grind____root____Lean__Parser__Command__registerGrindAttr__1___closed__66));

@@ -54,7 +54,7 @@ where
     -- elaborator. However, for Lake.Package.mkBuildArchiveFacetConfig, we still need to postpone.
     doElabToSyntax "then branch of if with condition {cond}" (elabDoSeq thenSeq dec) fun then_ => do
     doElabToSyntax "else branch of if with condition {cond}" (elabDoSeq elseSeq dec) fun else_ => do
-    let mγ ← mkMonadicType (← read).doBlockResultType
+    let mγ ← mkMonadApp (← read).doBlockResultType
     Term.elabTermEnsuringType (← `(if $cond then $then_ else $else_)) mγ
 
   elabDite h cond thenSeq elseSeq dec := do
@@ -62,7 +62,7 @@ where
       elabDoSeq (if then_ then thenSeq else elseSeq) dec
     doElabToSyntax "then branch of if with condition {cond}" (elabDiteBranch true) fun then_ => do
     doElabToSyntax "else branch of if with condition {cond}" (elabDiteBranch false) fun else_ => do
-    let mγ ← mkMonadicType (← read).doBlockResultType
+    let mγ ← mkMonadApp (← read).doBlockResultType
     match h with
     | `(_%$tk) => Term.elabTermEnsuringType (← `(if _%$tk : $cond then $then_ else $else_)) mγ
     | `($h:ident) => Term.elabTermEnsuringType (← `(if $h:ident : $cond then $then_ else $else_)) mγ

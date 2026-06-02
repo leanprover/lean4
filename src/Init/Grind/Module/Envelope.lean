@@ -47,7 +47,7 @@ theorem r_trans {a b c : α × α} : r α a b → r α b c → r α a c := by
   simp [r]
   intro k₁ h₁ k₂ h₂
   refine ⟨(k₁ + k₂ + b₁ + b₂), ?_⟩
-  replace h₁ := congrArg (· + (b₁ + c₂ + k₂)) h₁; simp at h₁
+  replace h₁ := congrArg (· + (b₁ + c₂ + k₂)) h₁; try simp at h₁ -- TODO(kmill) remove simp after stage0 update
   have haux₁ : a₁ + b₂ + k₁ + (b₁ + c₂ + k₂) = (a₁ + c₂) + (k₁ + k₂ + b₁ + b₂) := by ac_rfl
   have haux₂ : a₂ + b₁ + k₁ + (b₁ + c₂ + k₂) = (a₂ + c₁) + (k₁ + k₂ + b₁ + b₂) := by rw [h₂]; ac_rfl
   rw [haux₁, haux₂] at h₁

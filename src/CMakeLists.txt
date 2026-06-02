@@ -211,6 +211,10 @@ endif()
 # We want explicit stack probes in huge Lean stack frames for robust stack overflow detection
 string(APPEND LEANC_EXTRA_CC_FLAGS " -fstack-clash-protection")
 
+# Disable contraction of floating-point operations to ensure predictable semantics
+string(APPEND LEANC_EXTRA_CC_FLAGS " -ffp-contract=off")
+string(APPEND LEAN_EXTRA_CXX_FLAGS " -ffp-contract=off")
+
 if(NOT MULTI_THREAD)
   message(STATUS "Disabled multi-thread support, it will not be safe to run multiple threads in parallel")
   set(AUTO_THREAD_FINALIZATION OFF)

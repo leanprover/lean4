@@ -289,3 +289,13 @@ requires any further changes to Lake.
   the broader set in `inputs`. The walker is straightforward but not
   minimal — it lists everything `lean`'s loader might reach, not only
   what it actually opens during a specific compile.
+- For each module-style import the walker contributes `.olean`, `.ir`,
+  `.olean.server`, and `.olean.private`. Per `Lean/Setup.lean`'s
+  `ImportArtifacts.oleanParts`, batch compilation skips `.olean.server`
+  unless `.olean.private` is also present, and `.olean.private` is
+  populated only for `importAll` imports. A future tightening could
+  drop the server/private contributions for non-`importAll` imports
+  in batch builds (rough estimate: ~30–40% fewer files in the
+  manifest), at the cost of teaching the walker about `lean`'s
+  batch-vs-server modes — which is the kind of coupling we've
+  deliberately kept out of the contract so far.

@@ -74,12 +74,13 @@ public def collectLeanModuleOutputPaths
   if let some f := arts.bc? then xs := xs.push f
   return xs
 
-/-- Remote-exec parameters (after `leanir`):
-* `extraInputs` — transitive olean closure that must be on the worker before
-  `lean` runs (see `Lake.collectLeanInputClosure`).
+/-- Wrapped-exec parameters (consulted only when both are populated):
+* `extraInputs` — transitive olean closure declared in the manifest's
+  `inputs` list, so a wrapper can know what to materialize ahead of `lean`
+  (see `Lake.collectLeanInputClosure`).
 * `lakeRoots` — `(workspace, lakeHome, toolchain, toolchainRoot)`; when
-  `some _` AND `$LAKE_WRAPPED_EXEC` is set, the invocation is routed through
-  the wrapper. Otherwise this falls through to local `rawProc`.
+  `some _` AND `$LAKE_WRAPPED_EXEC` is set, the invocation is routed
+  through the wrapper. Otherwise this falls through to local `rawProc`.
 * `jobId` — free-form label for logging. -/
 public def compileLeanModule
   (leanFile relLeanFile : FilePath)

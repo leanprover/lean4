@@ -8,6 +8,7 @@ module
 prelude
 public import Std.Do.WP.Monad
 public import Std.Do.Internal.Ensures
+public import Init.Control.Lawful.MonadAttach.Instances
 
 set_option linter.missingDocs true
 
@@ -104,6 +105,15 @@ public instance [Monad m] [LawfulMonad m] [WP m .pure] [WPSound m .pure] :
     refine Eq.trans ?_
       (hX.bind_eq (β := Option β) (fun r => match r with | some a => (k a).run | none => pure none))
     exact bind_congr fun ⟨r, _⟩ => by cases r <;> simp [pure_bind, OptionT.run]
+
+public instance : WPSound (EStateM ε σ) (.except ε (.arg σ .pure)) where
+  ensures_of_wp {α} {x} {P} hwp :=
+    Internal.Ensures.canReturn.weaken fun a (hcan : MonadAttach.CanReturn x a) => by
+      obtain ⟨s, s', heq⟩ := hcan
+      have hs := hwp s True.intro
+      simp only [WP.wp, PredTrans.apply] at hs
+      rw [heq] at hs
+      exact hs
 
 /--
 Soundness lemma for `Id.run`. Derived from `WPSound.of_wp_canReturn`: `Id.run prog = x`

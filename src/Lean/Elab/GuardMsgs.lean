@@ -264,13 +264,14 @@ def guardMsgsCodeAction : CommandCodeAction := fun _ _ _ node => do
     lazy? := some do
       let some start := stx.getPos? true | return eager
       let some tail := stx.setArg 0 mkNullNode |>.getPos? true | return eager
+      let indent := "".pushn ' ' (doc.meta.text.toPosition start).column
       let res := revealTrailingWhitespace res
       let newText := if res.isEmpty then
         ""
       else if res.length ≤ 100-7 && !res.contains '\n' then -- TODO: configurable line length?
-        s!"/-- {res} -/\n"
+        s!"/-- {res} -/\n{indent}"
       else
-        s!"/--\n{res}\n-/\n"
+        s!"/--\n{res}\n{indent}-/\n{indent}"
       pure { eager with
         edit? := some <|.ofTextEdit doc.versionedIdentifier {
           range := doc.meta.text.utf8RangeToLspRange ⟨start, tail⟩

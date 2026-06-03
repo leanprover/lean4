@@ -33,8 +33,8 @@ def mkXor : Entrypoint Nat :=
 -- Check that the CNF lowering uses a 4-clause encoding for XOR
 /--
 info: { clauses := #[[(1, true), (6, false)], [(1, false), (6, true)], [(2, true), (7, false)], [(2, false), (7, true)],
-               [(1, true), (2, true), (5, false)], [(1, true), (2, false), (5, true)],
-               [(1, false), (2, true), (5, true)], [(1, false), (2, false), (5, false)], [(5, true)]] }
+               [(5, false), (1, false), (2, false)], [(5, false), (1, true), (2, true)],
+               [(5, true), (1, false), (2, true)], [(5, true), (1, true), (2, false)], [(5, true)]] }
 -/
 #guard_msgs in
 #eval AIG.toCNF mkXor

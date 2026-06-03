@@ -725,5 +725,121 @@ structure ColorInformation where
 structure DocumentColorOptions extends WorkDoneProgressOptions where
   deriving FromJson, ToJson
 
+/--
+The format options used in the `textDocument/formatting`,
+`textDocument/rangeFormatting`, `textDocument/rangesFormatting`, and
+`textDocument/onTypeFormatting` requests.
+
+In addition to the well-known fields below, the LSP spec permits arbitrary
+server-specific properties (`[key: string]: boolean | integer | string`). Those
+extra keys are preserved verbatim in `additionalProperties` rather than being
+dropped, so this type round-trips faithfully.
+-/
+structure FormattingOptions where
+  /-- Size of a tab in spaces. -/
+  tabSize : Nat
+  /-- Prefer spaces over tabs. -/
+  insertSpaces : Bool
+  /-- Trim trailing whitespace on a line. -/
+  trimTrailingWhitespace? : Option Bool := none
+  /-- Insert a newline character at the end of the file if one does not exist. -/
+  insertFinalNewline? : Option Bool := none
+  /-- Trim all newlines after the final newline at the end of the file. -/
+  trimFinalNewlines? : Option Bool := none
+  /--
+  Additional, server-specific properties allowed by the spec's open
+  `[key: string]: boolean | integer | string` clause. This holds only the keys
+  that are not among the well-known fields above, as a JSON object (empty when
+  there are none).
+  -/
+  additionalProperties : Json := Json.mkObj []
+
+instance : ToJson FormattingOptions where
+  toJson o :=
+    let core := Json.mkObj <|
+      [("tabSize", toJson o.tabSize), ("insertSpaces", toJson o.insertSpaces)]
+      ++ Json.opt "trimTrailingWhitespace" o.trimTrailingWhitespace?
+      ++ Json.opt "insertFinalNewline" o.insertFinalNewline?
+      ++ Json.opt "trimFinalNewlines" o.trimFinalNewlines?
+    -- Merge the extras in first so the well-known fields always take precedence.
+    o.additionalProperties.mergeObj core
+
+instance : FromJson FormattingOptions where
+  fromJson? j := do
+    let obj ← j.getObj?
+    let tabSize ← j.getObjValAs? Nat "tabSize"
+    let insertSpaces ← j.getObjValAs? Bool "insertSpaces"
+    let trimTrailingWhitespace? ← j.getObjValAs? (Option Bool) "trimTrailingWhitespace"
+    let insertFinalNewline? ← j.getObjValAs? (Option Bool) "insertFinalNewline"
+    let trimFinalNewlines? ← j.getObjValAs? (Option Bool) "trimFinalNewlines"
+    -- Keys that are not well-known fields are preserved as additional properties.
+    let wellKnownFields := #["tabSize", "insertSpaces", "trimTrailingWhitespace",
+      "insertFinalNewline", "trimFinalNewlines"]
+    let additionalProperties := obj.foldl (init := Json.mkObj []) fun acc k v =>
+      if wellKnownFields.contains k then acc else acc.setObjVal! k v
+    return {
+      tabSize, insertSpaces, trimTrailingWhitespace?, insertFinalNewline?,
+      trimFinalNewlines?, additionalProperties
+    }
+
+/-- Params for the `textDocument/formatting` request. -/
+structure DocumentFormattingParams extends WorkDoneProgressParams where
+  textDocument : TextDocumentIdentifier
+  options : FormattingOptions
+  deriving FromJson, ToJson
+
+/-- Params for the `textDocument/rangeFormatting` request. -/
+structure DocumentRangeFormattingParams extends WorkDoneProgressParams where
+  textDocument : TextDocumentIdentifier
+  range : Range
+  options : FormattingOptions
+  deriving FromJson, ToJson
+
+/--
+Params for the `textDocument/rangesFormatting` request.
+
+The LSP 3.18 successor to `textDocument/rangeFormatting` that formats multiple
+ranges at once.
+-/
+structure DocumentRangesFormattingParams extends WorkDoneProgressParams where
+  textDocument : TextDocumentIdentifier
+  ranges : Array Range
+  options : FormattingOptions
+  deriving FromJson, ToJson
+
+/--
+Params for the `textDocument/onTypeFormatting` request.
+
+Unlike the other formatting params, this one does not carry a
+`WorkDoneProgressParams` mixin; extending `TextDocumentPositionParams` supplies
+the spec's `textDocument` and `position` fields.
+-/
+structure DocumentOnTypeFormattingParams extends TextDocumentPositionParams where
+  /-- The character that has been typed that triggered the on-type formatting request. -/
+  ch : String
+  options : FormattingOptions
+  deriving FromJson, ToJson
+
+/-- Server capability options for the `textDocument/formatting` request. -/
+structure DocumentFormattingOptions extends WorkDoneProgressOptions where
+  deriving FromJson, ToJson
+
+/-- Server capability options for the `textDocument/rangeFormatting` request. -/
+structure DocumentRangeFormattingOptions extends WorkDoneProgressOptions where
+  /--
+  Whether the server supports formatting multiple ranges at once via
+  `textDocument/rangesFormatting`. Added in LSP 3.18.
+  -/
+  rangesSupport? : Option Bool := none
+  deriving FromJson, ToJson
+
+/-- Server capability options for the `textDocument/onTypeFormatting` request. -/
+structure DocumentOnTypeFormattingOptions where
+  /-- A character on which formatting should be triggered, like `{`. -/
+  firstTriggerCharacter : String
+  /-- More trigger characters. -/
+  moreTriggerCharacter? : Option (Array String) := none
+  deriving FromJson, ToJson
+
 end Lsp
 end Lean

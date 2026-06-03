@@ -136,6 +136,9 @@ structure ServerCapabilities where
   inlayHintProvider?        : Option InlayHintOptions        := none
   signatureHelpProvider?    : Option SignatureHelpOptions    := none
   colorProvider?            : Option DocumentColorOptions    := none
+  documentFormattingProvider?       : Option DocumentFormattingOptions       := none
+  documentRangeFormattingProvider?  : Option DocumentRangeFormattingOptions  := none
+  documentOnTypeFormattingProvider? : Option DocumentOnTypeFormattingOptions := none
   experimental?             : Option LeanServerCapabilities  := none
   deriving ToJson, FromJson
 

@@ -933,13 +933,17 @@ def Module.buildLean
   let setup := {setup with importArts := transImpArts}
   let arts := mod.mkArtifacts srcFile setup.isModule
   mod.clearOutputArtifacts
-  -- Compute wrapped-exec metadata. The closure is only consulted when
-  -- `$LAKE_WRAPPED_EXEC` is set; otherwise it's effectively unused.
-  let ws ← getWorkspace
-  let lakeEnv := ws.lakeEnv
-  let extraInputs ← collectLeanInputClosure mod
-  let lakeRoots := some (ws.root.dir, ws.root.lakeDir, lakeEnv.lean.binDir, lakeEnv.lean.sysroot)
-  let jobId := s!"{mod.pkg.baseName}_{mod.name}"
+  -- Compute wrapped-exec metadata only when the hook is configured:
+  -- a no-op rebuild without the env var should be free of the closure walk.
+  let (extraInputs, lakeRoots, jobId) ← if (← IO.getEnv "LAKE_WRAPPED_EXEC").isSome then
+    let ws ← getWorkspace
+    let lakeEnv := ws.lakeEnv
+    let extraInputs ← collectLeanInputClosure mod
+    pure (extraInputs,
+      some (ws.root.dir, ws.root.lakeDir, lakeEnv.lean.binDir, lakeEnv.lean.sysroot),
+      s!"{mod.pkg.baseName}_{mod.name}")
+  else
+    pure (#[], none, "")
   compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
     (← getLeanPath) (← getLean) (← getLeanir)
     (extraInputs := extraInputs) (lakeRoots := lakeRoots) (jobId := jobId)

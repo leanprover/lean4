@@ -96,17 +96,20 @@ private def writeManifestTemp (m : Manifest) : IO FilePath := do
 /-- Invoke the wrapper binary with `manifest`. Returns the wrapper's
 `IO.Process.Output` (stdout/stderr/exitCode), shaped identically to what
 `rawProc` would return for a direct invocation. -/
-public def runViaWrapper (wrapperPath : String) (m : Manifest) : LogIO IO.Process.Output := do
+public def runViaWrapper (wrapperPath : String) (m : Manifest) (quiet := false) : LogIO IO.Process.Output := do
   let manifestPath ← writeManifestTemp m
-  logVerbose s!"wrapped-exec: wrapper={wrapperPath} manifest={manifestPath} job={m.jobId}"
+  unless quiet do
+    logVerbose s!"wrapped-exec: wrapper={wrapperPath} manifest={manifestPath} job={m.jobId}"
   withLogErrorPos do
-  match (← IO.Process.output {
+  let outcome ← (IO.Process.output {
     cmd := wrapperPath,
     args := #[manifestPath.toString]
-  } |>.toBaseIO) with
-  | .ok out =>
-    try IO.FS.removeFile manifestPath catch _ => pure ()
-    return out
+  } |>.toBaseIO)
+  -- Clean up the manifest on both success and failure to avoid leaking
+  -- a temp file when the wrapper itself can't be spawned.
+  try IO.FS.removeFile manifestPath catch _ => pure ()
+  match outcome with
+  | .ok out => return out
   | .error err =>
     error s!"failed to execute wrapper '{wrapperPath}': {err}"
 
@@ -129,6 +132,12 @@ public def runRawProcOrWrapped
 : LogIO IO.Process.Output := do
   match (← IO.getEnv "LAKE_WRAPPED_EXEC"), lakeRoots with
   | some wrapperPath, some (workspace, lakeHome, toolchain, toolchainRoot) =>
+    -- Note: `args.env` is `Array (String × Option String)`; collapsing to
+    -- `Array (String × String)` drops `none` entries (variables the spawn
+    -- explicitly unsets) and may reorder duplicate keys. The current
+    -- compileLeanModule call passes a single LEAN_PATH so this is benign;
+    -- future hooked call sites with richer env vectors will want to switch
+    -- the manifest schema to an ordered array-of-pairs.
     let envPairs : Array (String × String) := args.env.filterMap fun (k, v?) =>
       v?.map (k, ·)
     let m : Manifest := {
@@ -137,7 +146,7 @@ public def runRawProcOrWrapped
       workspace, lakeHome, toolchain, toolchainRoot
       jobId
     }
-    runViaWrapper wrapperPath m
+    runViaWrapper wrapperPath m (quiet := quiet)
   | _, _ =>
     rawProc args (quiet := quiet)
 

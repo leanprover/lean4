@@ -104,7 +104,12 @@ public def compileLeanModule
   IO.FS.writeFile setupFile (toJson setup).pretty
   withLogErrorPos do
   let outputs := collectLeanModuleOutputPaths arts postponeCompile
+  -- `lean` also opens any dynlibs / plugins declared in the setup at runtime
+  -- (e.g. `precompileModules` projects). A sandbox wrapper that allow-lists
+  -- from `inputs` would block those without them; include them so the inputs
+  -- list is a complete read-set for the spawned `lean`.
   let inputs := #[leanFile, setupFile] ++ extraInputs
+                ++ setup.dynlibs ++ setup.plugins.map (·.path)
   let out ← Lake.WrappedExec.runRawProcOrWrapped
     { args, cmd := lean.toString,
       env := #[("LEAN_PATH", leanPath.toString)] }

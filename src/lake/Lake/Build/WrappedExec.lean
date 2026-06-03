@@ -15,33 +15,35 @@ import Lean.Data.Json
 /-! # Wrapped-execution hook for Lake's `proc` invocations
 
 When `$LAKE_WRAPPED_EXEC` is set to a path, Lake routes selected subprocess
-invocations through that path (the "wrapper") instead of running them locally.
+invocations through that path (the "wrapper") instead of invoking them
+directly via `rawProc`.
 
-Lake writes a JSON manifest carrying the exact `argv`, `env`, `cwd`, the set of
-input files that must be available before the invocation runs, and the set of
-output files Lake expects to find on disk after it completes. The wrapper is
-responsible for arranging for the command to be executed somewhere it can
-satisfy those input/output declarations. From Lake's perspective the wrapper
-is indistinguishable from the original binary — same stdout/stderr/exit-code
-shape.
+Lake writes a JSON manifest carrying the exact `argv`, `env`, `cwd`, the set
+of input files that must be available before the invocation runs, and the
+set of output files Lake expects to find on disk after it completes. The
+wrapper decides what to do with that — it can exec the named command itself
+in any environment it likes, look up a cached result, hand off to a worker
+pool, etc. From Lake's perspective the wrapper is indistinguishable from
+the original binary: same stdout/stderr/exit-code shape.
 
-Concrete consumers include sandbox executors (use the input/output lists to
-construct an isolated filesystem view), distributed-build orchestrators (ship
-work to a worker pool), and content-addressable build farms. Lake is silent
-about which is downstream.
+Concrete consumers include sandbox executors (use the input/output lists
+to constrain the spawned process to its declared dependencies), tracing
+wrappers (record argv/env/inputs for reproducibility analysis),
+content-addressable cache lookups, and distributed-build orchestrators
+(ship work to a worker pool). Lake is silent about which is downstream.
 
 Design constraints:
 
 * No orchestration logic in Lake. The wrapper is opaque; Lake doesn't know
-  whether it runs the command locally under a sandbox, dispatches to a
-  worker pool, looks up a pre-built result in a cache, or anything else.
+  whether it sandboxes, caches, dispatches, traces, or just exec's the
+  command in-process.
 * Inputs are enumerated explicitly, not discovered. Callers (e.g. the lean
   module compile path) compute the full input closure they need ahead of
   time.
 * Lake stays the executor: cache, hashes, trace sidecars, incremental
   rebuilds all continue to work because Lake invokes the wrapper the same
-  way it would invoke the original binary, and the wrapper re-materializes
-  outputs at the head-node paths Lake expects to read from later.
+  way it would invoke the original binary, and outputs must reappear at
+  the paths the manifest names by the time the wrapper returns.
 -/
 
 open System
@@ -93,7 +95,7 @@ private def writeManifestTemp (m : Manifest) : IO FilePath := do
 
 /-- Invoke the wrapper binary with `manifest`. Returns the wrapper's
 `IO.Process.Output` (stdout/stderr/exitCode), shaped identically to what
-`rawProc` would return for a local invocation. -/
+`rawProc` would return for a direct invocation. -/
 public def runViaWrapper (wrapperPath : String) (m : Manifest) : LogIO IO.Process.Output := do
   let manifestPath ← writeManifestTemp m
   logVerbose s!"wrapped-exec: wrapper={wrapperPath} manifest={manifestPath} job={m.jobId}"
@@ -109,15 +111,15 @@ public def runViaWrapper (wrapperPath : String) (m : Manifest) : LogIO IO.Proces
     error s!"failed to execute wrapper '{wrapperPath}': {err}"
 
 /--
-Dispatch a `rawProc` invocation either locally or via `$LAKE_WRAPPED_EXEC`.
+Dispatch a `rawProc` invocation either directly or via `$LAKE_WRAPPED_EXEC`.
 When the env var is set AND `lakeRoots := some _`, the wrapper receives a
 manifest with `inputs`/`outputs`/`workspace` metadata. Otherwise this falls
 through to plain `rawProc`.
 
-`lakeRoots := none` means "this call site doesn't have enough metadata to be
-wrapped"; we fall through to local even if `$LAKE_WRAPPED_EXEC` is set. This
-lets us extend the wrapped-exec path to new call sites one at a time without
-breaking others.
+`lakeRoots := none` means "this call site doesn't have enough metadata to
+be wrapped"; we run the command directly even if `$LAKE_WRAPPED_EXEC` is
+set. This lets us extend the wrapped-exec path to new call sites one at a
+time without breaking others.
 -/
 public def runRawProcOrWrapped
   (args : IO.Process.SpawnArgs)

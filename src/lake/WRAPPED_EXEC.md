@@ -2,10 +2,11 @@
 
 This branch adds an optional hook that lets Lake route per-`lean`
 subprocess invocations through an external executable ("the wrapper")
-instead of running them locally. The wrapper is opaque to Lake: it can do
-nothing (running `lean` itself), dispatch to a worker pool over the
-network, hand off to a sandbox runner, ship the work to a CAS-backed
-build farm, or anything else.
+instead of invoking them directly via `rawProc`. The wrapper is opaque
+to Lake: it can sandbox the call, look up a result in a
+content-addressable cache, record an audit trail, dispatch to a worker
+pool over the network, or simply exec the command itself — Lake
+doesn't care which.
 
 The patch is two commits:
 
@@ -26,25 +27,29 @@ The patch is two commits:
 
 When `$LAKE_WRAPPED_EXEC` is unset, the patched Lake is
 byte-for-byte identical in behaviour to upstream — the hook is purely
-additive on the existing local-build path.
+additive on the existing direct-execution path.
 
 ## Motivation
 
-Lake's build scheduler is excellent at parallelism within a single
-host. Several distributed-build use-cases want to lift that parallelism
-across hosts:
+A handful of useful capabilities all want the same shape of hook from
+Lake: a way to substitute or augment the per-module subprocess
+invocation, given enough information to satisfy it externally.
+Examples:
 
+- **Sandboxed execution.** Wrap each `lean` call in a per-job isolated
+  filesystem view (landlock, bwrap, sandbox-exec, etc.) using the
+  manifest's declared inputs/outputs as the allow-list.
+- **Tracing / auditing.** Record argv/env/inputs/outputs per job for
+  reproducibility analysis or build provenance.
+- **Cache farm integration.** Look up a pre-built result in
+  content-addressable storage, only invoking `lean` on a cache miss.
 - **Distributed compilation** for large libraries (Mathlib is
   ~8k modules and 90+ minutes single-machine compute on Apple Silicon).
-- **Sandboxed execution**, e.g. routing every `lean` through a
-  process-isolating wrapper for reproducibility checks.
-- **Cache farm integration** (Bazel-RBE-shaped backends, content-
-  addressable storage queues, etc.).
 
-All of these want the same thing from Lake: "let me intercept the
-per-module `lean` invocation, given enough information to materialize
-it on a remote node." This patch provides exactly that interception
-point, with no opinions about what's on the other side of it.
+All of these want the same primitive: an interception point per
+subprocess invocation where the wrapper sees what Lake was about to
+run and the dependencies it needs to satisfy. This patch provides
+exactly that, with no opinions about what's on the other side of it.
 
 ## Contract
 
@@ -87,14 +92,15 @@ Field semantics:
 | `cmd / args / env / cwd` | exactly what Lake would have passed to its internal `rawProc`           |
 | `inputs`          | every file that must exist on disk before `cmd` runs (source, setup, oleans)   |
 | `outputs`         | every file Lake expects to find on disk after `cmd` returns successfully       |
-| `workspace`       | head-side workspace root (`Workspace.root.dir`)                                |
-| `lake_home`       | head-side `.lake` directory                                                    |
+| `workspace`       | the workspace root Lake sees (`Workspace.root.dir`)                            |
+| `lake_home`       | the `.lake` directory Lake sees                                                |
 | `toolchain`       | path to the `lean` binary's parent dir                                         |
 | `toolchain_root`  | toolchain `sysroot` (parent of `toolchain`)                                    |
 
-`workspace / lake_home / toolchain / toolchain_root` are exposed so the
-stub can rewrite head-side paths to wherever it materializes them on
-the remote node.
+`workspace / lake_home / toolchain / toolchain_root` are exposed so a
+wrapper that runs the command somewhere with a different filesystem
+layout (a sandbox root, a worker container, etc.) can rewrite the
+manifest's paths into its own view.
 
 ### The wrapper return shape
 
@@ -106,14 +112,14 @@ The wrapper MUST return:
 - **stderr**: `lean`'s stderr, byte-for-byte (Lake surfaces this
   verbatim).
 
-Whatever stub implementation produces those three things is
-indistinguishable from local `lean` from Lake's perspective.
+Whatever wrapper implementation produces those three things is
+indistinguishable from a direct `lean` invocation from Lake's perspective.
 
 ### What Lake guarantees in return
 
 - **Manifest cleanup**. After the wrapper exits (any exit code), Lake
   attempts `IO.FS.removeFile manifestPath catch _ => pure ()`. The
-  stub MUST NOT delete the manifest itself.
+  wrapper MUST NOT delete the manifest itself.
 - **Local fallback**. If `$LAKE_WRAPPED_EXEC` is unset OR the call site
   passes `lakeRoots = none`, the dispatcher falls through to plain
   `rawProc`. Lets call sites be hooked one at a time.
@@ -145,25 +151,26 @@ disturb call sites left as `lakeRoots := none`.
   them.
 - **Cache hits, hash sidecars, incremental rebuilds**. Because the hook
   intercepts below Lake's job layer, all of Lake's normal caching
-  semantics apply unchanged. A no-op rebuild dispatches zero stub
+  semantics apply unchanged. A no-op rebuild dispatches zero wrapper
   calls; the first build dispatches one per missed lean job.
 - **Diagnostic parsing**. Lake reads JSON-encoded diagnostics from the
-  stub's stdout the same way it reads them from `lean`'s.
+  wrapper's stdout the same way it reads them from `lean`'s.
 - **Manifest lifecycle** (see above).
 
 ## What's deliberately *not* part of this patch
 
-- **No coordinator or worker logic in Lake.** The wrapper binary is opaque.
-- **No orchestration of multiple stubs.** Lake invokes the wrapper once per
-  lean job; whatever queueing / scheduling / load-balancing happens
-  beyond that is the wrapper's concern.
-- **No protocol assumptions.** The manifest is JSON-on-disk; the wrapper
-  is an exec'd binary. The hook is silent about HTTP, gRPC, RDMA,
-  shared memory, or any other transport.
+- **No orchestration or wrapping logic in Lake.** The wrapper binary
+  is opaque; what it does between receiving the manifest and exiting
+  is its concern.
+- **No assumptions about what the wrapper does.** Sandbox, cache
+  lookup, dispatch, plain exec — Lake makes no distinction.
+- **No protocol assumptions.** The manifest is JSON-on-disk; the
+  wrapper is an exec'd binary. The hook is silent about HTTP, gRPC,
+  RDMA, shared memory, or any other transport.
 
 ## Example consumers
 
-Anything that accepts `<stub> <manifest.json>` and returns
+Anything that accepts `<wrapper> <manifest.json>` and returns
 `exit + stdout + stderr` qualifies.
 
 ### Trivial passthrough
@@ -185,12 +192,12 @@ Useful sanity check: builds with `LAKE_WRAPPED_EXEC=./wrapper-passthrough`
 should be byte-for-byte identical to plain `lake build`. Verifies that
 the hook itself introduces no behavioural changes.
 
-### Sandboxing — local execution under an isolation primitive
+### Sandboxing — execution under an isolation primitive
 
 The manifest lists every file `lean` should be allowed to read
 (`inputs`) and write (`outputs`). Combined with `cmd`/`args`/`env`/`cwd`,
 that's exactly enough to construct a sandbox view. A landlock-style
-sandbox stub looks like:
+sandbox wrapper looks like:
 
 ```sh
 #!/usr/bin/env bash
@@ -214,37 +221,36 @@ exec landlock-sandboxer \
     -- env "${env_kvs[@]}" "$cmd" "${args[@]}"
 ```
 
-A sandbox stub like this lets `lake build` run in a per-job isolated
+A sandbox wrapper like this lets `lake build` run in a per-job isolated
 view of the filesystem without changing anything in Lake itself. The
 hook is exactly the surface needed: Lake declares its dependencies,
 the wrapper enforces them at OS level.
 
 ### Distributed orchestration
 
-The reference distributed user of this hook is a Go orchestrator
-(coordinator + worker pool + per-job stub) that ships inputs to workers
-over gRPC + HTTP/2 cleartext, runs `lean` on the assigned worker, and
-reflects outputs back to the head's filesystem. See the
-`lake-distbuild` project for the implementation. The same `inputs` /
+A reference distributed consumer is a Go orchestrator (coordinator +
+worker pool + per-job wrapper) that ships inputs to workers over
+gRPC + HTTP/2 cleartext, runs `lean` on the assigned worker, and
+reflects outputs back to Lake's filesystem. The same `inputs` /
 `outputs` lists that make sandboxing possible also drive what the
-orchestrator transfers across nodes — same data, different consumer.
+orchestrator transfers — same data, different consumer.
 
-### Composing — sandbox + remote together
+### Composing wrappers
 
-Stubs compose by chaining: the wrapper Lake invokes can do its own work
-and then delegate to a downstream stub, since the downstream's
+Wrappers compose by chaining: the wrapper Lake invokes can do its own
+work and then exec a downstream wrapper, since the downstream's
 interface is the same `<binary> <manifest.json>` shape. Two natural
 composition patterns:
 
-**Sandbox-then-remote (head-side wrapping):** the head sandbox stub
-wraps each remote dispatch, e.g. to enforce that the orchestrator can
-only read declared inputs from the head's filesystem when materializing
-a job:
+**Outer-sandbox + inner-dispatch.** An outer wrapper applies a
+sandbox using the manifest's declared inputs/outputs, then exec's
+the inner wrapper which does the actual dispatch (to a worker pool,
+a cache lookup, whatever). Useful when the outer policy should
+hold regardless of where the work eventually runs:
 
 ```sh
 #!/usr/bin/env bash
-# wrapper-sandbox-then-remote: enforce sandbox on the head while the
-# orchestrator does the actual dispatch downstream.
+# wrapper-sandbox-then-dispatch: enforce sandbox before delegating.
 set -e
 m="$1"
 mapfile -t read_paths  < <(jq -r '.inputs[]'  "$m")
@@ -252,34 +258,34 @@ mapfile -t write_paths < <(jq -r '.outputs[]' "$m")
 exec landlock-sandboxer \
     --ro $(printf -- "--ro %q " "${read_paths[@]}") \
     --rw $(printf -- "--rw %q " "${write_paths[@]}") \
-    -- /path/to/wrapper-remote "$m"
+    -- /path/to/wrapper-dispatch "$m"
 ```
 
-**Sandbox at the worker (downstream wrapping):** the remote
-orchestrator ships the manifest to a worker, and on the worker the
-job is wrapped in a sandbox before invoking `lean`. The worker's own
-job runner, written by the orchestrator's author, applies the same
-`inputs`/`outputs`-based isolation as the standalone sandbox stub
-above — it just runs after the work has been materialized on the
-worker filesystem.
+**Outer-dispatch + inner-sandbox at the consumer.** A dispatching
+wrapper ships the manifest somewhere (different process, different
+container, different host); on the receiving side, the actual `lean`
+invocation is itself wrapped in a sandbox, using the same
+`inputs`/`outputs`-based isolation as the standalone sandbox wrapper
+above — it just runs after the work has been materialized in
+whichever environment received the dispatch.
 
-Either is a small, local change relative to a non-composed
-configuration: the sandbox stub treats the orchestrator stub as the
-"command to run after isolating", or the orchestrator's worker treats
-the sandbox as the "wrapper to apply before `exec lean`". Neither
+Either is a small change relative to the non-composed configurations:
+the sandbox wrapper treats the dispatching wrapper as "the command
+to run after isolating", or the dispatched-to environment treats the
+sandbox as "the wrapper to apply before `exec lean`". Neither
 requires any further changes to Lake.
 
 ## Limitations / non-goals (today)
 
 - Only `compileLeanModule` is hooked. C compilation (`compileO`),
   linking (`compileSharedLib`, `compileExe`), archive (`compileStaticLib`)
-  are not hooked yet — they continue to run locally. (They could be
-  hooked the same way; not in this patch.)
+  are not hooked yet — they continue to run via `rawProc`. (They
+  could be hooked the same way; not in this patch.)
 - The transitive olean closure used to populate `inputs` is a strict
   superset of `setup.importArts` (the exported-imports view). Lean's
   olean loader follows non-exported references at LEAN_PATH lookup
-  time; in a local build Lake's build dir is fully populated so the
-  difference is invisible, but for wrapped-exec we must ship the
-  broader set. The walker is straightforward but not minimal — it
-  ships everything `lean`'s loader might reach, not only what it
-  actually opens during a specific compile.
+  time; in an unwrapped build Lake's build dir is fully populated so
+  the difference is invisible, but for wrapped-exec we must declare
+  the broader set in `inputs`. The walker is straightforward but not
+  minimal — it lists everything `lean`'s loader might reach, not only
+  what it actually opens during a specific compile.

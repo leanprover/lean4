@@ -80,7 +80,7 @@ public def collectLeanModuleOutputPaths
   (see `Lake.collectLeanInputClosure`).
 * `lakeRoots` — `(workspace, lakeHome, toolchain, toolchainRoot)`; when
   `some _` AND `$LAKE_WRAPPED_EXEC` is set, the invocation is routed
-  through the wrapper. Otherwise this falls through to local `rawProc`.
+  through the wrapper. Otherwise this falls through to direct `rawProc`.
 * `jobId` — free-form label for logging. -/
 public def compileLeanModule
   (leanFile relLeanFile : FilePath)

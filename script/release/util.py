@@ -9,7 +9,6 @@ from pathlib import Path
 from re import Match, Pattern
 from typing import Callable, Literal, NoReturn, Self
 
-import repos
 from github import Auth, Github
 from github.GithubException import UnknownObjectException
 from github.GitRelease import GitRelease
@@ -120,6 +119,9 @@ class Version:
 @dataclass
 class ReleaseRepo:
     github: tuple[str, str]  # (owner, name)
+
+    # Where to look for the toolchain, relative to the repo root.
+    toolchain_file: str = "lean-toolchain"
 
     # If present, nightly-related branches and tags are expected to be in this
     # repo instead of the main repo.
@@ -479,14 +481,7 @@ def get_toolchain_for(version: Version) -> str:
     return f"leanprover/lean4:{version.tag}"
 
 
-def get_toolchain(grepo: Repository, ref: str) -> str:
-    path = "lean-toolchain"
-
-    if grepo.full_name == repos.VERSO_TEMPLATES.gh_full_name:
-        # Since the templates repo doesn't have a central toolchain file, we're
-        # just using one of the templates' toolchains as a replacement.
-        path = "basic-book/lean-toolchain"
-
+def get_toolchain(grepo: Repository, ref: str, path: str | Path) -> str:
     return get_file_contents(grepo, ref, path).strip()
 
 

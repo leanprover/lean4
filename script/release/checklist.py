@@ -100,7 +100,9 @@ class DownstreamChecker(RepoChecker):
 
     def check_toolchain(self) -> bool:
         expected = util.get_toolchain_for(self.version)
-        actual = util.get_toolchain(self.grepo, self.grepo.default_branch)
+        actual = util.get_toolchain(
+            self.grepo, self.grepo.default_branch, self.rrepo.toolchain_file
+        )
 
         if expected == actual:
             self.cl.success(f"Toolchain is [b]{e(actual)}[/b]")

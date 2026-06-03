@@ -7,7 +7,7 @@ second to solve at the time of adding this. Bitwuzla is capable of solving it in
 the same machine that these numbers were measured on.
 -/
 
-set_option maxRecDepth 2048 in
+set_option maxRecDepth 4096 in
 example:
 ∀ (T1_114127 T1_114128 T1_114129 : BitVec 8),
   (!have v_3 := BitVec.setWidth 32 1#8;

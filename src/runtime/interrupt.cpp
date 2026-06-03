@@ -54,6 +54,25 @@ void check_heartbeat() {
         throw_heartbeat_exception();
 }
 
+LEAN_THREAD_VALUE(size_t, g_max_rec_depth, 0);
+LEAN_THREAD_VALUE(size_t, g_rec_depth, 0);
+
+void set_max_rec_depth(size_t max) { g_max_rec_depth = max; }
+size_t get_max_rec_depth() { return g_max_rec_depth; }
+
+LEAN_EXPORT scope_max_rec_depth::scope_max_rec_depth(size_t max) :
+    m_max(g_max_rec_depth, max), m_curr(g_rec_depth, 0) {}
+
+LEAN_EXPORT scope_rec_depth::scope_rec_depth() {
+    g_rec_depth++;
+    if (g_max_rec_depth > 0 && g_rec_depth > g_max_rec_depth) {
+        g_rec_depth--;
+        throw stack_space_exception("type checker");
+    }
+}
+
+LEAN_EXPORT scope_rec_depth::~scope_rec_depth() { g_rec_depth--; }
+
 LEAN_THREAD_VALUE(lean_object *, g_cancel_tk, nullptr);
 
 LEAN_EXPORT scope_cancel_tk::scope_cancel_tk(lean_object * o):flet<lean_object *>(g_cancel_tk, o) {}

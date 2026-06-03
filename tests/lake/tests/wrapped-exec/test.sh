@@ -8,15 +8,30 @@ source ../common.sh
 
 chmod +x ./wrapper-passthrough.sh ./clean.sh
 
+# Hash every artifact Lake actually CONSULTS on rebuild — the four file
+# kinds `lean` writes from a `lean_module` build of a Lean-side module
+# (the `.c` and `.ir` are skipped: they go through a separate downstream
+# `leanir` step, and Lake's trace logic keys off the olean/ilean/server/
+# private set).
+capture_sums() {
+  ( cd .lake/build/lib/lean \
+    && find . -type f \
+        \( -name '*.olean' -o -name '*.ilean' \
+        -o -name '*.olean.server' -o -name '*.olean.private' \) \
+        -print0 \
+    | sort -z \
+    | xargs -0 shasum -a 256 )
+}
+
 # --- baseline: build with the hook OFF ---
 ./clean.sh
 test_run build
-( cd .lake/build/lib/lean && find . -type f \( -name '*.olean' -o -name '*.ilean' -o -name '*.olean.server' -o -name '*.olean.private' \) -print0 | sort -z | xargs -0 shasum -a 256 ) > unwrapped.sums
+capture_sums > unwrapped.sums
 
 # --- same target under the passthrough wrapper ---
 ./clean.sh
 LAKE_WRAPPED_EXEC="$PWD/wrapper-passthrough.sh" test_run build
-( cd .lake/build/lib/lean && find . -type f \( -name '*.olean' -o -name '*.ilean' -o -name '*.olean.server' -o -name '*.olean.private' \) -print0 | sort -z | xargs -0 shasum -a 256 ) > wrapped.sums
+capture_sums > wrapped.sums
 
 # Both runs MUST produce the same artifacts.
 if ! diff -u unwrapped.sums wrapped.sums; then
@@ -33,10 +48,9 @@ echo "wrapped-exec passthrough: artifacts byte-identical to baseline."
 if grep -E '^✔ \[[0-9]+/[0-9]+\] Built ' rebuild.out > /dev/null; then
   echo "FAILURE: follow-up rebuild built modules — wrapper outputs not trace-equivalent"
   cat rebuild.out
-  rm -f rebuild.out
+  rm -f rebuild.out unwrapped.sums wrapped.sums produced.out
   exit 1
 fi
-rm -f rebuild.out
 echo "wrapped-exec follow-up rebuild: no-op as expected."
 
-rm -f produced.out unwrapped.sums wrapped.sums
+rm -f rebuild.out unwrapped.sums wrapped.sums produced.out

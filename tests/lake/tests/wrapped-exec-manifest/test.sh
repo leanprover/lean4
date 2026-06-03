@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Verifies that the manifest Lake writes when LAKE_WRAPPED_EXEC is set
-# has the documented shape: required top-level fields, a Lean source +
-# setup.json in `inputs`, and an .olean in `outputs`.
+# has the documented shape: required top-level fields, the lean source
+# + setup.json in `inputs`, the expected oleans in `outputs`, etc.
 #
 # Strategy: point the env var at a wrapper that captures the manifest
 # and exits non-zero. The build fails — that's expected — but we now
@@ -23,84 +23,87 @@ if [[ ! -s manifest.json ]]; then
   echo "FAILURE: wrapper did not capture a manifest"
   exit 1
 fi
-echo "Captured manifest:"
-jq . manifest.json
 
-# --- assertions on the manifest shape ---
+# Pretty-print the captured manifest if anything below fails. Quiet
+# on the success path so CI logs stay clean.
+fail() {
+  echo "FAILURE: $1"
+  echo "Captured manifest:"
+  jq . manifest.json
+  exit 1
+}
 
 assert_field() {
-  local key="$1"
-  if ! jq -e "has(\"$key\")" manifest.json > /dev/null; then
-    echo "FAILURE: manifest missing top-level field '$key'"
-    exit 1
-  fi
+  jq -e "has(\"$1\")" manifest.json > /dev/null \
+    || fail "manifest missing top-level field '$1'"
+}
+
+assert_jq_true() {
+  local description="$1" expr="$2"
+  jq -e "$expr" manifest.json > /dev/null \
+    || fail "$description"
 }
 
 assert_inputs_endswith() {
-  local suffix="$1"
-  if ! jq -e --arg s "$suffix" '[.inputs[] | select(endswith($s))] | length > 0' manifest.json > /dev/null; then
-    echo "FAILURE: manifest.inputs has no entry ending with '$suffix'"
-    exit 1
-  fi
+  jq -e --arg s "$1" '[.inputs[] | select(endswith($s))] | length > 0' manifest.json > /dev/null \
+    || fail "manifest.inputs has no entry ending with '$1'"
 }
 
 assert_outputs_endswith() {
-  local suffix="$1"
-  if ! jq -e --arg s "$suffix" '[.outputs[] | select(endswith($s))] | length > 0' manifest.json > /dev/null; then
-    echo "FAILURE: manifest.outputs has no entry ending with '$suffix'"
-    exit 1
-  fi
+  jq -e --arg s "$1" '[.outputs[] | select(endswith($s))] | length > 0' manifest.json > /dev/null \
+    || fail "manifest.outputs has no entry ending with '$1'"
 }
+
+assert_field_eq() {
+  local field="$1" expected="$2"
+  local actual
+  actual=$(jq -r ".$field" manifest.json)
+  [[ "$actual" == "$expected" ]] \
+    || fail "manifest.$field = '$actual', expected '$expected'"
+}
+
+assert_field_nonempty() {
+  local v
+  v=$(jq -r ".$1" manifest.json)
+  [[ -n "$v" && "$v" != "null" ]] \
+    || fail "manifest.$1 is empty/null"
+}
+
+# --- assertions on the manifest shape ---
 
 for f in job_id cmd args env cwd inputs outputs workspace lake_home toolchain toolchain_root; do
   assert_field "$f"
 done
 
-# job_id derives from `{pkg.baseName}_{mod.name}` — for this fixture, expect "wrappedExecManifest_Onlymod".
-expected_job_id="wrappedExecManifest_Onlymod"
-actual_job_id=$(jq -r '.job_id' manifest.json)
-if [[ "$actual_job_id" != "$expected_job_id" ]]; then
-  echo "FAILURE: job_id = '$actual_job_id', expected '$expected_job_id'"
-  exit 1
-fi
+# job_id derives from `{pkg.baseName}_{mod.name}`.
+assert_field_eq job_id "wrappedExecManifest_Onlymod"
 
-# cmd should end in '/lean'.
+# cmd should be a `lean` binary (path ending in /lean or the bare name).
 cmd=$(jq -r '.cmd' manifest.json)
-if [[ "$cmd" != *"/lean" && "$cmd" != "lean" ]]; then
-  echo "FAILURE: cmd = '$cmd' does not look like a lean binary"
-  exit 1
-fi
+[[ "$cmd" == *"/lean" || "$cmd" == "lean" ]] \
+  || fail "cmd = '$cmd' does not look like a lean binary"
 
-# inputs should contain the source file and the setup.json.
+# inputs: the source file + the per-module setup.json must both appear.
 assert_inputs_endswith 'Onlymod.lean'
 assert_inputs_endswith '.setup.json'
 
-# outputs should contain the .olean + .ilean for Onlymod.
+# outputs: the olean + ilean for this module must both appear.
 assert_outputs_endswith 'Onlymod.olean'
 assert_outputs_endswith 'Onlymod.ilean'
 
-# args should include the source file path that appears in inputs.
+# args must include the source-file path that appears in inputs (i.e.
+# `lean` is being asked to compile what we declared).
 src=$(jq -r '.inputs[] | select(endswith("Onlymod.lean"))' manifest.json)
-if ! jq -e --arg s "$src" '.args | any(. == $s)' manifest.json > /dev/null; then
-  echo "FAILURE: manifest.args does not include the source file"
-  exit 1
-fi
+assert_jq_true "manifest.args does not include the source file" \
+  ".args | any(. == \"$src\")"
 
 # env should at least set LEAN_PATH.
-if ! jq -e '.env | has("LEAN_PATH")' manifest.json > /dev/null; then
-  echo "FAILURE: manifest.env does not set LEAN_PATH"
-  exit 1
-fi
+assert_jq_true "manifest.env does not set LEAN_PATH" '.env | has("LEAN_PATH")'
 
-# workspace + lake_home + toolchain + toolchain_root should be non-empty absolute paths.
+# The four Lake roots Lake hands the wrapper must all be populated.
 for k in workspace lake_home toolchain toolchain_root; do
-  v=$(jq -r ".$k" manifest.json)
-  if [[ -z "$v" || "$v" == "null" ]]; then
-    echo "FAILURE: manifest.$k is empty/null"
-    exit 1
-  fi
+  assert_field_nonempty "$k"
 done
 
 echo "wrapped-exec manifest: shape checks pass."
-
 ./clean.sh

@@ -37,7 +37,8 @@ def detectXor (entry : Entrypoint α) : Option entry.aig.BinaryInput := do
 
   -- We expect the structure to be a (potentially inverted) conjunction of disjunctions so l/r
   -- must be inverted
-  let true := l.invert && r.invert | none
+  if ¬l.invert ∨ ¬r.invert then
+    none
 
   -- Match l = (l0 ∧ l1)
   let (eq:=hl) .gate l0 l1 := entry.aig.decls[l.gate] | none

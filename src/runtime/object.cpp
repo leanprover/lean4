@@ -720,6 +720,17 @@ static void free_task(lean_task_object * t) {
     lean_free_small_object((lean_object*)t);
 }
 
+/* Publish `v` as the resolved value of task `t` and detach its imp, returning the
+   detached imp. Shared by `task_manager::resolve_core` and the no-task-manager
+   promise-resolution path. */
+static lean_task_imp * set_task_value(lean_task_object * t, object * v) {
+    mark_mt(v);
+    t->m_value = v;
+    lean_task_imp * imp = t->m_imp;
+    t->m_imp = nullptr;
+    return imp;
+}
+
 struct scoped_current_task_object : flet<lean_task_object *> {
     scoped_current_task_object(lean_task_object * t):flet(g_current_task_object, t) {}
 };
@@ -890,10 +901,7 @@ class task_manager {
     }
 
     void resolve_core(unique_lock<mutex> & lock, lean_task_object * t, object * v) {
-        mark_mt(v);
-        t->m_value = v;
-        lean_task_imp * imp = t->m_imp;
-        t->m_imp   = nullptr;
+        lean_task_imp * imp = set_task_value(t, v);
         handle_finished(lock, t, imp);
         /* After the task has been finished and we propagated
            dependencies, we can release `imp` and keep just the value */
@@ -1291,8 +1299,42 @@ obj_res lean_promise_new() {
     return (lean_object *) o;
 }
 
+/*
+   The libuv event-loop thread is spawned during runtime initialization
+   (see libuv.cpp, which launches the detached `lthread`) and lives for the entire process.
+   The task manager, by contrast, has a shorter lifetime (`scoped_task_manager`).
+   Because the loop thread is never joined against that scope, an async
+   completion callback can run on it and resolve a promise /after/
+   `~scoped_task_manager` has reset `g_task_manager` to null.
+   This was observed to happen in the `tests/elab/async_dns.lean` test,
+   where a DNS request could still be in flight at process exit.
+
+   At this point there are no workers or waiters, nothing to schedule,
+   so what we do here is essentially just `resolve_core` modulo the task-manager-only steps.
+   The result task must still be given a value: its
+   later finalization via `deactivate_task` (no-manager branch) asserts and
+   `lean_dec`s `m_value`, so leaving it null would just crash elsewhere.
+
+   This takes no lock (there is no manager mutex), so it is unsynchronized with
+   respect to `t`. That is acceptable only because at shutdown the promise is
+   orphaned and there are no workers or waiters, so nothing else should touch `t`
+   concurrently. */
+static void resolve_unmanaged(lean_task_object * t, object * v) {
+    if (t->m_value) {
+        lean_dec(v);
+        return;
+    }
+    if (lean_task_imp * imp = set_task_value(t, v))
+        free_task_imp(imp);
+}
+
 void lean_promise_resolve(obj_arg value, b_obj_arg promise) {
-    g_task_manager->resolve(lean_to_promise(promise)->m_result, mk_option_some(value));
+    lean_task_object * t = lean_to_promise(promise)->m_result;
+    object * v = mk_option_some(value);
+    if (g_task_manager)
+        g_task_manager->resolve(t, v);
+    else
+        resolve_unmanaged(t, v);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_io_promise_new() {
@@ -1312,7 +1354,10 @@ extern "C" LEAN_EXPORT obj_res lean_io_promise_result_opt(b_obj_arg promise) {
 }
 
 void deactivate_promise(lean_promise_object * promise) {
-    g_task_manager->resolve(promise->m_result, mk_option_none());
+    if (g_task_manager)
+        g_task_manager->resolve(promise->m_result, mk_option_none());
+    else
+        resolve_unmanaged(promise->m_result, mk_option_none());
     lean_dec_ref((lean_object *)promise->m_result);
     lean_free_small_object((lean_object *)promise);
 }

@@ -112,15 +112,7 @@ instance Option.instWP : WP Option (.except PUnit .pure) :=
   inferInstanceAs (WP (OptionT Id) (.except PUnit .pure))
 
 /--
-Adequacy lemma for `Id.run`.
-Useful if you want to prove a property about an expression `x` defined as `Id.run prog` and you
-want to use `mvcgen` to reason about `prog`.
--/
-theorem Id.of_wp_run_eq {α : Type u} {x : α} {prog : Id α} (h : Id.run prog = x) (P : α → Prop) :
-  (⊢ₛ wp⟦prog⟧ (⇓ a => ⟨P a⟩)) → P x := h ▸ (· True.intro)
-
-/--
-Adequacy lemma for `StateM.run`.
+Soundness lemma for `StateM.run`.
 Useful if you want to prove a property about an expression `x` defined as `StateM.run prog s` and
 you want to use `mvcgen` to reason about `prog`.
 -/
@@ -128,7 +120,7 @@ theorem StateM.of_wp_run_eq {α} {x : α × σ} {prog : StateM σ α} (h : State
   (⊢ₛ wp⟦prog⟧ (⇓ a s' => ⌜P (a, s')⌝) s) → P x := h ▸ (· True.intro)
 
 /--
-Adequacy lemma for `StateM.run'`.
+Soundness lemma for `StateM.run'`.
 Useful if you want to prove a property about an expression `x` defined as `StateM.run' prog s` and
 you want to use `mvcgen` to reason about `prog`.
 -/
@@ -136,7 +128,7 @@ theorem StateM.of_wp_run'_eq {α} {x : α} {prog : StateM σ α} (h : StateT.run
   (⊢ₛ wp⟦prog⟧ (⇓ a => ⌜P a⌝) s) → P x := h ▸ (· True.intro)
 
 /--
-Adequacy lemma for `ReaderM.run`.
+Soundness lemma for `ReaderM.run`.
 Useful if you want to prove a property about an expression `x` defined as `ReaderM.run prog r` and
 you want to use `mvcgen` to reason about `prog`.
 -/
@@ -144,7 +136,7 @@ theorem ReaderM.of_wp_run_eq {α} {x : α} {prog : ReaderM ρ α} (h : ReaderT.r
   (⊢ₛ wp⟦prog⟧ (⇓ a _ => ⌜P a⌝) r) → P x := h ▸ (· True.intro)
 
 /--
-Adequacy lemma for `Except`.
+Soundness lemma for `Except`.
 Useful if you want to prove a property about a complex expression `prog : Except ε α` that you have
 generalized to a variable `x` and you want to use `mvcgen` to reason about `prog`.
 -/
@@ -156,7 +148,7 @@ theorem Except.of_wp_eq {ε α : Type u} {x prog : Except ε α} (h : prog = x) 
   split at hspec <;> exact hspec True.intro
 
 /--
-Adequacy lemma for `Except`.
+Soundness lemma for `Except`.
 Useful if you want to prove a property about an expression `prog : Except ε α` and you want to use
 `mvcgen` to reason about `prog`.
 -/
@@ -168,7 +160,7 @@ theorem Except.of_wp {ε α : Type u} {prog : Except ε α} (P : Except ε α �
   split at hspec <;> exact hspec True.intro
 
 /--
-Adequacy lemma for `Option`.
+Soundness lemma for `Option`.
 Useful if you want to prove a property about a complex expression `prog : Option α` that you have
 generalized to a variable `x` and you want to use `mvcgen` to reason about `prog`.
 -/
@@ -180,7 +172,7 @@ theorem Option.of_wp_eq {α : Type u} {x prog : Option α} (h : prog = x) (P : O
   split at hspec <;> exact hspec True.intro
 
 /--
-Adequacy lemma for `EStateM.run`.
+Soundness lemma for `EStateM.run`.
 Useful if you want to prove a property about an expression `x` defined as `EStateM.run prog s` and
 you want to use `mvcgen` to reason about `prog`.
 -/

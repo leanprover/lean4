@@ -114,4 +114,105 @@ public theorem Id.of_wp_run_eq {α : Type u} {x : α} {prog : _root_.Id α}
     (⊢ₛ wp⟦prog⟧ (⇓ a => ⟨P a⟩)) → P x := fun hwp =>
   WPSound.of_wp_canReturn (m := _root_.Id) (P := P) (x := prog) (a := x) h hwp
 
+/--
+Soundness lemma for `ReaderT.run`: at any read parameter `r`, a `wp`-provable
+postcondition refines the post-run computation `prog.run r : m α` via `Internal.Ensures`.
+-/
+public theorem ReaderT.of_wp_run_eq [Monad m] [WP m ps] [WPSound m ps]
+    {α : Type u} {ρ : Type u} {prog : ReaderT ρ m α} (r : ρ) (P : α → Prop)
+    (hwp : ⊢ₛ wp⟦prog⟧ (⇓? a => ⌜P a⌝) r) :
+    Internal.Ensures P (prog.run r) := by
+  apply WPSound.ensures_of_wp
+  simp only [WP.wp, PredTrans.apply_pushArg] at hwp
+  exact hwp
+
+/-- Soundness lemma for `ReaderM.run`: `Id`-specialization of `ReaderT.of_wp_run_eq`. -/
+public theorem ReaderM.of_wp_run_eq {α ρ : Type u} {x : α} {r : ρ} {prog : ReaderM ρ α}
+    (h : ReaderT.run prog r = x) (P : α → Prop) :
+    (⊢ₛ wp⟦prog⟧ (⇓ a _ => ⌜P a⌝) r) → P x := fun hwp =>
+  (Internal.MayReturn.of_canReturn (m := _root_.Id) (x := prog.run r) (a := x) h).imp
+    (ReaderT.of_wp_run_eq r P hwp)
+
+/--
+Soundness lemma for `StateT.run`: at any initial state `s`, a `wp`-provable
+postcondition refines the post-run computation `prog.run s : m (α × σ)` via
+`Internal.Ensures`.
+-/
+public theorem StateT.of_wp_run_eq [Monad m] [WP m ps] [WPSound m ps]
+    {α σ : Type u} {prog : StateT σ m α} (s : σ) (P : α × σ → Prop)
+    (hwp : ⊢ₛ wp⟦prog⟧ (⇓ a s' => ⌜P (a, s')⌝) s) :
+    Internal.Ensures P (prog.run s) := by
+  apply WPSound.ensures_of_wp
+  simp only [WP.wp, PredTrans.apply_pushArg] at hwp
+  apply SPred.entails.trans hwp
+  apply (wp (prog.run s)).mono
+  refine ⟨fun _ => SPred.entails.refl _, by simp⟩
+
+/-- Soundness lemma for `StateM.run`: `Id`-specialization of `StateT.of_wp_run_eq`. -/
+public theorem StateM.of_wp_run_eq {α σ : Type} {x : α × σ} {s : σ} {prog : StateM σ α}
+    (h : StateT.run prog s = x) (P : α × σ → Prop) :
+    (⊢ₛ wp⟦prog⟧ (⇓ a s' => ⌜P (a, s')⌝) s) → P x := fun hwp =>
+  (Internal.MayReturn.of_canReturn (m := _root_.Id) (x := prog.run s) (a := x) h).imp
+    (StateT.of_wp_run_eq s P hwp)
+
+/-- Soundness lemma for `StateM.run'`: `Id`-specialization of `StateT.of_wp_run_eq`. -/
+public theorem StateM.of_wp_run'_eq {α σ : Type} {x : α} {s : σ} {prog : StateM σ α}
+    (h : StateT.run' prog s = x) (P : α → Prop) :
+    (⊢ₛ wp⟦prog⟧ (⇓ a => ⌜P a⌝) s) → P x := fun hwp =>
+  let hens := StateT.of_wp_run_eq s (fun p => P p.1) hwp
+  let hcan : MonadAttach.CanReturn (m := _root_.Id) (prog.run s) (StateT.run prog s) := rfl
+  h ▸ (Internal.MayReturn.of_canReturn hcan).imp hens
+
+/--
+Soundness lemma for `ExceptT.run`: a `wp`-provable postcondition with split
+`.ok`/`.error` postconditions refines the post-run computation
+`prog.run : m (Except ε α)` via `Internal.Ensures`.
+-/
+public theorem ExceptT.of_wp_run_eq [Monad m] [LawfulMonad m] [WP m .pure] [WPSound m .pure]
+    {ε α : Type u} {prog : ExceptT ε m α} (P : Except ε α → Prop)
+    (hwp : ⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.error e)⌝⟩) :
+    Internal.Ensures P prog.run := by
+  apply WPSound.ensures_of_wp (m := m) (ps := .pure)
+  simp only [WP.wp, PredTrans.apply_pushExcept] at hwp
+  apply SPred.entails.trans hwp
+  apply (wp prog.run).mono
+  refine ⟨fun a => ?_, by simp⟩
+  cases a <;> simp
+
+/-- Soundness lemma for `Except`: `Id`-specialization of `ExceptT.of_wp_run_eq`. -/
+public theorem Except.of_wp_eq {ε α : Type} {x prog : Except ε α}
+    (h : prog = x) (P : Except ε α → Prop) :
+    (⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.error e)⌝⟩) → P x := fun hwp =>
+  (Internal.MayReturn.of_canReturn (m := _root_.Id) (x := (prog : Id (Except ε α))) (a := x) h).imp
+    (ExceptT.of_wp_run_eq (m := _root_.Id) (prog := prog) P hwp)
+
+/-- Soundness lemma for `Except` without the equality hypothesis (deprecated). -/
+@[deprecated Except.of_wp_eq (since := "2026-01-26")]
+public theorem Except.of_wp {ε α : Type} {prog : Except ε α} (P : Except ε α → Prop) :
+    (⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (.ok a)⌝, fun e => ⌜P (.error e)⌝⟩) → P prog :=
+  Except.of_wp_eq rfl P
+
+/--
+Soundness lemma for `OptionT.run`: a `wp`-provable postcondition with split
+`some`/`none` postconditions refines the post-run computation
+`prog.run : m (Option α)` via `Internal.Ensures`.
+-/
+public theorem OptionT.of_wp_run_eq [Monad m] [LawfulMonad m] [WP m .pure] [WPSound m .pure]
+    {α : Type u} {prog : OptionT m α} (P : Option α → Prop)
+    (hwp : ⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (some a)⌝, fun _ => ⌜P none⌝⟩) :
+    Internal.Ensures P prog.run := by
+  apply WPSound.ensures_of_wp (m := m) (ps := .pure)
+  simp only [WP.wp, PredTrans.apply_pushOption] at hwp
+  apply SPred.entails.trans hwp
+  apply (wp prog.run).mono
+  refine ⟨fun a => ?_, by simp⟩
+  cases a <;> simp
+
+/-- Soundness lemma for `Option`: `Id`-specialization of `OptionT.of_wp_run_eq`. -/
+public theorem Option.of_wp_eq {α : Type} {x prog : Option α}
+    (h : prog = x) (P : Option α → Prop) :
+    (⊢ₛ wp⟦prog⟧ post⟨fun a => ⌜P (some a)⌝, fun _ => ⌜P none⌝⟩) → P x := fun hwp =>
+  (Internal.MayReturn.of_canReturn (m := _root_.Id) (x := (prog : Id (Option α))) (a := x) h).imp
+    (OptionT.of_wp_run_eq (m := _root_.Id) (prog := prog) P hwp)
+
 end Std.Do

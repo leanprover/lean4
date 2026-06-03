@@ -129,6 +129,13 @@ test_out "restored artifact from cache" -v build +Ignored --no-build
 test_run -v build Test.ImportIgnored
 test_run resolve-deps -R
 
+# Test that `LAKE_RESTORE_ARTIFACTS` enables the same artifact restoration behavior via
+# the environment as the `restoreAllArtifacts` configuration above. Here the workspace's
+# `restoreAllArtifacts` configuration is unset (resolved without `-KrestoreAll`), so the
+# restoration is driven solely by the environment variable.
+echo "def foo := ()" > Ignored.lean
+LAKE_RESTORE_ARTIFACTS=true test_out "restored artifact from cache" -v build +Ignored --no-build
+
 # Test that outdated files are not stored in the cache with `--old`
 echo "def baz := ()" > Ignored.lean
 test_out "Built Ignored" -v build +Ignored --old

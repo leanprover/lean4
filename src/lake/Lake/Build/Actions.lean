@@ -176,12 +176,9 @@ private def escapeRspArg (arg : String) : String :=
     else
       s.push c
 
-/--
-Render the contents of a response file in the format `mkArgs` writes: one quoted line per arg,
-with `\\` and `"` escaped. Pure helper exposed for tooling that needs the rsp content without
-materializing it on disk.
--/
-public def renderRspContents (args : Array String) : String := Id.run do
+/-- Render the response-file body `mkArgs` writes: one quoted line per arg,
+with `\\` and `"` escaped. -/
+private def renderRspContents (args : Array String) : String := Id.run do
   let mut out := ""
   for arg in args do
     out := out ++ s!"\"{escapeRspArg arg}\"\n"
@@ -192,8 +189,7 @@ public def mkArgs (basePath : FilePath) (args : Array String) : LogIO (Array Str
   -- On Windows this is always needed; on macOS/Linux this is needed for large
   -- projects like Mathlib where the number of object files exceeds ARG_MAX.
   let rspFile := basePath.addExtension "rsp"
-  let h ← IO.FS.Handle.mk rspFile .write
-  args.forM fun arg => h.putStr s!"\"{escapeRspArg arg}\"\n"
+  IO.FS.writeFile rspFile (renderRspContents args)
   return #[s!"@{rspFile}"]
 
 public def compileStaticLib

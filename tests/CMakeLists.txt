@@ -164,6 +164,9 @@ function(add_test_pile DIR GLOB)
         # On Windows, we can't call the file directly, hence we always use bash.
         COMMAND bash "${WITH_TEST_ENV}" "${RUN_TEST}" "${FILE_IN_DIR}"
       )
+      if(EXISTS "${FILE}.serial")
+        set_tests_properties("${FILE_IN_SOURCE_DIR}" PROPERTIES RUN_SERIAL TRUE)
+      endif()
     endif()
 
     if(RUN_BENCH_EXISTS AND NOT EXISTS "${FILE}.no_bench")

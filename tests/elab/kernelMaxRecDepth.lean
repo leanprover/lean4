@@ -13,10 +13,12 @@ private partial def mkDeepNat : Nat → Expr
   | 0     => .const ``Nat.zero []
   | n + 1 => .app (.const ``Nat.succ []) (mkDeepNat n)
 
+-- The kernel allows a multiple of `maxRecDepth` before bailing out, so the term has to be nested
+-- deeper than that multiple times the `maxRecDepth` of 256 used below.
 private def addDeepDef (name : Name) : MetaM Unit :=
   Lean.addDecl <| .defnDecl {
     name, levelParams := [], type := .const ``Nat [],
-    value := mkDeepNat 3000, hints := .opaque, safety := .safe
+    value := mkDeepNat 8000, hints := .opaque, safety := .safe
   }
 
 /-- error: (kernel) deep recursion detected, use `set_option maxRecDepth <num>` to increase the limit -/

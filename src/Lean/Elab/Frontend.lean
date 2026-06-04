@@ -240,6 +240,33 @@ private partial def resolveCancelTokensForSave (s : Language.SnapshotTree) : Bas
       tk.set
     resolveCancelTokensForSave child.get
 
+/--
+Updates the post-import `cmdState`'s `Environment.mainModule` so that subsequent commands
+elaborated on top of `snap` produce names under the correct module. Needed when the loader's
+main module name differs from the one baked into the saved snapshot (e.g. the snapshot was
+saved from `--stdin` but is loaded for a real file). For non-truncated snapshots whose
+`mainModule` already matches, this is effectively a no-op.
+-/
+private def setMainModule (snap : Language.Lean.InitialSnapshot) (m : Name) :
+    Language.Lean.InitialSnapshot := Id.run do
+  let some parsed := snap.result? | return snap
+  let processed := parsed.processedSnap.get
+  let some hps := processed.result? | return snap
+  if hps.cmdState.env.header.mainModule == m then
+    return snap
+  let newEnv := hps.cmdState.env.setMainModule m
+  -- `Command.mkState` derives `auxDeclNGen.namePrefix` from `mkPrivateName env .anonymous`, which
+  -- bakes in `env.mainModule`. Re-derive so aux decls land in the new module's private namespace
+  -- (otherwise `delabConst` flags them as inaccessible and pretty-prints them with `✝`).
+  let newCmdState := { hps.cmdState with
+    env := newEnv
+    auxDeclNGen := { hps.cmdState.auxDeclNGen with namePrefix := mkPrivateName newEnv .anonymous } }
+  let newProcessed : Language.Lean.HeaderProcessedSnapshot := { processed with
+    result? := some { hps with cmdState := newCmdState } }
+  { snap with
+    result? := some { parsed with
+      processedSnap := .finished none newProcessed } }
+
 def runFrontend
     (input : String)
     (opts : Options)
@@ -287,7 +314,11 @@ def runFrontend
       }
   let old? ← incrLoadFileName?.mapM fun incrFile => do
     let incr ← unsafe loadIncrSnapshot incrFile
-    if let some res := incr.snap.processedResult.get then
+    -- A loaded snapshot may have been saved from a different file (e.g. via `--incr-header-save`
+    -- on stdin) and so bake in a different `mainModule`. Patch it to match this invocation
+    -- so generated names like `_private.<mainModule>.<hash>...` stay consistent.
+    let snap := setMainModule incr.snap mainModuleName
+    if let some res := snap.processedResult.get then
       withImporting do
         -- The central incr HACK:
         -- Initializers roughly perform one of two functions: initializing their own variable, or
@@ -301,7 +332,7 @@ def runFrontend
       -- `Language.Lean.process` (taken when the loaded header doesn't match the new file's
       -- imports) calls `importModules`, which in turn requires the flag to be set. Restore it.
       unsafe enableInitializersExecution
-    return incr.snap
+    return snap
   let processor := Language.Lean.process
   let snap ← processor setup old? ctx
   let snaps := Language.toSnapshotTree snap

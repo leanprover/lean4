@@ -543,6 +543,19 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 #endif
 #endif
 
+        // A `--incr-load` snapshot bakes the whole environment into the region, including mutable
+        // `IO.Ref`s (e.g. each `RealizationContext.realizeMapRef`). Realizing on top of a loaded
+        // snapshot stores freshly heap-allocated objects through such a ref; their only root is the
+        // ref cell, which lives inside this mapping. LSan does not scan the mapping, so it would
+        // report those objects as leaks. Register the mapping as a root region so LSan follows the
+        // in-region refs. (The malloc fallback below is covered by `__lsan_ignore_object` instead.)
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+        if (is_mmap)
+            __lsan_register_root_region(buffer, size);
+#endif
+#endif
+
         if (!buffer) {
             buffer = static_cast<char *>(malloc(size));
             lseek(fd.get(), 0, SEEK_SET);
@@ -618,6 +631,11 @@ extern "C" LEAN_EXPORT obj_res lean_compacted_region_free(obj_arg region, object
     lean_ctor_set(region, 1, lean_box(0));
     lean_dec_ref(region);
     if (is_mmap) {
+#if defined(__has_feature)
+#if __has_feature(address_sanitizer)
+        __lsan_unregister_root_region(buffer, full_sz);
+#endif
+#endif
 #ifdef LEAN_WINDOWS
         lean_always_assert(UnmapViewOfFile(buffer));
 #else

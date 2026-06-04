@@ -32,13 +32,13 @@ public inductive InputVer
 /--
 A Git revision to resolve to a commit hash.
 
-This is specified by an  `@ git <rev>`  clause in Lean or `rev = <rev>` field in TOML.
+This is specified by an `@ git <rev>` clause in Lean or `rev = <rev>` field in TOML.
 -/
 | protected git (rev : GitRev)
 /--
 A semantic version range of acceptable versions.
 
-This is specified by an `@ <ver>` clause in Lean or `verison = <ver>` field in TOML.
+This is specified by an `@ <ver>` clause in Lean or `version = <ver>` field in TOML.
 -/
 | protected ver (ver : VerRange)
 deriving Inhabited, Repr
@@ -110,7 +110,7 @@ public structure Dependency where
 
 namespace Dependency
 
-/-- Returns the directory name used for storing the materialized depedency. -/
+/-- Returns the directory name used for storing the materialized dependency. -/
 @[inline] public def dirName (dep : Dependency) : String :=
   dep.name.toString (escape := false)
 
@@ -122,12 +122,12 @@ namespace Dependency
 @[inline] public def reservoirName (dep : Dependency) : String :=
   dep.name.toString (escape := false)
 
-/-- Returns the full name of the dependency  (i.e., `<scope>/<name>`) formatted for printing. -/
+/-- Returns the full name of the dependency (i.e., `<scope>/<name>`) formatted for printing. -/
 @[inline] public def fullName (dep : Dependency) : String :=
   s!"{dep.scope}/{dep.prettyName}"
 
-/--  Returns a printable string which uniquely identifies this dependency for the resolver. -/
+/-- Returns a printable string which uniquely identifies this dependency for the resolver. -/
 @[inline] public def resolverDescr (dep : Dependency) : String :=
-  let name :=  dep.name.toString (escape := false)
+  let name := dep.name.toString (escape := false)
   let name := dep.version.toString?.elim name (s!"{name}@{·}")
   if dep.scope.isEmpty then name else s!"{dep.scope}/{name}"

@@ -89,7 +89,7 @@ def evalDecodeVersion (stx : Term) (expectedType : Expr) : TermElabM Expr := do
 @[builtin_term_elab evalVer]
 def elabEvalVersion : TermElab := fun stx expectedType? => do
   let `(eval_ver% $v) := stx
-    | throwError "ill-formed `decode_version%` syntax"
+    | throwError "ill-formed `eval_ver%` syntax"
   tryPostponeIfNoneOrMVar expectedType?
   let some expectedType := expectedType?
     | throwError "expected type is not known"

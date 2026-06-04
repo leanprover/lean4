@@ -298,6 +298,13 @@ public protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing
 
 public instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decodeToml (← v.decodeTable) v.ref⟩
 
+public protected def InputVer.decodeToml (v : Value) : EDecodeM InputVer := do
+  match InputVer.parse (← v.decodeString) with
+  | .ok ver => return ver
+  | .error e =>  throwDecodeErrorAt v.ref s!"invalid dependency version constraint: {e}"
+
+public instance : DecodeToml InputVer := ⟨InputVer.decodeToml⟩
+
 public protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM Dependency := ensureDecode do
   let name ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
   let rev? ← t.tryDecode? `rev
@@ -316,10 +323,7 @@ public protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) :
   let scope ← t.tryDecodeD `scope ""
   let version : InputVer ← tryDecode do
     if let some val := t.find? `version then
-      let ver ← val.decodeString
-      match InputVer.parse ver with
-      | .ok ver => return ver
-      | .error e =>  throwDecodeErrorAt val.ref s!"invalid dependency version range: {e}"
+      decodeToml val
     else if let some rev := rev? then
       return .git rev
     else

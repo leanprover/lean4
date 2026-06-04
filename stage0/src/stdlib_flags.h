@@ -5,6 +5,7 @@ options get_default_options() {
     options opts;
     // see https://github.com/leanprover/lean4/blob/master/doc/dev/bootstrap.md#further-bootstrapping-complications
 #if LEAN_IS_STAGE0 == 1
+    // Request stage0 update for Lean.Elab.Tactic.Do.Attr builtin attribute changes.
     // set to true to generally avoid bootstrapping issues limited to proofs
     opts = opts.update({"debug", "proofAsSorry"}, false);
     // set to true to generally avoid bootstrapping issues in `omega` and `grind`

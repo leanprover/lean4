@@ -149,7 +149,7 @@ public abbrev isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
 
 /-- Whether artifacts should be restored by default from the Lake cache for packages in the workspace. -/
 @[inline] public def restoreAllArtifacts? (ws : Workspace) : Option Bool :=
-  ws.root.restoreAllArtifacts?
+  ws.lakeEnv.restoreAllArtifacts? <|> ws.root.restoreAllArtifacts?
 
 /-- Returns the toolchain identifier for the Lake cache corresponding the workspace's toolchain. -/
 @[inline] public def cacheToolchain (ws : Workspace) : CacheToolchain :=
@@ -418,6 +418,7 @@ public def augmentedEnvVars (self : Workspace) : Array (String × Option String)
   let vars := self.lakeEnv.baseVars ++ #[
     ("LAKE_CACHE_DIR", some self.lakeCache.dir.toString),
     ("LAKE_ARTIFACT_CACHE", if let some b := self.enableArtifactCache? then toString b else ""),
+    ("LAKE_RESTORE_ARTIFACTS", if let some b := self.restoreAllArtifacts? then toString b else ""),
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     -- Allow the Lean version to change dynamically within core

@@ -2,11 +2,6 @@
 Tests that the `IO.FS.realPath` function on windows resolves links.
 -/
 
-/-
-Note: The test below circumvents #8547 by misusing quotation marks in order to run `mklink`.
-This test will need to be updated once that issue is fixed.
--/
-
 def realPathTest : IO Unit := do
   unless System.Platform.isWindows do
     IO.println "This test only does something on Windows."
@@ -15,8 +10,8 @@ def realPathTest : IO Unit := do
   let tmpDir := dir / "tmp_realpath_test_dir"
   let tmpJunct := dir / "tmp_realpath_test_junction"
   IO.FS.createDir (dir / tmpDir)
-  let cmd := "cmd.exe\" /c mklink /j \"" ++ tmpJunct.toString ++ "\" \"" ++ tmpDir.toString
-  discard <| IO.Process.run { cmd }
+  discard <| IO.Process.run
+    { cmd := "cmd.exe", args := #["/c", "mklink", "/j", tmpJunct.toString, tmpDir.toString] }
   let realPath1 ← IO.FS.realPath tmpDir
   let realPath2 ← IO.FS.realPath tmpJunct
   IO.FS.removeDir tmpJunct

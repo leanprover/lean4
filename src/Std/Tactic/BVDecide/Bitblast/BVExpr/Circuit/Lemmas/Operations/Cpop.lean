@@ -140,6 +140,7 @@ theorem denote_blastExtractAndExtend (assign : α → Bool) (aig : AIG α) (w : 
   · simp
   · exact hx
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem denote_blastCpopLayer.go (aig : AIG α) (iterNum : Nat)
     (oldLayer : AIG.RefVec aig (len * w)) (newLayer : AIG.RefVec aig (iterNum * w))
     (oldLayerBv : BitVec (len * w)) (hold' : 2 * (iterNum - 1) < len)

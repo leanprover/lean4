@@ -104,7 +104,7 @@ example : ExceptConds (.arg σ (.except ε .pure)) = ((ε → ULift Prop) × Uni
 example : ExceptConds (.except ε (.arg σ .pure)) = ((ε → σ → ULift Prop) × Unit) := rfl
 ```
 -/
-def ExceptConds : PostShape.{u} → Type u
+@[implicit_reducible] def ExceptConds : PostShape.{u} → Type u
   | .pure => PUnit
   | .arg _ ps => ExceptConds ps
   | .except ε ps => (ε → Assertion ps) × ExceptConds ps

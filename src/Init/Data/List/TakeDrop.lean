@@ -256,7 +256,7 @@ theorem dropLast_eq_take {l : List α} : l.dropLast = l.take (l.length - 1) := b
   | [], i => by simp
   | l, 0 => by simp
   | _ :: tl, n + 1 => by
-    dsimp
+    simp
     rw [map_drop]
 
 theorem drop_eq_extract {l : List α} {k : Nat} :

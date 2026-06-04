@@ -32,6 +32,7 @@ def blastSub (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry �
 
   blastAdd aig ⟨lhs, negRhs⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastSub where
   le_size := by
     intros

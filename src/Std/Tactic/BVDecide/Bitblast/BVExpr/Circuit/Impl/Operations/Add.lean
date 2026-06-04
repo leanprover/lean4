@@ -71,6 +71,7 @@ def mkFullAdderOut (aig : AIG α) (input : FullAdderInput aig) : AIG.Entrypoint 
   let cin := cin.cast <| AIG.LawfulOperator.le_size (f := AIG.mkXorCached) ..
   aig.mkXorCached ⟨subExprRef, cin⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulOperator α FullAdderInput mkFullAdderOut where
   le_size := by
     intros
@@ -113,6 +114,7 @@ def mkFullAdderCarry (aig : AIG α) (input : FullAdderInput aig) : AIG.Entrypoin
   let lorRef := lorRef.cast hror
   aig.mkOrCached ⟨lorRef, rorRef⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulOperator α FullAdderInput mkFullAdderCarry where
   le_size := by
     intros
@@ -212,6 +214,7 @@ theorem go_le_size (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
   · simp
 termination_by w - curr
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.Ref aig)
     (s : AIG.RefVec aig curr) (lhs rhs : AIG.RefVec aig w) :
     ∀ (idx : Nat) (h1) (h2),
@@ -236,6 +239,7 @@ theorem go_decl_eq (aig : AIG α) (curr : Nat) (hcurr : curr ≤ w) (cin : AIG.R
   · simp [← hgo]
 termination_by w - curr
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blast where
   le_size := by
     intros

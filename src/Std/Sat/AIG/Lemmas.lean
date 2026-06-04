@@ -116,6 +116,7 @@ instance : LawfulOperator α BinaryInput mkGate where
     intros
     apply mkGate_decl_eq
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 theorem denote_mkGate {aig : AIG α} {input : BinaryInput aig} :
     ⟦aig.mkGate input, assign⟧
@@ -163,6 +164,7 @@ instance : LawfulOperator α (fun _ => α) mkAtom where
     intros
     apply mkAtom_decl_eq
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 theorem denote_mkAtom {aig : AIG α} :
     ⟦(aig.mkAtom var), assign⟧ = assign var := by
@@ -203,6 +205,7 @@ instance : LawfulOperator α (fun _ => Bool) mkConst where
     intros
     apply mkConst_decl_eq
 
+set_option backward.isDefEq.respectTransparency.types false in
 @[simp]
 theorem denote_mkConst {aig : AIG α} : ⟦(aig.mkConst val), assign⟧ = val := by
   unfold denote denote.go
@@ -217,6 +220,7 @@ theorem denote_mkConst {aig : AIG α} : ⟦(aig.mkConst val), assign⟧ = val :=
     rw [mkConst, Array.getElem_push_eq] at heq
     contradiction
 
+set_option backward.isDefEq.respectTransparency.types false in
 /--
 If an index contains a `Decl.false` we know how to denote it.
 -/
@@ -225,6 +229,7 @@ theorem denote_idx_false {aig : AIG α} {hstart} (h : aig.decls[start]'hstart = 
   unfold denote denote.go
   split <;> simp_all
 
+set_option backward.isDefEq.respectTransparency.types false in
 /--
 If an index contains a `Decl.atom` we know how to denote it.
 -/
@@ -233,6 +238,7 @@ theorem denote_idx_atom {aig : AIG α} {hstart} (h : aig.decls[start] = .atom a)
   unfold denote denote.go
   split <;> simp_all
 
+set_option backward.isDefEq.respectTransparency.types false in
 /--
 If an index contains a `Decl.gate` we know how to denote it.
 -/

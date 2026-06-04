@@ -404,7 +404,7 @@ theorem foldr_attach {l : List α} {f : α → β → β} {b : β} :
 
 theorem attach_map {l : List α} {f : α → β} :
     (l.map f).attach = l.attach.map (fun ⟨x, h⟩ => ⟨f x, mem_map_of_mem h⟩) := by
-  induction l <;> simp [*]
+  induction l <;> simp [*, map]
 
 theorem attachWith_map {l : List α} {f : α → β} {P : β → Prop} (H : ∀ (b : β), b ∈ l.map f → P b) :
     (l.map f).attachWith P H = (l.attachWith (P ∘ f) (fun _ h => H _ (mem_map_of_mem h))).map

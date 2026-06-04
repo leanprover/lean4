@@ -1242,6 +1242,7 @@ theorem lt_floor {x : Rat} :
 # ceil
 -/
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem ceil_eq_neg_floor_neg (a : Rat) : a.ceil = -((-a).floor) := by
   rw [Rat.ceil, Rat.floor]
   simp only [neg_den, neg_num]

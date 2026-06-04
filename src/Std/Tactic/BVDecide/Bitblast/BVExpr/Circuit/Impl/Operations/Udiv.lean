@@ -41,6 +41,7 @@ def blastShiftConcat (aig : AIG α) (input : ShiftConcatInput aig w) : AIG.RefVe
   let new := bit.append lhs
   blastZeroExtend aig ⟨1 + w, new⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulVecOperator α ShiftConcatInput blastShiftConcat where
   le_size := by
     intros
@@ -276,6 +277,7 @@ def blastUdiv (aig : AIG α) (input : AIG.BinaryRefVec aig w) : AIG.RefVecEntry 
 
   AIG.RefVec.ite aig ⟨discr, zero, divRes⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulVecOperator α AIG.BinaryRefVec blastUdiv where
   le_size := by
     intros

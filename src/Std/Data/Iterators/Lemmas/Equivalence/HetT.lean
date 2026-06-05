@@ -187,6 +187,7 @@ attribute [-simp] HetT.mk.injEq
 /--
 Converts `PostconditionT m α` to `HetT m α`, preserving the postcondition property.
 -/
+@[implicit_reducible]
 noncomputable def HetT.ofPostconditionT [Monad m] (x : PostconditionT m α) : HetT m α :=
   ⟨x.Property, inferInstance, USquash.deflate <$> x.operation⟩
 
@@ -198,6 +199,7 @@ Lifts `x : m α` into `HetT m α` with the trivial postcondition.
 
 Caution: This is not a lawful monad lifting function
 -/
+@[implicit_reducible]
 noncomputable def HetT.lift {α : Type w} {m : Type w → Type w'} [Monad m] (x : m α) :
     HetT m α :=
   x
@@ -206,14 +208,14 @@ noncomputable def HetT.lift {α : Type w} {m : Type w → Type w'} [Monad m] (x 
 A universe-heterogeneous version of `Pure.pure`. Given `a : α`, it returns an element of `HetT m α`
 with the postcondition `(a = ·)`.
 -/
-protected noncomputable def HetT.pure {m : Type w → Type w'} [Pure m] {α : Type v}
+@[implicit_reducible] protected noncomputable def HetT.pure {m : Type w → Type w'} [Pure m] {α : Type v}
     (a : α) : HetT m α :=
   ⟨(a = ·), inferInstance, pure (.deflate ⟨a, rfl⟩)⟩
 
 /--
 A generalization of `HetT.map` that provides the postcondition property to the mapping function.
 -/
-protected noncomputable def HetT.pmap {m : Type w → Type w'} [Functor m] {α : Type u} {β : Type v}
+@[implicit_reducible] protected noncomputable def HetT.pmap {m : Type w → Type w'} [Functor m] {α : Type u} {β : Type v}
     (x : HetT m α) (f : (a : α) → x.Property a → β) : HetT m β :=
   have : Small.{w} (Subtype x.Property) := x.small
   have := Small.map x.Property f
@@ -222,13 +224,14 @@ protected noncomputable def HetT.pmap {m : Type w → Type w'} [Functor m] {α :
 /--
 A universe-heterogeneous version of `Functor.map`.
 -/
-protected noncomputable def HetT.map {m : Type w → Type w'} [Functor m] {α : Type u} {β : Type v}
+@[implicit_reducible] protected noncomputable def HetT.map {m : Type w → Type w'} [Functor m] {α : Type u} {β : Type v}
     (f : α → β) (x : HetT m α) : HetT m β :=
   x.pmap (fun a _ => f a)
 
 /--
 A generalization of `HetT.bind` that provides the postcondition property to the mapping function.
 -/
+@[implicit_reducible]
 protected noncomputable def HetT.pbind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
     (x : HetT m α) (f : (a : α) → x.Property a → HetT m β) : HetT m β :=
   have := x.small
@@ -241,7 +244,7 @@ protected noncomputable def HetT.pbind {m : Type w → Type w'} [Monad m] {α : 
 /--
 A universe-heterogeneous version of `Bind.bind`.
 -/
-protected noncomputable def HetT.bind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
+@[implicit_reducible] protected noncomputable def HetT.bind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
     (x : HetT m α) (f : α → HetT m β) : HetT m β :=
   have := x.small
   have := fun a => (f a).small
@@ -290,6 +293,7 @@ theorem HetT.prun_ofPostconditionT [Monad m] [LawfulMonad m] {x : PostconditionT
 /--
 If the monad `m` is liftable to `n`, lifts `HetT m α` to `HetT n α`.
 -/
+@[implicit_reducible]
 noncomputable def HetT.liftInner {m : Type w → Type w'} (n : Type w → Type w'') [MonadLiftT m n]
     (x : HetT m α) : HetT n α :=
   ⟨x.Property, x.small, x.operation⟩

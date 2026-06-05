@@ -24,6 +24,7 @@ theorem Iter.takeWhile_eq {α β} [Iterator α Id β] {P}
     it.takeWhile P = (it.toIterM.takeWhile P).toIter :=
   rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Iter.step_takeWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
     (it.takeWhile P).step = (match it.step with
@@ -40,6 +41,7 @@ theorem Iter.step_takeWhile {α β} [Iterator α Id β] {P}
   · simp
   · simp
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Iter.val_step_takeWhile {α β} [Iterator α Id β] {P}
     {it : Iter (α := α) β} :
     (it.takeWhile P).step.val = (match it.step.val with
@@ -107,6 +109,7 @@ theorem Iter.atIdxSlow?_takeWhile {α β}
       step_takeWhile]
     split <;> rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 private theorem List.getElem?_takeWhile {l : List α} {P : α → Bool} {k} :
     (l.takeWhile P)[k]? = if ∀ k' : Nat, k' ≤ k → l[k']?.any P then l[k]? else none := by
   induction l generalizing k

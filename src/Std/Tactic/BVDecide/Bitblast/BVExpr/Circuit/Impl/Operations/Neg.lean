@@ -34,6 +34,7 @@ def blastNeg (aig : AIG α) (input : AIG.RefVec aig w) : AIG.RefVecEntry α w :=
 
   blastAdd aig ⟨notInput, one⟩
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulVecOperator α AIG.RefVec blastNeg where
   le_size := by
     intros

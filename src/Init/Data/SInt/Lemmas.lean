@@ -1162,12 +1162,15 @@ theorem ISize.toInt8_ofIntLE {n} (h₁ h₂) : (ISize.ofIntLE n h₁ h₂).toInt
 @[simp] theorem Int64.toInt8_ofNat {n} : toInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toInt8_ofNat'
 @[simp] theorem ISize.toInt8_ofNat {n} : toInt8 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toInt8_ofNat'
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Int16.toInt8_ofIntClamp {n : Int} (h₁ : -2 ^ 15 ≤ n) (h₂ : n < 2 ^ 15) :
     (Int16.ofIntClamp n).toInt8 = Int8.ofInt n := by
   rw [← ofIntLE_eq_ofIntClamp (h₁ := h₁) (h₂ := Int.le_of_lt_add_one h₂), toInt8_ofIntLE]
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Int32.toInt8_ofIntClamp {n : Int} (h₁ : -2 ^ 31 ≤ n) (h₂ : n < 2 ^ 31) :
     (Int32.ofIntClamp n).toInt8 = Int8.ofInt n := by
   rw [← ofIntLE_eq_ofIntClamp (h₁ := h₁) (h₂ := Int.le_of_lt_add_one h₂), toInt8_ofIntLE]
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Int64.toInt8_ofIntClamp {n : Int} (h₁ : -2 ^ 63 ≤ n) (h₂ : n < 2 ^ 63) :
     (Int64.ofIntClamp n).toInt8 = Int8.ofInt n := by
   rw [← ofIntLE_eq_ofIntClamp (h₁ := h₁) (h₂ := Int.le_of_lt_add_one h₂), toInt8_ofIntLE]
@@ -1209,9 +1212,11 @@ theorem ISize.toInt16_ofIntLE {n} (h₁ h₂) : (ISize.ofIntLE n h₁ h₂).toIn
 @[simp] theorem Int64.toInt16_ofNat {n} : toInt16 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toInt16_ofNat'
 @[simp] theorem ISize.toInt16_ofNat {n} : toInt16 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toInt16_ofNat'
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Int32.toInt16_ofIntClamp {n : Int} (h₁ : -2 ^ 31 ≤ n) (h₂ : n < 2 ^ 31) :
     (Int32.ofIntClamp n).toInt16 = Int16.ofInt n := by
   rw [← ofIntLE_eq_ofIntClamp (h₁ := h₁) (h₂ := Int.le_of_lt_add_one h₂), toInt16_ofIntLE]
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Int64.toInt16_ofIntClamp {n : Int} (h₁ : -2 ^ 63 ≤ n) (h₂ : n < 2 ^ 63) :
     (Int64.ofIntClamp n).toInt16 = Int16.ofInt n := by
   rw [← ofIntLE_eq_ofIntClamp (h₁ := h₁) (h₂ := Int.le_of_lt_add_one h₂), toInt16_ofIntLE]
@@ -1246,6 +1251,7 @@ theorem ISize.toInt32_ofIntLE {n} (h₁ h₂) : (ISize.ofIntLE n h₁ h₂).toIn
 @[simp] theorem Int64.toInt32_ofNat {n} : toInt32 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toInt32_ofNat'
 @[simp] theorem ISize.toInt32_ofNat {n} : toInt32 (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toInt32_ofNat'
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Int64.toInt32_ofIntClamp {n : Int} (h₁ : -2 ^ 63 ≤ n) (h₂ : n < 2 ^ 63) :
     (Int64.ofIntClamp n).toInt32 = Int32.ofInt n := by
   rw [← ofIntLE_eq_ofIntClamp (h₁ := h₁) (h₂ := Int.le_of_lt_add_one h₂), toInt32_ofIntLE]
@@ -1269,6 +1275,7 @@ theorem Int64.toISize_ofIntLE {n} (h₁ h₂) : (Int64.ofIntLE n h₁ h₂).toIS
 
 @[simp] theorem Int64.toISize_ofNat {n} : toISize (no_index (OfNat.ofNat n)) = OfNat.ofNat n := toISize_ofNat'
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Int64.toISize_ofIntClamp {n : Int} (h₁ : -2 ^ 63 ≤ n) (h₂ : n < 2 ^ 63) :
     (Int64.ofIntClamp n).toISize = ISize.ofInt n := by
   rw [← ofIntLE_eq_ofIntClamp (h₁ := h₁) (h₂ := Int.le_of_lt_add_one h₂), toISize_ofIntLE]

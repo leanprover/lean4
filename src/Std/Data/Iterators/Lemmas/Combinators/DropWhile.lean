@@ -34,6 +34,7 @@ theorem Iter.dropWhile_eq_dropWhile_toIterM {α β} [Iterator α Id β] {P}
     it.dropWhile P = (it.toIterM.dropWhile P).toIter :=
   rfl
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Iter.step_intermediateDropWhile {α β} [Iterator α Id β]
     {it : Iter (α := α) β} {P} {dropping} :
     (Iter.Intermediate.dropWhile P dropping it).step = (match it.step with

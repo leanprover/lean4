@@ -483,6 +483,7 @@ theorem Pos.Raw.IsValid.isValidUTF8_extract_utf8ByteSize {s : String} {p : Pos.R
     simpa [utf8ByteSize, Pos.Raw.le_iff] using h.le_rawEndPos
   · simp [utf8ByteSize]
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Pos.Raw.isValid_iff_exists_append {s : String} {p : Pos.Raw} :
     p.IsValid s ↔ ∃ s₁ s₂ : String, s = s₁ ++ s₂ ∧ p = s₁.rawEndPos := by
   refine ⟨fun h => ⟨⟨_, h.isValidUTF8_extract_zero⟩, ⟨_, h.isValidUTF8_extract_utf8ByteSize⟩, ?_, ?_⟩, ?_⟩
@@ -617,6 +618,7 @@ where
       rw [List.reverse_cons]
       exact append_singleton _ _ ih
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Pos.Raw.isValid_iff_isUTF8FirstByte {s : String} {p : Pos.Raw} :
     p.IsValid s ↔ p = s.rawEndPos ∨ ∃ (h : p < s.rawEndPos), (s.getUTF8Byte p h).IsUTF8FirstByte := by
   induction s using push_induction with
@@ -1005,7 +1007,7 @@ theorem Slice.Pos.offset_ofStr {s : Slice} {pos : s.str.Pos} {h₁ h₂} :
 
 /-- Given a slice and a valid position within the slice, obtain a new slice on the same underlying
 string by replacing the start of the slice with the given position. -/
-@[inline, expose] -- for the defeq `(s.sliceFrom pos).str = s.str`
+@[inline, expose, implicit_reducible] -- for the defeq `(s.sliceFrom pos).str = s.str`
 def Slice.sliceFrom (s : Slice) (pos : s.Pos) : Slice where
   str := s.str
   startInclusive := pos.str
@@ -1030,7 +1032,7 @@ theorem Slice.endExclusive_sliceFrom {s : Slice} {pos : s.Pos} :
 
 /-- Given a slice and a valid position within the slice, obtain a new slice on the same underlying
 string by replacing the end of the slice with the given position. -/
-@[inline, expose] -- for the defeq `(s.sliceTo pos).str = s.str`
+@[inline, expose, implicit_reducible] -- for the defeq `(s.sliceTo pos).str = s.str`
 def Slice.sliceTo (s : Slice) (pos : s.Pos) : Slice where
   str := s.str
   startInclusive := s.startInclusive
@@ -1055,7 +1057,7 @@ theorem Slice.endExclusive_sliceTo {s : Slice} {pos : s.Pos} :
 
 /-- Given a slice and two valid positions within the slice, obtain a new slice on the same underlying
 string formed by the new bounds. -/
-@[inline, expose] -- for the defeq `(s.slice newStart newEnd).str = s.str`
+@[inline, expose, implicit_reducible] -- for the defeq `(s.slice newStart newEnd).str = s.str`
 def Slice.slice (s : Slice) (newStart newEnd : s.Pos)
     (h : newStart ≤ newEnd) : Slice where
   str := s.str
@@ -1194,7 +1196,7 @@ theorem Pos.Raw.IsValidForSlice.ofSlice {s : String} {p : Pos.Raw} (h : p.IsVali
   isValidForSlice_toSlice_iff.1 h
 
 /-- Turns a valid position on the string `s` into a valid position on the slice `s.toSlice`. -/
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 def Pos.toSlice {s : String} (pos : s.Pos) : s.toSlice.Pos where
   offset := pos.offset
   isValidForSlice := pos.isValid.toSlice
@@ -2136,7 +2138,7 @@ theorem Slice.Pos.next_eq_nextFast : @Slice.Pos.next = @Slice.Pos.nextFast := by
   omega
 
 /-- The slice from the beginning of `s` up to `p` (exclusive). -/
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 def sliceTo (s : String) (p : s.Pos) : Slice :=
   s.toSlice.sliceTo p.toSlice
 
@@ -2167,7 +2169,7 @@ theorem Pos.Raw.isValidForSlice_stringSliceTo {s : String} {p : s.Pos} {q : Pos.
   rw [sliceTo, isValidForSlice_sliceTo, Pos.offset_toSlice, isValidForSlice_toSlice_iff]
 
 /-- The slice from `p` (inclusive) up to the end of `s`. -/
-@[inline, expose]
+@[inline, expose, implicit_reducible]
 def sliceFrom (s : String) (p : s.Pos) : Slice :=
   s.toSlice.sliceFrom p.toSlice
 
@@ -2221,7 +2223,7 @@ the two positions.
 
 This happens to be equivalent to the constructor of `String.Slice`.
 -/
-@[inline, expose] -- For the defeq `(s.slice p₁ p₂).str = s`
+@[inline, expose, implicit_reducible] -- For the defeq `(s.slice p₁ p₂).str = s`
 def slice (s : String) (startInclusive endExclusive : s.Pos)
     (h : startInclusive ≤ endExclusive) : String.Slice :=
   s.toSlice.slice startInclusive.toSlice endExclusive.toSlice (by simpa)
@@ -2490,6 +2492,7 @@ theorem Pos.Raw.isValidForSlice_slice {s : Slice} {p₀ p₁ : s.Pos} {h} (pos :
     omega
   · simpa [offsetBy_assoc] using h₂.isValid_offsetBy
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Pos.Raw.isValidForSlice_stringSlice {s : String} {p₀ p₁ : s.Pos} {h} (pos : Pos.Raw) :
     pos.IsValidForSlice (s.slice p₀ p₁ h) ↔
       pos.offsetBy p₀.offset ≤ p₁.offset ∧ (pos.offsetBy p₀.offset).IsValid s := by

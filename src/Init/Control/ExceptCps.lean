@@ -21,7 +21,7 @@ Adds exceptions of type `ε` to a monad `m`.
 Instead of using `Except ε` to model exceptions, this implementation uses continuation passing
 style. This has different performance characteristics from `ExceptT ε`.
 -/
-@[expose] def ExceptCpsT (ε : Type u) (m : Type u → Type v) (α : Type u) := (β : Type u) → (α → m β) → (ε → m β) → m β
+@[expose, implicit_reducible] def ExceptCpsT (ε : Type u) (m : Type u → Type v) (α : Type u) := (β : Type u) → (α → m β) → (ε → m β) → m β
 
 namespace ExceptCpsT
 

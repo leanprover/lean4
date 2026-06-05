@@ -82,6 +82,7 @@ theorem go_decl_eq {aig : AIG α} {cin} {lhs rhs : AIG.RefVec aig w} :
   · simp [← hgo]
 termination_by w - curr
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance : AIG.LawfulOperator α OverflowInput mkOverflowBit where
   le_size := by
     intros

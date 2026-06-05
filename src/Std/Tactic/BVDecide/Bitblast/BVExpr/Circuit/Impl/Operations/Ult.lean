@@ -38,6 +38,7 @@ def mkUlt (aig : AIG α) (pair : AIG.BinaryRefVec aig w) : AIG.Entrypoint α :=
   let overflowRef := res.ref
   aig.mkNotCached overflowRef
 
+set_option backward.isDefEq.respectTransparency.types false in
 instance {w : Nat} : AIG.LawfulOperator α (AIG.BinaryRefVec · w) mkUlt where
   le_size := by
     intros

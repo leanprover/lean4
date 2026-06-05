@@ -795,6 +795,7 @@ noncomputable def flat_csup (c : FlatOrder b → Prop) : FlatOrder b := by
   · exact Classical.choose h
   · exact b
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem flat_csup_is_sup (c : FlatOrder b → Prop) (hc : chain c) :
     is_sup c (flat_csup c) := by
   intro x

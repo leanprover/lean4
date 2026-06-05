@@ -60,6 +60,7 @@ theorem Inv_cast (cache : Cache aig1) (hpref : IsPrefix aig1.decls aig2.decls)
   apply denote.eq_of_isPrefix (entry := ⟨aig1, _, _, _⟩)
   exact hpref
 
+set_option backward.isDefEq.respectTransparency.types false in
 theorem Inv_insert (cache : Cache aig) (expr : BVExpr w) (refs : AIG.RefVec aig w)
     (hinv : Inv assign aig cache)
     (hrefs : ∀ (idx : Nat) (hidx : idx < w), ⟦aig, refs.get idx hidx, assign.toAIGAssignment⟧ = (expr.eval assign).getLsbD idx) :

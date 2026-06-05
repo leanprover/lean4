@@ -7,10 +7,12 @@ module
 
 prelude
 public import Lean.Meta.Tactic.Simp
+public import Lean.Meta.Sym.Pattern
 public import Std.Tactic.Do.Syntax
 public import Std.Internal.Do.Triple.Basic
 import Init.While
 import Init.Syntax
+import Lean.Meta.Sym.Simp.DiscrTree
 
 public section
 
@@ -226,30 +228,6 @@ def mkSpecExt : SimpleScopedEnvExtension.Descr SpecEntry SpecTheorems where
 
 builtin_initialize specAttr : SpecExtension ← registerSimpleScopedEnvExtension mkSpecExt
 
-def mkSpecAttr (ext : SpecExtension) : AttributeImpl where
-  name  := `spec
-  descr := "Marks Hoare triple specifications and simp theorems to use with the `mspec` and `mvcgen` tactics"
-  -- .afterCompilation seems unnecessarily conservative, but the simp attribute impl needs it.
-  -- The reason is that we cannot annotate definitions with `@[spec]` otherwise; the error is
-  -- > trying to realize id.eq_1 but `enableRealizationsForConst` must be called for 'id' first
-  applicationTime := AttributeApplicationTime.afterCompilation
-  add   := fun declName stx attrKind => do
-    let go : MetaM Unit := do
-      let info ← getAsyncConstInfo declName
-      let prio ← getAttrParamOptPrio stx[1]
-      try
-        ext.addSpecTheoremFromConst declName prio attrKind
-      catch _ =>
-      let impl ← getBuiltinAttributeImpl `mvcgen_simp
-      try
-        let newStx ← `(attr| mvcgen_simp)
-        let newStx := newStx.raw.setArg 3 stx[1]
-        impl.add declName newStx attrKind
-      catch e =>
-      trace[Elab.Tactic.Do.specAttr] "Reason for failure to apply spec attribute: {e.toMessageData}"
-      throwError "Invalid 'spec': target was neither a Hoare triple specification nor a 'simp' lemma"
-    discard <| go.run {} {}
-
 def SpecExtension.getTheorems (ext : SpecExtension) : CoreM SpecTheorems :=
   return ext.getState (← getEnv)
 
@@ -290,21 +268,23 @@ def SpecProof.getProof : SpecProof → MetaM (List Name × Expr)
 instance : Hashable SpecProof where
   hash sp := hash sp.key
 
-private def tripleToWpProof? (proof type : Expr) : MetaM (Expr × Expr) := do
+/--
+Normalises a specification proof so its conclusion is in `pre ⊑ wp …` form.
+
+- Returns `some` for `Triple` proofs (rewriting via `Triple.hwp`) and proofs already in
+  `pre ⊑ wp …` form (passed through unchanged).
+- Returns `none` if `type` is neither shape; callers should `throwError`.
+-/
+private def tripleToWpProof? (proof type : Expr) : MetaM (Option (Expr × Expr)) := do
   let type ← whnfR type
   if type.isAppOfArity ``Triple 12 then
-    let .const _ lvls := type.getAppFn
-      | return (proof, type)
-    let args := type.getAppArgs
-    -- Triple inductive param order:  m Pred EPred α Monad AL EAL WP pre x post epost
-    -- Triple.iff theorem param order: m Pred EPred Monad AL EAL WP α x pre post epost
-    let tripleIff := mkAppN (mkConst ``Triple.iff lvls)
-      #[args[0]!, args[1]!, args[2]!, args[4]!, args[5]!, args[6]!, args[7]!, args[3]!, args[9]!, args[8]!, args[10]!, args[11]!]
-    let proof ← mkAppM ``Iff.mp #[tripleIff, proof]
+    let proof ← mkAppM ``Triple.hwp #[proof]
     let type ← instantiateMVars (← inferType proof)
-    return (proof, type)
+    return some (proof, type)
+  else if type.isAppOfArity ``PartialOrder.rel 4 then
+    return some (proof, type)
   else
-    return (proof, type)
+    return none
 
 def SpecProof.instantiate (proof : SpecProof) : MetaM (Array Expr × Array BinderInfo × Expr × Expr) := do
   let prf ← match proof with
@@ -314,7 +294,8 @@ def SpecProof.instantiate (proof : SpecProof) : MetaM (Array Expr × Array Binde
   let type ← instantiateMVars (← inferType prf)
   let (xs, bs, type) ← forallMetaTelescope type
   let prf := prf.beta xs
-  let (prf, type) ← tripleToWpProof? prf type
+  let some (prf, type) ← tripleToWpProof? prf type
+    | throwError "expected `Triple` or `⊑ wp` specification, got{indentExpr type}"
   return (xs, bs, prf, type)
 
 instance : ToMessageData SpecProof where
@@ -324,19 +305,20 @@ instance : ToMessageData SpecProof where
     | .stx _ ref proof => m!"SpecProof.stx _ {ref} {proof}"
 
 structure SpecTheorem where
-  keys : Array DiscrTree.Key
   /--
-  Expr key tested for matching, in ∀-quantified form.
-  `keys = (← mkPath (← forallMetaTelescope prog).2.2)`.
+  Pattern for the program expression.
+  This is the key used in the discrimination tree.
+  If the proof has type `∀ a b c, ⦃P⦄ prog ⦃Q⦄`, then the pattern is `prog[a:=#2, b:=#1, c:=#0]`.
+  For specs stated as `pre ⊑ wp prog post epost`, the pattern is keyed on `prog`.
   -/
-  prog : Expr
+  pattern : Sym.Pattern
   /-- The proof for the theorem. -/
   proof : SpecProof
   priority : Nat := eval_prio default
   deriving Inhabited
 
 instance : BEq SpecTheorem where
-  beq a b := a.keys == b.keys && a.prog == b.prog && a.proof == b.proof && a.priority == b.priority
+  beq a b := a.proof == b.proof
 
 abbrev SpecEntry := SpecTheorem
 
@@ -346,7 +328,7 @@ structure SpecTheorems where
   deriving Inhabited
 
 def SpecTheorems.insert (d : SpecTheorems) (e : SpecTheorem) : SpecTheorems :=
-  { d with specs := d.specs.insertKeyValue e.keys e }
+  { d with specs := Sym.insertPattern d.specs e.pattern e }
 
 def SpecTheorems.isErased (d : SpecTheorems) (thmId : SpecProof) : Bool :=
   d.erased.contains thmId
@@ -356,44 +338,37 @@ def SpecTheorems.erase (d : SpecTheorems) (thmId : SpecProof) : SpecTheorems :=
 
 abbrev SpecExtension := SimpleScopedEnvExtension SpecEntry SpecTheorems
 
-/-- Extract the program expression from a spec conclusion (`Triple` or `⊑ wp` form). -/
-private def selectProg (type : Expr) : MetaM Expr := do
-  let type ← whnfR type
-  if type.isAppOfArity ``Triple 12 then
-    return type.getArg! 9
-  else if type.isAppOfArity ``PartialOrder.rel 4 then
-    let rhs := type.getArg! 3
-    let_expr wp _m _Pred _EPred _monad _instAL _instEAL _wpInst _α prog _post _epost := rhs
-      | throwError "RHS of ⊑ is not a wp application{indentExpr rhs}"
-    return prog
-  else
-    throwError "unexpected kind of spec theorem; expected Triple or ⊑ wp{indentExpr type}"
+/--
+Builds a `Sym.Pattern` keyed on the program inside a spec conclusion.
+Accepts both `Triple` and `pre ⊑ wp prog post epost` shapes.
+-/
+def mkSpecPatternFromExpr (expr : Expr) (levelParams : List Name := []) : MetaM Sym.Pattern :=
+  Prod.fst <$> Sym.mkPatternFromExprWithKey expr levelParams fun type => do
+    let type ← whnfR type
+    if type.isAppOfArity ``Triple 12 then
+      return (type.getArg! 9, ())
+    else if type.isAppOfArity ``PartialOrder.rel 4 then
+      let rhs := type.getArg! 3
+      let_expr wp _m _Pred _EPred _monad _instAL _instEAL _wpInst _α prog _post _epost := rhs
+        | throwError "RHS of ⊑ is not a `wp` application{indentExpr rhs}"
+      return (prog, ())
+    else
+      throwError "unexpected kind of spec theorem; expected `Triple` or `⊑ wp`{indentExpr type}"
 
-private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM SpecTheorem := do
-  let type ← instantiateMVars type
-  unless (← isProp type) do
-    throwError "invalid 'spec', proposition expected{indentExpr type}"
-  withNewMCtxDepth do
-  let (xs, _, type) ← withSimpGlobalConfig (forallMetaTelescopeReducing type)
-  let type ← whnfR type
-  let prog ← selectProg type
-  let keys ← DiscrTree.mkPath prog (noIndexAtArgs := false)
-  return { keys, prog := (← mkForallFVars xs prog), proof, priority := prio }
+private def mkSpecTheorem (proof : SpecProof) (prio : Nat) : MetaM SpecTheorem := do
+  let (levelParams, expr) ← proof.getProof
+  let pattern ← mkSpecPatternFromExpr expr levelParams
+  return { pattern, proof, priority := prio }
 
-def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM SpecTheorem := do
-  let cinfo ← getConstInfo declName
-  let us := cinfo.levelParams.map mkLevelParam
-  let val := mkConst declName us
-  let type ← inferType val
-  mkSpecTheorem type (.global declName) prio
+def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM SpecTheorem :=
+  mkSpecTheorem (.global declName) prio
 
 def mkSpecTheoremFromLocal (fvar : FVarId) (prio : Nat := eval_prio default) : MetaM SpecTheorem := do
-  let some decl ← fvar.findDecl? | throwError "invalid 'spec', local declaration {fvar.name} not found"
-  mkSpecTheorem decl.type (.local fvar) prio
+  let some _ ← fvar.findDecl? | throwError "invalid 'spec', local declaration {fvar.name} not found"
+  mkSpecTheorem (.local fvar) prio
 
 def mkSpecTheoremFromStx (ref : Syntax) (proof : Expr) (prio : Nat := eval_prio default) : MetaM SpecTheorem := do
-  let type ← inferType proof
-  mkSpecTheorem type (.stx (← mkFreshId) ref proof) prio
+  mkSpecTheorem (.stx (← mkFreshId) ref proof) prio
 
 def SpecExtension.addSpecTheoremFromConst (ext : SpecExtension) (declName : Name) (prio : Nat) (attrKind : AttributeKind) : MetaM Unit := do
   let thm ← mkSpecTheoremFromConst declName prio
@@ -410,16 +385,31 @@ def mkSpecExt : SimpleScopedEnvExtension.Descr SpecEntry SpecTheorems where
 
 builtin_initialize specAttr : SpecExtension ← registerSimpleScopedEnvExtension mkSpecExt
 
-def mkSpecAttr (ext : SpecExtension) : AttributeImpl where
+def SpecExtension.getTheorems (ext : SpecExtension) : CoreM SpecTheorems :=
+  return ext.getState (← getEnv)
+
+def getSpecTheorems : CoreM SpecTheorems :=
+  specAttr.getTheorems
+
+end Lean.Elab.Tactic.Do.Internal.SpecAttr
+
+namespace Lean.Elab.Tactic.Do.SpecAttr
+
+def mkSpecAttr : AttributeImpl where
   name  := `spec
-  descr := "Marks CompleteLattice-based Hoare specifications and simp theorems for use with the new `mvcgen` tactic"
+  descr := "Marks Hoare triple specifications and simp theorems for use with `mvcgen` tactics"
   applicationTime := AttributeApplicationTime.afterCompilation
-  add   := fun declName stx attrKind => do
+  add := fun declName stx attrKind => do
     let go : MetaM Unit := do
-      let _info ← getConstInfo declName
+      let _ ← getAsyncConstInfo declName
       let prio ← getAttrParamOptPrio stx[1]
       try
-        ext.addSpecTheoremFromConst declName prio attrKind
+        -- Legacy `Std.Do.Triple` specs.
+        specAttr.addSpecTheoremFromConst declName prio attrKind
+      catch _ =>
+      try
+        -- New metatheory `Std.Internal.Do.Triple` / `⊑ wp` specs.
+        Internal.SpecAttr.specAttr.addSpecTheoremFromConst declName prio attrKind
       catch _ =>
       let impl ← getBuiltinAttributeImpl `mvcgen_simp
       try
@@ -431,38 +421,7 @@ def mkSpecAttr (ext : SpecExtension) : AttributeImpl where
       throwError "Invalid 'spec': target was neither a Hoare triple specification nor a 'simp' lemma"
     discard <| go.run {} {}
 
-def SpecExtension.getTheorems (ext : SpecExtension) : CoreM SpecTheorems :=
-  return ext.getState (← getEnv)
-
-def getSpecTheorems : CoreM SpecTheorems :=
-  specAttr.getTheorems
-
-end Lean.Elab.Tactic.Do.Internal.SpecAttr
-
-namespace Lean.Elab.Tactic.Do.SpecAttr
-
-def mkSpecAttrOpt : AttributeImpl where
-  name  := `spec
-  descr := "Marks Hoare triple specifications and simp theorems for use with `mvcgen` tactics"
-  applicationTime := AttributeApplicationTime.afterCompilation
-  add := fun declName stx attrKind => do
-    -- Classify by the statement's type (no dependency on `new_wp_monad`): first try the legacy
-    -- `Std.Do.Triple` path directly — `mkSpecTheorem` throws if the statement is not an old `Triple`
-    -- (and we deliberately do NOT use the full `mkSpecAttr`, whose `mvcgen_simp` fallback would
-    -- swallow a new-metatheory triple as a `P ↔ True` simp lemma). On failure, hand off to the
-    -- new-metatheory attribute, which routes `⊑ wp`/`Triple` into `internalSpecMap` and otherwise
-    -- falls back to the shared `mvcgen_simp` simp set.
-    try
-      let go : MetaM Unit := do
-        let _ ← getAsyncConstInfo declName
-        let prio ← getAttrParamOptPrio stx[1]
-        specAttr.addSpecTheoremFromConst declName prio attrKind
-      discard <| go.run {} {}
-    catch _ =>
-      (Lean.Elab.Tactic.Do.Internal.SpecAttr.mkSpecAttr
-        Lean.Elab.Tactic.Do.Internal.SpecAttr.specAttr).add declName stx attrKind
-
-builtin_initialize registerBuiltinAttribute mkSpecAttrOpt
+builtin_initialize registerBuiltinAttribute mkSpecAttr
 
 /--
 Marks a type as an invariant type for the `mvcgen` tactic.

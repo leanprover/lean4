@@ -1192,6 +1192,22 @@ def hasDerivingHandler (className : Name) : IO Bool := do
   return (← derivableRef.get).contains className
 
 /--
+Build a `MessageData` describing the application context for an instance-argument mismatch:
+shows the (explicit) application and identifies which positional argument is the instance,
+falling back gracefully when the mvar cannot be located in the application's argument list.
+-/
+private def mkInstAppContextMsg (instMVar : MVarId) (app : Expr) : TermElabM MessageData := do
+  let argIdx? := app.getAppArgs.findIdx? fun a => a.isMVar && a.mvarId! == instMVar
+  let argName? := (← get).mvarArgNames.get? instMVar |>.filter (!·.hasMacroScopes)
+  let argDescr : MessageData := match argName?, argIdx? with
+    | some n, some i => m!"`{n}` (#{i+1})"
+    | some n, none   => m!"`{n}`"
+    | none,   some i => m!"#{i+1}"
+    | none,   none   => m!"of unknown position"
+  let appInst ← instantiateMVars app
+  return m!"\nwhile elaborating instance argument {argDescr} of{indentExpr appInst.setAppPPExplicit}"
+
+/--
   Try to synthesize metavariable using type class resolution.
   This method assumes the local context and local instances of `instMVar` coincide
   with the current local context and local instances.
@@ -1201,8 +1217,12 @@ def hasDerivingHandler (className : Name) : IO Bool := do
 
   If `extraErrorMsg?` is not none, it contains additional information that should be attached
   to type class synthesis failures.
+
+  If `app?` is `some app`, the parent application is included in mismatch error messages,
+  together with an indicator pointing at the instance argument inside it.
 -/
-def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none) (extraErrorMsg? : Option MessageData := none): TermElabM Bool := do
+def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := none)
+    (extraErrorMsg? : Option MessageData := none) (app? : Option Expr := none) : TermElabM Bool := do
   let extraErrorMsg := extraMsgToMsg extraErrorMsg?
   let instMVarDecl ← getMVarDecl instMVar
   let type := instMVarDecl.type
@@ -1233,13 +1253,17 @@ def synthesizeInstMVarCore (instMVar : MVarId) (maxResultSize? : Option Nat := n
              `p` has not been elaborated yet.
            -/
           return false -- we will try again later
+        let appCtx? ← app?.mapM (mkInstAppContextMsg instMVar ·)
+        let (sep, ctx) := match appCtx? with
+          | some ctx => ("\n", ctx)
+          | none     => (", ", MessageData.nil)
         let oldValType ← inferType oldVal
         let valType ← inferType val
         unless (← isDefEq oldValType valType) do
           let (oldValType, valType) ← addPPExplicitToExposeDiff oldValType valType
-          throwError "synthesized type class instance type is not definitionally equal to expected type, synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}{extraErrorMsg}"
+          throwError "synthesized type class instance type is not definitionally equal to expected type{ctx}{sep}synthesized{indentExpr val}\nhas type{indentExpr valType}\nexpected{indentExpr oldValType}{extraErrorMsg}"
         let (oldVal, val) ← addPPExplicitToExposeDiff oldVal val
-        throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules, synthesized{indentExpr val}\ninferred{indentExpr oldVal}{extraErrorMsg}"
+        throwError "synthesized type class instance is not definitionally equal to expression inferred by typing rules{ctx}{sep}synthesized{indentExpr val}\ninferred{indentExpr oldVal}{extraErrorMsg}"
     else
       unless (← isDefEq (mkMVar instMVar) val) do
         throwError "failed to assign synthesized type class instance{indentExpr val}{extraErrorMsg}"

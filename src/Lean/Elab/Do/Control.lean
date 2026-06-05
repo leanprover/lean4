@@ -37,16 +37,16 @@ def ControlStack.base (mi : MonadInfo) : ControlStack where
   runInBase e := pure e
   restoreCont dec := pure dec
 
-def ControlStack.stateT (baseMonadInfo : MonadInfo) (mutVarIdents : Array Ident) (σ : Expr) (base : ControlStack) : ControlStack where
+def ControlStack.stateT (baseMonadInfo : MonadInfo) (muts : Array MutVar) (σ : Expr) (base : ControlStack) : ControlStack where
   description _ := m!"StateT {σ} over {base.description ()}"
   m := return mkApp2 (mkConst ``StateT [baseMonadInfo.u, baseMonadInfo.v]) (← getσ) (← base.m)
   stM α := stM α >>= base.stM
   runInBase e := do
     -- `e : StateT σ m α`. Fetch the state tuple `s : σ` and apply it to `e`, `e.run s`.
     -- See also `StateT.monadControl.liftWith`.
-    let mutExprs ← mutVarIdents.mapM fun x => do
+    let mutExprs ← muts.mapM fun x => do
       let defn ← getLocalDeclFromUserName x.getId
-      Term.addTermInfo' x defn.toExpr
+      Term.addTermInfo' x.ident defn.toExpr
       pure defn.toExpr
     let (tuple, tupleTy) ← mkProdMkN mutExprs baseMonadInfo.u
     unless ← isDefEq tupleTy σ do -- just for sanity; maybe delete in the future
@@ -63,7 +63,7 @@ def ControlStack.stateT (baseMonadInfo : MonadInfo) (mutVarIdents : Array Ident)
         dec.k
     base.restoreCont { resultName, resultType, k }
 where
-  mutVarNames := mutVarIdents.map (·.getId)
+  mutVarNames := muts.map (·.getId)
   getσ := do mkProdN (← mutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) baseMonadInfo.u
   stM α := return mkApp2 (mkConst ``Prod [baseMonadInfo.u, baseMonadInfo.u]) α (← getσ) -- NB: muts `σ` might have been refined by dependent pattern matches
 

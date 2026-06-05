@@ -81,11 +81,28 @@ def CodeLiveness.lub (a b : CodeLiveness) : CodeLiveness :=
   | _, .deadSyntactically => a
   | _, _ => a
 
+/-- A mutable variable declared by `let mut` in a `do` block. -/
+structure MutVar where
+  /-- The identifier of the `let mut` declaration. -/
+  ident : Ident
+  /-- The `FVarId` of the initial binding produced by `let mut`. -/
+  initFVarId : FVarId
+  deriving Inhabited
+
+/-- The raw `Name` of a `mut` variable, as found in the local context. -/
+@[inline] def MutVar.getId (mv : MutVar) : Name := mv.ident.getId
+
+/-- The pretty-printable name of a `mut` variable, with macro scopes simplified. -/
+@[inline] def MutVar.userName (mv : MutVar) : Name := mv.ident.getId.simpMacroScopes
+
+instance : ToMessageData MutVar where
+  toMessageData mv := .ofName mv.userName
+
 structure Context where
   /-- Inferred and cached information about the monad. -/
   monadInfo : MonadInfo
   /-- The mutable variables in declaration order. -/
-  mutVars : Array Ident := #[]
+  mutVars : Array MutVar := #[]
   /-- Maps mutable variable names to their initial FVarIds. -/
   mutVarDefs : Std.HashMap Name FVarId := {}
   /--
@@ -298,16 +315,18 @@ def DoOps.default : DoOps where
 /-- Register the given name as that of a `mut` variable. -/
 def declareMutVar (x : Ident) (k : DoElabM α) : DoElabM α := do
   let id ← getFVarFromUserName x.getId
+  let mv : MutVar := { ident := x, initFVarId := id.fvarId! }
   withReader (fun ctx => { ctx with
-    mutVars := ctx.mutVars.push x,
+    mutVars := ctx.mutVars.push mv,
     mutVarDefs := ctx.mutVarDefs.insert x.getId id.fvarId!,
   }) k
 
 /-- Register the given names as that of `mut` variables. -/
 def declareMutVars (xs : Array Ident) (k : DoElabM α) : DoElabM α := do
   let baseIds ← xs.mapM (getFVarFromUserName ·.getId)
+  let mvs : Array MutVar := xs.zipWith (fun x id => { ident := x, initFVarId := id.fvarId! }) baseIds
   withReader (fun ctx => { ctx with
-    mutVars := ctx.mutVars ++ xs,
+    mutVars := ctx.mutVars ++ mvs,
     mutVarDefs := ctx.mutVarDefs.insertMany (xs.map (·.getId) |>.zip (baseIds.map (·.fvarId!))),
   }) k
 
@@ -318,6 +337,10 @@ def declareMutVar? (mutTk? : Option Syntax) (x : Ident) (k : DoElabM α) : DoEla
 /-- Register the given names as that of `mut` variables if the syntax token `mut` is present. -/
 def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (k : DoElabM α) : DoElabM α :=
   if mutTk?.isSome then declareMutVars xs k else k
+
+/-- Look up a declared `mut` variable by its raw `Name`. -/
+def findMutVar? (n : Name) : DoElabM (Option MutVar) := do
+  return (← read).mutVars.find? (·.getId == n)
 
 /-- Throw an error if the given name is not a declared `mut` variable. -/
 def throwUnlessMutVarDeclared (x : Ident) : DoElabM Unit := do
@@ -332,8 +355,8 @@ def throwUnlessMutVarsDeclared (xs : Array Ident) : DoElabM Unit := do
 
 /-- Throw an error if a declaration of the given name would shadow a `mut` variable. -/
 def checkMutVarsForShadowingOne (x : Ident) : DoElabM Unit := do
-  if (← read).mutVarDefs.contains x.getId then
-    throwErrorAt x "mutable variable `{x.getId.simpMacroScopes}` cannot be shadowed"
+  if let some mv ← findMutVar? x.getId then
+    throwErrorAt x "mutable variable `{mv}` cannot be shadowed"
 
 /-- Throw an error if a declaration of the given name would shadow a `mut` variable. -/
 def checkMutVarsForShadowing (xs : Array Ident) : DoElabM Unit := do
@@ -636,7 +659,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     let mut e := mkApp jp' result
     for x in mutVars do
       let newX ← getFVarFromUserName x.getId
-      Term.addTermInfo' x newX
+      Term.addTermInfo' x.ident newX
       e := mkApp e (← getFVarFromUserName x.getId)
     return e
 
@@ -649,7 +672,7 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
   let joinRhs ← joinRhsMVar.mvarId!.withContext do
     withLocalDeclD nondupDec.resultName nondupDec.resultType fun r => do
     withLocalDeclsDND (mutDecls.map fun (d : LocalDecl) => (d.userName, d.type)) fun muts => do
-    for (x, newX) in mutVars.zip muts do Term.addTermInfo' x newX
+    for (x, newX) in mutVars.zip muts do Term.addTermInfo' x.ident newX
     let e ← (nondupDec.withDeadCodeFromInfo callerInfo).k
     mkLambdaFVars (#[r] ++ muts) e
   unless ← joinRhsMVar.mvarId!.checkedAssign joinRhs do

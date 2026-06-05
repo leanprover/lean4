@@ -542,7 +542,7 @@ def optionCompletion
     (ctx               : ContextInfo)
     (stx               : Syntax)
     (caps              : ClientCapabilities)
-    : IO (Array ResolvableCompletionItem) :=
+    : EIO Exception (Array ResolvableCompletionItem) :=
   ctx.runMetaM {} do
     -- HACK(WN): unfold the type so ForIn works
     let (decls : Std.TreeMap _ _ _) ← getOptionDecls
@@ -569,7 +569,7 @@ def errorNameCompletion
     (ctx               : ContextInfo)
     (partialId         : Syntax)
     (caps              : ClientCapabilities)
-    : IO (Array ResolvableCompletionItem) :=
+    : EIO Exception (Array ResolvableCompletionItem) :=
   ctx.runMetaM {} do
     let explanations ← getErrorExplanations
     return trailingDotCompletion explanations partialId caps ctx fun name explan textEdit? => {
@@ -596,7 +596,7 @@ def tacticCompletion
     (pos               : Lsp.Position)
     (completionInfoPos : Nat)
     (ctx               : ContextInfo)
-    : IO (Array ResolvableCompletionItem) := ctx.runMetaM .empty do
+    : EIO Exception (Array ResolvableCompletionItem) := ctx.runMetaM .empty do
   -- Don't include tactics that are identified only by their internal parser name
   let allTacticDocs ← Tactic.Doc.allTacticDocs (includeUnnamed := false)
   let items : Array ResolvableCompletionItem := allTacticDocs.map fun tacticDoc => {
@@ -643,7 +643,7 @@ def endSectionCompletion
     (id?               : Option Name)
     (danglingDot       : Bool)
     (scopeNames        : List String)
-    : IO (Array ResolvableCompletionItem) := do
+    : BaseIO (Array ResolvableCompletionItem) := do
   let mut idComponents := id?.map (fun id => id.components.toArray.map (·.toString)) |>.getD #[]
   if danglingDot then
     idComponents := idComponents.push ""

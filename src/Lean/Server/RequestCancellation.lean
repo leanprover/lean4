@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Server.ServerTask
+public import Lean.Server.Utils
 public import Init.System.Promise
 public import Init.System.CancelToken
 
@@ -29,6 +30,9 @@ def new : BaseIO RequestCancellationToken := do
     requestCancellationPromise := ← IO.Promise.new
     editCancellationPromise    := ← IO.Promise.new
   }
+
+def cancelTk (tk : RequestCancellationToken) : BaseIO IO.CancelToken :=
+  tk.cancelledByCancelRequest.merge tk.cancelledByEdit
 
 def cancelByCancelRequest (tk : RequestCancellationToken) : BaseIO Unit := do
   tk.cancelledByCancelRequest.set
@@ -63,14 +67,14 @@ structure RequestCancellation where
 def RequestCancellation.requestCancelled : RequestCancellation := {}
 
 abbrev CancellableT m := ReaderT RequestCancellationToken (ExceptT RequestCancellation m)
-abbrev CancellableM := CancellableT IO
+abbrev CancellableM := CancellableT (EIO Exception)
 
 def CancellableT.run (tk : RequestCancellationToken) (x : CancellableT m α) :
     m (Except RequestCancellation α) :=
   x tk
 
 def CancellableM.run (tk : RequestCancellationToken) (x : CancellableM α) :
-    IO (Except RequestCancellation α) :=
+    EIO Exception (Except RequestCancellation α) :=
   CancellableT.run tk x
 
 def CancellableT.checkCancelled [Monad m] [MonadLiftT BaseIO m] : CancellableT m Unit := do

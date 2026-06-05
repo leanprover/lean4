@@ -18,7 +18,7 @@ namespace Lean.Server.FileWorker.SignatureHelp
 open Lean
 
 def determineSignatureHelp (tree : Elab.InfoTree) (appStx : Syntax)
-    : IO (Option Lsp.SignatureHelp) := do
+    : EIO Exception (Option Lsp.SignatureHelp) := do
   let some (appCtx, .ofTermInfo appInfo) := tree.smallestInfo? fun
       | .ofTermInfo ti =>
         -- HACK: Use range of syntax to figure out corresponding `TermInfo`.
@@ -97,7 +97,8 @@ private def isPositionInLineComment (text : FileMap) (pos : String.Pos.Raw) : Bo
 
 open CandidateKind in
 def findSignatureHelp? (text : FileMap) (ctx? : Option Lsp.SignatureHelpContext) (cmdStx : Syntax)
-    (tree : Elab.InfoTree) (requestedPos : String.Pos.Raw) : IO (Option Lsp.SignatureHelp) := do
+    (tree : Elab.InfoTree) (requestedPos : String.Pos.Raw) :
+    EIO Exception (Option Lsp.SignatureHelp) := do
   -- HACK: Since comments are whitespace, the signature help can trigger on comments.
   -- This is especially annoying on end-of-line comments, as the signature help will trigger on
   -- every space in the comment.

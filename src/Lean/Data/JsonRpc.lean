@@ -63,7 +63,7 @@ inductive ErrorCode where
   If a client decides that a result is not of any use anymore
   the client should cancel the request. -/
   | contentModified
-  /-- The client has canceled a request and a server as detected the cancel. -/
+  /-- The client has cancelled a request and the server has detected the cancel. -/
   | requestCancelled
   -- Lean-specific codes below.
   | rpcNeedsReconnect

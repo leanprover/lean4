@@ -95,7 +95,7 @@ def resolveCompletionItem?
     (item              : CompletionItem)
     (id                : CompletionIdentifier)
     (completionInfoPos : Nat)
-    : IO CompletionItem := do
+    : EIO Exception CompletionItem := do
   let (completionInfos, _) := findCompletionInfosAt fileMap hoverPos cmdStx infoTree
   let some i := completionInfos[completionInfoPos]?
     | return item

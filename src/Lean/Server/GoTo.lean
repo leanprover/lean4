@@ -86,9 +86,10 @@ structure GoToContext where
 
 abbrev GoToM α := ReaderT GoToContext MetaM α
 
-def GoToM.run (ctx : GoToContext) (ci : ContextInfo) (lctx : LocalContext) (act : GoToM α) :
-    IO α :=
-  ci.runMetaM lctx <| ReaderT.run act ctx
+def GoToM.run (ctx : GoToContext) (ci : ContextInfo) (lctx : LocalContext) (act : GoToM α)
+    (cancelTk? : Option IO.CancelToken := none) :
+    EIO Exception α :=
+  ci.runMetaM lctx (ReaderT.run act ctx) cancelTk?
 
 def locationLinksFromDecl (declName : Name) : GoToM (Array LeanLocationLink) := do
   let ctx ← read
@@ -308,7 +309,8 @@ def locationLinksFromCommandInfo (i : CommandInfo) : GoToM (Array LeanLocationLi
   locationLinksFromImport i
 
 def locationLinksOfInfo (doc : DocumentMeta) (kind : GoToKind) (ictx : InfoWithCtx)
-    (infoTree? : Option InfoTree := none) : IO (Array LeanLocationLink) := do
+    (infoTree? : Option InfoTree := none) (cancelTk? : Option IO.CancelToken := none)
+    : EIO Exception (Array LeanLocationLink) := do
   let ctx : GoToContext := {
     doc
     kind
@@ -316,7 +318,7 @@ def locationLinksOfInfo (doc : DocumentMeta) (kind : GoToKind) (ictx : InfoWithC
     originInfo? := some ictx.info
     children := ictx.children
   }
-  GoToM.run ctx ictx.ctx ictx.info.lctx do
+  GoToM.run ctx ictx.ctx ictx.info.lctx (cancelTk? := cancelTk?) do
     let ll ←
       match ictx.info with
       | .ofTermInfo ti =>

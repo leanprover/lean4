@@ -237,8 +237,7 @@ def logException [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m] [
   | Exception.error ref msg => logErrorAt ref msg
   | Exception.internal id _ =>
     unless isAbortExceptionId id || ex.isInterrupt do
-      let name ← id.getName
-      logError m!"internal exception: {name}"
+      logError (← id.getDescription)
 
 /--
 If `x` throws an exception, catch it and turn it into a log message (using `logException`).

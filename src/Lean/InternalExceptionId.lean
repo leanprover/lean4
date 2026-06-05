@@ -47,4 +47,8 @@ def InternalExceptionId.getName (id : InternalExceptionId) : IO Name :=  do
   else
     throw <| IO.userError "invalid internal exception id"
 
+/-- Return a description containing the internal exception's name. -/
+def InternalExceptionId.getDescription (id : InternalExceptionId) : IO String :=
+  return s!"internal exception: {← id.getName}"
+
 end Lean

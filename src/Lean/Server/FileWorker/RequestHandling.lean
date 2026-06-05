@@ -130,15 +130,15 @@ def handleDefinition (kind : GoToKind) (p : TextDocumentPositionParams)
       let filter ctx info _ results := do
         let .ofTermInfo ti := info
           | return results
-        ctx.runMetaM info.lctx do
+        ctx.runMetaM info.lctx (cancelTk? := ← (← read).cancelTk.cancelTk) do
           results.filterM fun (_, r) => do
             let .ofTermInfo childTi := r.info
               | return true
             return ! (← isInstanceProjectionInfoFor kind ti childTi)
-      let some info ← snap.infoTree.hoverableInfoAtM? (m := IO) hoverPos
+      let some info ← snap.infoTree.hoverableInfoAtM? (m := RequestM) hoverPos
           (includeStop := true) (filter := filter)
         | return #[]
-      locationLinksOfInfo doc.meta kind info snap.infoTree
+      locationLinksOfInfo doc.meta kind info snap.infoTree (← (← read).cancelTk.cancelTk)
 
 open Language in
 def findGoalsAt? (doc : EditableDocument) (hoverPos : String.Pos.Raw) : ServerTask (Option (List Elab.GoalsAtResult)) :=
@@ -193,13 +193,13 @@ def getInteractiveGoals (p : Lsp.PlainGoalParams) : RequestM (RequestTask (Optio
       let ciAfter := { ci with mctx := ti.mctxAfter }
       let ci := if useAfter then ciAfter else { ci with mctx := ti.mctxBefore }
       -- compute the interactive goals
-      let goals ← ci.runMetaM {} (do
+      let goals ← ci.runMetaM {} (cancelTk? := ← (← read).cancelTk.cancelTk) (do
         let goals := List.toArray <| if useAfter then ti.goalsAfter else ti.goalsBefore
         let goals ← goals.mapM Widget.goalToInteractive
         return ⟨goals⟩
       )
       -- compute the goal diff
-      ciAfter.runMetaM {} (do
+      ciAfter.runMetaM {} (cancelTk? := ← (← read).cancelTk.cancelTk) (do
           try
             Widget.diffInteractiveGoals useAfter ti goals
           catch _ =>
@@ -231,11 +231,11 @@ def getInteractiveTermGoal (p : Lsp.PlainTermGoalParams)
   mapTaskCostly (findInfoTreeAtPos doc hoverPos (includeStop := true)) <| Option.bindM fun infoTree => do
     let some {ctx := ci, info := i@(Elab.Info.ofTermInfo ti), ..} := infoTree.termGoalAt? hoverPos
       | return none
-    let ty ← ci.runMetaM i.lctx do
+    let ty ← ci.runMetaM i.lctx (cancelTk? := ← (← read).cancelTk.cancelTk) do
       instantiateMVars <| ti.expectedType?.getD (← Meta.inferType ti.expr)
     -- for binders, hide the last hypothesis (the binder itself)
     let lctx' := if ti.isBinder then i.lctx.pop else i.lctx
-    let goal ← ci.runMetaM lctx' do
+    let goal ← ci.runMetaM lctx' (cancelTk? := ← (← read).cancelTk.cancelTk) do
       Widget.goalToInteractive (← Meta.mkFreshExprMVar ty).mvarId!
     let range := if let some r := i.range? then r.toLspRange text else ⟨p.position, p.position⟩
     return some { goal with range, term := ← WithRpcRef.mk ti }

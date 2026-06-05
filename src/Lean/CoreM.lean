@@ -440,7 +440,7 @@ Note that the value of `ctx.initHeartbeats` is ignored and replaced with `IO.get
 @[inline] def CoreM.toIO (x : CoreM α) (ctx : Context) (s : State) : IO (α × State) := do
   match (← (x.run { ctx with initHeartbeats := (← IO.getNumHeartbeats) } s).toIO') with
   | Except.error (Exception.error _ msg)   => throw <| IO.userError (← msg.toString)
-  | Except.error (Exception.internal id _) => throw <| IO.userError <| "internal exception #" ++ toString id.idx
+  | Except.error (Exception.internal id _) => throw <| IO.userError (← id.getDescription)
   | Except.ok a                            => return a
 
 @[inline] def CoreM.toIO' (x : CoreM α) (ctx : Context) (s : State) : IO α :=

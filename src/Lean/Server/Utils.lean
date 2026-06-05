@@ -21,6 +21,14 @@ namespace IO
 def throwServerError (err : String) : IO α :=
   throw (userError err)
 
+/-- Merge two cancellation tokens.
+The resulting token gets set as soon as any of the parents does. -/
+def CancelToken.merge (tk₁ : CancelToken) (tk₂ : CancelToken) : BaseIO CancelToken := do
+  let tk ← CancelToken.new
+  tk₁.onSet tk.set
+  tk₂.onSet tk.set
+  return tk
+
 namespace FS.Stream
 
 /--

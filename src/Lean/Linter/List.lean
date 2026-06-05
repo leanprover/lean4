@@ -207,7 +207,8 @@ def allowedArrayNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs"
 def allowedVectorNames : List String := ["ws", "xs", "ys", "zs", "as", "bs", "cs", "ds", "acc"]
 
 /-- Find all binders appearing in the given info tree. -/
-def binders (t : InfoTree) (p : Expr → Bool := fun _ => true) : IO (List (Syntax × Name × Expr)) :=
+def binders (t : InfoTree) (p : Expr → Bool := fun _ => true) :
+    EIO Exception (List (Syntax × Name × Expr)) :=
   t.collectTermInfoM fun ctx ti => do
     if ti.isBinder then do
       -- Something is wrong here: sometimes `inferType` fails with an unknown fvar error,

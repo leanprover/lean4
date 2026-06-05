@@ -786,7 +786,7 @@ instance : Append DocCode where
 
 
 private partial def highlightSyntax
-    [Monad m] [MonadLiftT IO m]
+    [Monad m] [MonadLiftT (EIO Exception) m]
     (trees : PersistentArray InfoTree) (stx : Syntax) : m DocCode := do
   (go stx).run {} <&> (·.2)
 where

@@ -492,7 +492,7 @@ def failIfSucceeds (x : CommandElabM Unit) : CommandElabM Unit := do
     hasNoErrorMessages
   catch
     | ex@(Exception.error _ _) => do logException ex; pure false
-    | Exception.internal id _  => do logError (← id.getName); pure false
+    | Exception.internal id _  => do logError (← id.getDescription); pure false
   finally
     restoreMessages prevMessages
   if succeeded then

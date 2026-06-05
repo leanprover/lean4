@@ -356,7 +356,7 @@ def Info.docString? (i : Info) : MetaM (Option String) := do
   return none
 
 /-- Construct a hover popup, if any, from an info node in a context.-/
-def Info.fmtHover? (ci : ContextInfo) (i : Info) : IO (Option FormatWithInfos) := do
+def Info.fmtHover? (ci : ContextInfo) (i : Info) : EIO Exception (Option FormatWithInfos) := do
   ci.runMetaM i.lctx do
     let mut fmts := #[]
     let mut infos := ∅

@@ -113,8 +113,9 @@ def InfoState.substituteLazy (s : InfoState) : Task InfoState :=
     lazyAssignment := {}
   }
 
-/-- Embeds a `CoreM` action in `IO` by supplying the information stored in `info`. -/
-def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
+/-- Embeds a `CoreM` action in `EIO` by supplying the information stored in `info`. -/
+def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α)
+    (cancelTk? : Option IO.CancelToken := none) : EIO Exception α := do
   -- We assume that this function is used only outside elaboration, mostly in the language server,
   -- and so we can and should provide access to information regardless whether it is exported.
   let env := info.env.setExporting false
@@ -122,20 +123,22 @@ def ContextInfo.runCoreM (info : ContextInfo) (x : CoreM α) : IO α := do
     We must execute `x` using the `ngen` stored in `info`. Otherwise, we may create `MVarId`s and `FVarId`s that
     have been used in `lctx` and `info.mctx`.
   -/
-  (·.1) <$>
-    (withOptions (fun _ => info.options) x).toIO
-      { currNamespace := info.currNamespace, openDecls := info.openDecls
-        fileName := "<InfoTree>", fileMap := default }
-      { env, ngen := info.ngen }
+  (withOptions (fun _ => info.options) x).run'
+    { currNamespace := info.currNamespace, openDecls := info.openDecls
+      fileName := "<InfoTree>", fileMap := default, cancelTk? }
+    { env, ngen := info.ngen }
 
-def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (x : MetaM α) : IO α := do
-  (·.1) <$> info.runCoreM (x.run { lctx := lctx } { mctx := info.mctx })
+def ContextInfo.runMetaM (info : ContextInfo) (lctx : LocalContext) (x : MetaM α)
+    (cancelTk? : Option IO.CancelToken := none) :
+    EIO Exception α := do
+  info.runCoreM (x.run' { lctx := lctx } { mctx := info.mctx }) cancelTk?
 
 def ContextInfo.toPPContext (info : ContextInfo) (lctx : LocalContext) : PPContext :=
   { env  := info.env, mctx := info.mctx, lctx := lctx,
     opts := info.options, currNamespace := info.currNamespace, openDecls := info.openDecls }
 
-def ContextInfo.ppSyntax (info : ContextInfo) (lctx : LocalContext) (stx : Syntax) : IO Format := do
+def ContextInfo.ppSyntax (info : ContextInfo) (lctx : LocalContext) (stx : Syntax) :
+    BaseIO Format :=
   ppTerm (info.toPPContext lctx) ⟨stx⟩  -- HACK: might not be a term
 
 private def formatStxRange (ctx : ContextInfo) (stx : Syntax) : Format :=
@@ -155,10 +158,10 @@ private def formatElabInfo (ctx : ContextInfo) (info : ElabInfo) : Format :=
   else
     f!"{formatStxRange ctx info.stx} @ {info.elaborator}"
 
-def TermInfo.runMetaM (info : TermInfo) (ctx : ContextInfo) (x : MetaM α) : IO α :=
+def TermInfo.runMetaM (info : TermInfo) (ctx : ContextInfo) (x : MetaM α) : EIO Exception α :=
   ctx.runMetaM info.lctx x
 
-def TermInfo.format (ctx : ContextInfo) (info : TermInfo) : IO Format := do
+def TermInfo.format (ctx : ContextInfo) (info : TermInfo) : EIO Exception Format := do
   info.runMetaM ctx do
     let ty : Format ←
       try
@@ -170,39 +173,39 @@ def TermInfo.format (ctx : ContextInfo) (info : TermInfo) : IO Format := do
 def PartialTermInfo.format (ctx : ContextInfo) (info : PartialTermInfo) : Format :=
   f!"[PartialTerm] @ {formatElabInfo ctx info.toElabInfo}"
 
-def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : IO Format :=
+def CompletionInfo.format (ctx : ContextInfo) (info : CompletionInfo) : EIO Exception Format :=
   match info with
   | .dot i (expectedType? := expectedType?) .. => return f!"[Completion-Dot] {← i.format ctx} : {expectedType?}"
   | .id stx _ _ lctx expectedType? => ctx.runMetaM lctx do return f!"[Completion-Id] {← ctx.ppSyntax lctx stx} : {expectedType?} @ {formatStxRange ctx info.stx}"
   | _ => return f!"[Completion] {info.stx} @ {formatStxRange ctx info.stx}"
 
-def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : IO Format := do
-  return f!"[Command] @ {formatElabInfo ctx info.toElabInfo}"
+def CommandInfo.format (ctx : ContextInfo) (info : CommandInfo) : Format :=
+  f!"[Command] @ {formatElabInfo ctx info.toElabInfo}"
 
-def OptionInfo.format (ctx : ContextInfo) (info : OptionInfo) : IO Format := do
-  return f!"[Option] {info.optionName} @ {formatStxRange ctx info.stx}"
+def OptionInfo.format (ctx : ContextInfo) (info : OptionInfo) : Format :=
+  f!"[Option] {info.optionName} @ {formatStxRange ctx info.stx}"
 
-def ErrorNameInfo.format (ctx : ContextInfo) (info : ErrorNameInfo) : IO Format := do
-  return f!"[ErrorName] {info.errorName} @ {formatStxRange ctx info.stx}"
+def ErrorNameInfo.format (ctx : ContextInfo) (info : ErrorNameInfo) : Format :=
+  f!"[ErrorName] {info.errorName} @ {formatStxRange ctx info.stx}"
 
-def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : IO Format := do
+def FieldInfo.format (ctx : ContextInfo) (info : FieldInfo) : EIO Exception Format := do
   ctx.runMetaM info.lctx do
     return f!"[Field] {info.fieldName} : {← Meta.ppExpr (← Meta.inferType info.val)} := {← Meta.ppExpr info.val} @ {formatStxRange ctx info.stx}"
 
-def ContextInfo.ppGoals (ctx : ContextInfo) (goals : List MVarId) : IO Format :=
+def ContextInfo.ppGoals (ctx : ContextInfo) (goals : List MVarId) : EIO Exception Format :=
   if goals.isEmpty then
     return "no goals"
   else
     ctx.runMetaM {} (return Std.Format.prefixJoin "\n" (← goals.mapM (Meta.ppGoal ·)))
 
-def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : IO Format := do
+def TacticInfo.format (ctx : ContextInfo) (info : TacticInfo) : EIO Exception Format := do
   let ctxB := { ctx with mctx := info.mctxBefore }
   let ctxA := { ctx with mctx := info.mctxAfter }
   let goalsBefore ← ctxB.ppGoals info.goalsBefore
   let goalsAfter  ← ctxA.ppGoals info.goalsAfter
   return f!"[Tactic] @ {formatElabInfo ctx info.toElabInfo}\n{info.stx}\nbefore {goalsBefore}\nafter {goalsAfter}"
 
-def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : IO Format := do
+def MacroExpansionInfo.format (ctx : ContextInfo) (info : MacroExpansionInfo) : BaseIO Format := do
   let stx    ← ctx.ppSyntax info.lctx info.stx
   let output ← ctx.ppSyntax info.lctx info.output
   return f!"[MacroExpansion]\n{stx}\n===>\n{output}"
@@ -216,16 +219,16 @@ def FVarAliasInfo.format (info : FVarAliasInfo) : Format :=
 def FieldRedeclInfo.format (ctx : ContextInfo) (info : FieldRedeclInfo) : Format :=
   f!"[FieldRedecl] @ {formatStxRange ctx info.stx}"
 
-def DelabTermInfo.docString? (ppCtx : PPContext) (info : DelabTermInfo) : IO (Option String) := do
+def DelabTermInfo.docString? (ppCtx : PPContext) (info : DelabTermInfo) :
+    BaseIO (Option String) := do
   match info.mkDocString? with
   | none => return none
   | some act =>
-    try
-      act ppCtx
-    catch ex =>
-      return s!"[Error: {ex.toString}]"
+    match ← (act ppCtx).toBaseIO with
+    | .ok v => return v
+    | .error ex => return s!"[Error: {ex.toString}]"
 
-def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : IO Format := do
+def DelabTermInfo.format (ctx : ContextInfo) (info : DelabTermInfo) : EIO Exception Format := do
   let loc := if let some loc := info.location? then f!"{loc.module} {loc.range.pos}-{loc.range.endPos}" else "none"
   let docString? ← info.docString? (ctx.toPPContext info.lctx)
   return f!"[DelabTerm] @ {← TermInfo.format ctx info.toTermInfo}\n\
@@ -242,14 +245,14 @@ def DocInfo.format (ctx : ContextInfo) (info : DocInfo) : Format :=
 def DocElabInfo.format (ctx : ContextInfo) (info : DocElabInfo) : Format :=
   f!"[DocElab] {info.name} ({repr info.kind}) @ {formatElabInfo ctx info.toElabInfo}"
 
-def Info.format (ctx : ContextInfo) : Info → IO Format
+def Info.format (ctx : ContextInfo) : Info → EIO Exception Format
   | ofTacticInfo i         => i.format ctx
   | ofTermInfo i           => i.format ctx
   | ofPartialTermInfo i    => pure <| i.format ctx
-  | ofCommandInfo i        => i.format ctx
+  | ofCommandInfo i        => pure <| i.format ctx
   | ofMacroExpansionInfo i => i.format ctx
-  | ofOptionInfo i         => i.format ctx
-  | ofErrorNameInfo i      => i.format ctx
+  | ofOptionInfo i         => pure <| i.format ctx
+  | ofErrorNameInfo i      => pure <| i.format ctx
   | ofFieldInfo i          => i.format ctx
   | ofCompletionInfo i     => i.format ctx
   | ofUserWidgetInfo i     => pure <| i.format
@@ -304,7 +307,8 @@ def PartialContextInfo.format (ctx : PartialContextInfo) : Format :=
   | .parentDeclCtx n => s!"parent[{n}]"
   | .autoImplicitCtx implicits => s!"autoImplicits[{implicits}]"
 
-partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) : IO Format := do
+partial def InfoTree.format (tree : InfoTree) (ctx? : Option ContextInfo := none) :
+    EIO Exception Format := do
   match tree with
   | hole id     => return .nestD f!"• ?{toString id.name}"
   | context i t => format t <| i.mergeIntoOuter? ctx?

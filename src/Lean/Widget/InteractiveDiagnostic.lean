@@ -112,10 +112,10 @@ private inductive EmbedFmt
   | ignoreTags
   deriving Inhabited
 
-private abbrev MsgFmtM := StateT (Array EmbedFmt) IO
+private abbrev MsgFmtM := StateT (Array EmbedFmt) BaseIO
 
 open MessageData in
-private partial def msgToInteractiveAux (msgData : MessageData) : IO (Format × Array EmbedFmt) :=
+private partial def msgToInteractiveAux (msgData : MessageData) : BaseIO (Format × Array EmbedFmt) :=
   go { currNamespace := Name.anonymous, openDecls := [] } none msgData |>.run #[]
 where
   pushEmbed (e : EmbedFmt) : MsgFmtM Nat :=
@@ -181,7 +181,7 @@ where
   | ctx?,     ofLazy f _          => do
     let dyn ← f (ctx?.map (mkPPContext nCtx))
     let some msg := dyn.get? MessageData
-      | throw <| IO.userError "MessageData.ofLazy: expected MessageData in Dynamic"
+      | return "[Error: MessageData.ofLazy: expected MessageData in Dynamic]"
     go nCtx ctx? msg
 
   /-- Recursively moves child nodes after the first `blockSize` into a new "more" node. -/
@@ -194,11 +194,12 @@ where
           f!"{children.size - blockSize} more entries..." more
     else children
 
-partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent : Nat := 0) : IO InteractiveMessage := do
+partial def msgToInteractive (msgData : MessageData) (hasWidgets : Bool) (indent : Nat := 0) :
+    EIO Exception InteractiveMessage := do
   if !hasWidgets then
     return (TaggedText.prettyTagged (← msgData.format)).rewrite fun _ tt => .text tt.stripTags
   let (fmt, embeds) ← msgToInteractiveAux msgData
-  let rec fmtToTT (fmt : Format) (indent : Nat) : IO InteractiveMessage :=
+  let rec fmtToTT (fmt : Format) (indent : Nat) : EIO Exception InteractiveMessage :=
     (TaggedText.prettyTagged fmt indent).rewriteM fun (n, col) tt =>
       match embeds[n]! with
         | .code ctx infos => do
@@ -252,9 +253,9 @@ def msgToInteractiveDiagnostic (text : FileMap) (m : Message) (hasWidgets : Bool
     if m.data.hasTag (· == `Tactic.unsolvedGoals) then some #[.unsolvedGoals]
     else if m.data.hasTag (· == `goalsAccomplished) then some #[.goalsAccomplished]
     else none
-  let message := match (← msgToInteractive m.data hasWidgets |>.toBaseIO) with
-    | .ok msg => msg
-    | .error ex => TaggedText.text s!"[error when printing message: {ex.toString}]"
+  let message ← match (← msgToInteractive m.data hasWidgets |>.toBaseIO) with
+    | .ok msg => pure msg
+    | .error ex => pure <| TaggedText.text s!"[error when printing message: {← ex.toMessageData.toString}]"
   let code? := (errorNameOfKind? m.kind).map (.string ·.toString)
   pure { range, fullRange? := some fullRange, severity?, source?, message, tags?, leanTags?, isSilent?, code? }
 

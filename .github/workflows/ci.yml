@@ -344,8 +344,9 @@ jobs:
               },
               {
                 "name": "macOS aarch64",
+                "enabled": level >= 1,
                 // standard GH runner only comes with 7GB so use large runner if possible when running tests
-                "os": large && (fast || level >= 1) ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
+                "os": large ? "nscloud-macos-sequoia-arm64-6x14" : "macos-15",
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
@@ -353,12 +354,6 @@ jobs:
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
-                // Run in PRs so developers get PR toolchains (so secondary without tests is sufficient);
-                // skip in merge queues as it takes longer than the Linux release build and adds little
-                // value in the merge queue; run in release (obviously)
-                "enabled": isPr || level != 1,
-                "test": level >= 1,
-                "secondary": level == 0,
               },
               {
                 "name": "Windows",

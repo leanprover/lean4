@@ -111,8 +111,10 @@ def mkProjections (n : Name) (projDecls : Array StructProjDecl) (instImplicit : 
                 let decl ← mkDefinitionValInferringUnsafe projName indVal.levelParams projType projVal ReducibilityHints.abbrev
                 -- Projections have special compiler support. No need to compile.
                 addDecl <| Declaration.defnDecl decl
+                if instImplicit then
+                  setReducibilityStatus projName .implicitReducible
+                else
                 -- Recall: we want instance projections to be in "reducible canonical form"
-                if !instImplicit then
                   setReducibleAttribute projName
             modifyEnv fun env => addProjectionFnInfo env projName ctorVal.name indVal.numParams i instImplicit
             let proj := mkApp (mkAppN (.const projName lvls) params) self

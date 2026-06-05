@@ -77,7 +77,7 @@ theorem isEqv_eq_decide (xs ys : Array α) (r) :
 
 @[simp, grind =] theorem isEqv_toList [BEq α] (xs ys : Array α) : (xs.toList.isEqv ys.toList r) = (xs.isEqv ys r) := by
   -- rfl is necessary because `Array.getInternal isn't instance-reducible
-  simp [isEqv_eq_decide, List.isEqv_eq_decide, Array.size]; rfl
+  simp [isEqv_eq_decide, List.isEqv_eq_decide, Array.size]; try rfl
 
 theorem eq_of_isEqv [DecidableEq α] (xs ys : Array α) (h : Array.isEqv xs ys (fun x y => x = y)) : xs = ys := by
   have ⟨h, h'⟩ := rel_of_isEqv h
@@ -156,7 +156,7 @@ theorem beq_eq_decide [BEq α] (xs ys : Array α) :
 
 @[simp, grind =] theorem beq_toList [BEq α] (xs ys : Array α) : (xs.toList == ys.toList) = (xs == ys) := by
   -- rfl is necessary because `Array.getInternal isn't instance-reducible
-  simp [beq_eq_decide, List.beq_eq_decide, Array.size]; rfl
+  simp [beq_eq_decide, List.beq_eq_decide, Array.size]; try rfl
 
 end Array
 

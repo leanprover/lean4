@@ -80,6 +80,12 @@ register_builtin_option backward.isDefEq.implicitBump : Bool := {
   not just instance-implicit ones"
 }
 
+register_builtin_option backward.isDefEq.implicitBumpHO : Bool := {
+  defValue := true
+  descr    := "if true, bump transparency to `.implicit` for non-instance HO implicit arguments, \
+  not just instance-implicit ones"
+}
+
 register_builtin_option trace.Meta.isDefEq.printTransparency : Bool := {
   defValue := false
   descr    := "if true, prefix `Meta.isDefEq` `=?=` trace messages with the current transparency level"
@@ -396,6 +402,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
       return false
   let respectTransparency := backward.isDefEq.respectTransparency.get (← getOptions)
   let implicitBump := backward.isDefEq.implicitBump.get (← getOptions)
+  let implicitBumpHO := backward.isDefEq.implicitBumpHO.get (← getOptions)
   for i in postponedImplicit do
     /- Second pass: unify implicit arguments.
        When `respectTransparency` is `false` (old behavior), we bump to `.default` so that
@@ -420,15 +427,17 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
       discard <| trySynthPending a₁
       discard <| trySynthPending a₂
     if respectTransparency && info.binderInfo.isInstImplicit then
-      -- Instance-implicit `[..]` arguments: bump to `.instances` so type class instances
-      -- (`[instance_reducible]`) unfold for diamond resolution. `[implicit_reducible]`
-      -- annotations have no effect here — they should not corrupt TC-tier defeq.
-      unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+      -- Instance-implicit `[..]` arguments: bump to `.implicit`
+      trace[Meta.isDefEq.transparency] "bumped transparency (1)"
+      unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do
+        return false
     else if respectTransparency && implicitBump then
       -- Other implicit arguments: bump to `.implicit` so that `[instance_reducible]` definitions
       -- (e.g. `Nat.add`, `Array.size`) and user-marked `[implicit_reducible]` definitions both
       -- unfold for value-level defeq.
-      unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+      trace[Meta.isDefEq.transparency] "bumped transparency (2)"
+      unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do
+        return false
     else if respectTransparency then
       unless (← Meta.isExprDefEqAux a₁ a₂) do return false
     else
@@ -438,8 +447,10 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
     let a₁   := args₁[i]!
     let a₂   := args₂[i]!
     if respectTransparency && finfo.paramInfo[i]!.isInstance then
-      unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
-    else if respectTransparency && implicitBump then
+      trace[Meta.isDefEq.transparency] "bumped transparency to instances (3)"
+      unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do
+        return false
+    else if respectTransparency && implicitBumpHO then -- comment these two out?
       unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else if !respectTransparency && finfo.paramInfo[i]!.isInstance then
       -- Old behavior

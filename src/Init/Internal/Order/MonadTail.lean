@@ -31,6 +31,8 @@ class MonadTail (m : Type u → Type v) [Bind m] where
   bind_mono_right {a : m α} {f₁ f₂ : α → m β} [Nonempty β] (h : ∀ x, f₁ x ⊑ f₂ x) :
     a >>= f₁ ⊑ a >>= f₂
 
+-- TODO: We should be able to remove this after a stage0 update
+set_option allowUnsafeReducibility true in
 attribute [implicit_reducible] MonadTail.instCCPO
 attribute [instance] MonadTail.instCCPO
 

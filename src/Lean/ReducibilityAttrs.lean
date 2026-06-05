@@ -150,8 +150,8 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         throwError "failed to set reducibility status, `{.ofConstName declName}` has not been defined in this file, consider using the `local` modifier{suffix}"
       match status with
       | .reducible =>
-        unless statusOld matches .semireducible do
-          throwError "failed to set `[reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
+        unless statusOld matches .semireducible | .implicitReducible do
+          throwError "failed to set `[reducible]`, `{.ofConstName declName}` is not currently `[semireducible]` nor `[implicit_reducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .irreducible =>
         unless statusOld matches .semireducible | .implicitReducible | .instanceReducible do
           throwError "failed to set `[irreducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, `[implicit_reducible]` nor `[instance_reducible]`, but `{statusOld.toAttrString}`{suffix}"
@@ -162,8 +162,8 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         unless statusOld matches .semireducible | .instanceReducible do
           throwError "failed to set `[implicit_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]` nor `[instance_reducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .instanceReducible =>
-        unless statusOld matches .semireducible do
-          throwError "failed to set `[instance_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]`, but `{statusOld.toAttrString}`{suffix}"
+        unless statusOld matches .semireducible | .implicitReducible do
+          throwError "failed to set `[instance_reducible]`, `{.ofConstName declName}` is not currently `[semireducible]` nor `[implicit_reducible]`, but `{statusOld.toAttrString}`{suffix}"
       | .semireducible =>
         throwError "failed to set `[semireducible]` for `{.ofConstName declName}`, declarations are `[semireducible]` by default{suffix}"
     | .local =>
@@ -177,8 +177,8 @@ private def validate (declName : Name) (status : ReducibilityStatus) (attrKind :
         unless statusOld matches .semireducible | .instanceReducible do
           throwError "failed to set `[local implicit_reducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` or `[instance_reducible]` expected{suffix}"
       | .instanceReducible =>
-        unless statusOld matches .semireducible do
-          throwError "failed to set `[local instance_reducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` expected{suffix}"
+        unless statusOld matches .semireducible | .implicitReducible do
+          throwError "failed to set `[local instance_reducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[semireducible]` or `implicit_reducible` expected{suffix}"
       | .semireducible =>
         unless statusOld matches .irreducible do
           throwError "failed to set `[local semireducible]`, `{.ofConstName declName}` is currently `{statusOld.toAttrString}`, `[irreducible]` expected{suffix}"

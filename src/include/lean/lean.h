@@ -694,7 +694,7 @@ static inline void lean_dec_ref_known(lean_object * o, unsigned objs) {
         for(unsigned i = 0; i < objs; i++) {
             lean_dec(lean_ctor_get(o, i));
         }
-        lean_del_object(o);
+        lean_free_object(o);
     } else {
         lean_dec_ref(o);
     }

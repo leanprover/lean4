@@ -135,6 +135,6 @@ instance : MonadTail IO :=
 
 instance {ω : Type} {σ : Type} {m : Type → Type} [Monad m] [MonadTail m] :
     MonadTail (StateRefT' ω σ m) :=
-  inferInstanceAs (MonadTail (ReaderT (ST.Ref ω σ) m))
+  inferInstanceAs (MonadTail (ReaderT (ST.ThreadLocalRef ω σ) m))
 
 end Lean.Order

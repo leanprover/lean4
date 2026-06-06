@@ -12,6 +12,7 @@ public import Lake.Build.Context
 public import Lake.Config.Module
 public import Lake.Util.EquipT
 public import Lake.Util.Cycle
+public import Std.Sync.Basic
 import Lake.Build.Infos
 
 /-! # Recursive Building
@@ -44,7 +45,7 @@ A recursive build of a Lake build store that may encounter a cycle.
 An internal monad. **Not intended for user use.**
 -/
 public abbrev RecBuildT (m : Type → Type) :=
-  ReaderT CurrPackage <| CallStackT BuildKey <| StateRefT' IO.RealWorld BuildStore <| BuildT m
+  ReaderT CurrPackage <| CallStackT BuildKey <| Std.AtomicT BuildStore <| BuildT m
 
 /-- Build cycle error message. -/
 public def buildCycleError (cycle : Cycle BuildKey) : String :=

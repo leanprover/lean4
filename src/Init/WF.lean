@@ -518,7 +518,7 @@ should be demonstrated for the given number.
 /--
 Case analysis based on strong induction for the natural numbers.
 -/
-@[elab_as_elim, inline] protected def Nat.caseStrongRecOn
+@[elab_as_elim, macro_inline] protected def Nat.caseStrongRecOn
     {motive : Nat → Sort u}
     (a : Nat)
     (zero : motive 0)

@@ -159,7 +159,7 @@ def declareBuiltin (forDecl : Name) (value : Expr) : CoreM Unit :=
 @[export lean_run_init_attrs]
 private unsafe def runInitAttrs (env : Environment) (opts : Options) : IO Unit := do
   if !(← isInitializerExecutionEnabled) then
-    throw <| IO.userError "`enableInitializerExecution` must be run before calling `importModules (loadExts := true)`"
+    throw <| IO.userError "`enableInitializersExecution` must be run before calling `importModules (loadExts := true)`"
   -- **Note**: `ModuleIdx` is not an abbreviation, and we don't have instances for it.
   -- Thus, we use `(modIdx : Nat)`
   for mod in env.header.modules, (modIdx : Nat) in 0...* do

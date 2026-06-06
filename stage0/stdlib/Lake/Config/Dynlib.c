@@ -231,7 +231,7 @@ lean_object* v_head_65_; lean_object* v___x_66_;
 lean_dec(v_x_62_);
 v_head_65_ = lean_ctor_get(v_x_61_, 0);
 lean_inc(v_head_65_);
-lean_dec_ref(v_x_61_);
+lean_dec_ref_known(v_x_61_, 2);
 v___x_66_ = l_Lake_instReprDynlib_repr___redArg(v_head_65_);
 return v___x_66_;
 }
@@ -241,7 +241,7 @@ lean_object* v_head_67_; lean_object* v___x_68_; lean_object* v___x_69_;
 lean_inc(v_tail_64_);
 v_head_67_ = lean_ctor_get(v_x_61_, 0);
 lean_inc(v_head_67_);
-lean_dec_ref(v_x_61_);
+lean_dec_ref_known(v_x_61_, 2);
 v___x_68_ = l_Lake_instReprDynlib_repr___redArg(v_head_67_);
 v___x_69_ = l_List_foldl___at___00Std_Format_joinSep___at___00Array_repr___at___00Lake_instReprDynlib_repr_spec__0_spec__0_spec__2(v_x_62_, v___x_68_, v_tail_64_);
 return v___x_69_;

@@ -935,7 +935,7 @@ if (lean_obj_tag(v___y_396_) == 1)
 lean_object* v_val_403_; lean_object* v___x_404_; 
 v_val_403_ = lean_ctor_get(v___y_396_, 0);
 lean_inc(v_val_403_);
-lean_dec_ref(v___y_396_);
+lean_dec_ref_known(v___y_396_, 1);
 v___x_404_ = l_Array_mkArray1___redArg(v_val_403_);
 v___y_251_ = v___y_372_;
 v___y_252_ = v___y_373_;
@@ -1109,7 +1109,7 @@ if (lean_obj_tag(v___y_412_) == 1)
 lean_object* v_val_477_; lean_object* v___x_478_; 
 v_val_477_ = lean_ctor_get(v___y_412_, 0);
 lean_inc(v_val_477_);
-lean_dec_ref(v___y_412_);
+lean_dec_ref_known(v___y_412_, 1);
 v___x_478_ = l_Array_mkArray1___redArg(v_val_477_);
 lean_inc(v_quotContext_416_);
 lean_inc(v_currMacroScope_417_);
@@ -1281,7 +1281,7 @@ v_a_514_ = lean_ctor_get(v___x_513_, 0);
 lean_inc(v_a_514_);
 v_a_515_ = lean_ctor_get(v___x_513_, 1);
 lean_inc(v_a_515_);
-lean_dec_ref(v___x_513_);
+lean_dec_ref_known(v___x_513_, 2);
 v_sz_516_ = lean_array_size(v_a_514_);
 v___x_517_ = ((size_t)0ULL);
 v___x_518_ = l___private_Init_Data_Array_Basic_0__Array_mapMUnsafe_map___at___00Lake___aux__Lake__Util__OpaqueType______macroRules__Lake__nonemptyTypeCmd__1_spec__0(v_sz_516_, v___x_517_, v_a_514_);
@@ -2302,7 +2302,7 @@ if (lean_obj_tag(v___y_1083_) == 1)
 lean_object* v_val_1189_; lean_object* v___x_1190_; 
 v_val_1189_ = lean_ctor_get(v___y_1083_, 0);
 lean_inc(v_val_1189_);
-lean_dec_ref(v___y_1083_);
+lean_dec_ref_known(v___y_1083_, 1);
 v___x_1190_ = l_Array_mkArray1___redArg(v_val_1189_);
 lean_inc(v_quotContext_1084_);
 lean_inc(v_currMacroScope_1085_);

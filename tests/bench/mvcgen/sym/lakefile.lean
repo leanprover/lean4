@@ -4,9 +4,6 @@ open System Lake DSL
 package mvcgen_bench where
   precompileModules := true
 
-lean_lib VCGen where
-  srcDir := "lib"
-
 lean_lib Baseline where
   srcDir := "lib"
 
@@ -30,4 +27,4 @@ lean_lib BaselineBench where
 
 @[test_driver]
 lean_lib VCGenTest where
-  roots := #[`test_vcgen]
+  roots := #[`test_vcgen, `test_do_logic]

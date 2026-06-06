@@ -69,12 +69,17 @@ instance : BEq Name where
 instance : Hashable Name where
   hash x := Hashable.hash x.value
 
-theorem Name.beq_eq {x y : Name} : (x == y) = (x.value == y.value) :=
+theorem beq_eq {x y : Name} : (x == y) = (x.value == y.value) :=
   rfl
 
+set_option linter.extra.dupNamespace false in
+@[deprecated beq_eq (since := "2026-06-04")]
+theorem Name.beq_eq {x y : Name} : (x == y) = (x.value == y.value) :=
+  Header.Name.beq_eq
+
 instance : LawfulBEq Name where
-  rfl {x} := by simp [Name.beq_eq]
-  eq_of_beq {x y} := by grind [Name.beq_eq, Name.ext]
+  rfl {x} := by simp [beq_eq]
+  eq_of_beq {x y} := by grind [beq_eq, Name.ext]
 
 instance : LawfulHashable Name := inferInstance
 

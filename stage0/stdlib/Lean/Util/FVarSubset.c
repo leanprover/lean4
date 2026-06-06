@@ -227,7 +227,7 @@ return v___x_49_;
 }
 else
 {
-lean_dec_ref(v___x_53_);
+lean_dec_ref_known(v___x_53_, 1);
 return v___x_48_;
 }
 }

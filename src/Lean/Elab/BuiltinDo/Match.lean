@@ -26,9 +26,9 @@ open Lean.Meta.Match
 private def elabDoSeqWithRefinedType (type : Expr) (doSeq : TSyntax ``doSeq) (dec : DoElemCont) : DoElabM Expr := do
   let newDoBlockResultType ← withNewMCtxDepth do
     let γ ← mkFreshExprMVar (mkSort (← read).monadInfo.u.succ)
-    unless ← isDefEqGuarded type (← mkMonadicType γ) do
+    unless ← isDefEqGuarded type (← mkMonadApp γ) do
       throwError "Could not determine dependently-refined result type of `do` block.\n
-        Expected type {type} was not def eq to {← mkMonadicType γ}"
+        Expected type {type} was not def eq to {← mkMonadApp γ}"
     instantiateMVars γ
   trace[Elab.do.match] "newDoBlockResultType: {newDoBlockResultType}"
   -- The `doBlockResultType` *is* the continuation's return type, since it is duplicable.
@@ -47,7 +47,7 @@ The rest of the code in this file is concerned with providing the default, non-d
 private def expandToTermMatch : DoElab := fun stx dec => do
   let `(doMatch| match $[(dependent := $dep?)]? $[(generalizing := $gen?)]? $[(motive := $motive?)]? $discrs:matchDiscr,* with $alts:matchAlt*) := stx | throwUnsupportedSyntax
   let doBlockResultType := (← read).doBlockResultType
-  let mγ ← mkMonadicType doBlockResultType
+  let mγ ← mkMonadApp doBlockResultType
   -- trace[Elab.do] "expandToTermMatch. mγ: {mγ}, dec.resultType: {dec.resultType}, dec.duplicable: {dec.kind matches .duplicable ..}"
   let info ← inferControlInfoElem stx
   let dependent := dep?.getD ⟨.missing⟩ matches `(trueVal| true)
@@ -183,7 +183,7 @@ private def elabMatchAlt (discrs : Array Term.Discr) (matchType : Expr)
 
 private def elabMatchAlts (discrs : Array Term.Discr) (alts : Array DoMatchAltView) (dec : DoElemCont) : DoElabM (Expr × Array AltLHS × Array Expr) := do
   let alts ← liftMacroM <| Term.expandMacrosInPatterns alts
-  let matchType ← mkDepMatchMotive discrs (← mkMonadicType (← read).doBlockResultType)
+  let matchType ← mkDepMatchMotive discrs (← mkMonadApp (← read).doBlockResultType)
   let (lhss, rhss) ← Array.unzip <$> alts.mapM (elabMatchAlt discrs matchType · dec)
   return (matchType, lhss, rhss)
 

@@ -26,17 +26,17 @@ Gets the zone rules for a specific time zone identifier, handling Windows and no
 In windows it uses the current `icu.h` in Windows SDK. If it's linux or macos then it will use the `tzdata`
 files.
 -/
-def defaultGetZoneRules : String → IO TimeZone.ZoneRules :=
+def defaultGetZoneRules (name : String) : IO TimeZone.ZoneRules := do
   if System.Platform.isWindows
-    then getZoneRules WindowsDb.default
-    else getZoneRules TZdb.default
+    then getZoneRules WindowsDb.default name
+    else getZoneRules TZdb.default name
 
 /--
 Gets the local zone rules, accounting for platform differences.
 In windows it uses the current `icu.h` in Windows SDK. If it's linux or macos then it will use the `tzdata`
 files.
 -/
-def defaultGetLocalZoneRules : IO TimeZone.ZoneRules :=
+def defaultGetLocalZoneRules : IO TimeZone.ZoneRules := do
   if System.Platform.isWindows
     then getLocalZoneRules WindowsDb.default
     else getLocalZoneRules TZdb.default

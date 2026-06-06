@@ -420,7 +420,6 @@ where
       for h : idx in 0...chunks do
         have : idx * 8 + 7 < scalarArgs.size := by
           have : idx < scalarArgs.size / 8 := Std.Rco.lt_upper_of_mem h
-          simp at this
           omega
         let b1 := scalarArgs[idx * 8]
         let b2 := scalarArgs[idx * 8 + 1]
@@ -790,8 +789,8 @@ partial def emitBasicBlock (code : Code .impure) : EmitM Unit := do
   | .inc fvarId n check persistent k =>
     unless persistent do emitInc fvarId n check
     emitBasicBlock k
-  | .dec fvarId n check persistent k =>
-    unless persistent do emitDec fvarId n check
+  | .dec fvarId n check persistent objs? k =>
+    unless persistent do emitDec fvarId n check objs?
     emitBasicBlock k
   | .del fvarId k =>
     emitDel fvarId
@@ -822,11 +821,15 @@ where
       emitCApp2 incFn fvarId n
     emitLn ";"
 
-  emitDec (fvarId : FVarId) (n : Nat) (check : Bool) : EmitM Unit := do
+  emitDec (fvarId : FVarId) (n : Nat) (check : Bool) (objs? : Option Nat) : EmitM Unit := do
     -- Anything else is unsupported at the moment
     assert! n == 1
-    let decFn := if check then "lean_dec" else "lean_dec_ref"
-    emitCApp1 decFn fvarId
+    match objs? with
+    | some objs =>
+      emitCApp2 "lean_dec_ref_known" fvarId objs
+    | none =>
+      let decFn := if check then "lean_dec" else "lean_dec_ref"
+      emitCApp1 decFn fvarId
     emitLn ";"
 
   emitDel (fvarId : FVarId) : EmitM Unit := do

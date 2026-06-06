@@ -29,28 +29,28 @@ set_option linter.all true
 /--
 Checks if a character is ASCII (Unicode code point < 128).
 -/
-@[inline, expose]
+@[inline]
 def isAscii (c : Char) : Bool :=
   c.toNat < 128
 
 /--
 Checks if a byte represents an ASCII character (value < 128).
 -/
-@[inline, expose]
+@[inline]
 def isAsciiByte (c : UInt8) : Bool :=
   c < 128
 
 /--
 Checks if a byte is a decimal digit (0-9).
 -/
-@[inline, expose]
+@[inline]
 def isDigitByte (c : UInt8) : Bool :=
   c >= '0'.toUInt8 && c <= '9'.toUInt8
 
 /--
 Checks if a byte is an alphabetic character (a-z or A-Z).
 -/
-@[inline, expose]
+@[inline]
 def isAlphaByte (c : UInt8) : Bool :=
   (c >= 'A'.toUInt8 && c <= 'Z'.toUInt8) || (c >= 'a'.toUInt8 && c <= 'z'.toUInt8)
 
@@ -196,7 +196,7 @@ def reasonPhraseChar (c : Char) : Bool :=
 /--
 Checks if a character is a hexadecimal digit (0-9, a-f, or A-F).
 -/
-@[inline, expose]
+@[inline]
 def isHexDigit (c : Char) : Bool :=
   (c matches 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F') ||
   Char.isDigit c
@@ -204,7 +204,7 @@ def isHexDigit (c : Char) : Bool :=
 /--
 Checks if a byte is a hexadecimal digit (0-9, a-f, or A-F).
 -/
-@[inline, expose]
+@[inline]
 def isHexDigitByte (c : UInt8) : Bool :=
   (c ≥ '0'.toUInt8 && c ≤ '9'.toUInt8) ||
   (c ≥ 'a'.toUInt8 && c ≤ 'f'.toUInt8) ||
@@ -213,7 +213,7 @@ def isHexDigitByte (c : UInt8) : Bool :=
 /--
 Checks if a byte is an alphanumeric digit (0-9, a-z, or A-Z).
 -/
-@[inline, expose]
+@[inline]
 def isAlphaNum (c : UInt8) : Bool :=
   (c ≥ '0'.toUInt8 && c ≤ '9'.toUInt8) ||
   (c ≥ 'a'.toUInt8 && c ≤ 'z'.toUInt8) ||
@@ -222,7 +222,7 @@ def isAlphaNum (c : UInt8) : Bool :=
 /--
 Checks whether `c` is an ASCII alphanumeric character.
 -/
-@[inline, expose]
+@[inline]
 def isAsciiAlphaNumChar (c : Char) : Bool :=
   isAscii c && (Char.isDigit c || Char.isAlpha c)
 
@@ -230,7 +230,7 @@ def isAsciiAlphaNumChar (c : Char) : Bool :=
 Checks if a character is valid after the first character of a URI scheme.
 Valid characters are ASCII alphanumeric, `+`, `-`, and `.`.
 -/
-@[inline, expose]
+@[inline]
 def isValidSchemeChar (c : Char) : Bool :=
   isAsciiAlphaNumChar c || (c matches '+' | '-' | '.')
 
@@ -238,7 +238,7 @@ def isValidSchemeChar (c : Char) : Bool :=
 Checks if a character is valid for use in a domain name.
 Valid characters are ASCII alphanumeric, hyphens, and dots.
 -/
-@[inline, expose]
+@[inline]
 def isValidDomainNameChar (c : Char) : Bool :=
   isAsciiAlphaNumChar c || (c matches '-' | '.')
 
@@ -246,7 +246,7 @@ def isValidDomainNameChar (c : Char) : Bool :=
 Checks if a byte is an unreserved character according to RFC 3986. Unreserved characters are:
 alphanumeric, hyphen, period, underscore, and tilde.
 -/
-@[inline, expose]
+@[inline]
 def isUnreserved (c : UInt8) : Bool :=
   isAlphaNum c ||
   (c = '-'.toUInt8 || c = '.'.toUInt8 || c = '_'.toUInt8 || c = '~'.toUInt8)
@@ -255,7 +255,7 @@ def isUnreserved (c : UInt8) : Bool :=
 Checks if a byte is a sub-delimiter character according to RFC 3986.
 Sub-delimiters are: `!`, `$`, `&`, `'`, `(`, `)`, `*`, `+`, `,`, `;`, `=`.
 -/
-@[inline, expose]
+@[inline]
 def isSubDelims (c : UInt8) : Bool :=
   c = '!'.toUInt8 || c = '$'.toUInt8 || c = '&'.toUInt8 || c = ('\'' : Char).toUInt8 ||
   c = '('.toUInt8 || c = ')'.toUInt8 || c = '*'.toUInt8 || c = '+'.toUInt8 ||
@@ -268,7 +268,7 @@ Checks if a byte is a valid path character (`pchar`) according to RFC 3986.
 Note: The percent-encoding (`pct-encoded`) is handled separately by `isEncodedChar`,
 so this predicate only covers the non-percent characters.
 -/
-@[inline, expose]
+@[inline]
 def isPChar (c : UInt8) : Bool :=
   isUnreserved c || isSubDelims c || c = ':'.toUInt8 || c = '@'.toUInt8
 
@@ -276,7 +276,7 @@ def isPChar (c : UInt8) : Bool :=
 Checks if a byte is a valid character in a URI query component according to RFC 3986.
 `query = *( pchar / "/" / "?" )`
 -/
-@[inline, expose]
+@[inline]
 def isQueryChar (c : UInt8) : Bool :=
   isPChar c || c = '/'.toUInt8 || c = '?'.toUInt8
 
@@ -284,7 +284,7 @@ def isQueryChar (c : UInt8) : Bool :=
 Checks if a byte is a valid character in a URI fragment component according to RFC 3986.
 `fragment = *( pchar / "/" / "?" )`
 -/
-@[inline, expose]
+@[inline]
 def isFragmentChar (c : UInt8) : Bool :=
   isPChar c || c = '/'.toUInt8 || c = '?'.toUInt8
 
@@ -295,7 +295,7 @@ Checks if a byte is a valid character in a URI userinfo component according to R
 Note: It avoids the pct-encoded of the original grammar because it is used with `Encoding.lean`
 that provides it.
 -/
-@[inline, expose]
+@[inline]
 def isUserInfoChar (c : UInt8) : Bool :=
   isUnreserved c || isSubDelims c || c = ':'.toUInt8
 
@@ -306,7 +306,7 @@ excluding the typical key/value separators `&` and `=`.
 Inspired by `query = *( pchar / "/" / "?" )` from RFC 3986,
 but disallows `&` and `=` so they can be treated as structural separators.
 -/
-@[inline, expose]
+@[inline]
 def isQueryDataChar (c : UInt8) : Bool :=
   isQueryChar c && c ≠ '&'.toUInt8 && c ≠ '='.toUInt8
 

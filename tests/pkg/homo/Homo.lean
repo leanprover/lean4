@@ -3,7 +3,7 @@ import Homo.Init
 set_option warn.sorry false
 
 opaque TSpec (_ : Nat) : (α : Type) × α := ⟨Unit, ()⟩
-abbrev T (x : Nat) : Type := (TSpec x).1
+def T (x : Nat) : Type := (TSpec x).1
 instance : Inhabited (T x) := ⟨TSpec x |>.2⟩
 opaque toInt : T n → Int
 @[grind_homo_pred] axiom toInt_bounds (x : T n) : 0 <= toInt x ∧ toInt x < 2^n
@@ -27,4 +27,10 @@ set_option trace.homo.pred true
 -- set_option trace.grind.assert true
 example (b : T 7) : pos b → small b →
     small (f 7 (0 + d + a + 1)) → pos (f 7 (0 + d + a + 1)) → small c → pos c → let x := b; le b (add c (add x (f 7 (0 + d + a + 1)))) := by
+  grind
+
+example (x : Int) : 0 ≤ x → x < 2 → (2*x) % 128 = x → x = 0 := by
+  grind
+
+example (b : T 1) (h : add b b = b) : toInt b = 0 := by
   grind

@@ -47,9 +47,9 @@ inductive IntInterval : Type where
 namespace IntInterval
 
 /-- The interval `[0, 2^n)`. -/
-@[expose] abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
+abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
 /-- The interval `[-2^(n-1), 2^(n-1))`. -/
-@[expose] abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
+abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
 
 /-- The lower bound of the interval, if finite. -/
 @[expose] def lo? (i : IntInterval) : Option Int :=

@@ -130,6 +130,12 @@ structure ZoneRules where
 namespace Transition
 
 /--
+Returns the transition time as a `Timestamp`.
+-/
+def timestamp (t : Transition) : Timestamp :=
+  Timestamp.ofSecondsSinceUnixEpoch t.time
+
+/--
 Create a TimeZone from a Transition.
 -/
 def createTimeZoneFromTransition (transition : Transition) : TimeZone :=
@@ -206,6 +212,22 @@ def findLocalTimeTypeForTimestamp (zr : ZoneRules) (timestamp : Timestamp) : Loc
   Transition.findTransitionForTimestamp zr.transitions timestamp
   |>.map (·.localTimeType)
   |>.getD zr.initialLocalTimeType
+
+/--
+Finds the `LocalTimeType` for a given wall-clock time (seconds since 1970-01-01T00:00:00 in local time).
+Unlike `findLocalTimeTypeForTimestamp`, this compares each transition's UTC time adjusted by the
+previous offset — necessary when converting local time to UTC.
+-/
+def findLocalTimeTypeForWallTime (zr : ZoneRules) (wallTime : WallTime) : LocalTimeType := Id.run do
+  let mut ltt := zr.initialLocalTimeType
+
+  for t in zr.transitions do
+    let localTransitionTime := t.timestamp.toWallTime ltt.gmtOffset
+    if wallTime < localTransitionTime then
+      return ltt
+    ltt := t.localTimeType
+
+  return ltt
 
 /--
 Find the current `TimeZone` out of a `Transition` in a `ZoneRules`

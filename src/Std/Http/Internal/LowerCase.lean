@@ -30,7 +30,7 @@ set_option linter.all true
 /--
 Predicate asserting that a string is in lowercase form.
 -/
-@[expose] def IsLowerCase (s : String) : Prop :=
+def IsLowerCase (s : String) : Prop :=
   s.toLower = s
 
 private theorem Char.toLower_eq_self_iff {c : Char} : c.toLower = c ↔ c.isUpper = false := by
@@ -50,7 +50,14 @@ instance : Decidable (IsLowerCase s) :=
 namespace IsLowerCase
 
 private theorem Char.toLower_idempotent (c : Char) : c.toLower.toLower = c.toLower := by
-  grind [Char.toLower]
+  simp only [Char.toLower]
+  split
+  · split
+    · next h1 h2 =>
+      simp only [UInt32.le_iff_toNat_le, UInt32.toNat_add, seval] at h1 h2
+      omega
+    · simp
+  · rfl
 
 /--
 Proof that applying `toLower` to any string results in a string that satisfies the `IsLowerCase`

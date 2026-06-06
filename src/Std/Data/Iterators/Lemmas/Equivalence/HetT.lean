@@ -109,7 +109,7 @@ theorem Small.of_surjective (α : Type v) {β : Type w} (f : α → β) [Small.{
 
 instance {α : Type v} {β : Type w} {f : α → β} [Small.{u} α] :
     Small.{u} { b : β // ∃ a, f a = b } := .of_surjective α (fun a => ⟨f a, a, rfl⟩)
-        (fun b => ⟨b.2.choose, by simp; ext; exact b.2.choose_spec⟩)
+        (fun b => ⟨b.2.choose, by ext; exact b.2.choose_spec⟩)
 
 theorem Small.map {α : Type v} {β : Type w} (P : α → Prop) (f : (a : α) → P a → β)
     [Small.{u} { a // P a }] :
@@ -187,7 +187,7 @@ attribute [-simp] HetT.mk.injEq
 /--
 Converts `PostconditionT m α` to `HetT m α`, preserving the postcondition property.
 -/
-@[expose] noncomputable def HetT.ofPostconditionT [Monad m] (x : PostconditionT m α) : HetT m α :=
+noncomputable def HetT.ofPostconditionT [Monad m] (x : PostconditionT m α) : HetT m α :=
   ⟨x.Property, inferInstance, USquash.deflate <$> x.operation⟩
 
 noncomputable instance (m : Type w → Type w') [Monad m] : MonadLift m (HetT m) where
@@ -198,7 +198,7 @@ Lifts `x : m α` into `HetT m α` with the trivial postcondition.
 
 Caution: This is not a lawful monad lifting function
 -/
-@[expose] noncomputable def HetT.lift {α : Type w} {m : Type w → Type w'} [Monad m] (x : m α) :
+noncomputable def HetT.lift {α : Type w} {m : Type w → Type w'} [Monad m] (x : m α) :
     HetT m α :=
   x
 
@@ -229,7 +229,7 @@ protected noncomputable def HetT.map {m : Type w → Type w'} [Functor m] {α : 
 /--
 A generalization of `HetT.bind` that provides the postcondition property to the mapping function.
 -/
-@[expose] protected noncomputable def HetT.pbind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
+protected noncomputable def HetT.pbind {m : Type w → Type w'} [Monad m] {α : Type u} {β : Type v}
     (x : HetT m α) (f : (a : α) → x.Property a → HetT m β) : HetT m β :=
   have := x.small
   have := fun a h => (f a h).small
@@ -290,7 +290,7 @@ theorem HetT.prun_ofPostconditionT [Monad m] [LawfulMonad m] {x : PostconditionT
 /--
 If the monad `m` is liftable to `n`, lifts `HetT m α` to `HetT n α`.
 -/
-@[expose] noncomputable def HetT.liftInner {m : Type w → Type w'} (n : Type w → Type w'') [MonadLiftT m n]
+noncomputable def HetT.liftInner {m : Type w → Type w'} (n : Type w → Type w'') [MonadLiftT m n]
     (x : HetT m α) : HetT n α :=
   ⟨x.Property, x.small, x.operation⟩
 

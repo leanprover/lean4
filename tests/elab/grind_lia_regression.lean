@@ -3,3 +3,13 @@
 example (n : Nat) (i : Fin (n + 1 + 1)) (h : n + 1 + 1 ≤ ↑i + ↑i + 1) :
     ↑i + ↑i + 1 - (n + 1 + 1) < n + 1 + 1 := by
   lia
+
+-- Regression test for issue #13575: `lia` should case-split on implications
+-- whose antecedent is a conjunction of arithmetic predicates.
+example (a b c d e : Int) :
+    e = b + c - 1 →
+    0 < c →
+    (b ≤ b ∧ b < b + c → a ≤ b ∧ b < a + d) →
+    (b ≤ e ∧ e < b + c → a ≤ e ∧ e < a + d) →
+    b + c ≤ a + d := by
+  lia

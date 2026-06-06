@@ -314,7 +314,6 @@ of another state. Having this proof bundled up with the step is important for te
 
 See `IterM.Step` and `Iter.Step` for the concrete choice of the plausibility predicate.
 -/
-@[expose]
 abbrev PlausibleIterStep (IsPlausibleStep : IterStep α β → Prop) := Subtype IsPlausibleStep
 
 /--
@@ -384,7 +383,7 @@ attribute [reducible] Iterator.IsPlausibleStep
 section Monadic
 
 /-- The constructor has been renamed. -/
-@[deprecated IterM.mk (since := "2025-01-19"), inline, expose]
+@[deprecated IterM.mk (since := "2025-01-19"), inline]
 abbrev IterM.mk' {α : Type w} {m : Type w → Type w'} {β : Type w} (it : α) : IterM (α := α) m β :=
   ⟨it⟩
 
@@ -434,7 +433,6 @@ abbrev IterM.IsPlausibleStep {α : Type w} {m : Type w → Type w'} {β : Type w
 The type of the step object returned by `IterM.step`, containing an `IterStep`
 and a proof that this is a plausible step for the given iterator.
 -/
-@[expose]
 abbrev IterM.Step {α : Type w} {m : Type w → Type w'} {β : Type w} [Iterator α m β]
     (it : IterM (α := α) m β) :=
   PlausibleIterStep it.IsPlausibleStep
@@ -493,7 +491,6 @@ section Pure
 Asserts that certain step is plausibly the successor of a given iterator. What "plausible" means
 is up to the `Iterator` instance but it should be strong enough to allow termination proofs.
 -/
-@[expose]
 abbrev Iter.IsPlausibleStep {α : Type w} {β : Type w} [Iterator α Id β]
     (it : Iter (α := α) β) (step : IterStep (Iter (α := α) β) β) : Prop :=
   it.toIterM.IsPlausibleStep (step.mapIterator Iter.toIterM)
@@ -549,7 +546,6 @@ theorem IterM.IsPlausibleIndirectOutput.trans {α β : Type w} {m : Type w → T
 The type of the step object returned by `Iter.step`, containing an `IterStep`
 and a proof that this is a plausible step for the given iterator.
 -/
-@[expose]
 abbrev Iter.Step {α : Type w} {β : Type w} [Iterator α Id β] (it : Iter (α := α) β) :=
   PlausibleIterStep (Iter.IsPlausibleStep it)
 

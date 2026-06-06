@@ -340,7 +340,7 @@ lean_ctor_set(v___x_147_, 13, v_inheritedTraceOptions_145_);
 lean_ctor_set_uint8(v___x_147_, sizeof(void*)*14, v_diag_142_);
 lean_ctor_set_uint8(v___x_147_, sizeof(void*)*14 + 1, v_suppressElabErrors_144_);
 v___x_148_ = l_Lean_throwError___at___00Lean_throwErrorAt___at___00Lean_Elab_Tactic_Grind_elabSymSimproc_spec__1_spec__1___redArg(v_msg_120_, v___y_125_, v___y_126_, v___x_147_, v___y_128_);
-lean_dec_ref(v___x_147_);
+lean_dec_ref_known(v___x_147_, 14);
 return v___x_148_;
 }
 }
@@ -384,7 +384,7 @@ if (lean_obj_tag(v___x_179_) == 0)
 lean_object* v_a_180_; lean_object* v_value_181_; lean_object* v___x_182_; lean_object* v___x_183_; 
 v_a_180_ = lean_ctor_get(v___x_179_, 0);
 lean_inc(v_a_180_);
-lean_dec_ref(v___x_179_);
+lean_dec_ref_known(v___x_179_, 1);
 v_value_181_ = lean_ctor_get(v_head_177_, 1);
 v___x_182_ = lean_box(0);
 lean_inc(v_value_181_);
@@ -545,7 +545,7 @@ return v___x_209_;
 }
 else
 {
-lean_dec_ref(v_a_194_);
+lean_dec_ref_known(v_a_194_, 2);
 lean_del_object(v___x_203_);
 v_as_x27_165_ = v_tail_178_;
 v_b_166_ = v___x_198_;
@@ -830,7 +830,7 @@ lean_dec(v___x_271_);
 lean_dec(v_stx_258_);
 v_val_291_ = lean_ctor_get(v_fst_279_, 0);
 lean_inc(v_val_291_);
-lean_dec_ref(v_fst_279_);
+lean_dec_ref_known(v_fst_279_, 1);
 if (v_isShared_278_ == 0)
 {
 lean_ctor_set(v___x_277_, 0, v_val_291_);
@@ -1012,7 +1012,7 @@ if (lean_obj_tag(v___x_415_) == 0)
 lean_object* v_a_416_; lean_object* v_value_417_; lean_object* v___x_418_; lean_object* v___x_419_; 
 v_a_416_ = lean_ctor_get(v___x_415_, 0);
 lean_inc(v_a_416_);
-lean_dec_ref(v___x_415_);
+lean_dec_ref_known(v___x_415_, 1);
 v_value_417_ = lean_ctor_get(v_head_413_, 1);
 v___x_418_ = lean_box(0);
 lean_inc(v_value_417_);
@@ -1173,7 +1173,7 @@ return v___x_445_;
 }
 else
 {
-lean_dec_ref(v_a_430_);
+lean_dec_ref_known(v_a_430_, 2);
 lean_del_object(v___x_439_);
 v_as_x27_401_ = v_tail_414_;
 v_b_402_ = v___x_434_;
@@ -1449,7 +1449,7 @@ lean_dec(v___x_504_);
 lean_dec(v_stx_491_);
 v_val_524_ = lean_ctor_get(v_fst_512_, 0);
 lean_inc(v_val_524_);
-lean_dec_ref(v_fst_512_);
+lean_dec_ref_known(v_fst_512_, 1);
 if (v_isShared_511_ == 0)
 {
 lean_ctor_set(v___x_510_, 0, v_val_524_);

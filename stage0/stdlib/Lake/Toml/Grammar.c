@@ -1271,7 +1271,7 @@ return v___x_85_;
 else
 {
 uint8_t v___x_86_; 
-lean_dec_ref(v_x_84_);
+lean_dec_ref_known(v_x_84_, 1);
 v___x_86_ = 0;
 return v___x_86_;
 }
@@ -1281,7 +1281,7 @@ else
 if (lean_obj_tag(v_x_84_) == 0)
 {
 uint8_t v___x_87_; 
-lean_dec_ref(v_x_83_);
+lean_dec_ref_known(v_x_83_, 1);
 v___x_87_ = 0;
 return v___x_87_;
 }
@@ -1290,10 +1290,10 @@ else
 lean_object* v_val_88_; lean_object* v_val_89_; uint8_t v___x_90_; 
 v_val_88_ = lean_ctor_get(v_x_83_, 0);
 lean_inc(v_val_88_);
-lean_dec_ref(v_x_83_);
+lean_dec_ref_known(v_x_83_, 1);
 v_val_89_ = lean_ctor_get(v_x_84_, 0);
 lean_inc(v_val_89_);
-lean_dec_ref(v_x_84_);
+lean_dec_ref_known(v_x_84_, 1);
 v___x_90_ = l_Lean_Parser_instBEqError_beq(v_val_88_, v_val_89_);
 return v___x_90_;
 }

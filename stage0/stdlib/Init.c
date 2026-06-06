@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init
-// Imports: public import Init.Prelude public import Init.Notation public import Init.Tactics public import Init.TacticsExtra public import Init.ByCases public import Init.RCases public import Init.Core public import Init.Control public import Init.WF public import Init.WFComputable public import Init.WFTactics public import Init.Data public import Init.System public import Init.Util public import Init.Dynamic public import Init.ShareCommon public import Init.MetaTypes public import Init.Meta public import Init.NotationExtra public import Init.SimpLemmas public import Init.PropLemmas public import Init.Hints public import Init.Conv public import Init.Guard public import Init.Simproc public import Init.CbvSimproc public import Init.SizeOfLemmas public import Init.BinderPredicates public import Init.Ext public import Init.Omega public import Init.MacroTrace public import Init.Grind public import Init.GrindInstances public import Init.Sym public import Init.While public import Init.Syntax public import Init.Internal public import Init.Try public meta import Init.Try public import Init.BinderNameHint public import Init.Task public import Init.MethodSpecsSimp public import Init.LawfulBEqTactics
+// Imports: public import Init.Prelude public import Init.Notation public import Init.Tactics public import Init.TacticsExtra public import Init.ByCases public import Init.RCases public import Init.Core public import Init.Control public import Init.WF public import Init.WFComputable public import Init.WFTactics public import Init.Data public import Init.System public import Init.Util public import Init.Dynamic public import Init.ShareCommon public import Init.MetaTypes public import Init.Meta public import Init.NotationExtra public import Init.SimpLemmas public import Init.PropLemmas public import Init.Hints public import Init.Conv public import Init.Guard public import Init.Simproc public import Init.CbvSimproc public import Init.SizeOfLemmas public import Init.BinderPredicates public import Init.Ext public import Init.Omega public import Init.MacroTrace public import Init.Grind public import Init.GrindInstances public import Init.Sym public import Init.While public import Init.Syntax public import Init.Internal public import Init.Try public meta import Init.Try public import Init.BinderNameHint public import Init.Task public import Init.MethodSpecsSimp public import Init.LawfulBEqTactics public import Init.Linter
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -55,6 +55,7 @@ lean_object* runtime_initialize_Init_BinderNameHint(uint8_t builtin);
 lean_object* runtime_initialize_Init_Task(uint8_t builtin);
 lean_object* runtime_initialize_Init_MethodSpecsSimp(uint8_t builtin);
 lean_object* runtime_initialize_Init_LawfulBEqTactics(uint8_t builtin);
+lean_object* runtime_initialize_Init_Linter(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init(uint8_t builtin) {
 lean_object * res;
@@ -186,6 +187,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Init_LawfulBEqTactics(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Init_Linter(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* runtime_initialize_Init_Try(uint8_t builtin);
@@ -242,6 +246,7 @@ lean_object* initialize_Init_BinderNameHint(uint8_t builtin);
 lean_object* initialize_Init_Task(uint8_t builtin);
 lean_object* initialize_Init_MethodSpecsSimp(uint8_t builtin);
 lean_object* initialize_Init_LawfulBEqTactics(uint8_t builtin);
+lean_object* initialize_Init_Linter(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init(uint8_t builtin) {
 lean_object * res;
@@ -374,6 +379,9 @@ res = initialize_Init_MethodSpecsSimp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_LawfulBEqTactics(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Linter(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init(builtin);

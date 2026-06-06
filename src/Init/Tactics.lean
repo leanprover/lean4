@@ -761,11 +761,27 @@ This is a "finishing" tactic modification of `simp`. It has two forms.
   (which has also been simplified). This construction also tends to be
   more robust under changes to the simp lemma set.
 
+  The final match between the simplified `e` and the simplified goal uses
+  **reducible** transparency, so it does not unfold semireducible definitions.
+  Write `simpa [rules, ⋯] using! e` to perform the match at the ambient
+  (default/semireducible) transparency instead.
+
 * `simpa [rules, ⋯]` will simplify the goal and the type of a
   hypothesis `this` if present in the context, then try to close the goal using
   the `assumption` tactic.
+
+As with `simp`, the `!` modifier after `simpa` enables auto-unfolding of
+definitions in the simp set.
 -/
 syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
+
+/-- The arguments to `simpa ... using! e` — like `simpaArgsRest`, but with a
+mandatory `using!` clause selecting the permissive default-transparency close. -/
+syntax simpaUsingBangArgsRest :=
+  optConfig (discharger)? &" only "? (simpArgs)? " using! " term
+
+@[tactic_alt simpa]
+syntax (name := simpaUsingBang) "simpa" "?"? "!"? simpaUsingBangArgsRest : tactic
 
 @[inherit_doc simpa] macro "simpa!" rest:simpaArgsRest : tactic =>
   `(tactic| simpa ! $rest:simpaArgsRest)
@@ -775,6 +791,18 @@ syntax (name := simpa) "simpa" "?"? "!"? simpaArgsRest : tactic
 
 @[inherit_doc simpa] macro "simpa?!" rest:simpaArgsRest : tactic =>
   `(tactic| simpa ?! $rest:simpaArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa!" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ! $rest:simpaUsingBangArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa?" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ? $rest:simpaUsingBangArgsRest)
+
+@[inherit_doc simpa, tactic_alt simpa]
+macro "simpa?!" rest:simpaUsingBangArgsRest : tactic =>
+  `(tactic| simpa ?! $rest:simpaUsingBangArgsRest)
 
 /--
 `delta id1 id2 ...` delta-expands the definitions `id1`, `id2`, ....
@@ -1131,6 +1159,31 @@ scope of the tactic.
 syntax (name := classical) "classical" ppDedent(tacticSeq) : tactic
 
 /--
+Configuration for the `impossible` tactic.
+-/
+structure ImpossibleConfig where
+  /-- If true (default: false), abstract the universe parameters of the surrounding
+  declaration as level metavariables in the goal handed to the inner tactic, so it
+  can specialize them by exhibiting witnesses at specific universes. By default
+  these parameters are kept fixed. -/
+  levels : Bool := false
+
+/--
+`impossible by t` uses the tactic `t` to prove that the current goal is impossible
+to prove.
+
+If the goal is `xs ⊢ P`, the tactic `t` sees the goal `¬(∀ xs, P)`. Any expression metavariables in
+the original goal turn into variables in the context.
+
+Universe parameters of the surrounding declaration are kept fixed (not abstracted); the `+levels`
+option turns them into fresh level metavariables instead. Universe metavariables in the goal are
+rejected.
+
+The original goal is closed as if `sorry` was used.
+-/
+syntax (name := impossible) "impossible" optConfig " by " ppDedent(tacticSeq) : tactic
+
+/--
 The `split` tactic is useful for breaking nested if-then-else and `match` expressions into separate cases.
 For a `match` expression with `n` cases, the `split` tactic generates at most `n` subgoals.
 
@@ -1162,16 +1215,6 @@ It is useful when working on the middle of a complex proofs,
 and less messy than commenting the remainder of the proof.
 -/
 macro "stop" tacticSeq : tactic => `(tactic| repeat sorry)
-
-/--
-The tactic `specialize h a₁ ... aₙ` works on local hypothesis `h`.
-The premises of this hypothesis, either universal quantifications or
-non-dependent implications, are instantiated by concrete terms coming
-from arguments `a₁` ... `aₙ`.
-The tactic adds a new hypothesis with the same name `h := h a₁ ... aₙ`
-and tries to clear the previous one.
--/
-syntax (name := specialize) "specialize " term : tactic
 
 /--
 `unhygienic tacs` runs `tacs` with name hygiene disabled.
@@ -1260,8 +1303,8 @@ macro "nomatch " es:term,+ : tactic =>
   `(tactic| exact nomatch $es:term,*)
 
 /--
-Acts like `have`, but removes a hypothesis with the same name as
-this one if possible. For example, if the state is:
+`replace h := e` is like `have h := e`, but it removes a previous hypothesis
+of the same name as this one if possible. For example, if the state is:
 
 ```lean
 f : α → β
@@ -1286,9 +1329,28 @@ h : β
 ⊢ goal
 ```
 
-This can be used to simulate the `specialize` and `apply at` tactics of Coq.
+The tactic `specialize h a₁ ... aₙ` is a way to write `replace h := h a₁ ... aₙ`,
+automatically inferring which hypothesis should be replaced.
+
+The `replace` tactic can be used to simulate Rocq's `apply at` tactic.
 -/
 syntax (name := replace) "replace" letDecl : tactic
+
+/--
+`specialize h a₁ ... aₙ` is equivalent to `replace h := h a₁ ... aₙ`.
+It specializes the local hypothesis `h` by instantiating
+universal quantifications and implications using the concrete terms `a₁` ... `aₙ`.
+The tactic adds a new hypothesis with the same name and tries to remove
+the original `h` if possible.
+
+Example: given `h : ∀ (n : Nat), p n → q n` and `h' : p 2`,
+then `specialize h 2 h'` replaces `h` with `h : q 2`.
+
+The tactic also supports instantiating particular universal quantifiers
+using named argument syntax. Example: given `h : ∀ (m n : Nat), p m n`,
+then `specialize h (n := 2)` replaces `h` with `h : ∀ (m : Nat), p m 2`.
+-/
+syntax (name := specialize) "specialize " term : tactic
 
 /-- `and_intros` applies `And.intro` until it does not make progress. -/
 syntax "and_intros" : tactic
@@ -2238,8 +2300,8 @@ options. Of particular note is `stepLimit = some 42`, which is useful for bisect
 Often, `mvcgen` will be used like this:
 ```
 mvcgen [...]
-case inv1 => by exact I1
-case inv2 => by exact I2
+case inv1 => exact I1
+case inv2 => exact I2
 all_goals (mleave; try grind)
 ```
 There is special syntax for this:
@@ -2292,6 +2354,10 @@ theorem mySum_suggest_invariant (l : List Nat) : mySum l = l.sum := by
 -/
 macro (name := mvcgenMacro) (priority:=low) "mvcgen" : tactic =>
   Macro.throwError "to use `mvcgen`, please include `import Std.Tactic.Do`"
+
+/-- Experimental Sym-based drop-in for `mvcgen`; see `mvcgen` for documentation. -/
+macro (name := mvcgen'Macro) (priority:=low) "mvcgen'" : tactic =>
+  Macro.throwError "to use `mvcgen'`, please include `import Std.Tactic.Do`"
 
 /--
 `cbv` performs simplification that closely mimics call-by-value evaluation.

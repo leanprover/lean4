@@ -7,7 +7,7 @@ module
 
 prelude
 public import Lean.MonadEnv
-public import Lean.Linter.Basic
+public import Lean.Linter.Init
 public import Lean.Elab.Util
 
 public section

@@ -340,13 +340,13 @@ v_a_73_ = lean_ctor_get(v___x_72_, 0);
 lean_inc(v_a_73_);
 if (lean_obj_tag(v_a_73_) == 0)
 {
-lean_dec_ref(v___x_72_);
+lean_dec_ref_known(v___x_72_, 1);
 v_i_59_ = v_n_70_;
 goto _start;
 }
 else
 {
-lean_dec_ref(v_a_73_);
+lean_dec_ref_known(v_a_73_, 1);
 lean_dec(v_n_70_);
 lean_dec_ref(v_type_57_);
 return v___x_72_;
@@ -425,13 +425,13 @@ lean_inc(v_a_116_);
 if (lean_obj_tag(v_a_116_) == 0)
 {
 lean_object* v___x_117_; 
-lean_dec_ref(v___x_115_);
+lean_dec_ref_known(v___x_115_, 1);
 v___x_117_ = l_Lean_PersistentArray_findSomeRevMAux___at___00Lean_PersistentArray_findSomeRevM_x3f___at___00Lean_LocalContext_findDeclRevM_x3f___at___00Lean_Meta_findLocalDeclWithType_x3f_spec__0_spec__0_spec__2(v_type_105_, v_root_112_, v___y_107_, v___y_108_, v___y_109_, v___y_110_);
 return v___x_117_;
 }
 else
 {
-lean_dec_ref(v_a_116_);
+lean_dec_ref_known(v_a_116_, 1);
 lean_dec_ref(v_type_105_);
 return v___x_115_;
 }
@@ -1316,7 +1316,7 @@ v___x_455_ = l_Lean_MVarId_checkNotAssigned(v_mvarId_448_, v___x_449_, v___y_450
 if (lean_obj_tag(v___x_455_) == 0)
 {
 lean_object* v___x_456_; 
-lean_dec_ref(v___x_455_);
+lean_dec_ref_known(v___x_455_, 1);
 lean_inc(v_mvarId_448_);
 v___x_456_ = l_Lean_MVarId_getType(v_mvarId_448_, v___y_450_, v___y_451_, v___y_452_, v___y_453_);
 if (lean_obj_tag(v___x_456_) == 0)
@@ -1324,7 +1324,7 @@ if (lean_obj_tag(v___x_456_) == 0)
 lean_object* v_a_457_; lean_object* v___x_458_; 
 v_a_457_ = lean_ctor_get(v___x_456_, 0);
 lean_inc(v_a_457_);
-lean_dec_ref(v___x_456_);
+lean_dec_ref_known(v___x_456_, 1);
 v___x_458_ = l_Lean_Meta_findLocalDeclWithType_x3f(v_a_457_, v___y_450_, v___y_451_, v___y_452_, v___y_453_);
 if (lean_obj_tag(v___x_458_) == 0)
 {
@@ -1378,7 +1378,7 @@ lean_object* v_val_468_; lean_object* v___x_469_; lean_object* v___x_470_; lean_
 lean_del_object(v___x_461_);
 v_val_468_ = lean_ctor_get(v_a_459_, 0);
 lean_inc(v_val_468_);
-lean_dec_ref(v_a_459_);
+lean_dec_ref_known(v_a_459_, 1);
 v___x_469_ = l_Lean_mkFVar(v_val_468_);
 v___x_470_ = l_Lean_MVarId_assign___at___00Lean_MVarId_assumptionCore_spec__0___redArg(v_mvarId_448_, v___x_469_, v___y_451_);
 v_isSharedCheck_479_ = !lean_is_exclusive(v___x_470_);

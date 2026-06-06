@@ -369,7 +369,7 @@ else
 lean_object* v_val_122_; uint8_t v___x_123_; 
 v_val_122_ = lean_ctor_get(v___x_120_, 0);
 lean_inc(v_val_122_);
-lean_dec_ref(v___x_120_);
+lean_dec_ref_known(v___x_120_, 1);
 v___x_123_ = lean_unbox(v_val_122_);
 lean_dec(v_val_122_);
 if (v___x_123_ == 0)
@@ -412,7 +412,7 @@ else
 lean_object* v_val_134_; uint8_t v___x_135_; 
 v_val_134_ = lean_ctor_get(v___x_132_, 0);
 lean_inc(v_val_134_);
-lean_dec_ref(v___x_132_);
+lean_dec_ref_known(v___x_132_, 1);
 v___x_135_ = lean_unbox(v_val_134_);
 lean_dec(v_val_134_);
 if (v___x_135_ == 1)

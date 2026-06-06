@@ -317,7 +317,7 @@ def activateInjectiveTheorem (injThm : InjectiveTheorem) (generation : Nat) : Go
     let some thm := thm? | reportIssue! "failed to assert injectivity theorem `{injThm.origin.pp}`"
     activateTheorem thm generation
   else
-    addNewRawFact injThm.proof type generation (.inj injThm.origin)
+    addNewRawFact injThm.proof type generation (.inj injThm.origin) .other
 
 private def activateInjectiveTheorems (declName : Name) (generation : Nat) : GoalM Unit := do
   if (← getConfig).inj then
@@ -610,7 +610,6 @@ where
         mkENode e generation (funCC := funCC)
         updateAppMap e
         checkAndAddSplitCandidate e
-        pushCastHEqs e
         addMatchEqns f generation
         if args.size == 2 && f.isConstOf ``Grind.nestedProof then
           -- We only internalize the proposition. We can skip the proof because of
@@ -656,6 +655,7 @@ where
               let arg := args[i]
               internalizeImpl arg generation e
               registerParent e arg
+        pushCastHEqs e
         addCongrTable e
         Solvers.internalize e parent?
         propagateUp e

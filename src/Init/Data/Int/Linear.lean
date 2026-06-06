@@ -191,7 +191,7 @@ def Poly.combine' (fuel : Nat) (p₁ p₂ : Poly) : Poly :=
     else
       .add a₂ x₂ (combine' fuel (.add a₁ x₁ p₁) p₂)
 
-@[expose] abbrev hugeFuel := 100000000
+abbrev hugeFuel := 100000000
 
 @[expose]
 def Poly.combine (p₁ p₂ : Poly) : Poly :=
@@ -636,7 +636,6 @@ private theorem eq_of_norm_eq_of_divCoeffs {ctx : Context} {p₁ p₂ : Poly} {k
   have hz : k ≠ 0 := Int.ne_of_gt h₀
   replace h₁ := Poly.denote_div_eq_of_divCoeffs ctx p₁ k h₁
   replace h₂ := congrArg (Poly.denote ctx) h₂
-  simp at h₂
   rw [h₂, ← h₁]; clear h₁ h₂
   apply mul_add_cmod_le_iff
   assumption
@@ -1758,11 +1757,11 @@ private theorem ex_of_dvd {α β a b d x : Int}
     rw [one_emod_eq_one h₀] at h₂
     assumption
   have : ((α * a) * x) % d = (- α * b) % d := by
-    replace h₁ := congrArg (α * ·) h₁; simp only at h₁
+    replace h₁ := congrArg (α * ·) h₁; try simp only at h₁ -- TODO(kmill): remove simp after stage0 update
     rw [Int.mul_add] at h₁
     replace h₁ := congrArg (· - α * b) h₁; simp only [Int.add_sub_cancel] at h₁
     rw [← Int.mul_assoc, Int.mul_left_comm, Int.sub_eq_add_neg] at h₁
-    replace h₁ := congrArg (· % d) h₁; simp only at h₁
+    replace h₁ := congrArg (· % d) h₁; try simp only at h₁ -- TODO(kmill): remove simp after stage0 update
     rw [Int.add_emod, Int.mul_emod_right, Int.zero_add, Int.emod_emod, ← Int.neg_mul] at h₁
     assumption
   have : x % d = (- α * b) % d := by

@@ -1309,7 +1309,7 @@ theorem isEmpty_iff_forall_not_mem [LE α] [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] :
     r.isEmpty ↔ ∀ a, ¬ a ∈ r := by
   simp only [isEmpty, Bool.false_eq_true, false_iff, Classical.not_forall, Classical.not_not]
-  exact ⟨r.lower, by simpa [← UpwardEnumerable.le_iff] using UpwardEnumerable.le_refl (α := α) _⟩
+  exact ⟨r.lower, by simpa [← UpwardEnumerable.le_iff] using! UpwardEnumerable.le_refl (α := α) _⟩
 
 end Rci
 

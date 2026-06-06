@@ -61,4 +61,9 @@ public def getProofInstInfo? (declName : Name) : SymM (Option ProofInstInfo) := 
     modify fun s => { s with proofInstInfo := s.proofInstInfo.insert declName r }
     return r
 
+public def getProofInstInfoOfExpr? (e : Expr) : SymM (Option ProofInstInfo) := do
+  match e with
+  | .const declName _ => getProofInstInfo? declName
+  | _ => return none -- TODO: if needed
+
 end Lean.Meta.Sym

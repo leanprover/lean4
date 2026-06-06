@@ -9,6 +9,7 @@ prelude
 public import Init.Data.Array.BinSearch
 public import Init.Data.Stream
 public import Init.System.Promise
+public import Init.System.CancelToken
 public import Lean.Data.NameTrie
 public import Lean.Setup
 public import Lean.LocalContext
@@ -19,6 +20,7 @@ public import Lean.Util.InstantiateLevelParams
 public import Lean.Util.FoldConsts
 public import Lean.PrivateName
 public import Lean.LoadDynlib
+public import Lean.CompactedRegion
 public import Init.Dynamic
 import Init.Data.Slice
 import Init.Data.String.TakeDrop
@@ -97,23 +99,6 @@ instance : GetElem? (Array α) ModuleIdx α (fun a i => i.toNat < a.size) where
 
 abbrev ConstMap := SMap Name ConstantInfo
 
-/--
-  A compacted region holds multiple Lean objects in a contiguous memory region, which can be read/written to/from disk.
-  Objects inside the region do not have reference counters and cannot be freed individually. The contents of .olean
-  files are compacted regions. -/
-@[expose] def CompactedRegion := USize
-
-@[extern "lean_compacted_region_is_memory_mapped"]
-opaque CompactedRegion.isMemoryMapped : CompactedRegion → Bool
-
-/-- Size in bytes. -/
-@[extern "lean_compacted_region_size"]
-opaque CompactedRegion.size : CompactedRegion → USize
-
-/-- Free a compacted region and its contents. No live references to the contents may exist at the time of invocation. -/
-@[extern "lean_compacted_region_free"]
-unsafe opaque CompactedRegion.free : CompactedRegion → IO Unit
-
 /-- Opaque persistent environment extension entry. -/
 opaque EnvExtensionEntrySpec : NonemptyType.{0}
 @[expose] def EnvExtensionEntry : Type := EnvExtensionEntrySpec.type
@@ -146,6 +131,8 @@ structure ModuleData where
 structure EffectiveImport extends Import where
   /-- Phases for which the import's IR is available. -/
   irPhases : IRPhases
+  /-- Whether the import's `.olean*` data has been loaded (otherwise only the `.ir` is). -/
+  hasData : Bool
 deriving Inhabited
 
 /-- Environment fields that are not used often. -/
@@ -1749,24 +1736,31 @@ duplicated. Thus the data cannot be loaded with individual `readModuleData` call
 passing (a prefix of) the file names to `readModuleDataParts`. `mod` is used to determine an
 arbitrary but deterministic base address for `mmap`.
 -/
-@[extern "lean_save_module_data_parts"]
-opaque saveModuleDataParts (mod : @& Name) (parts : @& Array (System.FilePath × ModuleData)) : IO Unit
+def saveModuleDataParts (mod : Name) (parts : Array (System.FilePath × ModuleData)) : IO Unit := do
+  let mut cs : Option Compactor := none
+  for h : i in [:parts.size] do
+    let (fname, data) := parts[i]
+    cs := some (← unsafe CompactedRegion.save fname mod data #[] cs)
 
 /--
 Loads the module data from the given file names. The files must be (a prefix of) the result of a
 `saveModuleDataParts` call.
 -/
-@[extern "lean_read_module_data_parts"]
-opaque readModuleDataParts (fnames : @& Array System.FilePath) : IO (Array (ModuleData × CompactedRegion))
+def readModuleDataParts (fnames : Array System.FilePath) :
+    IO (Array (ModuleData × CompactedRegion)) := do
+  let mut depRegions : Array CompactedRegion := #[]
+  let mut result : Array (ModuleData × CompactedRegion) := #[]
+  for fname in fnames do
+    let part ← unsafe CompactedRegion.read (α := ModuleData) fname depRegions
+    result := result.push part
+    depRegions := depRegions.push part.2
+  return result
 
-def saveModuleData (fname : System.FilePath) (mod : Name) (data : ModuleData) : IO Unit :=
-  saveModuleDataParts mod #[(fname, data)]
+def saveModuleData (fname : System.FilePath) (mod : Name) (data : ModuleData) : IO Unit := do
+  let _ ← unsafe CompactedRegion.save fname mod data #[] none
 
-def readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion) := do
-  let parts ← readModuleDataParts #[fname]
-  assert! parts.size == 1
-  let some part := parts[0]? | unreachable!
-  return part
+def readModuleData (fname : @& System.FilePath) : IO (ModuleData × CompactedRegion) :=
+  unsafe CompactedRegion.read fname #[]
 
 /--
   Free compacted regions of imports. No live references to imported objects may exist at the time of invocation; in
@@ -1979,14 +1973,12 @@ private structure ImportedModule extends EffectiveImport where
   parts     : Array (ModuleData × CompactedRegion)
   /-- `.ir` data, if loaded. -/
   irData?   : Option (ModuleData × CompactedRegion)
-  /-- If true, `.olean*` data should be imported. -/
-  needsData : Bool
   /-- If true, IR is loaded transitively. -/
   needsIRTrans : Bool
 
 /-- The main module data that will eventually be used to construct the publicly accessible constants. -/
 private def ImportedModule.publicModule? (self : ImportedModule) : Option ModuleData := do
-  if self.needsData then
+  if self.hasData then
     self.parts[0]?.map (·.1)
   else
     -- (should not have any constants)
@@ -1999,7 +1991,7 @@ private def ImportedModule.getData? (self : ImportedModule) (level : OLeanLevel)
 
 /-- The main module data that will eventually be used to construct the kernel environment. -/
 private def ImportedModule.mainModule? (self : ImportedModule) : Option ModuleData :=
-  if self.needsData then
+  if self.hasData then
     self.getData? (if self.importAll then .private else .exported)
   else
     self.irData?.map (·.1)
@@ -2149,16 +2141,16 @@ where
         -- when module is already imported, bump flags
         let importAll := importAll || mod.importAll
         let isExported := isExported || mod.isExported
-        let needsData := needsData || mod.needsData
+        let needsData := needsData || mod.hasData
         let needsIRTrans := needsIRTrans || mod.needsIRTrans
         let needsIR := needsIRTrans || importAll
         let irPhases := if irPhases == mod.irPhases then irPhases else .all
         let parts ← if needsData && mod.parts.isEmpty then loadData i else pure mod.parts
         let irData? ← if needsIR && mod.irData?.isNone then loadIR? i else pure mod.irData?
         if importAll != mod.importAll || isExported != mod.isExported ||
-            needsIRTrans != mod.needsIRTrans || needsData != mod.needsData || irPhases != mod.irPhases then
+            needsIRTrans != mod.needsIRTrans || needsData != mod.hasData || irPhases != mod.irPhases then
           modify fun s => { s with moduleNameMap := s.moduleNameMap.insert i.module { mod with
-            importAll, isExported, irPhases, parts, irData?, needsData, needsIRTrans }}
+            importAll, isExported, irPhases, parts, irData?, hasData := needsData, needsIRTrans }}
           -- bump entire closure
           goRec mod
         continue
@@ -2166,7 +2158,7 @@ where
       -- newly discovered module
       let parts ← if needsData then loadData i else pure #[]
       let irData? ← if needsIR then loadIR? i else pure none
-      let mod := { i with importAll, isExported, irPhases, parts, irData?, needsIRTrans, needsData }
+      let mod := { i with importAll, isExported, irPhases, parts, irData?, needsIRTrans, hasData := needsData }
       goRec mod
       modify fun s => { s with
         moduleNameMap := s.moduleNameMap.insert i.module mod
@@ -2377,14 +2369,14 @@ system and imports will be restricted accordingly. If it is `server`, the data f
 as if no `module` annotations were present in the imports.
 -/
 def importModules (imports : Array Import) (opts : Options) (trustLevel : UInt32 := 0)
-    (plugins : Array System.FilePath := #[]) (leakEnv := false) (loadExts := false)
+    (plugins : Array Plugin := #[]) (leakEnv := false) (loadExts := false)
     (level := OLeanLevel.private) (arts : NameMap ImportArtifacts := {})
     : IO Environment := profileitIO "import" opts do
   for imp in imports do
     if imp.module matches .anonymous then
       throw <| IO.userError "import failed, trying to import module with anonymous name"
   withImporting do
-    plugins.forM Lean.loadPlugin
+    plugins.forM fun {path, initFn?} => Lean.loadPlugin path initFn?
     let (_, s) ← importModulesCore (globalLevel := level) imports arts |>.run
     finalizeImport (leakEnv := leakEnv) (loadExts := loadExts) (level := level)
       s imports opts trustLevel

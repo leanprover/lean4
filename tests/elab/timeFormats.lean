@@ -132,7 +132,7 @@ def localTm : Second.Offset := 1723730627
 /--
 This PlainDate is relative to the local time.
 -/
-def PlainDate : PlainDateTime := Timestamp.toPlainDateTimeAssumingUTC (Timestamp.ofSecondsSinceUnixEpoch localTm)
+def PlainDate : PlainDateTime := PlainDateTime.ofWallTime (WallTime.ofSeconds localTm)
 
 def dateBR₁ := DateTime.ofPlainDateTime PlainDate brTZ
 def dateJP₁ := DateTime.ofPlainDateTime PlainDate jpTZ
@@ -215,37 +215,37 @@ info: "06/16/2014"
 info: "0053-06-19"
 -/
 #guard_msgs in
-#eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-700000⟩) .UTC)
+#eval Formats.sqlDate.format (DateTime.ofLocalDate (PlainDate.ofEpochDay ⟨-700000⟩) .UTC)
 
 /--
 info: "-0002-09-16"
 -/
 #guard_msgs in
-#eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-720000⟩) .UTC)
+#eval Formats.sqlDate.format (DateTime.ofLocalDate (PlainDate.ofEpochDay ⟨-720000⟩) .UTC)
 
 /--
 info: "-0084-07-28"
 -/
 #guard_msgs in
-#eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-750000⟩) .UTC)
+#eval Formats.sqlDate.format (DateTime.ofLocalDate (PlainDate.ofEpochDay ⟨-750000⟩) .UTC)
 
 /--
 info: "-0221-09-04"
 -/
 #guard_msgs in
-#eval Formats.sqlDate.format (DateTime.ofPlainDate (PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩) .UTC)
+#eval Formats.sqlDate.format (DateTime.ofLocalDate (PlainDate.ofEpochDay ⟨-800000⟩) .UTC)
 
 /--
 info: date("-0221-09-04")
 -/
 #guard_msgs in
-#eval PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩
+#eval PlainDate.ofEpochDay ⟨-800000⟩
 
 /--
 info: date("-0221-09-04")
 -/
 #guard_msgs in
-#eval PlainDate.ofDaysSinceUNIXEpoch ⟨-800000⟩
+#eval PlainDate.ofEpochDay ⟨-800000⟩
 
 /--
 info: date("2002-07-14")
@@ -339,13 +339,13 @@ info: "3 03 3rd quarter 3"
 #eval zoned₄.format "Q QQ QQQQ QQQQQ"
 
 /--
-info: "28 28 028 0028"
+info: "29 29 029 0029"
 -/
 #guard_msgs in
 #eval zoned₄.format "w ww www wwww"
 
 /--
-info: "2 02 002 0002"
+info: "3 03 003 0003"
 -/
 #guard_msgs in
 #eval zoned₄.format "W WW WWW WWWW"
@@ -357,7 +357,7 @@ info: "Sun Sun Sun Sunday S"
 #eval zoned₄.format "E EE EEE EEEE EEEEE"
 
 /--
-info: "7 07 Sun Sunday S"
+info: "1 01 Sun Sunday S"
 -/
 #guard_msgs in
 #eval zoned₄.format "e ee eee eeee eeeee"
@@ -536,13 +536,13 @@ info: "3 03 3rd quarter 3"
 #eval datetime₄.format "Q QQ QQQQ QQQQQ"
 
 /--
-info: "28 28 028 0028"
+info: "29 29 029 0029"
 -/
 #guard_msgs in
 #eval datetime₄.format "w ww www wwww"
 
 /--
-info: "2 02 002 0002"
+info: "3 03 003 0003"
 -/
 #guard_msgs in
 #eval datetime₄.format "W WW WWW WWWW"
@@ -554,7 +554,7 @@ info: "Sun Sun Sun Sunday S"
 #eval datetime₄.format "E EE EEE EEEE EEEEE"
 
 /--
-info: "7 07 Sun Sunday S"
+info: "1 01 Sun Sunday S"
 -/
 #guard_msgs in
 #eval datetime₄.format "e ee eee eeee eeeee"
@@ -752,13 +752,13 @@ info: "3 03 3rd quarter 3"
 #eval date₄.format "Q QQ QQQQ QQQQQ"
 
 /--
-info: "28 28 028 0028"
+info: "29 29 029 0029"
 -/
 #guard_msgs in
 #eval date₄.format "w ww www wwww"
 
 /--
-info: "2 02 002 0002"
+info: "3 03 003 0003"
 -/
 #guard_msgs in
 #eval date₄.format "W WW WWW WWWW"
@@ -770,7 +770,7 @@ info: "Sun Sun Sun Sunday S"
 #eval date₄.format "E EE EEE EEEE EEEEE"
 
 /--
-info: "7 07 Sun Sunday S"
+info: "1 01 Sun Sunday S"
 -/
 #guard_msgs in
 #eval date₄.format "e ee eee eeee eeeee"

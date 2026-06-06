@@ -9,6 +9,7 @@ prelude
 public import Std.Do
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
 public import Init.Data.Array.GetLit
+public import Init.Grind.Interactive
                                       -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
 @[expose] public section
@@ -45,6 +46,20 @@ structure Config where
   This is helpful for bisecting bugs in `mvcgen` and tracing its execution.
   -/
   stepLimit : Option Nat := none
+  /--
+  If `true` (the default), report a hard error when no `@[spec]` theorem matches the
+  current program head. If `false`, leave such goals as unsolved VCs for the user to
+  discharge manually. This is the behaviour that `mvcgen` exhibits implicitly;
+  the new prototypical `mvcgen'` opts into it via `(errorOnMissingSpec := false)`.
+  -/
+  errorOnMissingSpec : Bool := true
+  /--
+  If `true`, `mvcgen'` checks failed `BackwardRule.apply` calls by retrying after
+  `unfoldReducible`-normalizing the goal. If the rule then succeeds, an earlier step
+  forgot a normalization; `mvcgen'` raises a hard error pointing at the offending
+  rule and the missing reduction. Off by default; only consulted by `mvcgen'`.
+  -/
+  debug : Bool := false
 end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser
@@ -411,3 +426,23 @@ A hint tactic that expands to `mvcgen invariants?`.
 -/
 syntax (name := mvcgenHint) "mvcgen?" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")? : tactic
+
+-- Prototypical Sym-based variant of `mvcgen`; see `mvcgen` for documentation.
+-- Same surface syntax modulo `vcAlts`, replaced by `simplifying_assumptions … with …`.
+@[tactic_alt Lean.Parser.Tactic.mvcgen'Macro]
+syntax (name := mvcgen') "mvcgen'" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (invariantAlts)?
+  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
+  (&" with " tactic)? : tactic
+
+namespace Grind
+
+/-- `mvcgen'` step for `sym => …` blocks; same surface as the tactic form. -/
+syntax (name := mvcgen') "mvcgen'" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (invariantAlts)?
+  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
+  (&" with " tactic)? : grind
+
+end Grind

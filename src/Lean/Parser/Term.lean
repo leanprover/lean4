@@ -199,6 +199,13 @@ Can also be used for creating simple functions when combined with `·`. Here are
 -/
 @[builtin_term_parser] def paren := leading_parser
   hygienicLParen >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")"
+
+/-- Strip leading `paren` wrappers from `stx`. -/
+partial def dropParens : Syntax → Syntax := fun stx =>
+  match stx with
+  | `(($stx)) => dropParens stx
+  | _         => stx
+
 /--
 The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
 expected type is an inductive type with a single constructor `c`.
@@ -408,6 +415,31 @@ existent in the current context, or else fails.
 -- note that we cannot use ```"``"``` as a new token either because it would break `precheckedQuot`
 @[builtin_term_parser] def doubleQuotedName := leading_parser
   "`" >> checkNoWsBefore >> rawCh '`' (trailingWs := false) >> ident
+
+/--
+`+opt` is short for `(opt := true)`. It sets the `opt` configuration option to `true`.
+-/
+def posConfigItem := leading_parser
+  " +" >> checkNoWsBefore >> ident
+/--
+`-opt` is short for `(opt := false)`. It sets the `opt` configuration option to `false`.
+-/
+def negConfigItem := leading_parser
+  " -" >> checkNoWsBefore >> ident
+/--
+`(opt := val)` sets the `opt` configuration option to `val`.
+
+As a special case, `(config := ...)` sets the entire configuration.
+-/
+def valConfigItem := leading_parser
+  atomic (" (" >> ident >> " := ") >> withoutPosition termParser >> ")"
+/-- A configuration item. -/
+def configItem := leading_parser
+  posConfigItem <|> negConfigItem <|> valConfigItem
+/-- Configuration options for tactics, commands, and other elaborators. -/
+@[run_builtin_parser_attribute_hooks]
+def optConfig := leading_parser
+  many (checkColGt >> configItem)
 
 def letId := leading_parser (withAnonymousAntiquot := false)
   (ppSpace >> binderIdent >> notFollowedBy (checkNoWsBefore "" >> "[")
@@ -1106,6 +1138,7 @@ builtin_initialize
   register_parser_alias attrKind
   register_parser_alias optSemicolon
   register_parser_alias structInstFields
+  register_parser_alias optConfig
 
 end Parser
 end Lean

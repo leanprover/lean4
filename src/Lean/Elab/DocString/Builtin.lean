@@ -574,13 +574,20 @@ def given (type : Option StrLit := none) (typeIsMeta : flag false) («show» : f
             logErrorAt stx m!"Expected identifier because flag `typeIsMeta` is set, but got {stx}"
             Meta.mkFreshExprMVar none
         else
-          elabType stx
+          let ty' ← elabType stx
+          registerDocMVar decl_name% ty' x m!"type of variable `{x.getId}`"
+          pure ty'
       else
-        Meta.mkFreshExprMVar none
+        let m ← Meta.mkFreshExprMVar none
+        registerDocMVar decl_name% m x m!"type of variable `{x.getId}`"
+        pure m
     let val : Option Expr ← do
       let valStx := stx[1][1]
       if valStx.isMissing then pure none
-      else some <$> elabExtraTerm valStx (some ty')
+      else
+        let v ← elabExtraTerm valStx (some ty')
+        registerDocMVar decl_name% v x m!"value of variable `{x.getId}`"
+        pure (some v)
     let fv ← mkFreshFVarId
     lctx :=
       if let some v := val then
@@ -650,6 +657,7 @@ def givenInstance («show» : flag true) (xs : TSyntaxArray `inline) :
     let tyStx := stx[1]
 
     let ty' : Expr ← elabType tyStx
+    registerDocMVar decl_name% ty' tyStx m!"instance type"
     let class? ← Meta.isClass? ty'
     let some className := class?
       | throwError m!"Expected a type class, but got `{.ofExpr ty'}`"

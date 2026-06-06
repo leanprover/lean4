@@ -364,7 +364,6 @@ def Zipper.FinitenessRelation : FinitenessRelation (Zipper α β) Id where
           simp only [h2, ← h'.1, Zipper.size_prependMap, Zipper.size, Nat.add_lt_add_iff_right,
             Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
-@[no_expose]
 public instance Zipper.instFinite : Finite (Zipper α β) Id :=
   .of_finitenessRelation Zipper.FinitenessRelation
 
@@ -477,7 +476,6 @@ def RxcIterator.FinitenessRelation [Ord α] : FinitenessRelation (RxcIterator α
           simp only [h2, ← h'.1, Zipper.size_prependMap, Zipper.size, Nat.add_lt_add_iff_right,
             Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
-@[no_expose]
 public instance instFinite [Ord α] : Finite (RxcIterator α β) Id :=
   .of_finitenessRelation RxcIterator.FinitenessRelation
 
@@ -606,7 +604,6 @@ def RxoIterator.instFinitenessRelation [Ord α] : FinitenessRelation (RxoIterato
           simp only [h2, ← h'.1, Zipper.size_prependMap, Zipper.size, Nat.add_lt_add_iff_right,
             Nat.lt_add_left_iff_pos, Nat.lt_add_one]
 
-@[no_expose]
 public instance Rxo.instFinite [Ord α] : Finite (RxoIterator α β) Id :=
   .of_finitenessRelation RxoIterator.instFinitenessRelation
 

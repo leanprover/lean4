@@ -33,6 +33,7 @@ set(
   uv/dns.cpp
   uv/system.cpp
   uv/signal.cpp
+  openssl.cpp
 )
 if(USE_MIMALLOC)
   list(APPEND RUNTIME_OBJS ${LEAN_BINARY_DIR}/../mimalloc/src/mimalloc/src/static.c)

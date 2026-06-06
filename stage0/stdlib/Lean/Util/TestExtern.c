@@ -248,12 +248,12 @@ else
 lean_object* v_val_72_; 
 v_val_72_ = lean_ctor_get(v___x_70_, 0);
 lean_inc(v_val_72_);
-lean_dec_ref(v___x_70_);
+lean_dec_ref_known(v___x_70_, 1);
 if (lean_obj_tag(v_val_72_) == 1)
 {
 uint8_t v_v_73_; 
 v_v_73_ = lean_ctor_get_uint8(v_val_72_, 0);
-lean_dec_ref(v_val_72_);
+lean_dec_ref_known(v_val_72_, 0);
 return v_v_73_;
 }
 else
@@ -669,14 +669,14 @@ if (lean_obj_tag(v___x_225_) == 0)
 lean_object* v_a_226_; lean_object* v___x_227_; 
 v_a_226_ = lean_ctor_get(v___x_225_, 0);
 lean_inc(v_a_226_);
-lean_dec_ref(v___x_225_);
+lean_dec_ref_known(v___x_225_, 1);
 v___x_227_ = l_Lean_Expr_getAppFn(v_a_226_);
 if (lean_obj_tag(v___x_227_) == 4)
 {
 lean_object* v_declName_228_; lean_object* v___x_229_; uint8_t v___y_296_; lean_object* v_env_303_; uint8_t v___x_304_; 
 v_declName_228_ = lean_ctor_get(v___x_227_, 0);
 lean_inc_n(v_declName_228_, 2);
-lean_dec_ref(v___x_227_);
+lean_dec_ref_known(v___x_227_, 2);
 v___x_229_ = lean_st_ref_get(v___y_223_);
 v_env_303_ = lean_ctor_get(v___x_229_, 0);
 lean_inc_ref_n(v_env_303_, 2);
@@ -694,7 +694,7 @@ goto v___jp_295_;
 }
 else
 {
-lean_dec_ref(v___x_305_);
+lean_dec_ref_known(v___x_305_, 1);
 v___y_296_ = v___x_217_;
 goto v___jp_295_;
 }
@@ -714,7 +714,7 @@ if (lean_obj_tag(v___x_231_) == 0)
 lean_object* v_a_232_; lean_object* v_expr_233_; lean_object* v___x_234_; 
 v_a_232_ = lean_ctor_get(v___x_231_, 0);
 lean_inc(v_a_232_);
-lean_dec_ref(v___x_231_);
+lean_dec_ref_known(v___x_231_, 1);
 v_expr_233_ = lean_ctor_get(v_a_232_, 0);
 lean_inc_ref_n(v_expr_233_, 2);
 lean_dec(v_a_232_);
@@ -725,14 +725,14 @@ if (lean_obj_tag(v___x_234_) == 0)
 lean_object* v_a_235_; lean_object* v___x_236_; 
 v_a_235_ = lean_ctor_get(v___x_234_, 0);
 lean_inc(v_a_235_);
-lean_dec_ref(v___x_234_);
+lean_dec_ref_known(v___x_234_, 1);
 v___x_236_ = l_Lean_Meta_mkDecide(v_a_235_, v___y_220_, v___y_221_, v___y_222_, v___y_223_);
 if (lean_obj_tag(v___x_236_) == 0)
 {
 lean_object* v_a_237_; lean_object* v___x_238_; lean_object* v___x_239_; lean_object* v___x_240_; uint8_t v___x_241_; lean_object* v___x_242_; 
 v_a_237_ = lean_ctor_get(v___x_236_, 0);
 lean_inc(v_a_237_);
-lean_dec_ref(v___x_236_);
+lean_dec_ref_known(v___x_236_, 1);
 v___x_238_ = lean_obj_once(&l_elabTestExtern___lam__0___closed__3, &l_elabTestExtern___lam__0___closed__3_once, _init_l_elabTestExtern___lam__0___closed__3);
 v___x_239_ = l_Lean_Expr_app___override(v___x_238_, v_a_237_);
 v___x_240_ = lean_obj_once(&l_elabTestExtern___lam__0___closed__6, &l_elabTestExtern___lam__0___closed__6_once, _init_l_elabTestExtern___lam__0___closed__6);

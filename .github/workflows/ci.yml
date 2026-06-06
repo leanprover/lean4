@@ -2,31 +2,29 @@ name: CI
 on:
   push:
     branches:
-      - 'master'
+      - "master"
     tags:
-      - '*'
+      - "*"
   pull_request:
   merge_group:
   schedule:
-    - cron: '0 7 * * *'  # 8AM CET/11PM PT
+    - cron: "0 7 * * *" # 8AM CET/11PM PT
   # for manual re-release of a nightly
   workflow_dispatch:
     inputs:
       action:
-        description: 'Action'
+        description: "Action"
         required: true
-        default: 'release nightly'
+        default: "release nightly"
         type: choice
         options:
-        - release nightly
-
+          - release nightly
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
-
   # This job determines various settings for the following CI runs; see the `outputs` for details
   configure:
     runs-on: ubuntu-latest
@@ -221,6 +219,17 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
 
+      - name: Check self-hosted runner availability
+        id: runner-fallback
+        uses: mikehardy/runner-fallback-action@v1
+        with:
+          github-token: ${{ secrets.READ_RUNNERS_TOKEN }}
+          primary-runner: self-hosted,chonk
+          fallback-runner: nscloud-ubuntu-24.04-amd64-8x16
+          organization: leanprover
+          primaries-required: 1
+          fallback-on-error: true
+
       - name: Configure build matrix
         id: set-matrix
         uses: actions/github-script@v8
@@ -234,6 +243,7 @@ jobs:
             let large = ${{ github.repository == 'leanprover/lean4' }};
             const isPr = "${{ github.event_name }}" == "pull_request";
             const isPushToMaster = "${{ github.event_name }}" == "push" && "${{ github.ref_name }}" == "master";
+            const chonk = ${{ steps.runner-fallback.outputs.use-runner }};
             let matrix = [
               /* TODO: to be updated to new LLVM
               {
@@ -243,7 +253,7 @@ jobs:
                 "enabled": level >= 2,
                 "test": true,
                 "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
                 "binary-check": "ldd -v",
                 // foreign code may be linked against more recent glibc
@@ -254,29 +264,8 @@ jobs:
               {
                 // portable release build: use channel with older glibc (2.26)
                 "name": "Linux release",
-                // usually not a bottleneck so make exclusive to `fast-ci`
-                "os": large && fast ? "nscloud-ubuntu-24.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "os": large ? chonk : "ubuntu-latest",
                 "release": true,
-                // Special handling for release jobs. We want:
-                // 1. To run it in PRs so developers get PR toolchains (so secondary without tests is sufficient)
-                // 2. To skip it in merge queues as it takes longer than the
-                //    Linux lake build and adds little value in the merge queue
-                // 3. To run it in release (obviously)
-                // 4. To run it for pushes to master so that pushes to master have a Linux toolchain
-                //    available as an artifact for Grove to use.
-                "enabled": isPr || level != 1 || isPushToMaster,
-                "test": level >= 1,
-                "secondary": level == 0,
-                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-linux-gnu.tar.zst",
-                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
-                "binary-check": "ldd -v",
-                // foreign code may be linked against more recent glibc
-                "CTEST_OPTIONS": "-E 'foreign'",
-              },
-              {
-                "name": "Linux Lake",
-                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16-with-cache" : "ubuntu-latest",
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
                 // Done as part of test-bench
@@ -284,12 +273,20 @@ jobs:
                 "test": true,
                 // NOTE: `test-bench` currently seems to be broken on `ubuntu-latest`
                 "test-bench": large && level >= 2,
-                // We are not warning-free yet on all platforms, start here
-                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
+                "shell": "nix develop .#oldGlibc -c bash -euxo pipefail {0}",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-linux-gnu.tar.zst",
+                "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
+                "binary-check": "ldd -v",
+                // We are not warning-free yet on all platforms, start with Linux
+                // Do not (yet) use Lake cache on release
+                "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror" + (level < 3 ? " -DUSE_LAKE_CACHE=ON" : ""),
+                "lake-actions-cache": level < 3,
+                // foreign code may be linked against more recent glibc
+                "CTEST_OPTIONS": "-E 'foreign'",
               },
               {
                 "name": "Linux Lake (Cached)",
-                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16-with-cache" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-8x16" : "ubuntu-latest",
                 "enabled": true,
                 "check-rebootstrap": level >= 1,
                 // Done as part of test-bench
@@ -301,11 +298,11 @@ jobs:
                 "CMAKE_OPTIONS": "-DLEAN_EXTRA_CXX_FLAGS=-Werror -DUSE_LAKE_CACHE=ON",
               },
               {
-                "name": "Linux Reldebug",
+                "name": "Linux RelWithAssert",
                 "os": "ubuntu-latest",
                 "enabled": level >= 2,
                 "test": true,
-                "CMAKE_PRESET": "reldebug",
+                "CMAKE_PRESET": "relwithassert",
                 // * `elab_bench/big_do` crashes with exit code 134
                 // * `compile_bench/channel` randomly segfaults
                 "CTEST_OPTIONS": "-E 'elab_bench/big_do|compile_bench/channel'",
@@ -313,7 +310,7 @@ jobs:
               {
                 "name": "Linux fsanitize",
                 // Always run on large if available, more reliable regarding timeouts
-                "os": large ? "nscloud-ubuntu-24.04-amd64-16x32-with-cache" : "ubuntu-latest",
+                "os": large ? "nscloud-ubuntu-24.04-amd64-16x32" : "ubuntu-latest",
                 "enabled": level >= 2,
                 // do not fail nightlies on this for now
                 "secondary": level <= 2,
@@ -339,7 +336,7 @@ jobs:
                 "test": false,  // Tier 2 platform
                 "enabled": level >= 2,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
@@ -352,11 +349,13 @@ jobs:
                 "CMAKE_OPTIONS": "-DLEAN_INSTALL_SUFFIX=-darwin_aarch64",
                 "release": true,
                 "shell": "bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-apple-darwin.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-aarch64-apple-darwin.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-macos.sh lean-llvm*",
                 "binary-check": "otool -L",
                 "tar": "gtar", // https://github.com/actions/runner-images/issues/2619
-                // See "Linux release" for release job levels; Grove is not a concern here
+                // Run in PRs so developers get PR toolchains (so secondary without tests is sufficient);
+                // skip in merge queues as it takes longer than the Linux release build and adds little
+                // value in the merge queue; run in release (obviously)
                 "enabled": isPr || level != 1,
                 "test": level >= 1,
                 "secondary": level == 0,
@@ -369,7 +368,7 @@ jobs:
                 "test": true,
                 "shell": "msys2 {0}",
                 "CMAKE_OPTIONS": "-G \"Unix Makefiles\"",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-x86_64-w64-windows-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-mingw.sh lean-llvm*",
                 "binary-check": "ldd",
               },
@@ -381,7 +380,7 @@ jobs:
                 "enabled": level >= 2,
                 "test": true,
                 "shell": "nix develop .#oldGlibcAArch -c bash -euxo pipefail {0}",
-                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/19.1.2/lean-llvm-aarch64-linux-gnu.tar.zst",
+                "llvm-url": "https://github.com/leanprover/lean-llvm/releases/download/22.1.4/lean-llvm-aarch64-linux-gnu.tar.zst",
                 "prepare-llvm": "../script/prepare-llvm-linux.sh lean-llvm*",
               },
               // Started running out of memory building expensive modules, a 2GB heap is just not that much even before fragmentation
@@ -411,12 +410,6 @@ jobs:
               //   "CTEST_OPTIONS": "-R \"leantest_1007\\.lean|leantest_Format\\.lean|leanruntest\\_1037.lean|leanruntest_ac_rfl\\.lean|leanruntest_tempfile.lean\\.|leanruntest_libuv\\.lean\""
               // }
             ];
-            for (const job of matrix) {
-              if (job["prepare-llvm"]) {
-                // `USE_LAKE` is not compatible with `prepare-llvm` currently
-                job["CMAKE_OPTIONS"] = (job["CMAKE_OPTIONS"] ? job["CMAKE_OPTIONS"] + " " : "") + "-DUSE_LAKE=OFF";
-              }
-            }
             if (lakeCi) {
               for (const job of matrix) {
                 job["CMAKE_OPTIONS"] = (job["CMAKE_OPTIONS"] ? job["CMAKE_OPTIONS"] + " " : "") + "-DLAKE_CI=ON";
@@ -466,23 +459,22 @@ jobs:
     # mark as merely cancelled not failed if builds are cancelled
     if: ${{ !cancelled() }}
     steps:
-    - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && github.ref_name == 'master' }}
-      uses: zulip/github-actions-zulip/send-message@v1
-      with:
-        api-key: ${{ secrets.ZULIP_BOT_KEY }}
-        email: "github-actions-bot@lean-fro.zulipchat.com"
-        organization-url: "https://lean-fro.zulipchat.com"
-        to: "infrastructure"
-        topic: "Github actions"
-        type: "stream"
-        content: |
-          A build of `${{ github.ref_name }}`, triggered by event `${{ github.event_name }}`, [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
-    - if: contains(needs.*.result, 'failure')
-      uses: actions/github-script@v8
-      with:
-        script: |
+      - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && github.ref_name == 'master' }}
+        uses: zulip/github-actions-zulip/send-message@v1
+        with:
+          api-key: ${{ secrets.ZULIP_BOT_KEY }}
+          email: "github-actions-bot@lean-fro.zulipchat.com"
+          organization-url: "https://lean-fro.zulipchat.com"
+          to: "infrastructure"
+          topic: "Github actions"
+          type: "stream"
+          content: |
+            A build of `${{ github.ref_name }}`, triggered by event `${{ github.event_name }}`, [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
+      - if: contains(needs.*.result, 'failure')
+        uses: actions/github-script@v8
+        with:
+          script: |
             core.setFailed('Some jobs failed')
-
 
   # This job creates releases from tags
   # (whether they are "unofficial" releases for experiments, or official releases when the tag is "v" followed by a semver string.)

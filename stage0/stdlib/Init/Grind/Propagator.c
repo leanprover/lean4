@@ -751,7 +751,7 @@ if (lean_obj_tag(v_doc_x3f_285_) == 1)
 lean_object* v_val_312_; lean_object* v___x_313_; 
 v_val_312_ = lean_ctor_get(v_doc_x3f_285_, 0);
 lean_inc(v_val_312_);
-lean_dec_ref(v_doc_x3f_285_);
+lean_dec_ref_known(v_doc_x3f_285_, 1);
 v___x_313_ = l_Array_mkArray1___redArg(v_val_312_);
 v___y_222_ = v___x_309_;
 v___y_223_ = v___x_310_;

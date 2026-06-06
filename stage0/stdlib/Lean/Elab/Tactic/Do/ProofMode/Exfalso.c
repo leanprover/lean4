@@ -1185,7 +1185,7 @@ if (lean_obj_tag(v___x_411_) == 0)
 lean_object* v_a_412_; lean_object* v___x_413_; lean_object* v_a_414_; lean_object* v___x_415_; 
 v_a_412_ = lean_ctor_get(v___x_411_, 0);
 lean_inc(v_a_412_);
-lean_dec_ref(v___x_411_);
+lean_dec_ref_known(v___x_411_, 1);
 v___x_413_ = l_Lean_instantiateMVars___at___00Lean_Elab_Tactic_Do_ProofMode_elabMExfalso_spec__0___redArg(v_a_412_, v___y_407_);
 v_a_414_ = lean_ctor_get(v___x_413_, 0);
 lean_inc(v_a_414_);
@@ -1197,7 +1197,7 @@ if (lean_obj_tag(v___x_415_) == 1)
 lean_object* v_val_416_; lean_object* v_u_417_; lean_object* v_00_u03c3s_418_; lean_object* v_hyps_419_; lean_object* v_target_420_; lean_object* v___x_422_; uint8_t v_isShared_423_; uint8_t v_isSharedCheck_449_; 
 v_val_416_ = lean_ctor_get(v___x_415_, 0);
 lean_inc(v_val_416_);
-lean_dec_ref(v___x_415_);
+lean_dec_ref_known(v___x_415_, 1);
 v_u_417_ = lean_ctor_get(v_val_416_, 0);
 v_00_u03c3s_418_ = lean_ctor_get(v_val_416_, 1);
 v_hyps_419_ = lean_ctor_get(v_val_416_, 2);
@@ -1255,7 +1255,7 @@ if (lean_obj_tag(v___x_429_) == 0)
 lean_object* v_a_430_; lean_object* v___x_431_; lean_object* v___x_432_; lean_object* v___x_433_; lean_object* v___x_434_; lean_object* v___x_435_; lean_object* v___x_436_; lean_object* v___x_437_; lean_object* v___x_438_; lean_object* v___x_439_; 
 v_a_430_ = lean_ctor_get(v___x_429_, 0);
 lean_inc_n(v_a_430_, 2);
-lean_dec_ref(v___x_429_);
+lean_dec_ref_known(v___x_429_, 1);
 v___x_431_ = ((lean_object*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMExfalso___redArg___lam__0___closed__4));
 v___x_432_ = lean_box(0);
 v___x_433_ = lean_alloc_ctor(1, 2, 0);
@@ -1402,7 +1402,7 @@ if (lean_obj_tag(v___x_480_) == 0)
 lean_object* v_a_481_; lean_object* v___f_482_; lean_object* v___x_483_; 
 v_a_481_ = lean_ctor_get(v___x_480_, 0);
 lean_inc_n(v_a_481_, 2);
-lean_dec_ref(v___x_480_);
+lean_dec_ref_known(v___x_480_, 1);
 v___f_482_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMExfalso___redArg___lam__0___boxed), 10, 1);
 lean_closure_set(v___f_482_, 0, v_a_481_);
 v___x_483_ = l_Lean_MVarId_withContext___at___00Lean_Elab_Tactic_Do_ProofMode_elabMExfalso_spec__3___redArg(v_a_481_, v___f_482_, v_a_471_, v_a_472_, v_a_473_, v_a_474_, v_a_475_, v_a_476_, v_a_477_, v_a_478_);

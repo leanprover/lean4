@@ -14,8 +14,19 @@ Author: Leonardo de Moura
 #include "runtime/exception.h"
 #include "util/alloc.h"
 
-#ifndef LEAN_WINDOWS
+#ifdef LEAN_WINDOWS
+#include <windows.h>  // must precede <psapi.h>: it relies on `WINBOOL`/`DWORD`/`WINAPI` from here
+#include <psapi.h>
+#else
 #include <sys/mman.h>
+#include <dlfcn.h>
+#endif
+
+#ifdef __APPLE__
+#include <mach-o/dyld.h>
+#include <mach-o/getsect.h>
+#elif !defined(LEAN_WINDOWS)
+#include <link.h>
 #endif
 
 #define LEAN_COMPACTOR_INIT_SZ 1024*1024
@@ -57,12 +68,94 @@ struct object_compactor::max_sharing_table {
     }
 };
 
-object_compactor::object_compactor(void * base_addr):
+LEAN_EXPORT std::vector<lib_info> get_loaded_libs() {
+    std::vector<lib_info> libs;
+#ifdef LEAN_WINDOWS
+    HANDLE proc = GetCurrentProcess();
+    std::vector<HMODULE> mods(128);
+    DWORD needed;
+    if (!EnumProcessModules(proc, mods.data(), mods.size() * sizeof(HMODULE), &needed))
+        return libs;
+    unsigned n = needed / sizeof(HMODULE);
+    if (n > mods.size()) {
+        mods.resize(n);
+        if (!EnumProcessModules(proc, mods.data(), mods.size() * sizeof(HMODULE), &needed))
+            return libs;
+    } else {
+        mods.resize(n);
+    }
+    for (HMODULE h : mods) {
+        MODULEINFO mi;
+        if (!GetModuleInformation(proc, h, &mi, sizeof(mi))) continue;
+        char path[MAX_PATH];
+        if (!GetModuleFileNameA(h, path, sizeof(path))) continue;
+        libs.push_back({reinterpret_cast<size_t>(mi.lpBaseOfDll), path});
+    }
+#elif defined(__APPLE__)
+    uint32_t n = _dyld_image_count();
+    for (uint32_t i = 0; i < n; i++) {
+        const struct mach_header * hdr = _dyld_get_image_header(i);
+        if (!hdr) continue;
+        const char * name = _dyld_get_image_name(i);
+        if (!name) continue;
+        libs.push_back({reinterpret_cast<size_t>(hdr), name});
+    }
+#else
+    // Linux: use dl_iterate_phdr
+    dl_iterate_phdr([](struct dl_phdr_info * info, size_t, void * data) -> int {
+        std::vector<lib_info> * libs = static_cast<std::vector<lib_info> *>(data);
+        const char * name = info->dlpi_name;
+        libs->push_back({info->dlpi_addr, name ? name : ""});
+        return 0;
+    }, &libs);
+#endif
+    std::sort(libs.begin(), libs.end(), [](lib_info const & a, lib_info const & b) { return a.base_addr < b.base_addr; });
+    return libs;
+}
+
+std::vector<lib_info> object_compactor::used_libs() const {
+    // Mark each loaded library that contains a compacted closure's `m_fun` pointer. The recorded
+    // offsets are relative to `m_begin`, and `m_fun` still holds the raw (un-relocated) code
+    // pointer at this point, so it identifies the library directly.
+    std::vector<bool> used(m_libs.size(), false);
+    for (size_t off : m_closure_offsets) {
+        size_t fn = reinterpret_cast<size_t>(
+            *reinterpret_cast<void * const *>(static_cast<char const *>(m_begin) + off));
+        std::vector<lib_info>::const_iterator it =
+            std::upper_bound(m_libs.begin(), m_libs.end(), fn,
+                [](size_t addr, lib_info const & lib) { return addr < lib.base_addr; });
+        if (it == m_libs.begin())
+            throw exception("closure function pointer does not belong to any loaded library");
+        used[(it - 1) - m_libs.begin()] = true;
+    }
+    std::vector<lib_info> result;
+    for (size_t i = 0; i < m_libs.size(); i++)
+        if (used[i]) result.push_back(m_libs[i]);
+    return result;
+}
+
+object_compactor::object_compactor(void * base_addr, std::vector<compacted_region *> dep_regions,
+                                   bool allow_closures):
     m_max_sharing_table(new max_sharing_table(this)),
+    m_dep_regions(std::move(dep_regions)),
+    m_libs(get_loaded_libs()),
+    m_allow_closures(allow_closures),
     m_base_addr(base_addr),
     m_begin(malloc(LEAN_COMPACTOR_INIT_SZ)),
     m_end(m_begin),
     m_capacity(static_cast<char*>(m_begin) + LEAN_COMPACTOR_INIT_SZ) {
+    // Sort dep regions by `begin` address for binary search in `to_offset`.
+    // Extract keys into a flat array first to avoid pointer-chasing TLB misses through
+    // thousands of scattered `compacted_region` heap objects during sort comparisons.
+    size_t n = m_dep_regions.size();
+    std::vector<std::pair<void *, compacted_region *>> keyed(n);
+    for (size_t i = 0; i < n; i++)
+        keyed[i] = {m_dep_regions[i]->begin(), m_dep_regions[i]};
+    std::sort(keyed.begin(), keyed.end(),
+              [](std::pair<void *, compacted_region *> const & a,
+                 std::pair<void *, compacted_region *> const & b) { return a.first < b.first; });
+    for (size_t i = 0; i < n; i++)
+        m_dep_regions[i] = keyed[i].second;
 }
 
 object_compactor::~object_compactor() {
@@ -118,12 +211,31 @@ object_offset object_compactor::to_offset(object * o) {
         return o;
     } else {
         auto it = m_obj_table.find(o);
-        if (it == m_obj_table.end()) {
-            m_todo.push_back(o);
-            return g_null_offset;
-        } else {
+        if (it != m_obj_table.end()) {
             return it->second;
         }
+        // Only check dep regions for non-heap objects
+        if (!m_dep_regions.empty() && !lean_has_rc(o)) {
+            // Binary search dep regions (sorted by base_addr)
+            char * addr = reinterpret_cast<char *>(o);
+            // Find the first region whose begin > addr, then step back
+            std::vector<compacted_region *>::iterator upper = std::upper_bound(
+                m_dep_regions.begin(), m_dep_regions.end(), addr,
+                [](char * a, compacted_region * r) { return a < static_cast<char *>(r->begin()); });
+            if (upper != m_dep_regions.begin()) {
+                compacted_region * region = *(upper - 1);
+                char * region_end = static_cast<char *>(region->begin()) + region->size();
+                if (addr < region_end) {
+                    // Object is in this dep region, compute its base_addr-relative pointer
+                    object_offset off = reinterpret_cast<object_offset>(
+                        reinterpret_cast<size_t>(region->base_addr()) + (addr - static_cast<char *>(region->begin())));
+                    m_obj_table.insert(std::make_pair(o, off));
+                    return off;
+                }
+            }
+        }
+        m_todo.push_back(o);
+        return g_null_offset;
     }
 }
 
@@ -260,6 +372,33 @@ bool object_compactor::insert_task(object * o) {
     return true;
 }
 
+bool object_compactor::insert_closure(object * o) {
+    if (!m_allow_closures) {
+        throw exception("Closures cannot be compacted (unless explicitly calling "
+                        "`CompactedRegion.save (allowClosures := true)`). One possible cause of this error is "
+                        "trying to store a function in a persistent environment extension.");
+    }
+    std::vector<object_offset> & offsets = m_tmp;
+    bool missing = false;
+    unsigned n = lean_closure_num_fixed(o);
+    offsets.resize(n);
+    for (unsigned i = n; i-- > 0;) {
+        offsets[i] = to_offset(lean_closure_arg_cptr(o)[i]);
+        if (offsets[i] == g_null_offset) missing = true;
+    }
+    if (missing) return false;
+    object * r = copy_object(o);
+    for (unsigned i = 0; i < n; i++)
+        lean_closure_arg_cptr(r)[i] = offsets[i];
+    // Record the buffer-relative offset of `r`'s `m_fun` field so the reader can patch
+    // closure fn pointers on load without scanning the compacted region.
+    size_t fn_field_off = reinterpret_cast<char *>(&lean_to_closure(r)->m_fun)
+                          - reinterpret_cast<char *>(m_begin);
+    m_closure_offsets.push_back(fn_field_off);
+    save(o, r);
+    return true;
+}
+
 bool object_compactor::insert_promise(object * o) {
     object * t = (object *)lean_to_promise(o)->m_result;
     object_offset c = to_offset(t);
@@ -277,7 +416,7 @@ void object_compactor::insert_mpz(object * o) {
     size_t data_sz = lean_usize_mul_checked(sizeof(mp_limb_t), nlimbs);
     size_t sz = lean_usize_add_checked(sizeof(mpz_object), data_sz);
     mpz_object * new_o = (mpz_object *)alloc(sz);
-    memcpy(new_o, to_mpz(o), sizeof(mpz_object));
+    memcpy((void*)new_o, to_mpz(o), sizeof(mpz_object));
     lean_set_non_heap_header((lean_object*)new_o, sz, LeanMPZ, 0);
     __mpz_struct & m = new_o->m_value.m_val[0];
     // we assume the limb array is the only indirection in an `__mpz_struct` and everything else can be bitcopied
@@ -363,7 +502,7 @@ void object_compactor::operator()(object * o) {
             g_tag_counters[lean_ptr_tag(curr)]++;
 #endif
             switch (lean_ptr_tag(curr)) {
-            case LeanClosure:         throw exception("closures cannot be compacted. One possible cause of this error is trying to store a function in a persistent environment extension.");
+            case LeanClosure:         r = insert_closure(curr); break;
             case LeanArray:           r = insert_array(curr); break;
             case LeanScalarArray:     insert_sarray(curr); break;
             case LeanString:          insert_string(curr); break;
@@ -384,14 +523,44 @@ void object_compactor::operator()(object * o) {
     *root = to_offset(o);
 }
 
-compacted_region::compacted_region(size_t sz, void * data, void * base_addr, bool is_mmap, std::function<void()> free_data):
+compacted_region::compacted_region(size_t sz, void * data, void * base_addr, bool is_mmap, std::function<void()> free_data,
+                                   std::vector<compacted_region *> dep_regions,
+                                   std::vector<std::pair<size_t, ptrdiff_t>> lib_relocs,
+                                   std::vector<size_t> closure_offsets):
     m_size(sz),
     m_base_addr(base_addr),
     m_is_mmap(is_mmap),
     m_free_data(free_data),
     m_begin(data),
     m_next(data),
-    m_end(static_cast<char*>(data)+sz) {
+    m_end(static_cast<char*>(data)+sz),
+    m_dep_regions(std::move(dep_regions)),
+    m_lib_relocs(std::move(lib_relocs)),
+    m_closure_offsets(std::move(closure_offsets)) {
+    // Sort dep regions by `base_addr` for binary search in `fix_object_ptr`
+    std::sort(m_dep_regions.begin(), m_dep_regions.end(),
+              [](compacted_region * a, compacted_region * b) { return a->base_addr() < b->base_addr(); });
+    // Reject overlapping saved address ranges: `fix_object_ptr` resolves cross-region pointers
+    // by binary-searching `base_addr`s, and would silently translate via the wrong region if
+    // two deps overlap (or if a dep overlaps our own range). This should not happen with regular
+    // .olean use as we use only use `read`'s `prev` instead of `dep_regions` there.
+    for (size_t i = 1; i < m_dep_regions.size(); i++) {
+        compacted_region * prev = m_dep_regions[i - 1];
+        compacted_region * curr = m_dep_regions[i];
+        if (reinterpret_cast<size_t>(prev->base_addr()) + prev->size()
+                > reinterpret_cast<size_t>(curr->base_addr())) {
+            throw exception("compacted_region: dep regions have overlapping `base_addr` ranges");
+        }
+    }
+    size_t self_base = reinterpret_cast<size_t>(m_base_addr);
+    size_t self_end = self_base + m_size;
+    for (compacted_region * dep : m_dep_regions) {
+        size_t dep_base = reinterpret_cast<size_t>(dep->base_addr());
+        size_t dep_end = dep_base + dep->size();
+        if (self_base < dep_end && dep_base < self_end) {
+            throw exception("compacted_region: own region overlaps a dep region's `base_addr` range");
+        }
+    }
 }
 
 compacted_region::~compacted_region() {
@@ -402,7 +571,26 @@ compacted_region::~compacted_region() {
 
 inline object * compacted_region::fix_object_ptr(object * o) {
     if (lean_is_scalar(o)) return o;
-    return reinterpret_cast<object*>(static_cast<char*>(m_begin) - reinterpret_cast<char*>(m_base_addr) + reinterpret_cast<ptrdiff_t>(o));
+    size_t addr = reinterpret_cast<size_t>(o);
+    size_t self_base = reinterpret_cast<size_t>(m_base_addr);
+    // Check own region first (most common case)
+    if (addr >= self_base && addr < self_base + m_size) {
+        return reinterpret_cast<object*>(static_cast<char*>(m_begin) + (addr - self_base));
+    }
+    // Binary search dep regions (sorted by `base_addr`)
+    char * addr_ptr = reinterpret_cast<char *>(addr);
+    // Find the first region whose base_addr > addr, then step back
+    std::vector<compacted_region *>::iterator upper = std::upper_bound(
+        m_dep_regions.begin(), m_dep_regions.end(), addr_ptr,
+        [](char * a, compacted_region * r) { return a < static_cast<char *>(r->base_addr()); });
+    if (upper != m_dep_regions.begin()) {
+        compacted_region * dep = *(upper - 1);
+        size_t dep_base = reinterpret_cast<size_t>(dep->base_addr());
+        if (addr < dep_base + dep->size()) {
+            return reinterpret_cast<object*>(static_cast<char*>(dep->begin()) + (addr - dep_base));
+        }
+    }
+    lean_unreachable();
 }
 
 inline void compacted_region::move(size_t d) {
@@ -468,18 +656,63 @@ void compacted_region::fix_mpz(object * o) {
 #endif
 }
 
+void compacted_region::fix_closure(object * o) {
+    // Fix captured object pointers. The closure's `m_fun` is relocated separately
+    // via `m_closure_offsets` before the walk runs.
+    object ** it = lean_closure_arg_cptr(o);
+    object ** end = it + lean_closure_num_fixed(o);
+    for (; it != end; it++)
+        *it = fix_object_ptr(*it);
+    move(o);
+}
+
 object * compacted_region::read() {
     if (m_next == m_end)
         return nullptr; /* all objects have been read */
 
     object * root = fix_object_ptr(*static_cast<object_offset *>(m_next));
     move(sizeof(object_offset));
-    if (m_begin == m_base_addr) {
-        // no relocations needed
-        m_end = m_next;
-        return root;
+    // Check if any closure fn ptr relocation is actually needed
+    bool needs_fn_reloc = false;
+    for (std::pair<size_t, ptrdiff_t> const & reloc : m_lib_relocs) {
+        if (reloc.second != 0) { needs_fn_reloc = true; break; }
     }
-    lean_assert(!m_is_mmap);
+
+    // Apply closure fn-pointer relocations directly via the offset list rather than
+    // by scanning the compacted region for closure tags.
+    if (needs_fn_reloc && !m_closure_offsets.empty()) {
+        char * begin = static_cast<char *>(m_begin);
+        for (size_t off : m_closure_offsets) {
+            void ** fn_field = reinterpret_cast<void **>(begin + off);
+            size_t fn = reinterpret_cast<size_t>(*fn_field);
+            std::vector<std::pair<size_t, ptrdiff_t>>::const_iterator upper =
+                std::upper_bound(m_lib_relocs.begin(), m_lib_relocs.end(), fn,
+                    [](size_t addr, std::pair<size_t, ptrdiff_t> const & e) { return addr < e.first; });
+            if (upper != m_lib_relocs.begin()) {
+                ptrdiff_t delta = (upper - 1)->second;
+                if (delta != 0)
+                    *fn_field = reinterpret_cast<void *>(static_cast<ptrdiff_t>(fn) + delta);
+            }
+        }
+    }
+
+    if (m_begin == m_base_addr) {
+        // Own-region pointers are already correct (this region landed at its saved address).
+        // But if any dep region missed its `base_addr`, cross-region pointers in this region
+        // still hold the dep's saved address and need fixup, so fall through to the walk in
+        // that case.
+        bool needs_dep_reloc = false;
+        for (compacted_region * dep : m_dep_regions) {
+            if (dep->begin() != dep->base_addr()) { needs_dep_reloc = true; break; }
+        }
+        if (!needs_dep_reloc) {
+            // Closure fn pointers (if any) were already patched via the offset list.
+            m_end = m_next;
+            return root;
+        }
+        // Otherwise (needs_dep_reloc): fall through to full ctor walk. `fix_closure`
+        // ignores `m_fun` since it was already patched.
+    }
 
     while (m_next < m_end) {
         object * curr = reinterpret_cast<object*>(m_next);
@@ -488,7 +721,7 @@ object * compacted_region::read() {
             fix_constructor(curr);
         } else {
             switch (tag) {
-            case LeanClosure:         lean_unreachable();
+            case LeanClosure:         fix_closure(curr); break;
             case LeanArray:           fix_array(curr); break;
             case LeanScalarArray:     move(lean_sarray_byte_size(curr)); break;
             case LeanString:          move(lean_string_byte_size(curr)); break;

@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Std.Do.WP
-// Imports: public import Std.Do.WP.Basic public import Std.Do.WP.Monad public import Std.Do.WP.SimpLemmas
+// Imports: public import Std.Do.WP.Basic public import Std.Do.WP.Monad public import Std.Do.WP.SimpLemmas public import Std.Do.WP.Adequate
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,7 @@ extern "C" {
 lean_object* runtime_initialize_Std_Do_WP_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Std_Do_WP_Monad(uint8_t builtin);
 lean_object* runtime_initialize_Std_Do_WP_SimpLemmas(uint8_t builtin);
+lean_object* runtime_initialize_Std_Do_WP_Adequate(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Std_Do_WP(uint8_t builtin) {
 lean_object * res;
@@ -30,6 +31,9 @@ lean_dec_ref(res);
 res = runtime_initialize_Std_Do_WP_SimpLemmas(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Std_Do_WP_Adequate(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
 }
 static bool _G_meta_initialized = false;
@@ -42,6 +46,7 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Std_Do_WP_Basic(uint8_t builtin);
 lean_object* initialize_Std_Do_WP_Monad(uint8_t builtin);
 lean_object* initialize_Std_Do_WP_SimpLemmas(uint8_t builtin);
+lean_object* initialize_Std_Do_WP_Adequate(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Std_Do_WP(uint8_t builtin) {
 lean_object * res;
@@ -54,6 +59,9 @@ res = initialize_Std_Do_WP_Monad(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Std_Do_WP_SimpLemmas(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Std_Do_WP_Adequate(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Std_Do_WP(builtin);

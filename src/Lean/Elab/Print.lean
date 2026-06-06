@@ -37,6 +37,8 @@ private def mkHeader (kind : String) (id : Name) (levelParams : List Name) (type
 
   if defeqAttr.hasTag (← getEnv) id then
     attrs := attrs.push m!"defeq"
+  else if backwardDefeqAttr.hasTag (← getEnv) id then
+    attrs := attrs.push m!"backward_defeq"
 
   let mut m : MessageData := m!""
   unless attrs.isEmpty do

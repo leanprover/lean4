@@ -525,5 +525,5 @@ Case analysis based on strong induction for the natural numbers.
     (ind : ∀ n, (∀ m, m ≤ n → motive m) → motive (n + 1)) : motive a :=
   Nat.strongRecOn a fun n ↦
     match n with
-    | 0   => fun _  ↦ zero
-    | n+1 => fun h₁ ↦ ind n (fun _ h₂ ↦ h₁ _ (lt_succ_of_le h₂))
+    | 0     => fun _  ↦ zero
+    | n + 1 => fun h₁ ↦ ind n fun _ h₂ ↦ h₁ _ (lt_succ_of_le h₂)

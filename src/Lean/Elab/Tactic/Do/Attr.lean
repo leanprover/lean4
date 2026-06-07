@@ -240,6 +240,26 @@ namespace Lean.Elab.Tactic.Do.Internal.SpecAttr
 
 open Lean Meta Std.Internal.Do Lean.Order
 
+/--
+The kind of a spec theorem.
+-/
+public inductive SpecTheoremKind where
+  /--
+  A Hoare triple spec: `⦃P⦄ prog ⦃Q⦄`.
+  If `etaPotential` is non-zero, then the precondition contains meta variables that can be
+  instantiated after applying `mintro ∀s` `etaPotential` many times.
+  -/
+  | triple
+  /--
+  A simp/equational spec: `lhs = rhs`.
+  The pattern is the LHS.
+  When matched, the VCGen rewrites the program from `lhs` to `rhs` and continues.
+  `etaArgs` is the number of extra arguments introduced by eta-expanding function-level equations
+  (e.g., class projection unfold lemmas). These args need `congrFun` at instantiation time.
+  -/
+  | simp (etaArgs : Nat := 0)
+  deriving Inhabited
+
 inductive SpecProof where
   | global (declName : Name)
   | local (fvarId : FVarId)
@@ -278,7 +298,15 @@ Normalises a specification proof so its conclusion is in `pre ⊑ wp …` form.
 private def tripleToWpProof? (proof type : Expr) : MetaM (Option (Expr × Expr)) := do
   let type ← whnfR type
   if type.isAppOfArity ``Triple 12 then
-    let proof ← mkAppM ``Triple.hwp #[proof]
+    -- Build the `Triple.hwp` projection application explicitly from the `Triple` type's own
+    -- arguments rather than via `mkAppM`. `mkAppM` would re-synthesise the instance arguments
+    -- (`Monad m`, `WPMonad m …`), which fails for transformer specs whose monad is a partially
+    -- applied transformer with still-unassigned parameters (e.g. `ExceptT ?ε ?m` in
+    -- `Spec.monadLift_ExceptT`): synthesis of `Monad (ExceptT ?ε ?m)` is attempted before the
+    -- caller has unified the spec's program against the goal. Reusing the type's arguments keeps
+    -- those instance metavariables shared with the proof, so no premature synthesis happens.
+    let lvls := type.getAppFn.constLevels!
+    let proof := mkAppN (.const ``Triple.hwp lvls) (type.getAppArgs.push proof)
     let type ← instantiateMVars (← inferType proof)
     return some (proof, type)
   else if type.isAppOfArity ``PartialOrder.rel 4 then
@@ -286,14 +314,17 @@ private def tripleToWpProof? (proof type : Expr) : MetaM (Option (Expr × Expr))
   else
     return none
 
-def SpecProof.instantiate (proof : SpecProof) : MetaM (Array Expr × Array BinderInfo × Expr × Expr) := do
+def SpecProof.instantiateRaw (proof : SpecProof) : MetaM (Array Expr × Array BinderInfo × Expr × Expr) := do
   let prf ← match proof with
     | .global declName => mkConstWithFreshMVarLevels declName
     | .local fvarId => pure <| mkFVar fvarId
     | .stx _ _ proof => pure proof
   let type ← instantiateMVars (← inferType prf)
   let (xs, bs, type) ← forallMetaTelescope type
-  let prf := prf.beta xs
+  return (xs, bs, prf.beta xs, type)
+
+def SpecProof.instantiate (proof : SpecProof) : MetaM (Array Expr × Array BinderInfo × Expr × Expr) := do
+  let (xs, bs, prf, type) ← proof.instantiateRaw
   let some (prf, type) ← tripleToWpProof? prf type
     | throwError "expected `Triple` or `⊑ wp` specification, got{indentExpr type}"
   return (xs, bs, prf, type)
@@ -314,6 +345,8 @@ structure SpecTheorem where
   pattern : Sym.Pattern
   /-- The proof for the theorem. -/
   proof : SpecProof
+  /-- The kind of spec theorem: triple or simp. -/
+  kind : SpecTheoremKind := .triple
   priority : Nat := eval_prio default
   deriving Inhabited
 
@@ -395,44 +428,63 @@ def eraseUnusedVarsFromPattern (p : Sym.Pattern) : Sym.Pattern := Id.run do
     checkTypeMask? := newCheckTypeMask? }
 
 /--
-Builds a `Sym.Pattern` keyed on the program inside a spec conclusion.
-Accepts both `Triple` and `pre ⊑ wp prog post epost` shapes.
+Selects the program a spec conclusion is keyed on: the program of a `Triple`, or the program inside
+the `wp` on the RHS of a `pre ⊑ wp …` entailment. Returns `none` if `type` is neither shape — e.g. a
+bare `lhs ⊑ rhs` whose RHS is not a `wp` application (an invariant entailment such as
+`(I n h).inv … ⊑ Q n r.2`, which can appear as an ordinary hypothesis but is not a spec). Callers use
+`none` to skip such non-spec hypotheses instead of failing.
 -/
-def mkSpecPatternFromExpr (expr : Expr) (levelParams : List Name := []) : MetaM Sym.Pattern := do
+def selectProg (type : Expr) : MetaM (Option Expr) := do
+  match_expr type with
+  | Triple _m _Pred _EPred _α _monad _instAL _instEAL _wpInst _pre prog _post _epost =>
+    return prog
+  | PartialOrder.rel _α _inst _pre rhs =>
+    let_expr wp _m _Pred _EPred _monad _instAL _instEAL _wpInst _α prog _post _epost := rhs
+      | return none
+    return prog
+  | _ => return none
+
+/--
+Builds a `Sym.Pattern` keyed on the program selected by `selectProg` from a spec conclusion.
+The conclusion is assumed to already be a valid spec shape (checked by the caller via `selectProg`);
+a non-spec shape reaching here is a logic error and throws.
+-/
+def mkSpecPatternFromExpr (expr : Expr)
+    (levelParams : List Name := []) : MetaM Sym.Pattern := do
   let (pattern, _) ← Sym.mkPatternFromExprWithKey expr levelParams fun type => do
-    let type ← whnfR type
-    if type.isAppOfArity ``Triple 12 then
-      return (type.getArg! 9, ())
-    else if type.isAppOfArity ``PartialOrder.rel 4 then
-      let rhs := type.getArg! 3
-      let_expr wp _m _Pred _EPred _monad _instAL _instEAL _wpInst _α prog _post _epost := rhs
-        | throwError "RHS of ⊑ is not a `wp` application{indentExpr rhs}"
-      return (prog, ())
-    else
-      throwError "unexpected kind of spec theorem; expected `Triple` or `⊑ wp`{indentExpr type}"
+    let some prog ← selectProg type
+      | throwError "unexpected kind of spec theorem; expected `Triple` or `⊑ wp`{indentExpr type}"
+    return (prog, ())
   return eraseUnusedVarsFromPattern pattern
 
-private def mkSpecTheorem (proof : SpecProof) (prio : Nat) : MetaM SpecTheorem := do
+private def mkSpecTheorem (type : Expr) (proof : SpecProof) (prio : Nat) : MetaM (Option SpecTheorem) := do
   let (levelParams, expr) ← proof.getProof
+  let type ← instantiateMVars type
+  let (_, _, type) ← forallMetaTelescope type
+  let some _ ← selectProg type | return none
   let pattern ← mkSpecPatternFromExpr expr levelParams
-  return { pattern, proof, priority := prio }
+  return some { pattern, proof, priority := prio }
 
-def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM SpecTheorem :=
-  mkSpecTheorem (.global declName) prio
+def mkSpecTheoremFromConst (declName : Name) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
+  let info ← getConstInfo declName
+  mkSpecTheorem info.type (.global declName) prio
 
-def mkSpecTheoremFromLocal (fvar : FVarId) (prio : Nat := eval_prio default) : MetaM SpecTheorem := do
-  let some _ ← fvar.findDecl? | throwError "invalid 'spec', local declaration {fvar.name} not found"
-  mkSpecTheorem (.local fvar) prio
+def mkSpecTheoremFromLocal (fvar : FVarId) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
+  let some decl ← fvar.findDecl? | throwError "invalid 'spec', local declaration {fvar.name} not found"
+  mkSpecTheorem decl.type (.local fvar) prio
 
-def mkSpecTheoremFromStx (ref : Syntax) (proof : Expr) (prio : Nat := eval_prio default) : MetaM SpecTheorem := do
-  mkSpecTheorem (.stx (← mkFreshId) ref proof) prio
+def mkSpecTheoremFromStx (ref : Syntax) (proof : Expr) (prio : Nat := eval_prio default) : MetaM (Option SpecTheorem) := do
+  let type ← inferType proof
+  mkSpecTheorem type (.stx (← mkFreshId) ref proof) prio
 
 def SpecExtension.addSpecTheoremFromConst (ext : SpecExtension) (declName : Name) (prio : Nat) (attrKind : AttributeKind) : MetaM Unit := do
-  let thm ← mkSpecTheoremFromConst declName prio
+  let some thm ← mkSpecTheoremFromConst declName prio |
+    throwError "invalid 'spec', expected `Triple` or `⊑ wp`"
   ext.add thm attrKind
 
 def SpecExtension.addSpecTheoremFromLocal (ext : SpecExtension) (fvar : FVarId) (prio : Nat := eval_prio default) : MetaM Unit := do
-  let thm ← mkSpecTheoremFromLocal fvar prio
+  let some thm ← mkSpecTheoremFromLocal fvar prio |
+    throwError "invalid 'spec', expected `Triple` or `⊑ wp`"
   ext.add thm .local
 
 def mkSpecExt : SimpleScopedEnvExtension.Descr SpecEntry SpecTheorems where

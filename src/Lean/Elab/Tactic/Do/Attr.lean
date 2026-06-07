@@ -339,11 +339,67 @@ def SpecTheorems.erase (d : SpecTheorems) (thmId : SpecProof) : SpecTheorems :=
 abbrev SpecExtension := SimpleScopedEnvExtension SpecEntry SpecTheorems
 
 /--
+Drops pattern variables that the pattern expression does not depend on.
+
+`Sym.mkPatternFromExprWithKey`/`Sym.mkPatternFromDeclWithKey` turn *every* leading `∀`-binder of the
+source type into a pattern variable, even binders the selected key (e.g. the program of a `Triple`
+conclusion) never mentions. During matching those variables only ever become fresh metavariables
+(see `Sym.mkPreResult`); for instance binders they additionally trigger spurious `trySynthInstance`
+calls. This keeps only the variables that the pattern expression references, together with the
+transitive closure of variables their types depend on, and renumbers the remaining de Bruijn
+indices. `varInfos?` and `checkTypeMask?` are filtered to the surviving telescope; `fnInfos`,
+`levelParams`, and the discrimination-tree key are unchanged because the pattern expression's
+structure is untouched (bound variables are wildcards in the key).
+
+**Important:** only use this when the matched arguments are *not* reused to rebuild a proof term,
+as `Sym.BackwardRule`/`Sym.mkValue` do — dropping variables would drop arguments those need. It is
+meant for databases such as `mvcgen'`'s spec table, where the proof is re-elaborated independently
+of the pattern.
+-/
+def eraseUnusedVarsFromPattern (p : Sym.Pattern) : Sym.Pattern := Id.run do
+  let n := p.varTypes.size
+  -- Variable `j` (0 = outermost binder) is bound variable `#(ctx-1-j)` in a context of `ctx`
+  -- binders. `used[j]` becomes `true` once we know variable `j` is reachable from the pattern.
+  let mut used := Array.replicate n false
+  for j in *...n do
+    if p.pattern.hasLooseBVar (n - 1 - j) then
+      used := used.set! j true
+  -- A variable's type may reference earlier variables, so propagate top-down: when a kept variable
+  -- is reached, mark every variable occurring in its type as kept too.
+  for j in *...n do
+    let i := n - 1 - j
+    if used[i]! then
+      for k in *...i do
+        if p.varTypes[i]!.hasLooseBVar (i - 1 - k) then
+          used := used.set! k true
+  if used.all (· == true) then return p
+  let kept := (Array.range n).filter (used[·]!)
+  -- Rebuild the telescope via fvar placeholders to avoid manual de Bruijn arithmetic.
+  let fvars := (Array.range n).map fun i => mkFVar ⟨.num `_sym_prune i⟩
+  let keptFVars := kept.map (fvars[·]!)
+  let newPattern := (p.pattern.instantiateRev fvars).abstract keptFVars
+  let newVarTypes := kept.mapIdx fun k i =>
+    (p.varTypes[i]!.instantiateRev (fvars.extract 0 i)).abstract (keptFVars.extract 0 k)
+  -- `varInfos?`/`checkTypeMask?` are parallel to `varTypes`; their per-variable meaning does not
+  -- depend on the de Bruijn numbering, so we simply keep the surviving entries.
+  let newVarInfos? := p.varInfos?.bind fun infos =>
+    let argsInfo := kept.map (infos.argsInfo[·]!)
+    if argsInfo.any fun a => a.isProof || a.isInstance then some { argsInfo } else none
+  let newCheckTypeMask? := p.checkTypeMask?.bind fun mask =>
+    let newMask := kept.map (mask[·]!)
+    if newMask.all (· == false) then none else some newMask
+  return { p with
+    varTypes := newVarTypes
+    pattern := newPattern
+    varInfos? := newVarInfos?
+    checkTypeMask? := newCheckTypeMask? }
+
+/--
 Builds a `Sym.Pattern` keyed on the program inside a spec conclusion.
 Accepts both `Triple` and `pre ⊑ wp prog post epost` shapes.
 -/
-def mkSpecPatternFromExpr (expr : Expr) (levelParams : List Name := []) : MetaM Sym.Pattern :=
-  Prod.fst <$> Sym.mkPatternFromExprWithKey expr levelParams fun type => do
+def mkSpecPatternFromExpr (expr : Expr) (levelParams : List Name := []) : MetaM Sym.Pattern := do
+  let (pattern, _) ← Sym.mkPatternFromExprWithKey expr levelParams fun type => do
     let type ← whnfR type
     if type.isAppOfArity ``Triple 12 then
       return (type.getArg! 9, ())
@@ -354,6 +410,7 @@ def mkSpecPatternFromExpr (expr : Expr) (levelParams : List Name := []) : MetaM 
       return (prog, ())
     else
       throwError "unexpected kind of spec theorem; expected `Triple` or `⊑ wp`{indentExpr type}"
+  return eraseUnusedVarsFromPattern pattern
 
 private def mkSpecTheorem (proof : SpecProof) (prio : Nat) : MetaM SpecTheorem := do
   let (levelParams, expr) ← proof.getProof

@@ -680,7 +680,7 @@ static inline b_lean_obj_res lean_ctor_get(b_lean_obj_arg o, unsigned i) {
 }
 
 static inline void lean_dec_ref_known(lean_object * o, unsigned objs) {
-    assert(lean_is_ref(o));
+    assert(!lean_is_scalar(o));
     if (lean_is_exclusive(o)) {
         for(unsigned i = 0; i < objs; i++) {
             lean_dec(lean_ctor_get(o, i));

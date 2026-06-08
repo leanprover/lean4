@@ -50,7 +50,7 @@ theorem get_StateT_wp
     (post : σ → σ → Pred) (epost : EPred) :
     (fun s => post s s) ⊑ wp (MonadStateOf.get : StateT σ m σ) post epost := by
   intro s
-  simpa [MonadStateOf.get] using
+  simpa [MonadStateOf.get] using!
     (WPMonad.wp_pure (m := m) (x := (s, s))
       (post := fun x => post x.fst x.snd) (epost := epost))
 
@@ -58,7 +58,7 @@ theorem set_StateT_wp (x : σ)
     (post : PUnit → σ → Pred) (epost : EPred) :
     (fun _ => post ⟨⟩ x) ⊑ wp (MonadStateOf.set x : StateT σ m PUnit) post epost := by
   intro s
-  simpa [MonadStateOf.set] using
+  simpa [MonadStateOf.set] using!
     (WPMonad.wp_pure (m := m) (x := (PUnit.unit, x))
       (post := fun x => post x.fst x.snd) (epost := epost))
 
@@ -66,7 +66,7 @@ theorem modifyGet_StateT_wp (f : σ → α × σ)
     (post : α → σ → Pred) (epost : EPred) :
     (fun s => post (f s).1 (f s).2) ⊑ wp (MonadStateOf.modifyGet f : StateT σ m α) post epost := by
   intro s
-  simpa [MonadStateOf.modifyGet] using
+  simpa [MonadStateOf.modifyGet] using!
     (WPMonad.wp_pure (m := m) (x := f s)
       (post := fun x => post x.fst x.snd) (epost := epost))
 

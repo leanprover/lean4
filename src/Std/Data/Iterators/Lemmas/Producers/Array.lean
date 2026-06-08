@@ -112,6 +112,6 @@ theorem Array.iterFromIdx_equiv_iter_drop_toList {α : Type w} {array : Array α
 theorem Array.iter_equiv_iter_toList {α : Type w} {array : Array α} :
     array.iter.Equiv array.toList.iter := by
   rw [Array.iter_eq_iterFromIdx]
-  simpa using iterFromIdx_equiv_iter_drop_toList
+  simpa using! iterFromIdx_equiv_iter_drop_toList
 
 end Equivalence

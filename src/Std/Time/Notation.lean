@@ -134,13 +134,13 @@ private meta def convertPlainTime (d : Std.Time.PlainTime) : MacroM (TSyntax `te
 private meta def convertPlainDateTime (d : Std.Time.PlainDateTime) : MacroM (TSyntax `term) := do
  `(Std.Time.PlainDateTime.mk $(← convertPlainDate d.date) $(← convertPlainTime d.time))
 
-private meta def convertZonedDateTime (d : Std.Time.ZonedDateTime) (identifier := false) : MacroM (TSyntax `term) := do
+private meta def convertDateTime (d : Std.Time.DateTime) (identifier := false) : MacroM (TSyntax `term) := do
   let plain ← convertPlainDateTime d.toPlainDateTime
 
   if identifier then
-    `(Std.Time.ZonedDateTime.ofPlainDateTime $plain <$> Std.Time.Database.defaultGetZoneRules $(Syntax.mkStrLit d.timezone.name))
+    `(Std.Time.DateTime.ofPlainDateTime $plain <$> Std.Time.Database.defaultGetZoneRules $(Syntax.mkStrLit d.timezone.name))
   else
-    `(Std.Time.ZonedDateTime.ofPlainDateTime $plain (Std.Time.TimeZone.ZoneRules.ofTimeZone $(← convertTimezone d.timezone)))
+    `(Std.Time.DateTime.ofPlainDateTime $plain (Std.Time.TimeZone.ZoneRules.ofTimeZone $(← convertTimezone d.timezone)))
 
 /--
 Defines a syntax for zoned datetime values. It expects a string representing a datetime with
@@ -206,18 +206,18 @@ syntax "timezone(" str ")" : term
 
 macro_rules
   | `(zoned( $date:str )) => do
-      match ZonedDateTime.fromLeanDateTimeWithZoneString date.getString with
-      | .ok res => do return ← convertZonedDateTime res
+      match DateTime.fromLeanDateTimeWithZoneString date.getString with
+      | .ok res => do return ← convertDateTime res
       | .error _ =>
-        match ZonedDateTime.fromLeanDateTimeWithIdentifierString date.getString with
-        | .ok res => do return ← convertZonedDateTime res (identifier := true)
+        match DateTime.fromLeanDateTimeWithIdentifierString date.getString with
+        | .ok res => do return ← convertDateTime res (identifier := true)
         | .error res => Macro.throwErrorAt date s!"error: {res}"
 
   | `(zoned( $date:str, $timezone )) => do
       match PlainDateTime.fromLeanDateTimeString date.getString with
       | .ok res => do
         let plain ← convertPlainDateTime res
-        `(Std.Time.ZonedDateTime.ofPlainDateTime $plain $timezone)
+        `(Std.Time.DateTime.ofPlainDateTime $plain $timezone)
       | .error res => Macro.throwErrorAt date s!"error: {res}"
 
   | `(datetime( $date:str )) => do

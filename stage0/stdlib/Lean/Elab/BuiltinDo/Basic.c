@@ -37,12 +37,12 @@ if (lean_obj_tag(v___x_12_) == 0)
 lean_object* v_a_13_; lean_object* v___x_14_; 
 v_a_13_ = lean_ctor_get(v___x_12_, 0);
 lean_inc(v_a_13_);
-lean_dec_ref(v___x_12_);
+lean_dec_ref_known(v___x_12_, 1);
 v___x_14_ = l_Lean_Elab_Term_addLocalVarInfo(v_x_2_, v_a_13_, v___y_5_, v___y_6_, v___y_7_, v___y_8_, v___y_9_, v___y_10_);
 if (lean_obj_tag(v___x_14_) == 0)
 {
 lean_object* v___x_15_; 
-lean_dec_ref(v___x_14_);
+lean_dec_ref_known(v___x_14_, 1);
 lean_inc(v___y_10_);
 lean_inc_ref(v___y_9_);
 lean_inc(v___y_8_);
@@ -172,7 +172,7 @@ lean_ctor_set_uint8(v___x_66_, sizeof(void*)*14, v_diag_61_);
 lean_ctor_set_uint8(v___x_66_, sizeof(void*)*14 + 1, v_suppressElabErrors_63_);
 lean_inc_ref(v_a_38_);
 v___x_67_ = l_Lean_Elab_Do_withLCtxKeepingMutVarDefs___redArg(v_lctx_37_, v_a_38_, v___x_39_, v___f_40_, v___y_41_, v___y_42_, v___y_43_, v___y_44_, v___y_45_, v___x_66_, v___y_47_);
-lean_dec_ref(v___x_66_);
+lean_dec_ref_known(v___x_66_, 14);
 return v___x_67_;
 }
 }
@@ -210,7 +210,7 @@ else
 lean_object* v_val_109_; 
 v_val_109_ = lean_ctor_get(v_xType_x3f_83_, 0);
 lean_inc(v_val_109_);
-lean_dec_ref(v_xType_x3f_83_);
+lean_dec_ref_known(v_xType_x3f_83_, 1);
 v___y_96_ = v_val_109_;
 goto v___jp_95_;
 }
@@ -223,7 +223,7 @@ if (lean_obj_tag(v___x_97_) == 0)
 lean_object* v_a_98_; lean_object* v_lctx_99_; lean_object* v_ref_100_; lean_object* v___x_101_; lean_object* v___f_102_; lean_object* v___f_103_; lean_object* v___x_104_; uint8_t v___x_105_; lean_object* v___x_106_; 
 v_a_98_ = lean_ctor_get(v___x_97_, 0);
 lean_inc(v_a_98_);
-lean_dec_ref(v___x_97_);
+lean_dec_ref_known(v___x_97_, 1);
 v_lctx_99_ = lean_ctor_get(v_a_90_, 2);
 v_ref_100_ = lean_ctor_get(v_a_92_, 5);
 v___x_101_ = l_Lean_TSyntax_getId(v_x_82_);

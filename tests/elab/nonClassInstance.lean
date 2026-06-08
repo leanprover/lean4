@@ -6,14 +6,18 @@ structure Foo where
 class Bar where
   x : Nat
 
-/-- error: instance `instFoo` target `Foo` is not a type class. -/
+/--
+error: The declaration `instFoo` should not be an instance as its return type `Foo` is not a type class.
+-/
 #guard_msgs in
 instance instFoo : Foo := ⟨0⟩
 
 -- Applying @[instance] to a non-class def should also warn
 def instFoo2 : Foo := ⟨1⟩
 
-/-- error: instance `instFoo2` target `Foo` is not a type class. -/
+/--
+error: The declaration `instFoo2` should not be an instance as its return type `Foo` is not a type class.
+-/
 #guard_msgs in
 attribute [instance] instFoo2
 
@@ -32,6 +36,12 @@ instance : Baz Nat := ⟨0⟩
 structure Qux (α : Type) where
   x : α
 
-/-- error: instance `instQux` target `Qux Nat` is not a type class. -/
+/--
+error: The declaration `instQux` should not be an instance as its return type `Qux Nat` is not a type class.
+-/
 #guard_msgs in
 instance instQux : Qux Nat := ⟨0⟩
+
+/-- warning: declaration uses `sorry` -/
+#guard_msgs in
+instance bad : ∀ n : Nat, sorry := by sorry

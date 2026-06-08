@@ -70,7 +70,7 @@ def getAliasSyntax {m} [Monad m] [MonadResolveName m] (stx : Syntax) : m (Array 
 
 @[inherit_doc linter.extra.dupNamespace]
 def dupNamespace : Linter where run := withSetOptionIn fun stx ↦ do
-  if getLinterValueExtra linter.extra.dupNamespace (← getLinterOptions) then
+  if getLinterValue linter.extra.dupNamespace (← getLinterOptions) then
     let mut aliases := #[]
     if let some exp := stx.find? (·.isOfKind `Lean.Parser.Command.export) then
       aliases ← getAliasSyntax exp
@@ -80,7 +80,7 @@ def dupNamespace : Linter where run := withSetOptionIn fun stx ↦ do
       let nm := declName.components
       let some (dup, _) := nm.zip (nm.tailD []) |>.find? fun (x, y) ↦ x == y
         | continue
-      Linter.logLintIfExtra linter.extra.dupNamespace id
+      Linter.logLintIf linter.extra.dupNamespace id
         m!"The namespace '{dup}' is duplicated in the declaration '{declName}'"
 
 end DupNamespaceLinter

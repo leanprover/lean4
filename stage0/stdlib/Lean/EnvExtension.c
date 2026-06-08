@@ -682,7 +682,7 @@ v_head_140_ = lean_ctor_get(v_x_139_, 0);
 lean_inc(v_head_140_);
 v_tail_141_ = lean_ctor_get(v_x_139_, 1);
 lean_inc(v_tail_141_);
-lean_dec_ref(v_x_139_);
+lean_dec_ref_known(v_x_139_, 2);
 lean_inc(v_addEntryFn_137_);
 v___x_142_ = lean_apply_2(v_addEntryFn_137_, v_x_138_, v_head_140_);
 v_x_138_ = v___x_142_;
@@ -892,7 +892,7 @@ lean_object* v_val_219_; lean_object* v_fst_220_; lean_object* v_snd_221_; lean_
 lean_dec_ref(v_toArrayFn_212_);
 v_val_219_ = lean_ctor_get(v_exportEntriesFnEx_x3f_211_, 0);
 lean_inc(v_val_219_);
-lean_dec_ref(v_exportEntriesFnEx_x3f_211_);
+lean_dec_ref_known(v_exportEntriesFnEx_x3f_211_, 1);
 v_fst_220_ = lean_ctor_get(v_s_214_, 0);
 lean_inc(v_fst_220_);
 v_snd_221_ = lean_ctor_get(v_s_214_, 1);
@@ -2078,7 +2078,7 @@ goto v___jp_725_;
 }
 else
 {
-lean_dec_ref(v___x_730_);
+lean_dec_ref_known(v___x_730_, 1);
 if (v___x_729_ == 0)
 {
 lean_object* v___x_731_; lean_object* v___x_732_; 
@@ -2221,7 +2221,7 @@ else
 lean_object* v_val_769_; lean_object* v___x_770_; uint8_t v___x_771_; lean_object* v___x_772_; lean_object* v___x_773_; lean_object* v___x_774_; uint8_t v___x_775_; 
 v_val_769_ = lean_ctor_get(v___x_766_, 0);
 lean_inc(v_val_769_);
-lean_dec_ref(v___x_766_);
+lean_dec_ref_known(v___x_766_, 1);
 v___x_770_ = ((lean_object*)(l_Lean_TagDeclarationExtension_isTagged___closed__0));
 v___x_771_ = 0;
 v___x_772_ = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(v___x_770_, v_ext_761_, v_env_762_, v_val_769_, v___x_771_);
@@ -2458,14 +2458,14 @@ v_head_857_ = lean_ctor_get(v_x_856_, 0);
 lean_inc(v_head_857_);
 v_tail_858_ = lean_ctor_get(v_x_856_, 1);
 lean_inc(v_tail_858_);
-lean_dec_ref(v_x_856_);
+lean_dec_ref_known(v_x_856_, 2);
 v___x_859_ = l_Std_DTreeMap_Internal_Impl_Const_get_x3f___at___00Lean_NameMap_find_x3f_spec__0___redArg(v_newState_854_, v_head_857_);
 if (lean_obj_tag(v___x_859_) == 1)
 {
 lean_object* v_val_860_; lean_object* v___x_861_; 
 v_val_860_ = lean_ctor_get(v___x_859_, 0);
 lean_inc(v_val_860_);
-lean_dec_ref(v___x_859_);
+lean_dec_ref_known(v___x_859_, 1);
 v___x_861_ = l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_NameMap_insert_spec__0___redArg(v_head_857_, v_val_860_, v_x_855_);
 v_x_855_ = v___x_861_;
 v_x_856_ = v_tail_858_;
@@ -2722,7 +2722,7 @@ lean_object* v_val_974_; lean_object* v_name_975_; lean_object* v___x_976_; lean
 lean_dec(v_val_972_);
 v_val_974_ = lean_ctor_get(v___x_973_, 0);
 lean_inc(v_val_974_);
-lean_dec_ref(v___x_973_);
+lean_dec_ref_known(v___x_973_, 1);
 v_name_975_ = lean_ctor_get(v_ext_969_, 1);
 lean_inc(v_name_975_);
 lean_dec_ref(v_ext_969_);
@@ -2826,7 +2826,7 @@ else
 lean_object* v_val_1030_; lean_object* v___x_1031_; lean_object* v___x_1032_; lean_object* v___x_1033_; uint8_t v___x_1034_; 
 v_val_1030_ = lean_ctor_get(v___x_1027_, 0);
 lean_inc(v_val_1030_);
-lean_dec_ref(v___x_1027_);
+lean_dec_ref_known(v___x_1027_, 1);
 v___x_1031_ = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(v___x_1026_, v_ext_1021_, v_env_1022_, v_val_1030_, v_level_1025_);
 lean_dec(v_val_1030_);
 lean_dec_ref(v_env_1022_);
@@ -2978,7 +2978,7 @@ else
 lean_object* v_val_1090_; uint8_t v___x_1091_; lean_object* v___x_1092_; lean_object* v___x_1093_; lean_object* v___x_1094_; uint8_t v___x_1095_; 
 v_val_1090_ = lean_ctor_get(v___x_1085_, 0);
 lean_inc(v_val_1090_);
-lean_dec_ref(v___x_1085_);
+lean_dec_ref_known(v___x_1085_, 1);
 v___x_1091_ = 0;
 v___x_1092_ = l_Lean_PersistentEnvExtension_getModuleEntries___redArg(v___x_1084_, v_ext_1081_, v_env_1082_, v_val_1090_, v___x_1091_);
 lean_dec(v_val_1090_);

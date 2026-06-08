@@ -10,8 +10,8 @@ public import Std.Do.Triple.Basic
 public import Init.Data.Range.Polymorphic.Iterators
 import Init.Data.Range.Polymorphic
 public import Init.Data.Slice.Array
-public import Std.Do.WP.Adequate
 public import Init.While
+public import Init.Internal.Order.While
 
 -- This public import is a workaround for #10652.
 -- Without it, adding the `spec` attribute for `instMonadLiftTOfMonadLift` will fail.
@@ -161,7 +161,7 @@ theorem eq_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
 theorem length_of_range'_eq_append_cons (h : range' s n step = xs ++ cur :: ys) :
     n = xs.length + ys.length + 1 := by
   have : n = (range' s n step).length := by simp
-  simpa [h] using this
+  simpa [h] using! this
 
 @[grind →]
 theorem mem_of_range'_eq_append_cons (h : range' s n step = xs ++ i :: ys) :
@@ -2192,160 +2192,113 @@ theorem Spec.forIn_stringSlice
       next b => simp [ih _ _ hsp.next]
   | endPos => simpa using Triple.pure _ (by simp)
 
-section ErasesTo
-
-variable {α : Type u₁} {m : Type u₁ → Type v} {ps : PostShape.{u₁}}
-variable [Monad m] [WPMonad m ps]
-
-/--
-Specification for any `Internal.ErasesTo`-witnessed refinement `y` of `x`: the precondition is the
-weakest precondition of `x` with a postcondition that universally quantifies over the subtype proof.
--/
-theorem Spec.of_erasesTo
-    {α : Type u₁} {P : α → Prop} {x : m α} {y : m (Subtype P)}
-    (h : Internal.ErasesTo y x) {Q : PostCond (Subtype P) ps} :
-    ⦃ wp⟦x⟧ ⟨fun a => spred(∀ (hP : P a), Q.1 ⟨a, hP⟩), Q.2⟩ ⦄ y ⦃Q⦄ := by
-  apply Triple.iff.mpr
-  conv in wp x => rw [← h.map_eq]
-  simp only [WPMonad.wp_map]
-  rw [PredTrans.apply_Functor_map]
-  apply (wp y).mono
-  refine ⟨fun ⟨a, hP⟩ => SPred.forall_elim hP, ExceptConds.entails.refl _⟩
-
-/--
-Specification for an `Internal.IsAttach`-witnessed attach: the precondition is the weakest
-precondition of `x` with a postcondition that universally quantifies over the `MayReturn` proof.
--/
-theorem Spec.isAttach
-    {x : m α} {Q : PostCond {a : α // Internal.MayReturn x a} ps}
-    (attach : ⦃α : Type u₁⦄ → (x : m α) → m {a : α // Internal.MayReturn x a})
-    (hAttach : Internal.IsAttach attach) :
-    ⦃ wp⟦x⟧ ⟨fun a => spred(∀ (h : Internal.MayReturn x a), Q.1 ⟨a, h⟩), Q.2⟩ ⦄ attach x ⦃Q⦄ :=
-  Spec.of_erasesTo (hAttach.erases x)
-
-variable [MonadAttach m] [WeaklyLawfulMonadAttach m]
-
-/--
-Specification for `MonadAttach.attach`: the precondition is the weakest precondition of `x` with
-a postcondition that universally quantifies over the `CanReturn` proof.
--/
-@[spec]
-theorem Spec.attach
-    {x : m α} {Q : PostCond (Subtype (MonadAttach.CanReturn x)) ps} :
-    ⦃ wp⟦x⟧ ⟨fun a => spred(∀ (h : MonadAttach.CanReturn x a), Q.1 ⟨a, h⟩), Q.2⟩ ⦄ MonadAttach.attach x ⦃Q⦄ :=
-  Spec.of_erasesTo Internal.ErasesTo.of_attach
-
-end ErasesTo
-
 section While
 
 open Std.Do
 
 variable {α β : Type u} {m : Type u → Type v} {ps : PostShape.{u}}
-variable [Monad m] [WP m ps] [WPAdequate m ps]
 
 /--
-A `wp`-provable measure that strictly decreases on `.inl` witnesses an `Acc` chain at `init`,
-unblocking `whileM_eq`.
--/
-theorem _root_.whileM.IsPlausibleStep.acc_of_wp
-    {f : α → m (α ⊕ β)} {P : α ⊕ β → Prop} (measure : α → Nat) (init : α) (hP : P (.inl init))
-    (h : ∀ a, ⦃⌜P (.inl a)⌝⦄ f a ⦃(fun r => ⌜P r ∧ ∀ a', r = .inl a' → measure a' < measure a⌝, exc)⦄) :
-    Acc (whileM.IsPlausibleStep f) init := by
-  have (eq := hn) n := measure init
-  induction n using Nat.strongRecOn generalizing init with
-  | _ n ih =>
-  refine Acc.intro _ fun a' hStep => ?_
-  have hwp : ⊢ₛ wp⟦f init⟧
-      (⇓? r => ⌜P r ∧ ∀ a', r = .inl a' → measure a' < measure init⌝) := by
-    apply SPred.entails.trans (by simpa [hP] using h init)
-    apply (wp _).mono; simp [PostCond.entails]
-  have hpost := hStep.imp (WPAdequate.ensures_of_wp hwp)
-  exact ih _ (hn ▸ hpost.2 a' rfl) _ hpost.1 rfl
-
-/--
-An invariant for a `whileM` loop: `.inl` is the `continue` case, `.inr` is the `break` case.
-Unlike `Invariant`, this is `Prop`-valued and cannot range over internal state — a fundamental
-limitation of how `whileM` is implemented.
+An invariant for a `whileM` loop, given as a `PostCond` over the `α ⊕ β` cursor:
+`.inl a` is the `continue` case at `a`; `.inr b` is the `break` case with result `b`.
 -/
 @[spec_invariant_type]
-abbrev WhileInvariant (α β : Type u) := α ⊕ β → Prop
+def WhileInvariant (α β : Type u) (ps : PostShape.{u}) :=
+  PostCond (α ⊕ β) ps
 
-/-- A variant (termination measure) for a `whileM` loop. -/
+/-- A termination measure for a `whileM` loop, SVal-typed so it can read monadic state. -/
 @[spec_invariant_type]
-abbrev WhileVariant (α : Type u) := α → Nat
+def WhileVariant (α : Type u) (ps : PostShape.{u}) :=
+  α → SVal ps.args (ULift Nat)
 
-variable {α β : Type u} {m : Type u → Type v} {ps : PostShape.{u}}
-variable [Monad m] [LawfulMonad m] [MonadAttach m] [LawfulMonadAttach m] [WPMonad m ps] [WPAdequate m ps]
+set_option linter.missingDocs false in
+abbrev WhileVariant.eval {α} {ps} (variant : WhileVariant α ps) (a : α) (n : Nat) : SPred ps.args :=
+  SVal.evalsTo (variant a) ⟨n⟩
+
+private theorem WhileVariant.eval_total {P : SPred ps.args} (variant : WhileVariant α ps) (a : α) :
+    P ⊢ₛ ∃ m, WhileVariant.eval variant a m := by
+  refine SPred.entails.trans (SVal.evalsTo_total (variant a)) ?_
+  refine SPred.exists_elim fun (m : ULift Nat) => ?_
+  exact SPred.exists_intro (Ψ := fun n => WhileVariant.eval variant a n) m.down
+
+private theorem WhileVariant.add_eval {P Q : SPred ps.args} (variant : WhileVariant α ps) (a : α)
+    (h : spred(∃ m, WhileVariant.eval variant a m ∧ P) ⊢ₛ Q) : P ⊢ₛ Q := by
+  refine SPred.entails.trans' (WhileVariant.eval_total variant a) ?_
+  refine SPred.entails.trans (SPred.Tactic.Cases.exists fun n => ?_) h
+  exact SPred.and_symm.trans
+    (SPred.exists_intro (Ψ := fun n => spred(WhileVariant.eval variant a n ∧ P)) n)
+
+variable [Monad m] [Lean.Order.MonadTail m] [WPMonad m ps]
 
 /--
-Specification for `whileM`. The user supplies a termination measure `μ`, an invariant, and a step
-proof whose post preserves the invariant and shows `μ` strictly decreases on `.inl`.
+Specification for `whileM`. The user supplies a (possibly state-dependent) termination
+`measure`, an invariant, and a step `Triple` whose pre asserts the variant evaluates to `ma`
+and the in-progress invariant holds, and whose post either continues with a strictly smaller
+variant value (the invariant still holding) or finishes with the `.inr` invariant.
 -/
 @[spec]
 theorem Spec.whileM
     {init : α} {f : α → m (α ⊕ β)} [Nonempty β]
-    (μ : WhileVariant α)
-    (inv : WhileInvariant α β)
-    {exc : ExceptConds ps}
-    (step : ∀ a,
-      Triple (f a) (⌜inv (.inl a)⌝)
+    (measure : WhileVariant α ps)
+    (inv : WhileInvariant α β ps)
+    (step : ∀ a ma,
+      Triple (f a)
+        spred(WhileVariant.eval measure a ma ∧ inv.1 (.inl a))
         (fun r => match r with
-          | .inl a' => spred(⌜inv (.inl a') ∧ μ a' < μ a⌝)
-          | .inr b => ⌜inv (.inr b)⌝, exc)) :
-    Triple (whileM f init) (⌜inv (.inl init)⌝)
-        (fun b => ⌜inv (.inr b)⌝, exc) := by
-  refine Triple.iff.mpr <| SPred.pure_elim' fun hInv => ?_
-  suffices key : ∀ a, inv (.inl a) →
-      ⊢ₛ wp⟦(_root_.whileM f a : m β)⟧ (fun b => ⌜inv (.inr b)⌝, exc) from
-    key init hInv
-  intro a hInv'
-  have (eq := hn) n := μ a
-  induction n using Nat.strongRecOn generalizing a with
+          | .inl a' => spred(∃ ma', WhileVariant.eval measure a' ma' ∧ ⌜ma' < ma⌝ ∧ inv.1 (.inl a'))
+          | .inr b  => inv.1 (.inr b),
+         inv.2)) :
+    Triple (whileM f init) spred(inv.1 (.inl init))
+      (fun b => inv.1 (.inr b), inv.2) := by
+  apply WhileVariant.add_eval measure init
+  apply SPred.exists_elim
+  intro minit
+  suffices key : ∀ (n : Nat) (a : α),
+      (spred(WhileVariant.eval measure a n ∧ inv.1 (.inl a)) ⊢ₛ
+       wp⟦(_root_.whileM f a : m β)⟧ (fun b => inv.1 (.inr b), inv.2)) from
+    key minit init
+  intro n
+  induction n using Nat.strongRecOn with
   | _ n ih =>
-  have hacc : Acc (whileM.IsPlausibleStep f) a := by
-    refine whileM.IsPlausibleStep.acc_of_wp μ a hInv' fun y =>
-      Triple.iff.mpr <| (Triple.iff.mp (step y)).trans <| (wp _).mono _ _ ⟨fun r => ?_, ExceptConds.entails.refl _⟩
-    cases r with
-    | inl _ => exact SPred.pure_mono fun ⟨hI, hM⟩ =>
-        ⟨hI, fun _ h => by injection h with h; exact h ▸ hM⟩
-    | inr _ => exact SPred.pure_mono fun hI =>
-        ⟨hI, fun _ h => by injection h⟩
-  rw [whileM_eq _ hacc]
-  unfold whileM.body
-  change Triple _ ⌜True⌝ _
-  apply Triple.bind _ _
-    (Triple.iff.mpr (Triple.entails_wp_of_pre (step a) (SPred.pure_intro hInv')))
-  rintro (a' | b)
-  · exact Triple.iff.mpr <| SPred.pure_elim' fun ⟨hI, hM⟩ => ih (μ a') (hn ▸ hM) a' hI rfl
-  · exact Triple.pure b (by simp)
+    intro a
+    rw [whileM_eq_of_monadTail (f := f) a]
+    refine Triple.bind (f := fun x => match x with
+      | .inl a' => _root_.whileM f a' | .inr a' => Pure.pure a')
+      (f a) (step a n) ?_
+    rintro (a' | b)
+    · refine Triple.iff.mpr ?_
+      refine SPred.exists_elim fun ma' => ?_
+      refine SPred.pure_elim (SPred.and_elim_r.trans SPred.and_elim_l) fun hlt => ?_
+      refine SPred.entails.trans ?_ (ih ma' hlt a')
+      exact SPred.and_intro SPred.and_elim_l (SPred.and_elim_r.trans SPred.and_elim_r)
+    · apply Triple.pure
+      simp
 
 /--
-Specification for `forIn` over a `Lean.Loop`. The user supplies a termination measure `μ`, an
-invariant, and a step proof whose post preserves the invariant and shows `μ` strictly decreases
-on `.yield`.
+Specification for `forIn` over a `Lean.Loop`. The cursor is `β ⊕ β`: `.inl b` means
+"still iterating with `b`", `.inr b` means "finished with result `b`".
 -/
 @[spec]
 theorem Spec.forIn_loop
     {l : Lean.Loop} {init : β} {f : Unit → β → m (ForInStep β)}
-    (μ : WhileVariant β)
-    (inv : WhileInvariant β β)
-    {exc : ExceptConds ps}
-    (step : ∀ b,
-      Triple
-        (f () b)
-        (⌜inv (.inl b)⌝)
+    (measure : WhileVariant β ps)
+    (inv : WhileInvariant β β ps)
+    (step : ∀ b mb,
+      Triple (f () b)
+        spred(WhileVariant.eval measure b mb ∧ inv.1 (.inl b))
         (fun r => match r with
-          | .yield b' => spred(⌜inv (.inl b') ∧ μ b' < μ b⌝)
-          | .done b' => ⌜inv (.inr b')⌝, exc)) :
-    Triple (forIn l init f) (⌜inv (.inl init)⌝) (fun b => ⌜inv (.inr b)⌝, exc) := by
+          | .yield b' => spred(∃ mb', WhileVariant.eval measure b' mb' ∧ ⌜mb' < mb⌝ ∧ inv.1 (.inl b'))
+          | .done b'  => inv.1 (.inr b'),
+         inv.2)) :
+    Triple (forIn l init f) spred(inv.1 (.inl init))
+      (fun b => inv.1 (.inr b), inv.2) := by
+  haveI : Nonempty β := ⟨init⟩
   change Triple (_root_.Lean.Loop.forIn l init f) _ _
   simp only [_root_.Lean.Loop.forIn]
-  have : Nonempty β := ⟨init⟩
-  apply Spec.whileM μ inv
-  intro a
+  apply Spec.whileM (β := β) (measure := measure) (inv := inv)
+  intro b mb
   apply Triple.bind
-  · apply step a
-  · rintro (b | b) <;> apply Triple.pure <;> simp
+  · exact step b mb
+  · rintro (b' | b') <;> apply Triple.pure <;> simp
 
 end While

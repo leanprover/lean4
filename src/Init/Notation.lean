@@ -514,9 +514,10 @@ macro_rules
   | `(bif $c then $t else $e) => `(cond $c $t $e)
 
 /--
-Haskell-like pipe operator `<|`. `f <| x` means the same as `f x`,
-except that it parses `x` with lower precedence, which means that `f <| g <| x`
-is interpreted as `f (g x)` rather than `(f g) x`.
+A pipe operator that feeds values from the right into functions on the left.
+
+`f <| x` means the same as `f x`, except that it parses `x` with lower precedence, which means that
+`f <| g <| x` is interpreted as `f (g x)` rather than `(f g) x`.
 -/
 syntax:min term " <| " term:min : term
 
@@ -538,8 +539,9 @@ macro_rules
       `($f $a)
 
 /--
-Haskell-like pipe operator `|>`. `x |> f` means the same as `f x`,
-and it chains such that `x |> f |> g` is interpreted as `g (f x)`.
+A pipe operator that feeds values from the left into functions on the right.
+
+`x |> f` means the same as `f x`, and it chains such that `x |> f |> g` is interpreted as `g (f x)`.
 -/
 syntax:min term " |> " term:min1 : term
 
@@ -745,6 +747,8 @@ This is the same as `#eval show MetaM Unit from discard do doSeq`.
 -/
 syntax (name := runMeta) "run_meta " doSeq : command
 
+/-- Configuration for the `#reduce` command. -/
+syntax reduceConfig := many(colGt atomic(" (" ident " := ") term ")")
 /--
 `#reduce <expression>` reduces the expression `<expression>` to its normal form. This
 involves applying reduction rules until no further reduction is possible.
@@ -759,7 +763,7 @@ especially for complex expressions.
 Consider using `#eval <expression>` for simple evaluation/execution
 of expressions.
 -/
-syntax (name := reduceCmd) "#reduce " (atomic("(" &"proofs" " := " &"true" ")"))? (atomic("(" &"types" " := " &"true" ")"))? term : command
+syntax (name := reduceCmd) "#reduce" reduceConfig term : command
 
 set_option linter.missingDocs false in
 syntax guardMsgsFilterAction := &"check" <|> &"drop" <|> &"pass"

@@ -588,13 +588,13 @@ if (lean_obj_tag(v___x_188_) == 0)
 lean_object* v_a_189_; lean_object* v_a_191_; 
 v_a_189_ = lean_ctor_get(v___x_188_, 0);
 lean_inc(v_a_189_);
-lean_dec_ref(v___x_188_);
+lean_dec_ref_known(v___x_188_, 1);
 if (lean_obj_tag(v_a_189_) == 1)
 {
 lean_object* v_val_195_; lean_object* v___x_196_; 
 v_val_195_ = lean_ctor_get(v_a_189_, 0);
 lean_inc(v_val_195_);
-lean_dec_ref(v_a_189_);
+lean_dec_ref_known(v_a_189_, 1);
 v___x_196_ = lean_array_push(v_b_179_, v_val_195_);
 v_a_191_ = v___x_196_;
 goto v___jp_190_;
@@ -698,7 +698,7 @@ if (lean_obj_tag(v___x_230_) == 0)
 lean_object* v_a_231_; lean_object* v_structs_232_; lean_object* v___x_233_; lean_object* v_msgs_234_; size_t v_sz_235_; size_t v___x_236_; lean_object* v___x_237_; 
 v_a_231_ = lean_ctor_get(v___x_230_, 0);
 lean_inc(v_a_231_);
-lean_dec_ref(v___x_230_);
+lean_dec_ref_known(v___x_230_, 1);
 v_structs_232_ = lean_ctor_get(v_a_231_, 0);
 lean_inc_ref(v_structs_232_);
 lean_dec(v_a_231_);

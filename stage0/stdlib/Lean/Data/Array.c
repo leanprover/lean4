@@ -106,7 +106,7 @@ lean_object* v_a_14_; lean_object* v___x_15_;
 lean_dec(v_G_12_);
 v_a_14_ = lean_ctor_get(v_____do__lift_13_, 0);
 lean_inc(v_a_14_);
-lean_dec_ref(v_____do__lift_13_);
+lean_dec_ref_known(v_____do__lift_13_, 1);
 v___x_15_ = lean_apply_2(v_toPure_10_, lean_box(0), v_a_14_);
 return v___x_15_;
 }
@@ -116,7 +116,7 @@ lean_object* v_a_16_; lean_object* v___x_17_; lean_object* v___x_18_; lean_objec
 lean_dec(v_toPure_10_);
 v_a_16_ = lean_ctor_get(v_____do__lift_13_, 0);
 lean_inc(v_a_16_);
-lean_dec_ref(v_____do__lift_13_);
+lean_dec_ref_known(v_____do__lift_13_, 1);
 v___x_17_ = lean_unsigned_to_nat(1u);
 v___x_18_ = lean_nat_add(v_next_11_, v___x_17_);
 v___x_19_ = lean_apply_4(v_G_12_, v___x_18_, v_a_16_, lean_box(0), lean_box(0));
@@ -303,7 +303,7 @@ lean_object* v_a_108_; lean_object* v___x_109_;
 lean_dec(v_G_106_);
 v_a_108_ = lean_ctor_get(v_____do__lift_107_, 0);
 lean_inc(v_a_108_);
-lean_dec_ref(v_____do__lift_107_);
+lean_dec_ref_known(v_____do__lift_107_, 1);
 v___x_109_ = lean_apply_2(v_toPure_104_, lean_box(0), v_a_108_);
 return v___x_109_;
 }
@@ -313,7 +313,7 @@ lean_object* v_a_110_; lean_object* v___x_111_; lean_object* v___x_112_; lean_ob
 lean_dec(v_toPure_104_);
 v_a_110_ = lean_ctor_get(v_____do__lift_107_, 0);
 lean_inc(v_a_110_);
-lean_dec_ref(v_____do__lift_107_);
+lean_dec_ref_known(v_____do__lift_107_, 1);
 v___x_111_ = lean_unsigned_to_nat(1u);
 v___x_112_ = lean_nat_add(v_next_105_, v___x_111_);
 v___x_113_ = lean_apply_4(v_G_106_, v___x_112_, v_a_110_, lean_box(0), lean_box(0));
@@ -339,7 +339,7 @@ lean_object* v_a_124_; lean_object* v___x_125_;
 lean_dec(v_G_122_);
 v_a_124_ = lean_ctor_get(v_____do__lift_123_, 0);
 lean_inc(v_a_124_);
-lean_dec_ref(v_____do__lift_123_);
+lean_dec_ref_known(v_____do__lift_123_, 1);
 v___x_125_ = lean_apply_2(v_toPure_119_, lean_box(0), v_a_124_);
 return v___x_125_;
 }
@@ -349,7 +349,7 @@ lean_object* v_a_126_; lean_object* v___x_127_; lean_object* v___x_128_;
 lean_dec(v_toPure_119_);
 v_a_126_ = lean_ctor_get(v_____do__lift_123_, 0);
 lean_inc(v_a_126_);
-lean_dec_ref(v_____do__lift_123_);
+lean_dec_ref_known(v_____do__lift_123_, 1);
 v___x_127_ = lean_nat_add(v_next_120_, v___x_121_);
 v___x_128_ = lean_apply_4(v_G_122_, v___x_127_, v_a_126_, lean_box(0), lean_box(0));
 return v___x_128_;

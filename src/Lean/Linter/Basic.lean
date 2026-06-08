@@ -38,7 +38,8 @@ partial def withSetOptionIn (cmd : CommandElab) : CommandElab := fun stx => do
   if stx.getKind == ``Lean.Parser.Command.in &&
      stx[0].getKind == ``Lean.Parser.Command.set_option then
       -- Do not modify the infotrees when elaborating, and silently ignore errors.
-      let opts ← try (·.1) <$> elabSetOption stx[0][1] stx[0][3] (addInfo := false)
+      let opts ← withEnableInfoTree false try
+          (·.1) <$> elabSetOption stx[0][1] stx[0][3]
         catch _ => getOptions
       withScope ({ · with opts }) do withSetOptionIn cmd stx[2]
   else

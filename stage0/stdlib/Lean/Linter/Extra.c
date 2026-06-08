@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter.Extra
-// Imports: public import Lean.Linter.Extra.UnnecessarySeqFocus public import Lean.Linter.Extra.UnreachableTactic
+// Imports: public import Lean.Linter.Extra.DupNamespace public import Lean.Linter.Extra.UnnecessarySeqFocus public import Lean.Linter.Extra.UnreachableTactic public import Lean.Linter.Extra.UnusedDecidableInType
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -13,17 +13,25 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* runtime_initialize_Lean_Linter_Extra_DupNamespace(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_Extra_UnnecessarySeqFocus(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_Extra_UnreachableTactic(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter_Extra_UnusedDecidableInType(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Lean_Linter_Extra(uint8_t builtin) {
 lean_object * res;
 if (_G_runtime_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_runtime_initialized = true;
+res = runtime_initialize_Lean_Linter_Extra_DupNamespace(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter_Extra_UnnecessarySeqFocus(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter_Extra_UnreachableTactic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Linter_Extra_UnusedDecidableInType(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 return lean_io_result_mk_ok(lean_box(0));
@@ -35,17 +43,25 @@ if (_G_meta_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_meta_initialized = true;
 return lean_io_result_mk_ok(lean_box(0));
 }
+lean_object* initialize_Lean_Linter_Extra_DupNamespace(uint8_t builtin);
 lean_object* initialize_Lean_Linter_Extra_UnnecessarySeqFocus(uint8_t builtin);
 lean_object* initialize_Lean_Linter_Extra_UnreachableTactic(uint8_t builtin);
+lean_object* initialize_Lean_Linter_Extra_UnusedDecidableInType(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Lean_Linter_Extra(uint8_t builtin) {
 lean_object * res;
 if (_G_initialized) return lean_io_result_mk_ok(lean_box(0));
 _G_initialized = true;
+res = initialize_Lean_Linter_Extra_DupNamespace(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Linter_Extra_UnnecessarySeqFocus(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Linter_Extra_UnreachableTactic(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Linter_Extra_UnusedDecidableInType(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter_Extra(builtin);

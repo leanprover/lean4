@@ -135,7 +135,7 @@ lean_object* v_val_55_; lean_object* v___x_56_;
 lean_dec(v_h__2_52_);
 v_val_55_ = lean_ctor_get(v_x_50_, 0);
 lean_inc(v_val_55_);
-lean_dec_ref(v_x_50_);
+lean_dec_ref_known(v_x_50_, 1);
 v___x_56_ = lean_apply_1(v_h__1_51_, v_val_55_);
 return v___x_56_;
 }
@@ -158,7 +158,7 @@ lean_object* v_val_64_; lean_object* v___x_65_;
 lean_dec(v_h__2_61_);
 v_val_64_ = lean_ctor_get(v_x_59_, 0);
 lean_inc(v_val_64_);
-lean_dec_ref(v_x_59_);
+lean_dec_ref_known(v_x_59_, 1);
 v___x_65_ = lean_apply_1(v_h__1_60_, v_val_64_);
 return v___x_65_;
 }

@@ -2450,7 +2450,7 @@ theorem isEmpty_inter_right [EquivBEq α] [LawfulHashable α] (h : m₂.isEmpty)
 
 theorem isEmpty_inter_iff [EquivBEq α] [LawfulHashable α] :
     (m₁ ∩ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∉ m₂ := by
-  simpa only [mem_iff_contains, Bool.not_eq_true] using
+  simpa only [mem_iff_contains, Bool.not_eq_true] using!
     @Raw₀.isEmpty_inter_iff _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.wf m₂.wf
 
 end Inter
@@ -2768,7 +2768,7 @@ theorem isEmpty_diff_left [EquivBEq α] [LawfulHashable α] (h : m₁.isEmpty) :
 
 theorem isEmpty_diff_iff [EquivBEq α] [LawfulHashable α] :
     (m₁ \ m₂).isEmpty ↔ ∀ k, k ∈ m₁ → k ∈ m₂ := by
-  simpa only [mem_iff_contains] using
+  simpa only [mem_iff_contains] using!
     @Raw₀.isEmpty_diff_iff _ _ _ _ ⟨m₁.1, m₁.2.size_buckets_pos⟩ ⟨m₂.1, m₂.2.size_buckets_pos⟩ _ _ m₁.wf m₂.wf
 
 end Diff

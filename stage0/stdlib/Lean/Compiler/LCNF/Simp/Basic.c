@@ -33,14 +33,14 @@ v_a_6_ = lean_ctor_get(v___x_5_, 0);
 lean_inc(v_a_6_);
 if (lean_obj_tag(v_a_6_) == 1)
 {
-lean_dec_ref(v_a_6_);
+lean_dec_ref_known(v_a_6_, 1);
 lean_dec(v_fvarId_2_);
 return v___x_5_;
 }
 else
 {
 lean_object* v___x_7_; 
-lean_dec_ref(v___x_5_);
+lean_dec_ref_known(v___x_5_, 1);
 lean_dec(v_a_6_);
 v___x_7_ = l_Lean_Compiler_LCNF_findLetValue_x3f___redArg(v_pu_1_, v_fvarId_2_, v_a_3_);
 lean_dec(v_fvarId_2_);
@@ -70,7 +70,7 @@ if (lean_obj_tag(v_a_8_) == 1)
 lean_object* v_val_17_; 
 v_val_17_ = lean_ctor_get(v_a_8_, 0);
 lean_inc(v_val_17_);
-lean_dec_ref(v_a_8_);
+lean_dec_ref_known(v_a_8_, 1);
 if (lean_obj_tag(v_val_17_) == 4)
 {
 lean_object* v_fvarId_18_; lean_object* v_args_19_; lean_object* v___x_20_; lean_object* v___x_21_; uint8_t v___x_22_; 
@@ -78,7 +78,7 @@ v_fvarId_18_ = lean_ctor_get(v_val_17_, 0);
 lean_inc(v_fvarId_18_);
 v_args_19_ = lean_ctor_get(v_val_17_, 1);
 lean_inc_ref(v_args_19_);
-lean_dec_ref(v_val_17_);
+lean_dec_ref_known(v_val_17_, 2);
 v___x_20_ = lean_array_get_size(v_args_19_);
 lean_dec_ref(v_args_19_);
 v___x_21_ = lean_unsigned_to_nat(0u);

@@ -101,18 +101,18 @@ Returns the name of the ext theorem.
 
 See `Lean.Elab.Tactic.Ext.withExtHyps` for an explanation of the `flat` argument.
 -/
-def realizeExtTheorem (structName : Name) (flat : Bool) : Elab.Command.CommandElabM Name := do
+def realizeExtTheorem (structName : Name) (flat : Bool) : TermElabM Name := do
   unless isStructure (← getEnv) structName do
     throwError "Internal error when realizing `ext` theorem: `{structName}` is not a structure"
   let extName := structName.mkStr "ext"
   unless (← getEnv).contains extName do
     try
-      Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extName do
+      withLCtx {} {} <| withoutErrToSorry <| withDeclName extName do
         let type ← mkExtType structName flat
         let pf ← withoutExporting <| withSynthesize do
           let indVal ← getConstInfoInduct structName
           let params := Array.replicate indVal.numParams (← `(_))
-          Elab.Term.elabTermEnsuringType (expectedType? := type) (implicitLambda := false)
+          Term.elabTermEnsuringType (expectedType? := type) (implicitLambda := false)
             -- introduce the params, do cases on 'x' and 'y', and then substitute each equation
             (← `(by intro $params* {..} {..}; intros; subst_eqs; rfl))
         let pf ← instantiateMVars pf
@@ -136,7 +136,7 @@ Given an 'ext' theorem, ensures that there is an iff version of the theorem (if 
 without validating any pre-existing theorems.
 Returns the name of the 'ext_iff' theorem.
 -/
-def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
+def realizeExtIffTheorem (extName : Name) : TermElabM Name := do
   let extIffName : Name :=
     match extName with
     | .str n s => .str n (s ++ "_iff")
@@ -144,10 +144,10 @@ def realizeExtIffTheorem (extName : Name) : Elab.Command.CommandElabM Name := do
   unless (← getEnv).contains extIffName do
     try
       let info ← getConstInfo extName
-      Elab.Command.liftTermElabM <| withoutErrToSorry <| withDeclName extIffName do
+      withLCtx {} {} <| withoutErrToSorry <| withDeclName extIffName do
         let type ← mkExtIffType extName
         let pf ← withoutExporting <| withSynthesize do
-          Elab.Term.elabTermEnsuringType (expectedType? := type) <| ← `(by
+          Term.elabTermEnsuringType (expectedType? := type) <| ← `(by
             intros
             refine ⟨?_, ?_⟩
             · intro h; cases h; and_intros <;> (intros; first | rfl | simp | fail "Failed to prove converse of ext theorem")
@@ -180,14 +180,14 @@ open Ext
 builtin_initialize registerBuiltinAttribute {
   name := `ext
   descr := "Marks a theorem as an extensionality theorem"
-  add := fun declName stx kind => MetaM.run' do
+  add := fun declName stx kind => MetaM.run' <| TermElabM.run' do
     let `(attr| ext $[(iff := false%$iffFalse?)]? $[(flat := false%$flatFalse?)]? $(prio)?) := stx
       | throwError "Invalid `[ext]` attribute syntax"
     let iff := iffFalse?.isNone
     let flat := flatFalse?.isNone
     let mut declName := declName
     if isStructure (← getEnv) declName then
-      declName ← liftCommandElabM <| withRef stx <| realizeExtTheorem declName flat
+      declName ← withRef stx <| realizeExtTheorem declName flat
     else if let some stx := flatFalse? then
       throwErrorAt stx "Unexpected `flat` configuration on `[ext]` theorem"
     -- Validate and add theorem to environment extension
@@ -199,11 +199,11 @@ builtin_initialize registerBuiltinAttribute {
     let some (ty, lhs, rhs) := declTy.eq? | failNotEq
     unless lhs.isMVar && rhs.isMVar do failNotEq
     let keys ← withReducible <| DiscrTree.mkPath ty
-    let priority ← liftCommandElabM <| Elab.liftMacroM do evalPrio (prio.getD (← `(prio| default)))
+    let priority ← liftMacroM <| evalPrio (prio.getD (← `(prio| default)))
     extExtension.add {declName, keys, priority} kind
     -- Realize iff theorem
     if iff then
-      discard <| liftCommandElabM <| withRef stx <| realizeExtIffTheorem declName
+      discard <| withRef stx <| realizeExtIffTheorem declName
   erase := fun declName => do
     let s := extExtension.getState (← getEnv)
     let s ← s.erase declName

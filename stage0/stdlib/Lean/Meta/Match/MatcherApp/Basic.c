@@ -232,7 +232,7 @@ if (lean_obj_tag(v_____x_86_) == 5)
 lean_object* v_val_87_; lean_object* v_toConstantVal_88_; lean_object* v_numParams_89_; lean_object* v_numIndices_90_; lean_object* v_ctors_91_; lean_object* v_nargs_92_; lean_object* v_dummy_93_; lean_object* v___x_94_; lean_object* v___x_95_; lean_object* v___x_96_; lean_object* v_args_97_; lean_object* v___x_98_; lean_object* v___x_99_; lean_object* v___x_100_; lean_object* v___x_101_; lean_object* v___x_102_; lean_object* v___x_103_; uint8_t v___x_104_; 
 v_val_87_ = lean_ctor_get(v_____x_86_, 0);
 lean_inc_ref(v_val_87_);
-lean_dec_ref(v_____x_86_);
+lean_dec_ref_known(v_____x_86_, 1);
 v_toConstantVal_88_ = lean_ctor_get(v_val_87_, 0);
 lean_inc_ref(v_toConstantVal_88_);
 v_numParams_89_ = lean_ctor_get(v_val_87_, 1);
@@ -611,7 +611,7 @@ v_declName_229_ = lean_ctor_get(v___x_228_, 0);
 lean_inc_n(v_declName_229_, 4);
 v_us_230_ = lean_ctor_get(v___x_228_, 1);
 lean_inc_n(v_us_230_, 2);
-lean_dec_ref(v___x_228_);
+lean_dec_ref_known(v___x_228_, 2);
 v_toApplicative_231_ = lean_ctor_get(v_inst_217_, 0);
 v_toBind_232_ = lean_ctor_get(v_inst_217_, 1);
 lean_inc_n(v_toBind_232_, 5);

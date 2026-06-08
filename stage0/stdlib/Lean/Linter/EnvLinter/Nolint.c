@@ -382,7 +382,7 @@ else
 lean_object* v_val_168_; 
 v_val_168_ = lean_ctor_get(v___x_166_, 0);
 lean_inc(v_val_168_);
-lean_dec_ref(v___x_166_);
+lean_dec_ref_known(v___x_166_, 1);
 v___y_157_ = v_val_168_;
 goto v___jp_156_;
 }

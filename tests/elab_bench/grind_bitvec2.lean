@@ -3215,7 +3215,7 @@ theorem msb_umod {x y : BitVec w} :
       · suffices x.toNat % y.toNat < 2 ^ (w - 1) by
           simpa [x_lt_y]
         have y_le_x : y.toNat ≤ x.toNat := by
-          simpa using x_lt_y
+          simpa [BitVec.lt_def] using x_lt_y
         replace hy : y.toNat ≠ 0 :=
           toNat_ne_iff_ne.mpr hy
         by_cases msb_y : y.toNat < 2 ^ (w - 1)

@@ -166,7 +166,7 @@ def displayHelp (useStderr : Bool) : IO Unit := do
     out.putStrLn  "  -s, --tstack=num       thread stack size in Kb"
     out.putStrLn  "      --server           start lean in server mode"
     out.putStrLn  "      --worker           start lean in server-worker mode"
-  out.putStrLn    "      --plugin=file[:fn] load and initialize Lean shared library for registering linters etc."
+  out.putStrLn    "      --plugin=file[=fn] load and initialize Lean shared library for registering linters etc."
   out.putStrLn    "      --load-dynlib=file load shared library to make its symbols available to the interpreter"
   out.putStrLn    "      --setup=file       JSON file with module setup data (supersedes the file's header)"
   out.putStrLn    "      --json             report Lean output (e.g., messages) as JSON (one per line)"
@@ -410,10 +410,10 @@ def ShellOptions.process (opts : ShellOptions)
       Internal.enableDebug arg
       return opts
     -- if not `LEAN_DEBUG`, fall through to unknown option
-  | 'p' => -- `--plugin=file[:fn]`
+  | 'p' => -- `--plugin=file[=fn]`
     let arg ← checkOptArg "p" optArg?
     let (path, fn?) :=
-      let pos := arg.find ':'
+      let pos := arg.find '='
       if h : pos.IsAtEnd then
         (FilePath.mk arg, none)
       else

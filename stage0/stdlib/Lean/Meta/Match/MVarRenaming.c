@@ -197,7 +197,7 @@ else
 lean_object* v_val_52_; 
 v_val_52_ = lean_ctor_get(v___x_49_, 0);
 lean_inc(v_val_52_);
-lean_dec_ref(v___x_49_);
+lean_dec_ref_known(v___x_49_, 1);
 return v_val_52_;
 }
 }
@@ -238,7 +238,7 @@ return v___x_64_;
 else
 {
 lean_object* v_val_65_; lean_object* v___x_67_; uint8_t v_isShared_68_; uint8_t v_isSharedCheck_73_; 
-lean_dec_ref(v_e_61_);
+lean_dec_ref_known(v_e_61_, 1);
 v_val_65_ = lean_ctor_get(v___x_63_, 0);
 v_isSharedCheck_73_ = !lean_is_exclusive(v___x_63_);
 if (v_isSharedCheck_73_ == 0)

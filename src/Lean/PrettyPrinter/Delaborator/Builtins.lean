@@ -300,9 +300,9 @@ def delabAppExplicitCore (fieldNotation : Bool) (numArgs : Nat) (delabHead : (in
   let fieldNotation ← pure (fieldNotation && !insertExplicit) <&&> getPPOption getPPFieldNotation
     <&&> not <$> getPPOption getPPAnalysisNoDot
     <&&> withBoundedAppFn numArgs do
-            pure (← getExpr).consumeMData.isConst
-            <&&> not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
-            <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> getPPOption getPPUniverses)
+            let some (_, us) := (← getExpr).consumeMData.const? | pure false
+            not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
+            <&&> not <$> withMDatasOptions (getPPOption getPPAnalysisBlockImplicit <|> (pure !us.isEmpty <&&> getPPOption getPPUniverses))
   let field? ← if fieldNotation then appFieldNotationCandidate? else pure none
   let (fnStx, _, argStxs) ← withBoundedAppFnArgs numArgs
     (do return (← delabHead insertExplicit, paramKinds.toList, Array.mkEmpty numArgs))
@@ -364,9 +364,9 @@ Assumes `numArgs ≤ paramKinds.size`.
 def delabAppImplicitCore (unexpand : Bool) (numArgs : Nat) (delabHead : Delab) (paramKinds : Array ParamKind) : Delab := do
   let unexpand ← pure unexpand
     <&&> withBoundedAppFn numArgs do
-            pure (← getExpr).consumeMData.isConst
-            <&&> not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
-            <&&> not <$> withMDatasOptions (getPPOption getPPUniverses)
+            let some (_, us) := (← getExpr).consumeMData.const? | pure false
+            not <$> (pure (← getExpr).isMData <&&> getPPOption getPPMData)
+            <&&> (pure us.isEmpty <||> not <$> withMDatasOptions (getPPOption getPPUniverses))
   let field? ←
     if ← pure unexpand <&&> getPPOption getPPFieldNotation <&&> not <$> getPPOption getPPAnalysisNoDot then
       appFieldNotationCandidate?

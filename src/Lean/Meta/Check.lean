@@ -350,11 +350,13 @@ def withInstancesTypeCheckNote [MonadControlT MetaM m] [Monad m] (e : Expr) (x :
     try
       check e .instances
       return .nil
-    catch _ =>
+    catch e =>
       return MessageData.note m!"The target expression is not type-correct \
         under the `instances` transparency level, which may have triggered the failure. \
         This is usually caused by unfolding of semireducible definitions in prior tactic steps. \
-        Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue."
+        Use `set_option linter.tacticCheckInstances true` to investigate the source of the issue.\n\
+        Full error:\
+        {indentD e.toMessageData}"
   Meta.mapError x (· ++ typeCheckNote)
 
 /--

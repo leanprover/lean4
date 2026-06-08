@@ -181,7 +181,7 @@ if (lean_obj_tag(v_a_41_) == 1)
 lean_object* v_val_45_; lean_object* v_fst_46_; lean_object* v_snd_47_; lean_object* v___x_49_; uint8_t v_isShared_50_; uint8_t v_isSharedCheck_73_; 
 v_val_45_ = lean_ctor_get(v_a_41_, 0);
 lean_inc(v_val_45_);
-lean_dec_ref(v_a_41_);
+lean_dec_ref_known(v_a_41_, 1);
 v_fst_46_ = lean_ctor_get(v_val_45_, 0);
 v_snd_47_ = lean_ctor_get(v_val_45_, 1);
 v_isSharedCheck_73_ = !lean_is_exclusive(v_val_45_);
@@ -486,7 +486,7 @@ lean_object* v_val_117_; lean_object* v___x_118_; lean_object* v___x_119_;
 lean_del_object(v___x_115_);
 v_val_117_ = lean_ctor_get(v_a_113_, 0);
 lean_inc(v_val_117_);
-lean_dec_ref(v_a_113_);
+lean_dec_ref_known(v_a_113_, 1);
 v___x_118_ = lean_obj_once(&l_Std_Time_Database_Windows_getZoneRules___closed__3, &l_Std_Time_Database_Windows_getZoneRules___closed__3_once, _init_l_Std_Time_Database_Windows_getZoneRules___closed__3);
 v___x_119_ = l___private_Init_While_0__whileM_erased___at___00Std_Time_Database_Windows_getZoneRules_spec__1___redArg(v_id_108_, v___x_118_);
 if (lean_obj_tag(v___x_119_) == 0)
@@ -778,7 +778,7 @@ if (lean_obj_tag(v___x_192_) == 0)
 lean_object* v_a_193_; lean_object* v___x_194_; 
 v_a_193_ = lean_ctor_get(v___x_192_, 0);
 lean_inc(v_a_193_);
-lean_dec_ref(v___x_192_);
+lean_dec_ref_known(v___x_192_, 1);
 v___x_194_ = l_Std_Time_Database_Windows_getZoneRules(v_a_193_);
 lean_dec(v_a_193_);
 return v___x_194_;

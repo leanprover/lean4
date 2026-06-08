@@ -976,7 +976,7 @@ if (lean_obj_tag(v_doc_x3f_456_) == 1)
 lean_object* v_val_478_; lean_object* v___x_479_; 
 v_val_478_ = lean_ctor_get(v_doc_x3f_456_, 0);
 lean_inc(v_val_478_);
-lean_dec_ref(v_doc_x3f_456_);
+lean_dec_ref_known(v_doc_x3f_456_, 1);
 v___x_479_ = l_Array_mkArray1___redArg(v_val_478_);
 v___y_401_ = v_simprocType_470_;
 v___y_402_ = v___x_476_;
@@ -1220,7 +1220,7 @@ if (lean_obj_tag(v_doc_x3f_560_) == 1)
 lean_object* v_val_582_; lean_object* v___x_583_; 
 v_val_582_ = lean_ctor_get(v_doc_x3f_560_, 0);
 lean_inc(v_val_582_);
-lean_dec_ref(v_doc_x3f_560_);
+lean_dec_ref_known(v_doc_x3f_560_, 1);
 v___x_583_ = l_Array_mkArray1___redArg(v_val_582_);
 v___y_510_ = v_simprocType_574_;
 v___y_511_ = v___x_576_;
@@ -1404,7 +1404,7 @@ if (lean_obj_tag(v___y_664_) == 1)
 lean_object* v_val_693_; lean_object* v___x_694_; 
 v_val_693_ = lean_ctor_get(v___y_664_, 0);
 lean_inc(v_val_693_);
-lean_dec_ref(v___y_664_);
+lean_dec_ref_known(v___y_664_, 1);
 v___x_694_ = l_Array_mkArray1___redArg(v_val_693_);
 v___y_627_ = v___x_682_;
 v___y_628_ = v___x_689_;
@@ -1486,7 +1486,7 @@ if (lean_obj_tag(v___y_698_) == 1)
 lean_object* v_val_719_; lean_object* v___x_720_; 
 v_val_719_ = lean_ctor_get(v___y_698_, 0);
 lean_inc(v_val_719_);
-lean_dec_ref(v___y_698_);
+lean_dec_ref_known(v___y_698_, 1);
 v___x_720_ = l_Array_mkArray1___redArg(v_val_719_);
 v___y_660_ = v___x_712_;
 v___y_661_ = v___y_701_;
@@ -1773,7 +1773,7 @@ if (lean_obj_tag(v___y_804_) == 1)
 lean_object* v_val_829_; lean_object* v___x_830_; 
 v_val_829_ = lean_ctor_get(v___y_804_, 0);
 lean_inc(v_val_829_);
-lean_dec_ref(v___y_804_);
+lean_dec_ref_known(v___y_804_, 1);
 v___x_830_ = l_Array_mkArray1___redArg(v_val_829_);
 v___y_763_ = v___x_826_;
 v___y_764_ = v___y_797_;
@@ -1855,7 +1855,7 @@ if (lean_obj_tag(v___y_834_) == 1)
 lean_object* v_val_855_; lean_object* v___x_856_; 
 v_val_855_ = lean_ctor_get(v___y_834_, 0);
 lean_inc(v_val_855_);
-lean_dec_ref(v___y_834_);
+lean_dec_ref_known(v___y_834_, 1);
 v___x_856_ = l_Array_mkArray1___redArg(v_val_855_);
 v___y_796_ = v___x_854_;
 v___y_797_ = v___y_837_;

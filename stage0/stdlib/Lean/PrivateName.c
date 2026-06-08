@@ -207,7 +207,7 @@ v_pre_47_ = lean_ctor_get(v_n_46_, 0);
 lean_inc(v_pre_47_);
 v_str_48_ = lean_ctor_get(v_n_46_, 1);
 lean_inc_ref(v_str_48_);
-lean_dec_ref(v_n_46_);
+lean_dec_ref_known(v_n_46_, 2);
 v___x_49_ = l___private_Lean_PrivateName_0__Lean_privateToUserNameAux(v_pre_47_);
 v___x_50_ = l_Lean_Name_str___override(v___x_49_, v_str_48_);
 return v___x_50_;
@@ -220,7 +220,7 @@ lean_inc(v_pre_51_);
 v_i_52_ = lean_ctor_get(v_n_46_, 1);
 lean_inc(v_i_52_);
 v___x_53_ = l_Lean_isPrivatePrefix(v_n_46_);
-lean_dec_ref(v_n_46_);
+lean_dec_ref_known(v_n_46_, 2);
 if (v___x_53_ == 0)
 {
 lean_object* v___x_54_; lean_object* v___x_55_; 

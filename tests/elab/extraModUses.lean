@@ -128,7 +128,7 @@ Tactic configuration structures are recorded.
 public def test4 : True := by simp +contextual
 
 /--
-info: Entries: [import Init.Tactics, meta import Init.MetaTypes]
+info: Entries: [import Init.Tactics]
 Is rev mod use: false
 -/
 #guard_msgs in #eval showExtraModUses

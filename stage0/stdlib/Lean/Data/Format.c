@@ -165,13 +165,13 @@ else
 lean_object* v_val_11_; 
 v_val_11_ = lean_ctor_get(v___x_10_, 0);
 lean_inc(v_val_11_);
-lean_dec_ref(v___x_10_);
+lean_dec_ref_known(v___x_10_, 1);
 if (lean_obj_tag(v_val_11_) == 3)
 {
 lean_object* v_v_12_; 
 v_v_12_ = lean_ctor_get(v_val_11_, 0);
 lean_inc(v_v_12_);
-lean_dec_ref(v_val_11_);
+lean_dec_ref_known(v_val_11_, 1);
 return v_v_12_;
 }
 else
@@ -208,13 +208,13 @@ else
 lean_object* v_val_24_; 
 v_val_24_ = lean_ctor_get(v___x_23_, 0);
 lean_inc(v_val_24_);
-lean_dec_ref(v___x_23_);
+lean_dec_ref_known(v___x_23_, 1);
 if (lean_obj_tag(v_val_24_) == 3)
 {
 lean_object* v_v_25_; 
 v_v_25_ = lean_ctor_get(v_val_24_, 0);
 lean_inc(v_v_25_);
-lean_dec_ref(v_val_24_);
+lean_dec_ref_known(v_val_24_, 1);
 return v_v_25_;
 }
 else
@@ -251,12 +251,12 @@ else
 lean_object* v_val_37_; 
 v_val_37_ = lean_ctor_get(v___x_36_, 0);
 lean_inc(v_val_37_);
-lean_dec_ref(v___x_36_);
+lean_dec_ref_known(v___x_36_, 1);
 if (lean_obj_tag(v_val_37_) == 1)
 {
 uint8_t v_v_38_; 
 v_v_38_ = lean_ctor_get_uint8(v_val_37_, 0);
-lean_dec_ref(v_val_37_);
+lean_dec_ref_known(v_val_37_, 0);
 return v_v_38_;
 }
 else
@@ -635,13 +635,13 @@ else
 lean_object* v_val_166_; 
 v_val_166_ = lean_ctor_get(v___x_165_, 0);
 lean_inc(v_val_166_);
-lean_dec_ref(v___x_165_);
+lean_dec_ref_known(v___x_165_, 1);
 if (lean_obj_tag(v_val_166_) == 3)
 {
 lean_object* v_v_167_; 
 v_v_167_ = lean_ctor_get(v_val_166_, 0);
 lean_inc(v_v_167_);
-lean_dec_ref(v_val_166_);
+lean_dec_ref_known(v_val_166_, 1);
 return v_v_167_;
 }
 else
@@ -748,7 +748,7 @@ case 1:
 {
 uint8_t v_v_205_; 
 v_v_205_ = lean_ctor_get_uint8(v_x_195_, 0);
-lean_dec_ref(v_x_195_);
+lean_dec_ref_known(v_x_195_, 0);
 if (v_v_205_ == 0)
 {
 lean_object* v___x_206_; 
@@ -905,7 +905,7 @@ default:
 lean_object* v_v_238_; lean_object* v___x_239_; uint8_t v___x_240_; lean_object* v___x_241_; 
 v_v_238_ = lean_ctor_get(v_x_195_, 0);
 lean_inc(v_v_238_);
-lean_dec_ref(v_x_195_);
+lean_dec_ref_known(v_x_195_, 1);
 v___x_239_ = lean_box(0);
 v___x_240_ = 0;
 v___x_241_ = l_Lean_Syntax_formatStx(v_v_238_, v___x_239_, v___x_240_);
@@ -1017,7 +1017,7 @@ case 1:
 {
 uint8_t v_v_269_; 
 v_v_269_ = lean_ctor_get_uint8(v_snd_249_, 0);
-lean_dec_ref(v_snd_249_);
+lean_dec_ref_known(v_snd_249_, 0);
 if (v_v_269_ == 0)
 {
 lean_object* v___x_270_; lean_object* v___x_271_; 
@@ -1190,7 +1190,7 @@ default:
 lean_object* v_v_306_; lean_object* v___x_307_; uint8_t v___x_308_; lean_object* v___x_309_; lean_object* v___x_310_; 
 v_v_306_ = lean_ctor_get(v_snd_249_, 0);
 lean_inc(v_v_306_);
-lean_dec_ref(v_snd_249_);
+lean_dec_ref_known(v_snd_249_, 1);
 v___x_307_ = lean_box(0);
 v___x_308_ = 0;
 v___x_309_ = l_Lean_Syntax_formatStx(v_v_306_, v___x_307_, v___x_308_);
@@ -1369,7 +1369,7 @@ case 1:
 {
 uint8_t v_v_350_; 
 v_v_350_ = lean_ctor_get_uint8(v_snd_326_, 0);
-lean_dec_ref(v_snd_326_);
+lean_dec_ref_known(v_snd_326_, 0);
 if (v_v_350_ == 0)
 {
 lean_object* v___x_351_; lean_object* v___x_352_; lean_object* v___x_353_; 
@@ -1567,7 +1567,7 @@ default:
 lean_object* v_v_397_; lean_object* v___x_398_; uint8_t v___x_399_; lean_object* v___x_400_; lean_object* v___x_401_; lean_object* v___x_402_; 
 v_v_397_ = lean_ctor_get(v_snd_326_, 0);
 lean_inc(v_v_397_);
-lean_dec_ref(v_snd_326_);
+lean_dec_ref_known(v_snd_326_, 1);
 v___x_398_ = lean_box(0);
 v___x_399_ = 0;
 v___x_400_ = l_Lean_Syntax_formatStx(v_v_397_, v___x_398_, v___x_399_);
@@ -1745,7 +1745,7 @@ case 1:
 {
 uint8_t v_v_439_; 
 v_v_439_ = lean_ctor_get_uint8(v_snd_417_, 0);
-lean_dec_ref(v_snd_417_);
+lean_dec_ref_known(v_snd_417_, 0);
 if (v_v_439_ == 0)
 {
 lean_object* v___x_440_; lean_object* v___x_442_; 
@@ -2004,7 +2004,7 @@ default:
 lean_object* v_v_486_; lean_object* v___x_487_; uint8_t v___x_488_; lean_object* v___x_489_; lean_object* v___x_491_; 
 v_v_486_ = lean_ctor_get(v_snd_417_, 0);
 lean_inc(v_v_486_);
-lean_dec_ref(v_snd_417_);
+lean_dec_ref_known(v_snd_417_, 1);
 v___x_487_ = lean_box(0);
 v___x_488_ = 0;
 v___x_489_ = l_Lean_Syntax_formatStx(v_v_486_, v___x_487_, v___x_488_);
@@ -2179,7 +2179,7 @@ case 1:
 {
 uint8_t v_v_525_; 
 v_v_525_ = lean_ctor_get_uint8(v_snd_502_, 0);
-lean_dec_ref(v_snd_502_);
+lean_dec_ref_known(v_snd_502_, 0);
 if (v_v_525_ == 0)
 {
 lean_object* v___x_526_; lean_object* v___x_528_; 
@@ -2447,7 +2447,7 @@ default:
 lean_object* v_v_577_; lean_object* v___x_578_; uint8_t v___x_579_; lean_object* v___x_580_; lean_object* v___x_582_; 
 v_v_577_ = lean_ctor_get(v_snd_502_, 0);
 lean_inc(v_v_577_);
-lean_dec_ref(v_snd_502_);
+lean_dec_ref_known(v_snd_502_, 1);
 v___x_578_ = lean_box(0);
 v___x_579_ = 0;
 v___x_580_ = l_Lean_Syntax_formatStx(v_v_577_, v___x_578_, v___x_579_);

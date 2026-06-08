@@ -382,7 +382,7 @@ v_head_138_ = lean_ctor_get(v_x_129_, 0);
 lean_inc(v_head_138_);
 v_tail_139_ = lean_ctor_get(v_x_129_, 1);
 lean_inc(v_tail_139_);
-lean_dec_ref(v_x_129_);
+lean_dec_ref_known(v_x_129_, 2);
 v___x_140_ = l_Lean_MVarId_getMVarDependencies(v_head_138_, v_a_127_, v___y_130_, v___y_131_, v___y_132_, v___y_133_);
 if (lean_obj_tag(v___x_140_) == 0)
 {
@@ -519,7 +519,7 @@ if (lean_obj_tag(v___x_178_) == 0)
 lean_object* v_a_179_; lean_object* v___x_180_; lean_object* v_a_181_; lean_object* v___x_183_; uint8_t v_isShared_184_; uint8_t v_isSharedCheck_224_; 
 v_a_179_ = lean_ctor_get(v___x_178_, 0);
 lean_inc(v_a_179_);
-lean_dec_ref(v___x_178_);
+lean_dec_ref_known(v___x_178_, 1);
 v___x_180_ = l_Lean_instantiateMVars___at___00Lean_MVarId_isIndependentOf_spec__0___redArg(v_a_179_, v___y_174_);
 v_a_181_ = lean_ctor_get(v___x_180_, 0);
 v_isSharedCheck_224_ = !lean_is_exclusive(v___x_180_);

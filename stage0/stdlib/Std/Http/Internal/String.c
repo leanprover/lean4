@@ -821,7 +821,7 @@ else
 lean_object* v_val_230_; 
 v_val_230_ = lean_ctor_get(v___x_227_, 0);
 lean_inc(v_val_230_);
-lean_dec_ref(v___x_227_);
+lean_dec_ref_known(v___x_227_, 1);
 return v_val_230_;
 }
 }
@@ -878,7 +878,7 @@ uint8_t v_escaped_240_; lean_object* v_acc_241_; lean_object* v___x_242_; lean_o
 v_escaped_240_ = lean_ctor_get_uint8(v_t_238_, sizeof(void*)*1);
 v_acc_241_ = lean_ctor_get(v_t_238_, 0);
 lean_inc_ref(v_acc_241_);
-lean_dec_ref(v_t_238_);
+lean_dec_ref_known(v_t_238_, 1);
 v___x_242_ = lean_box(v_escaped_240_);
 v___x_243_ = lean_apply_2(v_k_239_, v___x_242_, v_acc_241_);
 return v___x_243_;
@@ -888,7 +888,7 @@ case 2:
 lean_object* v_result_244_; lean_object* v___x_245_; 
 v_result_244_ = lean_ctor_get(v_t_238_, 0);
 lean_inc_ref(v_result_244_);
-lean_dec_ref(v_t_238_);
+lean_dec_ref_known(v_t_238_, 1);
 v___x_245_ = lean_apply_1(v_k_239_, v_result_244_);
 return v___x_245_;
 }
@@ -1528,7 +1528,7 @@ goto v___jp_391_;
 case 2:
 {
 lean_object* v___x_427_; 
-lean_dec_ref(v_b_360_);
+lean_dec_ref_known(v_b_360_, 1);
 v___x_427_ = lean_box(3);
 v_a_359_ = v___x_367_;
 v_b_360_ = v___x_427_;
@@ -1605,7 +1605,7 @@ v___x_453_ = lean_box(0);
 v___x_454_ = l_String_Slice_positions(v___x_452_);
 v___x_455_ = l_WellFounded_opaqueFix_u2083___at___00Std_Http_Internal_unquoteHttpString_x3f_spec__1___redArg(v___x_450_, v___x_452_, v_s_437_, v___x_454_, v___x_453_);
 lean_dec_ref(v_s_437_);
-lean_dec_ref(v___x_452_);
+lean_dec_ref_known(v___x_452_, 3);
 if (lean_obj_tag(v___x_455_) == 2)
 {
 lean_object* v_result_456_; lean_object* v___x_458_; uint8_t v_isShared_459_; uint8_t v_isSharedCheck_463_; 
@@ -1672,7 +1672,7 @@ lean_ctor_set(v___x_441_, 0, v_s_437_);
 lean_ctor_set(v___x_441_, 1, v___x_439_);
 lean_ctor_set(v___x_441_, 2, v___x_440_);
 v___x_442_ = l_String_Slice_Pos_skipWhile___at___00Std_Http_Internal_unquoteHttpString_x3f_spec__0(v___x_441_, v___x_439_);
-lean_dec_ref(v___x_441_);
+lean_dec_ref_known(v___x_441_, 3);
 v___x_443_ = lean_nat_dec_eq(v___x_442_, v___x_440_);
 lean_dec(v___x_442_);
 if (v___x_443_ == 0)

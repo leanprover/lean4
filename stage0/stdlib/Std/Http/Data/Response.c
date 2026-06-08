@@ -798,7 +798,7 @@ else
 lean_object* v_val_213_; 
 v_val_213_ = lean_ctor_get(v___x_211_, 0);
 lean_inc(v_val_213_);
-lean_dec_ref(v___x_211_);
+lean_dec_ref_known(v___x_211_, 1);
 v___y_197_ = v_val_213_;
 goto v___jp_196_;
 }
@@ -1167,7 +1167,7 @@ else
 lean_object* v_val_389_; 
 v_val_389_ = lean_ctor_get(v___x_387_, 0);
 lean_inc(v_val_389_);
-lean_dec_ref(v___x_387_);
+lean_dec_ref_known(v___x_387_, 1);
 v___y_358_ = v_val_389_;
 goto v___jp_357_;
 }
@@ -2519,7 +2519,7 @@ else
 lean_object* v_val_778_; lean_object* v___x_779_; 
 v_val_778_ = lean_ctor_get(v___x_776_, 0);
 lean_inc(v_val_778_);
-lean_dec_ref(v___x_776_);
+lean_dec_ref_known(v___x_776_, 1);
 v___x_779_ = l_Std_Http_Header_Value_ofString_x3f(v_value_775_);
 if (lean_obj_tag(v___x_779_) == 0)
 {

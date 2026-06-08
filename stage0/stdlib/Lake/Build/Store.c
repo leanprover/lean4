@@ -212,7 +212,7 @@ case 2:
 lean_object* v_facet_25_; lean_object* v_module_26_; lean_object* v___x_28_; uint8_t v_isShared_29_; uint8_t v_isSharedCheck_36_; 
 v_facet_25_ = lean_ctor_get(v_k_3_, 1);
 lean_inc(v_facet_25_);
-lean_dec_ref(v_k_3_);
+lean_dec_ref_known(v_k_3_, 2);
 v_module_26_ = lean_ctor_get(v_target_5_, 1);
 v_isSharedCheck_36_ = !lean_is_exclusive(v_target_5_);
 if (v_isSharedCheck_36_ == 0)
@@ -279,7 +279,7 @@ return v___x_34_;
 default: 
 {
 lean_object* v___x_38_; 
-lean_dec_ref(v_k_3_);
+lean_dec_ref_known(v_k_3_, 2);
 lean_dec_ref(v_target_5_);
 lean_dec_ref(v_v_4_);
 v___x_38_ = lean_box(0);
@@ -524,7 +524,7 @@ if (lean_obj_tag(v_target_147_) == 1)
 lean_object* v_facet_148_; lean_object* v___x_150_; uint8_t v_isShared_151_; uint8_t v_isSharedCheck_157_; 
 v_facet_148_ = lean_ctor_get(v_k_145_, 1);
 lean_inc(v_facet_148_);
-lean_dec_ref(v_k_145_);
+lean_dec_ref_known(v_k_145_, 2);
 v_isSharedCheck_157_ = !lean_is_exclusive(v_target_147_);
 if (v_isSharedCheck_157_ == 0)
 {
@@ -583,7 +583,7 @@ else
 {
 lean_object* v___x_159_; 
 lean_dec_ref(v_target_147_);
-lean_dec_ref(v_k_145_);
+lean_dec_ref_known(v_k_145_, 2);
 lean_dec_ref(v_v_146_);
 v___x_159_ = lean_box(0);
 return v___x_159_;

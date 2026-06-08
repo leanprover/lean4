@@ -46,6 +46,12 @@ def SpecProof.key : SpecProof → Name
   | .local fvarId => fvarId.name
   | .stx id _ _ => id
 
+/-- Convert a simp `Origin` to a `SpecProof`. -/
+def SpecProof.ofOrigin : Origin → Option SpecProof
+  | .decl declName .. => some (.global declName)
+  | .fvar fvarId => some (.local fvarId)
+  | _ => none
+
 def SpecProof.getProof : SpecProof → MetaM (List Name × Expr)
   | .stx _ _ proof => pure ([], proof)
   | .local fvarId => pure ([], mkFVar fvarId)

@@ -93,12 +93,12 @@ open Lean.Meta
   let info ← inferControlInfoSeq body
   let oldReturnCont ← getReturnCont
   let returnVarName ← mkFreshUserName `__r
-  let loopMutVars := mutVars.filter fun x => info.reassigns.contains x.ident.getId
+  let loopMutVars := mutVars.filter fun x => info.reassigns.contains x.getId
   let loopMutVarNames :=
     if info.returnsEarly then
-      returnVarName :: (loopMutVars.map (·.ident.getId)).toList
+      returnVarName :: (loopMutVars.map (·.getId)).toList
     else
-      (loopMutVars.map (·.ident.getId)).toList
+      (loopMutVars.map (·.getId)).toList
   let useLoopMutVars (e : Option Expr) : TermElabM (Array Expr) := do
     let mut defs := #[]
     unless e.isNone || info.returnsEarly do
@@ -110,7 +110,7 @@ open Lean.Meta
         | some e => mkSome oldReturnCont.resultType e
       defs := defs.push returnVar
     for x in loopMutVars do
-      let defn ← getLocalDeclFromUserName x.ident.getId
+      let defn ← getLocalDeclFromUserName x.getId
       Term.addTermInfo' x.ident defn.toExpr
       -- ForIn forces the mut tuple into the universe mi.u: that of the do block result type.
       -- If we don't do this, then we are stuck on solving constraints such as

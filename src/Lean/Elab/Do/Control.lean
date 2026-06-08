@@ -45,7 +45,7 @@ def ControlStack.stateT (baseMonadInfo : MonadInfo) (muts : Array MutVar) (σ : 
     -- `e : StateT σ m α`. Fetch the state tuple `s : σ` and apply it to `e`, `e.run s`.
     -- See also `StateT.monadControl.liftWith`.
     let mutExprs ← muts.mapM fun x => do
-      let defn ← getLocalDeclFromUserName x.ident.getId
+      let defn ← getLocalDeclFromUserName x.getId
       Term.addTermInfo' x.ident defn.toExpr
       pure defn.toExpr
     let (tuple, tupleTy) ← mkProdMkN mutExprs baseMonadInfo.u
@@ -63,7 +63,7 @@ def ControlStack.stateT (baseMonadInfo : MonadInfo) (muts : Array MutVar) (σ : 
         dec.k
     base.restoreCont { resultName, resultType, k }
 where
-  mutVarNames := muts.map (·.ident.getId)
+  mutVarNames := muts.map (·.getId)
   getσ := do mkProdN (← mutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) baseMonadInfo.u
   stM α := return mkApp2 (mkConst ``Prod [baseMonadInfo.u, baseMonadInfo.u]) α (← getσ) -- NB: muts `σ` might have been refined by dependent pattern matches
 
@@ -208,8 +208,8 @@ structure EffectForwarder where
 /-- Build the lifter plan for a body whose effects are summarised by `info`. -/
 def EffectForwarder.ofCont (info : ControlInfo) (dec : DoElemCont) : DoElabM EffectForwarder := do
   let mi := (← read).monadInfo
-  let reassignedMutVars := (← read).mutVars |>.filter (info.reassigns.contains ·.ident.getId)
-  let reassignedMutVarNames := reassignedMutVars.map (·.ident.getId)
+  let reassignedMutVars := (← read).mutVars |>.filter (info.reassigns.contains ·.getId)
+  let reassignedMutVarNames := reassignedMutVars.map (·.getId)
   let ρ := (← getReturnCont).resultType
   let σ ← mkProdN (← reassignedMutVarNames.mapM (LocalDecl.type <$> getLocalDeclFromUserName ·)) mi.u
 

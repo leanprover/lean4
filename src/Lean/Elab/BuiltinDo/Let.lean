@@ -40,7 +40,7 @@ def LetOrReassign.registerReassignAliasInfo (letOrReassign : LetOrReassign) (var
       if let some baseMutVar ← findMutVar? var.getId then
         let id := (← getFVarFromUserName var.getId).fvarId!
         if id != baseMutVar.baseId then
-          pushInfoLeaf <| .ofFVarAliasInfo { userName := var.getId, id, baseId := baseMutVar.baseId }
+          pushInfoLeaf <| .ofFVarAliasInfo (baseMutVar.mkAliasInfo id)
 
 def elabDoLetOrReassignWith (hint : MessageData) (letOrReassign : LetOrReassign) (vars : Array Ident)
     (k : DoElabM Expr) (elabBody : (body : Term) → TermElabM Expr) : DoElabM Expr := do

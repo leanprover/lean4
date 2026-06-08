@@ -89,16 +89,29 @@ structure MutVar where
   baseId : FVarId
   deriving Inhabited
 
+/-- The pretty-printable name of a `mut` variable, with macro scopes simplified. -/
+abbrev MutVar.userName (mutVar : MutVar) : Name := mutVar.ident.getId.simpMacroScopes
+
+/--
+Build an `FVarAliasInfo` recording that the reassignment binding `id` aliases the original
+`let mut` binding represented by `mutVar`.
+-/
+def MutVar.mkAliasInfo (mutVar : MutVar) (id : FVarId) : FVarAliasInfo :=
+  { userName := mutVar.ident.getId, id, baseId := mutVar.baseId }
+
 instance : ToMessageData MutVar where
   toMessageData mutVar :=
-    .ofLazyM <| MessageData.withExprHoverM (format mutVar.ident.getId.simpMacroScopes) (.fvar mutVar.baseId)
+    .ofLazyM <| MessageData.withExprHoverM (format mutVar.userName) (.fvar mutVar.baseId)
 
 structure Context where
   /-- Inferred and cached information about the monad. -/
   monadInfo : MonadInfo
-  /-- The mutable variables in declaration order. -/
+  /--
+  The mutable variables in declaration order. Kept in sync with `mutVarDefs`; insertions go
+  through `declareMutVar` / `declareMutVars` only.
+  -/
   mutVars : Array MutVar := #[]
-  /-- Maps mutable variable names to their `MutVar` record. -/
+  /-- Maps mutable variable names to their `MutVar` record. Kept in sync with `mutVars`. -/
   mutVarDefs : Std.HashMap Name MutVar := {}
   /--
   The expected type of the current `do` block.
@@ -341,8 +354,13 @@ def findMutVar? (n : Name) : DoElabM (Option MutVar) := do
 def throwUnlessMutVarDeclared (x : Ident) : DoElabM Unit := do
   if (← findMutVar? x.getId).isNone then
     let xName := x.getId.simpMacroScopes
-    throwErrorAt x "Variable `{xName}` cannot be mutated. Only variables declared using `let mut` can be mutated.
-      If you did not intend to mutate but define `{xName}`, consider using `let {xName}` instead"
+    -- If `x` is bound in the local context, attach hover info so "Go to Definition" on the
+    -- name in the error jumps to its `let` binding.
+    let xMsg ← match (← getLCtx).findFromUserName? x.getId with
+      | some decl => MessageData.withExprHoverM (format xName) (.fvar decl.fvarId)
+      | none => pure (.ofName xName)
+    throwErrorAt x "Variable `{xMsg}` cannot be mutated. Only variables declared using `let mut` can be mutated.
+      If you did not intend to mutate but define `{xMsg}`, consider using `let {xMsg}` instead"
 
 /-- Throw an error if the given names are not declared `mut` variables. -/
 def throwUnlessMutVarsDeclared (xs : Array Ident) : DoElabM Unit := do

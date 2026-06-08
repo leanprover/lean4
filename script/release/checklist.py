@@ -678,7 +678,7 @@ class LeanChecker(RepoChecker):
         tag_sha = release_tag.object.sha
         runs = self.grepo.get_workflow_runs(event="push", head_sha=tag_sha).get_page(0)
         if len(runs) == 0:
-            self.cl.fail("Release workflow run not found")
+            self.cl.fatal("Release workflow run not found")
             return
 
         run = runs[0]

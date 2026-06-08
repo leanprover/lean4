@@ -309,8 +309,9 @@ private def resolveLocFVarIds (hyps : Array Syntax) : GrindTacticM (Array FVarId
   let (fvarIds, simplifyTarget) ← match expandOptLocation stx[1] with
     | .targets hyps simplifyTarget => pure (← resolveLocFVarIds hyps, simplifyTarget)
     | .wildcard => pure (← goal.mvarId.getNondepPropHyps, true)
-  match (← Lean.Meta.Tactic.Cbv.cbvGoal goal.mvarId (simplifyTarget := simplifyTarget)
-      (fvarIdsToSimp := fvarIds)) with
+  let result ← liftGrindM <|
+    Lean.Meta.Tactic.Cbv.cbvGoalCore goal.mvarId simplifyTarget fvarIds
+  match result with
   | none => replaceMainGoal []
   | some mvarId => replaceMainGoal [{ goal with mvarId }]
 

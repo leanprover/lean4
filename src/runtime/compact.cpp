@@ -134,7 +134,7 @@ std::vector<lib_info> object_compactor::used_libs() const {
     return result;
 }
 
-object_compactor::object_compactor(void * base_addr, std::vector<compacted_region *> dep_regions,
+object_compactor::object_compactor(void * base_addr, std::vector<region_view> dep_regions,
                                    bool allow_closures):
     m_max_sharing_table(new max_sharing_table(this)),
     m_dep_regions(std::move(dep_regions)),
@@ -145,17 +145,8 @@ object_compactor::object_compactor(void * base_addr, std::vector<compacted_regio
     m_end(m_begin),
     m_capacity(static_cast<char*>(m_begin) + LEAN_COMPACTOR_INIT_SZ) {
     // Sort dep regions by `begin` address for binary search in `to_offset`.
-    // Extract keys into a flat array first to avoid pointer-chasing TLB misses through
-    // thousands of scattered `compacted_region` heap objects during sort comparisons.
-    size_t n = m_dep_regions.size();
-    std::vector<std::pair<void *, compacted_region *>> keyed(n);
-    for (size_t i = 0; i < n; i++)
-        keyed[i] = {m_dep_regions[i]->begin(), m_dep_regions[i]};
-    std::sort(keyed.begin(), keyed.end(),
-              [](std::pair<void *, compacted_region *> const & a,
-                 std::pair<void *, compacted_region *> const & b) { return a.first < b.first; });
-    for (size_t i = 0; i < n; i++)
-        m_dep_regions[i] = keyed[i].second;
+    std::sort(m_dep_regions.begin(), m_dep_regions.end(),
+              [](region_view const & a, region_view const & b) { return a.begin < b.begin; });
 }
 
 object_compactor::~object_compactor() {
@@ -216,19 +207,19 @@ object_offset object_compactor::to_offset(object * o) {
         }
         // Only check dep regions for non-heap objects
         if (!m_dep_regions.empty() && !lean_has_rc(o)) {
-            // Binary search dep regions (sorted by base_addr)
+            // Binary search dep regions (sorted by begin)
             char * addr = reinterpret_cast<char *>(o);
             // Find the first region whose begin > addr, then step back
-            std::vector<compacted_region *>::iterator upper = std::upper_bound(
+            std::vector<region_view>::iterator upper = std::upper_bound(
                 m_dep_regions.begin(), m_dep_regions.end(), addr,
-                [](char * a, compacted_region * r) { return a < static_cast<char *>(r->begin()); });
+                [](char * a, region_view const & r) { return a < static_cast<char *>(r.begin); });
             if (upper != m_dep_regions.begin()) {
-                compacted_region * region = *(upper - 1);
-                char * region_end = static_cast<char *>(region->begin()) + region->size();
+                region_view const & region = *(upper - 1);
+                char * region_end = static_cast<char *>(region.begin) + region.size;
                 if (addr < region_end) {
                     // Object is in this dep region, compute its base_addr-relative pointer
                     object_offset off = reinterpret_cast<object_offset>(
-                        reinterpret_cast<size_t>(region->base_addr()) + (addr - static_cast<char *>(region->begin())));
+                        reinterpret_cast<size_t>(region.base_addr) + (addr - static_cast<char *>(region.begin)));
                     m_obj_table.insert(std::make_pair(o, off));
                     return off;
                 }
@@ -523,14 +514,12 @@ void object_compactor::operator()(object * o) {
     *root = to_offset(o);
 }
 
-compacted_region::compacted_region(size_t sz, void * data, void * base_addr, bool is_mmap, std::function<void()> free_data,
-                                   std::vector<compacted_region *> dep_regions,
-                                   std::vector<std::pair<size_t, ptrdiff_t>> lib_relocs,
-                                   std::vector<size_t> closure_offsets):
+region_reader::region_reader(size_t sz, void * data, void * base_addr,
+                             std::vector<region_view> dep_regions,
+                             std::vector<std::pair<size_t, ptrdiff_t>> lib_relocs,
+                             std::vector<size_t> closure_offsets):
     m_size(sz),
     m_base_addr(base_addr),
-    m_is_mmap(is_mmap),
-    m_free_data(free_data),
     m_begin(data),
     m_next(data),
     m_end(static_cast<char*>(data)+sz),
@@ -539,37 +528,32 @@ compacted_region::compacted_region(size_t sz, void * data, void * base_addr, boo
     m_closure_offsets(std::move(closure_offsets)) {
     // Sort dep regions by `base_addr` for binary search in `fix_object_ptr`
     std::sort(m_dep_regions.begin(), m_dep_regions.end(),
-              [](compacted_region * a, compacted_region * b) { return a->base_addr() < b->base_addr(); });
+              [](region_view const & a, region_view const & b) { return a.base_addr < b.base_addr; });
     // Reject overlapping saved address ranges: `fix_object_ptr` resolves cross-region pointers
     // by binary-searching `base_addr`s, and would silently translate via the wrong region if
     // two deps overlap (or if a dep overlaps our own range). This should not happen with regular
     // .olean use as we use only use `read`'s `prev` instead of `dep_regions` there.
     for (size_t i = 1; i < m_dep_regions.size(); i++) {
-        compacted_region * prev = m_dep_regions[i - 1];
-        compacted_region * curr = m_dep_regions[i];
-        if (reinterpret_cast<size_t>(prev->base_addr()) + prev->size()
-                > reinterpret_cast<size_t>(curr->base_addr())) {
-            throw exception("compacted_region: dep regions have overlapping `base_addr` ranges");
+        region_view const & prev = m_dep_regions[i - 1];
+        region_view const & curr = m_dep_regions[i];
+        if (reinterpret_cast<size_t>(prev.base_addr) + prev.size
+                > reinterpret_cast<size_t>(curr.base_addr)) {
+            throw exception("region_reader: dep regions have overlapping `base_addr` ranges");
         }
     }
     size_t self_base = reinterpret_cast<size_t>(m_base_addr);
     size_t self_end = self_base + m_size;
-    for (compacted_region * dep : m_dep_regions) {
-        size_t dep_base = reinterpret_cast<size_t>(dep->base_addr());
-        size_t dep_end = dep_base + dep->size();
+    for (region_view const & dep : m_dep_regions) {
+        size_t dep_base = reinterpret_cast<size_t>(dep.base_addr);
+        size_t dep_end = dep_base + dep.size;
         if (self_base < dep_end && dep_base < self_end) {
-            throw exception("compacted_region: own region overlaps a dep region's `base_addr` range");
+            throw exception("region_reader: own region overlaps a dep region's `base_addr` range");
         }
     }
 }
 
-compacted_region::~compacted_region() {
-    if (m_free_data) {
-        m_free_data();
-    }
-}
 
-inline object * compacted_region::fix_object_ptr(object * o) {
+inline object * region_reader::fix_object_ptr(object * o) {
     if (lean_is_scalar(o)) return o;
     size_t addr = reinterpret_cast<size_t>(o);
     size_t self_base = reinterpret_cast<size_t>(m_base_addr);
@@ -580,20 +564,20 @@ inline object * compacted_region::fix_object_ptr(object * o) {
     // Binary search dep regions (sorted by `base_addr`)
     char * addr_ptr = reinterpret_cast<char *>(addr);
     // Find the first region whose base_addr > addr, then step back
-    std::vector<compacted_region *>::iterator upper = std::upper_bound(
+    std::vector<region_view>::iterator upper = std::upper_bound(
         m_dep_regions.begin(), m_dep_regions.end(), addr_ptr,
-        [](char * a, compacted_region * r) { return a < static_cast<char *>(r->base_addr()); });
+        [](char * a, region_view const & r) { return a < static_cast<char *>(r.base_addr); });
     if (upper != m_dep_regions.begin()) {
-        compacted_region * dep = *(upper - 1);
-        size_t dep_base = reinterpret_cast<size_t>(dep->base_addr());
-        if (addr < dep_base + dep->size()) {
-            return reinterpret_cast<object*>(static_cast<char*>(dep->begin()) + (addr - dep_base));
+        region_view const & dep = *(upper - 1);
+        size_t dep_base = reinterpret_cast<size_t>(dep.base_addr);
+        if (addr < dep_base + dep.size) {
+            return reinterpret_cast<object*>(static_cast<char*>(dep.begin) + (addr - dep_base));
         }
     }
     lean_unreachable();
 }
 
-inline void compacted_region::move(size_t d) {
+inline void region_reader::move(size_t d) {
     lean_assert(m_next < m_end);
     size_t rem = d % sizeof(void*);
     if (rem != 0)
@@ -601,11 +585,11 @@ inline void compacted_region::move(size_t d) {
     m_next = static_cast<char*>(m_next) + d;
 }
 
-inline void compacted_region::move(object * o) {
+inline void region_reader::move(object * o) {
     return move(lean_object_byte_size(o));
 }
 
-inline void compacted_region::fix_constructor(object * o) {
+inline void region_reader::fix_constructor(object * o) {
     lean_assert(!lean_has_rc(o));
     object ** it  = lean_ctor_obj_cptr(o);
     object ** end = it + lean_ctor_num_objs(o);
@@ -616,7 +600,7 @@ inline void compacted_region::fix_constructor(object * o) {
     move(o);
 }
 
-inline void compacted_region::fix_array(object * o) {
+inline void region_reader::fix_array(object * o) {
     object ** it  = lean_array_cptr(o);
     object ** end = it + lean_array_size(o);
     for (; it != end; it++) {
@@ -625,27 +609,27 @@ inline void compacted_region::fix_array(object * o) {
     move(o);
 }
 
-inline void compacted_region::fix_thunk(object * o) {
+inline void region_reader::fix_thunk(object * o) {
     lean_to_thunk(o)->m_value = fix_object_ptr(lean_to_thunk(o)->m_value);
     move(sizeof(lean_thunk_object));
 }
 
-inline void compacted_region::fix_ref(object * o) {
+inline void region_reader::fix_ref(object * o) {
     lean_to_ref(o)->m_value = fix_object_ptr(lean_to_ref(o)->m_value);
     move(sizeof(lean_ref_object));
 }
 
-inline void compacted_region::fix_task(object * o) {
+inline void region_reader::fix_task(object * o) {
     lean_to_task(o)->m_value = fix_object_ptr(lean_to_task(o)->m_value);
     move(sizeof(lean_task_object));
 }
 
-inline void compacted_region::fix_promise(object * o) {
+inline void region_reader::fix_promise(object * o) {
     lean_to_promise(o)->m_result = (lean_task_object *)fix_object_ptr((lean_object *)lean_to_promise(o)->m_result);
     move(sizeof(lean_promise_object));
 }
 
-void compacted_region::fix_mpz(object * o) {
+void region_reader::fix_mpz(object * o) {
 #ifdef LEAN_USE_GMP
     __mpz_struct & m = to_mpz(o)->m_value.m_val[0];
     m._mp_d = reinterpret_cast<mp_limb_t *>(static_cast<char *>(m_begin) + reinterpret_cast<size_t>(m._mp_d) - reinterpret_cast<size_t>(m_base_addr));
@@ -656,7 +640,7 @@ void compacted_region::fix_mpz(object * o) {
 #endif
 }
 
-void compacted_region::fix_closure(object * o) {
+void region_reader::fix_closure(object * o) {
     // Fix captured object pointers. The closure's `m_fun` is relocated separately
     // via `m_closure_offsets` before the walk runs.
     object ** it = lean_closure_arg_cptr(o);
@@ -666,7 +650,7 @@ void compacted_region::fix_closure(object * o) {
     move(o);
 }
 
-object * compacted_region::read() {
+object * region_reader::read() {
     if (m_next == m_end)
         return nullptr; /* all objects have been read */
 
@@ -702,8 +686,8 @@ object * compacted_region::read() {
         // still hold the dep's saved address and need fixup, so fall through to the walk in
         // that case.
         bool needs_dep_reloc = false;
-        for (compacted_region * dep : m_dep_regions) {
-            if (dep->begin() != dep->base_addr()) { needs_dep_reloc = true; break; }
+        for (region_view const & dep : m_dep_regions) {
+            if (dep.begin != dep.base_addr) { needs_dep_reloc = true; break; }
         }
         if (!needs_dep_reloc) {
             // Closure fn pointers (if any) were already patched via the offset list.
@@ -738,16 +722,4 @@ object * compacted_region::read() {
     return root;
 }
 
-extern "C" LEAN_EXPORT uint8 lean_compacted_region_is_memory_mapped(usize region) {
-    return reinterpret_cast<compacted_region *>(region)->is_memory_mapped();
-}
-
-extern "C" LEAN_EXPORT usize lean_compacted_region_size(usize region) {
-    return reinterpret_cast<compacted_region *>(region)->size();
-}
-
-extern "C" LEAN_EXPORT obj_res lean_compacted_region_free(usize region, object *) {
-    delete reinterpret_cast<compacted_region *>(region);
-    return lean_io_result_mk_ok(lean_box(0));
-}
 }

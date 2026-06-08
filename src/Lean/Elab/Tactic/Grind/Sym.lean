@@ -20,6 +20,8 @@ import Lean.Meta.Sym.DSimp.Variant
 import Lean.Meta.Sym.DSimp.Reduce
 import Lean.Meta.Sym.DSimp.DSimproc
 import Lean.Meta.Tactic.Apply
+import Lean.Meta.Tactic.Cbv.Main
+import Lean.Elab.Tactic.Location
 import Lean.Elab.SyntheticMVars
 namespace Lean.Elab.Tactic.Grind
 open Meta Grind
@@ -292,6 +294,25 @@ def elabDSimpVariant (variantName : Name) (args : DSimpArgs) : GrindTacticM (Sym
       let mvarNew ← mkFreshExprSyntheticOpaqueMVar target' decl.userName
       goal.mvarId.assign mvarNew
       replaceMainGoal [{ goal with mvarId := mvarNew.mvarId! }]
+
+/-- Resolve the hypothesis identifiers of a `cbv at` location to `FVarId`s. -/
+private def resolveLocFVarIds (hyps : Array Syntax) : GrindTacticM (Array FVarId) := do
+  let lctx ← getLCtx
+  hyps.mapM fun hyp => do
+    let some decl := lctx.findFromUserName? hyp.getId
+      | throwError "unknown hypothesis `{hyp}`"
+    return decl.fvarId
+
+@[builtin_grind_tactic Parser.Tactic.Grind.symCbv] def evalSymCbv : GrindTactic := fun stx => withMainContext do
+  ensureSym
+  let goal ← getMainGoal
+  let (fvarIds, simplifyTarget) ← match expandOptLocation stx[1] with
+    | .targets hyps simplifyTarget => pure (← resolveLocFVarIds hyps, simplifyTarget)
+    | .wildcard => pure (← goal.mvarId.getNondepPropHyps, true)
+  match (← Lean.Meta.Tactic.Cbv.cbvGoal goal.mvarId (simplifyTarget := simplifyTarget)
+      (fvarIdsToSimp := fvarIds)) with
+  | none => replaceMainGoal []
+  | some mvarId => replaceMainGoal [{ goal with mvarId }]
 
 end
 

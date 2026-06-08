@@ -1,0 +1,27 @@
+{"version": 1,
+ "uri": "file:///hoverMutVarInDiagnostic.lean",
+ "isIncremental": false,
+ "diagnostics":
+ [{"source": "Lean 4",
+   "severity": 1,
+   "range":
+   {"start": {"line": 8, "character": 6}, "end": {"line": 8, "character": 7}},
+   "message": "mutable variable `x` cannot be shadowed",
+   "fullRange":
+   {"start": {"line": 8, "character": 6}, "end": {"line": 8, "character": 7}}}]}
+{"lineRange": {"start": 0, "end": 10}}
+[{"source": "Lean 4",
+  "severity": 1,
+  "range":
+  {"start": {"line": 8, "character": 6}, "end": {"line": 8, "character": 7}},
+  "message":
+  {"append":
+   [{"tag": [{"expr": {"text": "mutable variable `"}}, {"text": ""}]},
+    {"tag":
+     [{"expr":
+       {"tag":
+        [{"subexprPos": "/", "info": {"__rpcref": "0"}}, {"text": "x"}]}},
+      {"text": ""}]},
+    {"tag": [{"expr": {"text": "` cannot be shadowed"}}, {"text": ""}]}]},
+  "fullRange":
+  {"start": {"line": 8, "character": 6}, "end": {"line": 8, "character": 7}}}]

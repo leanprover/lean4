@@ -388,7 +388,19 @@ public def cbvGoalCore (mvarId : MVarId) (simplifyTarget : Bool := true)
 
 /--
 Reduce goal target and/or hypothesis types using call-by-value evaluation.
-Performs the preprocessing and sharing steps
+
+Preprocesses the goal via `Sym.preprocessMVar` (instantiates metavariables, unfolds
+reducibles, shares common subterms), then runs `cbvCore` on each selected hypothesis
+and the target within a single `SymM` context.
+
+For each hypothesis in `fvarIdsToSimp`, reduces its type via `cbvCore`. If the
+reduced type is `False`, the goal is closed immediately. Otherwise, the hypothesis
+is replaced with the reduced type.
+
+If `simplifyTarget` is true, reduces the goal type via `cbvCore`. If the reduced
+type is `True`, the goal is closed. Otherwise, the target is replaced.
+
+After all reductions, attempts `refl` to close equation goals of the form `v = v`.
 -/
 public def cbvGoal (mvarId : MVarId) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) : MetaM (Option MVarId) :=
   Sym.SymM.run do

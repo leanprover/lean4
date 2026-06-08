@@ -97,16 +97,7 @@ abbrev MutVar.userName (mv : MutVar) : Name := mv.ident.getId.simpMacroScopes
 
 instance : ToMessageData MutVar where
   toMessageData mv :=
-    let fmt := format mv.userName
-    let expr := mkFVar mv.initFVarId
-    MessageData.ofLazy
-      (fun ctx? => do
-        let msg : MessageData :=
-          match ctx? with
-          | none => .ofFormat fmt
-          | some ctx => .withExprHover fmt expr ctx.lctx
-        return Dynamic.mk msg)
-      (fun _ => false)
+    .ofLazyM <| MessageData.withExprHoverM (format mv.userName) (.fvar mv.initFVarId)
 
 structure Context where
   /-- Inferred and cached information about the monad. -/

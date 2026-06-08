@@ -6,6 +6,7 @@ Authors: Henrik Böving
 module
 
 prelude
+public import Lean.EnvExtension
 public import Lean.Compiler.LCNF.CompilerM
 import Lean.Compiler.LCNF.BaseTypes
 import Lean.Compiler.LCNF.Util
@@ -38,21 +39,13 @@ public structure TrivialStructureInfo where
   deriving Inhabited, Repr
 
 /--
-Return `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
+Computes `some fieldIdx` if `declName` is the name of an inductive datatype s.t.
 - It does not have builtin support in the runtime.
 - It has only one constructor.
 - This constructor has only one computationally relevant field.
 -/
-public def Irrelevant.hasTrivialStructure?
-    (cacheExt : CacheExtension Name (Option TrivialStructureInfo))
+def Irrelevant.computeHasTrivialStructure?
     (trivialType : Expr → MetaM Bool) (declName : Name) : CoreM (Option TrivialStructureInfo) := do
-  match (← cacheExt.find? declName) with
-  | some info? => return info?
-  | none =>
-    let info? ← fillCache
-    cacheExt.insert declName info?
-    return info?
-where fillCache : CoreM (Option TrivialStructureInfo) := do
   if isRuntimeBuiltinType declName then return none
   let .inductInfo info ← getConstInfo declName | return none
   if info.isUnsafe || info.isRec then return none
@@ -67,5 +60,22 @@ where fillCache : CoreM (Option TrivialStructureInfo) := do
       result := some { ctorName, fieldIdx := i, numParams := info.numParams }
   return result
 
+/-- Eagerly computes and persists the trivial-structure info for `declName`; see `compileDecls`. -/
+public def Irrelevant.setHasTrivialStructure?
+    (infoExt : MapDeclarationExtension (Option TrivialStructureInfo))
+    (trivialType : Expr → MetaM Bool) (declName : Name) : CoreM Unit := do
+  unless (infoExt.find? (← getEnv) declName).isSome do
+    modifyEnv (infoExt.insert · declName (← computeHasTrivialStructure? trivialType declName))
+
+/-- Trivial-structure info for `declName` (`none` for non-inductives); requires `compileDecls` to
+have been run for inductive `declName`. -/
+public def Irrelevant.hasTrivialStructure?
+    (infoExt : MapDeclarationExtension (Option TrivialStructureInfo))
+    (declName : Name) : CoreM (Option TrivialStructureInfo) := do
+  if isRuntimeBuiltinType declName then return none
+  let .inductInfo _ ← getConstInfo declName | return none
+  let some info? := infoExt.find? (← getEnv) declName
+    | throwError "`{declName}` was not compiled; `compileDecls` must run on inductive types first"
+  return info?
 
 end Lean.Compiler.LCNF

@@ -59,7 +59,7 @@ instance : Inhabited Duration where
 instance : OfNat Duration n where
   ofNat := by
     refine ⟨.ofInt n, ⟨0, by decide⟩, ?_⟩
-    simp <;> exact Int.le_total n 0 |>.symm
+    simp ; exact Int.le_total n 0 |>.symm
 
 instance : Ord Duration where
   compare := compareLex (compareOn (·.second)) (compareOn (·.nano))
@@ -94,7 +94,7 @@ Creates a new `Duration` out of `Second.Offset`.
 @[inline]
 def ofSeconds (s : Second.Offset) : Duration := by
   refine ⟨s, ⟨0, by decide⟩, ?_⟩
-  simp <;> exact Int.le_total s.val 0 |>.symm
+  simp ; exact Int.le_total s.val 0 |>.symm
 
 /--
 Creates a new `Duration` out of `Nanosecond.Offset`.

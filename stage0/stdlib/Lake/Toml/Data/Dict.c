@@ -2099,7 +2099,7 @@ v_l_589_ = lean_ctor_get(v_t_587_, 3);
 lean_inc(v_l_589_);
 v_r_590_ = lean_ctor_get(v_t_587_, 4);
 lean_inc(v_r_590_);
-lean_dec_ref(v_t_587_);
+lean_dec_ref_known(v_t_587_, 5);
 lean_inc_ref(v_cmp_585_);
 lean_inc(v_k_586_);
 v___x_591_ = lean_apply_2(v_cmp_585_, v_k_586_, v_k_588_);
@@ -2217,7 +2217,7 @@ v_l_643_ = lean_ctor_get(v_t_639_, 3);
 lean_inc(v_l_643_);
 v_r_644_ = lean_ctor_get(v_t_639_, 4);
 lean_inc(v_r_644_);
-lean_dec_ref(v_t_639_);
+lean_dec_ref_known(v_t_639_, 5);
 lean_inc_ref(v_cmp_638_);
 lean_inc(v_k_640_);
 v___x_645_ = lean_apply_2(v_cmp_638_, v_k_640_, v_k_641_);
@@ -2807,7 +2807,7 @@ if (lean_obj_tag(v___x_811_) == 1)
 lean_object* v_val_812_; lean_object* v_items_813_; lean_object* v_indices_814_; lean_object* v___x_815_; uint8_t v___x_816_; 
 v_val_812_ = lean_ctor_get(v___x_811_, 0);
 lean_inc(v_val_812_);
-lean_dec_ref(v___x_811_);
+lean_dec_ref_known(v___x_811_, 1);
 v_items_813_ = lean_ctor_get(v_t_810_, 0);
 v_indices_814_ = lean_ctor_get(v_t_810_, 1);
 v___x_815_ = lean_array_get_size(v_items_813_);
@@ -3415,7 +3415,7 @@ if (lean_obj_tag(v___x_1064_) == 1)
 lean_object* v_val_1065_; lean_object* v___x_1066_; 
 v_val_1065_ = lean_ctor_get(v___x_1064_, 0);
 lean_inc(v_val_1065_);
-lean_dec_ref(v___x_1064_);
+lean_dec_ref_known(v___x_1064_, 1);
 v___x_1066_ = l_Lake_Toml_RBDict_push___redArg(v_cmp_1059_, v_fst_1062_, v_val_1065_, v_x1_1060_);
 return v___x_1066_;
 }

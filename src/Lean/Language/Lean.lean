@@ -418,7 +418,8 @@ where
                     (cancelTk? := none) (reportingRange := progressRange?) fun oldCmd => do
                   let prom ← IO.Promise.new
                   let cancelTk ← IO.CancelToken.new
-                  parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true) cancelTk ctx
+                  parseCmd oldCmd newParserState oldProcSuccess.cmdState prom (sync := true)
+                    cancelTk #[] ctx
                   return .finished none {
                     diagnostics := .empty
                     metaSnap := .finished newStx {
@@ -538,7 +539,7 @@ where
       }
       let prom ← IO.Promise.new
       let cancelTk ← IO.CancelToken.new
-      parseCmd none parserState cmdState prom (sync := true) cancelTk ctx
+      parseCmd none parserState cmdState prom (sync := true) cancelTk #[] ctx
       return {
         diagnostics := .empty
         metaSnap := .finished stx {
@@ -553,7 +554,7 @@ where
 
   parseCmd (old? : Option CommandParsedSnapshot) (parserState : Parser.ModuleParserState)
       (cmdState : Command.State) (prom : IO.Promise CommandParsedSnapshot) (sync : Bool)
-      (parseCancelTk : IO.CancelToken) : LeanProcessingM Unit := do
+      (parseCancelTk : IO.CancelToken) (cmds : Array Syntax) : LeanProcessingM Unit := do
     let ctx ← read
 
     let unchanged old newParserState : BaseIO Unit :=
@@ -569,7 +570,8 @@ where
           -- also wait on old command parse snapshot as parsing is cheap and may allow for
           -- elaboration reuse
           BaseIO.chainTask (sync := true) oldNext.task fun oldNext => do
-            parseCmd oldNext newParserState oldResult.cmdState newProm sync cancelTk ctx
+            parseCmd oldNext newParserState oldResult.cmdState newProm sync cancelTk
+              (cmds.push old.stx) ctx
         prom.resolve <| { old with nextCmdSnap? := some {
           stx? := none
           reportingRange := .some ⟨newParserState.pos, ctx.endPos⟩
@@ -674,7 +676,7 @@ where
           reportSnap := { stx? := none, reportingRange := initRange?, task := reportPromise.result!, cancelTk? := none }
         }
       }
-      let cmdState ← doElab stx cmdState beginPos
+      let cmdState ← doElab stx cmds cmdState beginPos
         { old? := old?.map fun old => ⟨old.stx, old.elabSnap.elabSnap⟩, new := elabPromise }
         elabCmdCancelTk ctx
 
@@ -744,9 +746,9 @@ where
           }
       if let some next := next? then
         -- We're definitely off the fast-forwarding path now
-        parseCmd none parserState cmdState next (sync := false) elabCmdCancelTk ctx
+        parseCmd none parserState cmdState next (sync := false) elabCmdCancelTk (cmds.push stx) ctx
 
-  doElab (stx : Syntax) (cmdState : Command.State) (beginPos : String.Pos.Raw)
+  doElab (stx : Syntax) (cmds : Array Syntax) (cmdState : Command.State) (beginPos : String.Pos.Raw)
       (snap : SnapshotBundle DynamicSnapshot) (cancelTk : IO.CancelToken) :
       LeanProcessingM Command.State := do
     let ctx ← read
@@ -763,7 +765,7 @@ where
       IO.FS.withIsolatedStreams (isolateStderr := Core.stderrAsMessages.get scope.opts) do
         EIO.toBaseIO do
           withLoggingExceptions
-            (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx)
+            (getResetInfoTrees *> Elab.Command.elabCommandTopLevel stx cmds)
             cmdCtx cmdStateRef
     let cmdState ← cmdStateRef.get
     let mut messages := cmdState.messages
@@ -791,7 +793,7 @@ def processCommands (inputCtx : Parser.InputContext) (parserState : Parser.Modul
     BaseIO (Task CommandParsedSnapshot) := do
   let prom ← IO.Promise.new
   let cancelTk ← IO.CancelToken.new
-  process.parseCmd (old?.map (·.2)) parserState commandState prom (sync := true) cancelTk
+  process.parseCmd (old?.map (·.2)) parserState commandState prom (sync := true) cancelTk #[]
     |>.run (old?.map (·.1))
     |>.run { inputCtx with }
   return prom.result!

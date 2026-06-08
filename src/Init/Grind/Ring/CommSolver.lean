@@ -1915,11 +1915,11 @@ theorem eq_normEq0 {α} [CommRing α] (ctx : Context α) (c : Nat) (p₁ p₂ p 
 theorem gcd_eq_0 [CommRing α] (g n m a b : Int) (h : g = a * n + b * m)
     (h₁ : Int.cast (R := α) n = 0) (h₂ : Int.cast (R := α) m = 0) : Int.cast (R := α) g = 0 := by
   rw [← Ring.intCast_ofNat] at *
-  replace h₁ := congrArg (Int.cast (R := α) a * ·) h₁; simp at h₁
+  replace h₁ := congrArg (Int.cast (R := α) a * ·) h₁; try simp at h₁ -- TODO(kmill): remove simp after stage0 update
   rw [← Ring.intCast_mul, Ring.intCast_zero, Semiring.mul_zero] at h₁
-  replace h₂ := congrArg (Int.cast (R := α) b * ·) h₂; simp at h₂
+  replace h₂ := congrArg (Int.cast (R := α) b * ·) h₂; try simp at h₂ -- TODO(kmill): remove simp after stage0 update
   rw [← Ring.intCast_mul, Ring.intCast_zero, Semiring.mul_zero] at h₂
-  replace h₁ := congrArg (· + Int.cast (b * m)) h₁; simp at h₁
+  replace h₁ := congrArg (· + Int.cast (b * m)) h₁; try simp at h₁ -- TODO(kmill): remove simp after stage0 update
   rw [← Ring.intCast_add, h₂, zero_add, ← h] at h₁
   rw [Ring.intCast_zero, h₁]
 

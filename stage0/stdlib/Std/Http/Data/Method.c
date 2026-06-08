@@ -4716,7 +4716,7 @@ lean_object* v_val_1611_; uint8_t v___x_1612_;
 lean_dec_ref(v_s_1600_);
 v_val_1611_ = lean_ctor_get(v___x_1601_, 0);
 lean_inc(v_val_1611_);
-lean_dec_ref(v___x_1601_);
+lean_dec_ref_known(v___x_1601_, 1);
 v___x_1612_ = lean_unbox(v_val_1611_);
 lean_dec(v_val_1611_);
 return v___x_1612_;

@@ -36,7 +36,7 @@ namespace Array
 theorem toVector_inj {xs ys : Array α} (h₁ : xs.size = ys.size) (h₂ : xs.toVector.cast h₁ = ys.toVector) : xs = ys := by
   ext i ih₁ ih₂
   · exact h₁
-  · simpa using congrArg (fun xs => xs[i]) h₂
+  · simpa using! congrArg (fun xs => xs[i]) h₂
 
 end Array
 

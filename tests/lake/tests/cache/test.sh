@@ -129,6 +129,13 @@ test_out "restored artifact from cache" -v build +Ignored --no-build
 test_run -v build Test.ImportIgnored
 test_run resolve-deps -R
 
+# Test that `LAKE_RESTORE_ARTIFACTS` overrides the
+# workspace's (unset) `restoreAllArtifacts` default.
+echo "def foo := ()" > Ignored.lean
+test_not_out "Ignored.olean" -v build +Ignored --no-build
+echo "def bar := ()" > Ignored.lean
+LAKE_RESTORE_ARTIFACTS=true test_out "Ignored.olean" -v build +Ignored --no-build
+
 # Test that outdated files are not stored in the cache with `--old`
 echo "def baz := ()" > Ignored.lean
 test_out "Built Ignored" -v build +Ignored --old

@@ -213,7 +213,7 @@ theorem divInt_mul_right {a : Int} (a0 : a ≠ 0) : (n * a) /. (d * a) = n /. d 
   simp [← divInt_mul_left (d := d) a0, Int.mul_comm]
 
 theorem divInt_self' {n : Int} (hn : n ≠ 0) : n /. n = 1 := by
-  simpa using divInt_mul_right (n := 1) (d := 1) hn
+  simpa using! divInt_mul_right (n := 1) (d := 1) hn
 
 theorem divInt_num_den (z : d ≠ 0) (h : n /. d = ⟨n', d', z', c⟩) :
     ∃ m, m ≠ 0 ∧ n = n' * m ∧ d = d' * m := by
@@ -1227,11 +1227,11 @@ theorem floor_add_intCast {x : Rat} {y : Int} :
 
 theorem floor_add_one {x : Rat} :
     (x + 1).floor = x.floor + 1 := by
-  simpa using floor_add_intCast
+  simpa using! floor_add_intCast
 
 theorem floor_sub_one {x : Rat} :
     (x - 1).floor = x.floor - 1 := by
-  simpa [Rat.sub_eq_add_neg] using floor_add_intCast
+  simpa [Rat.sub_eq_add_neg] using! floor_add_intCast
 
 theorem lt_floor {x : Rat} :
     x - 1 < x.floor := by
@@ -1270,7 +1270,7 @@ theorem le_ceil {x : Rat} :
 
 theorem ceil_add_intCast_le_ceil_add {x : Rat} {y : Int} :
     (x + y).ceil ≤ x.ceil + y := by
-  simpa [Rat.ceil_eq_neg_floor_neg, Int.neg_le_iff, Rat.neg_add, Int.neg_add] using
+  simpa [Rat.ceil_eq_neg_floor_neg, Int.neg_le_iff, Rat.neg_add, Int.neg_add] using!
     floor_add_le_floor_add_intCast
 
 theorem ceil_add_intCast {x : Rat} {y : Int} :

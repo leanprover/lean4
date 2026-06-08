@@ -163,7 +163,7 @@ return v___x_28_;
 else
 {
 lean_object* v___x_30_; lean_object* v___x_32_; 
-lean_dec_ref(v_a_22_);
+lean_dec_ref_known(v_a_22_, 1);
 v___x_30_ = lean_box(v___x_15_);
 if (v_isShared_25_ == 0)
 {
@@ -231,7 +231,7 @@ return v___x_40_;
 else
 {
 lean_object* v___x_43_; lean_object* v___x_45_; 
-lean_dec_ref(v_a_17_);
+lean_dec_ref_known(v_a_17_, 1);
 lean_dec_ref(v_00_u03b1_1_);
 v___x_43_ = lean_box(v___x_15_);
 if (v_isShared_20_ == 0)
@@ -502,7 +502,7 @@ v___x_138_ = lean_unbox(v_a_137_);
 lean_dec(v_a_137_);
 if (v___x_138_ == 0)
 {
-lean_dec_ref(v___x_136_);
+lean_dec_ref_known(v___x_136_, 1);
 v_e_100_ = v_q_125_;
 v_a_101_ = v___y_126_;
 v_a_102_ = v___y_127_;

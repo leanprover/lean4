@@ -758,7 +758,7 @@ lean_dec_ref(v___x_192_);
 if (v___x_201_ == 0)
 {
 lean_object* v___x_202_; 
-lean_dec_ref(v___x_195_);
+lean_dec_ref_known(v___x_195_, 2);
 v___x_202_ = lean_box(0);
 return v___x_202_;
 }

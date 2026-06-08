@@ -9,6 +9,7 @@ from pathlib import Path
 from re import Match, Pattern
 from typing import Callable, Literal, NoReturn, Self
 
+import repos
 from github import Auth, Github
 from github.GithubException import UnknownObjectException
 from github.GitRelease import GitRelease
@@ -368,7 +369,8 @@ def find_pr(grepo: Repository, head: str, base: str, title: str) -> PullRequest 
     for pr in grepo.get_pulls(
         state="all", base=base, sort="created", direction="desc"
     ).get_page(0):
-        if title in pr.title:
+        # Stable versions are prefixes of RC versions, so we can't just use "in"
+        if pr.title.endswith(title) or (title + " ") in pr.title:
             return pr
 
 
@@ -478,7 +480,14 @@ def get_toolchain_for(version: Version) -> str:
 
 
 def get_toolchain(grepo: Repository, ref: str) -> str:
-    return get_file_contents(grepo, ref, "lean-toolchain").strip()
+    path = "lean-toolchain"
+
+    if grepo.full_name == repos.VERSO_TEMPLATES.gh_full_name:
+        # Since the templates repo doesn't have a central toolchain file, we're
+        # just using one of the templates' toolchains as a replacement.
+        path = "basic-book/lean-toolchain"
+
+    return get_file_contents(grepo, ref, path).strip()
 
 
 def set_toolchain(path: Path, tag: str) -> None:

@@ -187,7 +187,7 @@ lean_ctor_set_uint8(v___x_44_, sizeof(void*)*7 + 1, v_univApprox_41_);
 lean_ctor_set_uint8(v___x_44_, sizeof(void*)*7 + 2, v_inTypeClassResolution_42_);
 lean_ctor_set_uint8(v___x_44_, sizeof(void*)*7 + 3, v___x_43_);
 v___x_45_ = l_Lean_Meta_getLevel(v_type_27_, v___x_44_, v_a_29_, v_a_30_, v_a_31_);
-lean_dec_ref(v___x_44_);
+lean_dec_ref_known(v___x_44_, 7);
 return v___x_45_;
 }
 }
@@ -923,7 +923,7 @@ if (lean_obj_tag(v___x_283_) == 0)
 lean_object* v_a_284_; lean_object* v___x_285_; 
 v_a_284_ = lean_ctor_get(v___x_283_, 0);
 lean_inc(v_a_284_);
-lean_dec_ref(v___x_283_);
+lean_dec_ref_known(v___x_283_, 1);
 v___x_285_ = l_Lean_Meta_Sym_shareCommonInc___redArg(v_a_284_, v_a_266_);
 if (lean_obj_tag(v___x_285_) == 0)
 {
@@ -1432,7 +1432,7 @@ if (lean_obj_tag(v___x_509_) == 0)
 lean_object* v_a_510_; lean_object* v___x_511_; 
 v_a_510_ = lean_ctor_get(v___x_509_, 0);
 lean_inc_n(v_a_510_, 2);
-lean_dec_ref(v___x_509_);
+lean_dec_ref_known(v___x_509_, 1);
 v___x_511_ = l_Lean_Meta_Sym_getLevel___redArg(v_a_510_, v_a_503_, v_a_504_, v_a_505_, v_a_506_, v_a_507_);
 if (lean_obj_tag(v___x_511_) == 0)
 {

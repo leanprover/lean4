@@ -296,7 +296,7 @@ if (lean_obj_tag(v___x_59_) == 0)
 lean_object* v_a_60_; lean_object* v___x_61_; lean_object* v___x_62_; lean_object* v___x_63_; 
 v_a_60_ = lean_ctor_get(v___x_59_, 0);
 lean_inc(v_a_60_);
-lean_dec_ref(v___x_59_);
+lean_dec_ref_known(v___x_59_, 1);
 v___x_61_ = l_Lean_Expr_mvarId_x21(v_a_60_);
 v___x_62_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_evalTactic___boxed), 10, 1);
 lean_closure_set(v___x_62_, 0, v_tacticSeq_51_);
@@ -304,7 +304,7 @@ v___x_63_ = l_Lean_Elab_Tactic_run(v___x_61_, v___x_62_, v___y_52_, v___y_53_, v
 if (lean_obj_tag(v___x_63_) == 0)
 {
 lean_object* v___x_64_; 
-lean_dec_ref(v___x_63_);
+lean_dec_ref_known(v___x_63_, 1);
 v___x_64_ = l_Lean_instantiateMVars___at___00Lean_Elab_Command_reproveDecl_spec__0___redArg(v_a_60_, v___y_55_);
 return v___x_64_;
 }
@@ -643,12 +643,12 @@ else
 lean_object* v_val_164_; 
 v_val_164_ = lean_ctor_get(v___x_162_, 0);
 lean_inc(v_val_164_);
-lean_dec_ref(v___x_162_);
+lean_dec_ref_known(v___x_162_, 1);
 if (lean_obj_tag(v_val_164_) == 1)
 {
 uint8_t v_v_165_; 
 v_v_165_ = lean_ctor_get_uint8(v_val_164_, 0);
-lean_dec_ref(v_val_164_);
+lean_dec_ref_known(v_val_164_, 0);
 return v_v_165_;
 }
 else
@@ -801,7 +801,7 @@ if (lean_obj_tag(v___x_216_) == 0)
 lean_object* v_a_217_; lean_object* v_macroStack_218_; lean_object* v___x_219_; lean_object* v_a_220_; lean_object* v___x_221_; lean_object* v___x_222_; lean_object* v_a_223_; lean_object* v___x_225_; uint8_t v_isShared_226_; uint8_t v_isSharedCheck_231_; 
 v_a_217_ = lean_ctor_get(v___x_216_, 0);
 lean_inc(v_a_217_);
-lean_dec_ref(v___x_216_);
+lean_dec_ref_known(v___x_216_, 1);
 v_macroStack_218_ = lean_ctor_get(v___y_213_, 4);
 v___x_219_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00Lean_Elab_Command_reproveDecl_spec__1_spec__1___redArg(v_msg_212_, v___y_214_);
 v_a_220_ = lean_ctor_get(v___x_219_, 0);
@@ -967,7 +967,7 @@ if (lean_obj_tag(v___x_270_) == 0)
 lean_object* v_a_271_; lean_object* v___x_272_; lean_object* v___x_274_; 
 v_a_271_ = lean_ctor_get(v___x_270_, 0);
 lean_inc(v_a_271_);
-lean_dec_ref(v___x_270_);
+lean_dec_ref_known(v___x_270_, 1);
 v___x_272_ = l_Lean_ConstantInfo_type(v_val_265_);
 lean_inc_ref(v___x_272_);
 if (v_isShared_268_ == 0)
@@ -1006,7 +1006,7 @@ if (lean_obj_tag(v___x_280_) == 0)
 lean_object* v_a_281_; lean_object* v___x_282_; lean_object* v___x_283_; lean_object* v___x_284_; uint8_t v___x_285_; lean_object* v___x_286_; lean_object* v___x_287_; lean_object* v___x_288_; lean_object* v___x_289_; uint8_t v___x_290_; lean_object* v___x_291_; lean_object* v___x_292_; lean_object* v___x_293_; lean_object* v___x_294_; 
 v_a_281_ = lean_ctor_get(v___x_280_, 0);
 lean_inc(v_a_281_);
-lean_dec_ref(v___x_280_);
+lean_dec_ref_known(v___x_280_, 1);
 v___x_282_ = l_Lean_ConstantInfo_levelParams(v_val_265_);
 lean_dec(v_val_265_);
 lean_inc(v_a_271_);
@@ -1241,13 +1241,13 @@ if (lean_obj_tag(v___x_423_) == 0)
 lean_object* v_a_424_; lean_object* v___x_425_; 
 v_a_424_ = lean_ctor_get(v___x_423_, 0);
 lean_inc(v_a_424_);
-lean_dec_ref(v___x_423_);
+lean_dec_ref_known(v___x_423_, 1);
 lean_inc(v_tacticSeq_410_);
 v___x_425_ = l_Lean_Elab_Command_reproveDecl(v_a_424_, v_tacticSeq_410_, v___y_415_, v___y_416_);
 if (lean_obj_tag(v___x_425_) == 0)
 {
 lean_object* v___x_426_; size_t v___x_427_; size_t v___x_428_; 
-lean_dec_ref(v___x_425_);
+lean_dec_ref_known(v___x_425_, 1);
 v___x_426_ = lean_box(0);
 v___x_427_ = ((size_t)1ULL);
 v___x_428_ = lean_usize_add(v_i_413_, v___x_427_);

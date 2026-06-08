@@ -141,6 +141,7 @@ PROOFWIDGETS4 = ReleaseRepo(
 )
 _register(PROOFWIDGETS4)
 
+
 # To create a new release, open a PR into `main`. In it, bump the toolchain. For
 # `v4.X.0-rc1` releases, you may need to merge `nightly-testing` into the PR.
 #
@@ -216,6 +217,17 @@ _register(REPL)
 
 
 # To create a new release, open a PR into `main`. In it, bump the toolchain and
+# all dependencies.
+#
+# Once the release PR is merged, tag the resulting commit with the lean version.
+ILLUMINATE = ReleaseRepo(
+    github=("leanprover", "illuminate"),
+    release_tag="lean",
+)
+_register(ILLUMINATE)
+
+
+# To create a new release, open a PR into `main`. In it, bump the toolchain and
 # all dependencies, then run `update-subverso.sh`. For `v4.X.0-rc1` releases,
 # you may need to merge `nightly-testing` into the PR.
 #
@@ -223,10 +235,11 @@ _register(REPL)
 VERSO = ReleaseRepo(
     github=("leanprover", "verso"),
     release_tag="lean",
-    strong_deps=[PLAUSIBLE],
+    strong_deps=[PLAUSIBLE, ILLUMINATE],
     weak_deps=[MATHLIB4],  # For benchmarks
 )
 _register(VERSO)
+
 
 # To create a new release, open a PR into `main`. In it, bump the toolchain and
 # all dependencies. For `v4.X.0-rc1` releases, you may need to merge
@@ -239,6 +252,30 @@ VERSO_WEB_COMPONENTS = ReleaseRepo(
     strong_deps=[VERSO],
 )
 _register(VERSO_WEB_COMPONENTS)
+
+
+# To create a new release, open a PR into `main`. In it, bump the toolchain and
+# all dependencies.
+#
+# Once the release PR is merged, tag the resulting commit with the lean version.
+VERSO_SLIDES = ReleaseRepo(
+    github=("leanprover", "verso-slides"),
+    release_tag="lean",
+    strong_deps=[VERSO, ILLUMINATE],
+)
+_register(VERSO_SLIDES)
+
+
+# To create a new release, open a PR into `main`. In it, bump the toolchain and
+# all dependencies.
+#
+# Once the release PR is merged, tag the resulting commit with the lean version.
+VERSO_TEMPLATES = ReleaseRepo(
+    github=("leanprover", "verso-templates"),
+    release_tag="lean",
+    strong_deps=[VERSO, VERSO_SLIDES],
+)
+_register(VERSO_TEMPLATES)
 
 
 # To bump the toolchain, open a PR into `main`. In it, bump the toolchain and
@@ -293,6 +330,7 @@ BIBTEX_QUERY = ReleaseRepo(
 )
 _register(BIBTEX_QUERY)
 
+
 # To create a new release, open a PR into `master`. In it, bump the toolchain
 # and all dependencies.
 #
@@ -303,6 +341,7 @@ LEANSQLITE = ReleaseRepo(
     strong_deps=[PLAUSIBLE],
 )
 _register(LEANSQLITE)
+
 
 # To create a new release, open a PR into `main`. In it, bump the toolchain and
 # all dependencies. For `v4.X.0-rc1` releases, you may need to merge
@@ -327,22 +366,21 @@ BATTERIES.ignored_deps.append(DOC_GEN4)
 # and all dependencies.
 #
 # Once the release PR is merged, tag the resulting commit with the lean version.
-COMPARATOR = ReleaseRepo(
-    github=("leanprover", "comparator"),
+LEAN4EXPORT = ReleaseRepo(
+    github=("leanprover", "lean4export"),
     release_tag="lean",
 )
-_register(COMPARATOR)
+_register(LEAN4EXPORT)
 
 
 # To create a new release, open a PR into `master`. In it, bump the toolchain
 # and all dependencies.
 #
 # Once the release PR is merged, tag the resulting commit with the lean version.
-LEAN4EXPORT = ReleaseRepo(
-    github=("leanprover", "lean4export"),
-    release_tag="lean",
+COMPARATOR = ReleaseRepo(
+    github=("leanprover", "comparator"), release_tag="lean", strong_deps=[LEAN4EXPORT]
 )
-_register(LEAN4EXPORT)
+_register(COMPARATOR)
 
 
 ###################

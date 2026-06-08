@@ -352,20 +352,20 @@ instance EStateM.instWPMonad : WPMonad (EStateM ε σ) (σ → Prop) (ε → σ 
       simpa [hxs] using hepost el s'
 
 /-!
-## Adequacy Lemmas
+## Soundness Lemmas
 
 These lemmas bridge `wp` reasoning to concrete program properties. Each one says:
 if `wp prog ...` holds, then a property `P` holds of the program's result.
 -/
 
-/-- Adequacy for `Id`: if `wp prog P` holds, then `P` holds of the result. -/
+/-- Soundness for `Id`: if `wp prog P` holds, then `P` holds of the result. -/
 theorem Id.of_wp_run_eq {α : Type u} {x : α} {prog : Id α}
   (h : Id.run prog = x) (P : α → Prop)
   (hwp : wp prog P EPost.nil.mk) : P x := by
   rw [← h]
   exact hwp
 
-/-- Adequacy for `Option`: if `wp prog P` holds, then `P` holds of the result. -/
+/-- Soundness for `Option`: if `wp prog P` holds, then `P` holds of the result. -/
 theorem Option.of_wp_eq {α : Type u} {x prog : Option α}
   (h : prog = x) (P : Option α → Prop)
   (hwp : wp prog (fun a => P (some a)) (P none)) : P x := by
@@ -374,37 +374,37 @@ theorem Option.of_wp_eq {α : Type u} {x prog : Option α}
   | none => exact hwp
   | some a => exact hwp
 
-/-- Adequacy for `StateM`: if `wp prog P s` holds, then `P` holds of `(prog.run s)`. -/
+/-- Soundness for `StateM`: if `wp prog P s` holds, then `P` holds of `(prog.run s)`. -/
 theorem StateM.of_wp_run_eq {x : α × σ} {prog : StateM σ α} {s : σ}
   (h : StateT.run prog s = x) (P : α × σ → Prop)
   (hwp : wp prog (fun a s' => P (a, s')) EPost.nil.mk s) : P x := by
   rw [← h]
   exact hwp
 
-/-- Adequacy for `StateM` (discarding final state). -/
+/-- Soundness for `StateM` (discarding final state). -/
 theorem StateM.of_wp_run'_eq {α σ : Type} {x : α} {prog : StateM σ α} {s : σ}
   (h : StateT.run' prog s = x) (P : α → Prop)
   (hwp : wp prog (fun a _ => P a) EPost.nil.mk s) : P x := by
   rw [← h]
   exact hwp
 
-/-- Adequacy for `ReaderM`: if `wp prog P r` holds, then `P` holds of `(prog.run r)`. -/
+/-- Soundness for `ReaderM`: if `wp prog P r` holds, then `P` holds of `(prog.run r)`. -/
 theorem ReaderM.of_wp_run_eq {α ρ : Type} {x : α} {prog : ReaderM ρ α} {r : ρ}
   (h : ReaderT.run prog r = x) (P : α → Prop)
   (hwp : wp prog (fun a _ => P a) EPost.nil.mk r) : P x := by
   rw [← h]
   exact hwp
 
-/-- Adequacy for `Except`: if `wp prog P` holds, then `P` holds of the result. -/
+/-- Soundness for `Except`: if `wp prog P` holds, then `P` holds of the result. -/
 theorem Except.of_wp_eq {ε α : Type} {x prog : Except ε α}
   (h : prog = x) (P : Except ε α → Prop)
   (hwp : wp prog (fun a => P (.ok a)) epost⟨fun e => P (.error e)⟩) : P x := by
   subst h
   cases prog with
-  | ok a => simpa only [wp] using hwp
-  | error e => simpa only [wp] using hwp
+  | ok a => simpa only [wp] using! hwp
+  | error e => simpa only [wp] using! hwp
 
-/-- Adequacy for `EStateM`: if `wp prog P s` holds, then `P` holds of `(prog.run s)`. -/
+/-- Soundness for `EStateM`: if `wp prog P s` holds, then `P` holds of `(prog.run s)`. -/
 theorem EStateM.of_wp_run_eq {ε σ α : Type} {x : EStateM.Result ε σ α}
   {prog : EStateM ε σ α} {s : σ}
   (h : EStateM.run prog s = x) (P : EStateM.Result ε σ α → Prop)

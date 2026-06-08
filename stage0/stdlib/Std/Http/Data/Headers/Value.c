@@ -639,7 +639,7 @@ else
 lean_object* v_val_236_; uint32_t v___x_237_; uint32_t v___x_238_; uint8_t v___x_239_; 
 v_val_236_ = lean_ctor_get(v___x_235_, 0);
 lean_inc(v_val_236_);
-lean_dec_ref(v___x_235_);
+lean_dec_ref_known(v___x_235_, 1);
 v___x_237_ = 33;
 v___x_238_ = lean_unbox_uint32(v_val_236_);
 v___x_239_ = lean_uint32_dec_le(v___x_237_, v___x_238_);
@@ -811,7 +811,7 @@ lean_object* v_val_262_;
 lean_dec_ref(v_s_251_);
 v_val_262_ = lean_ctor_get(v___x_252_, 0);
 lean_inc(v_val_262_);
-lean_dec_ref(v___x_252_);
+lean_dec_ref_known(v___x_252_, 1);
 return v_val_262_;
 }
 }

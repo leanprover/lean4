@@ -13,27 +13,27 @@ test_run lint --builtin-only Clean
 # is captured in `lintLogExt`, and is re-emitted by `lake lint` post-build.
 # `linter.missingDocs` (defValue=false) must NOT fire without --lint-all/--lint-only.
 lake_out lint --builtin-only TextLints || true
-match_pat 'unused variable `unusedLet`' produced.out
+match_pat 'Variable name `unusedLet` is not explicitly referenced' produced.out
 no_match_pat 'missing doc string' produced.out
 
 # --lint-all enables all linters, so missingDocs fires too.
 lake_out lint --lint-all TextLints || true
-match_pat 'unused variable `unusedLet`' produced.out
+match_pat 'Variable name `unusedLet` is not explicitly referenced' produced.out
 match_pat 'missing doc string for public def undocumentedPublicDef' produced.out
 
 # --lint-only filters entries by suffix match against the linter name.
 lake_out lint --lint-only missingDocs TextLints || true
 match_pat 'missing doc string for public def undocumentedPublicDef' produced.out
-no_match_pat 'unused variable' produced.out
+no_match_pat 'is not explicitly referenced' produced.out
 
 lake_out lint --lint-only unusedVariables TextLints || true
-match_pat 'unused variable `unusedLet`' produced.out
+match_pat 'Variable name `unusedLet` is not explicitly referenced' produced.out
 no_match_pat 'missing doc string' produced.out
 
-# --builtin-lint should detect the defLemma violation in Main (the default target)
+# --builtin-lint should detect the defProp violation in Main (the default target)
 lake_out lint --builtin-lint || true
 match_pat 'shouldBeTheorem' produced.out
-match_pat 'is a def, should be a lemma/theorem' produced.out
+match_pat 'is a proposition; use `theorem` instead of `def`' produced.out
 # `@[reducible, instance]` on a `def` of Prop type keeps it a `def`, so flag it.
 match_pat 'reducibleInstShouldBeTheorem' produced.out
 # Plain `instance` of Prop type is elaborated as a theorem; it should not be flagged.
@@ -45,8 +45,8 @@ match_pat 'only occur together' produced.out
 # builtin_nolint checkUnivs should suppress the warning
 no_match_pat 'badUnivSkipped' produced.out
 
-# --lint-only defLemma should run only the defLemma linter
-lake_out lint --lint-only defLemma || true
+# --lint-only defProp should run only the defProp linter
+lake_out lint --lint-only defProp || true
 match_pat 'shouldBeTheorem' produced.out
 no_match_pat 'badUnivDecl' produced.out
 
@@ -57,14 +57,15 @@ no_match_pat 'badUnivDecl' produced.out
 # package, so passing any module of a package flips the flag for every module
 # in that package.
 
-# Env linters run post-build against `importModules`-loaded decls, so
-# `defLemma` catches `shouldBeTheoremInSub` regardless of override scope.
+# `defProp` runs during the build of each module, so its warning for
+# `shouldBeTheoremInSub` is captured in `Main.Sub`'s lint log and re-emitted
+# via `collectTextLints` when `Main` is linted.
 lake_out lint --builtin-lint Main || true
 match_pat 'shouldBeTheoremInSub' produced.out
 
 # `linter.unusedVariables` (defValue=true) fires on every build, so its entry
 # lands in `Main.Sub.olean` unconditionally.
-match_pat 'unused variable `unusedInSub`' produced.out
+match_pat 'Variable name `unusedInSub` is not explicitly referenced' produced.out
 
 # Explicit arg with --lint-all: the override applies to the whole package of
 # `Main`, so `Main.Sub` is also built with `linter.all=true` and the
@@ -81,17 +82,17 @@ test_run lint --builtin-only Clean
 
 # Without --extra, the extra linters (both the env linter and the dummy extra
 # text linter in Linters.lean) must not run. Default linters still do, so the
-# `defLemma` violation in this file fires.
+# default `defProp` linter's violation in this file fires.
 lake_out lint --builtin-only ExtraViolations || true
 no_match_pat 'badNameExtra' produced.out
 no_match_pat 'extra text linter saw a declaration' produced.out
 # Builtin extra text linter `unnecessarySeqFocus` is non-default, so silent.
 no_match_pat 'tac1 <;> tac2' produced.out
-# Builtin extra env linter `dupNamespace` is non-default, so it stays silent.
+# Builtin extra text linter `dupNamespace` is non-default, so it stays silent.
 no_match_pat 'Dup.Dup.violation' produced.out
 # Builtin extra text linter `unreachableTactic` is non-default, so silent.
 no_match_pat 'this tactic is never executed' produced.out
-# Default env linter `defLemma` runs and flags the def-of-Prop in this file.
+# Default `defProp` linter runs and flags the def-of-Prop in this file.
 match_pat 'shouldBeTheoremUnderExtra' produced.out
 
 # --extra should run default linters together with the non-default (extra)
@@ -104,19 +105,19 @@ match_pat 'extra text linter saw a declaration' produced.out
 # tag `linter.extra.unnecessarySeqFocus` is matched by the `linter.extra`
 # prefix filter.
 match_pat 'tac1 <;> tac2' produced.out
-# Builtin `dupNamespace` env linter fires under --extra.
+# Builtin `dupNamespace` extra text linter fires under --extra.
 match_pat 'Dup.Dup.violation' produced.out
 match_pat "namespace .*Dup.* is duplicated" produced.out
 # Builtin `unreachableTactic` extra text linter fires under --extra.
 match_pat 'this tactic is never executed' produced.out
-# --extra also runs default linters, so `defLemma` flags this file's violation.
+# --extra also runs default linters, so `defProp` flags this file's violation.
 match_pat 'shouldBeTheoremUnderExtra' produced.out
 
 # --extra on TextLints: default `linter.unusedVariables` fires (default
 # linters run under --extra). `linter.missingDocs` is still off-by-default
 # and only enabled by `--lint-all`/`--lint-only`.
 lake_out lint --extra TextLints || true
-match_pat 'unused variable `unusedLet`' produced.out
+match_pat 'Variable name `unusedLet` is not explicitly referenced' produced.out
 no_match_pat 'missing doc string' produced.out
 
 # --lint-all should run both default and extra linters, for both the
@@ -134,22 +135,22 @@ match_pat 'tac1 <;> tac2' produced.out
 no_match_pat 'badNameExtra' produced.out
 no_match_pat 'Dup.Dup.violation' produced.out
 
-# --lint-only dupNamespace runs only the builtin extra `dupNamespace` env linter.
+# --lint-only dupNamespace runs only the builtin extra `dupNamespace` text linter.
 lake_out lint --lint-only dupNamespace ExtraViolations || true
 match_pat 'Dup.Dup.violation' produced.out
 no_match_pat 'badNameExtra' produced.out
 no_match_pat 'shouldBeTheorem' produced.out
 
 # Multiple --lint-only flags accumulate: both named linters should run
-lake_out lint --lint-only defLemma --lint-only checkUnivs || true
+lake_out lint --lint-only defProp --lint-only checkUnivs || true
 match_pat 'shouldBeTheorem' produced.out
 match_pat 'badUnivDecl' produced.out
 no_match_pat 'badNameExtra' produced.out
 
 # Last-wins: --extra overrides a prior --lint-all and clears --lint-only.
-# Since --extra runs both default and extra linters, the default `defLemma`
+# Since --extra runs both default and extra linters, the default `defProp`
 # violation in ExtraViolations.lean fires too.
-lake_out lint --lint-all --lint-only defLemma --extra || true
+lake_out lint --lint-all --lint-only defProp --extra || true
 match_pat 'badNameExtra' produced.out
 match_pat 'shouldBeTheoremUnderExtra' produced.out
 
@@ -160,13 +161,13 @@ match_pat 'badNameExtra' produced.out
 match_pat 'shouldBeTheorem' produced.out
 
 # Last-wins: --extra clears a previously accumulated --lint-only. Default
-# linters still run under --extra, so `defLemma` fires on its file's violation.
-lake_out lint --lint-only defLemma --extra || true
+# linters still run under --extra, so `defProp` fires on its file's violation.
+lake_out lint --lint-only defProp --extra || true
 match_pat 'badNameExtra' produced.out
 match_pat 'shouldBeTheoremUnderExtra' produced.out
 
 # --lint-only after --extra: the named linter runs (selection ignores scope)
-lake_out lint --extra --lint-only defLemma || true
+lake_out lint --extra --lint-only defProp || true
 match_pat 'shouldBeTheorem' produced.out
 no_match_pat 'badNameExtra' produced.out
 
@@ -193,7 +194,7 @@ lake_out lint --extra ExtraViolations || true
 match_pat 'badNameExtra' produced.out
 
 # --lint-only implicitly enables builtin lint
-lake_out lint --lint-only defLemma || true
+lake_out lint --lint-only defProp || true
 match_pat 'shouldBeTheorem' produced.out
 
 # builtinLint = false: check-lint fails (no lint driver and builtin linting disabled)
@@ -216,9 +217,11 @@ match_pat 'shouldBeTheorem' produced.out
 
 # --- builtinLint = true with a lint driver ---
 
-# builtinLint = true + lint driver + clean module: both builtin lints and driver run
+# builtinLint = true + lint driver + clean module: both builtin lints and driver run.
+# With no default env linters registered in core, the builtin-lint pass reports
+# "No environment linters registered" rather than "Linting passed".
 lake_out lint -f with-driver.lean Clean || true
-match_pat 'Linting passed for Clean' produced.out
+match_pat 'No environment linters registered for Clean' produced.out
 match_pat 'lint-driver:' produced.out
 
 # builtinLint = true + lint driver + violations: both run, exit code is nonzero

@@ -1833,16 +1833,16 @@ theorem ISize.toInt_neg (n : ISize) : (-n).toInt = (-n.toInt).bmod (2 ^ System.P
 
 theorem Int8.toInt_div_of_ne_left (a b : Int8) (h : a ≠ minValue) : (a / b).toInt = a.toInt.tdiv b.toInt := by
   rw [← toInt_toBitVec, Int8.toBitVec_div, BitVec.toInt_sdiv_of_ne_or_ne, toInt_toBitVec, toInt_toBitVec]
-  exact Or.inl (by simpa [← toBitVec_inj] using h)
+  exact Or.inl (by simpa [← toBitVec_inj] using! h)
 theorem Int16.toInt_div_of_ne_left (a b : Int16) (h : a ≠ minValue) : (a / b).toInt = a.toInt.tdiv b.toInt := by
   rw [← toInt_toBitVec, Int16.toBitVec_div, BitVec.toInt_sdiv_of_ne_or_ne, toInt_toBitVec, toInt_toBitVec]
-  exact Or.inl (by simpa [← toBitVec_inj] using h)
+  exact Or.inl (by simpa [← toBitVec_inj] using! h)
 theorem Int32.toInt_div_of_ne_left (a b : Int32) (h : a ≠ minValue) : (a / b).toInt = a.toInt.tdiv b.toInt := by
   rw [← toInt_toBitVec, Int32.toBitVec_div, BitVec.toInt_sdiv_of_ne_or_ne, toInt_toBitVec, toInt_toBitVec]
-  exact Or.inl (by simpa [← toBitVec_inj] using h)
+  exact Or.inl (by simpa [← toBitVec_inj] using! h)
 theorem Int64.toInt_div_of_ne_left (a b : Int64) (h : a ≠ minValue) : (a / b).toInt = a.toInt.tdiv b.toInt := by
   rw [← toInt_toBitVec, Int64.toBitVec_div, BitVec.toInt_sdiv_of_ne_or_ne, toInt_toBitVec, toInt_toBitVec]
-  exact Or.inl (by simpa [← toBitVec_inj] using h)
+  exact Or.inl (by simpa [← toBitVec_inj] using! h)
 theorem ISize.toInt_div_of_ne_left (a b : ISize) (h : a ≠ minValue) : (a / b).toInt = a.toInt.tdiv b.toInt := by
   rw [← toInt_toBitVec, ISize.toBitVec_div, BitVec.toInt_sdiv_of_ne_or_ne, toInt_toBitVec, toInt_toBitVec]
   exact Or.inl (by simpa [← toBitVec_inj, BitVec.intMin_eq_neg_two_pow] using h)
@@ -2399,10 +2399,10 @@ theorem ISize.ofNat_div {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1))
   rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tdiv, ofInt_tdiv]
   · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
-    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using! ha
   · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
-    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using! hb
 
 @[simp] theorem Int8.ofBitVec_srem (a b : BitVec 8) : Int8.ofBitVec (a.srem b) = Int8.ofBitVec a % Int8.ofBitVec b := (rfl)
 @[simp] theorem Int16.ofBitVec_srem (a b : BitVec 16) : Int16.ofBitVec (a.srem b) = Int16.ofBitVec a % Int16.ofBitVec b := (rfl)
@@ -2468,10 +2468,10 @@ theorem ISize.ofNat_le_iff_le {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits
   rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_le_iff_le, Int.ofNat_le]
   · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
-    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using! ha
   · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
-    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using! hb
 
 theorem Int8.ofBitVec_le_iff_sle (a b : BitVec 8) : Int8.ofBitVec a ≤ Int8.ofBitVec b ↔ a.sle b := Iff.rfl
 theorem Int16.ofBitVec_le_iff_sle (a b : BitVec 16) : Int16.ofBitVec a ≤ Int16.ofBitVec b ↔ a.sle b := Iff.rfl
@@ -2531,10 +2531,10 @@ theorem ISize.ofNat_lt_iff_lt {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits
   rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ofInt_lt_iff_lt, Int.ofNat_lt]
   · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
-    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using! ha
   · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
-    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using! hb
 
 theorem Int8.ofBitVec_lt_iff_slt (a b : BitVec 8) : Int8.ofBitVec a < Int8.ofBitVec b ↔ a.slt b := Iff.rfl
 theorem Int16.ofBitVec_lt_iff_slt (a b : BitVec 16) : Int16.ofBitVec a < Int16.ofBitVec b ↔ a.slt b := Iff.rfl
@@ -3385,13 +3385,13 @@ protected theorem Int64.lt_or_eq_of_le {a b : Int64} : a ≤ b → a < b ∨ a =
 protected theorem ISize.lt_or_eq_of_le {a b : ISize} : a ≤ b → a < b ∨ a = b := ISize.le_iff_lt_or_eq.mp
 
 theorem Int8.toInt_eq_toNatClampNeg {a : Int8} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using! ha
 theorem Int16.toInt_eq_toNatClampNeg {a : Int16} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using! ha
 theorem Int32.toInt_eq_toNatClampNeg {a : Int32} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using! ha
 theorem Int64.toInt_eq_toNatClampNeg {a : Int64} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
-  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using ha
+  simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le] using! ha
 theorem ISize.toInt_eq_toNatClampNeg {a : ISize} (ha : 0 ≤ a) : a.toInt = a.toNatClampNeg := by
   simpa only [← toNat_toInt, Int.eq_natCast_toNat, le_iff_toInt_le, toInt_zero] using ha
 
@@ -3716,7 +3716,7 @@ theorem ISize.ofNat_mod {a b : Nat} (ha : a < 2 ^ (System.Platform.numBits - 1))
   rw [← ofInt_eq_ofNat, ← ofInt_eq_ofNat, ← ofInt_eq_ofNat, Int.ofNat_tmod, ofInt_tmod]
   · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
-    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using ha
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using! ha
   · exact Int.le_of_lt (Int.lt_of_lt_of_le ISize.toInt_minValue_lt_zero (Int.natCast_nonneg _))
   · apply Int.le_of_lt_add_one
-    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using hb
+    simpa only [toInt_maxValue_add_one, ← Int.ofNat_lt, Int.natCast_pow] using! hb

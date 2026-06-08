@@ -8,4 +8,3 @@ module
 prelude
 public import Lean.Linter.EnvLinter.Basic
 public import Lean.Linter.EnvLinter.Frontend
-public import Lean.Linter.EnvLinter.Builtin

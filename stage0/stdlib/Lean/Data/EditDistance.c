@@ -1186,7 +1186,7 @@ lean_ctor_set(v___x_302_, 1, v___x_299_);
 lean_ctor_set(v___x_302_, 2, v___x_298_);
 lean_inc_ref(v_v1_301_);
 v___x_303_ = l___private_Init_Data_Range_Basic_0__Std_Legacy_Range_forIn_x27_loop___at___00Lean_EditDistance_levenshtein_spec__0___redArg(v___x_302_, v_v1_301_, v_i_300_);
-lean_dec_ref(v___x_302_);
+lean_dec_ref_known(v___x_302_, 3);
 v___x_304_ = lean_box(0);
 v___x_305_ = ((lean_object*)(l_Lean_EditDistance_levenshtein___closed__0));
 v___x_306_ = lean_alloc_ctor(0, 2, 0);
@@ -1223,7 +1223,7 @@ lean_object* v_val_315_;
 lean_dec_ref(v___x_309_);
 v_val_315_ = lean_ctor_get(v_fst_310_, 0);
 lean_inc(v_val_315_);
-lean_dec_ref(v_fst_310_);
+lean_dec_ref_known(v_fst_310_, 1);
 return v_val_315_;
 }
 }

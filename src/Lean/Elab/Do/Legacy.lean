@@ -33,12 +33,12 @@ private def getDoSeqElems (doSeq : Syntax) : List Syntax :=
 private def getDoSeq (doStx : Syntax) : Syntax :=
   doStx[1]
 
-def elabLiftMethod : TermElab := fun stx _ =>
+def elabNestedAction : TermElab := fun stx _ =>
   throwErrorAt stx "invalid use of `(<- ...)`, must be nested inside a 'do' expression"
 
 
 /-- Return true if we should not lift `(<- ...)` actions nested in the syntax nodes with the given kind. -/
-private def liftMethodDelimiter (k : SyntaxNodeKind) : Bool :=
+private def nestedActionDelimiter (k : SyntaxNodeKind) : Bool :=
   k == ``Parser.Term.do ||
   k == ``Parser.Term.doSeqIndent ||
   k == ``Parser.Term.doSeqBracketed ||
@@ -65,8 +65,8 @@ private def letDeclArgHasBinders (letDeclArg : Syntax) : Bool :=
 private def letDeclHasBinders (letDecl : Syntax) : Bool :=
   letDeclArgHasBinders letDecl[0]
 
-/-- Return true if we should generate an error message when lifting a method over this kind of syntax. -/
-private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
+/-- Return true if we should generate an error message when lifting a nested action over this kind of syntax. -/
+private def nestedActionForbiddenBinder (stx : Syntax) : Bool :=
   let k := stx.getKind
   -- TODO: make this extensible in the future.
   if k == ``Parser.Term.fun || k == ``Parser.Term.matchAlts ||
@@ -84,15 +84,15 @@ private def liftMethodForbiddenBinder (stx : Syntax) : Bool :=
     false
 
 -- TODO: we must track whether we are inside a quotation or not.
-private partial def hasLiftMethod : Syntax → Bool
+private partial def hasNestedAction : Syntax → Bool
   | Syntax.node _ k args =>
-    if liftMethodDelimiter k then false
+    if nestedActionDelimiter k then false
     -- NOTE: We don't check for lifts in quotations here, which doesn't break anything but merely makes this rare case a
     -- bit slower
-    else if k == ``Parser.Term.liftMethod then true
+    else if k == ``Parser.Term.nestedAction then true
     -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
-    else if k == ``termDepIfThenElse || k == ``termIfThenElse then args.size >= 2 && hasLiftMethod args[1]!
-    else args.any hasLiftMethod
+    else if k == ``termDepIfThenElse || k == ``termIfThenElse then args.size >= 2 && hasNestedAction args[1]!
+    else args.any hasNestedAction
   | _ => false
 
 structure ExtractMonadResult where
@@ -761,7 +761,7 @@ private def expandDoIf? (stx : Syntax) : MacroM (Option Syntax) := match stx wit
       e ← if eIsSeq then pure e else `(doSeq|$e:doElem)
       e ← match cond with
         | `(doIfCond|let $pat := $d) => `(doElem| match $d:term with | $pat:term => $t | _ => $e)
-        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d    with | $pat:term => $t | _ => $e)
+        | `(doIfCond|let $pat ← $d)  => `(doElem| match ← $d:term with | $pat:term => $t | _ => $e)
         | `(doIfCond|$cond:doIfProp) => `(doElem| if $cond:doIfProp then $t else $e)
         | _                          => `(doElem| if $(Syntax.missing) then $t else $e)
       eIsSeq := false
@@ -1320,29 +1320,41 @@ def ensureEOS (doElems : List Syntax) : M Unit :=
     throwError "must be last element in a `do` sequence"
 
 variable (baseId : Name) in
-private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (List Syntax) M Syntax
+private partial def expandNestedActionAux (inQuot : Bool) (inBinder : Bool) : Syntax → StateT (List Syntax) M Syntax
   | stx@(Syntax.node i k args) =>
     if k == choiceKind then do
       -- choice node: check that lifts are consistent
-      let alts ← stx.getArgs.mapM (expandLiftMethodAux inQuot inBinder · |>.run [])
+      let alts ← stx.getArgs.mapM (expandNestedActionAux inQuot inBinder · |>.run [])
       let (_, lifts) := alts[0]!
       unless alts.all (·.2 == lifts) do
         throwErrorAt stx "cannot lift `(<- ...)` over inconsistent syntax variants, consider lifting out the binding manually"
       modify (· ++ lifts)
       return .node i k (alts.map (·.1))
-    else if liftMethodDelimiter k then
+    else if nestedActionDelimiter k then
       return stx
     -- For `pure` if-then-else, we only lift `(<- ...)` occurring in the condition.
     else if h : args.size >= 2 ∧ (k == ``termDepIfThenElse || k == ``termIfThenElse) then do
       let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
-      let arg1 ← expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot) inBinder args[1]
+      let arg1 ← expandNestedActionAux (inQuot && !inAntiquot || stx.isQuot) inBinder args[1]
       let args := args.set! 1 arg1
       return Syntax.node i k args
-    else if k == ``Parser.Term.liftMethod && !inQuot then withFreshMacroScope do
+    else if k == ``Parser.Term.nestedAction && !inQuot then withFreshMacroScope do
       if inBinder then
         throwErrorAt stx "cannot lift `(<- ...)` over a binder, this error usually happens when you are trying to lift a method nested in a `fun`, `let`, or `match`-alternative, and it can often be fixed by adding a missing `do`"
-      let term := args[1]!
-      let term ← expandLiftMethodAux inQuot inBinder term
+      let arg := args[1]!
+      -- The parser has been extended to accept arbitrary `doElem`s, but the legacy `do` elaborator
+      -- only supports a term after `←`. Pre-stage0-update format stored a term directly; the new
+      -- format wraps a term in `doExpr`. Anything else is a non-trivial `doElem` we cannot lift.
+      let isDoElem :=
+        (Parser.getParserCategory? (← getEnv) `doElem).any (·.kinds.contains arg.getKind)
+      let termArg ←
+        if arg.getKind == ``Parser.Term.doExpr then
+          pure arg[0]
+        else if isDoElem then
+          throwErrorAt arg "the legacy `do` elaborator only supports a term after `←`; use `set_option backward.do.legacy false` to enable the new elaborator with full `doElem` support"
+        else
+          pure arg
+      let term ← expandNestedActionAux inQuot inBinder termArg
       -- keep name deterministic across choice branches
       let id ← mkIdentFromRef (.num baseId (← get).length)
       let auxDoElem : Syntax ← `(doElem| let $id:ident ← $term:term)
@@ -1350,17 +1362,17 @@ private partial def expandLiftMethodAux (inQuot : Bool) (inBinder : Bool) : Synt
       return id
     else do
       let inAntiquot := stx.isAntiquot && !stx.isEscapedAntiquot
-      let inBinder   := inBinder || (!inQuot && liftMethodForbiddenBinder stx)
-      let args ← args.mapM (expandLiftMethodAux (inQuot && !inAntiquot || stx.isQuot) inBinder)
+      let inBinder   := inBinder || (!inQuot && nestedActionForbiddenBinder stx)
+      let args ← args.mapM (expandNestedActionAux (inQuot && !inAntiquot || stx.isQuot) inBinder)
       return Syntax.node i k args
   | stx => return stx
 
-def expandLiftMethod (doElem : Syntax) : M (List Syntax × Syntax) := do
-  if !hasLiftMethod doElem then
+def expandNestedAction (doElem : Syntax) : M (List Syntax × Syntax) := do
+  if !hasNestedAction doElem then
     return ([], doElem)
   else
     let baseId ← withFreshMacroScope (MonadQuotation.addMacroScope `__do_lift)
-    let (doElem, doElemsNew) ← (expandLiftMethodAux baseId false false doElem).run []
+    let (doElem, doElemsNew) ← (expandNestedActionAux baseId false false doElem).run []
     return (doElemsNew, doElem)
 
 def checkLetArrowRHS (doElem : Syntax) : M Unit := do
@@ -1749,7 +1761,7 @@ mutual
       match (← liftMacroM <| expandDoLetExpr? doElem doElems) with
       | some doElem => doSeqToCode [doElem]
       | none =>
-        let (liftedDoElems, doElem) ← expandLiftMethod doElem
+        let (liftedDoElems, doElem) ← expandNestedAction doElem
         if !liftedDoElems.isEmpty then
           doSeqToCode (liftedDoElems ++ [doElem] ++ doElems)
         else

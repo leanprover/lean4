@@ -166,13 +166,11 @@ def insertKeyValue [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : Dis
   if keys.isEmpty then panic! "invalid key sequence"
   else
     let k := keys[0]!
-    match d.root.find? k with
-    | none =>
-      let c := createNodes keys v 1
-      { root := d.root.insert k c }
-    | some c =>
-      let c := insertAux keys v 1 c
-      { root := d.root.insert k c }
+    { d with root :=
+        d.root.alter k fun
+          | none => some <| createNodes keys v 1
+          | some c => insertAux keys v 1 c
+    }
 
 @[deprecated insertKeyValue (since := "2026-01-02")]
 def insertCore [BEq α] (d : DiscrTree α) (keys : Array Key) (v : α) : DiscrTree α :=

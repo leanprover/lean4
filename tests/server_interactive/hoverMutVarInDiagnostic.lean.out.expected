@@ -5,34 +5,34 @@
  [{"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 15, "character": 6}, "end": {"line": 15, "character": 7}},
+   {"start": {"line": 25, "character": 6}, "end": {"line": 25, "character": 7}},
    "message": "mutable variable `x` cannot be shadowed",
    "fullRange":
-   {"start": {"line": 15, "character": 6},
-    "end": {"line": 15, "character": 7}}},
+   {"start": {"line": 25, "character": 6},
+    "end": {"line": 25, "character": 7}}},
   {"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 20, "character": 2}, "end": {"line": 20, "character": 3}},
+   {"start": {"line": 30, "character": 2}, "end": {"line": 30, "character": 3}},
    "message":
    "Variable `y` cannot be mutated. Only variables declared using `let mut` can be mutated.\n      If you did not intend to mutate but define `y`, consider using `let y` instead",
    "fullRange":
-   {"start": {"line": 20, "character": 2},
-    "end": {"line": 20, "character": 3}}},
+   {"start": {"line": 30, "character": 2},
+    "end": {"line": 30, "character": 3}}},
   {"source": "Lean 4",
    "severity": 1,
    "range":
-   {"start": {"line": 24, "character": 2}, "end": {"line": 24, "character": 3}},
+   {"start": {"line": 34, "character": 2}, "end": {"line": 34, "character": 3}},
    "message":
    "Variable `q` cannot be mutated. Only variables declared using `let mut` can be mutated.\n      If you did not intend to mutate but define `q`, consider using `let q` instead",
    "fullRange":
-   {"start": {"line": 24, "character": 2},
-    "end": {"line": 24, "character": 3}}}]}
-{"lineRange": {"start": 0, "end": 26}}
+   {"start": {"line": 34, "character": 2},
+    "end": {"line": 34, "character": 3}}}]}
+{"lineRange": {"start": 0, "end": 36}}
 [{"source": "Lean 4",
   "severity": 1,
   "range":
-  {"start": {"line": 15, "character": 6}, "end": {"line": 15, "character": 7}},
+  {"start": {"line": 25, "character": 6}, "end": {"line": 25, "character": 7}},
   "message":
   {"append":
    [{"tag": [{"expr": {"text": "mutable variable `"}}, {"text": ""}]},
@@ -43,11 +43,11 @@
       {"text": ""}]},
     {"tag": [{"expr": {"text": "` cannot be shadowed"}}, {"text": ""}]}]},
   "fullRange":
-  {"start": {"line": 15, "character": 6}, "end": {"line": 15, "character": 7}}},
+  {"start": {"line": 25, "character": 6}, "end": {"line": 25, "character": 7}}},
  {"source": "Lean 4",
   "severity": 1,
   "range":
-  {"start": {"line": 20, "character": 2}, "end": {"line": 20, "character": 3}},
+  {"start": {"line": 30, "character": 2}, "end": {"line": 30, "character": 3}},
   "message":
   {"append":
    [{"tag": [{"expr": {"text": "Variable `"}}, {"text": ""}]},
@@ -78,11 +78,11 @@
       {"text": ""}]},
     {"tag": [{"expr": {"text": "` instead"}}, {"text": ""}]}]},
   "fullRange":
-  {"start": {"line": 20, "character": 2}, "end": {"line": 20, "character": 3}}},
+  {"start": {"line": 30, "character": 2}, "end": {"line": 30, "character": 3}}},
  {"source": "Lean 4",
   "severity": 1,
   "range":
-  {"start": {"line": 24, "character": 2}, "end": {"line": 24, "character": 3}},
+  {"start": {"line": 34, "character": 2}, "end": {"line": 34, "character": 3}},
   "message":
   {"append":
    [{"tag": [{"expr": {"text": "Variable `"}}, {"text": ""}]},
@@ -101,4 +101,16 @@
     {"tag": [{"expr": {"text": "q"}}, {"text": ""}]},
     {"tag": [{"expr": {"text": "` instead"}}, {"text": ""}]}]},
   "fullRange":
-  {"start": {"line": 24, "character": 2}, "end": {"line": 24, "character": 3}}}]
+  {"start": {"line": 34, "character": 2}, "end": {"line": 34, "character": 3}}}]
+{"textDocument": {"uri": "file:///hoverMutVarInDiagnostic.lean"},
+ "position": {"line": 40, "character": 10}}
+[{"range":
+  {"start": {"line": 40, "character": 10},
+   "end": {"line": 40, "character": 11}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 43, "character": 2}, "end": {"line": 43, "character": 3}},
+  "kind": 1},
+ {"range":
+  {"start": {"line": 44, "character": 8}, "end": {"line": 44, "character": 9}},
+  "kind": 1}]

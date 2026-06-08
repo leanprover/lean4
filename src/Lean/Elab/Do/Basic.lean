@@ -90,10 +90,10 @@ structure MutVar where
   deriving Inhabited
 
 /-- The raw `Name` of a `mut` variable, as found in the local context. -/
-@[inline] def MutVar.getId (mv : MutVar) : Name := mv.ident.getId
+abbrev MutVar.getId (mv : MutVar) : Name := mv.ident.getId
 
 /-- The pretty-printable name of a `mut` variable, with macro scopes simplified. -/
-@[inline] def MutVar.userName (mv : MutVar) : Name := mv.ident.getId.simpMacroScopes
+abbrev MutVar.userName (mv : MutVar) : Name := mv.ident.getId.simpMacroScopes
 
 instance : ToMessageData MutVar where
   toMessageData mv :=
@@ -113,8 +113,8 @@ structure Context where
   monadInfo : MonadInfo
   /-- The mutable variables in declaration order. -/
   mutVars : Array MutVar := #[]
-  /-- Maps mutable variable names to their initial FVarIds. -/
-  mutVarDefs : Std.HashMap Name FVarId := {}
+  /-- Maps mutable variable names to their `MutVar` record. -/
+  mutVarDefs : Std.HashMap Name MutVar := {}
   /--
   The expected type of the current `do` block.
   This can be different from `earlyReturnType` in `for` loop `do` blocks, for example.
@@ -328,7 +328,7 @@ def declareMutVar (x : Ident) (k : DoElabM α) : DoElabM α := do
   let mv : MutVar := { ident := x, initFVarId := id.fvarId! }
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars.push mv,
-    mutVarDefs := ctx.mutVarDefs.insert x.getId id.fvarId!,
+    mutVarDefs := ctx.mutVarDefs.insert x.getId mv,
   }) k
 
 /-- Register the given names as that of `mut` variables. -/
@@ -337,7 +337,7 @@ def declareMutVars (xs : Array Ident) (k : DoElabM α) : DoElabM α := do
   let mvs : Array MutVar := xs.zipWith (fun x id => { ident := x, initFVarId := id.fvarId! }) baseIds
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars ++ mvs,
-    mutVarDefs := ctx.mutVarDefs.insertMany (xs.map (·.getId) |>.zip (baseIds.map (·.fvarId!))),
+    mutVarDefs := ctx.mutVarDefs.insertMany (mvs.map fun mv => (mv.getId, mv)),
   }) k
 
 /-- Register the given name as that of a `mut` variable if the syntax token `mut` is present. -/
@@ -350,7 +350,7 @@ def declareMutVars? (mutTk? : Option Syntax) (xs : Array Ident) (k : DoElabM α)
 
 /-- Look up a declared `mut` variable by its raw `Name`. -/
 def findMutVar? (n : Name) : DoElabM (Option MutVar) := do
-  return (← read).mutVars.find? (·.getId == n)
+  return (← read).mutVarDefs[n]?
 
 /-- Throw an error if the given name is not a declared `mut` variable. -/
 def throwUnlessMutVarDeclared (x : Ident) : DoElabM Unit := do
@@ -458,7 +458,7 @@ mut var definition of `y`.
 def withLCtxKeepingMutVarDefs (oldLCtx : LocalContext) (oldCtx : Context) (resultName : Name) (k : DoElabM α) : DoElabM α := do
   let oldMutVars := oldCtx.mutVars
   let oldMutVarDefs := oldCtx.mutVarDefs
-  let tunneledDefs := oldMutVarDefs.insert resultName ⟨`unused⟩  -- tunneledDefs is used as a set, so the FVarId doesn't matter
+  let tunneledDefs := oldMutVarDefs.insert resultName default  -- tunneledDefs is used as a set, so the value doesn't matter
   let newCtx ← addReachingDefsAsNonDep oldLCtx (← getLCtx) tunneledDefs
   withLCtx' newCtx <| withReader (fun ctx => { ctx with
     mutVars := oldMutVars,

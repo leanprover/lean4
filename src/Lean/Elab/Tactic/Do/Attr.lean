@@ -244,11 +244,7 @@ open Lean Meta Std.Internal.Do Lean.Order
 The kind of a spec theorem.
 -/
 public inductive SpecTheoremKind where
-  /--
-  A Hoare triple spec: `⦃P⦄ prog ⦃Q⦄`.
-  If `etaPotential` is non-zero, then the precondition contains meta variables that can be
-  instantiated after applying `mintro ∀s` `etaPotential` many times.
-  -/
+  /-- A Hoare triple spec: `⦃P⦄ prog ⦃Q⦄`. -/
   | triple
   /--
   A simp/equational spec: `lhs = rhs`.
@@ -295,10 +291,10 @@ Normalises a specification proof so its conclusion is in `pre ⊑ wp …` form.
   `pre ⊑ wp …` form (passed through unchanged).
 - Returns `none` if `type` is neither shape; callers should `throwError`.
 -/
-private def tripleToWpProof? (proof type : Expr) : MetaM (Option (Expr × Expr)) := do
+def tripleToWpProof? (proof type : Expr) : MetaM (Option (Expr × Expr)) := do
   let type ← whnfR type
   if type.isAppOfArity ``Triple 12 then
-    -- Build the `Triple.hwp` projection application explicitly from the `Triple` type's own
+    -- Build the `Triple.rel_wp` projection application explicitly from the `Triple` type's own
     -- arguments rather than via `mkAppM`. `mkAppM` would re-synthesise the instance arguments
     -- (`Monad m`, `WPMonad m …`), which fails for transformer specs whose monad is a partially
     -- applied transformer with still-unassigned parameters (e.g. `ExceptT ?ε ?m` in
@@ -306,7 +302,7 @@ private def tripleToWpProof? (proof type : Expr) : MetaM (Option (Expr × Expr))
     -- caller has unified the spec's program against the goal. Reusing the type's arguments keeps
     -- those instance metavariables shared with the proof, so no premature synthesis happens.
     let lvls := type.getAppFn.constLevels!
-    let proof := mkAppN (.const ``Triple.hwp lvls) (type.getAppArgs.push proof)
+    let proof := mkAppN (.const ``Triple.rel_wp lvls) (type.getAppArgs.push proof)
     let type ← instantiateMVars (← inferType proof)
     return some (proof, type)
   else if type.isAppOfArity ``PartialOrder.rel 4 then
@@ -314,7 +310,7 @@ private def tripleToWpProof? (proof type : Expr) : MetaM (Option (Expr × Expr))
   else
     return none
 
-def SpecProof.instantiateRaw (proof : SpecProof) : MetaM (Array Expr × Array BinderInfo × Expr × Expr) := do
+def SpecProof.instantiate (proof : SpecProof) : MetaM (Array Expr × Array BinderInfo × Expr × Expr) := do
   let prf ← match proof with
     | .global declName => mkConstWithFreshMVarLevels declName
     | .local fvarId => pure <| mkFVar fvarId
@@ -322,12 +318,6 @@ def SpecProof.instantiateRaw (proof : SpecProof) : MetaM (Array Expr × Array Bi
   let type ← instantiateMVars (← inferType prf)
   let (xs, bs, type) ← forallMetaTelescope type
   return (xs, bs, prf.beta xs, type)
-
-def SpecProof.instantiate (proof : SpecProof) : MetaM (Array Expr × Array BinderInfo × Expr × Expr) := do
-  let (xs, bs, prf, type) ← proof.instantiateRaw
-  let some (prf, type) ← tripleToWpProof? prf type
-    | throwError "expected `Triple` or `⊑ wp` specification, got{indentExpr type}"
-  return (xs, bs, prf, type)
 
 instance : ToMessageData SpecProof where
   toMessageData := fun
@@ -339,7 +329,8 @@ structure SpecTheorem where
   /--
   Pattern for the program expression.
   This is the key used in the discrimination tree.
-  If the proof has type `∀ a b c, ⦃P⦄ prog ⦃Q⦄`, then the pattern is `prog[a:=#2, b:=#1, c:=#0]`.
+  If the proof has type `∀ a b c d e, ⦃P⦄ prog ⦃Q⦄` and only `a`, `c` and `e` occur in `prog`,
+  then the pattern is `prog[a:=#2, c:=#1, e:=#0]`.
   For specs stated as `pre ⊑ wp prog post epost`, the pattern is keyed on `prog`.
   -/
   pattern : Sym.Pattern
@@ -507,6 +498,9 @@ namespace Lean.Elab.Tactic.Do.SpecAttr
 def mkSpecAttr : AttributeImpl where
   name  := `spec
   descr := "Marks Hoare triple specifications and simp theorems for use with `mvcgen` tactics"
+  -- .afterCompilation seems unnecessarily conservative, but the simp attribute impl needs it.
+  -- The reason is that we cannot annotate definitions with `@[spec]` otherwise; the error is
+  -- > trying to realize id.eq_1 but `enableRealizationsForConst` must be called for 'id' first
   applicationTime := AttributeApplicationTime.afterCompilation
   add := fun declName stx attrKind => do
     let go : MetaM Unit := do

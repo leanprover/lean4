@@ -89,15 +89,9 @@ structure MutVar where
   baseId : FVarId
   deriving Inhabited
 
-/-- The raw `Name` of a `mut` variable, as found in the local context. -/
-abbrev MutVar.getId (mutVar : MutVar) : Name := mutVar.ident.getId
-
-/-- The pretty-printable name of a `mut` variable, with macro scopes simplified. -/
-abbrev MutVar.userName (mutVar : MutVar) : Name := mutVar.ident.getId.simpMacroScopes
-
 instance : ToMessageData MutVar where
   toMessageData mutVar :=
-    .ofLazyM <| MessageData.withExprHoverM (format mutVar.userName) (.fvar mutVar.baseId)
+    .ofLazyM <| MessageData.withExprHoverM (format mutVar.ident.getId.simpMacroScopes) (.fvar mutVar.baseId)
 
 structure Context where
   /-- Inferred and cached information about the monad. -/
@@ -315,8 +309,8 @@ def DoOps.default : DoOps where
 
 /-- Register the given name as that of a `mut` variable. -/
 def declareMutVar (x : Ident) (k : DoElabM α) : DoElabM α := do
-  let id ← getFVarFromUserName x.getId
-  let mutVar : MutVar := { ident := x, baseId := id.fvarId! }
+  let fvar ← getFVarFromUserName x.getId
+  let mutVar : MutVar := { ident := x, baseId := fvar.fvarId! }
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars.push mutVar,
     mutVarDefs := ctx.mutVarDefs.insert x.getId mutVar,
@@ -324,11 +318,11 @@ def declareMutVar (x : Ident) (k : DoElabM α) : DoElabM α := do
 
 /-- Register the given names as that of `mut` variables. -/
 def declareMutVars (xs : Array Ident) (k : DoElabM α) : DoElabM α := do
-  let baseIds ← xs.mapM (getFVarFromUserName ·.getId)
-  let newMutVars : Array MutVar := xs.zipWith (fun x id => { ident := x, baseId := id.fvarId! }) baseIds
+  let fvars ← xs.mapM (getFVarFromUserName ·.getId)
+  let newMutVars : Array MutVar := xs.zipWith (fun x fvar => { ident := x, baseId := fvar.fvarId! }) fvars
   withReader (fun ctx => { ctx with
     mutVars := ctx.mutVars ++ newMutVars,
-    mutVarDefs := ctx.mutVarDefs.insertMany (newMutVars.map fun mutVar => (mutVar.getId, mutVar)),
+    mutVarDefs := ctx.mutVarDefs.insertMany (newMutVars.map fun mutVar => (mutVar.ident.getId, mutVar)),
   }) k
 
 /-- Register the given name as that of a `mut` variable if the syntax token `mut` is present. -/
@@ -644,8 +638,8 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     return ← caller nondupDec
   let γ := (← read).doBlockResultType
   let mγ ← mkMonadApp γ
-  let mutVars := (← read).mutVars |>.filter (callerInfo.reassigns.contains ·.getId)
-  let mutVarNames := mutVars.map (·.getId)
+  let mutVars := (← read).mutVars |>.filter (callerInfo.reassigns.contains ·.ident.getId)
+  let mutVarNames := mutVars.map (·.ident.getId)
   let joinName ← mkFreshUserName `__do_jp
   -- σ is the tuple type of the mut vars, or mγ if jumpCount = 0. Hence it is either level mi.u or mi.v.
   -- let σ ← mkFreshTypeMVar (userName := `σ)
@@ -659,9 +653,9 @@ def DoElemCont.withDuplicableCont (nondupDec : DoElemCont) (callerInfo : Control
     let result ← getFVarFromUserName nondupDec.resultName
     let mut e := mkApp jp' result
     for x in mutVars do
-      let newX ← getFVarFromUserName x.getId
+      let newX ← getFVarFromUserName x.ident.getId
       Term.addTermInfo' x.ident newX
-      e := mkApp e (← getFVarFromUserName x.getId)
+      e := mkApp e (← getFVarFromUserName x.ident.getId)
     return e
 
   let elabBody :=

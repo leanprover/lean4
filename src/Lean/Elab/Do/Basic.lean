@@ -92,9 +92,6 @@ structure MutVar where
 /-- The raw `Name` of a `mut` variable, as found in the local context. -/
 def MutVar.getId (mutVar : MutVar) : Name := mutVar.ident.getId
 
-/-- The pretty-printable name of a `mut` variable, with macro scopes simplified. -/
-def MutVar.userName (mutVar : MutVar) : Name := mutVar.getId.simpMacroScopes
-
 /--
 Build an `FVarAliasInfo` recording that the reassignment binding `id` aliases the original
 `let mut` binding represented by `mutVar`.
@@ -104,7 +101,7 @@ def MutVar.mkAliasInfo (mutVar : MutVar) (id : FVarId) : FVarAliasInfo :=
 
 instance : ToMessageData MutVar where
   toMessageData mutVar :=
-    .ofLazyM <| MessageData.withExprHoverM (format mutVar.userName) (.fvar mutVar.baseId)
+    .ofLazyM <| MessageData.withExprHoverM (format mutVar.getId.simpMacroScopes) (.fvar mutVar.baseId)
 
 structure Context where
   /-- Inferred and cached information about the monad. -/

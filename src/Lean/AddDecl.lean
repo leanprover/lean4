@@ -36,6 +36,8 @@ private def isNamespaceName : Name → Bool
   | _                 => false
 
 private def registerNamePrefixes (env : Environment) (name : Name) : Environment :=
+  -- namespaces are based on the un-encoded name (`isNamespaceName` is false for any private name)
+  let name := privateToUserName name
   match name with
     | .str _ s =>
       if s.front == '_' then

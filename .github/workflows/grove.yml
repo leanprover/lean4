@@ -111,7 +111,7 @@ jobs:
       # material.
       - id: deploy-alias
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         name: Compute Alias
         with:
           result-encoding: string

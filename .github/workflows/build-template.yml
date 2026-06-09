@@ -83,7 +83,7 @@ jobs:
         if: github.event_name == 'pull_request'
       # (needs to be after "Checkout" so files don't get overridden)
       - name: Setup emsdk
-        uses: mymindstorm/setup-emsdk@v14
+        uses: emscripten-core/setup-emsdk@4528d102f7230f0e7b276855c01ea1159be0e984 # v16
         with:
           version: 3.1.44
           actions-cache-folder: emsdk

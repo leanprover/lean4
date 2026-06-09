@@ -169,7 +169,7 @@ jobs:
 
       - name: 'Setup jq'
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
-        uses: dcarbone/install-jq-action@v3.2.0
+        uses: dcarbone/install-jq-action@b7ef57d46ece78760b4019dbc4080a1ba2a40b45 # v3.2.0
 
       # Generate a token for posting comments to Lean PRs about mathlib compatibility.
       # This app is in the leanprover org and installed on leanprover/lean4.

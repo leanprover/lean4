@@ -226,14 +226,32 @@ structure TransImportEntry where
   /-- Whether this module has been transitively imported by a `meta import`. -/
   needsMeta : Bool
 
+/--
+Fetch the transitive import artifacts reachable from `directImports`.
+
+By default the direct imports' own artifacts are expected in `directArts`
+(as computed by the import-info fold) and only their transitive children
+are walked. With `includeDirect := true` the direct imports themselves are
+walked as well, so the result is self-contained — used by the wrapped-exec
+hook to compute a module's full input closure (`nonModule := true` forces
+`importAll` on every edge, yielding `allArts` for every reachable module).
+-/
 partial def fetchTransImportArts
   (directImports : Array ModuleImport) (directArts : NameMap ImportArtifacts) (nonModule : Bool)
+  (includeDirect := false)
 : FetchM (NameMap ImportArtifacts) := do
-  let q ← directImports.foldrM (init := #[]) fun imp q => do
-    let some mod := imp.module? | return q
-    let input ← (← mod.input.fetch).await
-    let importAll := strictOr nonModule imp.importAll
-    return enqueue importAll imp.isMeta input q
+  let q ←
+    if includeDirect then
+      pure <| directImports.foldr (init := #[]) fun imp q =>
+        match imp.module? with
+        | some mod => q.push {mod, importAll := strictOr nonModule imp.importAll, needsMeta := imp.isMeta}
+        | none => q
+    else
+      directImports.foldrM (init := #[]) fun imp q => do
+        let some mod := imp.module? | return q
+        let input ← (← mod.input.fetch).await
+        let importAll := strictOr nonModule imp.importAll
+        return enqueue importAll imp.isMeta input q
   walk directArts {} q
 where
   walk s (metaVisited : NameSet) (q : Array TransImportEntry) := do
@@ -276,49 +294,6 @@ where
           q.push {mod, importAll, needsMeta}
         else q
       else q
-
-/-! ## Wrapped-exec input closure
-
-Walks the *unfiltered* direct-imports graph of `root` and returns every
-workspace olean file that needs to be on disk before invoking lean for `root`.
-Module-style modules contribute `.olean`, `.ir`, `.olean.server`, and
-`.olean.private`; non-module imports contribute just `.olean`.
-
-This is a strict superset of `setup.importArts` (which only follows exported
-imports). The bigger set is needed because lean's olean loader follows
-non-exported references at runtime via LEAN_PATH lookup — Lake's normal
-build dir is fully populated so this is invisible during a regular
-`lake build`, but in wrapped-exec mode where the worker only sees what's
-shipped, the difference matters.
-
-Only `mod.input.fetch` is consulted (the pure `:input` facet — reads source
-headers without compiling). Self is excluded from the result.
--/
-
-private partial def collectInputClosureRec
-  (root : Module) (mod : Module) (visited : NameSet) (files : Array FilePath)
-: FetchM (NameSet × Array FilePath) := do
-  if visited.contains mod.name then return (visited, files)
-  let visited := visited.insert mod.name
-  let inp ← (← mod.input.fetch).await
-  let files :=
-    if mod.name == root.name then files
-    else
-      let files := files.push mod.oleanFile
-      if inp.header.isModule then
-        files.push mod.irFile
-          |>.push mod.oleanServerFile
-          |>.push mod.oleanPrivateFile
-      else files
-  inp.imports.foldlM (init := (visited, files)) fun (visited, files) imp => do
-    match imp.module? with
-    | none => pure (visited, files)
-    | some depMod => collectInputClosureRec root depMod visited files
-
-/-- See the `Wrapped-exec input closure` doc above. -/
-public def collectLeanInputClosure (root : Module) : FetchM (Array FilePath) := do
-  let (_, files) ← collectInputClosureRec root root {} #[]
-  return files
 
 def ModuleImportInfo.nil (modName : Name) : ModuleImportInfo where
   directArts := {}
@@ -934,19 +909,24 @@ def Module.buildLean
   let arts := mod.mkArtifacts srcFile setup.isModule
   mod.clearOutputArtifacts
   -- Compute wrapped-exec metadata only when the hook is configured:
-  -- a no-op rebuild without the env var should be free of the closure walk.
-  let (extraInputs, lakeRoots, jobId) ← if (← IO.getEnv "LAKE_WRAPPED_EXEC").isSome then
-    let ws ← getWorkspace
-    let lakeEnv := ws.lakeEnv
-    let extraInputs ← collectLeanInputClosure mod
-    pure (extraInputs,
-      some (ws.root.dir, ws.root.lakeDir, lakeEnv.lean.binDir, lakeEnv.lean.sysroot),
-      s!"{mod.pkg.baseName}_{mod.name}")
+  -- a build without the env var should be free of the closure walk.
+  let wrap? : Option WrappedExec.JobIO ← if (← IO.getEnv "LAKE_WRAPPED_EXEC").isSome then
+    /-
+    The manifest's `inputs` must list every import artifact `lean` may
+    load: the olean loader follows non-exported references at runtime, so
+    the unfiltered all-artifacts closure is needed, not the exported view
+    in `setup.importArts`. `fetchTransImportArts` computes exactly that
+    closure for a non-module importer (`nonModule := true` forces
+    `importAll` on every edge), with each module's artifact list coming
+    from its `exportInfo` facet.
+    -/
+    let transArts ← fetchTransImportArts directImports {} (nonModule := true) (includeDirect := true)
+    let inputs := transArts.foldl (init := #[]) fun fs _ arts => fs ++ arts.toArray
+    pure <| some {jobId := s!"{mod.pkg.baseName}_{mod.name}", inputs}
   else
-    pure (#[], none, "")
+    pure none
   compileLeanModule srcFile relSrcFile setup mod.setupFile arts args
-    (← getLeanPath) (← getLean) (← getLeanir)
-    (extraInputs := extraInputs) (lakeRoots := lakeRoots) (jobId := jobId)
+    (← getLeanPath) (← getLean) (← getLeanir) (wrap? := wrap?)
   mod.clearOutputHashes
   mod.computeArtifacts setup.isModule
 

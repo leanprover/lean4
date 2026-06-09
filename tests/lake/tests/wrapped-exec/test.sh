@@ -6,6 +6,11 @@
 # trace logic against wrapper-produced outputs.
 source ../common.sh
 
+# These tests need the wrapper to actually be invoked: with a warm Lake
+# artifact cache the modules are restored without any lean job running
+# and no wrapper dispatch happens. Pin the cache off for hermeticity.
+export LAKE_ARTIFACT_CACHE=false
+
 chmod +x ./wrapper-passthrough.sh ./clean.sh
 
 # Hash every artifact Lake actually CONSULTS on rebuild — the four file

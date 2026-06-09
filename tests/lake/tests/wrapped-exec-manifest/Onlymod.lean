@@ -1,1 +1,3 @@
-def Onlymod.answer : Nat := 42
+import Dep
+
+def Onlymod.answer : Nat := Dep.value + 1

@@ -21,9 +21,9 @@ The patch is two commits:
 2. **`feat(lake): add LAKE_WRAPPED_EXEC hook for wrapping lean execution`**
    — the actual hook. Introduces `Lake/Build/WrappedExec.lean` (manifest
    type + dispatch helper), wires it into the lean-module build path,
-   adds a transitive olean closure walker used to populate the
-   manifest's `inputs` list, and re-exports the new module from
-   `Lake/Build.lean`.
+   derives the manifest's `inputs` from `fetchTransImportArts` (the
+   same machinery that populates the `--setup` file's `importArts`),
+   and re-exports the new module from `Lake/Build.lean`.
 
 When `$LAKE_WRAPPED_EXEC` is unset, the patched Lake is
 byte-for-byte identical in behaviour to upstream — the hook is purely
@@ -71,17 +71,14 @@ the wrapper with the manifest path as `argv[1]`:
 
 ```json
 {
+  "schema_version":  1,
   "job_id":          "mathlib_Mathlib.Data.Finset.Basic",
   "cmd":             "/path/to/lean",
   "args":            ["Mathlib/Data/Finset/Basic.lean", "-o", "...", ...],
   "env":             { "LEAN_PATH": "...", ... },
   "cwd":             "/workspace",
   "inputs":          ["Mathlib/.../Basic.lean", ".../Setup.json", ".../Dep.olean", ...],
-  "outputs":         [".../Basic.olean", ".../Basic.ilean", ".../Basic.c", ...],
-  "workspace":       "/workspace",
-  "lake_home":       "/workspace/.lake",
-  "toolchain":       "/root/.elan/.../bin",
-  "toolchain_root":  "/root/.elan/..."
+  "outputs":         [".../Basic.olean", ".../Basic.ilean", ".../Basic.c", ...]
 }
 ```
 
@@ -89,18 +86,35 @@ Field semantics:
 
 | field             | what it carries                                                                |
 |-------------------|--------------------------------------------------------------------------------|
+| `schema_version`  | version of this manifest format (currently `1`)                                |
+| `job_id`          | free-form job label (`{pkg.baseName}_{mod.name}` for lean modules)             |
 | `cmd / args / env / cwd` | exactly what Lake would have passed to its internal `rawProc`           |
 | `inputs`          | every file that must exist on disk before `cmd` runs (source, setup, oleans)   |
 | `outputs`         | every file Lake expects to find on disk after `cmd` returns successfully       |
-| `workspace`       | the workspace root Lake sees (`Workspace.root.dir`)                            |
-| `lake_home`       | the `.lake` directory Lake sees                                                |
-| `toolchain`       | path to the `lean` binary's parent dir                                         |
-| `toolchain_root`  | toolchain `sysroot` (parent of `toolchain`)                                    |
 
-`workspace / lake_home / toolchain / toolchain_root` are exposed so a
-wrapper that runs the command somewhere with a different filesystem
-layout (a sandbox root, a worker container, etc.) can rewrite the
-manifest's paths into its own view.
+The manifest deliberately carries **only what the build system uniquely
+knows** and a wrapper cannot deduce: the spawn recipe and the declared
+I/O sets. Deployment-layout facts (workspace root, `.lake` dir,
+toolchain paths) are not in the schema — a wrapper that relocates work
+across filesystem views knows its own deployment (and can take
+`dirname(cmd)` for the toolchain), so those mappings are wrapper
+configuration, not per-job manifest data.
+
+Two invariants wrappers may rely on:
+
+- **argv congruence.** Every output path named in `args` (after
+  `-o`/`-i`/`-c`/`-b`) appears in `outputs` as a byte-identical string,
+  so `outputs ∩ args` is a valid redirect table for sandbox-style path
+  translation. `outputs` may list more than argv names: in module mode
+  `lean` derives companion files (`.olean.server`, `.olean.private`,
+  `.ir`) from the `-o` path, and those are declared too.
+- **inputs are the true read-set.** Input paths are byte-identical to
+  what `lean` is told to load via `--setup` (`importArts`). In
+  particular, when Lake's artifact cache is enabled, import artifacts
+  may live under the cache directory (e.g.
+  `~/.cache/lake/artifacts/<hash>.olean`) rather than the workspace
+  build tree — a path-translating wrapper needs a mapping for that
+  root too, or the build can run with `LAKE_ARTIFACT_CACHE=false`.
 
 ### The wrapper return shape
 
@@ -121,11 +135,18 @@ indistinguishable from a direct `lean` invocation from Lake's perspective.
   attempts `IO.FS.removeFile manifestPath catch _ => pure ()`. The
   wrapper MUST NOT delete the manifest itself.
 - **Local fallback**. If `$LAKE_WRAPPED_EXEC` is unset OR the call site
-  passes `lakeRoots = none`, the dispatcher falls through to plain
+  passes `job? = none`, the dispatcher falls through to plain
   `rawProc`. Lets call sites be hooked one at a time.
-- **Input closure computed ahead of time**. `collectLeanInputClosure`
-  walks Lake's dependency graph once per job; the wrapper doesn't need
-  to do any graph walking on its own.
+- **I/O sets derived from Lake's own build machinery**. `inputs` comes
+  from `fetchTransImportArts` — the same walk, over the same per-module
+  `exportInfo` artifact lists, that populates the `--setup` file's
+  `importArts` (invoked in unfiltered `importAll` mode, because `lean`'s
+  loader may follow non-exported references). `outputs` is emitted by
+  `mkLeanModuleArgs` together with the argv it constructs, plus the
+  module-mode companions from the `ModuleArtifacts` record the
+  post-build artifact check uses. A change to Lean's artifact shapes
+  that breaks the manifest would also break Lake's own incremental
+  builds or artifact cache, so the contract cannot silently drift.
 - **Setup file is an input, not an output**. Lake writes the per-module
   `setup.json` to disk before invoking the wrapper; it's listed in
   `inputs` but explicitly excluded from `outputs`. The wrapper must respect
@@ -136,13 +157,20 @@ indistinguishable from a direct `lean` invocation from Lake's perspective.
 
 ## What's currently hooked
 
-Today the hook is wired only at `compileLeanModule` (the per-module
-`lean` invocation). The dispatcher (`Lake.WrappedExec.runRawProcOrWrapped`)
+Today the hook is wired at `compileLeanModule`: the per-module `lean`
+invocation, and the follow-up `leanir` invocation when
+`compiler.postponeCompile` is set (each gets its own manifest; the
+`leanir` job declares the deferred `.ir`/`.c` as its outputs and the
+artifacts the `lean` step produced among its inputs). The dispatcher
+(`Lake.WrappedExec.runRawProcOrWrapped`)
 itself is generic and could be threaded through any other subprocess
 call site — `compileO`, `compileSharedLib`, `compileExe`, etc. — by
-computing inputs/outputs for that proc kind and passing
-`lakeRoots := some ...`. Each is an additive change that doesn't
-disturb call sites left as `lakeRoots := none`.
+declaring inputs/outputs for that proc kind via `job? := some ...`.
+Each is an additive change that doesn't disturb call sites left as
+`job? := none`. The criterion for hooking a call site is that its
+job already enumerates its file I/O somewhere in Lake's build
+machinery (e.g. link jobs know their object-file lists) — the manifest
+should be derived from that, never recomputed in parallel.
 
 ## What stays Lake's responsibility
 
@@ -210,7 +238,7 @@ mapfile -t args < <(jq -r '.args[]' "$m")
 mapfile -t env_kvs < <(jq -r '.env | to_entries[] | "\(.key)=\(.value)"' "$m")
 mapfile -t read_paths < <(jq -r '.inputs[]' "$m")
 mapfile -t write_paths < <(jq -r '.outputs[]' "$m")
-toolchain=$(jq -r '.toolchain_root' "$m")
+toolchain=$(dirname "$(dirname "$cmd")")   # sysroot: parent of lean's bin dir
 
 # Hand the read/write sets to your isolation tool of choice
 # (landlock-sandboxer, bwrap, firejail, sandbox-exec on macOS, …).
@@ -281,21 +309,17 @@ requires any further changes to Lake.
   linking (`compileSharedLib`, `compileExe`), archive (`compileStaticLib`)
   are not hooked yet — they continue to run via `rawProc`. (They
   could be hooked the same way; not in this patch.)
-- The transitive olean closure used to populate `inputs` is a strict
-  superset of `setup.importArts` (the exported-imports view). Lean's
-  olean loader follows non-exported references at LEAN_PATH lookup
-  time; in an unwrapped build Lake's build dir is fully populated so
-  the difference is invisible, but for wrapped-exec we must declare
-  the broader set in `inputs`. The walker is straightforward but not
-  minimal — it lists everything `lean`'s loader might reach, not only
-  what it actually opens during a specific compile.
-- For each module-style import the walker contributes `.olean`, `.ir`,
-  `.olean.server`, and `.olean.private`. Per `Lean/Setup.lean`'s
-  `ImportArtifacts.oleanParts`, batch compilation skips `.olean.server`
-  unless `.olean.private` is also present, and `.olean.private` is
-  populated only for `importAll` imports. A future tightening could
-  drop the server/private contributions for non-`importAll` imports
-  in batch builds (rough estimate: ~30–40% fewer files in the
-  manifest), at the cost of teaching the walker about `lean`'s
-  batch-vs-server modes — which is the kind of coupling we've
-  deliberately kept out of the contract so far.
+- The input closure declared in `inputs` is the *unfiltered*
+  `importAll` view (every reachable module contributes its full
+  artifact set), a strict superset of the exported-imports view in
+  `setup.importArts`, because `lean`'s olean loader may follow
+  non-exported references. It lists everything the loader might
+  reach, not only what a specific compile actually opens — an
+  over-approximation by design. A future tightening could teach the
+  closure about `lean`'s batch-vs-server loading modes
+  (`ImportArtifacts.oleanParts`), at the cost of coupling the
+  contract to loader internals — deliberately avoided so far.
+- The `env` object cannot express "unset this variable" (entries the
+  spawn sets to `none` are dropped). The single-`LEAN_PATH` env of the
+  current call site doesn't need it; a future call site that does will
+  bump `schema_version` and switch to an ordered array-of-pairs.

@@ -1,10 +1,20 @@
 #!/usr/bin/env bash
-# Capture the manifest Lake hands us at $1 to a known location, then
-# return non-zero so the test can inspect the JSON without Lake actually
-# building anything downstream. Exit 71 (EX_OSERR) to signal
-# "infrastructure failure, not a lean compile error" — Lake will treat
-# this as a build failure but the test only cares about the captured
-# manifest, not the build outcome.
+# Capture each manifest Lake hands us into $CAPTURE_DIR (keyed by job_id),
+# then act as a passthrough — exec exactly what Lake would have run — so
+# the build proceeds to downstream modules and we capture one manifest
+# per lean job.
 set -euo pipefail
-cp "$1" "$CAPTURED_MANIFEST"
-exit 71
+
+m="$1"
+job_id=$(jq -r '.job_id' "$m")
+cp "$m" "$CAPTURE_DIR/$job_id.json"
+
+cmd=$(jq -r '.cmd' "$m")
+mapfile -t args < <(jq -r '.args[]' "$m")
+mapfile -t env_kvs < <(jq -r '.env | to_entries[] | "\(.key)=\(.value)"' "$m")
+cwd=$(jq -r '.cwd // ""' "$m")
+
+if [[ -n "$cwd" ]]; then
+  cd "$cwd"
+fi
+exec env "${env_kvs[@]}" "$cmd" "${args[@]}"

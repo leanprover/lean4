@@ -15,6 +15,11 @@
 # concurrent processes.
 source ../common.sh
 
+# These tests need the wrapper to actually be invoked: with a warm Lake
+# artifact cache the modules are restored without any lean job running
+# and no wrapper dispatch happens. Pin the cache off for hermeticity.
+export LAKE_ARTIFACT_CACHE=false
+
 chmod +x ./wrapper-fail.sh ./clean.sh
 
 # Helpers: each assertion reads as its actual claim, not its mechanism.

@@ -41,6 +41,8 @@ public inductive SolveResult where
   | noSpecFoundForProgram (e : Expr) (monad : Expr) (thms : Array SpecTheoremNew)
   /-- Successfully decomposed the goal. These are the subgoals, sharing `scope`. -/
   | goals (scope : VCGen.Scope) (subgoals : List MVarId)
+  /-- Stop decomposing and emit the current goal as a VC (out of fuel, or `until` matched). -/
+  | stop
 
 private def isDuplicable (e : Expr) : Bool := match e with
   | .bvar .. | .mvar .. | .fvar .. | .const .. | .lit .. | .sort .. => true
@@ -208,6 +210,7 @@ The function performs the following steps in order:
     its cached backward rule.
 -/
 public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := goal.withContext do
+  if ← outOfFuel then return .stop
   let target ← goal.getType
   trace[Elab.Tactic.Do.vcgen] "🎯 Target: {target}"
   -- Phase 1: simplify `target` until it is of the form `H ⊢ₛ T`.
@@ -267,6 +270,16 @@ public def solve (scope : VCGen.Scope) (goal : MVarId) : VCGenM SolveResult := g
   if let some g ← tryHeadReduceProg goal head H σs ent args wpConst m ps instWP α e f then
     VCGen.burnOne
     return .goals scope [g]
+
+  -- Stop if the program matches the `until` pattern (elaborated lazily against the program monad).
+  let matchesUntilPattern (m : Expr) : VCGenM Bool := do
+    let some ref := (← read).untilPat? | return false
+    let pat ← UntilPatternThunk.force ref m
+    if (← pat.match? e).isSome then
+      trace[Elab.Tactic.Do.vcgen] "`until` pattern matched program {e}; stopping"
+      return true
+    return false
+  if ← matchesUntilPattern m then return .stop
 
   -- Apply registered specifications, or fall through to `.noStrategyForProgram`.
   VCGen.burnOne

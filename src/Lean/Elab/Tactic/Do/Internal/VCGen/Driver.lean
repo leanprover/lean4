@@ -108,10 +108,9 @@ public def work (scope : Scope) (goal : Grind.Goal) : VCGenM Unit := do
     worklist := worklist.pop
     let goal := s.goal
     if goal.inconsistent then continue
-    if ← outOfFuel then
-      emitVC goal
-      continue
     match ← solve s.scope goal.mvarId with
+    | .stop =>
+      emitVC goal
     | .noEntailment .. | .noProgramFoundInTarget .. =>
       emitVC goal
     | .noSpecFoundForProgram prog monad thms =>

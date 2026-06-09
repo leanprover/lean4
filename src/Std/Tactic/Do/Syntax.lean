@@ -444,6 +444,7 @@ syntax (name := mvcgenHint) "mvcgen?" optConfig
 @[tactic_alt Lean.Parser.Tactic.mvcgen'Macro]
 syntax (name := mvcgen') "mvcgen'" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (&" until " term)?
   (invariantAlts)?
   (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
   (&" with " grind)? : tactic
@@ -454,6 +455,7 @@ namespace Grind
 steps using `<;>` instead. -/
 syntax (name := mvcgen') "mvcgen'" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (&" until " term)?
   (invariantAlts)?
   (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
   : grind

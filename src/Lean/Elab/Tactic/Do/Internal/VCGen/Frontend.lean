@@ -18,6 +18,7 @@ public import Lean.Meta.Sym.Simp.Rewrite
 public import Lean.Meta.Sym.Simp.Simproc
 public import Lean.Elab.Tactic.Grind.Main
 public import Lean.Elab.Tactic.Grind.Basic
+import Lean.Meta.Sym.ProofInstInfo
 
 open Lean Parser Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do Lean.Elab.Tactic.Do.SpecAttr
@@ -277,6 +278,38 @@ private structure ParsedArgs where
   scope : VCGen.Scope
   invariantAlts? : Option (Std.HashMap Nat Syntax)
 
+/-- Build a `Sym.Pattern` from `e` by abstracting the metavariables `xs` into pattern variables.
+`checkTypeMask?` is `none` because `until` holes appear as function arguments, whose types the
+enclosing application already constrains. -/
+private def mkUntilPattern (xs : Array Expr) (e : Expr) : MetaM Sym.Pattern := do
+  let pattern := e.abstract xs
+  let mut varTypes := #[]
+  for h : i in [0:xs.size] do
+    varTypes := varTypes.push ((← inferType xs[i]).abstractRange i xs)
+  let mut fnInfos : AssocList Name Sym.ProofInstInfo := {}
+  for declName in pattern.getUsedConstants do
+    if let some info ← Sym.mkProofInstInfo? declName then
+      fnInfos := fnInfos.insertNew declName info
+  let varInfos? ← Sym.mkProofInstArgInfo? xs
+  return { levelParams := [], varTypes, pattern, fnInfos, varInfos?, checkTypeMask? := none }
+
+/-- Build a deferred `until` pattern (holes `_` allowed, as in `conv in $t`). The pattern term is
+elaborated lazily when the first program is seen in `solve`, using that program's monad `m` as the
+expected type (`m _`) so overloaded heads resolve; the result is cached. The holes become pattern
+variables. -/
+private def elabUntilPattern (p : Term) : TermElabM (IO.Ref UntilPatternThunk) := do
+  let lctx ← getLCtx
+  let localInsts ← getLocalInstances
+  IO.mkRef <| UntilPatternThunk.deferred fun m =>
+    withLCtx lctx localInsts <| Term.TermElabM.run' <|
+      -- Restore the metavariable state but keep info trees, so hovers work on the pattern.
+      Term.withoutModifyingElabMetaStateWithInfo <| withRef p <|
+      withTheReader Term.Context ({ · with ignoreTCFailures := true }) <|
+      Term.withoutErrToSorry do
+        let e ← instantiateMVars (← Term.elabTerm p (some (mkApp m (← mkFreshTypeMVar))))
+        let xs := (e.collectMVars {}).result.map Expr.mvar
+        mkUntilPattern xs e
+
 /-- Parse `mvcgen'` arguments. -/
 private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := goal.withContext do
   if mvcgen.warning.get (← getOptions) then
@@ -290,8 +323,9 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
   -- explicit `(elimLets := true)` at the syntax level (upstream `Config` can't
   -- distinguish "default true" from "user-set true"); not yet wired.
   let (ctx, scope) ← VCGen.mkContext stx[2] goal
-  let hypSimpMethods ← elabSimplifyingAssumptions stx[4]
-  let invariantAlts? ← parseInvariantMap stx[3]
+  let untilPat? ← if stx[3].isNone then pure none else some <$> elabUntilPattern ⟨stx[3][1]⟩
+  let hypSimpMethods ← elabSimplifyingAssumptions stx[5]
+  let invariantAlts? ← parseInvariantMap stx[4]
   let ctx := { ctx with
     hypSimpMethods,
     trivial := config.trivial,
@@ -299,7 +333,8 @@ private def parseArgs (stx : Syntax) (goal : MVarId) : TermElabM ParsedArgs := g
     errorOnMissingSpec := config.errorOnMissingSpec,
     debug := config.debug,
     internalize := config.internalize,
-    invariantAlts := invariantAlts?.getD {} }
+    invariantAlts := invariantAlts?.getD {},
+    untilPat? }
   return { config, ctx, scope, invariantAlts? }
 
 /-- `mvcgen'` step inside `sym => …` blocks. -/
@@ -314,7 +349,7 @@ def evalSymMVCGen' : Lean.Elab.Tactic.Grind.GrindTactic := fun stx => do
     return result
   if args.invariantAlts?.isNone then
     runTacticM (goals := result.invariants.toList) <|
-      elabInvariants stx[3] result.invariants (suggestInvariant (result.vcs.map (·.mvarId)))
+      elabInvariants stx[4] result.invariants (suggestInvariant (result.vcs.map (·.mvarId)))
   let invariants ← result.invariants.filterM (not <$> ·.isAssigned)
   let newGoals ← Lean.Elab.Tactic.Grind.liftGrindM do
     let invGoals ← invariants.toList.mapM Grind.mkGoalCore
@@ -328,7 +363,7 @@ goals. The optional `with $g:grind` clause runs as `<;> $g` and lets the user-su
 grind step share an internalised E-graph with `mvcgen'`. -/
 @[builtin_tactic Lean.Parser.Tactic.mvcgen']
 public def elabMVCGen' : Tactic := fun stx => withMainContext do
-  let `(tactic| mvcgen'%$tk $cfg:optConfig $[[$lems,*]]? $(invs)?
+  let `(tactic| mvcgen'%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
         $[simplifying_assumptions $(sa)? $[[$thms,*]]?]? $[with $g:grind]?) := stx
     | throwUnsupportedSyntax
   -- Without `with`, no downstream grind step will read the E-graph, so opt out of
@@ -338,7 +373,7 @@ public def elabMVCGen' : Tactic := fun stx => withMainContext do
     | none   => do
         let off ← `(optConfig| -internalize)
         pure (Lean.Parser.Tactic.appendConfig off cfg)
-  let core ← `(grind| mvcgen'%$tk $cfg:optConfig $[[$lems,*]]? $(invs)?
+  let core ← `(grind| mvcgen'%$tk $cfg:optConfig $[[$lems,*]]? $[until $u:term]? $(invs)?
         $[simplifying_assumptions $(sa)? $[[$thms,*]]?]?)
   let step ← match g with
     | some g => `(grind| $core <;> $g)

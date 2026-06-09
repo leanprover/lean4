@@ -25,6 +25,26 @@ The `VCGenM` monad: its read-only `Context` (a fixed bundle of pre-built
 (rule caches, accumulated invariants/VCs, simp cache).
 -/
 
+/-- A lazily elaborated `until` pattern, stored behind an `IO.Ref` so the first `force` caches its
+result. The pattern is elaborated against the monad of the first program encountered in `solve`
+(supplied as the expected type). -/
+public inductive UntilPatternThunk where
+  /-- Not yet elaborated; `elabFn m` elaborates the pattern against the program monad `m`. -/
+  | deferred (elabFn : Expr → MetaM Sym.Pattern)
+  /-- Already elaborated and cached. -/
+  | elaborated (pat : Sym.Pattern)
+
+/-- Force the thunk in `ref` against the program monad `m`, elaborating, tracing, and caching the
+pattern on first use; later calls return the cached pattern. -/
+public def UntilPatternThunk.force (ref : IO.Ref UntilPatternThunk) (m : Expr) : MetaM Sym.Pattern := do
+  match ← ref.get with
+  | .elaborated pat => return pat
+  | .deferred elabFn =>
+    let pat ← elabFn m
+    trace[Elab.Tactic.Do.vcgen] "`until` pattern elaborated to {pat.pattern}"
+    ref.set (.elaborated pat)
+    return pat
+
 public structure VCGen.Context where
   /-- The backward rule for `SPred.entails_cons_intro`. -/
   entailsConsIntroRule : BackwardRule
@@ -93,6 +113,9 @@ public structure VCGen.Context where
   the parsed `inv<n>` numbers (out-of-order labels are supported). Empty when no
   `invariants` clause is provided or in `invariants?` (suggest) mode (handled separately). -/
   invariantAlts : Std.HashMap Nat Syntax := {}
+  /-- The `until` pattern: when `some ref`, VC generation stops and emits the current goal as a VC
+  once the program in `wp⟦e⟧` matches the (lazily elaborated) pattern, before applying a spec. -/
+  untilPat? : Option (IO.Ref UntilPatternThunk) := none
 
 public structure VCGen.Scope where
   /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/

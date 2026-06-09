@@ -25,8 +25,9 @@ jobs:
     if: github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/lean4'
     steps:
       - name: Retrieve information about the original workflow
-        uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
-        # This action is deprecated and archived, but it seems hard to find a better solution for getting the PR number
+        uses: potiuk/get-workflow-origin@08219db9dbbbec802d571eaf0e14ece0bc005f72 # v1_6
+        # This action is deprecated and archived, but it seems hard to find a
+        # better solution for getting the PR number
         # see https://github.com/orgs/community/discussions/25220 for some discussion
         id: workflow-info
         with:

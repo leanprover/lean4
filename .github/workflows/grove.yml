@@ -15,7 +15,7 @@ jobs:
 
     steps:
       - name: Retrieve information about the original workflow
-        uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
+        uses: potiuk/get-workflow-origin@08219db9dbbbec802d571eaf0e14ece0bc005f72 # v1_6
         # This action is deprecated and archived, but it seems hard to find a
         # better solution for getting the PR number
         # see https://github.com/orgs/community/discussions/25220 for some discussion

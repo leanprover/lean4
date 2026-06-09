@@ -127,7 +127,7 @@ jobs:
       - name: Deploy to Netlify
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
         id: deploy-draft
-        uses: nwtgck/actions-netlify@v3.0
+        uses: nwtgck/actions-netlify@d22a32a27c918fe470bbc562e984f80ec48c2668 # v4.0.0
         with:
           publish-dir: ${{ steps.build.outputs.out-path }}
           production-deploy: false

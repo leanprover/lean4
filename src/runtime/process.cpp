@@ -54,12 +54,20 @@ enum stdio {
     NUL,
 };
 
+#if defined(__clang__)
+  #define GUARDED_BY(x) __attribute__((guarded_by(x)))
+#else
+  #define GUARDED_BY(x)
+#endif
+
 struct lean_process_child_object {
+    // The underlying process
     uv_process_t * m_uv_process;
     std::mutex m_mutex;
-    std::condition_variable m_cv;
-    bool m_exited;
-    int64_t m_exit_status;
+    // Signals when the process has exited
+    std::condition_variable m_exit_cv;
+    bool m_exited GUARDED_BY(m_mutex);
+    int64_t m_exit_status GUARDED_BY(m_mutex);;
 
     lean_process_child_object() : m_uv_process(nullptr), m_exited(false), m_exit_status(0) {}
 };
@@ -166,7 +174,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
     lean_process_child_object * data = process_child_data(child_obj);
 
     std::unique_lock<std::mutex> lock(data->m_mutex);
-    data->m_cv.wait(lock, [data] { return data->m_exited; });
+    data->m_exit_cv.wait(lock, [data] { return data->m_exited; });
 
     return lean_io_result_mk_ok(box_uint32(data->m_exit_status));
 }
@@ -341,7 +349,7 @@ static obj_res spawn(string_ref const & proc_name, array_ref<string_ref> const &
         std::lock_guard<std::mutex> lock(child->m_mutex);
         child->m_exited = true;
         child->m_exit_status = term_signal ? 128 + term_signal : exit_status;
-        child->m_cv.notify_all();
+        child->m_exit_cv.notify_all();
     };
 
     event_loop_lock(&global_ev);

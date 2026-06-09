@@ -175,7 +175,7 @@ jobs:
       - name: Generate GitHub App token for Lean PR comments
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         id: mathlib-comment-token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.MATHLIB_LEAN_PR_TESTING_APP_ID }}
           private-key: ${{ secrets.MATHLIB_LEAN_PR_TESTING_PRIVATE_KEY }}
@@ -414,7 +414,7 @@ jobs:
       - name: Generate GitHub App token for leanprover-community repos
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         id: mathlib-app-token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@v3
         with:
           app-id: ${{ secrets.MATHLIB_NIGHTLY_TESTING_APP_ID }}
           private-key: ${{ secrets.MATHLIB_NIGHTLY_TESTING_PRIVATE_KEY }}

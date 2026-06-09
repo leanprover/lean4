@@ -221,7 +221,7 @@ jobs:
 
       - name: Check self-hosted runner availability
         id: runner-fallback
-        uses: mikehardy/runner-fallback-action@v1
+        uses: mikehardy/runner-fallback-action@dc7732f9e532c451b2527b288ba8d58fd4b0a4ca # v1.1.0
         with:
           github-token: ${{ secrets.READ_RUNNERS_TOKEN }}
           primary-runner: self-hosted,chonk

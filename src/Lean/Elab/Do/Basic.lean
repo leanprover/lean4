@@ -513,9 +513,9 @@ def DoElemCont.mkBindUnlessPure (dec : DoElemCont) (e : Expr) : DoElabM Expr := 
         return (isPure, isDuplicable)
       if isPure then
         if isDuplicable then
-          return ← mapLetDeclZeta (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k
+          return ← body.replaceFVarsM #[xFVar] #[eRes]
         -- else -- would be too aggressive
-        --   return ← mapLetDecl (nondep := true) (kind := declKind) x eResultTy eRes fun _ => k ref
+        --   return ← body.replaceFVarsM #[xFVar] #[eRes]
 
     let body ← Term.ensureHasType (← mkMonadApp kResultTy) body
     let k ← mkLambdaFVars #[xFVar] body

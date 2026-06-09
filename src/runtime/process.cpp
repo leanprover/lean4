@@ -66,6 +66,7 @@ struct lean_process_child_object {
 
 static lean_external_class * g_process_child_external_class = nullptr;
 
+// The finalizer closes the underlying uv handle, freeing memory once it completes.
 static void process_child_finalizer(void * ptr) {
     lean_process_child_object * child = static_cast<lean_process_child_object *>(ptr);
     event_loop_lock(&global_ev);
@@ -79,23 +80,14 @@ static void process_child_finalizer(void * ptr) {
     event_loop_unlock(&global_ev);
 }
 
+static lean_process_child_object * process_child_data(b_obj_arg obj) {
+    return static_cast<lean_process_child_object *>(lean_get_external_data(child_obj));
+}
+
 static void process_child_foreach(void * /* mod */, b_obj_arg /* fn */) {
 }
 
 #if defined(LEAN_WINDOWS)
-
-static lean_external_class * g_win_handle_external_class = nullptr;
-
-static void win_handle_finalizer(void * h) {
-    lean_always_assert(CloseHandle(static_cast<HANDLE>(h)));
-}
-
-static void win_handle_foreach(void * /* mod */, b_obj_arg /* fn */) {
-}
-
-lean_object * wrap_win_handle(HANDLE h) {
-    return lean_alloc_external(g_win_handle_external_class, static_cast<void *>(h));
-}
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_get_current_dir() {
     char path[MAX_PATH];
@@ -164,9 +156,6 @@ extern "C" LEAN_EXPORT uint64_t lean_io_get_tid() {
 #endif
 
 void initialize_process() {
-#if defined(LEAN_WINDOWS)
-    g_win_handle_external_class = lean_register_external_class(win_handle_finalizer, win_handle_foreach);
-#endif
     g_process_child_external_class = lean_register_external_class(process_child_finalizer, process_child_foreach);
 }
 
@@ -174,7 +163,7 @@ void finalize_process() {}
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg child) {
     lean_object * child_obj = cnstr_get(child, 3);
-    lean_process_child_object * data = static_cast<lean_process_child_object *>(lean_get_external_data(child_obj));
+    lean_process_child_object * data = process_child_data(child_obj);
 
     std::unique_lock<std::mutex> lock(data->m_mutex);
     data->m_cv.wait(lock, [data] { return data->m_exited; });
@@ -184,7 +173,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_wait(b_obj_arg, b_obj_arg c
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_arg child) {
     lean_object * child_obj = cnstr_get(child, 3);
-    lean_process_child_object * data = static_cast<lean_process_child_object *>(lean_get_external_data(child_obj));
+    lean_process_child_object * data = process_child_data(child_obj);
 
     std::lock_guard<std::mutex> lock(data->m_mutex);
     if (data->m_exited) {
@@ -196,7 +185,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_try_wait(b_obj_arg, b_obj_a
 
 extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg child) {
     lean_object * child_obj = cnstr_get(child, 3);
-    lean_process_child_object * data = static_cast<lean_process_child_object *>(lean_get_external_data(child_obj));
+    lean_process_child_object * data = process_child_data(child_obj);
 
     std::lock_guard<std::mutex> lock(data->m_mutex);
     if (!data->m_exited && data->m_uv_process) {
@@ -210,7 +199,7 @@ extern "C" LEAN_EXPORT obj_res lean_io_process_child_kill(b_obj_arg, b_obj_arg c
 
 extern "C" LEAN_EXPORT uint32_t lean_io_process_child_pid(b_obj_arg, b_obj_arg child) {
     lean_object * child_obj = cnstr_get(child, 3);
-    lean_process_child_object * data = static_cast<lean_process_child_object *>(lean_get_external_data(child_obj));
+    lean_process_child_object * data = process_child_data(child_obj);
     if (data->m_uv_process) {
         return data->m_uv_process->pid;
     }

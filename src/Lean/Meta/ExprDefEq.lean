@@ -2159,7 +2159,7 @@ private def isDefEqApp (t s : Expr) : MetaM Bool := do
       return true
     else
       isDefEqOnFailure t s
-  else if (← checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
+  else if t.getAppArgs.size == s.getAppArgs.size && (← checkpointDefEq (Meta.isExprDefEqAux tFn s.getAppFn <&&> isDefEqArgs tFn t.getAppArgs s.getAppArgs)) then
     return true
   else
     isDefEqOnFailure t s

@@ -892,7 +892,7 @@ else
 lean_object* v_val_264_; 
 v_val_264_ = lean_ctor_get(v___x_261_, 0);
 lean_inc(v_val_264_);
-lean_dec_ref(v___x_261_);
+lean_dec_ref_known(v___x_261_, 1);
 v___y_243_ = v_val_264_;
 goto v___jp_242_;
 }

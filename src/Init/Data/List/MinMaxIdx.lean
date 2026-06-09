@@ -788,7 +788,7 @@ protected theorem maxIdxOn?_cons
         else (xs.maxIdxOn f h) + 1) := by
   simp only [List.maxIdxOn_eq_minIdxOn, List.maxOn_eq_minOn]
   letI : LE β := LE.opposite inferInstance
-  simpa [LE.le_opposite_iff] using List.minIdxOn?_cons (f := f)
+  simpa [LE.le_opposite_iff] using! List.minIdxOn?_cons (f := f)
 
 protected theorem ne_nil_of_maxIdxOn?_eq_some
     [LE β] [DecidableLE β] {f : α → β} {k : Nat} {xs : List α} (h : xs.maxIdxOn? f = some k) :

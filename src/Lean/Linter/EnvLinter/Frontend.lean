@@ -36,9 +36,9 @@ inductive LintVerbosity
 inductive LintScope
   /-- Run only default linters. -/
   | default
-  /-- Run only non-default (clippy) linters. -/
-  | clippy
-  /-- Run all linters (default + clippy). -/
+  /-- Run default linters together with the non-default (extra) linters. -/
+  | extra
+  /-- Run all linters (default + extra). -/
   | all
   deriving Inhabited, DecidableEq, Repr
 
@@ -47,7 +47,7 @@ inductive LintScope
 If `runOnly` is populated, only those named linters are run (regardless of `scope`).
 Otherwise, linter selection depends on `scope`:
 - `default`: only linters with `isDefault = true`
-- `clippy`: only linters with `isDefault = false`
+- `extra`: linters with `isDefault = true` together with linters with `isDefault = false`
 - `all`: all linters -/
 def getChecks (scope : LintScope := .default) (runOnly : Option (List Name) := none) :
     CoreM (Array NamedEnvLinter) := do
@@ -57,7 +57,7 @@ def getChecks (scope : LintScope := .default) (runOnly : Option (List Name) := n
       | some only => only.contains name
       | none => match scope with
         | .default => isDefault
-        | .clippy => !isDefault
+        | .extra => true
         | .all => true
     if shouldRun then
       let linter ← getEnvLinter name declName
@@ -173,7 +173,7 @@ def formatLinterResults
       } with {numLinters} linters\n\n{s}"
   match scope with
   | .default => s := m!"{s}-- (non-default linters skipped)\n"
-  | .clippy => s := m!"{s}-- (default linters skipped)\n"
+  | .extra => pure ()
   | .all => pure ()
   pure s
 

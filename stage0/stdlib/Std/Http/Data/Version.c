@@ -860,7 +860,7 @@ lean_object* v_val_269_; uint8_t v___x_270_;
 lean_dec_ref(v_s_258_);
 v_val_269_ = lean_ctor_get(v___x_259_, 0);
 lean_inc(v_val_269_);
-lean_dec_ref(v___x_259_);
+lean_dec_ref_known(v___x_259_, 1);
 v___x_270_ = lean_unbox(v_val_269_);
 lean_dec(v_val_269_);
 return v___x_270_;

@@ -1,4 +1,3 @@
-set_option backward.do.legacy false
 set_option Elab.async false -- for stable output order in #guard_msgs
 
 universe u

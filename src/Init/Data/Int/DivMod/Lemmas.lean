@@ -1619,7 +1619,7 @@ theorem natAbs_tdiv_le_natAbs (a b : Int) : natAbs (a.tdiv b) ≤ natAbs a := by
   case inv => simp
   induction b using wlog_sign
   case inv => simp
-  simpa using Nat.div_le_self _ _
+  simpa using! Nat.div_le_self _ _
 
 theorem tdiv_le_self {a : Int} (b : Int) (Ha : 0 ≤ a) : a.tdiv b ≤ a := by
   have := Int.le_trans le_natAbs (ofNat_le.2 <| natAbs_tdiv_le_natAbs a b)

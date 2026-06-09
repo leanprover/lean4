@@ -3,6 +3,13 @@ source ../common.sh
 
 ./clean.sh
 
+# Copy test data to a working directory to avoid initializing a Git repository
+# inside the checked-in source tree
+WORK_DIR="$PWD/work"
+mkdir -p "$WORK_DIR"
+cp -r bar1 bar2 foo lakefile.lean packages.json "$WORK_DIR/"
+cd "$WORK_DIR"
+
 # Since committing a Git repository to a Git repository is not well-supported,
 # We reinitialize the `bar1` repository on each test.
 echo "# SETUP"
@@ -32,7 +39,3 @@ test_cmd cp packages.json .lake/package-overrides.json
 test_run resolve-deps -R -Kfoo
 test_out "bar2" exe bar
 test_out "foo" exe foo
-
-# Cleanup
-rm -rf bar1/.git
-rm -f produced.out

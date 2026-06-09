@@ -441,7 +441,7 @@ if (lean_obj_tag(v___y_380_) == 1)
 lean_object* v_val_397_; lean_object* v___x_398_; 
 v_val_397_ = lean_ctor_get(v___y_380_, 0);
 lean_inc(v_val_397_);
-lean_dec_ref(v___y_380_);
+lean_dec_ref_known(v___y_380_, 1);
 v___x_398_ = l_Array_mkArray1___redArg(v_val_397_);
 v___y_302_ = v___x_392_;
 v___y_303_ = v___x_396_;
@@ -725,7 +725,7 @@ lean_object* v_val_362_; lean_object* v___x_363_; lean_object* v___x_364_; lean_
 lean_dec(v___y_306_);
 v_val_362_ = lean_ctor_get(v___x_360_, 0);
 lean_inc(v_val_362_);
-lean_dec_ref(v___x_360_);
+lean_dec_ref_known(v___x_360_, 1);
 v___x_363_ = ((lean_object*)(l_Lean_Meta_Sym_Simp___aux__Lean__Meta__Sym__Simp__RegisterCommand______macroRules__Lean__Meta__Sym__Simp____root____Lean__Parser__Command__registerSymSimpAttr__1___closed__51));
 v___x_364_ = ((lean_object*)(l_Lean_Meta_Sym_Simp___aux__Lean__Meta__Sym__Simp__RegisterCommand______macroRules__Lean__Meta__Sym__Simp____root____Lean__Parser__Command__registerSymSimpAttr__1___closed__52));
 v___x_365_ = ((lean_object*)(l_Lean_Meta_Sym_Simp___aux__Lean__Meta__Sym__Simp__RegisterCommand______macroRules__Lean__Meta__Sym__Simp____root____Lean__Parser__Command__registerSymSimpAttr__1___closed__53));

@@ -13,6 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
+lean_object* lean_io_condvar_wait(lean_object*, lean_object*);
 lean_object* lean_st_ref_get(lean_object*);
 lean_object* lean_st_ref_take(lean_object*);
 lean_object* lean_nat_add(lean_object*, lean_object*);
@@ -20,7 +21,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_io_condvar_notify_all(lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
-lean_object* lean_io_condvar_wait(lean_object*, lean_object*);
 lean_object* lean_io_basemutex_lock(lean_object*);
 lean_object* lean_io_basemutex_unlock(lean_object*);
 lean_object* l_Std_Mutex_new___redArg(lean_object*);
@@ -35,16 +35,16 @@ LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at___00Std_Barrier_wait_spec__
 LEAN_EXPORT lean_object* l_Std_Mutex_atomically___at___00Std_Barrier_wait_spec__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Barrier_wait___lam__0(lean_object*, uint8_t, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Barrier_wait___lam__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg(lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Barrier_wait___lam__1(lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Barrier_wait___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT uint8_t l_Std_Barrier_wait(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Barrier_wait___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Barrier_new(lean_object* v_numThreads_3_){
 _start:
 {
@@ -132,16 +132,16 @@ return v___x_43_;
 LEAN_EXPORT lean_object* l_Std_Barrier_wait___lam__0___boxed(lean_object* v_generationId_44_, lean_object* v___x_45_, lean_object* v___y_46_, lean_object* v___y_47_){
 _start:
 {
-uint8_t v___x_2266__boxed_48_; uint8_t v_res_49_; lean_object* v_r_50_; 
-v___x_2266__boxed_48_ = lean_unbox(v___x_45_);
-v_res_49_ = l_Std_Barrier_wait___lam__0(v_generationId_44_, v___x_2266__boxed_48_, v___y_46_);
+uint8_t v___x_2442__boxed_48_; uint8_t v_res_49_; lean_object* v_r_50_; 
+v___x_2442__boxed_48_ = lean_unbox(v___x_45_);
+v_res_49_ = l_Std_Barrier_wait___lam__0(v_generationId_44_, v___x_2442__boxed_48_, v___y_46_);
 lean_dec(v___y_46_);
 lean_dec(v_generationId_44_);
 v_r_50_ = lean_box(v_res_49_);
 return v_r_50_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg(lean_object* v_pred_51_, lean_object* v_condvar_52_, lean_object* v_mutex_53_, lean_object* v___y_54_){
+LEAN_EXPORT lean_object* l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg(lean_object* v_pred_51_, lean_object* v_condvar_52_, lean_object* v_mutex_53_, lean_object* v___y_54_){
 _start:
 {
 lean_object* v___x_56_; uint8_t v___x_57_; 
@@ -164,11 +164,11 @@ return v___x_60_;
 }
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg___boxed(lean_object* v_pred_61_, lean_object* v_condvar_62_, lean_object* v_mutex_63_, lean_object* v___y_64_, lean_object* v___y_65_){
+LEAN_EXPORT lean_object* l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg___boxed(lean_object* v_pred_61_, lean_object* v_condvar_62_, lean_object* v_mutex_63_, lean_object* v___y_64_, lean_object* v___y_65_){
 _start:
 {
 lean_object* v_res_66_; 
-v_res_66_ = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg(v_pred_61_, v_condvar_62_, v_mutex_63_, v___y_64_);
+v_res_66_ = l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg(v_pred_61_, v_condvar_62_, v_mutex_63_, v___y_64_);
 lean_dec(v___y_64_);
 lean_dec(v_mutex_63_);
 lean_dec(v_condvar_62_);
@@ -179,7 +179,7 @@ LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec_
 _start:
 {
 lean_object* v___x_72_; lean_object* v___x_73_; 
-v___x_72_ = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg(v_pred_69_, v_condvar_67_, v_mutex_68_, v___y_70_);
+v___x_72_ = l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg(v_pred_69_, v_condvar_67_, v_mutex_68_, v___y_70_);
 v___x_73_ = lean_box(0);
 return v___x_73_;
 }
@@ -368,23 +368,23 @@ v_r_141_ = lean_box(v_res_140_);
 return v_r_141_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0(lean_object* v_pred_142_, lean_object* v_condvar_143_, lean_object* v_mutex_144_, lean_object* v_b_145_, lean_object* v___y_146_){
+LEAN_EXPORT lean_object* l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0(lean_object* v_pred_142_, lean_object* v_condvar_143_, lean_object* v_mutex_144_, lean_object* v_inst_145_, lean_object* v_a_146_, lean_object* v___y_147_){
 _start:
 {
-lean_object* v___x_148_; 
-v___x_148_ = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg(v_pred_142_, v_condvar_143_, v_mutex_144_, v___y_146_);
-return v___x_148_;
+lean_object* v___x_149_; 
+v___x_149_ = l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___redArg(v_pred_142_, v_condvar_143_, v_mutex_144_, v___y_147_);
+return v___x_149_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___boxed(lean_object* v_pred_149_, lean_object* v_condvar_150_, lean_object* v_mutex_151_, lean_object* v_b_152_, lean_object* v___y_153_, lean_object* v___y_154_){
+LEAN_EXPORT lean_object* l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0___boxed(lean_object* v_pred_150_, lean_object* v_condvar_151_, lean_object* v_mutex_152_, lean_object* v_inst_153_, lean_object* v_a_154_, lean_object* v___y_155_, lean_object* v___y_156_){
 _start:
 {
-lean_object* v_res_155_; 
-v_res_155_ = l___private_Init_While_0__Lean_Loop_forIn_loop___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0(v_pred_149_, v_condvar_150_, v_mutex_151_, v_b_152_, v___y_153_);
-lean_dec(v___y_153_);
-lean_dec(v_mutex_151_);
-lean_dec(v_condvar_150_);
-return v_res_155_;
+lean_object* v_res_157_; 
+v_res_157_ = l___private_Init_While_0__whileM_erased___at___00Std_Condvar_waitUntil___at___00Std_Barrier_wait_spec__0_spec__0(v_pred_150_, v_condvar_151_, v_mutex_152_, v_inst_153_, v_a_154_, v___y_155_);
+lean_dec(v___y_155_);
+lean_dec(v_mutex_152_);
+lean_dec(v_condvar_151_);
+return v_res_157_;
 }
 }
 lean_object* runtime_initialize_Std_Sync_Mutex(uint8_t builtin);

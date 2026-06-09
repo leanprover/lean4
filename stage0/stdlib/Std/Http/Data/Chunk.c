@@ -769,7 +769,7 @@ lean_object* v_val_199_;
 lean_dec_ref(v_s_188_);
 v_val_199_ = lean_ctor_get(v___x_189_, 0);
 lean_inc(v_val_199_);
-lean_dec_ref(v___x_189_);
+lean_dec_ref_known(v___x_189_, 1);
 return v_val_199_;
 }
 }
@@ -1162,7 +1162,7 @@ lean_object* v_val_341_;
 lean_dec_ref(v_s_330_);
 v_val_341_ = lean_ctor_get(v___x_331_, 0);
 lean_inc(v_val_341_);
-lean_dec_ref(v___x_331_);
+lean_dec_ref_known(v___x_331_, 1);
 return v_val_341_;
 }
 }
@@ -1333,7 +1333,7 @@ else
 lean_object* v_val_390_; lean_object* v___x_391_; lean_object* v___x_392_; lean_object* v___x_393_; lean_object* v___x_394_; 
 v_val_390_ = lean_ctor_get(v_snd_386_, 0);
 lean_inc(v_val_390_);
-lean_dec_ref(v_snd_386_);
+lean_dec_ref_known(v_snd_386_, 1);
 v___x_391_ = ((lean_object*)(l_Std_Http_Chunk_instEncodeV11___lam__1___closed__1));
 v___x_392_ = l_Std_Http_Internal_quoteHttpString___redArg(v_val_390_);
 v___x_393_ = lean_string_append(v___x_391_, v___x_392_);
@@ -2571,7 +2571,7 @@ else
 lean_object* v_val_853_; 
 v_val_853_ = lean_ctor_get(v___x_851_, 0);
 lean_inc(v_val_853_);
-lean_dec_ref(v___x_851_);
+lean_dec_ref_known(v___x_851_, 1);
 v___y_822_ = v_val_853_;
 goto v___jp_821_;
 }

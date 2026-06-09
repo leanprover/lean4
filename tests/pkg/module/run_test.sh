@@ -1,4 +1,4 @@
-rm -rf .lake/build
+rm -rf .lake
 LEAN_ABORT_ON_PANIC=1 lake build
 
 capture_fail lake lean Module/ConflictingImported.lean

@@ -197,23 +197,24 @@ structure Config where
 /-- Convert `isDefEq` and `WHNF` relevant parts into a key for caching results -/
 private def Config.toKey (c : Config) : UInt64 :=
   c.transparency.toUInt64 |||
-  (c.foApprox.toUInt64 <<< 2) |||
-  (c.ctxApprox.toUInt64 <<< 3) |||
-  (c.quasiPatternApprox.toUInt64 <<< 4) |||
-  (c.constApprox.toUInt64 <<< 5) |||
-  (c.isDefEqStuckEx.toUInt64 <<< 6) |||
-  (c.unificationHints.toUInt64 <<< 7) |||
-  (c.proofIrrelevance.toUInt64 <<< 8) |||
-  (c.assignSyntheticOpaque.toUInt64 <<< 9) |||
-  (c.offsetCnstrs.toUInt64 <<< 10) |||
-  (c.iota.toUInt64 <<< 11) |||
-  (c.beta.toUInt64 <<< 12) |||
-  (c.zeta.toUInt64 <<< 13) |||
-  (c.zetaDelta.toUInt64 <<< 14) |||
-  (c.univApprox.toUInt64 <<< 15) |||
-  (c.etaStruct.toUInt64 <<< 16) |||
-  (c.proj.toUInt64 <<< 18) |||
-  (c.zetaHave.toUInt64 <<< 20)
+  (c.foApprox.toUInt64 <<< 3) |||
+  (c.ctxApprox.toUInt64 <<< 4) |||
+  (c.quasiPatternApprox.toUInt64 <<< 5) |||
+  (c.constApprox.toUInt64 <<< 6) |||
+  (c.isDefEqStuckEx.toUInt64 <<< 7) |||
+  (c.unificationHints.toUInt64 <<< 8) |||
+  (c.proofIrrelevance.toUInt64 <<< 9) |||
+  (c.assignSyntheticOpaque.toUInt64 <<< 10) |||
+  (c.offsetCnstrs.toUInt64 <<< 11) |||
+  (c.iota.toUInt64 <<< 12) |||
+  (c.beta.toUInt64 <<< 13) |||
+  (c.zeta.toUInt64 <<< 14) |||
+  (c.zetaDelta.toUInt64 <<< 15) |||
+  (c.univApprox.toUInt64 <<< 16) |||
+  (c.etaStruct.toUInt64 <<< 17) |||
+  (c.proj.toUInt64 <<< 19) |||
+  (c.zetaHave.toUInt64 <<< 21) |||
+  (c.zetaUnused.toUInt64 <<< 22)
 
 /-- Configuration with key produced by `Config.toKey`. -/
 structure ConfigWithKey where
@@ -1263,8 +1264,8 @@ def withTrackingZetaDeltaSet (s : FVarIdSet) : n α → n α :=
 
 @[inline] private def Context.setTransparency (ctx : Context) (transparency : TransparencyMode) : Context :=
   let config := { ctx.config with transparency }
-  -- Recall that `transparency` is stored in the first 2 bits
-  let key : UInt64 := ((ctx.configKey >>> (2 : UInt64)) <<< 2) ||| transparency.toUInt64
+  -- Recall that `transparency` is stored in the first 3 bits (it has 5 values).
+  let key : UInt64 := ((ctx.configKey >>> (3 : UInt64)) <<< 3) ||| transparency.toUInt64
   { ctx with keyedConfig := { config, key } }
 
 @[inline] def withTransparency (mode : TransparencyMode) : n α → n α :=

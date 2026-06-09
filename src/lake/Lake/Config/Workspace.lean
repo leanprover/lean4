@@ -61,6 +61,7 @@ public structure Workspace.Raw : Type where
 public structure Workspace.Raw.WF (ws : Workspace.Raw) : Prop where
   size_packages_pos : 0 < ws.packages.size
   packages_wsIdx : ∀ (h : i < ws.packages.size), (ws.packages[i]'h).wsIdx = i
+  depIdxs_packages : ∀ pkg ∈ ws.packages, ∀ i ∈ pkg.depIdxs, i < ws.packages.size
 
 /-- A Lake workspace -- the top-level package directory. -/
 public structure Workspace extends raw : Workspace.Raw, wf : raw.WF
@@ -71,11 +72,12 @@ noncomputable def Workspace.ofSize (n : Nat) (h : 0 < n) : Workspace := {
   lakeConfig := Classical.ofNonempty
   lakeCache := Classical.ofNonempty
   packages := (0...<n).toArray.map fun i =>
-    {(Classical.ofNonempty : Package) with wsIdx := i}
+    {(Classical.ofNonempty : Package) with wsIdx := i, depIdxs := #[]}
   size_packages_pos := by
     simp [Std.Rco.size, Std.Rxo.HasSize.size, Std.Rxc.HasSize.size, h]
   packages_wsIdx {i} h := by
     simp [Std.Rco.getElem_toArray_eq, Std.PRange.succMany?]
+  depIdxs_packages := by simp
 }
 
 theorem Workspace.size_packages_ofSize :
@@ -147,7 +149,7 @@ public abbrev isRootArtifactCacheEnabled (ws : Workspace) : Bool :=
 
 /-- Whether artifacts should be restored by default from the Lake cache for packages in the workspace. -/
 @[inline] public def restoreAllArtifacts? (ws : Workspace) : Option Bool :=
-  ws.root.restoreAllArtifacts?
+  ws.lakeEnv.restoreAllArtifacts? <|> ws.root.restoreAllArtifacts?
 
 /-- Returns the toolchain identifier for the Lake cache corresponding the workspace's toolchain. -/
 @[inline] public def cacheToolchain (ws : Workspace) : CacheToolchain :=
@@ -211,25 +213,32 @@ This is configured through {lit}`cache.service` entries in the system Lake confi
   self.lakeDir / "package-overrides.json"
 
 /-- **For internal use only.** Add a well-formed package to the workspace. -/
-@[inline] public def addPackage' (pkg : Package) (self : Workspace) (h : pkg.wsIdx = self.packages.size) : Workspace :=
-  {self with
-    packages := self.packages.push pkg
-    packageMap := self.packageMap.insert pkg.keyName pkg
-    size_packages_pos := by simp
-    packages_wsIdx {i} i_lt := by
-      cases Nat.lt_add_one_iff_lt_or_eq.mp <| Array.size_push .. ▸ i_lt with
-      | inl i_lt => simpa [Array.getElem_push_lt i_lt] using self.packages_wsIdx i_lt
-      | inr i_eq => simpa [i_eq] using h
-  }
+@[inline] public def addPackage'
+  (pkg : Package) (self : Workspace)
+  (h_wsIdx : pkg.wsIdx = self.packages.size) (h_depIdxs : pkg.depIdxs = #[])
+: Workspace := {self with
+  packages := self.packages.push pkg
+  packageMap := self.packageMap.insert pkg.keyName pkg
+  size_packages_pos := by simp
+  packages_wsIdx {i} i_lt := by
+    cases Nat.lt_add_one_iff_lt_or_eq.mp <| Array.size_push .. ▸ i_lt with
+    | inl i_lt => simpa [Array.getElem_push_lt i_lt] using self.packages_wsIdx i_lt
+    | inr i_eq => simpa [i_eq] using h_wsIdx
+  depIdxs_packages {p} p_mem {i} i_mem := by
+    simp only [Array.size_push]
+    cases Array.mem_push.mp p_mem with
+    | inl p_mem => exact Nat.lt_add_one_of_lt <| self.depIdxs_packages p p_mem i i_mem
+    | inr p_eq => simp [p_eq, h_depIdxs] at i_mem
+}
 
 /-- **For internal use only.** -/
 public theorem packages_addPackage' :
-  (addPackage' pkg ws h).packages = ws.packages.push pkg
+  (addPackage' pkg ws h h').packages = ws.packages.push pkg
 := by rfl
 
 /-- Add a package to the workspace. -/
 @[inline] public def addPackage (pkg : Package) (self : Workspace) : Workspace :=
-  self.addPackage' {pkg with wsIdx := self.packages.size} rfl
+  self.addPackage' {pkg with wsIdx := self.packages.size, depIdxs := #[]} rfl rfl
 
 /-- Returns the unique package in the workspace (if any) that is identified by  {lean}`keyName`. -/
 @[inline] public protected def findPackageByKey? (keyName : Name) (self : Workspace) : Option (NPackage keyName) :=
@@ -409,6 +418,7 @@ public def augmentedEnvVars (self : Workspace) : Array (String × Option String)
   let vars := self.lakeEnv.baseVars ++ #[
     ("LAKE_CACHE_DIR", some self.lakeCache.dir.toString),
     ("LAKE_ARTIFACT_CACHE", if let some b := self.enableArtifactCache? then toString b else ""),
+    ("LAKE_RESTORE_ARTIFACTS", if let some b := self.restoreAllArtifacts? then toString b else ""),
     ("LEAN_PATH", some self.augmentedLeanPath.toString),
     ("LEAN_SRC_PATH", some self.augmentedLeanSrcPath.toString),
     -- Allow the Lean version to change dynamically within core

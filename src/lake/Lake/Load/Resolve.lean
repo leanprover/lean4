@@ -14,7 +14,9 @@ import Lake.Config.Monad
 import Lake.Load.Materialize
 import Lake.Load.Lean.Eval
 import Lake.Load.Package
+import Init.Data.Vector.Lemmas
 import Init.Data.Range.Polymorphic.Iterators
+import Init.Data.Range.Polymorphic.Lemmas
 import Init.TacticsExtra
 import Lean.Runtime
 
@@ -68,17 +70,17 @@ def Workspace.addDepPackage'
   let ⟨loadCfg, h⟩ ← resolveConfigFile dep.prettyName loadCfg
   let fileCfg ← loadConfigFile loadCfg h
   let pkg := mkPackage loadCfg fileCfg wsIdx
-  let ws := ws.addPackage' pkg wsIdx_mkPackage |>.addFacetDecls fileCfg.facetDecls
+  let ws := ws.addPackage' pkg wsIdx_mkPackage depIdxs_mkPackage |>.addFacetDecls fileCfg.facetDecls
   return ⟨ws, by simp [ws, packages_addFacetDecls, packages_addPackage']⟩
 
 
-def Workspace.setDepPkgs
-  (self : Workspace) (pkg : Package) (depPkgs : Array Package)
-  (h : pkg.wsIdx < self.packages.size)
+def Workspace.setDepIdxs
+  (self : Workspace) (pkg : Package) (depIdxs : Array Nat)
+  (h_wsIdx : pkg.wsIdx < self.packages.size) (h_depIdxs : ∀ i ∈ depIdxs, i < self.packages.size)
 : Workspace :=
-  let pkg := {pkg with depPkgs}
+  let pkg := {pkg with depIdxs}
   {self with
-    packages := self.packages.set pkg.wsIdx pkg h
+    packages := self.packages.set pkg.wsIdx pkg h_wsIdx
     packageMap := self.packageMap.insert pkg.keyName pkg
     size_packages_pos := by simp [self.size_packages_pos]
     packages_wsIdx {i} := by
@@ -88,11 +90,45 @@ def Workspace.setDepPkgs
       split
       · assumption
       · rw [self.packages_wsIdx]
+    depIdxs_packages {p} p_mem {i} i_mem := by
+      simp only [Array.size_set]
+      cases Array.mem_or_eq_of_mem_set p_mem with
+      | inl p_mem => exact self.depIdxs_packages p p_mem i i_mem
+      | inr p_eq => apply h_depIdxs; simpa only [p_eq, pkg] using i_mem
   }
 
-theorem Workspace.size_packages_setDepPkgs :
-  (setDepPkgs ws pkg depPkgs h).packages.size = ws.packages.size
-:= by simp [setDepPkgs]
+@[local simp] theorem Workspace.size_packages_setDepIdxs :
+  (setDepIdxs ws pkg depIdxs h h').packages.size = ws.packages.size
+:= by simp [setDepIdxs]
+
+def Workspace.updateDepPkgs (self : Workspace) : Workspace :=
+  let s : {pkgs : Vector Package self.packages.size //
+    ∀ i, (h : i < pkgs.size) → pkgs[i].wsIdx = i ∧ ∀ j ∈ pkgs[i].depIdxs, j < pkgs.size} :=
+    ⟨self.packages.toVector, fun i i_lt => ⟨self.packages_wsIdx i_lt,
+      self.depIdxs_packages self.packages[i] (Array.getElem_mem ..)⟩⟩
+  -- Set `depPkgs` in reverse order (starting from a leaf package).
+  -- Since the workspace's packages are topologically sorted, no recursion is necessary.
+  let ⟨pkgs, h⟩ := self.packages.size.foldRev (init := s) fun i i_lt ⟨pkgs, h⟩ =>
+    let pkg := pkgs[i]'i_lt
+    let depPkgs := pkg.depIdxs.attach.map fun ⟨j, j_mem⟩ =>
+      pkgs[j]'(h i i_lt |>.2 j j_mem)
+    let pkgs' := pkgs.set i {pkg with depPkgs}
+    have h := by
+      intro j j_lt
+      simp only [Vector.getElem_set, Vector.size, pkgs', pkg]
+      split
+      · next i_eq => simpa [i_eq] using h j j_lt
+      · exact h j j_lt
+    ⟨pkgs', h⟩
+  {self with
+    packages := pkgs.toArray
+    packageMap := pkgs.foldl (fun map pkg => map.insert pkg.keyName pkg) {}
+    size_packages_pos := by simp [self.size_packages_pos]
+    packages_wsIdx {i} i_lt := h i (pkgs.size_toArray.subst i_lt) |>.1
+    depIdxs_packages p p_mem := by
+      have ⟨i, i_lt, p_eq⟩ := Array.mem_iff_getElem.mp p_mem
+      simpa [← p_eq] using h i (pkgs.size_toArray.subst i_lt) |>.2
+  }
 
 structure ResolveState (start : Nat) where
   ws : Workspace
@@ -130,11 +166,6 @@ namespace ResolveState
 
 end ResolveState
 
-abbrev MinWorkspace (ws : Workspace) :=
-  {ws' : Workspace // ws.packages.size ≤ ws'.packages.size}
-
-instance : Nonempty (MinWorkspace ws) := ⟨⟨ws, Nat.le_refl ..⟩⟩
-
 @[inline] unsafe def guardBySizeImpl [Pure m] [MonadError m] (as : Array α) : m (PLift (as.size ≤ Lean.maxSmallNat)) :=
   pure ⟨lcProof⟩
 
@@ -151,9 +182,9 @@ def guardBySize! [Pure m] [MonadError m] (as : Array α) : m (PLift (as.size ≤
   if h : as.size ≤ Lean.maxSmallNat then pure ⟨h⟩ else error "Array-bounded termination"
 
 /-
-Recursively visits each node in a package's dependency graph, starting from
-the workspace package `root`. Each dependency missing from the workspace is
-added to the workspace using the `resolve` function.
+Adds the package's dependencies to the workspace and then recursively vists
+each package in the dependency graph starting from `next`. Each dependency missing
+from the workspace is added to the workspace using the `resolve` function.
 
 Recursion occurs breadth-first. Each direct dependency of a package is
 resolved in reverse order before recursing to the dependencies' dependencies.
@@ -163,17 +194,18 @@ See `Workspace.updateAndMaterializeCore` for more details.
 @[inline] def Workspace.resolveDepsCore
   [Monad m] [MonadError m] [MonadLiftT LogIO m] (ws : Workspace)
   (resolve : Package → Dependency → Workspace → m MaterializedDep)
-  (root : Nat) (h : root < ws.packages.size)
+  (root : Nat) (root_lt : root < ws.packages.size)
+  (next := ws.packages.size) (next_lt : root < next)
   (leanOpts : Options := {}) (reconfigure := true)
-: m (MinWorkspace ws) := do
-  go ws root h
+: m Workspace := do
+  (·.updateDepPkgs) <$> go ws root root_lt next next_lt
 where
   @[specialize] go
-    (ws : Workspace) (wsIdx : Nat) (h : wsIdx < ws.packages.size)
-  : m (MinWorkspace ws) := do
+    (ws : Workspace) (i : Nat) (i_lt : i < ws.packages.size) (next : Nat) (lt_next : i < next)
+  : m Workspace := do
     let start := ws.packages.size
-    let pkg : Package := ws.packages[wsIdx]
-    have lt_start : pkg.wsIdx < start := ws.packages_wsIdx _ ▸ h
+    let pkg : Package := ws.packages[i]
+    have lt_start : pkg.wsIdx < start := ws.packages_wsIdx _ ▸ i_lt
     -- Materialize and load the missing direct dependencies of `pkg`
     let s := ResolveState.init ws pkg.depConfigs.size
     let ⟨ws, depIdxs, lt_of_mem, start_le⟩ ← pkg.depConfigs.foldrM (m := m) (init := s) fun dep s => do
@@ -183,31 +215,18 @@ where
         error s!"{pkg.prettyName}: package requires itself (or a package with the same name)"
       let matDep ← resolve pkg dep s.ws
       s.newDep matDep dep.opts leanOpts reconfigure
+    let ws := ws.setDepIdxs pkg depIdxs (Nat.lt_of_lt_of_le lt_start start_le) lt_of_mem
+    have start_le : start ≤ ws.packages.size := Nat.le_trans start_le (by simp [ws])
     -- Recursively load the dependencies' dependencies
-    let stop := ws.packages.size
-    let ⟨le_maxSmallNat⟩ ← guardBySize! ws.packages
-    let ⟨ws, stop_le⟩ ← id do
-      let mut ws' : {ws' : Workspace // stop ≤ ws'.packages.size} := ⟨ws, Nat.le_refl _⟩
-      for h_rco : wsIdx in (start...<stop) do
-        let ⟨ws, stop_le⟩ := ws'
-        have lt_stop := Std.Rco.lt_upper_of_mem h_rco
-        let ⟨ws, h⟩ ← go ws wsIdx <| Nat.lt_of_lt_of_le lt_stop stop_le
-        ws' := ⟨ws, Nat.le_trans stop_le h⟩
-      return ws'
-    have start_le := Nat.le_trans start_le stop_le
-    -- Add the package's dependencies to the package
-    let depPkgs := depIdxs.attach.map fun ⟨wsIdx, h_mem⟩ =>
-      ws.packages[wsIdx]'(Nat.lt_of_lt_of_le (lt_of_mem wsIdx h_mem) stop_le)
-    let ws := ws.setDepPkgs pkg depPkgs <| Nat.lt_of_lt_of_le lt_start start_le
-    have start_le := Nat.le_trans start_le <| by
-      simp [ws, Workspace.size_packages_setDepPkgs]
-    return ⟨ws, start_le⟩
-  termination_by Lean.maxSmallNat - wsIdx
+    if next_lt : next < ws.packages.size then
+      let ⟨le_maxSmallNat⟩ ← guardBySize! ws.packages
+      go ws next next_lt (next+1) (Nat.lt_add_one next)
+    else
+      return ws
+  termination_by Lean.maxSmallNat - i
   decreasing_by
-    have start_le := Std.Rco.lower_le_of_mem h_rco
-    have lt_wsIdx := Nat.lt_of_lt_of_le h start_le
-    refine Nat.sub_lt_sub_left (Nat.lt_of_lt_of_le lt_wsIdx ?_) lt_wsIdx
-    exact Nat.le_trans (Nat.le_of_lt lt_stop) le_maxSmallNat
+    refine Nat.sub_lt_sub_left ?_ lt_next
+    exact Nat.lt_of_lt_of_le i_lt (Nat.le_trans start_le le_maxSmallNat)
 
 /--
 Adds monad state used to update the manifest.
@@ -448,7 +467,7 @@ def Workspace.updateAndMaterializeCore
     ws.updateToolchain matDeps.toArray
     -- Load the top-level dependenciess
     let start := ws.packages.size
-    let ⟨ws, h⟩ ← id do
+    let ⟨ws, start_le⟩ ← id do
       let mut ws' : {ws : Workspace // start ≤ ws.packages.size} := ⟨ws, Nat.le_refl _⟩
       for h : i in 0...<numDeps do
         let matDep := matDeps[i]
@@ -458,22 +477,21 @@ def Workspace.updateAndMaterializeCore
         ws' := ⟨ws, Nat.le_trans ws'.property <| by simp [h]⟩
       return ws'
     let stop := ws.packages.size
-    have start_le_stop : start ≤ stop := h
-    -- Resolve the top-level dependencies' dependencies'
-    let ⟨ws, _⟩ ← id do
-      let mut ws' : {ws : Workspace // stop ≤ ws.packages.size} := ⟨ws, Nat.le_refl _⟩
-      for h : wsIdx in start...<stop do
-        let ⟨ws, stop_le⟩ := ws'
-        have h := Nat.lt_of_lt_of_le (Std.Rco.lt_upper_of_mem h) stop_le
-        let ⟨ws, h⟩ ← ws.resolveDepsCore updateAndAddDep wsIdx h
-          (leanOpts := leanOpts) (reconfigure := true)
-        ws' := ⟨ws, Nat.le_trans stop_le h⟩
-      return ws'
-    -- Set dependency packages after `resolveDepsCore` so
-    -- that the dependencies' dependencies are also properly set
-    return ws.setDepPkgs ws.root ws.packages[start...<stop] ws.wsIdx_root_lt
+    let ws := ws.setDepIdxs ws.root (start...<stop).toArray ws.wsIdx_root_lt <| by
+      simp [Std.Rco.mem_toArray_iff_mem, Std.Rco.mem_iff, stop]
+    if start_ne : start ≠ stop then
+      -- Resolve the top-level dependencies' dependencies'
+      have start_lt : start < ws.packages.size := by
+        simpa [ws] using Nat.lt_of_le_of_ne start_le start_ne
+      ws.resolveDepsCore updateAndAddDep
+        start start_lt (start+1) (Nat.lt_add_one start)
+        (leanOpts := leanOpts) (reconfigure := true)
+    else
+      return ws.updateDepPkgs
   else
-    ws.resolveDepsCore updateAndAddDep ws.root.wsIdx ws.wsIdx_root_lt leanOpts (reconfigure := true)
+    ws.resolveDepsCore updateAndAddDep
+      ws.root.wsIdx ws.wsIdx_root_lt ws.packages.size ws.wsIdx_root_lt
+      (leanOpts := leanOpts) (reconfigure := true)
 where
   @[inline] updateAndAddDep pkg dep ws := do
     let matDep ← updateAndMaterializeDep ws pkg dep
@@ -584,4 +602,6 @@ public def Workspace.materializeDeps
           this suggests that the manifest is corrupt; \
           use `lake update` to generate a new, complete file \
           (warning: this will update ALL workspace dependencies)"
-  ws.resolveDepsCore materialize ws.root.wsIdx ws.wsIdx_root_lt leanOpts reconfigure
+  ws.resolveDepsCore materialize
+    ws.root.wsIdx ws.wsIdx_root_lt ws.packages.size ws.wsIdx_root_lt
+    leanOpts reconfigure

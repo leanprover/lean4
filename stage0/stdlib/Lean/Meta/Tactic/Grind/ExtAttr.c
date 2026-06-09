@@ -738,7 +738,7 @@ case 0:
 lean_object* v_key_209_; uint8_t v___x_210_; 
 v_key_209_ = lean_ctor_get(v_entry_208_, 0);
 lean_inc(v_key_209_);
-lean_dec_ref(v_entry_208_);
+lean_dec_ref_known(v_entry_208_, 2);
 v___x_210_ = lean_name_eq(v_x_201_, v_key_209_);
 lean_dec(v_key_209_);
 if (v___x_210_ == 0)
@@ -890,7 +890,7 @@ lean_dec_ref(v_newNode_229_);
 lean_del_object(v___x_225_);
 v_val_238_ = lean_ctor_get(v___x_230_, 0);
 lean_inc(v_val_238_);
-lean_dec_ref(v___x_230_);
+lean_dec_ref_known(v___x_230_, 1);
 v_fst_239_ = lean_ctor_get(v_val_238_, 0);
 v_snd_240_ = lean_ctor_get(v_val_238_, 1);
 v_isSharedCheck_251_ = !lean_is_exclusive(v_val_238_);
@@ -1014,7 +1014,7 @@ else
 lean_object* v_val_264_; lean_object* v_keys_x27_265_; lean_object* v_vals_x27_266_; lean_object* v___x_268_; 
 v_val_264_ = lean_ctor_get(v___x_260_, 0);
 lean_inc_n(v_val_264_, 2);
-lean_dec_ref(v___x_260_);
+lean_dec_ref_known(v___x_260_, 1);
 v_keys_x27_265_ = l_Array_eraseIdx___redArg(v_ks_255_, v_val_264_);
 v_vals_x27_266_ = l_Array_eraseIdx___redArg(v_vs_256_, v_val_264_);
 if (v_isShared_259_ == 0)

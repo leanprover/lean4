@@ -54,11 +54,6 @@ where
       -- (a → b) = True → b = False → a = False
       pushEqFalse a <| mkApp4 (mkConst ``Grind.eq_false_of_imp_eq_true) a b (← mkEqTrueProof e) (← mkEqFalseProof b)
 
-private def isEqTrueHyp? (proof : Expr) : Option FVarId := Id.run do
-  let_expr eq_true _ p := proof | return none
-  let .fvar fvarId := p | return none
-  return some fvarId
-
 /-- Similar to `mkEMatchTheoremWithKind?`, but swallow any exceptions. -/
 private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : EMatchTheoremKind) (prios : SymbolPriorities) : MetaM (Option EMatchTheorem) := do
   try
@@ -72,6 +67,17 @@ private def mkEMatchTheoremWithKind'? (origin : Origin) (proof : Expr) (kind : E
 private def isNewPat (patternsFoundSoFar : Array (List Expr)) (thm' : EMatchTheorem) : Bool :=
   patternsFoundSoFar.all fun ps => thm'.patterns != ps
 
+private partial def getOrigin (proof : Expr) : GoalM Origin := do
+  match_expr proof with
+  | eq_true _ p => getOrigin p
+  | Eq.mp _ _ _ p => getOrigin p
+  | _ =>
+    if let .fvar fvarId := proof then
+      return .fvar fvarId
+    else
+      let idx ← modifyGet fun s => (s.ematch.nextThmIdx, { s with ematch.nextThmIdx := s.ematch.nextThmIdx + 1 })
+      return .local ((`local).appendIndexAfter idx)
+
 /--
 Given a proof of an `EMatchTheorem`, returns `true`, if there are no
 anchor references restricting the search, or there is an anchor
@@ -84,11 +90,7 @@ def checkAnchorRefsEMatchTheoremProof (proof : Expr) : GrindM Bool := do
 
 private def addLocalEMatchTheorems (e : Expr) : GoalM Unit := do
   let proof ← mkEqTrueProof e
-  let origin ← if let some fvarId := isEqTrueHyp? proof then
-    pure <| .fvar fvarId
-  else
-    let idx ← modifyGet fun s => (s.ematch.nextThmIdx, { s with ematch.nextThmIdx := s.ematch.nextThmIdx + 1 })
-    pure <| .local ((`local).appendIndexAfter idx)
+  let origin ← getOrigin proof
   let proof := mkOfEqTrueCore e proof
   -- **Note**: Do we really need to restrict the instantiation of local theorems?
   -- **Note**: Should we distinguish anchors restricting case-splits and local theorems?

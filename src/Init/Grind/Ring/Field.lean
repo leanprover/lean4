@@ -90,7 +90,8 @@ theorem inv_eq_zero_iff {a : α} : a⁻¹ = 0 ↔ a = 0 := by
     · subst h
       rfl
     · have := congrArg (fun x => x * a) w
-      dsimp at this
+      -- TODO(kmill): remove after stage0 update
+      try dsimp at this
       rw [Semiring.zero_mul, inv_mul_cancel h] at this
       exfalso
       exact zero_ne_one this.symm
@@ -122,7 +123,7 @@ theorem inv_mul (a b : α) : (a*b)⁻¹ = a⁻¹*b⁻¹ := by
     replace h₁ := Field.inv_mul_cancel h₁
     replace h₂ := Field.inv_mul_cancel h₂
     replace h₃ := Field.mul_inv_cancel h₃
-    replace h₃ := congrArg (b⁻¹*a⁻¹* ·) h₃; simp at h₃
+    replace h₃ := congrArg (b⁻¹*a⁻¹* ·) h₃; try simp at h₃ -- TODO(kmill): remove simp after stage0 update
     rw [Semiring.mul_assoc, Semiring.mul_assoc, ← Semiring.mul_assoc (a⁻¹), h₁, Semiring.one_mul,
       ← Semiring.mul_assoc, h₂, Semiring.one_mul, Semiring.mul_one, CommRing.mul_comm (b⁻¹)] at h₃
     assumption
@@ -135,7 +136,7 @@ theorem of_pow_eq_zero (a : α) (n : Nat) : a^n = 0 → a = 0 := by
     apply Classical.byContradiction
     intro hne
     have := Field.mul_inv_cancel hne
-    replace h := congrArg (· * a⁻¹) h; simp at h
+    replace h := congrArg (· * a⁻¹) h; try simp at h -- TODO(kmill): remove simp after stage0 update
     rw [Semiring.mul_assoc, this, Semiring.mul_one, Semiring.zero_mul] at h
     have := ih h
     contradiction

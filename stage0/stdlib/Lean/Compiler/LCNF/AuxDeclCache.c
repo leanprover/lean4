@@ -998,7 +998,7 @@ else
 lean_object* v_val_284_; 
 v_val_284_ = lean_ctor_get(v___x_281_, 0);
 lean_inc(v_val_284_);
-lean_dec_ref(v___x_281_);
+lean_dec_ref_known(v___x_281_, 1);
 v___y_275_ = v_val_284_;
 goto v___jp_274_;
 }
@@ -1388,7 +1388,7 @@ else
 lean_object* v_declName_438_; lean_object* v___x_439_; 
 v_declName_438_ = lean_ctor_get(v_t_436_, 0);
 lean_inc(v_declName_438_);
-lean_dec_ref(v_t_436_);
+lean_dec_ref_known(v_t_436_, 1);
 v___x_439_ = lean_apply_1(v_k_437_, v_declName_438_);
 return v___x_439_;
 }
@@ -1776,7 +1776,7 @@ if (lean_obj_tag(v___x_572_) == 0)
 lean_object* v_a_573_; lean_object* v___x_574_; lean_object* v___x_575_; lean_object* v___x_576_; lean_object* v_a_577_; lean_object* v___x_579_; uint8_t v_isShared_580_; uint8_t v_isSharedCheck_602_; 
 v_a_573_ = lean_ctor_get(v___x_572_, 0);
 lean_inc(v_a_573_);
-lean_dec_ref(v___x_572_);
+lean_dec_ref_known(v___x_572_, 1);
 v___x_574_ = lean_alloc_ctor(0, 1, 1);
 lean_ctor_set(v___x_574_, 0, v_a_573_);
 lean_ctor_set_uint8(v___x_574_, sizeof(void*)*1, v_pu_547_);
@@ -1849,7 +1849,7 @@ return v___x_587_;
 else
 {
 lean_object* v_val_591_; lean_object* v___x_593_; uint8_t v_isShared_594_; uint8_t v_isSharedCheck_601_; 
-lean_dec_ref(v___x_574_);
+lean_dec_ref_known(v___x_574_, 1);
 lean_dec(v_name_559_);
 v_val_591_ = lean_ctor_get(v_a_577_, 0);
 v_isSharedCheck_601_ = !lean_is_exclusive(v_a_577_);

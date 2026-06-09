@@ -228,9 +228,9 @@ def validateRepo? (repo : String) : Option String := Id.run do
     return "invalid characters in repository name"
   match repo.split '/' |>.toStringList with
   | [owner, name] =>
-    if owner.length > 39 then
+    if owner.lengthAssumingAscii > 39 then
       return "invalid repository name; owner must be at most 390 characters long"
-    if name.length > 100 then
+    if name.lengthAssumingAscii > 100 then
       return "invalid repository name; owner must be at most 100 characters long"
   | _ => return "invalid repository name; must contain exactly one '/'"
   return none
@@ -271,7 +271,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
   modifyThe LakeOptions ({· with scope? := some (.ofRepo repo)})
 | "--platform" => do
   let platform ← takeOptArg "--platform" "cache platform"
-  if platform.length > 100 then
+  if platform.chars.length > 100 then
     error "invalid platform; platform is expected to be at most 100 characters long"
   modifyThe LakeOptions ({· with platform? := some <| .ofString platform})
 | "--toolchain" => do
@@ -313,8 +313,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
 -- Builtin lint options (using any of these implicitly enables --builtin-lint)
 | "--builtin-lint" => modifyThe LakeOptions ({· with runBuiltinLint := true})
 | "--builtin-only" => modifyThe LakeOptions ({· with runBuiltinLint := true, builtinOnly := true})
-| "--clippy" => modifyThe LakeOptions ({· with
-    runBuiltinLint := true, builtinLint.scope := .clippy, builtinLint.only := #[]})
+| "--extra" => modifyThe LakeOptions ({· with
+    runBuiltinLint := true, builtinLint.scope := .extra, builtinLint.only := #[]})
 | "--lint-all" => modifyThe LakeOptions ({· with
     runBuiltinLint := true, builtinLint.scope := .all, builtinLint.only := #[]})
 | "--lint-only" => do

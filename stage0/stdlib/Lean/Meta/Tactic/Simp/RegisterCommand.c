@@ -639,7 +639,7 @@ if (lean_obj_tag(v___y_648_) == 1)
 lean_object* v_val_671_; lean_object* v___x_672_; 
 v_val_671_ = lean_ctor_get(v___y_648_, 0);
 lean_inc(v_val_671_);
-lean_dec_ref(v___y_648_);
+lean_dec_ref_known(v___y_648_, 1);
 v___x_672_ = l_Array_mkArray1___redArg(v_val_671_);
 v___y_559_ = v_quotContext_650_;
 v___y_560_ = v___x_669_;
@@ -1070,7 +1070,7 @@ lean_object* v_val_546_; lean_object* v___x_547_; lean_object* v___x_548_; lean_
 lean_dec(v___y_392_);
 v_val_546_ = lean_ctor_get(v___x_544_, 0);
 lean_inc(v_val_546_);
-lean_dec_ref(v___x_544_);
+lean_dec_ref_known(v___x_544_, 1);
 v___x_547_ = ((lean_object*)(l_Lean_Meta_Simp___aux__Lean__Meta__Tactic__Simp__RegisterCommand______macroRules__Lean__Meta__Simp____root____Lean__Parser__Command__registerSimpAttr__1___closed__67));
 lean_inc_ref(v___y_414_);
 v___x_548_ = l_Lean_Name_mkStr4(v___x_383_, v___x_384_, v___y_414_, v___x_547_);
@@ -1264,7 +1264,7 @@ lean_object* v_val_623_; lean_object* v___x_624_; lean_object* v___x_625_; lean_
 lean_dec(v___y_565_);
 v_val_623_ = lean_ctor_get(v___x_621_, 0);
 lean_inc(v_val_623_);
-lean_dec_ref(v___x_621_);
+lean_dec_ref_known(v___x_621_, 1);
 v___x_624_ = ((lean_object*)(l_Lean_Meta_Simp___aux__Lean__Meta__Tactic__Simp__RegisterCommand______macroRules__Lean__Meta__Simp____root____Lean__Parser__Command__registerSimpAttr__1___closed__105));
 v___x_625_ = ((lean_object*)(l_Lean_Meta_Simp___aux__Lean__Meta__Tactic__Simp__RegisterCommand______macroRules__Lean__Meta__Simp____root____Lean__Parser__Command__registerSimpAttr__1___closed__68));
 v___x_626_ = ((lean_object*)(l_Lean_Meta_Simp___aux__Lean__Meta__Tactic__Simp__RegisterCommand______macroRules__Lean__Meta__Simp____root____Lean__Parser__Command__registerSimpAttr__1___closed__69));

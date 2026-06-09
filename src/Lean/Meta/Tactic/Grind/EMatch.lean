@@ -273,6 +273,14 @@ private def assignGenInfo? (genInfo? : Option GenPatternInfo) (c : Choice) (x : 
   genInfo.assign? c x
 
 /--
+Return the maximum generation allowed for the current theorem.
+-/
+private def getMaxGeneration : M Nat := do
+  match (← read).thm.origin with
+  | .stx .. | .decl _ => return (← getConfig).gen
+  | _ => return (← getConfig).genLocal
+
+/--
 Matches pattern `p` with term `e` with respect to choice `c`.
 We traverse the equivalence class of `e` looking for applications compatible with `p`.
 For each candidate application, we match the arguments and may update `c`s assignments and constraints.

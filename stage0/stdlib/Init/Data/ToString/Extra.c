@@ -79,7 +79,7 @@ if (lean_obj_tag(v_tail_15_) == 0)
 lean_object* v_head_16_; lean_object* v___x_17_; lean_object* v___x_18_; lean_object* v___x_19_; lean_object* v___x_20_; lean_object* v___x_21_; 
 v_head_16_ = lean_ctor_get(v_x_13_, 0);
 lean_inc(v_head_16_);
-lean_dec_ref(v_x_13_);
+lean_dec_ref_known(v_x_13_, 2);
 v___x_17_ = ((lean_object*)(l_List_toString___redArg___closed__1));
 v___x_18_ = lean_apply_1(v_inst_12_, v_head_16_);
 v___x_19_ = lean_string_append(v___x_17_, v___x_18_);
@@ -94,7 +94,7 @@ lean_object* v_head_22_; lean_object* v___f_23_; lean_object* v___x_24_; lean_ob
 lean_inc(v_tail_15_);
 v_head_22_ = lean_ctor_get(v_x_13_, 0);
 lean_inc(v_head_22_);
-lean_dec_ref(v_x_13_);
+lean_dec_ref_known(v_x_13_, 2);
 lean_inc_ref(v_inst_12_);
 v___f_23_ = lean_alloc_closure((void*)(l_List_toString___redArg___lam__0), 3, 1);
 lean_closure_set(v___f_23_, 0, v_inst_12_);

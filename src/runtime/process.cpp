@@ -89,7 +89,7 @@ static void process_child_finalizer(void * ptr) {
 }
 
 static lean_process_child_object * process_child_data(b_obj_arg obj) {
-    return static_cast<lean_process_child_object *>(lean_get_external_data(child_obj));
+    return static_cast<lean_process_child_object *>(lean_get_external_data(obj));
 }
 
 static void process_child_foreach(void * /* mod */, b_obj_arg /* fn */) {

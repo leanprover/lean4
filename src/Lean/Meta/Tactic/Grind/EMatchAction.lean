@@ -7,7 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Intro
 import Lean.Util.ParamMinimizer
-import Lean.Meta.Tactic.Grind.EMatch
+public import Lean.Meta.Tactic.Grind.EMatch
 import Lean.Meta.Tactic.Grind.EMatchTheoremParam
 import Lean.Meta.Tactic.Grind.EMatchTheoremPtr
 import Lean.Meta.Tactic.Grind.MarkNestedSubsingletons
@@ -47,7 +47,7 @@ structure CollectState where
   collectedThms : Std.HashSet (Origin × EMatchTheoremKind) := {}
   thms          : Array EMatchTheorem := #[]
 
-def collect (e : Expr) (map : EMatch.InstanceMap) : Array EMatchTheorem :=
+public def collect (e : Expr) (map : EMatch.InstanceMap) : Array EMatchTheorem :=
   let (_, s) := go e |>.run {}
   s.thms
 where

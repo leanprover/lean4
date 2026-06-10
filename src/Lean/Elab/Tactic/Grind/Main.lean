@@ -10,6 +10,7 @@ public import Lean.Meta.Tactic.TryThis
 public import Lean.Elab.Tactic.Grind.Config
 public import Lean.LibrarySuggestions.Basic
 import Lean.Meta.Tactic.Grind.SimpUtil
+import Lean.Meta.Tactic.Grind.EMatchAction
 import Lean.Elab.Tactic.Grind.Param
 import Lean.Meta.Tactic.Grind.Finish
 import Lean.Meta.Tactic.Grind.CollectParams
@@ -393,34 +394,78 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
     | _ => return true
   let mvarId ← getMainGoal
   let params ← mkGrindParams config only paramStxs mvarId
+  let params := if trace then { params with config.markInstances := true } else params
+  let config := params.config
+  let saved ← Tactic.saveState
   Grind.withProtectedMCtx config mvarId fun mvarId' => do
-    let (tacs, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
+    let ((syntaxTacs, theoremTacs, tac), _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
       let finish ← Grind.Action.mkFinish
       let goal :: _ ← Grind.getGoals
         | -- Goal was closed during initialization
           let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
           if termParamStxs.isEmpty then
             let tac ← `(tactic| grind $configStx':optConfig only)
-            return #[tac]
+            return (#[tac], #[tac], tac)
           else
             let tac ← `(tactic| grind $configStx':optConfig only [$termParamStxs,*])
-            return #[tac]
+            return (#[tac], #[tac], tac)
       Grind.liftGrindM do
-        -- **Note**: If we get failures when using the first suggestion, we should test is using `saved`
-        -- let saved ← saveState
         match (← finish.run goal) with
         | .closed seq =>
           let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
-          let tacs ← Grind.mkGrindOnlyTactics configStx' seq termParamStxs
+          let syntaxTacs ← Grind.mkGrindOnlyTactics configStx' seq termParamStxs
+          let proof ← instantiateMVars (mkMVar goal.mvarId)
+          let usedThms := Grind.Action.collect proof (← get).instanceMap
+          let theoremTacs ← Grind.mkGrindOnlyTacticsUsingTheorems configStx' seq usedThms termParamStxs
           let seq := Grind.Action.mkGrindSeq seq
           let tac ← `(tactic| grind $configStx':optConfig => $seq:grindSeq)
-          let tacs := tacs.push tac
-          return tacs
+          return (syntaxTacs, theoremTacs, tac)
         | .stuck gs =>
           let goal :: _ := gs | throwError "`grind?` failed, but resulting goal is not available"
           let result ← Grind.mkResult params (some goal)
           throwError "`grind?` failed\n{← result.toMessageData}"
-    return tacs
+    let syntaxTacs ← filterClosingSuggestions saved syntaxTacs
+    let tacs := if syntaxTacs.isEmpty then theoremTacs else syntaxTacs
+    return appendIfNew tacs tac
+
+where
+  appendIfNew (tacs : Array (TSyntax `tactic)) (tac : TSyntax `tactic) :
+      Array (TSyntax `tactic) :=
+    if tacs.contains tac then tacs else tacs.push tac
+
+  filterClosingSuggestions (savedState : Tactic.SavedState)
+      (tacs : Array (TSyntax `tactic)) : TacticM (Array (TSyntax `tactic)) := do
+    let mut valid := #[]
+    for tac in tacs do
+      if ← closesGoal savedState tac then
+        valid := valid.push tac
+    return valid
+
+  closesGoal (savedState : Tactic.SavedState) (tac : TSyntax `tactic) : TacticM Bool := do
+    let currState ← saveState
+    let coreState ← getThe Core.State
+    savedState.restore
+    try
+      Term.withoutErrToSorry <| withoutRecover <| evalTactic tac
+      return (← getGoals).isEmpty
+    catch _ =>
+      return false
+    finally
+      currState.restore
+      /-
+      `restore` only backtracks the environment/messages portion of `Core.State`.
+      Internal validation must also restore the name generators and tracing/info
+      state, otherwise replaying a suggestion perturbs later private theorem names
+      such as `_proof_1_1`.
+      -/
+      modifyThe Core.State fun s => { s with
+        nextMacroScope := coreState.nextMacroScope
+        ngen := coreState.ngen
+        auxDeclNGen := coreState.auxDeclNGen
+        traceState := coreState.traceState
+        cache := coreState.cache
+        infoState := coreState.infoState
+      }
 
 @[builtin_tactic Lean.Parser.Tactic.grindTrace] def evalGrindTrace : Tactic := fun stx => do
   let tacs ← evalGrindTraceCore stx

@@ -120,5 +120,17 @@ test_run cache unstage staging_old
 test_not_out "cache integrity error" build
 test_run build --no-build --rehash
 
+#-------------------------------------------------------------------------------
+echo "# 7. With recorded outputs and a warm artifact cache, a bundle receipt is"
+echo "#    served from the individually cached artifacts without unpacking."
+#-------------------------------------------------------------------------------
+# Step 6 left the individual artifacts in the cache; rewrite the receipts back to
+# bundle-reference form and wipe the build directory. The recorded outputs resolve
+# locally, so no bundle is unpacked.
+rm -rf .lake/build
+test_run cache unstage staging
+test_not_out "leantar" build -v
+test_run build --no-build --rehash
+
 ./clean.sh
 echo "ltarCache: all checks passed"

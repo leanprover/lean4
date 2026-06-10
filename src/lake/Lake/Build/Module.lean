@@ -688,6 +688,14 @@ def resolveModuleOutputs (out : CacheOutput) : JobM ModuleOutputs := do
         | .error e =>
           logWarning s!"ignoring ill-formed outputs recorded in cache mapping: {e}"
           return none
+      if let some descrs := descrs? then
+        -- Prefer individually cached artifacts (no fetch or unpack needed).
+        -- They are not uploaded alongside the bundle, so consult only the
+        -- local cache; when any is missing, fall back to the bundle.
+        try
+          return .arts (← descrs.resolve none none)
+        catch e =>
+          dropLogFrom e
       let art ← resolveArtifact descr out.service? out.scope?
       return .ltar art descrs?
     | .error e =>

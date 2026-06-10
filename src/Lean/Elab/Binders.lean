@@ -60,6 +60,7 @@ structure BinderView where
   id   : Syntax
   type : Syntax
   bi   : BinderInfo
+  isIdSynthetic : Bool := false
 
 partial def quoteAutoTactic : Syntax → CoreM Expr
   | .ident _ _ val preresolved =>
@@ -162,7 +163,9 @@ private def toBinderViews (stx : Syntax) : TermElabM (Array BinderView) := do
     -- `[` optIdent type `]`
     let id ← expandOptIdent stx[1]
     let type := stx[2]
-    return #[ { ref := id, id := id, type := type, bi := .instImplicit } ]
+    let isIdSynthetic := stx[1].isNone
+    let ref := if isIdSynthetic then stx else id
+    return #[ { ref := ref, id := id, type := type, bi := .instImplicit, isIdSynthetic } ]
   else
     throwUnsupportedSyntax
 
@@ -220,7 +223,8 @@ private partial def elabBinderViews (binderViews : Array BinderView) (fvars : Ar
       let id := binderView.id.getId
       withLocalDecl id binderView.bi type (kind := .ofBinderName id) fun fvar => do
         addLocalVarInfo binderView.ref fvar
-        loop (i+1) (fvars.push (binderView.id, fvar))
+        let infoStx := if binderView.isIdSynthetic then binderView.ref else binderView.id
+        loop (i+1) (fvars.push (infoStx, fvar))
     else
       k fvars
   loop 0 fvars

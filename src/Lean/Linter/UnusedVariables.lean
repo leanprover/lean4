@@ -360,6 +360,9 @@ structure FVarDefinition where
   syntax, such as the `h` in `if h : c then ... else ...`. We only report an unused variable
   at this span if all variables in `aliases` are unused. -/
   aliases : Array FVarId
+  /-- `true` if this is an anonymous instance binder `[C]`, whose `userName` is a synthesized
+  `inst` name. -/
+  isAnonymousInstance : Bool := false
 
 /-- The main data structure used to collect information from the info tree regarding unused
 variables. -/
@@ -427,7 +430,8 @@ where
               let some ldecl := ti.lctx.find? id | return true
               -- Skip declarations which are outside the command syntax range, like `variable`s
               -- (it would be confusing to lint these), or those which are macro-generated
-              if !cmdStxRange.contains range.start || ldecl.userName.hasMacroScopes then return true
+              -- the only exemption are instance arguments, which were anonymous and their name was generated.
+              if !cmdStxRange.contains range.start || (ldecl.binderInfo != .instImplicit && ldecl.userName.hasMacroScopes) then return true
               let opts : LinterOptions := { toOptions := ci.options, linterSets }
               -- we have to check for the option again here because it can be set locally
               if !getLinterUnusedVariables opts then return true
@@ -436,12 +440,15 @@ where
                 -- If the variable name is `_foo` then it is intentionally (possibly) unused, so skip.
                 -- This is the suggested way to silence the warning
                 if s.startsWith "_" then return true
+              -- An anonymous instance binder `[C]` has an `instImplicit` binder info and a
+              -- synthesized (macro-scoped) `inst` name; we report these with a tailored message.
+              let isAnonymousInstance := ldecl.binderInfo == .instImplicit && ldecl.userName.hasMacroScopes
               -- Record this either as a new `fvarDefs`, or an alias of an existing one
               modify fun s =>
                 if let some ref := s.fvarDefs[range]? then
                   { s with fvarDefs := s.fvarDefs.insert range { ref with aliases := ref.aliases.push id } }
                 else
-                  { s with fvarDefs := s.fvarDefs.insert range { userName := ldecl.userName, stx, opts := opts.toOptions, aliases := #[id] } }
+                  { s with fvarDefs := s.fvarDefs.insert range { userName := ldecl.userName, stx, opts := opts.toOptions, aliases := #[id], isAnonymousInstance } }
             else
               -- Found a direct use, keep track of it
               modify fun s => { s with fvarUses := s.fvarUses.insert id }
@@ -521,7 +528,7 @@ def unusedVariables : Linter where
     let mut initializedMVars := false
     let mut unused := #[]
     -- For each variable definition, check to see if it is used
-    for (range, { userName, stx := declStx, opts, aliases }) in s.fvarDefs.toArray do
+    for (range, { userName, stx := declStx, opts, aliases, isAnonymousInstance }) in s.fvarDefs.toArray do
       let fvarUses ← fvarUsesRef.get
       -- If any of the `fvar`s corresponding to this declaration is (an alias of) a variable in
       -- `fvarUses`, then it is used
@@ -529,13 +536,20 @@ def unusedVariables : Linter where
       -- If this is a global declaration then it is (potentially) used after the command
       if s.constDecls.contains range then continue
 
-      -- Get the syntax stack for this variable declaration
-      let some ((id', _) :: stack) := cmdStx.findStack? (·.getRange?.any (·.includes range))
+      -- Get the syntax stack for this variable declaration. An anonymous instance binder is reported
+      -- on its whole `instBinder`, so we instead accept the tightest node still enclosing `range`.
+      let accept := fun stx =>
+        if isAnonymousInstance then !stx.getArgs.any (·.getRange?.any (·.includes range))
+        else !stx.hasArgs
+      let some ((id', _) :: stack) := cmdStx.findStack? (·.getRange?.any (·.includes range)) (accept := accept)
         | continue
 
       -- If it is blacklisted by an `ignoreFn` then skip it
       let linterOpts ← opts.toLinterOptions
-      if id'.isIdent && ignoreFns.any (· declStx stack linterOpts) then continue
+      -- For an anonymous instance binder, we appropriately reconstruct the stack
+      -- so that the ignore functions apply correctly to it.
+      let stack := if isAnonymousInstance then (id'[1], 0) :: (id', 1) :: stack else stack
+      if (id'.isIdent || isAnonymousInstance) && ignoreFns.any (· declStx stack linterOpts) then continue
 
       -- Evaluate ignore functions again on macro expansion outputs
       if ← infoTrees.anyM fun tree => do
@@ -566,11 +580,18 @@ def unusedVariables : Linter where
         if aliases.any fun id => fvarUses.contains (getCanonVar id) then continue
 
       -- If we made it this far then the variable is unused and not ignored
-      unused := unused.push (declStx, userName)
+      unused := unused.push (declStx, userName, isAnonymousInstance)
 
     -- Sort the outputs by position
-    for (declStx, userName) in unused.qsort (·.1.getPos?.get! < ·.1.getPos?.get!) do
-      logLint linter.unusedVariables declStx m!"Variable name `{userName}` is not explicitly referenced.\n\nThe binding can be removed (if unused) or named `_` (if used implicitly)."
+    for (declStx, userName, isAnonymousInstance) in unused.qsort (·.1.getPos?.get! < ·.1.getPos?.get!) do
+      let msg :=
+        if isAnonymousInstance then
+          m!"This instance argument is unused.\n\nThe binding can be removed or given a \
+            `_`-prefixed name."
+        else
+          m!"Variable name `{userName}` is not explicitly referenced.\n\nThe binding can be removed \
+            (if unused) or named `_` (if used implicitly)."
+      logLint linter.unusedVariables declStx msg
 
 builtin_initialize addLinter unusedVariables
 

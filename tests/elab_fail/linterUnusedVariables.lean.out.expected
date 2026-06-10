@@ -58,6 +58,11 @@ linterUnusedVariables.lean:73:34-73:38: warning: Variable name `inst` is not exp
 The binding can be removed (if unused) or named `_` (if used implicitly).
 
 Note: This linter can be disabled with `set_option linter.unusedVariables false`
+linterUnusedVariables.lean:75:25-75:38: warning: This instance argument is unused.
+
+The binding can be removed or given a `_`-prefixed name.
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
 linterUnusedVariables.lean:114:25-114:26: warning: Variable name `x` is not explicitly referenced.
 
 The binding can be removed (if unused) or named `_` (if used implicitly).

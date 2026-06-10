@@ -2,6 +2,14 @@ set_option linter.unusedVariables true
 
 class Foo
 
+/--
+warning: This instance argument is unused.
+
+The binding can be removed or given a `_`-prefixed name.
+
+Note: This linter can be disabled with `set_option linter.unusedVariables false`
+-/
+#guard_msgs in
 def bar [Foo] := 0
 
 /--

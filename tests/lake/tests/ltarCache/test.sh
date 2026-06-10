@@ -138,5 +138,15 @@ test_not_out "leantar" build -v -o out7.jsonl
 bundles out7.jsonl > bundles7.txt
 test_cmd diff bundles2.txt bundles7.txt
 
+#-------------------------------------------------------------------------------
+echo "# 8. Unstaging over a cache that already holds the artifacts skips them,"
+echo "#    even when builds cached them read-only."
+#-------------------------------------------------------------------------------
+rm -rf .lake out8.jsonl staging8
+test_run build -o out8.jsonl            # packs; cached bundles are read-only
+test_run cache stage out8.jsonl staging8
+test_run cache unstage staging8
+test_run build --no-build --rehash
+
 ./clean.sh
 echo "ltarCache: all checks passed"

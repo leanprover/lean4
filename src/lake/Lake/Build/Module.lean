@@ -696,10 +696,23 @@ def resolveModuleOutputs (out : CacheOutput) : JobM ModuleOutputs := do
         -- outputs are never uploaded alongside the bundle, so only the local
         -- cache is consulted; if any output is missing, fall back to the
         -- bundle.
-        try
-          return .arts (← descrs.resolve none none)
-        catch e =>
-          dropLogFrom e
+        let arts? ← id do
+          try
+            return some (← descrs.resolve none none)
+          catch e =>
+            dropLogFrom e
+            return none
+        if let some arts := arts? then
+          -- Also attach the bundle when it is cached locally, so that
+          -- mapping-producing builds rehash it rather than repack it
+          -- (see `trackOutputsIfEnabled`).
+          let ltar? ← id do
+            try
+              return some (← resolveArtifact descr none none)
+            catch e =>
+              dropLogFrom e
+              return none
+          return .arts {arts with ltar? := ltar?}
       let art ← resolveArtifact descr out.service? out.scope?
       return .ltar art descrs?
     | .error e =>

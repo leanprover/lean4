@@ -132,6 +132,11 @@ rm -rf .lake/build
 test_run cache unstage staging
 test_not_out "leantar" build -v
 test_run build --no-build --rehash
+# A mapping-producing build after the no-unpack restore reuses the locally
+# cached bundles instead of repacking them, emitting the same bundle set.
+test_not_out "leantar" build -v -o out7.jsonl
+bundles out7.jsonl > bundles7.txt
+test_cmd diff bundles2.txt bundles7.txt
 
 ./clean.sh
 echo "ltarCache: all checks passed"

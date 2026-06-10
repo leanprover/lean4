@@ -373,8 +373,9 @@ structure RecursorVal extends ConstantVal where
   it has exactly one constructor, and that constructor has 0 fields.
 
   Examples of inductives with K-like reduction are `Eq`, `HEq`, and `True`.
-  Non-examples are `Exists` (which has a data field), `And` (which has two proof fields),
-  and `Or` (which has multiple constructors).
+  Non-examples include those with multiple constructors (like `Or`)
+  and those whose constructor has one or more fields (like `And`, `Exists`,
+  and `Nonempty').
   -/
   k : Bool
   isUnsafe : Bool

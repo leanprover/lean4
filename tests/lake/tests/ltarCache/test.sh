@@ -69,6 +69,14 @@ test_run cache unstage staging
 test_cmd_fails ls .lake/cache/artifacts/*.olean   # no individual artifacts present
 test_out "leantar" build -v                       # bundles are unpacked
 test_run build --no-build --rehash                # outputs verify as up-to-date
+# The unpacked trace is stamped with the mapping's input hash and marked synthetic.
+test_cmd python3 -c '
+import json
+hashes = {json.loads(ln)[0] for ln in open("staging/outputs.jsonl") if ln.strip().startswith("[")}
+t = json.load(open(".lake/build/lib/lean/Test/A.trace"))
+assert t["depHash"] in hashes, (t["depHash"], hashes)
+assert t.get("synthetic") is True, t
+print("unpacked trace stamped with input hash, synthetic")'
 
 #-------------------------------------------------------------------------------
 echo "# 5. Integrity: a mapping entry whose recorded outputs disagree with the bundle"
@@ -147,6 +155,34 @@ test_run build -o out8.jsonl            # packs; cached bundles are read-only
 test_run cache stage out8.jsonl staging8
 test_run cache unstage staging8
 test_run build --no-build --rehash
+
+#-------------------------------------------------------------------------------
+echo "# 9. Degraded recorded outputs: an ill-formed third element is reported and"
+echo "#    skipped (bundle still consumed); an explicit null means absent."
+#-------------------------------------------------------------------------------
+rm -rf .lake/cache .lake/build
+python3 - <<'PY'
+import json, shutil
+from pathlib import Path
+src, dst = Path("staging"), Path("staging_degraded")
+shutil.rmtree(dst, ignore_errors=True); shutil.copytree(src, dst)
+f = dst / "outputs.jsonl"; out = []; mutated = 0
+for ln in f.read_text().splitlines():
+    s = ln.strip()
+    if s.startswith("["):
+        a = json.loads(s)
+        if len(a) > 2:
+            mutated += 1
+            a[2] = {"x": 1} if mutated == 1 else None   # ill-formed, then explicit null
+        out.append(json.dumps(a))
+    else:
+        out.append(ln)
+assert mutated >= 2
+f.write_text("\n".join(out) + "\n")
+PY
+test_run cache unstage staging_degraded
+test_out "ignoring ill-formed outputs" build -v
+test_not_out "cache integrity error" build --no-build --rehash
 
 ./clean.sh
 echo "ltarCache: all checks passed"

@@ -121,6 +121,10 @@ public theorem wsIdx_root_lt {ws : Workspace} :
 @[inline] public def config (self : Workspace) : WorkspaceConfig :=
   self.root.config.toWorkspaceConfig
 
+/-- Whether this workspace supports multi-version resolution.  -/
+@[inline] public def isMultiVersion (self : Workspace) : Bool :=
+  self.config.experimentalMultiVersion.getD false
+
 /-- The path to the workspace' Lake directory relative to {lean}`dir`. -/
 @[inline] public def relLakeDir (self : Workspace) : FilePath :=
   self.root.relLakeDir

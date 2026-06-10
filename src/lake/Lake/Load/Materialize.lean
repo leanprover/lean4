@@ -93,6 +93,41 @@ def materializeGitRepo
   else
     cloneGitPkg name repo url rev?
 
+/--
+Using the Git repository {lean}`repo`, fetchs the Git revision {lean}`rev` from {lean}`url`,
+initializes a (detached) worktree for it if necessary, and returns the resolved commit hash.
+The repository will initialized if it does not already exist.
+
+In multi-version workspaces, a dependency's root directory (i.e., {lean}`repo.dir`),
+is a bare Git repository with no remotes and multiple worktrees.
+Different revisions of a dependency are checked out as separate worktrees using their commit hash
+as the directory names. Thus, different input revisions (e.g., {lit}`branch1`, {lit}`branch2`) will
+share the same worktree if they resolve to the same commit hash.
+-/
+-- Worktree setup informed by the discussion at https://stackoverflow.com/q/54367011
+def materializeGitRepoMultiVersion
+  (name : String) (wsDir : FilePath) (repo : GitRepo) (url : String) (rev : GitRev := .head)
+: LoggerIO GitRev := do
+  let url ← id do
+    let urlAsPath := wsDir / url
+    if (← urlAsPath.pathExists) then
+      return (← IO.FS.realPath urlAsPath).toString
+    else
+      return url
+  unless (← repo.dirExists) do
+    logVerbose s!"{name}: initializing Git repository"
+    IO.FS.createDirAll repo.dir
+    repo.bareInit
+  let some rev ← repo.fetchRevision? url rev
+    | error s!"{name}: failed to fetch the package revision\
+        \n  {rev}\nfrom the Git repository\n  {url}"
+  let relDir := FilePath.mk rev
+  let dir := repo.dir / relDir
+  unless (← dir.pathExists) do
+    logInfo s!"{name}: checking out revision `{rev}`"
+    repo.addWorktreeDetach relDir rev
+  return rev
+
 public structure MaterializedDep where
   /-- Absolute path to the materialized package. -/
   pkgDir : FilePath
@@ -173,7 +208,7 @@ For Git dependencies, updates it to the latest input revision.
 -/
 public def Dependency.materialize
   (dep : Dependency) (inherited : Bool)
-  (lakeEnv : Env) (wsDir relPkgsDir relParentDir : FilePath)
+  (lakeEnv : Env) (wsDir relPkgsDir relParentDir : FilePath) (isMultiVersion := false)
 : LoggerIO MaterializedDep := do
   if let some src := dep.src? then
     match src with
@@ -217,8 +252,13 @@ where
     let gitDir := wsDir / relPkgDir
     let repo := GitRepo.mk gitDir
     let gitUrl := lakeEnv.pkgUrlMap.find? dep.name |>.getD gitUrl
-    materializeGitRepo name repo gitUrl inputRev?
-    let rev ← repo.getHeadRevision
+    let rev ←
+      if isMultiVersion then
+        materializeGitRepoMultiVersion name wsDir repo gitUrl (inputRev?.getD GitRev.head)
+      else
+        materializeGitRepo name repo gitUrl inputRev?
+        repo.getHeadRevision
+    let relPkgDir := if isMultiVersion then relPkgDir / rev else relPkgDir
     let relPkgDir := if let some subDir := subDir? then relPkgDir / subDir else relPkgDir
     mkDep name relPkgDir remoteUrl <| .git gitUrl rev inputRev? subDir?
   @[inline] mkDep name relPkgDir remoteUrl src : LoggerIO MaterializedDep := do
@@ -236,7 +276,7 @@ Materializes a manifest package entry, cloning and/or checking it out as necessa
 -/
 public def PackageEntry.materialize
   (manifestEntry : PackageEntry)
-  (lakeEnv : Env) (wsDir relPkgsDir : FilePath)
+  (lakeEnv : Env) (wsDir relPkgsDir : FilePath) (isMultiVersion : Bool := false)
 : LoggerIO MaterializedDep :=
   match manifestEntry.src with
   | .path (dir := relPkgDir) .. =>
@@ -252,17 +292,25 @@ public def PackageEntry.materialize
 
     [104]: https://github.com/leanprover/lake/issues/104
     -/
-    if (← repo.dirExists) then
-      if (← repo.getHeadRevision?) = rev then
-        if (← repo.hasDiff) then
-          logWarning s!"{prettyName}: repository '{repo.dir}' has local changes"
-      else
-        let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
-        updateGitRepo prettyName repo url rev
-    else
+    let relDir ← id do
       let url := lakeEnv.pkgUrlMap.find? manifestEntry.name |>.getD url
-      cloneGitPkg prettyName repo url rev
-    let relPkgDir := match subDir? with | .some subDir => relGitDir / subDir | .none => relGitDir
+      if isMultiVersion then
+        let dir := gitDir / rev
+        if (← dir.pathExists) then -- fast path
+          return relGitDir / rev
+        let rev ← materializeGitRepoMultiVersion prettyName wsDir repo url rev
+        return relGitDir / rev
+      else
+        if (← repo.dirExists) then
+          if (← repo.getHeadRevision?) = rev then
+            if (← repo.hasDiff) then
+              logWarning s!"{prettyName}: repository '{repo.dir}' has local changes"
+          else
+            updateGitRepo prettyName repo url rev
+        else
+          cloneGitPkg prettyName repo url rev
+        return relGitDir
+    let relPkgDir := match subDir? with | .some subDir => relDir / subDir | .none => relDir
     mkDep relPkgDir (Git.filterUrl? url |>.getD "")
 where
   @[inline] mkDep relPkgDir remoteUrl : LoggerIO MaterializedDep := do

@@ -50,10 +50,11 @@ That is, Lake ignores the `-` suffix.
 
 **v1.x.x** (versioned by a string)
 - `"1.0.0"`: Switches to a semantic versioning scheme
-- `"1.1.0"`: Add optional `scope` package entry field
-- `"1.2.0"`: Add optional `fixedToolchain` manifest field
+- `"1.1.0"`: Adds optional `scope` package entry field
+- `"1.2.0"`: Adds optional `fixedToolchain` manifest field
+- `"1.3.0"`: Adds optional fields: manifest `multiVersion` and package entry `version`
 -/
-@[inline] public def Manifest.version : StdVer := {major := 1, minor := 2}
+@[inline] public def Manifest.version : StdVer := {major := 1, minor := 3}
 
 /-- Manifest version `0.6.0` package entry. For backwards compatibility. -/
 inductive PackageEntryV6
@@ -85,6 +86,7 @@ public inductive PackageEntrySrc
 public structure PackageEntry where
   name : Name
   scope : String := ""
+  version : StdVer := {}
   inherited : Bool
   /-- The relative path within the package directory to the Lake configuration file. -/
   configFile : FilePath := defaultConfigFile
@@ -99,6 +101,7 @@ public protected def toJson (entry : PackageEntry) : Json :=
   let fields := [
     ("name", toJson entry.name),
     ("scope", toJson entry.scope),
+    ("version", toJson entry.version),
     ("configFile" , toJson entry.configFile),
     ("manifestFile", toJson entry.manifestFile?),
     ("inherited", toJson entry.inherited),
@@ -127,6 +130,7 @@ public protected def fromJson? (json : Json) : Except String PackageEntry := do
   try
     let type ← obj.get "type"
     let inherited ← obj.get "inherited"
+    let version ← obj.getD "version" {}
     let configFile ← obj.getD "configFile" defaultConfigFile
     let manifestFile ← obj.getD "manifestFile" defaultManifestFile
     let src : PackageEntrySrc ← id do
@@ -143,7 +147,7 @@ public protected def fromJson? (json : Json) : Except String PackageEntry := do
       | _ =>
         throw s!"unknown package entry type '{type}'"
     return {
-      name, scope, inherited
+      name, scope, version, inherited
       configFile, manifestFile? := manifestFile, src
       : PackageEntry
     }
@@ -169,12 +173,9 @@ public instance : FromJson PackageEntry := ⟨PackageEntry.fromJson?⟩
   {entry with inherited := true}
 
 /-- **For internal use only.** -/
-@[inline] public def setConfigFile (path : FilePath) (entry : PackageEntry) : PackageEntry :=
-  {entry with configFile := path}
-
-/-- **For internal use only.** -/
-@[inline] public def setManifestFile (path? : Option FilePath) (entry : PackageEntry) : PackageEntry :=
-  {entry with manifestFile? := path?}
+@[inline] public def finalize
+  (version : StdVer) (configFile : FilePath) (manifestFile : FilePath) (entry : PackageEntry)
+: PackageEntry := {entry with version, configFile, manifestFile? := some manifestFile}
 
 /-- **For internal use only.** -/
 @[inline] public def inDirectory (pkgDir : FilePath) (entry : PackageEntry) : PackageEntry :=
@@ -193,6 +194,7 @@ public structure Manifest where
   name : Name
   lakeDir : FilePath
   fixedToolchain : Bool
+  multiVersion : Bool := false
   packagesDir? : Option FilePath := none
   packages : Array PackageEntry := #[]
 
@@ -208,6 +210,7 @@ public protected def toJson (self : Manifest) : Json :=
     ("fixedToolchain", toJson self.fixedToolchain),
     ("name", toJson self.name),
     ("lakeDir", toJson self.lakeDir),
+    ("multiVersion", toJson self.multiVersion),
     ("packagesDir", toJson self.packagesDir?),
     ("packages", toJson self.packages),
   ]
@@ -242,9 +245,10 @@ public protected def fromJson? (json : Json) : Except String Manifest := do
   let fixedToolchain ← obj.getD "fixedToolchain" false
   let name ← obj.getD "name" Name.anonymous
   let lakeDir ← obj.getD "lakeDir" defaultLakeDir
+  let multiVersion ← obj.getD "multiVersion" false
   let packagesDir? ← obj.get? "packagesDir"
   let packages ← getPackages ver obj
-  return {name, lakeDir, packagesDir?, packages, fixedToolchain}
+  return {name, lakeDir, multiVersion, packagesDir?, packages, fixedToolchain}
 
 public instance : FromJson Manifest := ⟨Manifest.fromJson?⟩
 

@@ -380,9 +380,20 @@ def Package.discriminant (self : Package) :=
   else
     s!"{self.prettyName}@{self.version}"
 
+/-- Returns candidate modules with the given name in either this package or its direct dependencies. -/
+def Package.findModules (modName : Name) (self : Package) : Array Module := Id.run do
+  let mut mods := #[]
+  if let some mod := self.findModule? modName then
+    mods := mods.push mod
+  for dep in self.depPkgs do
+    if let some mod := dep.findModule? modName then
+      mods := mods.push mod
+  return mods
+
 set_option linter.unusedVariables.funArgs false in
 def fetchImportInfo
-  (fileName : String) (pkgName modName : Name) (header : ModuleHeader)
+  (fileName : String) (header : ModuleHeader)
+  (pkg? : Option Package := none) (pkgName modName : Name := .anonymous)
 : FetchM (Job ModuleImportInfo) := do
   let nonModule := !header.isModule
   let info := ModuleImportInfo.nil modName
@@ -391,10 +402,23 @@ def fetchImportInfo
     if modName = imp.module then
       logError s!"{fileName}: module imports itself"
       return .error
-    let mods ← findModules imp.module
+    let ws ← getWorkspace
+    let multiVersion := !imp.isExported ∧ ws.isMultiVersion ∧ pkg?.isSome
+    let mods :=
+      if h : multiVersion then
+        pkg?.get h.2.2 |>.findModules imp.module
+      else ws.findModules imp.module
     let n := mods.size
     if h : n = 0 then
-      return s
+      if h : multiVersion then
+        let pkg := pkg?.get h.2.2
+        let pkgs := mods.map (s!"\n  {·.pkg.discriminant}")
+        logError s!"{fileName}: import `{imp.module}` found in inaccessible packages:{pkgs}\n\
+          multi-version workspace are enabled and these package are not a direct dependencies \
+          of `{pkg.prettyName}`, so this module cannot import them"
+        return .error
+      else
+        return s -- delegate resolution to Lean
     else if n = 1 then -- common fast path
       let mod := mods[0]
       -- Remark: We've decided to disable this check for now
@@ -443,7 +467,7 @@ def fetchImportInfo
 public def Module.importInfoFacetConfig : ModuleFacetConfig importInfoFacet :=
   mkFacetJobConfig fun mod => do
     let header ← (← mod.header.fetch).await
-    fetchImportInfo mod.relLeanFile.toString mod.pkg.keyName mod.name header
+    fetchImportInfo mod.relLeanFile.toString header (some mod.pkg) mod.pkg.keyName mod.name
 
 def noServerOLeanError :=
   "No server olean generated. Ensure the module system is enabled."
@@ -1264,7 +1288,7 @@ def setupEditedModule
     return ⟨imp, ← findModule? imp.module⟩
   let fileName := mod.relLeanFile.toString
   let localImports := directImports.filterMap (·.module?)
-  let impInfoJob ← fetchImportInfo fileName mod.pkg.keyName mod.name header
+  let impInfoJob ← fetchImportInfo fileName header (some mod.pkg) mod.pkg.keyName mod.name
   let precompileImports ←
     if mod.shouldPrecompile then
       (← computeTransImportsAux fileName localImports).await
@@ -1312,7 +1336,7 @@ def setupExternalModule
   let imports ← header.imports.mapM fun imp => do
     return ⟨imp, ← findModule? imp.module⟩
   let localImports := imports.filterMap (·.module?)
-  let impInfoJob ← fetchImportInfo fileName .anonymous .anonymous header
+  let impInfoJob ← fetchImportInfo fileName header
   let precompileImports ← (← computePrecompileImportsAux fileName localImports).await
   let impLibsJob ← fetchImportLibs precompileImports
   let externLibsJob ← Job.collectArray <$>

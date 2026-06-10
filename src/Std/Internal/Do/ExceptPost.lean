@@ -106,10 +106,25 @@ theorem EPost.cons_rel [PartialOrder e] [PartialOrder e'] (eposth : e) (epostt :
     EPost.cons.mk eposth epostt ⊑ epost :=
   fun hh ht => ⟨hh, ht⟩
 
+/-- An `EPost.cons` value is below another if both components are below. -/
+theorem EPost.cons_rel_tail [PartialOrder e] [PartialOrder e'] (epostt : e') (epost : EPost.cons e e') :
+    epostt ⊑ epost.tail →
+    EPost.cons.mk epost.head epostt ⊑ epost := by
+  apply EPost.cons_rel; rfl
+
 /-- The unique `EPost.nil` value is below any `EPost.nil` value. -/
 theorem EPost.nil_rel (epost : EPost.nil) :
     EPost.nil.mk ⊑ epost := by
   simp [PartialOrder.rel]
+
+/-- The head component of the bottom `EPost.cons` is the bottom element. Propositional (not
+definitional), because `⊥` of a complete lattice is `csup ∅`, not a constructor application. -/
+theorem EPost.cons.head_bot {eh : Type u} {et : Type v}
+    [CompleteLattice eh] [CompleteLattice et] :
+    EPost.cons.head (⊥ : EPost.cons eh et) = (⊥ : eh) := by
+  refine PartialOrder.rel_antisymm ?_ (bot_le _)
+  have h : (⊥ : EPost.cons eh et) ⊑ EPost.cons.mk (⊥ : eh) (⊥ : et) := bot_le _
+  exact EPost.cons.rel_head h
 
 /-!
 ## Notation

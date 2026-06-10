@@ -10,7 +10,7 @@ declarations not in the environment, and `def`s whose body is sealed by the
 module system.
 -/
 
-@[expose] def exposedDef : Nat := 0
+@[expose] public def exposedDef : Nat := 0
 def sealedDef : Nat := 1
 theorem aTheorem : 0 = 0 := rfl
 opaque anOpaque : Nat := 2

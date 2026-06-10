@@ -32,8 +32,8 @@ public structure CacheMap.Entry where
     out : Json
     platformIndependent : Bool
     /-- Optional structured description of the output artifacts (e.g. the
-    individual content hashes a bundle in `out` expands to). Carried as an extra
-    element of the mapping line; older readers ignore it. -/
+    individual content hashes a bundle in `out` expands to). Absent in mappings
+    written by older Lake versions. -/
     outputs? : Option Json := none
 
 /--
@@ -155,6 +155,8 @@ def writeCacheEntries
     -- skip platform-dependent outputs in platform-independent maps
     if platformIndependent && !e.platformIndependent then
       return
+    -- older parsers read only the first two elements, so any addition to the
+    -- line format must remain a trailing, optional element
     let line := match e.outputs? with
       | some outputs => #[toJson k, e.out, outputs]
       | none => #[toJson k, e.out]

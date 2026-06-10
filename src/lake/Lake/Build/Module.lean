@@ -1148,7 +1148,10 @@ where
         -- individual output content hashes the bundle expands to. The consumer
         -- fetches the bundle to materialize the outputs and checks them against
         -- the recorded hashes (see `fetchFromCache?`). Only the bundle is an
-        -- upload target; the hashes are descriptive metadata.
+        -- upload target; the hashes are descriptive metadata. The entry is
+        -- inserted the same way whether or not the archive already existed, so
+        -- the platform-independence flag and recorded outputs are never dropped
+        -- (previously the pre-existing-archive path omitted the flag).
         let arts ← id do
           if arts.ltar?.isSome then
             return arts

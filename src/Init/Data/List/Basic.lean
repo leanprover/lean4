@@ -966,6 +966,7 @@ abbrev extract (l : List α) (start : Nat := 0) (stop : Nat := l.length) : List 
 @[simp] theorem extract_eq_take_drop {l : List α} {start stop : Nat} :
     l.extract start stop = (l.drop start).take (stop - start) := rfl
 
+set_option linter.defProp false in
 set_option linter.missingDocs false in
 @[deprecated extract_eq_take_drop (since := "2026-02-06")]
 def extract_eq_drop_take := @extract_eq_take_drop
@@ -1099,6 +1100,7 @@ inductive Sublist {α} : List α → List α → Prop
   /-- If `l₁` is a subsequence of `l₂`, then `a :: l₁` is a subsequence of `a :: l₂`. -/
   | cons_cons a : Sublist l₁ l₂ → Sublist (a :: l₁) (a :: l₂)
 
+set_option linter.defProp false in
 set_option linter.missingDocs false in
 @[deprecated Sublist.cons_cons (since := "2026-02-26"), match_pattern]
 abbrev Sublist.cons₂ := @Sublist.cons_cons

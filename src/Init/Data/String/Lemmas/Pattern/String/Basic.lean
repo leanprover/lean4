@@ -263,7 +263,7 @@ theorem matchesAt_iff_getElem {pat s : Slice} {pos : s.Pos} (h : pat.isEmpty = f
         (pos.offset.byteIdx + pat.copy.toByteArray.size) = pat.copy.toByteArray by
       have h₀ := (((Pos.Raw.isValidUTF8_extract_iff _ _ ?_ ?_).1
         (this ▸ pat.copy.isValidUTF8)).resolve_left ?_).2
-      · exact ⟨by simpa using h₀, (isLongestMatchAt_iff_extract h).2 (by simpa using this)⟩
+      · exact ⟨by simpa using! h₀, (isLongestMatchAt_iff_extract h).2 (by simpa using this)⟩
       · simp [Pos.Raw.le_iff]
       · simpa [Pos.Raw.le_iff] using h₁
       · simpa [Pos.Raw.ext_iff, ← Slice.isEmpty_iff]

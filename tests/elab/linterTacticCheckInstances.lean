@@ -31,6 +31,18 @@ set_option linter.tacticCheckInstances true
 warning: produced tactic goal is not type-correct at `.instances` transparency; consider using propositional rewriting or marking some of the following as `@[implicit_reducible]`:
   composed
   myF
+Full error:
+  Application type mismatch: The argument
+    h2
+  has type
+    @LT.lt Nat instLTNat idx (composed s a b).s.decls.size
+  but is expected to have type
+    @LT.lt Nat instLTNat idx
+      (have res := myF s { x := a };
+            myF res.s { x := b }).s.decls.size
+  in the application
+    (have res := myF s { x := a };
+          myF res.s { x := b }).s.decls[idx]
 
 Note: This linter can be disabled with `set_option linter.tacticCheckInstances false`
 -/
@@ -46,6 +58,15 @@ example (s : S) (a b idx : Nat) (h1 : idx < s.decls.size)
 warning: initial tactic goal is not type-correct at `.instances` transparency; consider rephrasing the goal or marking some of the following as `@[implicit_reducible]`:
   composed
   myF
+Full error:
+  Application type mismatch: The argument
+    h1
+  has type
+    @LT.lt Nat instLTNat idx s.decls.size
+  but is expected to have type
+    @LT.lt Nat instLTNat idx (composed s a b).s.decls.size
+  in the application
+    (composed s a b).s.decls[idx]
 
 Note: This linter can be disabled with `set_option linter.tacticCheckInstances false`
 -/

@@ -59,11 +59,11 @@ jobs:
         with:
           msystem: clang64
           # `:` means do not prefix with msystem
-          pacboy: "make: python: cmake clang ccache gmp libuv git: zip: unzip: diffutils: binutils: tree: zstd tar:"
+          pacboy: "make: python: cmake clang ccache gmp libuv openssl: git: zip: unzip: diffutils: binutils: tree: zstd tar:"
         if: runner.os == 'Windows'
       - name: Install Brew Packages
         run: |
-          brew install ccache tree zstd coreutils gmp libuv
+          brew install ccache tree zstd coreutils gmp libuv openssl
         if: runner.os == 'macOS'
       - name: Checkout
         uses: actions/checkout@v6
@@ -92,7 +92,7 @@ jobs:
         run: |
           sudo dpkg --add-architecture i386
           sudo apt-get update
-          sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386 pkgconf:i386
+          sudo apt-get install -y gcc-multilib g++-multilib ccache libuv1-dev:i386 libssl-dev:i386 pkgconf:i386
         if: matrix.cmultilib
       - name: Restore Cache
         id: restore-cache
@@ -145,9 +145,8 @@ jobs:
           if [[ -n '${{ matrix.prepare-llvm }}' ]]; then
             wget -q ${{ matrix.llvm-url }}
             PREPARE="$(${{ matrix.prepare-llvm }})"
-            if [ "$TARGET_STAGE" == "stage2" ]; then
-              cp -r stage1 stage2
-            fi
+            cp -r stage1 stage2
+            cp -r stage1 stage3
             eval "OPTIONS+=($PREPARE)"
           fi
           if [[ -n '${{ matrix.release }}' && -n '${{ inputs.nightly }}' ]]; then

@@ -371,7 +371,40 @@ def substAssignedUVarsAndNormalize (u : Level) : UnifyM Level := do
   let v := substAssignedUVars assignment u
   return v.normalize
 
-def processLevel (u : Level) (v : Level) : UnifyM Bool := do
+/--
+Returns true if `u` is `max v ?m` (or variant). That is, we solve `max v ?m =?= v` as `?m := v`.
+This is an approximation. For example, we ignore the solution `?m := 0`.
+
+**Note**: The same approximation is used at LevelDefEq.lean
+-/
+private def tryApproxSelfMax (u v : Level) : UnifyM Bool := do
+  match u with
+  | .max (.param uName) v'
+  | .max v' (.param uName) =>
+    let some uidx := isUVar? uName | return false
+    solve v' uidx
+  | _ => return false
+where
+  solve (v' : Level) (uidx : Nat) : UnifyM Bool := do
+    if v == v' then
+      assignLevel uidx v
+    else
+      return false
+
+/-- Similar to `Meta.decLevel?`, but never assigns metavariables. -/
+partial def decLevel? : Level → Option Level
+  | .zero | .mvar _ | .param _     => none
+  | .succ u => some u
+  | .max u v => processMax u v
+  /- Remark: If `decLevel? v` returns `some ...`, then `imax u v` is equivalent to `max u v`. -/
+  | .imax u v => processMax u v
+where
+  processMax (u v : Level) : Option Level := do
+    let u ← decLevel? u
+    let v ← decLevel? v
+    return mkLevelMax' u v
+
+partial def processLevel (u : Level) (v : Level) : UnifyM Bool := do
   /-
   **Note**: If new uvars in `u` have been assigned, we continue replace them, and
   continue the search. The motivation for using `substAssignedUVarsAndNormalize` is
@@ -414,7 +447,16 @@ where
         return true
       else
         return false
-    | _, _ => return false
+    | _, _ =>
+      if (← tryApproxSelfMax u v) then
+        return true
+      if let .succ u := u then
+        if let some v := decLevel? v then
+          return (← go u v)
+      if let .succ v := v then
+        if let some u := decLevel? u then
+          return (← go u v)
+      return false
 
 def processLevels (us : List Level) (vs : List Level) : UnifyM Bool := do
   match us, vs with

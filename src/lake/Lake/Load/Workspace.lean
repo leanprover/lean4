@@ -50,6 +50,7 @@ public def loadWorkspaceRoot (config : LoadConfig) : LogIO Workspace := do
       cases i with
       | zero => simp [wsIdx_root]
       | succ => simp at h
+    depIdxs_packages := by simp [root]
   }
 
 /--

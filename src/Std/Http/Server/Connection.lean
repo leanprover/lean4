@@ -173,7 +173,7 @@ and the response does not already include one.
 -/
 private def prepareResponseHead (config : Config) (head : Response.Head) : Async Response.Head := do
   if config.generateDate ∧ ¬head.headers.contains Header.Name.date then
-    let now ← Std.Time.DateTime.now (tz := .UTC)
+    let now ← Std.Time.DateTime.nowAt "UTC"
     return { head with headers := head.headers.insert Header.Name.date (Header.Value.ofString! now.toRFC822String) }
   else
     return head

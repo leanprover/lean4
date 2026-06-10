@@ -1048,6 +1048,14 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
   let grind ← mkGrindStx info
 
   let atomic ← `(tactic| attempt_all_par | $simple:tactic | $simp:tactic | $grind:tactic | simp_all)
+  -- Try to show the goal is unreachable. Only one suggestion is reported, so we
+  -- use `first_par` rather than `attempt_all_par`. This is intentionally not
+  -- folded into `atomic`, because `atomic` is reused inside the
+  -- `induction`/`fun_induction` branches: suggesting `impossible` for an
+  -- individual subgoal of a case split would be incorrect — it would discharge
+  -- a single case with `sorry` rather than proving the overall induction.
+  let impossible ← `(tactic|
+    first_par | impossible by decide | impossible by simp | impossible by grind)
   let atomicSuggestions ← mkAtomicWithSuggestionsStx
   let atomicOrSuggestions ← `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic)
   let funInds ← mkAllFunIndStx info atomicOrSuggestions
@@ -1056,10 +1064,10 @@ private unsafe def mkTryEvalSuggestStxUnsafe (goal : MVarId) (info : Try.Info) :
 
   -- Build final tactic: built-ins first, then user suggestions as fallback
   if userTactics.isEmpty then
-    `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic)
+    `(tactic| first | $atomic:tactic | $impossible:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic)
   else
     let userAttemptAll ← `(tactic| attempt_all_par $[| $userTactics:tactic]*)
-    `(tactic| first | $atomic:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic | $userAttemptAll:tactic)
+    `(tactic| first | $atomic:tactic | $impossible:tactic | $atomicSuggestions:tactic | $funInds:tactic | $inds:tactic | $extra:tactic | $userAttemptAll:tactic)
 
 @[implemented_by mkTryEvalSuggestStxUnsafe]
 private opaque mkTryEvalSuggestStx (goal : MVarId) (info : Try.Info) : MetaM (TSyntax `tactic)

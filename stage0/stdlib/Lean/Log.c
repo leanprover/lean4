@@ -248,7 +248,7 @@ else
 lean_object* v_val_36_; lean_object* v___x_37_; 
 v_val_36_ = lean_ctor_get(v___x_33_, 0);
 lean_inc(v_val_36_);
-lean_dec_ref(v___x_33_);
+lean_dec_ref_known(v___x_33_, 1);
 v___x_37_ = lean_apply_2(v_toPure_30_, lean_box(0), v_val_36_);
 return v___x_37_;
 }
@@ -628,7 +628,7 @@ v___x_184_ = lean_alloc_ctor(1, 2, 0);
 lean_ctor_set(v___x_184_, 0, v___x_178_);
 lean_ctor_set(v___x_184_, 1, v___x_183_);
 v___x_185_ = l_Lean_Json_mkObj(v___x_184_);
-lean_dec_ref(v___x_184_);
+lean_dec_ref_known(v___x_184_, 2);
 v___f_186_ = lean_alloc_closure((void*)(l___private_Lean_Log_0__Lean_MessageData_appendDescriptionWidgetIfNamed___lam__0), 2, 1);
 lean_closure_set(v___f_186_, 0, v___x_185_);
 v_inst_187_ = lean_alloc_ctor(0, 2, 8);
@@ -766,7 +766,7 @@ else
 lean_object* v_val_310_; 
 v_val_310_ = lean_ctor_get(v___x_308_, 0);
 lean_inc(v_val_310_);
-lean_dec_ref(v___x_308_);
+lean_dec_ref_known(v___x_308_, 1);
 v___y_305_ = v_val_310_;
 goto v___jp_304_;
 }
@@ -808,7 +808,7 @@ else
 lean_object* v_val_307_; 
 v_val_307_ = lean_ctor_get(v___x_306_, 0);
 lean_inc(v_val_307_);
-lean_dec_ref(v___x_306_);
+lean_dec_ref_known(v___x_306_, 1);
 v___y_296_ = v___y_305_;
 v___y_297_ = v_val_307_;
 goto v___jp_295_;

@@ -36,7 +36,7 @@ structure Triple [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EP
   /-- Construct a triple from a weakest precondition entailment. -/
   intro ::
   /-- The weakest precondition entailment witnessing the triple. -/
-  (hwp : pre ⊑ wp x post epost)
+  rel_wp : pre ⊑ wp x post epost
 
 /-- Hoare triple notation without exception postcondition (defaults to `⊥`). -/
 scoped notation:60 "⦃ " pre " ⦄ " x " ⦃ " post " ⦄" => Triple pre x post ⊥

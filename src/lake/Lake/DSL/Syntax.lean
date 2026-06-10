@@ -164,7 +164,7 @@ public syntax depSpec :=
 Adds a new package dependency to the workspace. The general syntax is:
 
 ```
-require ["<scope>" /] <pkg-name> [@ <version>]
+require ["<scope>" /] <pkg-name> [@ [git]? <version>]
   [from <source>] [with <options>]
 ```
 
@@ -401,6 +401,11 @@ scoped syntax (name := scriptDecl)
 
 Defines the `v!"<ver>"` syntax for version literals.
 -/
+
+/-- Helper gadget for decoding versions from arbitrary terms. -/
+scoped syntax:lead (name := evalVer)
+  "eval_ver%" term
+: term
 
 /-- A Lake version literal. -/
 scoped syntax:max (name := verLit)

@@ -411,7 +411,7 @@ lean_object* v_head_50_; lean_object* v___x_51_;
 lean_dec(v_x_47_);
 v_head_50_ = lean_ctor_get(v_x_46_, 0);
 lean_inc(v_head_50_);
-lean_dec_ref(v_x_46_);
+lean_dec_ref_known(v_x_46_, 2);
 v___x_51_ = l_Std_Format_joinSep___at___00Array_repr___at___00Lean_Meta_Match_instReprMatchEqns_repr_spec__0_spec__0___lam__0(v_head_50_);
 return v___x_51_;
 }
@@ -421,7 +421,7 @@ lean_object* v_head_52_; lean_object* v___x_53_; lean_object* v___x_54_;
 lean_inc(v_tail_49_);
 v_head_52_ = lean_ctor_get(v_x_46_, 0);
 lean_inc(v_head_52_);
-lean_dec_ref(v_x_46_);
+lean_dec_ref_known(v_x_46_, 2);
 v___x_53_ = l_Std_Format_joinSep___at___00Array_repr___at___00Lean_Meta_Match_instReprMatchEqns_repr_spec__0_spec__0___lam__0(v_head_52_);
 v___x_54_ = l_List_foldl___at___00Std_Format_joinSep___at___00Array_repr___at___00Lean_Meta_Match_instReprMatchEqns_repr_spec__0_spec__0_spec__2(v_x_47_, v___x_53_, v_tail_49_);
 return v___x_54_;
@@ -1894,7 +1894,7 @@ if (lean_obj_tag(v___x_606_) == 1)
 lean_object* v_str_607_; uint8_t v___x_608_; 
 v_str_607_ = lean_ctor_get(v___x_606_, 1);
 lean_inc_ref(v_str_607_);
-lean_dec_ref(v___x_606_);
+lean_dec_ref_known(v___x_606_, 2);
 v___x_608_ = l_Lean_Meta_isEqnLikeSuffix(v_str_607_);
 if (v___x_608_ == 0)
 {

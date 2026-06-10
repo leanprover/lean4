@@ -589,8 +589,49 @@ instance : HSub PlainDateTime Nanosecond.Offset PlainDateTime where
 instance : HAdd PlainDateTime Duration PlainDateTime where
   hAdd x y := addNanoseconds x y.toNanoseconds
 
+/--
+Wraps a `PlainDate` in a `PlainDateTime` with midnight as the time component.
+-/
+@[inline]
+def ofPlainDate (date : PlainDate) : PlainDateTime :=
+  { date, time := PlainTime.midnight }
+
+/--
+Extracts the `PlainDate` component from a `PlainDateTime`.
+-/
+@[inline]
+def toPlainDate (pdt : PlainDateTime) : PlainDate :=
+  pdt.date
+
+/--
+Extracts the `PlainTime` component from a `PlainDateTime`.
+-/
+@[inline]
+def toPlainTime (pdt : PlainDateTime) : PlainTime :=
+  pdt.time
+
+instance : HSub PlainDateTime PlainDateTime Duration where
+  hSub x y := x.toWallTime - y.toWallTime
+
 end PlainDateTime
 namespace PlainDate
+
+/--
+Converts a `PlainDate` to a `WallTime`.
+-/
+@[inline]
+def toWallTime (pd : PlainDate) : WallTime :=
+  WallTime.ofSeconds pd.toEpochDay.toSeconds
+
+/--
+Converts a `WallTime` to a `PlainDate`.
+-/
+@[inline]
+def ofWallTime (wt : WallTime) : PlainDate :=
+  PlainDate.ofEpochDay wt.toDays
+
+instance : HSub PlainDate PlainDate Duration where
+  hSub x y := x.toWallTime - y.toWallTime
 
 /--
 Combines a `PlainDate` and `PlainTime` into a `PlainDateTime`.
@@ -601,6 +642,20 @@ def atTime : PlainDate → PlainTime → PlainDateTime :=
 
 end PlainDate
 namespace PlainTime
+
+/--
+Converts a `PlainTime` to a `WallTime`.
+-/
+@[inline]
+def toWallTime (pt : PlainTime) : WallTime :=
+  WallTime.ofNanoseconds pt.toNanoseconds
+
+/--
+Converts a `WallTime` to a `PlainTime`.
+-/
+@[inline]
+def ofWallTime (wt : WallTime) : PlainTime :=
+  PlainTime.ofNanoseconds wt.toNanoseconds
 
 /--
 Combines a `PlainTime` and `PlainDate` into a `PlainDateTime`.

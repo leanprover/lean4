@@ -523,7 +523,7 @@ lean_object* v_val_169_; lean_object* v___x_170_; lean_object* v___x_171_; lean_
 lean_del_object(v___x_138_);
 v_val_169_ = lean_ctor_get(v___x_168_, 0);
 lean_inc(v_val_169_);
-lean_dec_ref(v___x_168_);
+lean_dec_ref_known(v___x_168_, 1);
 v___x_170_ = ((lean_object*)(l_String_Slice_dropPrefix___at___00String_dropPrefix___at___00Lean_loadPlugin_spec__0_spec__0___redArg___closed__0));
 v___x_171_ = l_String_dropPrefix___at___00Lean_loadPlugin_spec__0(v_val_169_, v___x_170_);
 v___x_172_ = l_String_Slice_dropSuffix___at___00Lean_loadPlugin_spec__1(v___x_171_);
@@ -572,7 +572,7 @@ lean_object* v_val_184_;
 lean_del_object(v___x_138_);
 v_val_184_ = lean_ctor_get(v_initFn_x3f_133_, 0);
 lean_inc(v_val_184_);
-lean_dec_ref(v_initFn_x3f_133_);
+lean_dec_ref_known(v_initFn_x3f_133_, 1);
 v_a_141_ = v_val_184_;
 goto v___jp_140_;
 }
@@ -611,7 +611,7 @@ lean_del_object(v___x_145_);
 lean_dec_ref(v_a_141_);
 v_val_148_ = lean_ctor_get(v___x_147_, 0);
 lean_inc(v_val_148_);
-lean_dec_ref(v___x_147_);
+lean_dec_ref_known(v___x_147_, 1);
 lean_inc(v_a_143_);
 v___x_149_ = lean_runtime_mark_persistent(v_a_143_);
 lean_dec(v___x_149_);

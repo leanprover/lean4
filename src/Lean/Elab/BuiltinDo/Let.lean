@@ -36,12 +36,11 @@ def LetOrReassign.checkMutVars (letOrReassign : LetOrReassign) (vars : Array Ide
 
 def LetOrReassign.registerReassignAliasInfo (letOrReassign : LetOrReassign) (vars : Array Ident) : DoElabM Unit := do
   if letOrReassign matches .reassign then
-    let mutVarDefs := (← read).mutVarDefs
     for var in vars do
-      if let some baseId := mutVarDefs[var.getId]? then
+      if let some baseMutVar ← findMutVar? var.getId then
         let id := (← getFVarFromUserName var.getId).fvarId!
-        if id != baseId then
-          pushInfoLeaf <| .ofFVarAliasInfo { userName := var.getId, id, baseId }
+        if id != baseMutVar.baseId then
+          pushInfoLeaf <| .ofFVarAliasInfo (baseMutVar.mkAliasInfo id)
 
 def elabDoLetOrReassignWith (hint : MessageData) (letOrReassign : LetOrReassign) (vars : Array Ident)
     (k : DoElabM Expr) (elabBody : (body : Term) → TermElabM Expr) : DoElabM Expr := do
@@ -95,7 +94,7 @@ partial def elabDoLetOrReassign (config : Term.LetConfig) (letOrReassign : LetOr
   let dec ← dec.ensureUnitAt tk
   -- Some decl preprocessing on the patterns and expected types:
   let decl ← pushTypeIntoReassignment letOrReassign decl
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadApp (← read).doBlockResultType
   match decl with
   | `(letDecl| $decl:letEqnsDecl) =>
     let declNew ← `(letDecl| $(⟨← liftMacroM <| Term.expandLetEqnsDecl decl⟩):letIdDecl)
@@ -221,7 +220,7 @@ private def getLetConfigAndCheckMut (letConfigStx : TSyntax ``Parser.Term.letCon
   let `(doLetRec| let%$tk rec $decls:letRecDecls) := stx | throwUnsupportedSyntax
   let dec ← dec.ensureUnitAt tk
   let vars ← getLetRecDeclsVars decls
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let mγ ← mkMonadApp (← read).doBlockResultType
   doElabToSyntax m!"let rec body of group {vars}" dec.continueWithUnit fun body => do
     -- Let recs may never have nested actions. We expand just for the sake of error messages.
     -- This suppresses error messages for the let body. Not sure if this is a good call, but it was

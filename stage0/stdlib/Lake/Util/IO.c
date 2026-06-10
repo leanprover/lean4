@@ -65,7 +65,7 @@ if (lean_obj_tag(v___x_3_) == 1)
 lean_object* v_val_4_; lean_object* v___x_5_; 
 v_val_4_ = lean_ctor_get(v___x_3_, 0);
 lean_inc(v_val_4_);
-lean_dec_ref(v___x_3_);
+lean_dec_ref_known(v___x_3_, 1);
 v___x_5_ = l_IO_FS_createDirAll(v_val_4_);
 return v___x_5_;
 }
@@ -105,7 +105,7 @@ lean_inc(v_a_14_);
 if (lean_obj_tag(v_a_14_) == 11)
 {
 lean_object* v___x_16_; uint8_t v_isShared_17_; uint8_t v_isSharedCheck_22_; 
-lean_dec_ref(v_a_14_);
+lean_dec_ref_known(v_a_14_, 2);
 v_isSharedCheck_22_ = !lean_is_exclusive(v___x_13_);
 if (v_isSharedCheck_22_ == 0)
 {
@@ -176,7 +176,7 @@ if (lean_obj_tag(v___x_31_) == 0)
 lean_object* v_a_32_; lean_object* v___x_33_; 
 v_a_32_ = lean_ctor_get(v___x_31_, 0);
 lean_inc(v_a_32_);
-lean_dec_ref(v___x_31_);
+lean_dec_ref_known(v___x_31_, 1);
 v___x_33_ = lean_io_prim_handle_put_str(v_a_32_, v_content_28_);
 lean_dec(v_a_32_);
 return v___x_33_;
@@ -205,7 +205,7 @@ v_resetjp_35_:
 if (lean_obj_tag(v_a_34_) == 0)
 {
 lean_object* v___x_38_; lean_object* v___x_40_; 
-lean_dec_ref(v_a_34_);
+lean_dec_ref_known(v_a_34_, 2);
 v___x_38_ = lean_box(0);
 if (v_isShared_37_ == 0)
 {
@@ -273,7 +273,7 @@ if (lean_obj_tag(v___x_54_) == 0)
 lean_object* v_a_55_; lean_object* v___x_56_; 
 v_a_55_ = lean_ctor_get(v___x_54_, 0);
 lean_inc(v_a_55_);
-lean_dec_ref(v___x_54_);
+lean_dec_ref_known(v___x_54_, 1);
 v___x_56_ = lean_io_prim_handle_write(v_a_55_, v_content_51_);
 lean_dec(v_a_55_);
 return v___x_56_;
@@ -302,7 +302,7 @@ v_resetjp_58_:
 if (lean_obj_tag(v_a_57_) == 0)
 {
 lean_object* v___x_61_; lean_object* v___x_63_; 
-lean_dec_ref(v_a_57_);
+lean_dec_ref_known(v_a_57_, 2);
 v___x_61_ = lean_box(0);
 if (v_isShared_60_ == 0)
 {
@@ -384,7 +384,7 @@ if (lean_obj_tag(v___x_88_) == 0)
 lean_object* v_a_89_; uint8_t v_type_90_; uint8_t v___x_91_; uint8_t v___x_92_; 
 v_a_89_ = lean_ctor_get(v___x_88_, 0);
 lean_inc(v_a_89_);
-lean_dec_ref(v___x_88_);
+lean_dec_ref_known(v___x_88_, 1);
 v_type_90_ = lean_ctor_get_uint8(v_a_89_, sizeof(void*)*2 + 16);
 lean_dec(v_a_89_);
 v___x_91_ = 0;
@@ -396,7 +396,7 @@ v___x_93_ = l_Lake_removeFileIfExists(v___x_87_);
 lean_dec_ref(v___x_87_);
 if (lean_obj_tag(v___x_93_) == 0)
 {
-lean_dec_ref(v___x_93_);
+lean_dec_ref_known(v___x_93_, 1);
 v_a_79_ = v___x_85_;
 goto v___jp_78_;
 }
@@ -412,7 +412,7 @@ v___x_94_ = l_Lake_removeDirAllIfExists(v___x_87_);
 lean_dec_ref(v___x_87_);
 if (lean_obj_tag(v___x_94_) == 0)
 {
-lean_dec_ref(v___x_94_);
+lean_dec_ref_known(v___x_94_, 1);
 v_a_79_ = v___x_85_;
 goto v___jp_78_;
 }
@@ -446,7 +446,7 @@ v_resetjp_96_:
 {
 if (lean_obj_tag(v_a_95_) == 11)
 {
-lean_dec_ref(v_a_95_);
+lean_dec_ref_known(v_a_95_, 2);
 lean_del_object(v___x_97_);
 v_a_79_ = v___x_85_;
 goto v___jp_78_;
@@ -496,7 +496,7 @@ if (lean_obj_tag(v___x_105_) == 0)
 lean_object* v_a_106_; lean_object* v___x_107_; size_t v_sz_108_; size_t v___x_109_; lean_object* v___x_110_; 
 v_a_106_ = lean_ctor_get(v___x_105_, 0);
 lean_inc(v_a_106_);
-lean_dec_ref(v___x_105_);
+lean_dec_ref_known(v___x_105_, 1);
 v___x_107_ = lean_box(0);
 v_sz_108_ = lean_array_size(v_a_106_);
 v___x_109_ = ((size_t)0ULL);
@@ -505,7 +505,7 @@ lean_dec(v_a_106_);
 if (lean_obj_tag(v___x_110_) == 0)
 {
 lean_object* v___x_111_; 
-lean_dec_ref(v___x_110_);
+lean_dec_ref_known(v___x_110_, 1);
 v___x_111_ = lean_io_remove_dir(v_path_103_);
 if (lean_obj_tag(v___x_111_) == 0)
 {
@@ -519,7 +519,7 @@ lean_inc(v_a_112_);
 if (lean_obj_tag(v_a_112_) == 11)
 {
 lean_object* v___x_114_; uint8_t v_isShared_115_; uint8_t v_isSharedCheck_119_; 
-lean_dec_ref(v_a_112_);
+lean_dec_ref_known(v_a_112_, 2);
 v_isSharedCheck_119_ = !lean_is_exclusive(v___x_111_);
 if (v_isSharedCheck_119_ == 0)
 {
@@ -597,7 +597,7 @@ v_resetjp_122_:
 if (lean_obj_tag(v_a_121_) == 11)
 {
 lean_object* v___x_125_; lean_object* v___x_127_; 
-lean_dec_ref(v_a_121_);
+lean_dec_ref_known(v_a_121_, 2);
 v___x_125_ = lean_box(0);
 if (v_isShared_124_ == 0)
 {
@@ -676,7 +676,7 @@ if (lean_obj_tag(v___x_147_) == 0)
 lean_object* v_a_148_; lean_object* v___x_149_; 
 v_a_148_ = lean_ctor_get(v___x_147_, 0);
 lean_inc(v_a_148_);
-lean_dec_ref(v___x_147_);
+lean_dec_ref_known(v___x_147_, 1);
 v___x_149_ = l_IO_FS_writeBinFile(v_dst_145_, v_a_148_);
 lean_dec(v_a_148_);
 return v___x_149_;
@@ -744,7 +744,7 @@ if (lean_obj_tag(v___x_165_) == 0)
 lean_object* v_a_166_; uint8_t v___x_167_; 
 v_a_166_ = lean_ctor_get(v___x_165_, 0);
 lean_inc(v_a_166_);
-lean_dec_ref(v___x_165_);
+lean_dec_ref_known(v___x_165_, 1);
 v___x_167_ = l_System_FilePath_pathExists(v_a_166_);
 if (v___x_167_ == 0)
 {
@@ -763,7 +763,7 @@ return v___x_169_;
 else
 {
 lean_object* v___x_170_; 
-lean_dec_ref(v___x_165_);
+lean_dec_ref_known(v___x_165_, 1);
 v___x_170_ = ((lean_object*)(l_Lake_resolvePath___closed__0));
 return v___x_170_;
 }

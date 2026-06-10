@@ -103,7 +103,7 @@ structure Machine (dir : Direction) where
   /--
   The timestamp for the `Date` header.
   -/
-  instant : Option (Std.Time.DateTime .UTC) := none
+  instant : Option Std.Time.PlainDateTime := none
 
   /--
   If the connection will be kept alive after the message.

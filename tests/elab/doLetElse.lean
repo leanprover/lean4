@@ -27,20 +27,19 @@ def testFoo (input : Option Nat) (expected : Nat) : IO Unit := do
     return "unreachable"
   if x + y < 23 then pure "ok" else pure "wrong"
 
+-- doLetElse syntax and match syntax used to refine the result type of the do block.
+-- In the interest of efficient elaboration, the new do elabarotor abandoned the functionality.
+-- Users are expected to use term `match` where needed.
+/--
+error: Type mismatch
+  y
+has type
+  Fin 3
+but is expected to have type
+  Fin (x + 1)
+-/
+#guard_msgs in
 def bar (x : Nat) : IO (Fin (x + 1)) := do
   let 2 := x | return 0
-  -- the pattern match performed a substitution
   let y : Fin 3 := ⟨1, by decide⟩
   return y
-
-def testBar (x : Nat) (expected : Fin (x + 1)) : IO Unit := do
-  assert! (← bar x) == expected
-
-#guard_msgs in
-#eval testBar 1 0
-
-#guard_msgs in
-#eval testBar 2 1
-
-#guard_msgs in
-#eval testBar 3 0

@@ -32,7 +32,7 @@ lean_inc_ref(v_binderType_4_);
 v_body_5_ = lean_ctor_get(v___x_3_, 2);
 lean_inc_ref(v_body_5_);
 v_binderInfo_6_ = lean_ctor_get_uint8(v___x_3_, sizeof(void*)*3 + 8);
-lean_dec_ref(v___x_3_);
+lean_dec_ref_known(v___x_3_, 3);
 v___x_7_ = lean_box(v_binderInfo_6_);
 lean_inc_ref(v_p_1_);
 v___x_8_ = lean_apply_2(v_p_1_, v___x_7_, v_binderType_4_);
@@ -67,7 +67,7 @@ case 8:
 lean_object* v_body_15_; 
 v_body_15_ = lean_ctor_get(v___x_3_, 3);
 lean_inc_ref(v_body_15_);
-lean_dec_ref(v___x_3_);
+lean_dec_ref_known(v___x_3_, 4);
 v_e_2_ = v_body_15_;
 goto _start;
 }

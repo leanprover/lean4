@@ -67,7 +67,7 @@ if (lean_obj_tag(v___x_5_) == 0)
 lean_object* v_a_6_; uint32_t v___x_7_; lean_object* v___x_8_; lean_object* v___x_9_; lean_object* v___x_10_; 
 v_a_6_ = lean_ctor_get(v___x_5_, 0);
 lean_inc(v_a_6_);
-lean_dec_ref(v___x_5_);
+lean_dec_ref_known(v___x_5_, 1);
 v___x_7_ = lean_io_process_get_pid();
 v___x_8_ = lean_uint32_to_nat(v___x_7_);
 v___x_9_ = l_Nat_reprFast(v___x_8_);
@@ -138,14 +138,14 @@ if (lean_obj_tag(v___x_44_) == 1)
 lean_object* v_val_45_; lean_object* v___x_46_; 
 v_val_45_ = lean_ctor_get(v___x_44_, 0);
 lean_inc(v_val_45_);
-lean_dec_ref(v___x_44_);
+lean_dec_ref_known(v___x_44_, 1);
 v___x_46_ = l_IO_FS_createDirAll(v_val_45_);
 if (lean_obj_tag(v___x_46_) == 0)
 {
 lean_object* v_a_47_; lean_object* v___x_48_; 
 v_a_47_ = lean_ctor_get(v___x_46_, 0);
 lean_inc(v_a_47_);
-lean_dec_ref(v___x_46_);
+lean_dec_ref_known(v___x_46_, 1);
 v___x_48_ = l___private_Lake_Util_Lock_0__Lake_busyAcquireLockFile_busyLoop___lam__0(v_lockFile_25_, v_a_47_);
 v___y_34_ = v___x_48_;
 goto v___jp_33_;
@@ -187,7 +187,7 @@ lean_object* v_a_35_;
 v_a_35_ = lean_ctor_get(v___y_34_, 0);
 if (lean_obj_tag(v_a_35_) == 0)
 {
-lean_dec_ref(v___y_34_);
+lean_dec_ref_known(v___y_34_, 1);
 if (v_firstTime_26_ == 0)
 {
 goto v___jp_28_;
@@ -205,14 +205,14 @@ v___x_41_ = l_IO_FS_Stream_putStrLn(v___x_36_, v___x_40_);
 if (lean_obj_tag(v___x_41_) == 0)
 {
 lean_object* v_flush_42_; lean_object* v___x_43_; 
-lean_dec_ref(v___x_41_);
+lean_dec_ref_known(v___x_41_, 1);
 v_flush_42_ = lean_ctor_get(v___x_36_, 0);
 lean_inc_ref(v_flush_42_);
 lean_dec_ref(v___x_36_);
 v___x_43_ = lean_apply_1(v_flush_42_, lean_box(0));
 if (lean_obj_tag(v___x_43_) == 0)
 {
-lean_dec_ref(v___x_43_);
+lean_dec_ref_known(v___x_43_, 1);
 goto v___jp_28_;
 }
 else
@@ -304,7 +304,7 @@ _start:
 if (lean_obj_tag(v_x_76_) == 11)
 {
 lean_object* v___x_78_; lean_object* v___x_79_; lean_object* v___x_80_; lean_object* v___x_81_; lean_object* v___x_82_; 
-lean_dec_ref(v_x_76_);
+lean_dec_ref_known(v_x_76_, 2);
 v___x_78_ = ((lean_object*)(l_Lake_withLockFile___redArg___lam__2___closed__0));
 v___x_79_ = lean_string_append(v___x_78_, v_lockFile_74_);
 v___x_80_ = ((lean_object*)(l_Lake_withLockFile___redArg___lam__2___closed__1));

@@ -442,7 +442,11 @@ private def checkComputable (ref : Name) : M Unit := do
     return
   if ref matches ``Quot.mk | ``Quot.lift || isExtern (← getEnv) ref || (getImplementedBy? (← getEnv) ref).isSome then
     return
-  if isNoncomputable (← getEnv) ref then
+  -- The executable code of a recursive definition comes from its `_unsafe_rec` implementation (see
+  -- `getDeclInfo?`), so `ref` is noncomputable whenever that implementation is. This case arises in a
+  -- `noncomputable section`, where the failure to compile the `_unsafe_rec` version is tolerated and
+  -- only that auxiliary is marked `noncomputable`, leaving `ref` itself unmarked.
+  if isNoncomputable (← getEnv) ref || isNoncomputable (← getEnv) (mkUnsafeRecName ref) then
     throwNamedError lean.dependsOnNoncomputable m!"failed to compile definition, consider marking it as 'noncomputable' because it depends on '{.ofConstName ref}', which is 'noncomputable'"
   else if getOriginalConstKind? (← getEnv) ref matches some .axiom | some .quot | some .induct | some .thm then
     throwNamedError lean.dependsOnNoncomputable f!"`{ref}` not supported by code generator; consider marking definition as `noncomputable`"

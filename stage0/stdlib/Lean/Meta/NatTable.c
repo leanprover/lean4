@@ -474,7 +474,7 @@ if (lean_obj_tag(v___x_197_) == 0)
 lean_object* v_a_198_; lean_object* v___x_199_; 
 v_a_198_ = lean_ctor_get(v___x_197_, 0);
 lean_inc(v_a_198_);
-lean_dec_ref(v___x_197_);
+lean_dec_ref_known(v___x_197_, 1);
 v___x_199_ = l___private_Lean_Meta_NatTable_0__mkNatLookupTable_go___redArg(v_i_186_, v_type_187_, v_es_188_, v_a_198_, v___x_195_, v___x_194_);
 return v___x_199_;
 }

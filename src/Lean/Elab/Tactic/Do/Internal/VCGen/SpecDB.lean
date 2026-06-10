@@ -8,8 +8,9 @@ module
 prelude
 public import Lean.Elab.Tactic.Do.Attr
 public import Lean.Meta.Sym.Pattern
-import Lean.Meta.Sym.Simp.DiscrTree
 public import Lean.Meta.DiscrTree.Util
+import Lean.Meta.Sym.Simp.DiscrTree
+import Lean.Meta.Sym.Util
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
@@ -94,26 +95,26 @@ public def mkTriplePatternFromExpr (expr : Expr) (levelParams : List Name := [])
     let_expr Triple _m _ps _inst _α prog _P _Q := type | throwError "conclusion is not a Triple {indentExpr type}"
     return (prog, ())
 
-public def mkSpecTheoremNew (proof : SpecProof) (prio : Nat) : SymM SpecTheoremNew := do
+public def mkSpecTheoremNew (proof : SpecProof) (prio : Nat) : SymM (Option SpecTheoremNew) := do
   -- cf. mkSimpTheoremCore
   let (levelParams, expr) ← proof.getProof
   let type ← Meta.inferType expr
   let type ← instantiateMVars type
-  unless (← isProp type) do
-    throwError "invalid 'spec', proposition expected{indentExpr type}"
+  unless type.getForallBody.getAppFn.isConstOf ``Triple do
+    return none
   let pattern ← mkTriplePatternFromExpr expr levelParams
   withNewMCtxDepth do
-  let (xs, _, type) ← withSimpGlobalConfig (forallMetaTelescopeReducing type)
+  let (xs, _, type) ← withSimpGlobalConfig (forallMetaTelescope type)
   let type ← whnfR type
   let_expr c@Triple _m ps _inst _α _prog P _Q := type
-    | throwError "unexpected kind of spec theorem; not a triple{indentExpr type}"
+    | throwError "{type} was not a Triple. Should not happen with the previous tests in place."
   -- beta potential of `P` describes how many times we want to `mintro ∀s`, that is,
   -- *eta*-expand the goal.
   let σs := mkApp (mkConst ``PostShape.args [c.constLevels![0]!]) ps
   let etaPotential ← computeMVarBetaPotentialForSPred xs σs P
   -- logInfo m!"Beta potential {etaPotential} for {P}"
   -- logInfo m!"mkSpecTheorem: {keys}, proof: {proof}"
-  return { pattern, proof, kind := .triple etaPotential, priority := prio }
+  return some { pattern, proof, kind := .triple etaPotential, priority := prio }
 
 /--
 Eta-expand a pattern for a function-level equation.
@@ -177,14 +178,19 @@ public def mkSpecTheoremNewFromSimpDecl? (declName : Name) (prio : Nat) : MetaM 
 public def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : SimpTheorems) :
     SymM SpecTheoremsNew := do
   let mut specs : DiscrTree SpecTheoremNew := DiscrTree.empty
+  -- Erased entries are still inserted into `specs` below; `findSpecs` filters them out
+  -- at lookup time.
+  let erased : PHashSet SpecProof := simpThms.erased.fold (init := database.erased) fun acc o =>
+    match SpecProof.ofOrigin o with
+    | some p => acc.insert p
+    | none => acc
   for spec in database.specs.values do
-    if database.isErased spec.proof then continue
-    let newSpec ← mkSpecTheoremNew spec.proof spec.priority
+    let some newSpec ← mkSpecTheoremNew spec.proof spec.priority
+      | throwError "could not migrate spec theorem {spec.proof}"
     specs := Sym.insertPattern specs newSpec.pattern newSpec
   -- Migrate simp spec theorems (equational lemmas registered via `@[spec]`)
   for simpThm in simpThms.post.values do
     if let .decl declName .. := simpThm.origin then
-      if simpThms.erased.contains simpThm.origin then continue
       try
         if let some newSpec ← mkSpecTheoremNewFromSimpDecl? declName simpThm.priority then
           specs := Sym.insertPattern specs newSpec.pattern newSpec
@@ -192,7 +198,6 @@ public def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : Sim
         trace[Elab.Tactic.Do.vcgen] "Failed to migrate simp spec {declName}: {e.toMessageData}"
   -- Migrate definitions to unfold (registered via `attribute [spec] foo`)
   for declName in simpThms.toUnfold.toList do
-    if simpThms.erased.contains (.decl declName) then continue
     let eqThms ← match simpThms.toUnfoldThms.find? declName with
       | some eqThms => pure eqThms
       | none =>
@@ -205,7 +210,7 @@ public def migrateSpecTheoremsDatabase (database : SpecTheorems) (simpThms : Sim
           specs := Sym.insertPattern specs newSpec.pattern newSpec
       catch e =>
         trace[Elab.Tactic.Do.vcgen] "Failed to migrate unfold spec {declName}/{eqThm}: {e.toMessageData}"
-  return { database with specs }
+  return { specs, erased }
 
 /--
 Look up `SpecTheoremNew`s in the `@[spec]` database.
@@ -216,6 +221,7 @@ public def SpecTheoremsNew.findSpecs (database : SpecTheoremsNew) (e : Expr) :
   let e ← instantiateMVars e
   let e ← shareCommon e
   let candidates := Sym.getMatch database.specs e
+  let candidates := candidates.filter fun spec => !database.erased.contains spec.proof
   if h : candidates.size = 1 then
     have : 0 < candidates.size := h ▸ Nat.zero_lt_one
     return .ok candidates[0]

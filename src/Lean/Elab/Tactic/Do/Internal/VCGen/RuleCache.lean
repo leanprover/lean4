@@ -23,6 +23,7 @@ open Std.Do
 
 namespace Lean.Elab.Tactic.Do.Internal
 
+set_option linter.checkUnivs false in
 @[inline]
 def Std.HashMap.getDM [Monad m] [BEq α] [Hashable α]
     (cache : Std.HashMap α β) (key : α) (fallback : m β) : m (β × Std.HashMap α β) := do

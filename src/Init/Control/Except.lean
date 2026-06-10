@@ -330,6 +330,7 @@ instance ExceptT.finally {m : Type u → Type v} {ε : Type u} [MonadFinally m] 
     | (_,        .error e) => pure (.error e)  -- second error has precedence
     | (.error e, _)        => pure (.error e)
 
+set_option linter.checkUnivs false in
 instance [Monad m] [MonadAttach m] : MonadAttach (ExceptT ε m) where
   CanReturn x a := MonadAttach.CanReturn (m := m) x (.ok a)
   attach x := show m (Except ε _) from

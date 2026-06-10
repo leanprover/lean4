@@ -453,7 +453,7 @@ v_head_130_ = lean_ctor_get(v_x_129_, 0);
 lean_inc(v_head_130_);
 v_tail_131_ = lean_ctor_get(v_x_129_, 1);
 lean_inc(v_tail_131_);
-lean_dec_ref(v_x_129_);
+lean_dec_ref_known(v_x_129_, 2);
 v___x_132_ = lean_array_push(v_x_128_, v_head_130_);
 v_x_128_ = v___x_132_;
 v_x_129_ = v_tail_131_;
@@ -746,7 +746,7 @@ else
 lean_object* v_val_276_; lean_object* v___x_277_; lean_object* v___x_278_; uint8_t v___x_279_; lean_object* v___x_280_; lean_object* v___x_281_; lean_object* v___x_282_; uint8_t v___x_283_; 
 v_val_276_ = lean_ctor_get(v___x_268_, 0);
 lean_inc(v_val_276_);
-lean_dec_ref(v___x_268_);
+lean_dec_ref_known(v___x_268_, 1);
 v___x_277_ = ((lean_object*)(l_Lean_isDeclMeta___closed__0));
 v___x_278_ = l___private_Lean_Compiler_MetaAttr_0__Lean_declMetaExt;
 v___x_279_ = 0;
@@ -937,7 +937,7 @@ else
 lean_object* v_val_365_; uint8_t v___x_366_; 
 v_val_365_ = lean_ctor_get(v___x_363_, 0);
 lean_inc(v_val_365_);
-lean_dec_ref(v___x_363_);
+lean_dec_ref_known(v___x_363_, 1);
 v___x_366_ = l_Lean_ConstantInfo_isCtor(v_val_365_);
 lean_dec(v_val_365_);
 if (v___x_366_ == 0)
@@ -972,7 +972,7 @@ else
 lean_object* v_val_371_; uint8_t v___x_372_; 
 v_val_371_ = lean_ctor_get(v___x_361_, 0);
 lean_inc(v_val_371_);
-lean_dec_ref(v___x_361_);
+lean_dec_ref_known(v___x_361_, 1);
 v___x_372_ = l_Lean_isMarkedMeta(v_env_355_, v_declName_356_);
 if (v___x_372_ == 0)
 {

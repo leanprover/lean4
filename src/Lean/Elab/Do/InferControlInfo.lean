@@ -7,6 +7,7 @@ module
 
 prelude
 public import Lean.Elab.Term
+public import Lean.Elab.Do.ForwardSyntax
 meta import Lean.Parser.Do
 import Lean.Elab.Do.PatternVar
 
@@ -56,6 +57,7 @@ structure ControlInfo where
   reassigns : NameSet := {}
   deriving Inhabited
 
+/-- A `ControlInfo` for an element that always falls through normally with a single exit. -/
 def ControlInfo.pure : ControlInfo := {}
 
 /--
@@ -64,6 +66,7 @@ at all (so no regular exits and the next element is trivially unreachable).
 -/
 def ControlInfo.empty : ControlInfo := { numRegularExits := 0, noFallthrough := true }
 
+/-- Combine info for `a; b`: union effect flags, exits/dead follow `b`/either. -/
 def ControlInfo.sequence (a b : ControlInfo) : ControlInfo := {
     -- Syntactic fields aggregate unconditionally; the elaborator keeps visiting `b` unless `a` is
     -- a syntactically-terminal element (only top-level `return`/`break`/`continue` are, via
@@ -77,6 +80,7 @@ def ControlInfo.sequence (a b : ControlInfo) : ControlInfo := {
     noFallthrough := a.noFallthrough || b.noFallthrough,
   }
 
+/-- Combine info for branches `a | b`: union flags, sum exits, dead iff both dead. -/
 def ControlInfo.alternative (a b : ControlInfo) : ControlInfo := {
     breaks := a.breaks || b.breaks,
     continues := a.continues || b.continues,
@@ -127,7 +131,14 @@ partial def ofElem (stx : TSyntax `doElem) : TermElabM ControlInfo := do
   | `(doElem| break) => return { breaks := true, numRegularExits := 0, noFallthrough := true }
   | `(doElem| continue) => return { continues := true, numRegularExits := 0, noFallthrough := true }
   | `(doElem| return $[$_]?) => return { returnsEarly := true, numRegularExits := 0, noFallthrough := true }
-  | `(doExpr| $_:term) => return { numRegularExits := 1 }
+  | `(doExpr| $e:term) =>
+    if let some (_, arg) := Forward.matchApp? e then
+      -- The last arg is a `do + resume $body` block. Depending on the function, it might or might
+      -- not be called. We may definitely fall through and the control lifting mechanism prevents
+      -- creation of a join point.
+      return { (← ofSeq arg.body) with noFallthrough := false, numRegularExits := 1 }
+    else
+      return { numRegularExits := 1 }
   | `(doElem| do $doSeq) => ofSeq doSeq
   -- Let
   | `(doElem| let $[mut]? $_:letConfig $_:letDecl) => return .pure
@@ -262,8 +273,10 @@ end
 
 end InferControlInfo
 
+/-- Infer the `ControlInfo` of `doSeq`. -/
 def inferControlInfoSeq (doSeq : TSyntax ``doSeq) : TermElabM ControlInfo :=
   InferControlInfo.ofSeq doSeq
 
+/-- Infer the `ControlInfo` of a single doElem. -/
 def inferControlInfoElem (doElem : TSyntax `doElem) : TermElabM ControlInfo :=
   InferControlInfo.ofElem doElem

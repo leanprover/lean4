@@ -8,7 +8,8 @@ module
 prelude
 public import Lean.Elab.ConfigEval.Commands
 public import Lean.Elab.ConfigEval.Instances
-public import Lean.Elab.DeprecatedSyntax  -- shake: skip (workaround for command elaborators failing to interpret `deprecatedSyntaxExt`, to be fixed #13108)
+import Lean.Elab.ConfigEval.DeriveEvalTerm
+import Lean.Elab.ConfigEval.DeriveEvalExpr
 
 /-!
 # Derived evaluator instances for built-in Meta types

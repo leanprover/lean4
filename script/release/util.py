@@ -120,6 +120,9 @@ class Version:
 class ReleaseRepo:
     github: tuple[str, str]  # (owner, name)
 
+    # Where to look for the toolchain, relative to the repo root.
+    toolchain_file: str = "lean-toolchain"
+
     # If present, nightly-related branches and tags are expected to be in this
     # repo instead of the main repo.
     nightly: Self | None = None
@@ -368,7 +371,8 @@ def find_pr(grepo: Repository, head: str, base: str, title: str) -> PullRequest 
     for pr in grepo.get_pulls(
         state="all", base=base, sort="created", direction="desc"
     ).get_page(0):
-        if title in pr.title:
+        # Stable versions are prefixes of RC versions, so we can't just use "in"
+        if pr.title.endswith(title) or (title + " ") in pr.title:
             return pr
 
 
@@ -477,8 +481,8 @@ def get_toolchain_for(version: Version) -> str:
     return f"leanprover/lean4:{version.tag}"
 
 
-def get_toolchain(grepo: Repository, ref: str) -> str:
-    return get_file_contents(grepo, ref, "lean-toolchain").strip()
+def get_toolchain(grepo: Repository, ref: str, path: str | Path) -> str:
+    return get_file_contents(grepo, ref, path).strip()
 
 
 def set_toolchain(path: Path, tag: str) -> None:

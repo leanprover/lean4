@@ -685,7 +685,20 @@ abbrev endValidPos (s : String) : s.Pos :=
   s.endPos
 
 @[deprecated String.toByteArray (since := "2025-11-24")]
-abbrev String.bytes (s : String) : ByteArray :=
+abbrev bytes (s : String) : ByteArray :=
   s.toByteArray
+
+/--
+Returns the length of the string `s`, assuming the string is comprised only of ASCII characters.
+
+This is implemented as a synonym for `s.utf8ByteSize`, which takes constant time.
+-/
+@[inline]
+def lengthAssumingAscii (s : String) : Nat :=
+  s.utf8ByteSize
+
+@[simp]
+theorem lengthAssumingAscii_eq {s : String} : s.lengthAssumingAscii = s.utf8ByteSize :=
+  (rfl)
 
 end String

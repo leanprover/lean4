@@ -8,6 +8,7 @@ module
 prelude
 public import Init.System.IO
 public import Std.Time.Duration
+public import Std.Time.DateTime.WallTime
 
 public section
 

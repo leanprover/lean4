@@ -199,6 +199,13 @@ Can also be used for creating simple functions when combined with `·`. Here are
 -/
 @[builtin_term_parser] def paren := leading_parser
   hygienicLParen >> withoutPosition (withoutForbidden (ppDedentIfGrouped termParser)) >> ")"
+
+/-- Strip leading `paren` wrappers from `stx`. -/
+partial def dropParens : Syntax → Syntax := fun stx =>
+  match stx with
+  | `(($stx)) => dropParens stx
+  | _         => stx
+
 /--
 The *anonymous constructor* `⟨e, ...⟩` is equivalent to `c e ...` if the
 expected type is an inductive type with a single constructor `c`.

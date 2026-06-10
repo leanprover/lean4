@@ -348,6 +348,7 @@ theorem wrap_toInt (I : IntInterval) [ToInt α I] (x : α) :
   rw [I.wrap_eq_self_iff (I.nonEmpty_of_mem (toInt_mem x))]
   exact ToInt.toInt_mem x
 
+set_option linter.defProp false in
 /-- Construct a `ToInt.Sub` instance from a `ToInt.Add` and `ToInt.Neg` instance and
 a `sub_eq_add_neg` assumption. -/
 @[implicit_reducible]

@@ -7,53 +7,39 @@ set_option mvcgen.warning false
 open Std.Do
 
 /-!
-# Tests for `while` loops and `Spec.forIn_loop`
+# Tests for `Loop`-based `repeat`/`while` loops with `whileM`
 
-Verifies that `while`/`repeat` loops, `Spec.forIn_loop`, and the `mvcgen` `[spec]` registration
-round-trip through both terminating loops (`sqrt`) and conditionally terminating loops
-(`possiblyDivergentLoop`).
+These tests verify that the `Loop.forIn` implementation using `whileM` and its
+verification infrastructure work correctly with `MonadTail`.
 -/
 
 /-- `sqrt n` computes the integer square root of `n` using a `while` loop. -/
 def sqrt (n : Nat) : Id Nat := do
-  if n = 0 then return 0
+  if n = 0 then
+    return 0
   let mut i := 0
   while i * i ≤ n do
     i := i + 1
   return i - 1
 
+/-- The `sqrt` function returns the correct integer square root. -/
 theorem sqrt_correct :
-    ⦃⌜True⌝⦄ sqrt n ⦃⇓ res => ⌜res * res ≤ n ∧ n < (res + 1) * (res + 1)⌝⦄ := by
+    ⦃⌜True⌝⦄ sqrt n ⦃⇓ res => ⌜res * res ≤ n ∧ n < (res + 1) * (res+1)⌝⦄ := by
   mvcgen [sqrt]
   invariants
-  | inv1 => fun i => (n + 2) - i
-  | inv2 => fun r => match r with
-    | .inl i => ∀ j, j < i → j * j ≤ n
-    | .inr i => (∀ j, j < i → j * j ≤ n) ∧ n < i * i
-  with try grind
-  | vc2 b hcase _ =>
-    intro h
-    refine ⟨?_, ?_⟩
-    · intro j hj
-      rcases Nat.lt_succ_iff_lt_or_eq.mp hj with hj' | hj'
-      · exact h j hj'
-      · subst hj'; exact hcase
-    · have hb : b ≤ n := by
-        rcases Nat.eq_zero_or_pos b with hb0 | hpos
-        · omega
-        · calc b ≤ b * b := Nat.le_mul_of_pos_left b hpos
-            _ ≤ n := hcase
-      omega
-  | vc5.isFalse.post.success r =>
-    intro h hn
-    have hr : r ≥ 1 := by
-      rcases Nat.eq_zero_or_pos r with hr0 | hr_pos
-      · subst hr0; simp at hn
-      · exact hr_pos
-    have heq : r - 1 + 1 = r := by omega
-    refine ⟨h (r - 1) (by omega), ?_⟩
-    rw [heq]; exact hn
+  | inv1 => fun i => ULift.up ((n + 2) - i)
+  | inv2 => ⇓ r => match r with
+    | .inl i => spred(⌜∀ j, j < i → j * j ≤ n⌝)
+    | .inr i => spred(⌜∀ j, j < i → j * j ≤ n⌝ ∧ ⌜n < i * i⌝)
+  with (try grind)
+  | vc2 r _ hsqr _ _ =>
+    have : r ≤ n := Nat.le_trans (Nat.le_mul_self r) hsqr
+    grind
+  | vc5 res h =>
+    have : res - 1 < res := by grind
+    grind
 
+-- Verify sqrt computes correctly
 #guard Id.run (sqrt 0) == 0
 #guard Id.run (sqrt 1) == 1
 #guard Id.run (sqrt 4) == 2
@@ -63,18 +49,86 @@ theorem sqrt_correct :
 #guard Id.run (sqrt 16) == 4
 #guard Id.run (sqrt 100) == 10
 
-/-- A loop that does not terminate for all inputs — only for `x ≤ 20`. -/
-def possiblyDivergentLoop (x : Nat) : Id Nat := do
-  let mut i := x
-  while i ≠ 20 do
+/-- `sqrtState n` is the same as `sqrt` but uses `StateT`. -/
+def sqrtState (n : Nat) : StateM Nat Nat := do
+  set 0
+  while (← get) * (← get) ≤ n do
+    modify fun i => i + 1
+  return (← get) - 1
+
+/-- The `sqrtState` function returns the correct integer square root. -/
+theorem sqrtState_correct :
+    ⦃⌜True⌝⦄ sqrtState n ⦃⇓ res => ⌜res * res ≤ n ∧ n < (res + 1) * (res+1)⌝⦄ := by
+  mvcgen [sqrtState]
+  invariants
+  | inv1 => fun _ i => ULift.up ((n + 2) - i)
+  | inv2 => ⇓ r i => match r with
+    | .inl _ => spred(⌜∀ j, j < i → j * j ≤ n⌝)
+    | .inr _ => spred(⌜∀ j, j < i → j * j ≤ n⌝ ∧ ⌜n < i * i⌝)
+  with (try grind)
+  | vc1 r _ hsqr _ =>
+    have : r ≤ n := Nat.le_trans (Nat.le_mul_self r) hsqr
+    grind
+  | vc4 res h =>
+    have : res - 1 < res := by grind
+    grind
+
+/-- A loop that only terminates when the initial value satisfies `i ≤ x`. -/
+def loopWithTerminationPrecond (x : Nat) : Id Nat := do
+  let mut i := 0
+  while i ≠ x do
     i := i + 1
   return i
 
-example (hx : x ≤ 20) : ⦃⌜True⌝⦄ possiblyDivergentLoop x ⦃⇓ r => ⌜r = 20⌝⦄ := by
-  mvcgen [possiblyDivergentLoop]
-  invariants
-  | inv1 => fun i => 20 - i
-  | inv2 => fun r => match r with
-    | .inl i => i ≤ 20
-    | .inr i => i = 20
+example : ⦃⌜True⌝⦄ loopWithTerminationPrecond x ⦃⇓ r => ⌜r = x⌝⦄ := by
+  mvcgen [loopWithTerminationPrecond] invariants
+  | inv1 => fun i => ULift.up (x - i)
+  | inv2 => ⇓ r => match r with
+    | .inl i => spred(⌜i ≤ x⌝)
+    | .inr i => spred(⌜i = x⌝)
+  with grind
+
+/-- A loop that only terminates when the initial *state* satisfies some invariant. -/
+def loopWithStatefulTerminationPrecond (x : Nat) : StateM Nat Nat := do
+  set 0
+  while (← get) ≠ x do
+    modify fun i => i + 1
+  get
+
+example : ⦃⌜True⌝⦄ loopWithStatefulTerminationPrecond x ⦃⇓ r => ⌜r = x⌝⦄ := by
+  mvcgen [loopWithStatefulTerminationPrecond] invariants
+  | inv1 => fun _ s => ULift.up (x - s)
+  | inv2 => ⇓ r => match r with
+    | .inl _ => spred(fun s => ⌜s ≤ x⌝)
+    | .inr _ => spred(fun s => ⌜s = x⌝)
+  with (try grind)
+
+/-- A loop that does not terminate for all inputs. -/
+def possiblyDivergentLoop (x : Nat) : Id Nat := do
+  let mut x := x
+  while x ≠ 20 do
+    x := x + 1
+  return x
+
+example : ⦃⌜x ≤ 20⌝⦄ possiblyDivergentLoop x ⦃⇓ r => ⌜r = 20⌝⦄ := by
+  mvcgen [possiblyDivergentLoop] invariants
+  | inv1 => fun i => ULift.up (20 - i)
+  | inv2 => ⇓ r => match r with
+    | .inl i => spred(⌜i ≤ 20⌝)
+    | .inr i => spred(⌜i = 20⌝)
+  with grind
+
+def terminatesSometimes (n : Nat) (p : Nat → Bool) :  Option Nat := do
+  let mut n := n
+  while !p n do
+    n := n + 2
+  return n
+
+example (n m : Nat) (h : n ≤ m) (heven : n % 2 = 0) (hmeven : m % 2 = 0) (h : p m) :
+    ⦃⌜True⌝⦄ terminatesSometimes n p ⦃⇓ r => ⌜r % 2 = 0⌝⦄ := by
+  mvcgen [terminatesSometimes] invariants
+  | inv1 => fun i => ULift.up (m + 1 - i)
+  | inv2 => ⇓ r => match r with
+    | .inl i => spred(⌜i % 2 = 0 ∧ i ≤ m⌝)
+    | .inr i => spred(⌜i % 2 = 0 ∧ p i⌝)
   with grind

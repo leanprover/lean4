@@ -8,6 +8,7 @@ module
 prelude
 public import Lean.Environment
 public import Lean.Message
+public import Lean.Linter.Init
 
 public section
 
@@ -32,6 +33,8 @@ def getAllLints (env : Environment) : Array (Name × Array LintEntry) :=
 
 def recordLints (env : Environment) (messages : MessageLog) : BaseIO Environment := do
   messages.reportedPlusUnreported.foldlM (init := env) fun env m => do
+    unless m.data.isLinterMessage do
+      return env
     let kind := m.data.kind
     if kind.isAnonymous then
       return env

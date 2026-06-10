@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Linter
-// Imports: public import Lean.Linter.Util public import Lean.Linter.Builtin public import Lean.Linter.ConstructorAsVariable public import Lean.Linter.Deprecated public import Lean.Linter.DocsOnAlt public import Lean.Linter.UnusedVariables public import Lean.Linter.MissingDocs public import Lean.Linter.Omit public import Lean.Linter.List public import Lean.Linter.Sets public import Lean.Linter.UnusedSimpArgs public import Lean.Linter.Coe public import Lean.Linter.GlobalAttributeIn public import Lean.Linter.EnvLinter public import Lean.Linter.PersistentLintLog public import Lean.Linter.Extra public import Lean.Linter.TacticTypeCheck
+// Imports: public import Lean.Linter.Util public import Lean.Linter.Builtin public import Lean.Linter.CheckUnivs public import Lean.Linter.ConstructorAsVariable public import Lean.Linter.DefProp public import Lean.Linter.Deprecated public import Lean.Linter.DocsOnAlt public import Lean.Linter.UnusedVariables public import Lean.Linter.MissingDocs public import Lean.Linter.Omit public import Lean.Linter.List public import Lean.Linter.Sets public import Lean.Linter.UnusedSimpArgs public import Lean.Linter.Coe public import Lean.Linter.GlobalAttributeIn public import Lean.Linter.EnvLinter public import Lean.Linter.PersistentLintLog public import Lean.Linter.Extra public import Lean.Linter.TacticTypeCheck
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,7 +15,9 @@ extern "C" {
 #endif
 lean_object* runtime_initialize_Lean_Linter_Util(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_Builtin(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter_CheckUnivs(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_ConstructorAsVariable(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Linter_DefProp(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_Deprecated(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_DocsOnAlt(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Linter_UnusedVariables(uint8_t builtin);
@@ -41,7 +43,13 @@ lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter_Builtin(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = runtime_initialize_Lean_Linter_CheckUnivs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter_ConstructorAsVariable(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Linter_DefProp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Linter_Deprecated(builtin);
@@ -97,7 +105,9 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Lean_Linter_Util(uint8_t builtin);
 lean_object* initialize_Lean_Linter_Builtin(uint8_t builtin);
+lean_object* initialize_Lean_Linter_CheckUnivs(uint8_t builtin);
 lean_object* initialize_Lean_Linter_ConstructorAsVariable(uint8_t builtin);
+lean_object* initialize_Lean_Linter_DefProp(uint8_t builtin);
 lean_object* initialize_Lean_Linter_Deprecated(uint8_t builtin);
 lean_object* initialize_Lean_Linter_DocsOnAlt(uint8_t builtin);
 lean_object* initialize_Lean_Linter_UnusedVariables(uint8_t builtin);
@@ -123,7 +133,13 @@ lean_dec_ref(res);
 res = initialize_Lean_Linter_Builtin(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
+res = initialize_Lean_Linter_CheckUnivs(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
 res = initialize_Lean_Linter_ConstructorAsVariable(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Linter_DefProp(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Linter_Deprecated(builtin);

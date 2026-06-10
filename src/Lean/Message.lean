@@ -316,6 +316,18 @@ def withExprHoverM {m} [Monad m] [MonadLCtx m]
   let lctx ← lctx?.getDM getLCtx
   return withExprHover fmt expr lctx location? docString? mkDocString? explicit
 
+/--
+Render `userName` as `MessageData`, attaching hover information for the local declaration with
+that user-facing name if it is bound in the current `LocalContext`. The lookup uses `userName`
+verbatim (so macro scopes are preserved for matching) and the rendered name uses
+`userName.simpMacroScopes`. Falls back to plain text when the variable is not in scope.
+-/
+def ofUserName {m} [Monad m] [MonadLCtx m] (userName : Name) : m MessageData := do
+  let display := userName.simpMacroScopes
+  match (← getLCtx).findFromUserName? userName with
+  | some decl => withExprHoverM (format display) (.fvar decl.fvarId)
+  | none => pure (ofName display)
+
 partial def hasSyntheticSorry (msg : MessageData) : Bool :=
   visit none msg
 where

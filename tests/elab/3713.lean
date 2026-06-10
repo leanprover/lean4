@@ -1,5 +1,4 @@
 import Lean
-set_option backward.do.legacy false
 open Lean  Elab Meta
 
 def somethingBad : MetaM Nat := do

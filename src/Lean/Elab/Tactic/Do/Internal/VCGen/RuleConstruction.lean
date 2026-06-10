@@ -13,6 +13,7 @@ public import Lean.Meta.Sym.AlphaShareBuilder
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.InstantiateMVarsS
 public import Lean.Meta.Sym.Util
+import Lean.Meta.WHNF
 
 open Lean Meta Elab Tactic Sym
 open Lean.Elab.Tactic.Do.SpecAttr
@@ -133,11 +134,13 @@ public def mkBackwardRuleFromSpec (specThm : SpecTheoremNew) (m σs ps instWP : 
   let_expr f@Triple m' ps' instWP' α prog P Q := specTy
     | liftMetaM <| throwError "target not a Triple application {specTy}"
   -- Reject the spec and try the next if the monad doesn't match.
-  unless ← isDefEqGuarded m m' do -- TODO: Try isDefEqS?
+  -- `withDefault`: spec/goal instance projections (e.g. `WPMonad.toWP`)
+  -- needs default to unfold; the ambient grind transparency is `reducible`.
+  unless ← Meta.withDefault <| isDefEqGuarded m m' do
     throwError "Post program defeq Monad mismatch: {m} ≠ {m'}"
-  unless ← isDefEqGuarded ps ps' do
+  unless ← Meta.withDefault <| isDefEqGuarded ps ps' do
     throwError "Post program defeq Postshape mismatch: {ps} ≠ {ps'}"
-  unless ← isDefEqGuarded instWP instWP' do
+  unless ← Meta.withDefault <| isDefEqGuarded instWP instWP' do
     throwError "Post program defeq WP instance mismatch: {instWP} ≠ {instWP'}"
 
   -- We must ensure that P and Q are pattern variables so that the spec matches for every potential
@@ -256,9 +259,6 @@ public def mkBackwardRuleFromSimpSpec (specThm : SpecTheoremNew) (m σs ps instW
     if x.isMVar && !(← x.mvarId!.isAssigned) then
       let xType ← Meta.inferType x
       try liftMetaM <| Meta.synthInstance xType >>= x.mvarId!.assign catch _ => pure ()
-  let eqPrf ← instantiateMVarsS eqPrf
-  let lhs ← instantiateMVarsS lhs
-  let rhs ← instantiateMVarsS rhs
   -- Reduce projections (e.g., `inst.1` → `getThe σ` when inst is a concrete dictionary).
   let rhs ← liftMetaM <| Meta.transform rhs (pre := fun e => do
     if let .proj .. := e then
@@ -286,7 +286,7 @@ public def mkBackwardRuleFromSimpSpec (specThm : SpecTheoremNew) (m σs ps instW
     withLocalDeclD `h premiseType fun h => do
     -- Build: Eq.mpr (congrArg motive eqPrf) h
     -- motive = fun prog => P ⊢ₛ wp⟦prog⟧ Q s₁ ... sₙ
-    let mα ← instantiateMVarsS (mkApp m α)
+    let mα ← preprocessExpr (mkApp m α)
     let motiveBody := mkApp3 (mkConst ``SPred.entails [u]) σs P
       (mkAppN (mkApp4 (mkConst ``PredTrans.apply [u]) ps α
         (mkApp5 (mkConst ``WP.wp [u, v]) m ps instWP α (.bvar 0)) Q) ss)

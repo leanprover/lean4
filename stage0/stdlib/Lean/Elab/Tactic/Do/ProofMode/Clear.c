@@ -1222,7 +1222,7 @@ if (lean_obj_tag(v___x_429_) == 0)
 lean_object* v_a_430_; lean_object* v___x_431_; lean_object* v_a_432_; lean_object* v___x_433_; 
 v_a_430_ = lean_ctor_get(v___x_429_, 0);
 lean_inc(v_a_430_);
-lean_dec_ref(v___x_429_);
+lean_dec_ref_known(v___x_429_, 1);
 v___x_431_ = l_Lean_instantiateMVars___at___00Lean_Elab_Tactic_Do_ProofMode_elabMClear_spec__1___redArg(v_a_430_, v___y_425_);
 v_a_432_ = lean_ctor_get(v___x_431_, 0);
 lean_inc(v_a_432_);
@@ -1234,14 +1234,14 @@ if (lean_obj_tag(v___x_433_) == 1)
 lean_object* v_val_434_; lean_object* v___x_435_; 
 v_val_434_ = lean_ctor_get(v___x_433_, 0);
 lean_inc_n(v_val_434_, 2);
-lean_dec_ref(v___x_433_);
+lean_dec_ref_known(v___x_433_, 1);
 v___x_435_ = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_focusHypWithInfo(v_val_434_, v_hyp_418_, v___y_424_, v___y_425_, v___y_426_, v___y_427_);
 if (lean_obj_tag(v___x_435_) == 0)
 {
 lean_object* v_a_436_; lean_object* v___x_437_; lean_object* v___x_438_; lean_object* v___x_439_; lean_object* v___x_440_; 
 v_a_436_ = lean_ctor_get(v___x_435_, 0);
 lean_inc(v_a_436_);
-lean_dec_ref(v___x_435_);
+lean_dec_ref_known(v___x_435_, 1);
 lean_inc(v_val_434_);
 v___x_437_ = l_Lean_Elab_Tactic_Do_ProofMode_FocusResult_restGoal(v_a_436_, v_val_434_);
 v___x_438_ = l_Lean_Elab_Tactic_Do_ProofMode_MGoal_toExpr(v___x_437_);
@@ -1252,7 +1252,7 @@ if (lean_obj_tag(v___x_440_) == 0)
 lean_object* v_a_441_; lean_object* v_u_442_; lean_object* v_00_u03c3s_443_; lean_object* v_hyps_444_; lean_object* v_target_445_; lean_object* v_focusHyp_446_; lean_object* v_restHyps_447_; lean_object* v_proof_448_; lean_object* v___x_449_; lean_object* v___x_450_; lean_object* v___x_451_; lean_object* v___x_452_; lean_object* v___x_453_; lean_object* v___x_454_; lean_object* v___x_455_; lean_object* v___x_456_; lean_object* v___x_457_; lean_object* v___x_458_; lean_object* v___x_459_; lean_object* v___x_460_; lean_object* v___x_461_; lean_object* v___x_462_; 
 v_a_441_ = lean_ctor_get(v___x_440_, 0);
 lean_inc_n(v_a_441_, 2);
-lean_dec_ref(v___x_440_);
+lean_dec_ref_known(v___x_440_, 1);
 v_u_442_ = lean_ctor_get(v_val_434_, 0);
 lean_inc(v_u_442_);
 v_00_u03c3s_443_ = lean_ctor_get(v_val_434_, 1);
@@ -1496,7 +1496,7 @@ if (lean_obj_tag(v___x_533_) == 0)
 lean_object* v_a_534_; lean_object* v___f_535_; lean_object* v___x_536_; 
 v_a_534_ = lean_ctor_get(v___x_533_, 0);
 lean_inc_n(v_a_534_, 2);
-lean_dec_ref(v___x_533_);
+lean_dec_ref_known(v___x_533_, 1);
 v___f_535_ = lean_alloc_closure((void*)(l_Lean_Elab_Tactic_Do_ProofMode_elabMClear___lam__0___boxed), 12, 3);
 lean_closure_set(v___f_535_, 0, v_a_534_);
 lean_closure_set(v___f_535_, 1, v_hyp_529_);

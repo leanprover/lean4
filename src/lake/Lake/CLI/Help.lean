@@ -251,10 +251,16 @@ USAGE:
 By default, runs the package's configured lint driver. If `builtinLint` is
 set to `true` in the package configuration, builtin lints also run.
 
-Builtin linting (`--builtin-lint`, `--builtin-only`, `--extra`, `--lint-all`,
+Builtin linting (`--builtin-lint`, `--builtin-only`, `--linters`,
 `--lint-only`, or `builtinLint = true` in the package configuration) drives a
 build of the targeted modules with the requested linter options enabled.
 The lint driver path on its own does not trigger a build.
+
+Which environment linters run on a declaration is determined by the linter
+options in effect when that declaration was built (e.g. via `set_option` in
+the source, or via `--linters`/`--lint-only` below). Both override those
+options for the lint build; `--lint-only` additionally restricts the reported
+output to exactly the linters its spec enables.
 
 Positional `MODULE` arguments narrow only the builtin lints; if omitted,
 the workspace's default target roots are used. The lint driver is invoked
@@ -264,11 +270,19 @@ with `lintDriverArgs` from the package config plus any arguments after
 OPTIONS:
   --builtin-lint        run builtin environment and text linters
   --builtin-only        run only builtin linters, skip the lint driver
-  --extra               run default builtin linters together with the
-                        non-default (extra) ones
-  --lint-all            run all registered linters, including defaults, extras,
-                        and any other disabled-by-default linters
-  --lint-only <name>    run only the specified linter (repeatable)
+  --linters <spec>      override linter options for the lint build; <spec> is a
+                        comma-separated list of linter option names, each
+                        optionally prefixed with `-` to disable it. A name
+                        beginning with `.` is shorthand for the `linter.`
+                        prefix, so `.foo` means `linter.foo`. E.g.
+                        `--linters=.foo,-linter.bar`. Repeatable; later
+                        entries override earlier ones for the same linter
+  --lint-only <spec>    like `--linters`, but report ONLY the linters the spec
+                        positively enables, suppressing every other linter
+                        (including default-on linters that are not named).
+                        Expands `linter.all` and linter sets. Uses the same
+                        `<spec>` syntax as `--linters`; switching between
+                        `--linters` and `--lint-only` replaces the prior spec
 
 A lint driver can be configured by either setting the `lintDriver` package
 configuration option or by tagging a script or executable `@[lint_driver]`.

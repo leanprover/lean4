@@ -2353,7 +2353,7 @@ v_a_715_ = lean_ctor_get(v_x_714_, 0);
 lean_inc(v_a_715_);
 v_a_716_ = lean_ctor_get(v_x_714_, 1);
 lean_inc(v_a_716_);
-lean_dec_ref(v_x_714_);
+lean_dec_ref_known(v_x_714_, 2);
 v___x_717_ = lean_apply_2(v_f_713_, v_a_715_, v_a_716_);
 return v___x_717_;
 }

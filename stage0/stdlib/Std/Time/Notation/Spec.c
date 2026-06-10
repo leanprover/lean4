@@ -1509,7 +1509,7 @@ else
 lean_object* v_digits_218_; lean_object* v_quotContext_219_; lean_object* v_currMacroScope_220_; lean_object* v_ref_221_; uint8_t v___x_222_; lean_object* v___x_223_; lean_object* v___x_224_; lean_object* v___x_225_; lean_object* v___x_226_; lean_object* v___x_227_; lean_object* v___x_228_; lean_object* v___x_229_; lean_object* v___x_230_; lean_object* v___x_231_; lean_object* v___x_232_; lean_object* v___x_233_; lean_object* v___x_234_; lean_object* v___x_235_; lean_object* v___x_236_; 
 v_digits_218_ = lean_ctor_get(v_x_204_, 0);
 lean_inc(v_digits_218_);
-lean_dec_ref(v_x_204_);
+lean_dec_ref_known(v_x_204_, 1);
 v_quotContext_219_ = lean_ctor_get(v_a_205_, 1);
 v_currMacroScope_220_ = lean_ctor_get(v_a_205_, 2);
 v_ref_221_ = lean_ctor_get(v_a_205_, 5);
@@ -1668,7 +1668,7 @@ default:
 lean_object* v_num_358_; lean_object* v_quotContext_359_; lean_object* v_currMacroScope_360_; lean_object* v_ref_361_; uint8_t v___x_362_; lean_object* v___x_363_; lean_object* v___x_364_; lean_object* v___x_365_; lean_object* v___x_366_; lean_object* v___x_367_; lean_object* v___x_368_; lean_object* v___x_369_; lean_object* v___x_370_; lean_object* v___x_371_; lean_object* v___x_372_; lean_object* v___x_373_; lean_object* v___x_374_; lean_object* v___x_375_; lean_object* v___x_376_; 
 v_num_358_ = lean_ctor_get(v_x_322_, 0);
 lean_inc(v_num_358_);
-lean_dec_ref(v_x_322_);
+lean_dec_ref_known(v_x_322_, 1);
 v_quotContext_359_ = lean_ctor_get(v_a_323_, 1);
 v_currMacroScope_360_ = lean_ctor_get(v_a_323_, 2);
 v_ref_361_ = lean_ctor_get(v_a_323_, 5);
@@ -2478,7 +2478,7 @@ case 0:
 {
 uint8_t v_presentation_1463_; lean_object* v___x_1464_; lean_object* v_a_1465_; lean_object* v_a_1466_; lean_object* v___x_1468_; uint8_t v_isShared_1469_; uint8_t v_isSharedCheck_1487_; 
 v_presentation_1463_ = lean_ctor_get_uint8(v_x_1460_, 0);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 0);
 v___x_1464_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertText(v_presentation_1463_, v_a_1461_, v_a_1462_);
 v_a_1465_ = lean_ctor_get(v___x_1464_, 0);
 v_a_1466_ = lean_ctor_get(v___x_1464_, 1);
@@ -2548,7 +2548,7 @@ case 1:
 lean_object* v_presentation_1488_; lean_object* v___x_1489_; lean_object* v_a_1490_; lean_object* v_a_1491_; lean_object* v___x_1493_; uint8_t v_isShared_1494_; uint8_t v_isSharedCheck_1512_; 
 v_presentation_1488_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_1488_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_1489_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertYear(v_presentation_1488_, v_a_1461_, v_a_1462_);
 v_a_1490_ = lean_ctor_get(v___x_1489_, 0);
 v_a_1491_ = lean_ctor_get(v___x_1489_, 1);
@@ -2618,7 +2618,7 @@ case 2:
 lean_object* v_presentation_1513_; lean_object* v___x_1514_; lean_object* v_a_1515_; lean_object* v_a_1516_; lean_object* v___x_1518_; uint8_t v_isShared_1519_; uint8_t v_isSharedCheck_1537_; 
 v_presentation_1513_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_1513_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_1514_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertYear(v_presentation_1513_, v_a_1461_, v_a_1462_);
 v_a_1515_ = lean_ctor_get(v___x_1514_, 0);
 v_a_1516_ = lean_ctor_get(v___x_1514_, 1);
@@ -2688,7 +2688,7 @@ case 3:
 lean_object* v_presentation_1538_; lean_object* v___x_1539_; lean_object* v_a_1540_; lean_object* v_a_1541_; lean_object* v___x_1543_; uint8_t v_isShared_1544_; uint8_t v_isSharedCheck_1562_; 
 v_presentation_1538_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_1538_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_1539_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertYear(v_presentation_1538_, v_a_1461_, v_a_1462_);
 v_a_1540_ = lean_ctor_get(v___x_1539_, 0);
 v_a_1541_ = lean_ctor_get(v___x_1539_, 1);
@@ -2758,7 +2758,7 @@ case 4:
 lean_object* v_presentation_1563_; lean_object* v___x_1564_; lean_object* v_a_1565_; lean_object* v_a_1566_; lean_object* v___x_1568_; uint8_t v_isShared_1569_; uint8_t v_isSharedCheck_1587_; 
 v_presentation_1563_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_1563_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_1564_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_1563_, v_a_1461_, v_a_1462_);
 v_a_1565_ = lean_ctor_get(v___x_1564_, 0);
 v_a_1566_ = lean_ctor_get(v___x_1564_, 1);
@@ -2828,13 +2828,13 @@ case 5:
 lean_object* v_presentation_1588_; 
 v_presentation_1588_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc_ref(v_presentation_1588_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 if (lean_obj_tag(v_presentation_1588_) == 0)
 {
 lean_object* v_val_1589_; lean_object* v___x_1590_; lean_object* v_a_1591_; lean_object* v_a_1592_; lean_object* v___x_1594_; uint8_t v_isShared_1595_; uint8_t v_isSharedCheck_1639_; 
 v_val_1589_ = lean_ctor_get(v_presentation_1588_, 0);
 lean_inc(v_val_1589_);
-lean_dec_ref(v_presentation_1588_);
+lean_dec_ref_known(v_presentation_1588_, 1);
 v___x_1590_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_val_1589_, v_a_1461_, v_a_1462_);
 v_a_1591_ = lean_ctor_get(v___x_1590_, 0);
 v_a_1592_ = lean_ctor_get(v___x_1590_, 1);
@@ -2944,7 +2944,7 @@ else
 lean_object* v_val_1640_; uint8_t v___x_1641_; lean_object* v___x_1642_; lean_object* v_a_1643_; lean_object* v_a_1644_; lean_object* v___x_1646_; uint8_t v_isShared_1647_; uint8_t v_isSharedCheck_1691_; 
 v_val_1640_ = lean_ctor_get(v_presentation_1588_, 0);
 lean_inc(v_val_1640_);
-lean_dec_ref(v_presentation_1588_);
+lean_dec_ref_known(v_presentation_1588_, 1);
 v___x_1641_ = lean_unbox(v_val_1640_);
 lean_dec(v_val_1640_);
 v___x_1642_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertText(v___x_1641_, v_a_1461_, v_a_1462_);
@@ -3057,7 +3057,7 @@ case 6:
 lean_object* v_presentation_1692_; lean_object* v___x_1693_; lean_object* v_a_1694_; lean_object* v_a_1695_; lean_object* v___x_1697_; uint8_t v_isShared_1698_; uint8_t v_isSharedCheck_1716_; 
 v_presentation_1692_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_1692_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_1693_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_1692_, v_a_1461_, v_a_1462_);
 v_a_1694_ = lean_ctor_get(v___x_1693_, 0);
 v_a_1695_ = lean_ctor_get(v___x_1693_, 1);
@@ -3127,13 +3127,13 @@ case 7:
 lean_object* v_presentation_1717_; 
 v_presentation_1717_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc_ref(v_presentation_1717_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 if (lean_obj_tag(v_presentation_1717_) == 0)
 {
 lean_object* v_val_1718_; lean_object* v___x_1719_; lean_object* v_a_1720_; lean_object* v_a_1721_; lean_object* v___x_1723_; uint8_t v_isShared_1724_; uint8_t v_isSharedCheck_1768_; 
 v_val_1718_ = lean_ctor_get(v_presentation_1717_, 0);
 lean_inc(v_val_1718_);
-lean_dec_ref(v_presentation_1717_);
+lean_dec_ref_known(v_presentation_1717_, 1);
 v___x_1719_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_val_1718_, v_a_1461_, v_a_1462_);
 v_a_1720_ = lean_ctor_get(v___x_1719_, 0);
 v_a_1721_ = lean_ctor_get(v___x_1719_, 1);
@@ -3243,7 +3243,7 @@ else
 lean_object* v_val_1769_; uint8_t v___x_1770_; lean_object* v___x_1771_; lean_object* v_a_1772_; lean_object* v_a_1773_; lean_object* v___x_1775_; uint8_t v_isShared_1776_; uint8_t v_isSharedCheck_1820_; 
 v_val_1769_ = lean_ctor_get(v_presentation_1717_, 0);
 lean_inc(v_val_1769_);
-lean_dec_ref(v_presentation_1717_);
+lean_dec_ref_known(v_presentation_1717_, 1);
 v___x_1770_ = lean_unbox(v_val_1769_);
 lean_dec(v_val_1769_);
 v___x_1771_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertText(v___x_1770_, v_a_1461_, v_a_1462_);
@@ -3356,7 +3356,7 @@ case 8:
 lean_object* v_presentation_1821_; lean_object* v___x_1822_; lean_object* v_a_1823_; lean_object* v_a_1824_; lean_object* v___x_1826_; uint8_t v_isShared_1827_; uint8_t v_isSharedCheck_1845_; 
 v_presentation_1821_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_1821_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_1822_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_1821_, v_a_1461_, v_a_1462_);
 v_a_1823_ = lean_ctor_get(v___x_1822_, 0);
 v_a_1824_ = lean_ctor_get(v___x_1822_, 1);
@@ -3426,7 +3426,7 @@ case 9:
 lean_object* v_presentation_1846_; lean_object* v___x_1847_; lean_object* v_a_1848_; lean_object* v_a_1849_; lean_object* v___x_1851_; uint8_t v_isShared_1852_; uint8_t v_isSharedCheck_1870_; 
 v_presentation_1846_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_1846_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_1847_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_1846_, v_a_1461_, v_a_1462_);
 v_a_1848_ = lean_ctor_get(v___x_1847_, 0);
 v_a_1849_ = lean_ctor_get(v___x_1847_, 1);
@@ -3495,7 +3495,7 @@ case 10:
 {
 uint8_t v_presentation_1871_; lean_object* v___x_1872_; lean_object* v_a_1873_; lean_object* v_a_1874_; lean_object* v___x_1876_; uint8_t v_isShared_1877_; uint8_t v_isSharedCheck_1895_; 
 v_presentation_1871_ = lean_ctor_get_uint8(v_x_1460_, 0);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 0);
 v___x_1872_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertText(v_presentation_1871_, v_a_1461_, v_a_1462_);
 v_a_1873_ = lean_ctor_get(v___x_1872_, 0);
 v_a_1874_ = lean_ctor_get(v___x_1872_, 1);
@@ -3565,13 +3565,13 @@ case 11:
 lean_object* v_presentation_1896_; 
 v_presentation_1896_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc_ref(v_presentation_1896_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 if (lean_obj_tag(v_presentation_1896_) == 0)
 {
 lean_object* v_val_1897_; lean_object* v___x_1898_; lean_object* v_a_1899_; lean_object* v_a_1900_; lean_object* v___x_1902_; uint8_t v_isShared_1903_; uint8_t v_isSharedCheck_1947_; 
 v_val_1897_ = lean_ctor_get(v_presentation_1896_, 0);
 lean_inc(v_val_1897_);
-lean_dec_ref(v_presentation_1896_);
+lean_dec_ref_known(v_presentation_1896_, 1);
 v___x_1898_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_val_1897_, v_a_1461_, v_a_1462_);
 v_a_1899_ = lean_ctor_get(v___x_1898_, 0);
 v_a_1900_ = lean_ctor_get(v___x_1898_, 1);
@@ -3681,7 +3681,7 @@ else
 lean_object* v_val_1948_; uint8_t v___x_1949_; lean_object* v___x_1950_; lean_object* v_a_1951_; lean_object* v_a_1952_; lean_object* v___x_1954_; uint8_t v_isShared_1955_; uint8_t v_isSharedCheck_1999_; 
 v_val_1948_ = lean_ctor_get(v_presentation_1896_, 0);
 lean_inc(v_val_1948_);
-lean_dec_ref(v_presentation_1896_);
+lean_dec_ref_known(v_presentation_1896_, 1);
 v___x_1949_ = lean_unbox(v_val_1948_);
 lean_dec(v_val_1948_);
 v___x_1950_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertText(v___x_1949_, v_a_1461_, v_a_1462_);
@@ -3794,7 +3794,7 @@ case 12:
 lean_object* v_presentation_2000_; lean_object* v___x_2001_; lean_object* v_a_2002_; lean_object* v_a_2003_; lean_object* v___x_2005_; uint8_t v_isShared_2006_; uint8_t v_isSharedCheck_2024_; 
 v_presentation_2000_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_2000_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_2001_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_2000_, v_a_1461_, v_a_1462_);
 v_a_2002_ = lean_ctor_get(v___x_2001_, 0);
 v_a_2003_ = lean_ctor_get(v___x_2001_, 1);
@@ -3863,7 +3863,7 @@ case 13:
 {
 uint8_t v_presentation_2025_; lean_object* v___x_2026_; lean_object* v_a_2027_; lean_object* v_a_2028_; lean_object* v___x_2030_; uint8_t v_isShared_2031_; uint8_t v_isSharedCheck_2049_; 
 v_presentation_2025_ = lean_ctor_get_uint8(v_x_1460_, 0);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 0);
 v___x_2026_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertText(v_presentation_2025_, v_a_1461_, v_a_1462_);
 v_a_2027_ = lean_ctor_get(v___x_2026_, 0);
 v_a_2028_ = lean_ctor_get(v___x_2026_, 1);
@@ -3933,7 +3933,7 @@ case 14:
 lean_object* v_presentation_2050_; lean_object* v___x_2051_; lean_object* v_a_2052_; lean_object* v_a_2053_; lean_object* v___x_2055_; uint8_t v_isShared_2056_; uint8_t v_isSharedCheck_2074_; 
 v_presentation_2050_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_2050_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_2051_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_2050_, v_a_1461_, v_a_1462_);
 v_a_2052_ = lean_ctor_get(v___x_2051_, 0);
 v_a_2053_ = lean_ctor_get(v___x_2051_, 1);
@@ -4003,7 +4003,7 @@ case 15:
 lean_object* v_presentation_2075_; lean_object* v___x_2076_; lean_object* v_a_2077_; lean_object* v_a_2078_; lean_object* v___x_2080_; uint8_t v_isShared_2081_; uint8_t v_isSharedCheck_2099_; 
 v_presentation_2075_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_2075_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_2076_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_2075_, v_a_1461_, v_a_1462_);
 v_a_2077_ = lean_ctor_get(v___x_2076_, 0);
 v_a_2078_ = lean_ctor_get(v___x_2076_, 1);
@@ -4073,7 +4073,7 @@ case 16:
 lean_object* v_presentation_2100_; lean_object* v___x_2101_; lean_object* v_a_2102_; lean_object* v_a_2103_; lean_object* v___x_2105_; uint8_t v_isShared_2106_; uint8_t v_isSharedCheck_2124_; 
 v_presentation_2100_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_2100_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_2101_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_2100_, v_a_1461_, v_a_1462_);
 v_a_2102_ = lean_ctor_get(v___x_2101_, 0);
 v_a_2103_ = lean_ctor_get(v___x_2101_, 1);
@@ -4143,7 +4143,7 @@ case 17:
 lean_object* v_presentation_2125_; lean_object* v___x_2126_; lean_object* v_a_2127_; lean_object* v_a_2128_; lean_object* v___x_2130_; uint8_t v_isShared_2131_; uint8_t v_isSharedCheck_2149_; 
 v_presentation_2125_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_2125_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_2126_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_2125_, v_a_1461_, v_a_1462_);
 v_a_2127_ = lean_ctor_get(v___x_2126_, 0);
 v_a_2128_ = lean_ctor_get(v___x_2126_, 1);
@@ -4213,7 +4213,7 @@ case 18:
 lean_object* v_presentation_2150_; lean_object* v___x_2151_; lean_object* v_a_2152_; lean_object* v_a_2153_; lean_object* v___x_2155_; uint8_t v_isShared_2156_; uint8_t v_isSharedCheck_2174_; 
 v_presentation_2150_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_2150_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_2151_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_2150_, v_a_1461_, v_a_1462_);
 v_a_2152_ = lean_ctor_get(v___x_2151_, 0);
 v_a_2153_ = lean_ctor_get(v___x_2151_, 1);
@@ -4283,7 +4283,7 @@ case 19:
 lean_object* v_presentation_2175_; lean_object* v___x_2176_; lean_object* v_a_2177_; lean_object* v_a_2178_; lean_object* v___x_2180_; uint8_t v_isShared_2181_; uint8_t v_isSharedCheck_2199_; 
 v_presentation_2175_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_2175_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_2176_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_2175_, v_a_1461_, v_a_1462_);
 v_a_2177_ = lean_ctor_get(v___x_2176_, 0);
 v_a_2178_ = lean_ctor_get(v___x_2176_, 1);
@@ -4353,7 +4353,7 @@ case 20:
 lean_object* v_presentation_2200_; lean_object* v___x_2201_; lean_object* v_a_2202_; lean_object* v_a_2203_; lean_object* v___x_2205_; uint8_t v_isShared_2206_; uint8_t v_isSharedCheck_2224_; 
 v_presentation_2200_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_2200_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_2201_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertFraction(v_presentation_2200_, v_a_1461_, v_a_1462_);
 v_a_2202_ = lean_ctor_get(v___x_2201_, 0);
 v_a_2203_ = lean_ctor_get(v___x_2201_, 1);
@@ -4423,7 +4423,7 @@ case 21:
 lean_object* v_presentation_2225_; lean_object* v___x_2226_; lean_object* v_a_2227_; lean_object* v_a_2228_; lean_object* v___x_2230_; uint8_t v_isShared_2231_; uint8_t v_isSharedCheck_2249_; 
 v_presentation_2225_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_2225_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_2226_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_2225_, v_a_1461_, v_a_1462_);
 v_a_2227_ = lean_ctor_get(v___x_2226_, 0);
 v_a_2228_ = lean_ctor_get(v___x_2226_, 1);
@@ -4493,7 +4493,7 @@ case 22:
 lean_object* v_presentation_2250_; lean_object* v___x_2251_; lean_object* v_a_2252_; lean_object* v_a_2253_; lean_object* v___x_2255_; uint8_t v_isShared_2256_; uint8_t v_isSharedCheck_2274_; 
 v_presentation_2250_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_2250_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_2251_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_2250_, v_a_1461_, v_a_1462_);
 v_a_2252_ = lean_ctor_get(v___x_2251_, 0);
 v_a_2253_ = lean_ctor_get(v___x_2251_, 1);
@@ -4563,7 +4563,7 @@ case 23:
 lean_object* v_presentation_2275_; lean_object* v___x_2276_; lean_object* v_a_2277_; lean_object* v_a_2278_; lean_object* v___x_2280_; uint8_t v_isShared_2281_; uint8_t v_isSharedCheck_2299_; 
 v_presentation_2275_ = lean_ctor_get(v_x_1460_, 0);
 lean_inc(v_presentation_2275_);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 1);
 v___x_2276_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertNumber(v_presentation_2275_, v_a_1461_, v_a_1462_);
 v_a_2277_ = lean_ctor_get(v___x_2276_, 0);
 v_a_2278_ = lean_ctor_get(v___x_2276_, 1);
@@ -4656,7 +4656,7 @@ case 25:
 {
 uint8_t v_presentation_2311_; lean_object* v___x_2312_; lean_object* v_a_2313_; lean_object* v_a_2314_; lean_object* v___x_2316_; uint8_t v_isShared_2317_; uint8_t v_isSharedCheck_2335_; 
 v_presentation_2311_ = lean_ctor_get_uint8(v_x_1460_, 0);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 0);
 v___x_2312_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertZoneName(v_presentation_2311_, v_a_1461_, v_a_1462_);
 v_a_2313_ = lean_ctor_get(v___x_2312_, 0);
 v_a_2314_ = lean_ctor_get(v___x_2312_, 1);
@@ -4725,7 +4725,7 @@ case 26:
 {
 uint8_t v_presentation_2336_; lean_object* v___x_2337_; lean_object* v_a_2338_; lean_object* v_a_2339_; lean_object* v___x_2341_; uint8_t v_isShared_2342_; uint8_t v_isSharedCheck_2360_; 
 v_presentation_2336_ = lean_ctor_get_uint8(v_x_1460_, 0);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 0);
 v___x_2337_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertOffsetO(v_presentation_2336_, v_a_1461_, v_a_1462_);
 v_a_2338_ = lean_ctor_get(v___x_2337_, 0);
 v_a_2339_ = lean_ctor_get(v___x_2337_, 1);
@@ -4794,7 +4794,7 @@ case 27:
 {
 uint8_t v_presentation_2361_; lean_object* v___x_2362_; lean_object* v_a_2363_; lean_object* v_a_2364_; lean_object* v___x_2366_; uint8_t v_isShared_2367_; uint8_t v_isSharedCheck_2385_; 
 v_presentation_2361_ = lean_ctor_get_uint8(v_x_1460_, 0);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 0);
 v___x_2362_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertOffsetX(v_presentation_2361_, v_a_1461_, v_a_1462_);
 v_a_2363_ = lean_ctor_get(v___x_2362_, 0);
 v_a_2364_ = lean_ctor_get(v___x_2362_, 1);
@@ -4863,7 +4863,7 @@ case 28:
 {
 uint8_t v_presentation_2386_; lean_object* v___x_2387_; lean_object* v_a_2388_; lean_object* v_a_2389_; lean_object* v___x_2391_; uint8_t v_isShared_2392_; uint8_t v_isSharedCheck_2410_; 
 v_presentation_2386_ = lean_ctor_get_uint8(v_x_1460_, 0);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 0);
 v___x_2387_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertOffsetX(v_presentation_2386_, v_a_1461_, v_a_1462_);
 v_a_2388_ = lean_ctor_get(v___x_2387_, 0);
 v_a_2389_ = lean_ctor_get(v___x_2387_, 1);
@@ -4932,7 +4932,7 @@ default:
 {
 uint8_t v_presentation_2411_; lean_object* v___x_2412_; lean_object* v_a_2413_; lean_object* v_a_2414_; lean_object* v___x_2416_; uint8_t v_isShared_2417_; uint8_t v_isSharedCheck_2435_; 
 v_presentation_2411_ = lean_ctor_get_uint8(v_x_1460_, 0);
-lean_dec_ref(v_x_1460_);
+lean_dec_ref_known(v_x_1460_, 0);
 v___x_2412_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertOffsetZ(v_presentation_2411_, v_a_1461_, v_a_1462_);
 v_a_2413_ = lean_ctor_get(v___x_2412_, 0);
 v_a_2414_ = lean_ctor_get(v___x_2412_, 1);
@@ -5035,7 +5035,7 @@ if (lean_obj_tag(v_x_2450_) == 0)
 lean_object* v_val_2453_; lean_object* v_quotContext_2454_; lean_object* v_currMacroScope_2455_; lean_object* v_ref_2456_; uint8_t v___x_2457_; lean_object* v___x_2458_; lean_object* v___x_2459_; lean_object* v___x_2460_; lean_object* v___x_2461_; lean_object* v___x_2462_; lean_object* v___x_2463_; lean_object* v___x_2464_; lean_object* v___x_2465_; lean_object* v___x_2466_; lean_object* v___x_2467_; lean_object* v___x_2468_; lean_object* v___x_2469_; lean_object* v___x_2470_; lean_object* v___x_2471_; lean_object* v___x_2472_; lean_object* v___x_2473_; lean_object* v___x_2474_; 
 v_val_2453_ = lean_ctor_get(v_x_2450_, 0);
 lean_inc_ref(v_val_2453_);
-lean_dec_ref(v_x_2450_);
+lean_dec_ref_known(v_x_2450_, 1);
 v_quotContext_2454_ = lean_ctor_get(v_a_2451_, 1);
 v_currMacroScope_2455_ = lean_ctor_get(v_a_2451_, 2);
 v_ref_2456_ = lean_ctor_get(v_a_2451_, 5);
@@ -5075,7 +5075,7 @@ else
 lean_object* v_modifier_2475_; lean_object* v___x_2476_; lean_object* v_a_2477_; lean_object* v_a_2478_; lean_object* v___x_2480_; uint8_t v_isShared_2481_; uint8_t v_isSharedCheck_2503_; 
 v_modifier_2475_ = lean_ctor_get(v_x_2450_, 0);
 lean_inc(v_modifier_2475_);
-lean_dec_ref(v_x_2450_);
+lean_dec_ref_known(v_x_2450_, 1);
 v___x_2476_ = l___private_Std_Time_Notation_Spec_0__Std_Time_convertModifier(v_modifier_2475_, v_a_2451_, v_a_2452_);
 v_a_2477_ = lean_ctor_get(v___x_2476_, 0);
 v_a_2478_ = lean_ctor_get(v___x_2476_, 1);
@@ -5171,7 +5171,7 @@ v_head_2572_ = lean_ctor_get(v_x_2571_, 0);
 lean_inc(v_head_2572_);
 v_tail_2573_ = lean_ctor_get(v_x_2571_, 1);
 lean_inc(v_tail_2573_);
-lean_dec_ref(v_x_2571_);
+lean_dec_ref_known(v_x_2571_, 2);
 v___x_2574_ = ((lean_object*)(l_Std_Time_termDatespec_x28___x2c___x29___closed__2));
 v___x_2575_ = l_Lean_Syntax_TSepArray_push___redArg(v___x_2574_, v_x_2570_, v_head_2572_);
 v_x_2570_ = v___x_2575_;
@@ -5292,7 +5292,7 @@ lean_object* v_a_2655_; lean_object* v___x_2656_; lean_object* v___x_2657_; lean
 lean_dec(v_config_2648_);
 v_a_2655_ = lean_ctor_get(v_format_2654_, 0);
 lean_inc(v_a_2655_);
-lean_dec_ref(v_format_2654_);
+lean_dec_ref_known(v_format_2654_, 1);
 v___x_2656_ = ((lean_object*)(l___private_Std_Time_Notation_Spec_0__Std_Time_formatStringToFormat___closed__1));
 v___x_2657_ = lean_string_append(v___x_2656_, v_a_2655_);
 lean_dec(v_a_2655_);
@@ -5304,7 +5304,7 @@ else
 lean_object* v_a_2659_; lean_object* v_string_2660_; lean_object* v___x_2662_; uint8_t v_isShared_2663_; uint8_t v_isSharedCheck_2730_; 
 v_a_2659_ = lean_ctor_get(v_format_2654_, 0);
 lean_inc(v_a_2659_);
-lean_dec_ref(v_format_2654_);
+lean_dec_ref_known(v_format_2654_, 1);
 v_string_2660_ = lean_ctor_get(v_a_2659_, 1);
 v_isSharedCheck_2730_ = !lean_is_exclusive(v_a_2659_);
 if (v_isSharedCheck_2730_ == 0)
@@ -5400,7 +5400,7 @@ lean_dec(v___x_2707_);
 lean_dec(v___x_2701_);
 v_val_2719_ = lean_ctor_get(v_config_2648_, 0);
 lean_inc(v_val_2719_);
-lean_dec_ref(v_config_2648_);
+lean_dec_ref_known(v_config_2648_, 1);
 v___y_2676_ = v_val_2719_;
 goto v___jp_2675_;
 }

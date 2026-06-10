@@ -19,8 +19,9 @@ test_run build -o out1.jsonl
 test_cmd ls .lake/cache/artifacts/*.ltar
 bundles out1.jsonl > bundles1.txt
 test_exp -s bundles1.txt
-# Each mapping entry is [inputHash, "<bundle>.ltar", {outputs}]: `data` is the bare
-# bundle reference (stock-compatible) and the output hashes ride in an added field.
+# Each mapping entry is [inputHash, "<bundle>.ltar", {outputs}]: the second element
+# is the bare bundle reference (readable by older Lake) and the third carries the
+# recorded output hashes.
 test_cmd python3 -c '
 import json
 seen = False
@@ -36,9 +37,9 @@ print("mapping entry shape OK: data=bundle ref + recorded outputs")
 '
 
 #-------------------------------------------------------------------------------
-echo "# 2. De-traced bundles are content-stable: a comment-only edit changes the"
-echo "#    input hash but no output, so every bundle hash is unchanged."
-echo "#    (Stock Lake embeds the input hash in the bundle and would churn here.)"
+echo "# 2. Bundles are content-stable: a comment-only edit changes the input"
+echo "#    hash but no output, so every bundle hash is unchanged. (Older Lake"
+echo "#    embeds the input hash in the bundle, so every bundle would change.)"
 #-------------------------------------------------------------------------------
 cp Test/A.lean Test/A.lean.bak
 printf '\n-- a cosmetic comment; does not change any output\n' >> Test/A.lean

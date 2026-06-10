@@ -667,9 +667,9 @@ instance : ResolveOutputs ModuleOutputArtifacts := ⟨resolveModuleOutputArtifac
 
 inductive ModuleOutputs
 | /-- An archive bundle. `descrs?` carries the output content hashes recorded
-    independently in the cache mapping entry (absent for older entries, which
-    are a bare archive reference), used to verify the unpacked bundle (see
-    `fetchFromCache?`). -/
+    independently in the cache mapping entry, used to verify the unpacked
+    bundle (see `fetchFromCache?`). Absent for older entries, which carry only
+    the archive reference. -/
   ltar (art : Artifact) (descrs? : Option ModuleOutputDescrs := none)
 | arts (arts : ModuleOutputArtifacts)
 
@@ -690,14 +690,12 @@ def resolveModuleOutputs (out : CacheOutput) : JobM ModuleOutputs := do
           logWarning s!"ignoring ill-formed outputs recorded in cache mapping: {e}"
           return none
       if let some descrs := descrs? then
-        -- Prefer the entry's individually recorded outputs when all of them are
-        -- already in the local artifact cache: any earlier build or unpack that
-        -- produced the same outputs (under any input hash) cached them, so a
-        -- warm cache satisfies the entry without fetching or unpacking the
-        -- bundle. This trusts the recorded outputs exactly as resolving an
-        -- entry that holds only output descriptions does. Individual outputs
-        -- are never uploaded alongside the bundle, so consult only the local
-        -- cache; when any is missing, fall back to the bundle.
+        -- A warm artifact cache satisfies the entry without fetching or
+        -- unpacking the bundle: earlier builds or unpacks of the same outputs
+        -- cached them individually, whatever their input hash. Individual
+        -- outputs are never uploaded alongside the bundle, so only the local
+        -- cache is consulted; if any output is missing, fall back to the
+        -- bundle.
         try
           return .arts (← descrs.resolve none none)
         catch e =>
@@ -856,18 +854,17 @@ instance : ToOutputJson ModuleOutputArtifacts := ⟨(toJson ·.descrs)⟩
 /--
 Build metadata packed into a module's `.ltar` archive.
 
-The metadata omits any input- or environment-derived data: the input hash
+The metadata omits all input- and environment-derived data: the input hash
 (`depHash := .nil`), the input tree, and the build log (which records the
-`lean` invocation, including absolute paths). The archive bytes are therefore a
-pure function of the module's *outputs*, so byte-identical outputs always
-produce a byte-identical, content-hash-identical archive, independent of the
-inputs or machine that produced them. Consumers recover the input hash from the
-cache mapping used to locate the archive (see `Module.stampLtarTrace`).
+`lean` invocation, including absolute paths). The archive bytes are therefore
+a pure function of the module's outputs: byte-identical outputs produce a
+byte-identical archive, regardless of the inputs or machine that produced
+them. Consumers recover the input hash from the cache mapping used to locate
+the archive (see `Module.stampLtarTrace`).
 
-Because the log is omitted, restoring a module from an archive does not replay
-the producer's build log (e.g., warnings) on later builds. This matches the
-behavior of restoring individually cached artifacts (see `BuildMetadata.ofFetch`)
-and avoids replaying a foreign machine's paths.
+Since the log is not packed, restoring a module from an archive does not
+replay the producer's build log (e.g., warnings) on later builds, matching
+the behavior of individually cached artifacts (see `BuildMetadata.ofFetch`).
 -/
 def Module.mkLtarMetadata (outputs : Json) : BuildMetadata :=
   {depHash := .nil, inputs := #[], outputs? := some outputs, log := {}, synthetic := false}
@@ -1036,12 +1033,12 @@ where
       -- Note: This branch implies that only the ltar output is (validly) cached.
       -- Thus, we use only the new trace unpacked from the ltar to resolve further artifacts.
       let savedTrace ← readTraceFile mod.traceFile
-      -- Integrity: when the mapping entry records the output hashes, confirm
-      -- the unpacked bundle declares exactly those outputs, so an entry whose
-      -- archive reference and recorded outputs disagree (e.g. one wired to
-      -- another module's bundle) is rejected rather than silently trusted.
-      -- This runs *before* the input hash is stamped into the trace so that a
-      -- rejected unpack leaves no trace claiming the input produced these outputs.
+      -- When the mapping entry records the output hashes, check that the
+      -- unpacked bundle declares exactly those outputs, rejecting an entry
+      -- whose archive reference and recorded outputs disagree (e.g. one wired
+      -- to another module's bundle). This happens before the input hash is
+      -- stamped into the trace, so a rejected unpack leaves no trace claiming
+      -- the input produced these outputs.
       if let some recordedDescrs := descrs? then
         let err? : Option String := Id.run do
           let .ok data := savedTrace
@@ -1060,9 +1057,9 @@ where
             return some s!"does not match the outputs recorded in its cache mapping\
               \n  recorded: {(toJson want).compress}\n  unpacked: {(toJson got).compress}"
         if let some msg := err? then
-          -- A cache problem should not fail a build that can succeed by building,
-          -- so discard the unpacked outputs and treat the input as a cache miss.
-          -- The subsequent rebuild overwrites the offending entry.
+          -- A bad cache entry should not fail a build that can succeed by
+          -- rebuilding: discard the unpacked outputs and treat the input as a
+          -- cache miss. The rebuild then overwrites the offending entry.
           logWarning s!"cache integrity error: archive for input {inputHash} {msg}"
           mod.clearOutputArtifacts
           removeFileIfExists mod.traceFile
@@ -1149,9 +1146,8 @@ where
         -- fetches the bundle to materialize the outputs and checks them against
         -- the recorded hashes (see `fetchFromCache?`). Only the bundle is an
         -- upload target; the hashes are descriptive metadata. The entry is
-        -- inserted the same way whether or not the archive already existed, so
-        -- the platform-independence flag and recorded outputs are never dropped
-        -- (previously the pre-existing-archive path omitted the flag).
+        -- inserted the same way whether the archive was just packed or already
+        -- existed, including the platform-independence flag.
         let arts ← id do
           if arts.ltar?.isSome then
             return arts

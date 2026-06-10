@@ -31,6 +31,10 @@ public structure CacheMap.Entry where
   private mk ::
     out : Json
     platformIndependent : Bool
+    /-- Optional structured description of the output artifacts (e.g. the
+    individual content hashes a bundle in `out` expands to). Carried as an extra
+    element of the mapping line; older readers ignore it. -/
+    outputs? : Option Json := none
 
 /--
 Maps an input hash to a structure of output artifact content hashes.
@@ -69,7 +73,8 @@ where go : Except String CacheMap := do
   let a : Array Json ← fromJson? json
   let inputHash ← a[0]?.elim (throw "expected array of size > 0") (fromJson? ·)
   let out ← a[1]?.elim (throw "expected array of size > 1") (fromJson? ·)
-  return cache.insert inputHash {out, platformIndependent}
+  let outputs? := match a[2]? with | some Json.null => none | o => o
+  return cache.insert inputHash {out, platformIndependent, outputs?}
 
 /--
 Parse a `Cache` from a JSON Lines string.
@@ -146,14 +151,14 @@ public def load? (file : FilePath) (platformIndependent := false) : LogIO (Optio
 def writeCacheEntries
   (h : IO.FS.Handle) (cache : CacheMap) (platformIndependent : Bool)
 : LogIO Unit :=
-  if platformIndependent then
-    cache.forM fun k ⟨v, platformIndependentMapping⟩ => do
-      -- skip platform-dependent outputs in platform-independent maps
-      if platformIndependentMapping then
-        h.putStrLn (Json.arr #[toJson k, toJson v]).compress
-  else
-    cache.forM fun k ⟨v, _⟩ => do
-      h.putStrLn (Json.arr #[toJson k, toJson v]).compress
+  cache.forM fun k e => do
+    -- skip platform-dependent outputs in platform-independent maps
+    if platformIndependent && !e.platformIndependent then
+      return
+    let line := match e.outputs? with
+      | some outputs => #[toJson k, e.out, outputs]
+      | none => #[toJson k, e.out]
+    h.putStrLn (Json.arr line).compress
 
 /--
 Save a `CacheMap` to a JSON Lines file.
@@ -199,14 +204,14 @@ public nonrec def get? (inputHash : Hash) (cache : CacheMap) : Option Json :=
 /-- Associate output data (as JSON) with the given the input hash. -/
 def insertCore
   (inputHash : Hash) (out : Json) (cache : CacheMap)
-  (platformIndependent : Bool)
-: CacheMap := cache.insert inputHash {out, platformIndependent}
+  (platformIndependent : Bool) (outputs? : Option Json := none)
+: CacheMap := cache.insert inputHash {out, platformIndependent, outputs?}
 
 /-- Associate output data with the given the input hash. -/
 @[inline] public def insert
   [ToJson α] (inputHash : Hash) (val : α) (cache : CacheMap)
-  (platformIndependent := false)
-: CacheMap := cache.insertCore inputHash (toJson val) platformIndependent
+  (platformIndependent := false) (outputs? : Option Json := none)
+: CacheMap := cache.insertCore inputHash (toJson val) platformIndependent outputs?
 
 /-- Extract each output from their structured data into a flat array of artifact descriptions. -/
 public partial def collectOutputDescrs (map : CacheMap) : LogIO (Array ArtifactDescr) := do
@@ -252,8 +257,8 @@ public def get? (inputHash : Hash) (cache : CacheRef) : BaseIO (Option Json) :=
 @[inline, inherit_doc CacheMap.insert]
 public def insert
   [ToJson α] (inputHash : Hash) (val : α) (cache : CacheRef)
-  (platformIndependent := false)
-: BaseIO Unit := cache.modify (·.insert inputHash (toJson val) platformIndependent)
+  (platformIndependent := false) (outputs? : Option Json := none)
+: BaseIO Unit := cache.modify (·.insert inputHash (toJson val) platformIndependent outputs?)
 
 end CacheRef
 
@@ -343,6 +348,10 @@ public structure CacheOutput where
     data : Json
     service? : Option CacheServiceName := none
     scope? : Option CacheServiceScope := none
+    /-- Optional structured description of the output artifacts (e.g. the
+    individual content hashes a bundle in `data` expands to). Absent in outputs
+    written by older Lake versions. -/
+    outputs? : Option Json := none
     deriving Inhabited
 
 namespace CacheOutput
@@ -357,6 +366,8 @@ public protected def toJson (out : CacheOutput) : Json := Id.run do
     |>.insert "service" out.service?
   if let some scope := out.scope? then
     obj := obj.insert (if scope.isRepo then "repo" else "scope") scope.toJson
+  if let some outputs := out.outputs? then
+    obj := obj.insert "outputs" outputs
   return obj.insert "data" out.data
 
 public instance : ToJson CacheOutput := ⟨CacheOutput.toJson⟩
@@ -377,7 +388,8 @@ public protected def fromJson? (json : Json) : Except String CacheOutput := do
           return some (.ofString scope)
         else
           return none
-      return {data, service?, scope?}
+      let outputs? ← obj.get? "outputs"
+      return {data, service?, scope?, outputs?}
   -- old format: just the data
   return .ofData json
 
@@ -434,10 +446,11 @@ public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Arti
 def writeOutputsCore
   (cache : Cache) (scope : String) (inputHash : Hash) (out : Json)
   (service? : Option CacheServiceName) (remoteScope? : Option CacheServiceScope)
+  (outputs? : Option Json := none)
 : IO Unit := do
   let file := cache.outputsFile scope inputHash
   createParentDirs file
-  let out := {service?, scope? := remoteScope?, data := out : CacheOutput}
+  let out := {service?, scope? := remoteScope?, data := out, outputs? : CacheOutput}
   IO.FS.writeFile file (toJson out).pretty
 
 /-- Cache the outputs corresponding to the given input for the package.  -/
@@ -449,7 +462,7 @@ def writeOutputsCore
 public def writeMap
   (cache : Cache) (scope : String) (map : CacheMap)
   (service? : Option CacheServiceName := none) (remoteScope? : Option CacheServiceScope := none)
-: IO Unit := map.forM fun i e => cache.writeOutputsCore scope i e.out service? remoteScope?
+: IO Unit := map.forM fun i e => cache.writeOutputsCore scope i e.out service? remoteScope? e.outputs?
 
 /-- Retrieve the cached outputs corresponding to the given input for the package (if any). -/
 public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : LogIO (Option CacheOutput) := do

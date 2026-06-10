@@ -122,7 +122,7 @@ theorem throw_Except_wp (e : ε) :
 
 theorem throw_ExceptT_wp (err : ε) :
     epost.head err ⊑ wp (MonadExceptOf.throw err : ExceptT ε m α) post epost := by
-  simpa [MonadExceptOf.throw, EPost.cons.pushExcept] using
+  simpa [MonadExceptOf.throw, EPost.Cons.pushExcept] using
     (WPMonad.wp_pure (m := m) (x := Except.error err)
       (post := epost.pushExcept post) (epost := epost.tail))
 
@@ -141,7 +141,7 @@ theorem throw_Option_wp (e : PUnit) :
 theorem throw_OptionT_wp (err : PUnit) :
   epost.head ⊑ wp (MonadExceptOf.throw err : OptionT m α) post epost := by
   show epost.head ⊑ wp (pure none : m (Option α)) (epost.pushOption post) epost.tail
-  simpa [MonadExceptOf.throw, EPost.cons.pushOption] using
+  simpa [MonadExceptOf.throw, EPost.Cons.pushOption] using
     (WPMonad.wp_pure (m := m) (x := none)
       (post := epost.pushOption post) (epost := epost.tail))
 
@@ -217,7 +217,7 @@ theorem tryCatch_OptionT_wp (x : OptionT m α)
   apply WPMonad.wp_consequence (m := m); intro o; cases o with
   | some a =>
     apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_pure
-    simp [EPost.cons.pushOption]; exact PartialOrder.rel_refl
+    simp [EPost.Cons.pushOption]; exact PartialOrder.rel_refl
   | none => exact PartialOrder.rel_refl
 
 /-! ## Additional state operation lemmas -/
@@ -290,7 +290,7 @@ theorem monadLift_ReaderT_wp (x : m α) :
   rfl
 
 theorem monadLift_ExceptT_wp (x : m α) (post : α → Pred)
-    (epost : EPost.cons (ε → Pred) EPred) :
+    (epost : EPost.Cons (ε → Pred) EPred) :
     wp x post epost.tail ⊑
       wp (MonadLift.monadLift x : ExceptT ε m α) post epost := by
   simp only [wp, MonadLift.monadLift, ExceptT.lift, ExceptT.mk]
@@ -318,12 +318,12 @@ theorem monadLift_OptionT_wp (x : m α) :
   apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_bind
   apply WPMonad.wp_consequence (m := m); intro a
   apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_pure
-  simp [EPost.cons.pushOption]; exact PartialOrder.rel_refl
+  simp [EPost.Cons.pushOption]; exact PartialOrder.rel_refl
 
 omit [Assertion EPred] [WPMonad m Pred EPred] in
 @[simp]
 theorem lift_OptionT_wp
-    [Assertion (EPost.cons Pred EPred)] [WPMonad (OptionT m) Pred (EPost.cons Pred EPred)] (x : m α) :
+    [Assertion (EPost.Cons Pred EPred)] [WPMonad (OptionT m) Pred (EPost.Cons Pred EPred)] (x : m α) :
     wp (OptionT.lift x : OptionT m α) post epost =
       wp (MonadLift.monadLift x : OptionT m α) post epost := rfl
 
@@ -348,14 +348,14 @@ theorem monadMap_ReaderT_wp
 @[simp]
 theorem monadMap_ExceptT_wp
     (f : ∀{β}, m β → m β) {α} (x : ExceptT ε m α) (post : α → Pred)
-    (epost : EPost.cons (ε → Pred) EPred) :
+    (epost : EPost.Cons (ε → Pred) EPred) :
     wp (MonadFunctor.monadMap (m:=m) f x : ExceptT ε m α) post epost =
       wp (f x.run) (epost.pushExcept post) epost.tail := by
   simp [MonadFunctor.monadMap, ExceptT.run]
 
 @[simp]
 theorem monadMap_OptionT_wp
-  (f : ∀{β}, m β → m β) {α} (x : OptionT m α) (post : α → Pred) (epost : EPost.cons Pred EPred) :
+  (f : ∀{β}, m β → m β) {α} (x : OptionT m α) (post : α → Pred) (epost : EPost.Cons Pred EPred) :
   wp (MonadFunctor.monadMap (m:=m) f x : OptionT m α) post epost =
     wp (f x.run) (epost.pushOption post) epost.tail := by
   simp only [wp, MonadFunctor.monadMap, OptionT.run]; rfl
@@ -679,7 +679,7 @@ theorem orElse_OptionT_wp (x : OptionT m α)
   apply WPMonad.wp_consequence (m := m); intro o; cases o with
   | some a =>
     apply PartialOrder.rel_trans; rotate_left; apply WPMonad.wp_pure
-    simp [EPost.cons.pushOption]; exact PartialOrder.rel_refl
+    simp [EPost.Cons.pushOption]; exact PartialOrder.rel_refl
   | none => exact PartialOrder.rel_refl
 
 end

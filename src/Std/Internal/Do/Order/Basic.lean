@@ -325,7 +325,6 @@ theorem CompleteLattice.ofProp_true (l : Type v) [CompleteLattice l] : ⌜True�
 theorem CompleteLattice.ofProp_false (l : Type v) [CompleteLattice l] : ⌜False⌝ = (⊥ : l) := by
   simp [CompleteLattice.ofProp]
 
-@[grind .]
 theorem CompleteLattice.ofProp_imp [CompleteLattice l]
   (p₁ p₂ : Prop) : (p₁ → p₂) → ⌜p₁⌝ ⊑ (⌜p₂⌝ : l) := by
   simp only [CompleteLattice.ofProp]

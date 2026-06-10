@@ -100,7 +100,7 @@ theorem le_iInf {ι : Type v} (f : ι → α) (x : α) : (∀ i, x ⊑ f i) → 
   exact h i
 
 /-- Pointwise characterization of indexed infimum on function lattices. -/
-@[simp] theorem iInf_fun_apply
+@[simp] theorem iInf_apply
     {ι : Type v} {σ : Type w} {β : Type u} [CompleteLattice β]
     (f : ι → σ → β) (s : σ) :
     (iInf f) s = iInf (fun i => f i s) := by
@@ -132,7 +132,7 @@ theorem iSup_le {ι : Type v} (f : ι → α) (x : α) : (∀ i, f i ⊑ x) → 
   exact h i
 
 /-- Pointwise characterization of indexed supremum on function lattices. -/
-@[simp] theorem iSup_fun_apply
+@[simp] theorem iSup_apply
     {ι : Type v} {σ : Type w} {β : Type u} [CompleteLattice β]
     (f : ι → σ → β) (s : σ) :
     (iSup f) s = iSup (fun i => f i s) := by
@@ -149,7 +149,7 @@ theorem iSup_le {ι : Type v} (f : ι → α) (x : α) : (∀ i, f i ⊑ x) → 
 
 /-- Pointwise characterization of `CompleteLattice.sup` on function lattices:
 `(sup c) s = sup (fun y => ∃ f, c f ∧ f s = y)`. -/
-theorem sup_fun_apply
+theorem sup_apply
     {σ : Type v} {β : Type w} [CompleteLattice β]
     (c : (σ → β) → Prop) (s : σ) :
     CompleteLattice.sup c s = CompleteLattice.sup (fun y => ∃ f, c f ∧ f s = y) := by
@@ -169,7 +169,7 @@ theorem sup_fun_apply
     exact (le_sup (c := c) hf) s
 
 /-- Pointwise characterization of binary meet on function lattices. -/
-@[simp] theorem meet_fun_apply
+@[simp] theorem meet_apply
     {σ : Type v} {β : Type w} [CompleteLattice β]
     (a b : σ → β) (s : σ) :
     (a ⊓ b) s = a s ⊓ b s := by
@@ -196,7 +196,7 @@ theorem sup_fun_apply
     exact hs ▸ hf_meet s
 
 /-- Pointwise characterization of binary join on function lattices. -/
-@[simp] theorem join_fun_apply
+@[simp] theorem join_apply
     {σ : Type v} {β : Type w} [CompleteLattice β]
     (a b : σ → β) (s : σ) :
     (a ⊔ b) s = a s ⊔ b s := by
@@ -213,12 +213,12 @@ theorem sup_fun_apply
     · exact (right_le_join a b) s
 
 /-- Pointwise characterization of `⊤` on a function lattice. -/
-@[simp] theorem top_fun_apply {σ : Type v} {β : Type w} [CompleteLattice β] (s : σ) :
+@[simp] theorem top_apply {σ : Type v} {β : Type w} [CompleteLattice β] (s : σ) :
     (⊤ : σ → β) s = (⊤ : β) :=
   PartialOrder.rel_antisymm (le_top _) ((le_top (fun _ : σ => (⊤ : β))) s)
 
 /-- Pointwise characterization of `⊥` on a function lattice. -/
-@[simp] theorem bot_fun_apply {σ : Type v} {β : Type w} [CompleteLattice β] (s : σ) :
+@[simp] theorem bot_apply {σ : Type v} {β : Type w} [CompleteLattice β] (s : σ) :
     (⊥ : σ → β) s = (⊥ : β) :=
   PartialOrder.rel_antisymm ((bot_le (fun _ : σ => (⊥ : β))) s) (bot_le _)
 
@@ -383,17 +383,29 @@ theorem CompleteLattice.ofProp_intro_r [CompleteLattice l] (p : Prop) (x y : l) 
     next => exact PartialOrder.rel_trans (meet_le_left ⊥ x) (bot_le _)
 
 /-- Pointwise characterization of `CompleteLattice.ofProp` on a function lattice. -/
-@[simp] theorem CompleteLattice.ofProp_fun_apply
+@[simp] theorem CompleteLattice.ofProp_apply
     {σ : Type v} {β : Type u} [CompleteLattice β] (p : Prop) (s : σ) :
     (⌜p⌝ : σ → β) s = (⌜p⌝ : β) := by
   simp only [CompleteLattice.ofProp]
   rcases Classical.em p with h | h <;> simp [h]
 
-@[grind .]
 theorem top_le_ofProp [CompleteLattice l] (p : Prop) : p → (⊤ : l) ⊑ ⌜p⌝ := by
   simp only [CompleteLattice.ofProp]
   rcases Classical.em p with h | h <;> simp [h]
   rfl
+
+/-- `x ⊑ ⌜p⌝` whenever `p` holds. -/
+theorem le_ofProp [CompleteLattice l] (x : l) (p : Prop) : p → x ⊑ ⌜p⌝ :=
+  fun hp => PartialOrder.rel_trans (le_top x) (top_le_ofProp p hp)
+
+/-- `⌜p⌝ ⊑ rhs` reduces to assuming `p` and proving `⊤ ⊑ rhs`. -/
+theorem ofProp_le [CompleteLattice l] (p : Prop) (rhs : l) :
+    (p → (⊤ : l) ⊑ rhs) → ⌜p⌝ ⊑ rhs :=
+  (CompleteLattice.ofProp_intro p rhs).mpr
+
+/-- Entailment between functions is pointwise. -/
+theorem le_iff_forall_le {σ α : Type u} [PartialOrder α] {f g : σ → α} :
+    (f ⊑ g) ↔ (∀ s, f s ⊑ g s) := Iff.rfl
 
 /-- The top element of the `Prop` lattice is `True`. Not a global `@[simp]` lemma: collapsing the
 lattice `⊤`/`⊥`/`⌜·⌝` to `True`/`False`/`p` would change how `mvcgen` discharge lattice

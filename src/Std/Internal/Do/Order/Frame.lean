@@ -106,26 +106,26 @@ instance : Frame Prop where
       exact ⟨hp.1, x, hsx, hp.2⟩
 
 /-- Pointwise characterization of Heyting implication on function lattices. -/
-@[simp] theorem himp_fun_apply
+@[simp] theorem himp_apply
     {σ : Type v} {β : Type u} [CompleteLattice β]
     (a b : σ → β) (s : σ) :
     (a ⇨ b) s = (a s ⇨ b s) := by
   classical
   unfold himp
-  rw [sup_fun_apply]
+  rw [sup_apply]
   apply PartialOrder.rel_antisymm
   · apply sup_le
     intro y ⟨f, hf, hfs⟩
     rw [← hfs]
     have hsf : a s ⊓ f s ⊑ b s := by
-      simpa [meet_fun_apply] using (hf s)
+      simpa [meet_apply] using (hf s)
     exact le_sup (c := fun z : β => a s ⊓ z ⊑ b s) hsf
   · apply sup_le
     intro y hy
     let f : σ → β := fun t => if t = s then y else ⊥
     have hf : a ⊓ f ⊑ b := by
       intro t
-      simp only [meet_fun_apply, f]
+      simp only [meet_apply, f]
       split
       · next h => subst h; exact hy
       · exact PartialOrder.rel_trans (meet_le_right ..) (bot_le ..)

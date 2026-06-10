@@ -16,7 +16,8 @@
       "name": "dev-release",
       "displayName": "Default development optimized build config",
       "cacheVariables": {
-        "STRIP_BINARIES": "OFF"
+        "STRIP_BINARIES": "OFF",
+        "WFAIL": "OFF"
       },
       "generator": "Unix Makefiles",
       "binaryDir": "${sourceDir}/build/release"

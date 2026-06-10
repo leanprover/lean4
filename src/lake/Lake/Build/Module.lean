@@ -863,8 +863,8 @@ them. Consumers recover the input hash from the cache mapping used to locate
 the archive (see `Module.stampLtarTrace`).
 
 Since the log is not packed, restoring a module from an archive does not
-replay the producer's build log (e.g., warnings) on later builds, matching
-the behavior of individually cached artifacts (see `BuildMetadata.ofFetch`).
+replay the producer's build log (e.g., warnings) on later builds, like any
+other restore from the cache (see `BuildMetadata.ofFetch`).
 -/
 def Module.mkLtarMetadata (outputs : Json) : BuildMetadata :=
   {depHash := .nil, inputs := #[], outputs? := some outputs, log := {}, synthetic := false}
@@ -1145,9 +1145,7 @@ where
         -- individual output content hashes the bundle expands to. The consumer
         -- fetches the bundle to materialize the outputs and checks them against
         -- the recorded hashes (see `fetchFromCache?`). Only the bundle is an
-        -- upload target; the hashes are descriptive metadata. The entry is
-        -- inserted the same way whether the archive was just packed or already
-        -- existed, including the platform-independence flag.
+        -- upload target; the hashes are descriptive metadata.
         let arts ← id do
           if arts.ltar?.isSome then
             return arts

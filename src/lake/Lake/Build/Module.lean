@@ -666,9 +666,10 @@ def resolveModuleOutputArtifacts (out : CacheOutput) : JobM ModuleOutputArtifact
 instance : ResolveOutputs ModuleOutputArtifacts := ⟨resolveModuleOutputArtifacts⟩
 
 inductive ModuleOutputs
-| /-- An archive bundle. `descrs?` carries the receipt's independently-recorded
-    output content hashes (when the receipt is a full mapping rather than a bare
-    archive reference), used to verify the unpacked bundle (see `fetchFromCache?`). -/
+| /-- An archive bundle. `descrs?` carries the output content hashes recorded
+    independently in the cache mapping entry (absent for older entries, which
+    are a bare archive reference), used to verify the unpacked bundle (see
+    `fetchFromCache?`). -/
   ltar (art : Artifact) (descrs? : Option ModuleOutputDescrs := none)
 | arts (arts : ModuleOutputArtifacts)
 
@@ -678,9 +679,9 @@ def resolveModuleOutputs (out : CacheOutput) : JobM ModuleOutputs := do
   if let .str descr := out.data then
     match ArtifactDescr.ofFilePath? descr with
     | .ok descr =>
-      -- Receipt references an archive bundle. If it also recorded the output
-      -- hashes, carry them so the unpacked bundle can be verified; an older
-      -- receipt without them resolves the bundle directly.
+      -- The mapping entry references an archive bundle. If it also recorded
+      -- the output hashes, carry them so the unpacked bundle can be verified;
+      -- an older entry without them resolves the bundle directly.
       let descrs? ← id do
         let some o := out.outputs? | return none
         match (fromJson? o : Except _ ModuleOutputDescrs) with
@@ -689,9 +690,14 @@ def resolveModuleOutputs (out : CacheOutput) : JobM ModuleOutputs := do
           logWarning s!"ignoring ill-formed outputs recorded in cache mapping: {e}"
           return none
       if let some descrs := descrs? then
-        -- Prefer individually cached artifacts (no fetch or unpack needed).
-        -- They are not uploaded alongside the bundle, so consult only the
-        -- local cache; when any is missing, fall back to the bundle.
+        -- Prefer the entry's individually recorded outputs when all of them are
+        -- already in the local artifact cache: any earlier build or unpack that
+        -- produced the same outputs (under any input hash) cached them, so a
+        -- warm cache satisfies the entry without fetching or unpacking the
+        -- bundle. This trusts the recorded outputs exactly as resolving an
+        -- entry that holds only output descriptions does. Individual outputs
+        -- are never uploaded alongside the bundle, so consult only the local
+        -- cache; when any is missing, fall back to the bundle.
         try
           return .arts (← descrs.resolve none none)
         catch e =>
@@ -704,10 +710,11 @@ def resolveModuleOutputs (out : CacheOutput) : JobM ModuleOutputs := do
     match fromJson? out.data with
     | .ok (descrs : ModuleOutputDescrs) =>
       if let some descr := descrs.ltar? then
-        -- A full receipt that also references an archive bundle. Prefer the
-        -- individually-cached artifacts when present (no unpack needed); when
-        -- only the bundle is cached, fall back to it, carrying `descrs` so the
-        -- unpacked outputs can be verified against the receipt's record.
+        -- An entry with full output descriptions that also references an
+        -- archive bundle. Prefer the individually-cached artifacts when present
+        -- (no unpack needed); when only the bundle is cached, fall back to it,
+        -- carrying `descrs` so the unpacked outputs can be verified against the
+        -- recorded outputs.
         try
           descrs.resolve out.service? out.scope?
         catch e =>
@@ -1029,13 +1036,13 @@ where
       -- Note: This branch implies that only the ltar output is (validly) cached.
       -- Thus, we use only the new trace unpacked from the ltar to resolve further artifacts.
       let savedTrace ← readTraceFile mod.traceFile
-      -- Integrity: when the receipt records the output hashes, confirm the
-      -- unpacked bundle declares exactly those outputs, so a receipt whose
+      -- Integrity: when the mapping entry records the output hashes, confirm
+      -- the unpacked bundle declares exactly those outputs, so an entry whose
       -- archive reference and recorded outputs disagree (e.g. one wired to
       -- another module's bundle) is rejected rather than silently trusted.
       -- This runs *before* the input hash is stamped into the trace so that a
       -- rejected unpack leaves no trace claiming the input produced these outputs.
-      if let some receiptDescrs := descrs? then
+      if let some recordedDescrs := descrs? then
         let err? : Option String := Id.run do
           let .ok data := savedTrace
             | return some "has no usable trace"
@@ -1047,7 +1054,7 @@ where
             -- Clear the `ltar?` self-reference on both sides: it identifies the
             -- bundle itself, not one of the outputs being compared.
             let got := {bundleDescrs with ltar? := none}
-            let want := {receiptDescrs with ltar? := none}
+            let want := {recordedDescrs with ltar? := none}
             if got == want then
               return none
             return some s!"does not match the outputs recorded in its cache mapping\
@@ -1055,7 +1062,7 @@ where
         if let some msg := err? then
           -- A cache problem should not fail a build that can succeed by building,
           -- so discard the unpacked outputs and treat the input as a cache miss.
-          -- The subsequent rebuild overwrites the offending receipt.
+          -- The subsequent rebuild overwrites the offending entry.
           logWarning s!"cache integrity error: archive for input {inputHash} {msg}"
           mod.clearOutputArtifacts
           removeFileIfExists mod.traceFile

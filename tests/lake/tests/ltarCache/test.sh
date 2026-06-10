@@ -4,7 +4,7 @@ source ../common.sh
 ./clean.sh
 
 # Hermetic, workspace-local artifact cache: an empty `LAKE_CACHE_DIR` disables the
-# system cache, so all artifacts/receipts live under `.lake/cache`. The package
+# system cache, so all artifacts and mappings live under `.lake/cache`. The package
 # enables the artifact cache and `restoreAllArtifacts` (see lakefile.toml).
 export LAKE_CACHE_DIR=
 
@@ -13,7 +13,7 @@ bundles() { grep -oE '[0-9a-f]{16}\.ltar' "$1" | sort -u; }
 
 #-------------------------------------------------------------------------------
 echo "# 1. A build populates the cache and emits a mapping whose entries pair a"
-echo "#    bundle reference with the recorded output hashes (the receipt)."
+echo "#    bundle reference with its recorded output hashes."
 #-------------------------------------------------------------------------------
 test_run build -o out1.jsonl
 test_cmd ls .lake/cache/artifacts/*.ltar
@@ -32,7 +32,7 @@ for ln in open("out1.jsonl"):
     assert len(a) == 3 and isinstance(a[2], dict) and "o" in a[2], a
     seen = True
 assert seen, "no mapping entries found"
-print("receipt shape OK: data=bundle ref + recorded outputs")
+print("mapping entry shape OK: data=bundle ref + recorded outputs")
 '
 
 #-------------------------------------------------------------------------------
@@ -60,7 +60,7 @@ test_cmd_fails ls staging/*.ilean
 test_cmd_fails ls staging/*.c
 
 #-------------------------------------------------------------------------------
-echo "# 4. Distribution consume: a cache holding only bundles + receipts must fetch,"
+echo "# 4. Distribution consume: a cache holding only bundles + mappings must fetch,"
 echo "#    unpack, and verify the bundle against the recorded outputs."
 #-------------------------------------------------------------------------------
 rm -rf .lake/cache .lake/build
@@ -70,9 +70,9 @@ test_out "leantar" build -v                       # bundles are unpacked
 test_run build --no-build --rehash                # outputs verify as up-to-date
 
 #-------------------------------------------------------------------------------
-echo "# 5. Integrity: a receipt whose recorded outputs disagree with the bundle is"
-echo "#    rejected with a warning rather than silently trusted; the build"
-echo "#    self-heals by rebuilding and overwriting the offending receipt."
+echo "# 5. Integrity: a mapping entry whose recorded outputs disagree with the bundle"
+echo "#    is rejected with a warning rather than silently trusted; the build"
+echo "#    self-heals by rebuilding and overwriting the offending entry."
 #-------------------------------------------------------------------------------
 rm -rf .lake/cache .lake/build
 python3 - <<'PY'
@@ -97,8 +97,8 @@ test_out "cache integrity error" build
 test_not_out "cache integrity error" build --no-build --rehash
 
 #-------------------------------------------------------------------------------
-echo "# 6. Backward compatible: an older receipt (bundle reference only, no recorded"
-echo "#    outputs) is consumed without verification and without error."
+echo "# 6. Backward compatible: an older mapping entry (bundle reference only, no"
+echo "#    recorded outputs) is consumed without verification and without error."
 #-------------------------------------------------------------------------------
 rm -rf .lake/cache .lake/build
 python3 - <<'PY'
@@ -121,10 +121,10 @@ test_not_out "cache integrity error" build
 test_run build --no-build --rehash
 
 #-------------------------------------------------------------------------------
-echo "# 7. With recorded outputs and a warm artifact cache, a bundle receipt is"
-echo "#    served from the individually cached artifacts without unpacking."
+echo "# 7. With recorded outputs and a warm artifact cache, a bundle mapping entry"
+echo "#    is served from the individually cached artifacts without unpacking."
 #-------------------------------------------------------------------------------
-# Step 6 left the individual artifacts in the cache; rewrite the receipts back to
+# Step 6 left the individual artifacts in the cache; rewrite the mappings back to
 # bundle-reference form and wipe the build directory. The recorded outputs resolve
 # locally, so no bundle is unpacked.
 rm -rf .lake/build

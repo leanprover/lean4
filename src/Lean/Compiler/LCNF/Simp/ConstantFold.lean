@@ -519,6 +519,42 @@ def arithmeticFolders : List (Name × Folder) := [
   (``UInt32.div,  Folder.first #[Folder.mkBinary UInt32.div, Folder.rightNeutral (1 : UInt32) (· / ·), Folder.divShift ``UInt32.shiftRight (UInt32.shiftLeft 1 ·) UInt32.log2]),
   (``UInt64.div,  Folder.first #[Folder.mkBinary UInt64.div, Folder.rightNeutral (1 : UInt64) (· / ·), Folder.divShift ``UInt64.shiftRight (UInt64.shiftLeft 1 ·) UInt64.log2]),
   (``USize.div,  Folder.first #[Folder.mkBinaryUSize UInt64.div UInt32.div, Folder.rightNeutralUSize 1 1, Folder.divShiftUSize]),
+
+  (``Nat.shiftLeft, Folder.first #[Folder.mkBinary Nat.shiftLeft, Folder.rightNeutral 0 Nat.shiftLeft (by intros; rfl)]),
+  (``UInt8.shiftLeft, Folder.first #[Folder.mkBinary UInt8.shiftLeft, Folder.rightNeutral 0 UInt8.shiftLeft @UInt8.shiftLeft_zero]),
+  (``UInt16.shiftLeft, Folder.first #[Folder.mkBinary UInt16.shiftLeft, Folder.rightNeutral 0 UInt16.shiftLeft @UInt16.shiftLeft_zero]),
+  (``UInt32.shiftLeft, Folder.first #[Folder.mkBinary UInt32.shiftLeft, Folder.rightNeutral 0 UInt32.shiftLeft @UInt32.shiftLeft_zero]),
+  (``UInt64.shiftLeft, Folder.first #[Folder.mkBinary UInt64.shiftLeft, Folder.rightNeutral 0 UInt64.shiftLeft @UInt64.shiftLeft_zero]),
+  (``USize.shiftLeft, Folder.first #[Folder.mkBinaryUSize UInt64.shiftLeft UInt32.shiftLeft, Folder.rightNeutralUSize 0 0]),
+
+  (``Nat.shiftRight, Folder.first #[Folder.mkBinary Nat.shiftRight, Folder.rightNeutral 0 Nat.shiftRight (by intros; rfl)]),
+  (``UInt8.shiftRight, Folder.first #[Folder.mkBinary UInt8.shiftRight, Folder.rightNeutral 0 UInt8.shiftRight @UInt8.shiftRight_zero]),
+  (``UInt16.shiftRight, Folder.first #[Folder.mkBinary UInt16.shiftRight, Folder.rightNeutral 0 UInt16.shiftRight @UInt16.shiftRight_zero]),
+  (``UInt32.shiftRight, Folder.first #[Folder.mkBinary UInt32.shiftRight, Folder.rightNeutral 0 UInt32.shiftRight @UInt32.shiftRight_zero]),
+  (``UInt64.shiftRight, Folder.first #[Folder.mkBinary UInt64.shiftRight, Folder.rightNeutral 0 UInt64.shiftRight @UInt64.shiftRight_zero]),
+  (``USize.shiftRight, Folder.first #[Folder.mkBinaryUSize UInt64.shiftRight UInt32.shiftRight, Folder.rightNeutralUSize 0 0]),
+
+  (``Nat.land, Folder.first #[Folder.mkBinary Nat.land, Folder.leftRightAnnihilator 0 0 Nat.land]),
+  (``UInt8.land, Folder.first #[Folder.mkBinary UInt8.land, Folder.leftRightAnnihilator 0 0 UInt8.land sorry sorry]),
+  (``UInt16.land, Folder.first #[Folder.mkBinary UInt16.land, Folder.leftRightAnnihilator 0 0 UInt16.land sorry sorry]),
+  (``UInt32.land, Folder.first #[Folder.mkBinary UInt32.land, Folder.leftRightAnnihilator 0 0 UInt32.land sorry sorry]),
+  (``UInt64.land, Folder.first #[Folder.mkBinary UInt64.land, Folder.leftRightAnnihilator 0 0 UInt64.land sorry sorry]),
+  (``USize.land, Folder.first #[Folder.mkBinaryUSize UInt64.land UInt32.land, Folder.leftRightAnnihilatorUSize 0 0 0 0]),
+
+  (``Nat.lor, Folder.first #[Folder.mkBinary Nat.lor, Folder.leftRightNeutral 0 Nat.lor]),
+  (``UInt8.lor, Folder.first #[Folder.mkBinary UInt8.lor, Folder.leftRightNeutral 0 UInt8.lor sorry sorry]),
+  (``UInt16.lor, Folder.first #[Folder.mkBinary UInt16.lor, Folder.leftRightNeutral 0 UInt16.lor sorry sorry]),
+  (``UInt32.lor, Folder.first #[Folder.mkBinary UInt32.lor, Folder.leftRightNeutral 0 UInt32.lor sorry sorry]),
+  (``UInt64.lor, Folder.first #[Folder.mkBinary UInt64.lor, Folder.leftRightNeutral 0 UInt64.lor sorry sorry]),
+  (``USize.lor, Folder.first #[Folder.mkBinaryUSize UInt64.lor UInt32.lor, Folder.leftNeutralUSize 0 0]),
+
+  (``Nat.xor, Folder.first #[Folder.mkBinary Nat.xor, Folder.leftRightNeutral 0 Nat.xor]),
+  (``UInt8.xor, Folder.first #[Folder.mkBinary UInt8.xor, Folder.leftRightNeutral 0 UInt8.xor sorry sorry]),
+  (``UInt16.xor, Folder.first #[Folder.mkBinary UInt16.xor, Folder.leftRightNeutral 0 UInt16.xor sorry sorry]),
+  (``UInt32.xor, Folder.first #[Folder.mkBinary UInt32.xor, Folder.leftRightNeutral 0 UInt32.xor sorry sorry]),
+  (``UInt64.xor, Folder.first #[Folder.mkBinary UInt64.xor, Folder.leftRightNeutral 0 UInt64.xor sorry sorry]),
+  (``USize.xor, Folder.first #[Folder.mkBinaryUSize UInt64.xor UInt32.xor, Folder.leftNeutralUSize 0 0]),
+
   (``Nat.pow, foldNatPow),
   (``Nat.nextPowerOfTwo, Folder.mkUnary Nat.nextPowerOfTwo),
 ]

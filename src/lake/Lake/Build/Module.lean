@@ -681,8 +681,14 @@ def resolveModuleOutputs (out : CacheOutput) : JobM ModuleOutputs := do
       -- Receipt references an archive bundle. If it also recorded the output
       -- hashes, carry them so the unpacked bundle can be verified; an older
       -- receipt without them resolves the bundle directly.
+      let descrs? ← id do
+        let some o := out.outputs? | return none
+        match (fromJson? o : Except _ ModuleOutputDescrs) with
+        | .ok descrs => return some descrs
+        | .error e =>
+          logWarning s!"ignoring ill-formed outputs recorded in cache mapping: {e}"
+          return none
       let art ← resolveArtifact descr out.service? out.scope?
-      let descrs? := out.outputs?.bind fun o => (fromJson? o : Except _ ModuleOutputDescrs).toOption
       return .ltar art descrs?
     | .error e =>
       error s!"ill-formed module archive output:\n{out.data.render.pretty 80 2}\n{e}"
@@ -842,6 +848,11 @@ pure function of the module's *outputs*, so byte-identical outputs always
 produce a byte-identical, content-hash-identical archive, independent of the
 inputs or machine that produced them. Consumers recover the input hash from the
 cache mapping used to locate the archive (see `Module.stampLtarTrace`).
+
+Because the log is omitted, restoring a module from an archive does not replay
+the producer's build log (e.g., warnings) on later builds. This matches the
+behavior of restoring individually cached artifacts (see `BuildMetadata.ofFetch`)
+and avoids replaying a foreign machine's paths.
 -/
 def Module.mkLtarMetadata (outputs : Json) : BuildMetadata :=
   {depHash := .nil, inputs := #[], outputs? := some outputs, log := {}, synthetic := false}
@@ -881,14 +892,19 @@ def Module.packLtar (self : Module) (arts : ModuleOutputArtifacts) : JobM Artifa
   (see `Module.mkLtarMetadata`). The on-disk trace (which carries the real
   input hash for incremental checks) is restored afterwards.
   -/
-  let savedContents? ← (some <$> IO.FS.readBinFile self.traceFile).catchExceptions fun _ => pure none
+  let savedContents? ← id do
+    match (← IO.FS.readBinFile self.traceFile |>.toBaseIO) with
+    | .ok contents => return some contents
+    | .error (.noFileOrDirectory ..) => return none
+    | .error e => error s!"failed to read trace file: {e}"
   let metadata := mkLtarMetadata (toJson {arts with ltar? := none}.descrs)
   try
     metadata.writeFile self.traceFile
     proc (quiet := true) {cmd := (← getLeantar).toString, args}
   finally
-    if let some contents := savedContents? then
-      IO.FS.writeBinFile self.traceFile contents
+    match savedContents? with
+    | some contents => IO.FS.writeBinFile self.traceFile contents
+    | none => removeFileIfExists self.traceFile
   if (← self.pkg.isArtifactCacheWritable) then
     cacheArtifact self.ltarFile "ltar" (useLocalFile := ← self.pkg.restoreAllArtifacts)
   else
@@ -903,7 +919,8 @@ def Module.unpackLtar (self : Module) (ltar : FilePath) : JobM Unit := do
   proc (quiet := true) {cmd := (← getLeantar).toString, args}
 
 /--
-Stamp the input hash into the trace file just unpacked from a module's `.ltar`.
+Stamp the input hash into the trace file just unpacked from a module's `.ltar`,
+given the trace data (`savedTrace`) already read from it.
 
 The packed trace is input-free (`depHash := .nil`, see `Module.mkLtarMetadata`),
 so after unpacking, the consumer must stamp it with the input hash for which
@@ -915,8 +932,9 @@ hash; an unstamped `.nil` trace would force a needless rebuild on the next run.
 Traces packed by older Lake versions carry the producer's input hash and are
 returned unchanged. Returns the resulting `SavedTrace`.
 -/
-def Module.stampLtarTrace (self : Module) (inputHash : Hash) : LogIO SavedTrace := do
-  let savedTrace ← readTraceFile self.traceFile
+def Module.stampLtarTrace
+  (self : Module) (savedTrace : SavedTrace) (inputHash : Hash)
+: LogIO SavedTrace := do
   if let .ok data := savedTrace then
     if data.depHash == .nil then
       let data := {data with depHash := inputHash, synthetic := true}
@@ -1002,27 +1020,39 @@ where
       mod.unpackLtar ltar.path
       -- Note: This branch implies that only the ltar output is (validly) cached.
       -- Thus, we use only the new trace unpacked from the ltar to resolve further artifacts.
-      let savedTrace ← mod.stampLtarTrace inputHash
+      let savedTrace ← readTraceFile mod.traceFile
       -- Integrity: when the receipt records the output hashes, confirm the
       -- unpacked bundle declares exactly those outputs, so a receipt whose
       -- archive reference and recorded outputs disagree (e.g. one wired to
       -- another module's bundle) is rejected rather than silently trusted.
+      -- This runs *before* the input hash is stamped into the trace so that a
+      -- rejected unpack leaves no trace claiming the input produced these outputs.
       if let some receiptDescrs := descrs? then
-        let bundleDescrs ← id do
+        let err? : Option String := Id.run do
           let .ok data := savedTrace
-            | error s!"cache integrity error: archive for input {inputHash} has no usable trace"
+            | return some "has no usable trace"
           let some out := data.outputs?
-            | error s!"cache integrity error: archive for input {inputHash} records no outputs"
-          match fromJson? out with
-          | .ok (d : ModuleOutputDescrs) => pure d
-          | .error e => error s!"cache integrity error: archive for input {inputHash} has ill-formed outputs: {e}"
-        -- Clear the `ltar?` self-reference on both sides: it identifies the
-        -- bundle itself, not one of the outputs being compared.
-        let got := (toJson {bundleDescrs with ltar? := none}).compress
-        let want := (toJson {receiptDescrs with ltar? := none}).compress
-        unless got == want do
-          error s!"cache integrity error: archive for input {inputHash} does not \
-            match the outputs recorded in its cache mapping\n  recorded: {want}\n  unpacked: {got}"
+            | return some "records no outputs"
+          match (fromJson? out : Except _ ModuleOutputDescrs) with
+          | .error e => return some s!"has ill-formed outputs: {e}"
+          | .ok bundleDescrs =>
+            -- Clear the `ltar?` self-reference on both sides: it identifies the
+            -- bundle itself, not one of the outputs being compared.
+            let got := {bundleDescrs with ltar? := none}
+            let want := {receiptDescrs with ltar? := none}
+            if got == want then
+              return none
+            return some s!"does not match the outputs recorded in its cache mapping\
+              \n  recorded: {(toJson want).compress}\n  unpacked: {(toJson got).compress}"
+        if let some msg := err? then
+          -- A cache problem should not fail a build that can succeed by building,
+          -- so discard the unpacked outputs and treat the input as a cache miss.
+          -- The subsequent rebuild overwrites the offending receipt.
+          logWarning s!"cache integrity error: archive for input {inputHash} {msg}"
+          mod.clearOutputArtifacts
+          removeFileIfExists mod.traceFile
+          return .inr .missing
+      let savedTrace ← mod.stampLtarTrace savedTrace inputHash
       let arts? ← getArtifactsUsingTrace? inputHash savedTrace mod.pkg
       if let some (arts : ModuleOutputArtifacts) := arts? then
         -- on initial unpack from cache ensure all artifacts uniformly
@@ -1044,6 +1074,15 @@ where
         else
           mod.restoreNeededArtifacts arts
       return .inl arts
+  restoreTraceAfterUnpack savedTrace inputHash : JobM Unit := do
+    -- Unpacking clobbers the trace file with the trace packed in the archive
+    -- (input-free for archives packed by this Lake version). Restore the richer
+    -- pre-unpack trace (real input hash, inputs, and log) when available;
+    -- otherwise, stamp the input hash (see `Module.stampLtarTrace`).
+    if let .ok data := savedTrace then
+      data.writeFile mod.traceFile
+    else
+      discard <| mod.stampLtarTrace (← readTraceFile mod.traceFile) inputHash
   fetchCore setup srcFile srcTrace : JobM ModuleOutputArtifacts := do
     let depTrace ← getTrace
     have : GetMTime Module := ⟨Module.getMTime (isModule := setup.isModule)⟩
@@ -1059,7 +1098,7 @@ where
         if status.isUpToDate then
           unless (← mod.checkArtifactsExist setup.isModule) do
             mod.unpackLtar mod.ltarFile
-            discard <| mod.stampLtarTrace depTrace.hash
+            restoreTraceAfterUnpack savedTrace depTrace.hash
         else
           discard <| mod.buildLean depTrace srcFile setup
         if status.isCacheable then
@@ -1072,7 +1111,7 @@ where
       if (← savedTrace.replayIfUpToDate (oldTrace := srcTrace.mtime) mod depTrace) then
         unless (← mod.checkArtifactsExist setup.isModule) do
           mod.unpackLtar mod.ltarFile
-          discard <| mod.stampLtarTrace depTrace.hash
+          restoreTraceAfterUnpack savedTrace depTrace.hash
         mod.computeArtifacts setup.isModule
       else
         if (← mod.pkg.isArtifactCacheReadable) then

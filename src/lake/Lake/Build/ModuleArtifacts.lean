@@ -24,6 +24,7 @@ public structure ModuleOutputDescrs where
   c : ArtifactDescr
   bc? : Option ArtifactDescr := none
   ltar? : Option ArtifactDescr := none
+  deriving BEq
 
 public def ModuleOutputDescrs.oleanParts (self : ModuleOutputDescrs) : Array ArtifactDescr := Id.run do
   let mut descrs := #[self.olean]

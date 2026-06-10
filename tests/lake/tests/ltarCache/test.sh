@@ -71,7 +71,8 @@ test_run build --no-build --rehash                # outputs verify as up-to-date
 
 #-------------------------------------------------------------------------------
 echo "# 5. Integrity: a receipt whose recorded outputs disagree with the bundle is"
-echo "#    rejected rather than silently trusted."
+echo "#    rejected with a warning rather than silently trusted; the build"
+echo "#    self-heals by rebuilding and overwriting the offending receipt."
 #-------------------------------------------------------------------------------
 rm -rf .lake/cache .lake/build
 python3 - <<'PY'
@@ -92,7 +93,8 @@ for ln in f.read_text().splitlines():
 f.write_text("\n".join(out) + "\n")
 PY
 test_run cache unstage staging_bad
-test_err "cache integrity error" build
+test_out "cache integrity error" build
+test_not_out "cache integrity error" build --no-build --rehash
 
 #-------------------------------------------------------------------------------
 echo "# 6. Backward compatible: an older receipt (bundle reference only, no recorded"

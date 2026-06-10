@@ -23,7 +23,7 @@ def unfold (e : Expr) (declName : Name) : MetaM Simp.Result := do
     return { expr  := (← deltaExpand e (· == declName)) }
 where
   pre (unfoldThm : Name) (e : Expr) : SimpM Simp.Step := do
-    match (← withReducible <| Simp.tryTheorem? e { origin := .decl unfoldThm, proof := mkConst unfoldThm, rfl := (← isRflTheorem unfoldThm) }) with
+    match (← withReducible <| Simp.tryTheorem? e { origin := .decl unfoldThm, proof := mkConst unfoldThm, rfl := (← isRflTheorem unfoldThm), backwardRfl := (← isBackwardRflTheorem unfoldThm) }) with
     | none   => pure ()
     | some r => match (← reduceMatcher? r.expr) with
       | .reduced e' => return .done { r with expr := e' }

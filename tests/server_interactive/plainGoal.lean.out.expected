@@ -145,64 +145,68 @@ null
 {"rendered": "no goals", "goals": []}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 107, "character": 4}}
-{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"rendered": "```lean\nthis : True\n⊢ True\n```",
+ "goals": ["this : True\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 109, "character": 2}}
-{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"rendered": "```lean\nthis : True\n⊢ True\n```",
+ "goals": ["this : True\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 114, "character": 4}}
-{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"rendered": "```lean\nthis : True\n⊢ True\n```",
+ "goals": ["this : True\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
  "position": {"line": 116, "character": 2}}
-null
+{"rendered": "```lean\nthis : True\n⊢ True\n```",
+ "goals": ["this : True\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 121, "character": 2}}
+ "position": {"line": 120, "character": 2}}
 {"rendered": "```lean\n⊢ False\n```", "goals": ["⊢ False"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 125, "character": 17}}
+ "position": {"line": 124, "character": 17}}
 {"rendered": "```lean\np q : Prop\nhp : p\nhq : q\nthis : q ∧ p\n⊢ p ∧ q\n```",
  "goals": ["p q : Prop\nhp : p\nhq : q\nthis : q ∧ p\n⊢ p ∧ q"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 129, "character": 18}}
+ "position": {"line": 128, "character": 18}}
 {"rendered": "```lean\np q : Prop\nhp : p\nhq : q\n⊢ id (p ∧ q)\n```",
  "goals": ["p q : Prop\nhp : p\nhq : q\n⊢ id (p ∧ q)"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 134, "character": 3}}
+ "position": {"line": 133, "character": 3}}
 {"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 134, "character": 4}}
+ "position": {"line": 133, "character": 4}}
 {"rendered": "```lean\ncase left\n⊢ True\n```", "goals": ["case left\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 140, "character": 34}}
+ "position": {"line": 139, "character": 34}}
 {"rendered":
  "```lean\ncase zero\n⊢ True\n```\n---\n```lean\ncase succ\nn✝ : Nat\na✝ : True\n⊢ True\n```",
  "goals": ["case zero\n⊢ True", "case succ\nn✝ : Nat\na✝ : True\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 143, "character": 34}}
+ "position": {"line": 142, "character": 34}}
 {"rendered":
  "```lean\ncase zero\n⊢ True\n```\n---\n```lean\ncase succ\nn✝ : Nat\na✝ : True\n⊢ True\n```",
  "goals": ["case zero\n⊢ True", "case succ\nn✝ : Nat\na✝ : True\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 146, "character": 34}}
+ "position": {"line": 145, "character": 34}}
 {"rendered": "```lean\nx✝ : Nat\n⊢ True\n```", "goals": ["x✝ : Nat\n⊢ True"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 154, "character": 2}}
+ "position": {"line": 153, "character": 2}}
 {"rendered":
  "```lean\nf : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n + 0 = 1 + n\n```",
  "goals":
  ["f : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n + 0 = 1 + n"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 154, "character": 3}}
+ "position": {"line": 153, "character": 3}}
 {"rendered":
  "```lean\nf : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n = n + 1\n```",
  "goals":
  ["f : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n = n + 1"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 154, "character": 41}}
+ "position": {"line": 153, "character": 41}}
 {"rendered":
  "```lean\nf : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n = n + 1\n```",
  "goals":
  ["f : Nat → Nat\nn : Nat\nhf : ∀ (x : Nat), f x = x + 0 + 1\n⊢ f n = n + 1"]}
 {"textDocument": {"uri": "file:///plainGoal.lean"},
- "position": {"line": 154, "character": 43}}
+ "position": {"line": 153, "character": 43}}
 {"rendered": "no goals", "goals": []}

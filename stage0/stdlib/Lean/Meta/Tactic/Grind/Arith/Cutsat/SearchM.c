@@ -21,7 +21,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*);
 uint8_t lean_nat_dec_eq(lean_object*, lean_object*);
 lean_object* lean_mk_empty_array_with_capacity(lean_object*);
 extern lean_object* l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState_default;
-extern lean_object* l_Lean_instInhabitedFVarId_default;
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 lean_object* lean_nat_to_int(lean_object*);
@@ -141,7 +140,7 @@ if (lean_obj_tag(v_t_6_) == 0)
 lean_object* v_d_8_; lean_object* v___x_9_; 
 v_d_8_ = lean_ctor_get(v_t_6_, 0);
 lean_inc_ref(v_d_8_);
-lean_dec_ref(v_t_6_);
+lean_dec_ref_known(v_t_6_, 1);
 v___x_9_ = lean_apply_1(v_k_7_, v_d_8_);
 return v___x_9_;
 }
@@ -154,7 +153,7 @@ v_hs_11_ = lean_ctor_get(v_t_6_, 1);
 lean_inc_ref(v_hs_11_);
 v_decVars_12_ = lean_ctor_get(v_t_6_, 2);
 lean_inc(v_decVars_12_);
-lean_dec_ref(v_t_6_);
+lean_dec_ref_known(v_t_6_, 3);
 v___x_13_ = lean_apply_3(v_k_7_, v_s_10_, v_hs_11_, v_decVars_12_);
 return v___x_13_;
 }
@@ -310,7 +309,7 @@ _start:
 {
 lean_object* v___x_69_; lean_object* v___x_70_; lean_object* v___x_71_; lean_object* v___x_72_; 
 v___x_69_ = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedState_default;
-v___x_70_ = l_Lean_instInhabitedFVarId_default;
+v___x_70_ = lean_box(0);
 v___x_71_ = l_Lean_Meta_Grind_Arith_Cutsat_instInhabitedCaseKind_default;
 v___x_72_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_72_, 0, v___x_71_);
@@ -978,14 +977,14 @@ if (lean_obj_tag(v___x_352_) == 0)
 lean_object* v_a_353_; lean_object* v___x_354_; 
 v_a_353_ = lean_ctor_get(v___x_352_, 0);
 lean_inc(v_a_353_);
-lean_dec_ref(v___x_352_);
+lean_dec_ref_known(v___x_352_, 1);
 v___x_354_ = l_Lean_Meta_Grind_Arith_Cutsat_get_x27___redArg(v_a_341_, v_a_349_);
 if (lean_obj_tag(v___x_354_) == 0)
 {
 lean_object* v_a_355_; lean_object* v___x_356_; lean_object* v_cases_357_; uint8_t v_precise_358_; lean_object* v_decVars_359_; lean_object* v___x_361_; uint8_t v_isShared_362_; uint8_t v_isSharedCheck_389_; 
 v_a_355_ = lean_ctor_get(v___x_354_, 0);
 lean_inc(v_a_355_);
-lean_dec_ref(v___x_354_);
+lean_dec_ref_known(v___x_354_, 1);
 v___x_356_ = lean_st_ref_take(v_a_340_);
 v_cases_357_ = lean_ctor_get(v___x_356_, 0);
 v_precise_358_ = lean_ctor_get_uint8(v___x_356_, sizeof(void*)*2);

@@ -131,9 +131,9 @@ partial def find? (t : Trie α) (s : String) : Option α :=
   loop 0 t
 
 /-- Returns an `Array` of all values in the trie, in no particular order. -/
-partial def values (t : Trie α) : Array α := go t |>.run #[] |>.2
+partial def values (t : @&Trie α) : Array α := go t |>.run #[] |>.2
   where
-    go : Trie α → StateM (Array α) Unit
+    go : @&Trie α → StateM (Array α) Unit
       | leaf a? => do
         if let some a := a? then
           modify (·.push a)

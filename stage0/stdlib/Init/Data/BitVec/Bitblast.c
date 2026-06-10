@@ -27,9 +27,8 @@ lean_object* l_BitVec_sshiftRight(lean_object*, lean_object*, lean_object*);
 lean_object* l_BitVec_add(lean_object*, lean_object*, lean_object*);
 uint8_t l_Nat_testBit(lean_object*, lean_object*);
 lean_object* l_BitVec_shiftConcat(lean_object*, lean_object*, uint8_t);
-uint8_t l_instDecidableLtBitVec___aux__1___redArg(lean_object*, lean_object*);
-lean_object* l_BitVec_sub(lean_object*, lean_object*, lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
+lean_object* l_BitVec_sub(lean_object*, lean_object*, lean_object*);
 lean_object* lean_nat_shiftr(lean_object*, lean_object*);
 lean_object* lean_nat_pow(lean_object*, lean_object*);
 lean_object* lean_nat_mod(lean_object*, lean_object*);
@@ -688,7 +687,7 @@ lean_dec(v_wr_187_);
 v___x_196_ = l_Nat_testBit(v_n_184_, v_wn_194_);
 v_r_x27_197_ = l_BitVec_shiftConcat(v_w_181_, v_r_189_, v___x_196_);
 lean_dec(v_r_189_);
-v___x_198_ = l_instDecidableLtBitVec___aux__1___redArg(v_r_x27_197_, v_d_185_);
+v___x_198_ = lean_nat_dec_lt(v_r_x27_197_, v_d_185_);
 if (v___x_198_ == 0)
 {
 uint8_t v___x_199_; lean_object* v___x_200_; lean_object* v___x_201_; lean_object* v___x_203_; 

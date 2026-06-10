@@ -13,6 +13,13 @@ Here however, each file of a directory-specific extension (usually `.lean`) repr
 The run scripts are executed once for each test file with their working directory set to the pile directory.
 Often, additional supplementary files are placed next to the test files and interpreted by the run scripts.
 
+In a test pile, individual files can be excluded from testing or benchmarking
+by creating a `<file>.no_test` or `<file>.no_bench` file next to the test file.
+If a test must run serially (i.e. not in parallel with any other tests),
+create a `<file>.serial` file next to the test file.
+These auxiliary files should be avoided if possible.
+When used, they should contain a short comment describing why.
+
 ## Directory structure
 
 Benchmarks belonging to the old framework are not included in this description.

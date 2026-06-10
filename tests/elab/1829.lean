@@ -1,4 +1,4 @@
-attribute [simp] eq_iff_true_of_subsingleton in
+attribute [simp] eq_iff_true_of_subsingleton
 example : True := trivial
 
 structure Func' (α : Sort _) (β : Sort _) :=

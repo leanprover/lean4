@@ -21,8 +21,8 @@ builtin_initialize registerBuiltinDynamicParserAttribute `doElem_parser `doElem
 
 namespace Term
 def leftArrow : Parser := unicodeSymbol "← " "<- "
-@[builtin_term_parser] def liftMethod := leading_parser:minPrec
-  leftArrow >> termParser
+@[builtin_term_parser] def nestedAction := leading_parser:minPrec
+  leftArrow >> doElemParser
 
 def doSeqItem      := leading_parser
   ppLine >> doElemParser >> optional "; "
@@ -65,6 +65,14 @@ def notFollowedByRedefinedTermToken :=
   notFollowedBy ("set_option" <|> "open" <|> "if" <|> "match" <|> "match_expr" <|> "let" <|> "let_expr" <|> "have" <|>
       "do" <|> "dbg_trace" <|> "idbg" <|> "assert!" <|> "debug_assert!" <|> "for" <|> "unless" <|> "return" <|> symbol "try")
     "token at 'do' element"
+
+namespace InternalSyntax
+/--
+Internal syntax used in the `if` and `unless` elaborators. Behaves like `pure PUnit.unit` but
+uses `()` if possible and gives better error messages.
+-/
+scoped syntax (name := doSkip) "skip" : doElem
+end InternalSyntax
 
 @[builtin_doElem_parser] def doLet      := leading_parser
   "let " >> optional "mut " >> letConfig >> letDecl
@@ -201,6 +209,25 @@ def doFinally    := leading_parser
 @[builtin_doElem_parser] def doTry    := leading_parser
   "try " >> doSeq >> many (doCatch <|> doCatchMatch) >> optional doFinally
 
+/--
+`do← s` (or ASCII `do<- s`) hands `s` to the enclosing wrapper as a body
+whose control-flow effects (`return`, `break`, `continue`, `mut`-variable
+reassignment) target the surrounding `do` block, not the body's local monad.
+
+The syntax is reminiscent of a nested action `(← s)`, but unlike a nested
+action, `s` is not run eagerly in the `do` block context before the wrapping
+function is called. The wrapping function decides when to run `s`, and code
+is inserted to forward `s`'s effects to the outer `do` block.
+
+Only valid as the last argument of a function application that itself appears
+as a statement of an outer `do` block, optionally wrapped in `fun` binders.
+Examples:
+* `f a₁ … aₙ (do← s)`
+* `f a₁ … aₙ (fun b₁ … bₖ => do← s)`
+-/
+@[builtin_term_parser default+1] def doForward := leading_parser
+  atomic ("do" >> checkNoWsBefore >> leftArrow) >> doSeq
+
 /-- `break` exits the surrounding `for` loop. -/
 @[builtin_doElem_parser] def doBreak     := leading_parser "break"
 /-- `continue` skips to the next iteration of the surrounding `for` loop. -/
@@ -264,6 +291,13 @@ with debug assertions enabled (see the `debugAssertions` option).
 -/
 @[builtin_doElem_parser] def doDebugAssert := leading_parser:leadPrec
   "debug_assert! " >> termParser
+
+@[builtin_doElem_parser] def doRepeat      := leading_parser
+  "repeat " >> doSeq
+@[builtin_doElem_parser] def doWhile       := leading_parser
+  "while " >> withForbidden "do" doIfCond >> " do " >> doSeq
+@[builtin_doElem_parser] def doRepeatUntil := leading_parser
+  "repeat " >> doSeq >> ppDedent ppLine >> "until " >> termParser
 
 /-
 We use `notFollowedBy` to avoid counterintuitive behavior.

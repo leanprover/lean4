@@ -26,7 +26,7 @@ open System (FilePath)
 namespace Lake
 
 /-- Recursive build function for anything in the Lake build index. -/
-private def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
+def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.key)) :=
   match info with
   | .target pkg target => do
     if let some decl := pkg.findTargetDecl? target then
@@ -55,7 +55,7 @@ private def recBuildWithIndex (info : BuildInfo) : FetchM (Job (BuildData info.k
       error s!"invalid target '{info}': unknown facet '{facet}'"
 
 /-- Recursive build function with memoization. -/
-private def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=
+def recFetchWithIndex : (info : BuildInfo) → RecBuildM (Job (BuildData info.key)) :=
  inline <| recFetchAcyclic (β := (Job <| BuildData ·.key)) BuildInfo.key recBuildWithIndex
 
 /--

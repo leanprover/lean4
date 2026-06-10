@@ -32,6 +32,7 @@ namespace ExceptT
 
 @[simp] theorem stM_eq [Monad m] : stM m (ExceptT ε m) α = Except ε α := rfl
 
+set_option linter.checkUnivs false in
 @[simp, grind =] theorem run_mk (x : m (Except ε α)) : run (mk x : ExceptT ε m α) = x := rfl
 
 @[simp, grind =] theorem run_pure [Monad m] (x : α) : run (pure x : ExceptT ε m α) = pure (Except.ok x) := rfl

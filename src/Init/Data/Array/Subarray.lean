@@ -66,10 +66,12 @@ def Subarray.start (xs : Subarray α) : Nat :=
 def Subarray.stop (xs : Subarray α) : Nat :=
   xs.internalRepresentation.stop
 
+set_option linter.defProp false in
 @[always_inline, inline, expose, inherit_doc Internal.SubarrayData.start_le_stop]
 def Subarray.start_le_stop (xs : Subarray α) : xs.start ≤ xs.stop :=
   xs.internalRepresentation.start_le_stop
 
+set_option linter.defProp false in
 @[always_inline, inline, expose, inherit_doc Internal.SubarrayData.stop_le_array_size]
 def Subarray.stop_le_array_size (xs : Subarray α) : xs.stop ≤ xs.array.size :=
   xs.internalRepresentation.stop_le_array_size
@@ -80,7 +82,7 @@ instance : SliceSize (Internal.SubarrayData α) where
   size s := s.internalRepresentation.stop - s.internalRepresentation.start
 
 @[grind =, suggest_for Subarray.size]
-public theorem size_eq {xs : Subarray α} :
+theorem size_eq {xs : Subarray α} :
     xs.size = xs.stop - xs.start := by
   simp [Std.Slice.size, SliceSize.size, start, stop]
 

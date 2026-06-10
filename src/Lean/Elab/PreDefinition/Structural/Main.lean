@@ -209,10 +209,10 @@ def structuralRecursion
         registerEqnsInfo preDef (preDefs.map (·.declName)) recArgPos fixedParamPerms
     addSmartUnfoldingDef docCtx preDef recArgPos
   for preDef in preDefs do
+    saveEqnAffectingOptions preDef.declName
+  for preDef in preDefs do
     -- must happen in separate loop so realizations can see eqnInfos of all other preDefs
     enableRealizationsForConst preDef.declName
-    -- must happen after `enableRealizationsForConst`
-    generateEagerEqns preDef.declName
   applyAttributesOf preDefsNonRec AttributeApplicationTime.afterCompilation
 
 

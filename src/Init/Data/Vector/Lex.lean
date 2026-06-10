@@ -264,19 +264,19 @@ protected theorem le_iff_exists [LT α]
 
 theorem append_left_lt [LT α] {xs : Vector α n} {ys ys' : Vector α m} (h : ys < ys') :
     xs ++ ys < xs ++ ys' := by
-  simpa using Array.append_left_lt h
+  simpa using! Array.append_left_lt h
 
 theorem append_left_le [LT α]
     [Std.Asymm (· < · : α → α → Prop)]
     [Std.Trichotomous (· < · : α → α → Prop)]
     {xs : Vector α n} {ys ys' : Vector α m} (h : ys ≤ ys') :
     xs ++ ys ≤ xs ++ ys' := by
-  simpa using Array.append_left_le h
+  simpa using! Array.append_left_le h
 
 protected theorem map_lt [LT α] [LT β]
     {xs ys : Vector α n} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : xs < ys) :
     map f xs < map f ys := by
-  simpa using Array.map_lt w h
+  simpa using! Array.map_lt w h
 
 protected theorem map_le [LT α] [LT β]
     [Std.Asymm (· < · : α → α → Prop)]
@@ -285,6 +285,6 @@ protected theorem map_le [LT α] [LT β]
     [Std.Trichotomous (· < · : β → β → Prop)]
     {xs ys : Vector α n} {f : α → β} (w : ∀ x y, x < y → f x < f y) (h : xs ≤ ys) :
     map f xs ≤ map f ys := by
-  simpa using Array.map_le w h
+  simpa using! Array.map_le w h
 
 end Vector

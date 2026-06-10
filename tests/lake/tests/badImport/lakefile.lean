@@ -3,7 +3,9 @@ open Lake DSL
 
 package test
 
-lean_lib Lib
+lean_lib Lib where
+  globs := #[`Lib.+]
+
 lean_lib Etc
 
 lean_exe X

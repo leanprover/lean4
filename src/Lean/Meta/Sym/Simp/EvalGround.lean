@@ -383,7 +383,7 @@ When equal, uses `eq_self` (no kernel evaluation needed). When different, uses
 `mkStringLitNeProof` which finds the first differing character position and proves
 inequality via `congrArg (List.get?Internal · i)`.
 -/
-private def evalStringEq (a b : Expr) : SimpM Result := do
+def evalStringEq (a b : Expr) : SimpM Result := do
   let some va := getStringValue? a | return .rfl
   let some vb := getStringValue? b | return .rfl
   if va = vb then

@@ -143,7 +143,6 @@ theorem monotone_mapM (f : γ → α → m β) (xs : List α) (hmono : monotone 
       apply hmono
     · apply monotone_of_monotone_apply
       intro y
-      dsimp
       generalize [y] = ys
       induction xs generalizing ys with
       | nil => apply monotone_const
@@ -481,8 +480,7 @@ theorem monotone_mapFinIdxM (xs : Array α) (f : γ → (i : Nat) → α → i <
     apply monotone_const
   case case2 ih =>
     apply monotone_bind
-    · dsimp
-      apply monotone_apply
+    · apply monotone_apply
       apply monotone_apply
       apply monotone_apply
       apply hmono

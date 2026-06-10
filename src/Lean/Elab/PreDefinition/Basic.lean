@@ -222,8 +222,8 @@ private def addNonRecAux (docCtx : LocalContext × LocalInstances) (preDef : Pre
     if compile && shouldGenCodeFor preDef then
       compileDecl decl
     if applyAttrAfterCompilation then
+      saveEqnAffectingOptions preDef.declName
       enableRealizationsForConst preDef.declName
-      generateEagerEqns preDef.declName
     addPreDefDocs docCtx preDef
     if applyAttrAfterCompilation then
       applyAttributesOf #[preDef] AttributeApplicationTime.afterCompilation

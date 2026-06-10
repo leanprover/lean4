@@ -33,10 +33,10 @@ instance {c : Char} : StrictPatternModel c where
   not_matches_empty := by simp [PatternModel.Matches]
 
 instance {c : Char} : NoPrefixPatternModel c :=
-  .of_length_eq (by simp +contextual [PatternModel.Matches])
+  .of_length_toList_eq (by simp +contextual [PatternModel.Matches])
 
 instance {c : Char} : NoSuffixPatternModel c :=
-  .of_length_eq (by simp +contextual [PatternModel.Matches])
+  .of_length_toList_eq (by simp +contextual [PatternModel.Matches])
 
 theorem isMatch_iff {c : Char} {s : Slice} {pos : s.Pos} :
     IsMatch c pos ↔
@@ -186,12 +186,12 @@ theorem isLongestMatchAtChain_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
 
 theorem isLongestMatchAtChain_iff_toList {c : Char} {s : Slice} {pos pos' : s.Pos} :
     IsLongestMatchAtChain c pos pos' ↔
-      ∃ (h : pos ≤ pos'), (s.slice pos pos' h).copy.toList = List.replicate (s.slice pos pos' h).copy.length c := by
+      ∃ (h : pos ≤ pos'), (s.slice pos pos' h).copy.toList = List.replicate (s.slice pos pos' h).copy.toList.length c := by
   simp [isLongestMatchAtChain_iff_isLongestMatchAtChain_beq, CharPred.isLongestMatchAtChain_iff_toList,
     List.eq_replicate_iff]
 
 theorem isLongestMatchAtChain_startPos_endPos_iff_toList {c : Char} {s : Slice} :
-    IsLongestMatchAtChain c s.startPos s.endPos ↔ s.copy.toList = List.replicate s.copy.length c := by
+    IsLongestMatchAtChain c s.startPos s.endPos ↔ s.copy.toList = List.replicate s.copy.toList.length c := by
   simp [isLongestMatchAtChain_iff_isLongestMatchAtChain_beq,
     CharPred.isLongestMatchAtChain_startPos_endPos_iff_toList, List.eq_replicate_iff]
 
@@ -216,12 +216,12 @@ theorem isLongestRevMatchAtChain_iff {c : Char} {s : Slice} {pos pos' : s.Pos} :
 
 theorem isLongestRevMatchAtChain_iff_toList {c : Char} {s : Slice} {pos pos' : s.Pos} :
     IsLongestRevMatchAtChain c pos pos' ↔
-      ∃ (h : pos ≤ pos'), (s.slice pos pos' h).copy.toList = List.replicate (s.slice pos pos' h).copy.length c := by
+      ∃ (h : pos ≤ pos'), (s.slice pos pos' h).copy.toList = List.replicate (s.slice pos pos' h).copy.toList.length c := by
   simp [isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_beq, CharPred.isLongestRevMatchAtChain_iff_toList,
     List.eq_replicate_iff]
 
 theorem isLongestRevMatchAtChain_startPos_endPos_iff_toList {c : Char} {s : Slice} :
-    IsLongestRevMatchAtChain c s.startPos s.endPos ↔ s.copy.toList = List.replicate s.copy.length c := by
+    IsLongestRevMatchAtChain c s.startPos s.endPos ↔ s.copy.toList = List.replicate s.copy.toList.length c := by
   simp [isLongestRevMatchAtChain_iff_isLongestRevMatchAtChain_beq,
     CharPred.isLongestRevMatchAtChain_startPos_endPos_iff_toList, List.eq_replicate_iff]
 

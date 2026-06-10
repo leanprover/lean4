@@ -154,8 +154,15 @@ theorem two_pow_le_toNat_of_getElem_eq_true {i : Nat} {x : BitVec w}
   simp only [getMsb?, getLsb?_eq_getElem?]
   split <;> simp [getMsb_eq_getLsb]
 
-@[grind =] theorem getMsbD_eq_getLsbD (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
+theorem getMsbD_eq_getLsbD (x : BitVec w) (i : Nat) : x.getMsbD i = (decide (i < w) && x.getLsbD (w - 1 - i)) := by
   rw [getMsbD, getLsbD]
+
+grind_pattern getMsbD_eq_getLsbD => x.getMsbD i, x.getLsbD _
+
+@[grind =]
+theorem getMsbD_eq_getElem (x : BitVec w) (i : Nat) (h : i < w) : x.getMsbD i = x[w - 1 - i] := by
+  rw [← getLsbD_eq_getElem]
+  simp [getMsbD_eq_getLsbD, h]
 
 theorem getLsbD_eq_getMsbD (x : BitVec w) (i : Nat) : x.getLsbD i = (decide (i < w) && x.getMsbD (w - 1 - i)) := by
   rw [getMsbD]
@@ -516,6 +523,10 @@ theorem msb_eq_getLsbD_last (x : BitVec w) :
 
 @[bitvec_to_nat] theorem msb_eq_decide (x : BitVec w) : BitVec.msb x = decide (2 ^ (w-1) ≤ x.toNat) := by
   simp [msb_eq_getLsbD_last, getLsbD_last]
+
+@[grind =]
+theorem getMsbD_last (x : BitVec w) : x.getMsbD 0 = decide (2 ^ (w-1) ≤ x.toNat) := by
+  rw [← BitVec.msb, msb_eq_decide]
 
 theorem toNat_ge_of_msb_true {x : BitVec n} (p : BitVec.msb x = true) : x.toNat ≥ 2^(n-1) := by
   match n with
@@ -4433,7 +4444,7 @@ theorem msb_umod {x y : BitVec w} :
       · suffices x.toNat % y.toNat < 2 ^ (w - 1) by
           simpa [x_lt_y]
         have y_le_x : y.toNat ≤ x.toNat := by
-          simpa using x_lt_y
+          simpa using! x_lt_y
         replace hy : y.toNat ≠ 0 :=
           toNat_ne_iff_ne.mpr hy
         by_cases msb_y : y.toNat < 2 ^ (w - 1)
@@ -4625,8 +4636,6 @@ theorem toInt_ediv_toInt_lt_of_nonpos_of_lt_neg_one {w : Nat} {x y : BitVec w} (
     rcases hx' with hx'|hx'|hx'
     · simp [hx']; omega
     · have := BitVec.neg_one_ediv_toInt_eq (y := y)
-      simp only [
-        Int.reduceNeg] at this
       simp [hx', this]
       omega
     · have := Int.ediv_lt_natAbs_self_of_lt_neg_one_of_lt_neg_one (x := x.toInt) (y := y.toInt) (by omega) hy
@@ -5419,6 +5428,7 @@ theorem getLsbD_intMin (w : Nat) : (intMin w).getLsbD i = decide (i + 1 = w) := 
   simp only [intMin, getLsbD_twoPow, bool_to_prop]
   omega
 
+@[grind =]
 theorem getMsbD_intMin {w i : Nat} :
     (intMin w).getMsbD i = (decide (0 < w) && decide (i = 0)) := by
   simp only [getMsbD, getLsbD_intMin]

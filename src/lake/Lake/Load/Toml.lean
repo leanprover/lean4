@@ -92,7 +92,7 @@ partial def takeName (ss : Substring.Raw) : (Substring.Raw × Name) :=
   let (ss, n) := takeNamePart ss .anonymous
   if n.isAnonymous then (ss, .anonymous) else takeRest ss n
 
-def Glob.ofString? (v : String) : Option Glob := do
+public def Glob.ofString? (v : String) : Option Glob := do
   let (ss, n) := takeName v.toRawSubstring
   if n.isAnonymous then failure
   if h : ss.startPos.atEnd ss.str then
@@ -298,33 +298,38 @@ public protected def DependencySrc.decodeToml (t : Table) (ref := Syntax.missing
 
 public instance : DecodeToml DependencySrc := ⟨fun v => do DependencySrc.decodeToml (← v.decodeTable) v.ref⟩
 
+public protected def InputVer.decodeToml (v : Value) : EDecodeM InputVer := do
+  match InputVer.parse (← v.decodeString) with
+  | .ok ver => return ver
+  | .error e =>  throwDecodeErrorAt v.ref s!"invalid dependency version constraint: {e}"
+
+public instance : DecodeToml InputVer := ⟨InputVer.decodeToml⟩
+
 public protected def Dependency.decodeToml (t : Table) (ref := Syntax.missing) : EDecodeM Dependency := ensureDecode do
   let name ← stringToLegalOrSimpleName <$> t.tryDecode `name ref
   let rev? ← t.tryDecode? `rev
-  let src? : Option DependencySrc ← id do
-    if let some dir ← t.tryDecode? `path then
+  let src? : Option DependencySrc ← tryDecode do
+    if let some dir ← t.decode? `path then
       return some <| .path dir
     else if let some g := t.find? `git then
       match g with
-      | .string _ url =>
+      | .string _ url => ensureDecode do
         return some <| .git url rev? (← t.tryDecode? `subDir)
-      | .table ref t =>
+      | .table ref t => ensureDecode do
         return some <| .git (← t.tryDecode `url ref) rev? (← t.tryDecode? `subDir)
-      | _ =>
-        modify (·.push <| .mk g.ref "expected string or table")
-        return default
+      | _ => throwDecodeErrorAt g.ref "expected string or table"
     else
-      t.tryDecode? `source
+      t.decode? `source
   let scope ← t.tryDecodeD `scope ""
-  let version? ← id do
-    if let some ver ← t.tryDecode? `version then
-      return some ver
+  let version : InputVer ← tryDecode do
+    if let some val := t.find? `version then
+      decodeToml val
     else if let some rev := rev? then
-      return if src?.isSome then none else some s!"git#{rev}"
+      return .git rev
     else
-      return none
+      return .none
   let opts ← t.tryDecodeD `options {}
-  return {name, scope, version?, src?, opts}
+  return {name, scope, version, src?, opts}
 
 public instance : DecodeToml Dependency := ⟨fun v => do Dependency.decodeToml (← v.decodeTable) v.ref⟩
 
@@ -342,20 +347,20 @@ public instance : DecodeToml CacheServiceKind := ⟨CacheServiceKind.decodeToml�
 public structure TomlFieldInfo (σ : Type) where
   decodeAndSet : Table → Value → σ → DecodeM σ
 
-private abbrev TomlFieldInfos (σ : Type) :=
+abbrev TomlFieldInfos (σ : Type) :=
   NameMap (TomlFieldInfo σ)
 
-private def TomlFieldInfos.empty : TomlFieldInfos σ := {}
+def TomlFieldInfos.empty : TomlFieldInfos σ := {}
 
-@[inline] private def TomlFieldInfos.insert
+@[inline] def TomlFieldInfos.insert
   (name : Name) [DecodeField σ name] (infos : TomlFieldInfos σ)
 : TomlFieldInfos σ :=
   NameMap.insert infos name ⟨decodeField name⟩
 
-private class ConfigTomlInfo (α : Type) where
+class ConfigTomlInfo (α : Type) where
   fieldInfos : TomlFieldInfos α
 
-private def decodeTomlConfig
+def decodeTomlConfig
   [EmptyCollection α] [ConfigTomlInfo α] (t : Table)
 : Toml.DecodeM α :=
   t.foldM (init := ∅) fun cfg key val => do
@@ -373,7 +378,7 @@ section
 -- we can't use `in` as it is parsed as a single command and so the option would not influence the
 -- parser.
 set_option internal.parseQuotWithCurrentStage false
-private meta def genDecodeToml
+meta def genDecodeToml
   (cmds : Array Command)
   (tyName : Name) [info : ConfigInfo tyName]
   (exclude : Array Name := {})
@@ -417,12 +422,12 @@ local macro "gen_toml_decoders%" : command => do
 
 gen_toml_decoders%
 
-private structure DecodeTargetState (pkg : Name) where
+structure DecodeTargetState (pkg : Name) where
   decls : Array (PConfigDecl pkg) := #[]
   map : DNameMap (NConfigDecl pkg) := {}
   exeRoots : Lean.NameMap Name := {}
 
-private def decodeTargetDecls
+def decodeTargetDecls
   (pkg : Name) (prettyName : String) (t : Table)
 : DecodeM (Array (PConfigDecl pkg) × DNameMap (NConfigDecl pkg)) := do
   let r : DecodeTargetState pkg := {}
@@ -505,7 +510,7 @@ public def loadTomlConfig (cfg : LoadConfig) : LogIO LakefileConfig := do
 /-! ## System Configuration Loader -/
 
 /-- Load the system Lake configuration from a TOML file. -/
-private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO LoadedLakeConfig := do
+def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO LoadedLakeConfig := do
   let input ← IO.FS.readFile path
   let ictx := mkInputContext input path.toString
   match (← loadToml ictx |>.toBaseIO) with
@@ -564,7 +569,7 @@ private def loadLakeConfigCore (path : FilePath) (lakeEnv : Lake.Env) : LogIO Lo
   | .error log =>
     errorWithLog <| log.forM fun msg => do logError (← msg.toString)
 
-private def LoadedLakeConfig.mkDefault (lakeEnv : Lake.Env) : LoadedLakeConfig :=
+def LoadedLakeConfig.mkDefault (lakeEnv : Lake.Env) : LoadedLakeConfig :=
   let defaultService := .reservoirService lakeEnv.reservoirApiUrl
   let defaultServiceConfig := {name := "reservoir", kind := .reservoir, apiEndpoint := lakeEnv.reservoirApiUrl}
   {

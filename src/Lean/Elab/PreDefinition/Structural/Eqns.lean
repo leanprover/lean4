@@ -163,7 +163,7 @@ public def registerEqnsInfo (preDef : PreDefinition) (declNames : Array Name) (r
 /-- Generate the "unfold" lemma for `declName`. -/
 def mkUnfoldEq (declName : Name) (info : EqnInfo) : MetaM Name := do
   let name := mkEqLikeNameFor (← getEnv) info.declName unfoldThmSuffix
-  realizeConst info.declNames[0]! name (doRealize name)
+  realizeConst info.declNames[0]! name (withEqnOptions declName (doRealize name))
   return name
 where
   doRealize name := withOptions (tactic.hygienic.set · false) do

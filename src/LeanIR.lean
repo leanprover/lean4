@@ -41,9 +41,8 @@ def mkIRData (env : Environment) : IO ModuleData := do
   }
 
 def setConfigOption (opts : Options) (arg : String) : IO Options := do
-  if !arg.startsWith "-D" then
+  let some arg := arg.dropPrefix? "-D" |
     throw <| .userError s!"invalid trailing argument `{arg}`, expected argument of the form `-Dopt=val`"
-  let arg := arg.drop "-D".length
   let pos := arg.find '='
   if h : pos.IsAtEnd then
     throw <| .userError "invalid -D parameter, argument must contain '='"

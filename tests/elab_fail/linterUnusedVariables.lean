@@ -3,6 +3,7 @@ import Lean
 set_option linter.missingDocs false
 set_option linter.all true
 set_option linter.unusedSimpArgs false
+set_option linter.redundantVisibility false
 
 def explicitlyUsedVariable (x : Nat) : Nat :=
   x
@@ -153,7 +154,7 @@ class Baz (α : Type) where
     let y := 5
     3
 
-instance instBaz (α β : Type) : Baz α where
+@[reducible] def instBaz (α β : Type) : Baz α where
   baz (x : Nat) := 5
 
 

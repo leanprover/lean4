@@ -12,7 +12,7 @@ import Init.Omega
 
 public section
 
-set_option linter.listVariables true -- Enforce naming conventions for `List`/`vecay`/`Vector` variables.
+set_option linter.listVariables true -- Enforce naming conventions for `List`/`Array`/`Vector` variables.
 -- We do not enable `linter.indexVariables` because it is helpful to name index variables `sllo`, `slhi`, etc.
 
 

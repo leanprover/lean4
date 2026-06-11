@@ -25,9 +25,10 @@ jobs:
     if: github.event.workflow_run.event == 'pull_request' && github.repository == 'leanprover/lean4'
     steps:
       - name: Retrieve information about the original workflow
-        uses: potiuk/get-workflow-origin@08219db9dbbbec802d571eaf0e14ece0bc005f72 # v1_6
+        uses: potiuk/get-workflow-origin@e2dae063368361e4cd1f510e8785cd73bca9352e # v1_5
         # This action is deprecated and archived, but it seems hard to find a
-        # better solution for getting the PR number
+        # better solution for getting the PR number. Also, it must not be
+        # updated to v1_6 because that release is broken!
         # see https://github.com/orgs/community/discussions/25220 for some discussion
         id: workflow-info
         with:
@@ -167,7 +168,7 @@ jobs:
           git -C lean4.git tag --merged "${{ steps.workflow-info.outputs.sourceHeadSha }}" --list "nightly-*" \
             | sort -rV | head -n 1 | sed "s/^nightly-*/MOST_RECENT_NIGHTLY=/" | tee -a "$GITHUB_ENV"
 
-      - name: 'Setup jq'
+      - name: "Setup jq"
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' }}
         uses: dcarbone/install-jq-action@b7ef57d46ece78760b4019dbc4080a1ba2a40b45 # v3.2.0
 
@@ -388,7 +389,6 @@ jobs:
             echo "manual_ready=true" >> "$GITHUB_OUTPUT"
           fi
 
-
       - name: Report mathlib base
         if: ${{ steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true' }}
         uses: actions/github-script@v9
@@ -477,7 +477,6 @@ jobs:
         if: steps.workflow-info.outputs.pullRequestNumber != '' && steps.ready.outputs.mathlib_ready == 'true'
         run: |
           git push origin lean-pr-testing-${{ steps.workflow-info.outputs.pullRequestNumber }}
-
 
       # We next automatically create a Mathlib branch using this toolchain.
       # Mathlib CI will be responsible for reporting back success or failure

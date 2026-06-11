@@ -49,6 +49,7 @@ BASIC OPTIONS:
   --dir, -d=file        use the package configuration in a specific directory
   --file, -f=file       use a specific file for the package configuration
   -K key[=value]        set the configuration file option named key
+                        (workspace-root only; forward to a dep with `require … with`)
   --old                 only rebuild modified modules (ignore transitive deps)
   --rehash, -H          hash all files for traces (do not trust `.hash` files)
   --update              update dependencies on load (e.g., before a build)

@@ -228,6 +228,14 @@ test_cmd mkdir -p .lake/staging-empty
 test_cmd cp .lake/outputs.jsonl .lake/staging-empty/outputs.jsonl
 test_err 'artifact not found in staging directory' cache unstage .lake/staging-empty
 
+# Verify staging and unstaging skip artifacts already present at the destination
+# (artifacts cached by builds are read-only, so overwriting them would fail)
+test_run build +Test -o .lake/outputs-skip.jsonl
+test_run cache stage .lake/outputs-skip.jsonl .lake/staging-skip
+test_run cache stage .lake/outputs-skip.jsonl .lake/staging-skip
+test_run cache unstage .lake/staging-skip
+test_run build +Test --no-build
+
 # Verify that `lake cache clean` deletes the cache directory
 test_exp -d "$CACHE_DIR"
 test_cmd cp -r "$CACHE_DIR" .lake/cache-backup

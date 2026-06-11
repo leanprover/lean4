@@ -56,6 +56,7 @@ public import Lean.Elab.Calc
 public import Lean.Elab.InheritDoc
 public import Lean.Elab.ParseImportsFast
 public import Lean.Elab.GuardMsgs
+public import Lean.Elab.TraceView
 public import Lean.Elab.CheckTactic
 public import Lean.Elab.MatchExpr
 public import Lean.Elab.Tactic.Doc

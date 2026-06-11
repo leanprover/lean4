@@ -953,6 +953,55 @@ syntax (name := infoTreesCmd)
   "#info_trees" " in" ppLine command : command
 
 /--
+`trace_view post in cmd` runs the command `cmd` and transforms every trace message it produces
+with the trace postprocessor `post : Lean.TraceView.TracePostprocessor` before it is reported.
+
+The postprocessor receives the array of trace roots of each trace message
+(traces are grouped into one message per source range) and returns the transformed roots;
+returning an empty array drops the message entirely. The `Lean.TraceView` namespace
+(automatically opened in `post`) provides combinators such as `focusOn`, `hideSucceeded`,
+`maxDepth`, `grep`, `expandAll`, and `onRoots`, which can be composed left-to-right with `>=>`
+or used as building blocks for user-defined postprocessors.
+
+For example, the following only shows instance-synthesis traces, with successful subtrees folded:
+```
+set_option trace.Meta.synthInstance true in
+trace_view focusOn `Meta.synthInstance >=> hideSucceeded in
+example : Inhabited (List Nat) := inferInstance
+```
+-/
+syntax (name := traceViewCmd)
+  "trace_view " term " in" ppLine command : command
+
+/--
+`store_trace_as t in cmd` runs the command `cmd`, reports its output unchanged, and additionally
+stores the trace messages it produced under the name `t`. The stored trace can then be inspected
+*without re-running `cmd`* using `#trace_roots t` and `#trace_view t post`, which is useful when
+`cmd` is slow and the right trace postprocessor is found iteratively.
+
+The stored trace is kept in memory for the current file only; it is not exported to `.olean`
+files.
+-/
+syntax (name := storeTraceAsCmd)
+  "store_trace_as " ident " in" ppLine command : command
+
+/--
+`#trace_roots t` lists the roots of the trace stored as `t` by `store_trace_as t in cmd`:
+their index, trace class, and source position. The index can be used to select a root in
+`#trace_view t post` via `Lean.TraceView.onRootIdx`.
+-/
+syntax (name := traceRootsCmd)
+  "#trace_roots " ident : command
+
+/--
+`#trace_view t post` renders the trace stored as `t` by `store_trace_as t in cmd` after
+transforming it with the trace postprocessor `post : Lean.TraceView.TracePostprocessor`,
+without re-running `cmd`. See `trace_view` for the available combinators.
+-/
+syntax (name := traceViewStoredCmd)
+  "#trace_view " ident ppSpace term : command
+
+/--
 Specify a library suggestion engine.
 Note that Lean does not ship a default library suggestion engine,
 so this is only useful in conjunction with a downstream package which provides one.

@@ -979,8 +979,10 @@ stores the trace messages it produced under the name `t`. The stored trace can t
 *without re-running `cmd`* using `#trace_roots t` and `#trace_view t post`, which is useful when
 `cmd` is slow and the right trace postprocessor is found iteratively.
 
-The stored trace is kept in memory for the current file only; it is not exported to `.olean`
-files.
+`store_trace_as` also adds a declaration `t : CoreM Lean.TraceView.StoredTrace` to the
+environment, so the trace can be inspected by arbitrary metaprograms, e.g.
+`#eval do return (← t).roots.size`. The declaration only references the trace data, which is
+kept in memory for the current file only; it is not exported to `.olean` files.
 -/
 syntax (name := storeTraceAsCmd)
   "store_trace_as " ident " in" ppLine command : command

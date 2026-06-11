@@ -117,3 +117,44 @@ error: unknown stored trace `notStored` (stored traces: `myTrace`); store one us
 -/
 #guard_msgs in
 #trace_roots notStored
+
+-- The stored trace is a real declaration of type `CoreM StoredTrace`, so arbitrary
+-- metaprograms can inspect it.
+/-- info: 1 -/
+#guard_msgs in
+#eval do return (← myTrace).roots.size
+
+/-- info: #[21] -/
+#guard_msgs in
+#eval show Lean.CoreM _ from do
+  let t ← myTrace
+  return t.roots.map (·.size)
+
+-- `StoredTrace.postprocess` applies a postprocessor programmatically.
+/-- info: #["✅️ Inhabited Nat", "✅️ Inhabited Bool", "✅️ Inhabited (Nat × Bool)"] -/
+#guard_msgs in
+open Lean TraceView in
+#eval show Lean.CoreM _ from do
+  let t ← (← myTrace).postprocess (focusOn `Meta.synthInstance.answer)
+  t.roots.mapM (·.headText)
+
+-- Stored trace names live in the current namespace, like any other declaration.
+namespace Nested
+/--
+trace: [Meta.synthInstance] ✅️ Inhabited Bool
+  [Meta.synthInstance] ✅️ new goal Inhabited Bool
+    [Meta.synthInstance.instances] #[@instInhabitedOfMonad, instInhabitedBool]
+  [Meta.synthInstance.apply] ✅️ apply instInhabitedBool to Inhabited Bool
+    [Meta.synthInstance.tryResolve] ✅️ Inhabited Bool ≟ Inhabited Bool
+    [Meta.synthInstance.answer] ✅️ Inhabited Bool
+  [Meta.synthInstance] result instInhabitedBool
+-/
+#guard_msgs in
+set_option trace.Meta.synthInstance true in
+store_trace_as inner in
+example : Inhabited Bool := inferInstance
+end Nested
+
+/-- info: #0 [Meta.synthInstance] 155:28 (7 nodes) ✅️ Inhabited Bool -/
+#guard_msgs in
+#trace_roots Nested.inner

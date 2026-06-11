@@ -155,18 +155,52 @@ private structure IncrSnapshot where
   snap        : Language.Lean.InitialSnapshot
   initModIdxs : Array Nat
 
+/--
+Assembles `ModuleArtifacts`, the `--incr-save` helper file's format, from flat regions so that
+loading can be optimized. This is a subset of `.setup.json` but we don't want to demand `--setup`
+being used with save, so we reconstruct the needed information here.
+-/
+private def regionsToModuleArtifacts (regions : Array CompactedRegion) : Array ModuleArtifacts :=
+  Id.run do
+    -- base `.olean` path (as string) → its `ModuleArtifacts`, plus first-seen order for stability
+    let mut order : Array String := #[]
+    let mut byBase : Std.HashMap String ModuleArtifacts := {}
+    for region in regions do
+      let p := region.filePath
+      let (base, upd) : String × (ModuleArtifacts → ModuleArtifacts) :=
+        match p.extension with
+        | some "server"  => (p.withExtension "" |>.toString, fun a => { a with oleanServer? := p })
+        | some "private" => (p.withExtension "" |>.toString, fun a => { a with oleanPrivate? := p })
+        | some "ir"      => (p.withExtension "olean" |>.toString, fun a => { a with ir? := p })
+        | _              => (p.toString, fun a => { a with olean? := p })
+      unless byBase.contains base do
+        order := order.push base
+      byBase := byBase.insert base (upd (byBase.getD base {}))
+    return order.map (byBase[·]!)
+
 /-- Loads a snapshot saved by `--incr-(header-)save`. -/
 private unsafe def loadIncrSnapshot (fname : System.FilePath) :
     IO IncrSnapshot := do
   let depsFile := fname.addExtension "deps"
-  let depPaths : Array System.FilePath := (← IO.FS.lines depsFile).map (⟨·⟩)
-  let mut depRegions : Array CompactedRegion := #[]
-  for p in depPaths do
-    -- `depRegions` must be passed for `.olean <- .olean.server <- ...` pointer reuse.
-    let (_, region) ← CompactedRegion.read (α := ModuleData) p depRegions
-    depRegions := depRegions.push region
-  let (data, _region) ←
-    CompactedRegion.read (α := IncrSnapshot) fname depRegions
+  let moduleArts : Array ModuleArtifacts ←
+    match Json.parse (← IO.FS.readFile depsFile) >>= fromJson? with
+    | .ok arts => pure arts
+    | .error e => throw <| IO.userError s!"failed to parse snapshot deps file {depsFile}: {e}"
+  let mut depRegions : Array CompactedRegion := Array.emptyWithCapacity (moduleArts.size * 4)
+  for arts in moduleArts do
+    -- A module's `.olean` variants only point into the prior variants of the same module, so read
+    -- the chain with just its own siblings as deps.
+    let mut chainDeps : Array CompactedRegion := #[]
+    for partPath in arts.oleanParts do
+      let (_, region) ← CompactedRegion.read (α := ModuleData) partPath chainDeps
+      chainDeps := chainDeps.push region
+    depRegions := depRegions ++ chainDeps
+    -- IR regions carry no cross-region pointers (loaded with no deps in regular import).
+    if let some irPath := arts.ir? then
+      let (_, region) ← CompactedRegion.read (α := ModuleData) irPath #[]
+      depRegions := depRegions.push region
+  -- The snapshot region itself references every loaded dep region.
+  let (data, _region) ← CompactedRegion.read (α := IncrSnapshot) fname depRegions
   return data
 
 /--
@@ -249,17 +283,16 @@ def runFrontend
   let finalOpts := cmdState.scopes[0]!.opts
 
   -- Saves `snapToSave` wrapped with the init-mod indices used by `runInitAttrsForModules` on load.
-  -- Writes a `<incrFile>.deps` helper alongside: the dep paths parallel to `env.header.regions`,
-  -- needed to map the snapshot back in before we can access `env`.
+  -- Writes a `<incrFile>.deps` JSON helper alongside: the dep regions grouped per module (see
+  -- `regionsToModuleArtifacts`), needed to map the snapshot back in before we can access `env`.
   let saveSnap (incrFile : System.FilePath) (snapToSave : Language.Lean.InitialSnapshot) :
       IO Unit := do
     let toSave : IncrSnapshot :=
       { snap := snapToSave, initModIdxs := getRegularInitAttrModIdxs env }
     let compactor ← (unsafe CompactedRegion.save incrFile `_snap toSave
       env.header.regions none (allowClosures := true))
-    let depPaths : Array System.FilePath := env.header.regions.map CompactedRegion.filePath
-    IO.FS.writeFile (incrFile.addExtension "deps") <|
-      String.intercalate "\n" (depPaths.toList.map (·.toString))
+    let moduleArts := regionsToModuleArtifacts env.header.regions
+    IO.FS.writeFile (incrFile.addExtension "deps") (toJson moduleArts).compress
     Runtime.forget compactor
 
   -- save full incremental snapshot for next invocation

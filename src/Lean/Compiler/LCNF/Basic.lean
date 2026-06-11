@@ -1093,13 +1093,27 @@ def hasLocalInst (type : Expr) : CoreM Bool := do
   | _ => return false
 
 /--
+Returns `true` if `name` should be considered an instance by the compiler.
+
+We use `Meta.getInstanceAttrKind?` to also detect defs that *used* to be instances, e.g. under
+separate compilation. Note that this does not detect private markers hidden by the module system or
+defs that *will* be instances, but we claim this is acceptable here as in the worst case this means
+some missed optimizations.
+
+We don't want to use `@[instance_reducible]` because we use it on many decls that are never
+instances.
+-/
+def isInstanceLike (name : Name) : CoreM Bool := do
+  return (← Meta.getInstanceAttrKind? name).isSome
+
+/--
 Return `true` if `decl` is supposed to be inlined/specialized.
 -/
 def Decl.isTemplateLike (decl : Decl pu) : CoreM Bool := do
   let env ← getEnv
   if !hasNospecializeAttribute env decl.name && (← hasLocalInst decl.type) then
     return true -- `decl` applications will be specialized
-  else if (← isImplicitReducible decl.name) then
+  else if (← isInstanceLike decl.name) then
     return true -- `decl` is "fuel" for code specialization
   else if decl.inlineable || hasSpecializeAttribute env decl.name then
     return true -- `decl` is going to be inlined or specialized

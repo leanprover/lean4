@@ -69,17 +69,7 @@ def inlineCandidate? (e : LetValue .pure) : SimpM (Option InlineCandidateInfo) :
       By inlining their definitions we would be just generating extra work for the lambda lifter.
       -/
       if (← inBasePhase) then
-        /-
-        We claim it is correct to use `Meta.isInstance` because
-        1. `shouldInline` is called during LCNF compilation, which runs at `addDecl` time
-        2. Any instance referenced in the code was found by type class resolution during elaboration
-        3. For TC resolution to find it, the scope was active during elaboration
-        4. LCNF compilation happens before the scope changes
-
-        We don't want to use `isImplicitReducible` because some `instanceReducible` declarations are
-        **not** instances.
-        -/
-        if (← Meta.isInstance decl.name) then
+        if (← isInstanceLike decl.name) then
           unless decl.name == ``instDecidableEqBool do
             /-
             TODO: remove this hack after we refactor `Decidable` as suggested by Gabriel.

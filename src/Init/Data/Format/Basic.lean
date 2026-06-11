@@ -370,7 +370,7 @@ Creates the format `"[" ++ f ++ "]"` with a flattening group, nesting by one spa
 /--
 Creates a format `l ++ f ++ r` with a flattening group, nesting the contents by the length of `l`.
 
-The group's `FlattenBehavior` is `fill`; for `allOrNone` use `Std.Format.bracketFill`.
+The group's `FlattenBehavior` is `fill`; for `allOrNone` use `Std.Format.bracket`.
 -/
 @[inline] def bracketFill (l : String) (f : Format) (r : String) : Format :=
   fill (nest (String.Internal.length l) $ l ++ f ++ r)

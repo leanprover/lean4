@@ -2500,16 +2500,16 @@ def replayConsts (dest : Environment) (oldEnv newEnv : Environment) (skipExistin
         else
           consts.add c
     }
-    checked := dest.checked.map fun kenv =>
-      replayKernel
-        oldEnv.checked newEnv.checked exts newPrivateConsts kenv
-      |>.toOption.getD kenv
+    checked := dest.checked.bind (sync := true) fun kenv =>
+      oldEnv.checked.bind (sync := true) fun oldKEnv =>
+        newEnv.checked.map fun newKEnv =>
+          replayKernel oldKEnv newKEnv exts newPrivateConsts kenv |>.toOption.getD kenv
     allRealizations := dest.allRealizations.map (sync := true) fun allRealizations =>
       newPrivateConsts.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c
   }
 where
-  replayKernel (oldEnv newEnv : Task Kernel.Environment)
+  replayKernel (oldEnv newEnv : Kernel.Environment)
       (exts : Array (EnvExtension EnvExtensionState)) (consts : List AsyncConst)
       (kenv : Kernel.Environment) : Except Kernel.Exception Kernel.Environment := do
     let mut kenv := kenv
@@ -2520,8 +2520,8 @@ where
           -- safety: like in `modifyState`, but that one takes an elab env instead of a kernel env
           extensions := unsafe (ext.modifyStateImpl kenv.extensions <|
             replay
-              (ext.getStateImpl oldEnv.get.extensions)
-              (ext.getStateImpl newEnv.get.extensions)
+              (ext.getStateImpl oldEnv.extensions)
+              (ext.getStateImpl newEnv.extensions)
               (consts.map (·.constInfo.name))) }
     for c in consts do
       if skipExisting && (kenv.find? c.constInfo.name).isSome then
@@ -2634,7 +2634,7 @@ deriving BEq, Hashable, TypeName
 /-- Realization results, to be replayed onto other branches. -/
 private structure RealizeConstResult where
   newConsts : VisibilityMap (List AsyncConst)
-  replayKernel : Kernel.Environment → Except Kernel.Exception Kernel.Environment
+  replayKernel : Kernel.Environment → Task (Except Kernel.Exception Kernel.Environment)
   dyn : Dynamic
 deriving Nonempty, TypeName
 
@@ -2670,13 +2670,22 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
     let exts ← EnvExtension.envExtensionsRef.get
     -- NOTE: We must ensure that `realizeEnv.localRealizationCtxMap` is not reachable via `res`
     -- (such as by storing `realizeEnv` or `realizeEnv'` in a field or the closure) as `res` will be
-    -- stored in a promise in there, creating a cycle. The closures stored in
-    -- `realizeEnv(').checked` should uphold this property as they are only concerned about the
-    -- kernel env but this cannot directly be enforced or checked except through the leak sanitizer
+    -- stored in a promise in there, creating a cycle. Thus we bind only the `checked` tasks below,
+    -- whose stored closures should uphold this property as they are only concerned about the
+    -- kernel env, but this cannot directly be enforced or checked except through the leak sanitizer
     -- CI build.
-    let replayKernel := replayConsts.replayKernel (skipExisting := true)
-      realizeEnv.checked realizeEnv'.checked exts newPrivateConsts
-    let res : RealizeConstResult := { newConsts.private := newPrivateConsts, newConsts.public := newPublicConsts, replayKernel, dyn }
+    let oldChecked := realizeEnv.checked
+    let newChecked := realizeEnv'.checked
+    let replayKernel := fun kenv =>
+      oldChecked.bind (sync := true) fun oldKEnv =>
+        newChecked.map fun newKEnv =>
+          replayConsts.replayKernel (skipExisting := true) oldKEnv newKEnv exts newPrivateConsts kenv
+    let res : RealizeConstResult := {
+      newConsts.private := newPrivateConsts
+      newConsts.public := newPublicConsts
+      replayKernel
+      dyn
+    }
     pure (.mk res)
   let some res := res.get? RealizeConstResult | unreachable!
   let exPromise ← IO.Promise.new
@@ -2693,12 +2702,12 @@ def realizeConst (env : Environment) (forConst : Name) (constName : Name)
         else
           consts.add c
     }
-    checked := (← BaseIO.mapTask (t := env.checked) fun kenv => do
-      match res.replayKernel kenv with
-      | .ok kenv => return kenv
-      | .error e =>
-        exPromise.resolve e
-        return kenv)
+    checked := (← BaseIO.bindTask (t := env.checked) (sync := true) fun kenv =>
+      BaseIO.mapTask (t := res.replayKernel kenv) fun
+        | .ok kenv' => return kenv'
+        | .error e => do
+          exPromise.resolve e
+          return kenv)
     allRealizations := env.allRealizations.map (sync := true) fun allRealizations =>
       res.newConsts.private.foldl (init := allRealizations) fun allRealizations c =>
         allRealizations.insert c.constInfo.name c

@@ -841,19 +841,9 @@ def find? (env : Environment) (n : Name) (skipRealize := false) : Option Constan
     return c
   env.findAsyncCore? n (skipRealize := skipRealize) |>.map (·.toConstantInfo)
 
-/-- Returns `true` iff `n` resolves, in `env`'s exported view, to a `def` with a value.
-
-Concretely this checks whether downstream modules can see a reducible body for `n`
-(an exposed definition or an `abbrev`). Returns `false` for theorems and opaque
-declarations (this uses `hasValue` with `allowOpaque := false`), axioms, inductives,
-constructors, recursors, declarations not in the environment, and `def`s whose body
-is sealed by the module system.
-
-Outside the module system, `setExporting true` is a no-op, so this collapses to
-"does `n` resolve to a `def` in the current environment?". Callers that instead
-want to *bypass* the body-exposed check entirely outside modules (e.g. for name-
-privacy decisions, where there is no sealing boundary anyway) should write that
-policy explicitly: `!env.header.isModule || env.hasExposedBody n`. -/
+/-- Checks if, in the public scope (`Environment.isExporting`), the given name refers to a
+definition with a visible body, i.e. `ConstantInfo.hasValue`. Recall that outside the module
+system, this is any definition. -/
 def hasExposedBody (env : Environment) (n : Name) : Bool :=
   env.setExporting true |>.find? n |>.any (·.hasValue)
 

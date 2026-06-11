@@ -146,18 +146,17 @@ partial def insertAux [BEq α] [Hashable α] : Node α β → USize → USize �
 def insert {_ : BEq α} {_ : Hashable α} : PersistentHashMap α β → α → β → PersistentHashMap α β
   | { root }, k, v => { root := insertAux root (hash k |>.toUSize) 1 k v }
 
-partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Option β :=
-  if h : i < keys.size then
-    let k' := keys[i]
-    have : i < vals.size := by rw [←heq]; assumption
-    if k == k' then some vals[i]
+partial def findAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : USize) (k : α) : Option β :=
+  if h : i < keys.usize then
+    let k' := keys[i]'sorry
+    if k == k' then some (vals[i]'sorry)
     else findAtAux keys vals heq (i+1) k
   else none
 
 partial def findAux [BEq α] : @&Node α β → USize → α → Option β
   | Node.entries entries, h, k =>
-    let j     := (mod2Shift h shift).toNat
-    match entries[j]! with
+    let j := mod2Shift h shift
+    match entries[j]'sorry with
     | Entry.null       => none
     | Entry.ref node   => findAux node (div2Shift h shift) k
     | Entry.entry k' v => if k == k' then some v else none
@@ -219,17 +218,17 @@ A more efficient `m.findEntry? a |>.map (·.1) |>.getD a₀`
 @[inline] def findKeyD {_ : BEq α} {_ : Hashable α} (m : PersistentHashMap α β) (a : α) (a₀ : α) : α :=
   findKeyDAux m.root (hash a |>.toUSize) a a₀
 
-partial def containsAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : Nat) (k : α) : Bool :=
-  if h : i < keys.size then
-    let k' := keys[i]
+partial def containsAtAux [BEq α] (keys : Array α) (vals : Array β) (heq : keys.size = vals.size) (i : USize) (k : α) : Bool :=
+  if h : i < keys.usize then
+    let k' := keys[i]'sorry
     if k == k' then true
     else containsAtAux keys vals heq (i+1) k
   else false
 
 partial def containsAux [BEq α] : Node α β → USize → α → Bool
   | Node.entries entries, h, k =>
-    let j     := (mod2Shift h shift).toNat
-    match entries[j]! with
+    let j := mod2Shift h shift
+    match entries[j]'sorry with
     | Entry.null       => false
     | Entry.ref node   => containsAux node (div2Shift h shift) k
     | Entry.entry k' _ => k == k'

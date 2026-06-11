@@ -6,6 +6,7 @@ Authors: Leonardo de Moura, Sebastian Ullrich
 module
 
 prelude
+import Init.System.Platform
 public import Lean.Language.Lean
 public import Lean.Server.References
 public import Lean.Util.Profiler
@@ -178,6 +179,21 @@ private def regionsToModuleArtifacts (regions : Array CompactedRegion) : Array M
       byBase := byBase.insert base (upd (byBase.getD base {}))
     return order.map (byBase[·]!)
 
+/--
+Reads all the regions of one module's `ModuleArtifacts`: the `.olean` variant chain (each variant
+read with only its prior siblings as deps) plus the `.ir` region (no deps, as in regular import).
+-/
+private unsafe def readModuleArtifactRegions (arts : ModuleArtifacts) :
+    IO (Array CompactedRegion) := do
+  let mut chainDeps : Array CompactedRegion := #[]
+  for partPath in arts.oleanParts do
+    let (_, region) ← CompactedRegion.read (α := ModuleData) partPath chainDeps
+    chainDeps := chainDeps.push region
+  if let some irPath := arts.ir? then
+    let (_, region) ← CompactedRegion.read (α := ModuleData) irPath #[]
+    chainDeps := chainDeps.push region
+  return chainDeps
+
 /-- Loads a snapshot saved by `--incr-(header-)save`. -/
 private unsafe def loadIncrSnapshot (fname : System.FilePath) :
     IO IncrSnapshot := do
@@ -186,19 +202,29 @@ private unsafe def loadIncrSnapshot (fname : System.FilePath) :
     match Json.parse (← IO.FS.readFile depsFile) >>= fromJson? with
     | .ok arts => pure arts
     | .error e => throw <| IO.userError s!"failed to parse snapshot deps file {depsFile}: {e}"
+  -- Modules are mutually independent (cross-module references go through the constant map, not
+  -- region pointers), so read them in parallel. Spawn exactly `numWorkers` striped tasks.
+  -- Parallelism overlaps each region's cold root-page fault I/O: for an `import Mathlib` snapshot,
+  -- sequential cold load is ~16 s, dropping to ~6 s at 4 workers. More workers help cold further
+  -- (~3 s at 32) but begin shifting the warm-cache case into a slower mode (`mmap` address-space
+  -- lock contention), so the default caps low to keep warm load time unchanged. Raise
+  -- `LEAN_IMPORT_WORKERS` to trade warm parity for faster cold loads.
+  let defaultNumWorkers := min (System.Platform.Internal.getHardwareConcurrency ()).toNat 4
+  let numWorkers := max 1 <|
+    ((← IO.getEnv "LEAN_IMPORT_WORKERS").bind (·.toNat?)).getD defaultNumWorkers
+  let mut chunkTasks := Array.emptyWithCapacity numWorkers
+  for w in 0...numWorkers do
+    -- worker `w` handles modules w, w+numWorkers, w+2·numWorkers, … (stripe for load balance)
+    chunkTasks := chunkTasks.push (← IO.asTask (do
+      let mut regions : Array CompactedRegion := #[]
+      let mut i := w
+      while i < moduleArts.size do
+        regions := regions ++ (← readModuleArtifactRegions moduleArts[i]!)
+        i := i + numWorkers
+      return regions))
   let mut depRegions : Array CompactedRegion := Array.emptyWithCapacity (moduleArts.size * 4)
-  for arts in moduleArts do
-    -- A module's `.olean` variants only point into the prior variants of the same module, so read
-    -- the chain with just its own siblings as deps.
-    let mut chainDeps : Array CompactedRegion := #[]
-    for partPath in arts.oleanParts do
-      let (_, region) ← CompactedRegion.read (α := ModuleData) partPath chainDeps
-      chainDeps := chainDeps.push region
-    depRegions := depRegions ++ chainDeps
-    -- IR regions carry no cross-region pointers (loaded with no deps in regular import).
-    if let some irPath := arts.ir? then
-      let (_, region) ← CompactedRegion.read (α := ModuleData) irPath #[]
-      depRegions := depRegions.push region
+  for t in chunkTasks do
+    depRegions := depRegions ++ (← IO.ofExcept t.get)
   -- The snapshot region itself references every loaded dep region.
   let (data, _region) ← CompactedRegion.read (α := IncrSnapshot) fname depRegions
   return data

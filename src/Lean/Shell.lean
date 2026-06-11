@@ -219,14 +219,10 @@ opaque Internal.getBelieverTrustLevel (_ : Unit) : UInt32
 def defaultTrustLevel : UInt32 :=
   Internal.getBelieverTrustLevel () + 1
 
-/-- Returns the platform's native concurrency limit. -/
-@[extern "lean_internal_get_hardware_concurrency"]
-opaque Internal.getHardwareCurrency (_ : Unit) : UInt32
-
 /-- Returns the default number of threads for the shell's task manager. -/
 def defaultNumThreads : UInt32 :=
   if Internal.isMultiThread () then
-    Internal.getHardwareCurrency ()
+    Platform.Internal.getHardwareConcurrency ()
   else 0
 
 structure ShellOptions where

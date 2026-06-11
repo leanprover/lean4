@@ -45,27 +45,6 @@ Benchmarks are also run as tests. Use the `TEST_BENCH` environment variable (uns
 
 See `tests/README.md` for the full benchmark writing guide.
 
-## Testing stage 2
-
-When requested to test stage 2, build it as follows:
-```
-make -C build/release stage2 -j$(nproc)
-```
-Stage 2 is *not* automatically invalidated by changes to `src/` which allows for faster iteration
-when fixing a specific file in the stage 2 build but for invalidating any files that already passed
-the stage 2 build as well as for final validation,
-```
-make -C build/release/stage2 clean-stdlib
-```
-must be run manually before building.
-
-To rebuild individual stage 2 modules without a full `make stage2`, use Lake directly:
-```
-cd build/release/stage2 && lake build Init.Prelude
-```
-
-To run tests in stage2, replace `-C build/release` from above with `-C build/release/stage2`.
-
 ## New features
 
 When asked to implement new features:
@@ -142,10 +121,6 @@ public import Lean.Compiler.NameMangling  -- public if types are used in public 
 ```
 
 Files outside these directories (e.g. `tests/`, `script/`) use just `module`.
-
-## CI Log Retrieval
-
-When CI jobs fail, investigate immediately - don't wait for other jobs to complete. Individual job logs are often available even while other jobs are still running. Try `gh run view <run-id> --log` or `gh run view <run-id> --log-failed`, or use `gh run view <run-id> --job=<job-id>` to target the specific failed job. Sleeping is fine when asked to monitor CI and no failures exist yet, but once any job fails, investigate that failure immediately.
 
 ## Copyright Headers
 

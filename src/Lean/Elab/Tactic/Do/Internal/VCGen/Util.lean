@@ -72,6 +72,10 @@ namespace VCGen
 open Sym Sym.Internal
 open Lean.Elab.Tactic.Do.Internal
 
+/-- `Grind.processHypotheses` if `Context.internalize` is `true`, otherwise a no-op. -/
+public def processHypotheses (goal : Grind.Goal) : VCGenM Grind.Goal := do
+  if (← read).internalize then Grind.processHypotheses goal else return goal
+
 public def simpTargetTelescope (mvarId : MVarId) : VCGenM (MVarId × Bool) := do
   let some methods := (← read).hypSimpMethods | return (mvarId, false)
   let target ← mvarId.getType
@@ -98,18 +102,6 @@ public def introsSimp (mvarId : MVarId) (errorMsg : MessageData) : VCGenM MVarId
     else
       throwError m!"Failed to intro on {mvarId}\nContext: {errorMsg}."
   | .goal _ mvarId' => return mvarId'
-
-/-- Internalize pending hypotheses into the E-graph for sharing before forking to multiple subgoals.
-If `processHypotheses` discovers a contradiction (`inconsistent = true`), the E-graph state
-contains stale proof data (the contradiction proof targets the parent's mvar, not the children's).
-In that case, restore the pre-internalization state so each child can discover the contradiction
-independently and construct its own proof via `closeGoal`.
--/
-public def PreTac.processHypotheses (preTac : PreTac) (goal : Grind.Goal) : VCGenM Grind.Goal := do
-  if preTac.isGrind then
-    Grind.processHypotheses goal
-  else
-    return goal
 
 /--
 Solves conjunctions whose leaves are `True` or `e₁ = e₂`, and returns a residual goal containing

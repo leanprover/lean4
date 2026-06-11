@@ -585,7 +585,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     · Invariant.withEarlyReturnNewDo
         (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
         (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
-  with (simp_all [-Classical.not_forall]; try grind)
+  all_goals simp_all [-Classical.not_forall]; try grind
 
 -- Labelled form: `| inv1 => …`.
 example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
@@ -596,7 +596,7 @@ example (p : Nat → Prop) [DecidablePred p] (n : Nat) :
     | inv1 => Invariant.withEarlyReturnNewDo
         (onReturn := fun ret _ => ⌜ret = false ∧ ¬ ∀ i < n, p i⌝)
         (onContinue := fun xs _ => ⌜∀ i, i ∈ xs.prefix → p i⌝)
-  with (simp_all [-Classical.not_forall]; try grind)
+  all_goals simp_all [-Classical.not_forall]; try grind
 
 end InvariantSyntaxTests
 
@@ -654,13 +654,13 @@ theorem foo_spec
     (x : Id Nat → Id Nat)
     (x_spec : ∀ (k : Id Nat) (_ : ⦃⌜True⌝⦄ k ⦃⇓r => ⌜r % 2 = 0⌝⦄), ⦃⌜True⌝⦄ x k ⦃⇓r => ⌜r % 2 = 0⌝⦄) :
     ⦃⌜True⌝⦄ foo x ⦃⇓r => ⌜r % 2 = 0⌝⦄ := by
-  mvcgen' [foo, x_spec] with grind
+  mvcgen' [foo, x_spec] with finish
 
 def bar (k : Id Nat) : Id Nat := do
   let r ← k
   if r > 30 then return 12 else return r
 
 example : ⦃⌜True⌝⦄ foo bar ⦃⇓r => ⌜r % 2 = 0⌝⦄ := by
-  mvcgen' [foo_spec, bar] with grind
+  mvcgen' [foo_spec, bar] with finish
 
 end LocalSpec

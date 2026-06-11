@@ -7,7 +7,7 @@ module
 
 prelude
 public import Std.Internal.Do.Triple.Basic
-public import Std.Internal.Do.Frame
+public import Std.Internal.Do.Order.Frame
 
 @[expose] public section
 

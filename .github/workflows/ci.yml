@@ -221,7 +221,7 @@ jobs:
 
       - name: Check self-hosted runner availability
         id: runner-fallback
-        uses: mikehardy/runner-fallback-action@v1
+        uses: mikehardy/runner-fallback-action@dc7732f9e532c451b2527b288ba8d58fd4b0a4ca # v1.1.0
         with:
           github-token: ${{ secrets.READ_RUNNERS_TOKEN }}
           primary-runner: self-hosted,chonk
@@ -232,7 +232,7 @@ jobs:
 
       - name: Configure build matrix
         id: set-matrix
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             const level = ${{ steps.set-level.outputs.check-level }};
@@ -455,7 +455,7 @@ jobs:
     if: ${{ !cancelled() }}
     steps:
       - if: ${{ contains(needs.*.result, 'failure') && github.repository == 'leanprover/lean4' && github.ref_name == 'master' }}
-        uses: zulip/github-actions-zulip/send-message@v1
+        uses: zulip/github-actions-zulip/send-message@bd8ec52de371d139ae8313661b7d8318c19266aa # v2.0.1
         with:
           api-key: ${{ secrets.ZULIP_BOT_KEY }}
           email: "github-actions-bot@lean-fro.zulipchat.com"
@@ -466,7 +466,7 @@ jobs:
           content: |
             A build of `${{ github.ref_name }}`, triggered by event `${{ github.event_name }}`, [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}).
       - if: contains(needs.*.result, 'failure')
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         with:
           script: |
             core.setFailed('Some jobs failed')
@@ -478,11 +478,11 @@ jobs:
     runs-on: ubuntu-latest
     needs: build
     steps:
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
       - name: Release
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           files: artifacts/*/*
           fail_on_unmatched_files: true
@@ -510,7 +510,7 @@ jobs:
           # Doesn't seem to be working when additionally fetching from lean4-nightly
           #filter: tree:0
           token: ${{ secrets.PUSH_NIGHTLY_TOKEN }}
-      - uses: actions/download-artifact@v7
+      - uses: actions/download-artifact@v8
         with:
           path: artifacts
       - name: Prepare Nightly Release
@@ -528,7 +528,7 @@ jobs:
           echo -e "\n*Full commit log*\n" >> diff.md
           git log --oneline "$last_tag"..HEAD | sed 's/^/* /' >> diff.md
       - name: Release Nightly
-        uses: softprops/action-gh-release@a06a81a03ee405af7f2048a818ed3f03bbf83c7b
+        uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
           body_path: diff.md
           prerelease: true
@@ -545,7 +545,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.RELEASE_INDEX_TOKEN }}
       - name: Generate mathlib nightly-testing app token
         id: mathlib-app-token
-        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3.0.0
+        uses: actions/create-github-app-token@v3
         continue-on-error: true
         with:
           app-id: ${{ secrets.MATHLIB_NIGHTLY_TESTING_APP_ID }}

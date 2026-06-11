@@ -20,9 +20,7 @@
    [{"trace":
      {"msg":
       {"append":
-       [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-        {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
-        {"tag": [{"expr": {"text": "root"}}, {"text": ""}]}]},
+       [{"text": "✅️ "}, {"tag": [{"expr": {"text": "root"}}, {"text": ""}]}]},
       "indent": 0,
       "collapsed": false,
       "cls": "Meta.debug",
@@ -32,8 +30,7 @@
          [{"trace":
            {"msg":
             {"append":
-             [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-              {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+             [{"text": "✅️ "},
               {"tag": [{"expr": {"text": "child1"}}, {"text": ""}]}]},
             "indent": 2,
             "collapsed": false,
@@ -69,8 +66,7 @@
          [{"trace":
            {"msg":
             {"append":
-             [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-              {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+             [{"text": "✅️ "},
               {"tag": [{"expr": {"text": "child2"}}, {"text": ""}]}]},
             "indent": 2,
             "collapsed": false,
@@ -98,8 +94,7 @@
          [{"trace":
            {"msg":
             {"append":
-             [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-              {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+             [{"text": "✅️ "},
               {"tag": [{"expr": {"text": "child3"}}, {"text": ""}]}]},
             "indent": 2,
             "collapsed": false,

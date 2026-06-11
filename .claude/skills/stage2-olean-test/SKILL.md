@@ -19,5 +19,4 @@ So: on a test failure, if the change depends on changed olean information, test 
 Building stage2 is expensive, so **confirm with the user before switching to a stage2 build.**
 
 For the actual build/test commands (`make stage2`, `clean-stdlib`, per-module Lake builds, and
-running tests against stage2), follow the **"Testing stage 2"** section in the project
-`.claude/CLAUDE.md`.
+running tests against stage2), use the **`stage2-build`** skill.

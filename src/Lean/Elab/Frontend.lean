@@ -137,6 +137,16 @@ def process (input : String) (env : Environment) (opts : Options) (fileName : Op
   pure (s.commandState.env, s.commandState.messages)
 
 /--
+Walks the snapshot tree, pairing each node's diagnostics with the syntax of the command that
+produced them.
+-/
+private partial def collectCommandLints (t : Language.SnapshotTree) (cmdStx? : Option Syntax)
+    (acc : Array (Option Syntax × MessageLog)) : Array (Option Syntax × MessageLog) :=
+  let acc := acc.push (cmdStx?, t.element.diagnostics.msgLog)
+  t.children.foldl (init := acc) fun acc child =>
+    collectCommandLints child.get (child.stx? <|> cmdStx?) acc
+
+/--
 On-disk wrapper for `--incr-(header-)save`: bundles the snapshot with the indices
 `runInitAttrsForModules` walks on load so we skip page-faulting dep-region `Name`s for modules
 without `[init]` work.
@@ -274,9 +284,8 @@ def runFrontend
 
   if let some oleanFileName := oleanFileName? then
     profileitIO ".olean serialization" finalOpts do
-      let allMessages := snaps.getAll.foldl
-        (init := (.empty : MessageLog)) (fun acc s => acc ++ s.diagnostics.msgLog)
-      let env ← Linter.recordLints env allMessages
+      let commandLints := collectCommandLints snaps none #[]
+      let env ← Linter.recordLints inputCtx.fileMap env commandLints
       writeModule (writeIR := !Compiler.compiler.postponeCompile.get finalOpts) env oleanFileName
 
   if let some ileanFileName := ileanFileName? then

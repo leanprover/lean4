@@ -33,9 +33,9 @@ and `Assertion EPred` for exception postconditions.
 
 ## Pre-defined instances
 
-* `WPMonad Id Prop EPost.nil` — pure computations.
+* `WPMonad Id Prop EPost.Nil` — pure computations.
 * `WPMonad (StateT σ m) (σ → Pred) EPred` — stateful computations.
-* `WPMonad (ExceptT ε m) Pred (EPost.cons (ε → Pred) EPred)` — computations with exceptions.
+* `WPMonad (ExceptT ε m) Pred (EPost.Cons (ε → Pred) EPred)` — computations with exceptions.
 * `WPMonad (ReaderT ρ m) (ρ → Pred) EPred` — reader computations.
 * `WPMonad (Except ε) Prop EPost⟨ε → Prop⟩` — concrete exception type.
 * `WPMonad (EStateM ε σ) (σ → Prop) (ε → σ → Prop)` — concrete error-state monad.
@@ -117,19 +117,19 @@ theorem wp_econs_bot (x : m α)
     wp x post ⊥ ⊑ wp x post epost := by
   solve_by_elim [wp_econs, bot_le]
 
-theorem wp_consequence_rel (x : m α)
+theorem wp_consequence_le (x : m α)
   (post post' : α → Pred) (epost : EPred) (h : post ⊑ post') {pre : Pred}
     (h' : pre ⊑ wp x post epost) :
     pre ⊑ wp x post' epost :=
   PartialOrder.rel_trans h' (wp_consequence x post post' epost h)
 
-theorem wp_econs_rel (x : m α)
+theorem wp_econs_le (x : m α)
   (post : α → Pred) (epost epost' : EPred) (h : epost ⊑ epost') {pre : Pred}
     (h' : pre ⊑ wp x post epost) :
     pre ⊑ wp x post epost' :=
   PartialOrder.rel_trans h' (wp_econs x post epost epost' h)
 
-theorem wp_econs_bot_rel (x : m α)
+theorem wp_econs_bot_le (x : m α)
   (post : α → Pred) (epost : EPred) {pre : Pred} (h : pre ⊑ wp x post ⊥) :
     pre ⊑ wp x post epost :=
   PartialOrder.rel_trans h (wp_econs_bot x post epost)
@@ -177,7 +177,7 @@ end WPMonad
 -/
 
 /-- `Id` is a WPMonad with `Prop` assertions and no exceptions. -/
-instance Id.instWPMonad : WPMonad Id.{u} Prop EPost.nil where
+instance Id.instWPMonad : WPMonad Id.{u} Prop EPost.Nil where
   wpTrans x := ⟨fun post _epost => post x⟩
   wp_trans_pure _x := PartialOrder.rel_refl
   wp_trans_bind _x _f := PartialOrder.rel_refl
@@ -186,13 +186,13 @@ instance Id.instWPMonad : WPMonad Id.{u} Prop EPost.nil where
 @[simp, grind =]
 theorem PredTrans.apply_pushExcept {α ε Pred EPred}
     (x : PredTrans Pred EPred (Except ε α)) (post : α → Pred)
-    (epost : EPost.cons (ε → Pred) EPred) :
+    (epost : EPost.Cons (ε → Pred) EPred) :
     (PredTrans.pushExcept x).apply post epost = x.apply (epost.pushExcept post) epost.tail := rfl
 
 /-- `ExceptT` lifts a `WPMonad` instance by adding an exception postcondition layer. -/
 instance ExceptT.instWPMonad {Pred : Type v}
   [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
-    WPMonad (ExceptT ε m) Pred (EPost.cons (ε → Pred) EPred) where
+    WPMonad (ExceptT ε m) Pred (EPost.Cons (ε → Pred) EPred) where
   wpTrans x := PredTrans.pushExcept (WPMonad.wpTrans x.run)
   wp_trans_pure x := fun post epost =>
     WPMonad.wp_pure (m := m) (Except.ok x) (epost.pushExcept post) epost.tail
@@ -221,13 +221,13 @@ instance ExceptT.instWPMonad {Pred : Type v}
 @[simp, grind =]
 theorem ExceptT.apply_wp {α ε Pred EPred}
   [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] (x : ExceptT ε m α)
-  (post : α → Pred) (epost : EPost.cons (ε → Pred) EPred) :
+  (post : α → Pred) (epost : EPost.Cons (ε → Pred) EPred) :
     wp x post epost = wp x.run (epost.pushExcept post) epost.tail := rfl
 
 /-- `OptionT` lifts a `WPMonad` instance by adding a `PUnit` exception postcondition layer. -/
 instance OptionT.instWPMonad {Pred : Type u}
   [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] :
-    WPMonad (OptionT m) Pred (EPost.cons Pred EPred) where
+    WPMonad (OptionT m) Pred (EPost.Cons Pred EPred) where
   wpTrans x := PredTrans.pushOption (WPMonad.wpTrans x.run)
   wp_trans_pure x := fun post epost =>
     WPMonad.wp_pure (m := m) (some x) (epost.pushOption post) epost.tail
@@ -252,7 +252,7 @@ instance OptionT.instWPMonad {Pred : Type u}
 @[simp, grind =]
 theorem OptionT.apply_wp {α : Type u} {Pred : Type u} {EPred}
   [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred] (x : OptionT m α)
-  (post : α → Pred) (epost : EPost.cons Pred EPred) :
+  (post : α → Pred) (epost : EPost.Cons Pred EPred) :
     wp x post epost = wp x.run (epost.pushOption post) epost.tail := rfl
 
 /-- `StateT` lifts a `WPMonad` instance by adding a state argument. -/
@@ -361,7 +361,7 @@ if `wp prog ...` holds, then a property `P` holds of the program's result.
 /-- Soundness for `Id`: if `wp prog P` holds, then `P` holds of the result. -/
 theorem Id.of_wp_run_eq {α : Type u} {x : α} {prog : Id α}
   (h : Id.run prog = x) (P : α → Prop)
-  (hwp : wp prog P EPost.nil.mk) : P x := by
+  (hwp : wp prog P EPost.Nil.mk) : P x := by
   rw [← h]
   exact hwp
 
@@ -377,21 +377,21 @@ theorem Option.of_wp_eq {α : Type u} {x prog : Option α}
 /-- Soundness for `StateM`: if `wp prog P s` holds, then `P` holds of `(prog.run s)`. -/
 theorem StateM.of_wp_run_eq {x : α × σ} {prog : StateM σ α} {s : σ}
   (h : StateT.run prog s = x) (P : α × σ → Prop)
-  (hwp : wp prog (fun a s' => P (a, s')) EPost.nil.mk s) : P x := by
+  (hwp : wp prog (fun a s' => P (a, s')) EPost.Nil.mk s) : P x := by
   rw [← h]
   exact hwp
 
 /-- Soundness for `StateM` (discarding final state). -/
 theorem StateM.of_wp_run'_eq {α σ : Type} {x : α} {prog : StateM σ α} {s : σ}
   (h : StateT.run' prog s = x) (P : α → Prop)
-  (hwp : wp prog (fun a _ => P a) EPost.nil.mk s) : P x := by
+  (hwp : wp prog (fun a _ => P a) EPost.Nil.mk s) : P x := by
   rw [← h]
   exact hwp
 
 /-- Soundness for `ReaderM`: if `wp prog P r` holds, then `P` holds of `(prog.run r)`. -/
 theorem ReaderM.of_wp_run_eq {α ρ : Type} {x : α} {prog : ReaderM ρ α} {r : ρ}
   (h : ReaderT.run prog r = x) (P : α → Prop)
-  (hwp : wp prog (fun a _ => P a) EPost.nil.mk r) : P x := by
+  (hwp : wp prog (fun a _ => P a) EPost.Nil.mk r) : P x := by
   rw [← h]
   exact hwp
 

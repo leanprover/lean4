@@ -6,7 +6,7 @@ Authors: Vladimir Gladshtein, Sebastian Graf
 module
 
 prelude
-public import Std.Internal.Do.Assertion
+public import Std.Internal.Do.Order.Basic
 
 public section
 
@@ -48,6 +48,15 @@ theorem himp_complete (x a b : α) : a ⊓ x ⊑ b → x ⊑ a ⇨ b := by
   exact le_sup (c := fun y : α => a ⊓ y ⊑ b) h
 
 /--
+`⊤`-specialized completeness direction: if `a ⊑ b`, then `⊤ ⊑ a ⇨ b`.
+
+This avoids the redundant `⊓ ⊤` that `himp_complete` would leave when the precondition is `⊤`.
+-/
+theorem himp_complete_top (a b : α) : a ⊑ b → (⊤ : α) ⊑ a ⇨ b := by
+  intro h
+  exact himp_complete ⊤ a b (PartialOrder.rel_trans (meet_le_left a ⊤) h)
+
+/--
 Soundness direction (`a ⊓ (a ⇨ b) ⊑ b`) from the frame distributivity law.
 -/
 theorem himp_sound [Frame α] (a b : α) : a ⊓ (a ⇨ b) ⊑ b := by
@@ -78,27 +87,45 @@ theorem himp_sound [Frame α] (a b : α) : a ⊓ (a ⇨ b) ⊑ b := by
       exact hax'.right hax'.left
     exact (himp_complete (x := (a → b)) (a := a) (b := b) hx) hab
 
+instance : Frame Prop where
+  meet_sup a s := by
+    have sup_eq_propSup (c : Prop → Prop) : CompleteLattice.sup c = propSup c := by
+      apply propext
+      constructor
+      · exact sup_le c (fun y hy hyTrue => ⟨y, hy, hyTrue⟩)
+      · intro ⟨y, hy, hyTrue⟩
+        exact le_sup (c := c) hy hyTrue
+    rw [sup_eq_propSup s, sup_eq_propSup (fun y => ∃ x, s x ∧ y = a ⊓ x)]
+    apply propext
+    simp only [propSup, meet_prop_eq_and]
+    constructor
+    · rintro ⟨ha, x, hsx, hx⟩
+      exact ⟨a ∧ x, ⟨x, hsx, rfl⟩, ha, hx⟩
+    · rintro ⟨p, ⟨x, hsx, hp_eq⟩, hp⟩
+      subst p
+      exact ⟨hp.1, x, hsx, hp.2⟩
+
 /-- Pointwise characterization of Heyting implication on function lattices. -/
-@[simp] theorem himp_fun_apply
+@[simp] theorem himp_apply
     {σ : Type v} {β : Type u} [CompleteLattice β]
     (a b : σ → β) (s : σ) :
     (a ⇨ b) s = (a s ⇨ b s) := by
   classical
   unfold himp
-  rw [sup_fun_apply]
+  rw [sup_apply]
   apply PartialOrder.rel_antisymm
   · apply sup_le
     intro y ⟨f, hf, hfs⟩
     rw [← hfs]
     have hsf : a s ⊓ f s ⊑ b s := by
-      simpa [meet_fun_apply] using (hf s)
+      simpa [meet_apply] using (hf s)
     exact le_sup (c := fun z : β => a s ⊓ z ⊑ b s) hsf
   · apply sup_le
     intro y hy
     let f : σ → β := fun t => if t = s then y else ⊥
     have hf : a ⊓ f ⊑ b := by
       intro t
-      simp only [meet_fun_apply, f]
+      simp only [meet_apply, f]
       split
       · next h => subst h; exact hy
       · exact PartialOrder.rel_trans (meet_le_right ..) (bot_le ..)

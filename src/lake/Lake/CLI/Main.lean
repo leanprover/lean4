@@ -342,6 +342,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
 -- Builtin lint options (using any of these implicitly enables --builtin-lint)
 | "--builtin-lint" => modifyThe LakeOptions ({· with runBuiltinLint := true})
 | "--builtin-only" => modifyThe LakeOptions ({· with runBuiltinLint := true, builtinOnly := true})
+| "--record-exceptions" =>
+  modifyThe LakeOptions ({· with runBuiltinLint := true, builtinLint.recordExceptions := true})
 | "--linters" => do
   let opts ← getThe LakeOptions
   if opts.builtinLint.lintOnly then
@@ -1014,7 +1016,7 @@ private def runBuiltinLint
   if mods.isEmpty then
     error "no modules specified and there are no applicable default targets"
   let args := opts.builtinLint
-  let args := {args with mods}
+  let args := {args with mods, srcSearchPath := ws.augmentedLeanSrcPath}
   let specs ← parseTargetSpecs ws (mods.map (s!"+{·}") |>.toList)
   let lintOpts := BuiltinLint.leanOptOverrides args
   let overrides : Lean.NameMap Lean.LeanOptions :=

@@ -41,12 +41,12 @@ set_option maxHeartbeats 10000000
     `(tactic| mvcgen') `(tactic| grind) [10]
   runBenchUsingTactic ``GetThrowSet.Goal [``GetThrowSet.loop, ``GetThrowSet.step]
     `(tactic| mvcgen') `(tactic| sorry) [10]
-  -- `mvcgen' with grind`: grind integrated into VCGen loop
+  -- `mvcgen' with finish`: grind integrated into VCGen loop
   runBenchUsingTactic ``GetThrowSet.Goal [``GetThrowSet.loop, ``GetThrowSet.step]
-    `(tactic| mvcgen' with grind) `(tactic| fail) [10]
-  -- `mvcgen' with grind` on AddSubCancel
+    `(tactic| mvcgen' with finish) `(tactic| fail) [10]
+  -- `mvcgen' with finish` on AddSubCancel
   runBenchUsingTactic ``AddSubCancel.Goal [``AddSubCancel.loop, ``AddSubCancel.step]
-    `(tactic| mvcgen' with grind) `(tactic| fail) [10]
+    `(tactic| mvcgen' with finish) `(tactic| fail) [10]
   runBenchUsingTactic ``PurePrecond.Goal [``PurePrecond.loop, ``PurePrecond.step]
     `(tactic| mvcgen') `(tactic| fail) [10]
   runBenchUsingTactic ``ReaderState.Goal [``ReaderState.loop, ``ReaderState.step]

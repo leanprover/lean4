@@ -283,6 +283,10 @@ OPTIONS:
                         Expands `linter.all` and linter sets. Uses the same
                         `<spec>` syntax as `--linters`; switching between
                         `--linters` and `--lint-only` replaces the prior spec
+  --record-exceptions   record each linter warning as a
+                        `set_option <linter> false in` exception by editing the
+                        offending source files in place, silencing the warning
+                        for that declaration. Implies `--builtin-lint`.
 
 A lint driver can be configured by either setting the `lintDriver` package
 configuration option or by tagging a script or executable `@[lint_driver]`.

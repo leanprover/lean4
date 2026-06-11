@@ -7,6 +7,7 @@ module
 
 prelude
 public import Std.Internal.Do.WP
+public import Std.Internal.Do.ExceptPost
 @[expose] public section
 
 set_option linter.missingDocs true
@@ -39,9 +40,23 @@ structure Triple [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EP
   rel_wp : pre ⊑ wp x post epost
 
 /-- Hoare triple notation without exception postcondition (defaults to `⊥`). -/
-scoped notation:60 "⦃ " pre " ⦄ " x " ⦃ " post " ⦄" => Triple pre x post ⊥
+scoped notation:60 "⦃ " pre " ⦄ " x " ⦃ " post " ⦄" => Triple pre x post Lean.Order.bot
 /-- Hoare triple notation with a binder for the return value. -/
-scoped notation:60 "⦃ " pre " ⦄ " x " ⦃ " v ", " post " ⦄" => Triple pre x (fun v => post) ⊥
+scoped notation:60 "⦃ " pre " ⦄ " x " ⦃ " v ", " post " ⦄" => Triple pre x (fun v => post) Lean.Order.bot
+/-- Hoare triple notation with explicit exception postconditions:
+`⦃ P ⦄ x ⦃ Q; E₁; … ⦄ := Triple P x Q epost⟨E₁, …⟩`. -/
+scoped syntax:60 (name := tripleEPost)
+  "⦃ " term " ⦄ " term " ⦃ " term "; " sepBy1(term, "; ") " ⦄" : term
+macro_rules (kind := tripleEPost)
+  | `(⦃ $P ⦄ $c ⦃ $Q; $Es;* ⦄) => `(Triple $P $c $Q epost⟨$Es,*⟩)
+
+/-- Pretty-print `Triple P c Q epost⟨E₁, …⟩` back as `⦃ P ⦄ c ⦃ Q; E₁; … ⦄`. -/
+@[app_unexpander Triple]
+meta def unexpandTripleEPost : Lean.PrettyPrinter.Unexpander
+  | `($(_) $P $c $Q epost⟨$Es,*⟩) =>
+    if Es.getElems.isEmpty then throw () else `(⦃ $P ⦄ $c ⦃ $Q; $Es;* ⦄)
+  | _ => throw ()
+
 namespace Triple
 
 variable [Monad m] [Assertion Pred] [Assertion EPred] [WPMonad m Pred EPred]

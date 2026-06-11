@@ -136,6 +136,7 @@ def logLint [Monad m] [MonadLog m] [AddMessageContext m] [MonadOptions m]
     (linterOption : Lean.Option Bool) (stx : Syntax) (msg : MessageData) : m Unit :=
   let disable := .note m!"This linter can be disabled with `set_option {linterOption.name} false`"
   logWarningAt stx <|
+    .ofOriginatingSyntax stx <|
     .tagged linterOption.name <|
     .tagged linterMessageTag m!"{msg}{disable}"
 

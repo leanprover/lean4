@@ -15,9 +15,10 @@ jobs:
 
     steps:
       - name: Retrieve information about the original workflow
-        uses: potiuk/get-workflow-origin@v1_1 # https://github.com/marketplace/actions/get-workflow-origin
+        uses: potiuk/get-workflow-origin@e2dae063368361e4cd1f510e8785cd73bca9352e # v1_5
         # This action is deprecated and archived, but it seems hard to find a
-        # better solution for getting the PR number
+        # better solution for getting the PR number. Also, it must not be
+        # updated to v1_6 because that release is broken!
         # see https://github.com/orgs/community/discussions/25220 for some discussion
         id: workflow-info
         with:
@@ -59,7 +60,7 @@ jobs:
       - name: Download toolchain for this commit
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
         id: download-toolchain
-        uses: dawidd6/action-download-artifact@v19
+        uses: dawidd6/action-download-artifact@b6e2e70617bc3265edd6dab6c906732b2f1ae151 # v21
         with:
           commit: ${{ steps.workflow-info.outputs.sourceHeadSha }}
           workflow: ci.yml
@@ -111,7 +112,7 @@ jobs:
       # material.
       - id: deploy-alias
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
-        uses: actions/github-script@v8
+        uses: actions/github-script@v9
         name: Compute Alias
         with:
           result-encoding: string
@@ -127,7 +128,7 @@ jobs:
       - name: Deploy to Netlify
         if: ${{ steps.should-run.outputs.should-run == 'true' }}
         id: deploy-draft
-        uses: nwtgck/actions-netlify@v3.0
+        uses: nwtgck/actions-netlify@d22a32a27c918fe470bbc562e984f80ec48c2668 # v4.0.0
         with:
           publish-dir: ${{ steps.build.outputs.out-path }}
           production-deploy: false
@@ -147,7 +148,7 @@ jobs:
       # https://github.com/nwtgck/actions-netlify/issues/545
       # We work around by using a comment to post the latest link
       - name: "Comment on PR with preview links"
-        uses: marocchino/sticky-pull-request-comment@v3
+        uses: marocchino/sticky-pull-request-comment@0ea0beb66eb9baf113663a64ec522f60e49231c0 # v3.0.4
         if: ${{ steps.should-run.outputs.should-run == 'true' && steps.workflow-info.outputs.pullRequestNumber != '' }}
         with:
           number: ${{ env.PR_NUMBER }}

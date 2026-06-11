@@ -206,6 +206,20 @@ static std::vector<region_view> extract_dep_regions(b_obj_arg odep_regions) {
     return result;
 }
 
+// True iff some dep region is currently mapped away from its saved `base_addr`, so a newly read
+// region's cross-region pointers into it would need relocation. Mirrors the per-dep test in
+// `region_reader::read()`'s fast path, reading the two relevant fields straight off the borrowed
+// `Array CompactedRegion` so the fast path can avoid building a `region_view` vector at all.
+static bool dep_regions_need_reloc(b_obj_arg odep_regions) {
+    size_t n = lean_array_size(odep_regions);
+    for (size_t i = 0; i < n; i++) {
+        b_obj_arg r = lean_array_get_core(odep_regions, i);
+        if (region_buffer(r) != reinterpret_cast<char *>(region_base_addr(r)))
+            return true;
+    }
+    return false;
+}
+
 // --- Lib table helpers for closure fn ptr relocation ---
 
 static void write_lib_table(std::ostream & out, std::vector<lib_info> const & libs) {
@@ -462,7 +476,6 @@ static object * mk_compacted_region(b_obj_arg ofname, b_obj_arg odep_regions, ob
 extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_obj_arg odep_regions, object *) {
     std::string olean_fn(lean_string_cstr(ofname));
     try {
-        std::vector<region_view> dep_regions = extract_dep_regions(odep_regions);
 #ifdef LEAN_WINDOWS
         HANDLE h_file = CreateFile(olean_fn.c_str(), GENERIC_READ, FILE_SHARE_READ | FILE_SHARE_DELETE, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
         if (h_file == INVALID_HANDLE_VALUE) {
@@ -596,6 +609,17 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
                 lib_relocs = read_lib_table_from_buffer(p);
             }
         }
+
+        // Defer extracting dep regions to the slow path. On the fast path -- this region landed at
+        // its saved address (`buffer == base_addr`, equivalent to the reader's `m_begin ==
+        // m_base_addr` test since the data-section offset cancels) and every dep did too --
+        // `region_reader::read()` skips the fixup walk and never sorts or searches the deps, so the
+        // owned `region_view` vector would be pure overhead. Because `--incr-load` re-passes a
+        // linearly growing `depRegions` array on each `CompactedRegion.read`, that overhead is
+        // O(N^2) across the chain. An empty `dep_regions` makes the reader take its fast path.
+        std::vector<region_view> dep_regions;
+        if (buffer != base_addr || dep_regions_need_reloc(odep_regions))
+            dep_regions = extract_dep_regions(odep_regions);
 
         region_reader reader(
             data_section_sz, buffer + data_section_off,

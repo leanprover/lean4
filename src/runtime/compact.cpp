@@ -529,6 +529,13 @@ region_reader::region_reader(size_t sz, void * data, void * base_addr,
     m_dep_regions(std::move(dep_regions)),
     m_lib_relocs(std::move(lib_relocs)),
     m_closure_offsets(std::move(closure_offsets)) {
+    // Sort + overlap validation are deferred to `sort_and_validate_dep_regions()`: needed only
+    // before the fixup walk; the fast path in `read()` skips both. Doing them eagerly here was
+    // an O(N log N) per construction over a `dep_regions` array that grows linearly across
+    // successive `CompactedRegion.read` calls (e.g. `--incr-load` chaining 9000+ dep oleans).
+}
+
+void region_reader::sort_and_validate_dep_regions() {
     // Sort dep regions by `base_addr` for binary search in `fix_object_ptr`
     std::sort(m_dep_regions.begin(), m_dep_regions.end(),
               [](region_view const & a, region_view const & b) { return a.base_addr < b.base_addr; });
@@ -657,8 +664,6 @@ object * region_reader::read() {
     if (m_next == m_end)
         return nullptr; /* all objects have been read */
 
-    object * root = fix_object_ptr(*static_cast<object_offset *>(m_next));
-    move(sizeof(object_offset));
     // Check if any closure fn ptr relocation is actually needed
     bool needs_fn_reloc = false;
     for (std::pair<size_t, ptrdiff_t> const & reloc : m_lib_relocs) {
@@ -684,22 +689,25 @@ object * region_reader::read() {
     }
 
     if (m_begin == m_base_addr) {
-        // Own-region pointers are already correct (this region landed at its saved address).
-        // But if any dep region missed its `base_addr`, cross-region pointers in this region
-        // still hold the dep's saved address and need fixup, so fall through to the walk in
-        // that case.
         bool needs_dep_reloc = false;
         for (region_view const & dep : m_dep_regions) {
             if (dep.begin != dep.base_addr) { needs_dep_reloc = true; break; }
         }
         if (!needs_dep_reloc) {
-            // Closure fn pointers (if any) were already patched via the offset list.
+            // Fast path: own pointers and all dep pointers are already correct, so the saved root
+            // pointer needs no fixup and the structural walk can be skipped entirely. This also
+            // lets us avoid sorting and validating `m_dep_regions` (the dominant cost when chaining
+            // many dep oleans into a single `region_reader`).
+            object * root = *static_cast<object_offset *>(m_next);
             m_end = m_next;
             return root;
         }
-        // Otherwise (needs_dep_reloc): fall through to full ctor walk. `fix_closure`
-        // ignores `m_fun` since it was already patched.
     }
+
+    // Slow path: dep-region fixup needed. Sort and validate dep regions now.
+    sort_and_validate_dep_regions();
+    object * root = fix_object_ptr(*static_cast<object_offset *>(m_next));
+    move(sizeof(object_offset));
 
     while (m_next < m_end) {
         object * curr = reinterpret_cast<object*>(m_next);

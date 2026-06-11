@@ -117,6 +117,7 @@ class LEAN_EXPORT region_reader {
     // Data-relative byte offsets of every closure's `m_fun` field. Used to patch fn
     // pointers on load without scanning the compacted region. Empty if no closures.
     std::vector<size_t> m_closure_offsets;
+    void sort_and_validate_dep_regions();
     void move(size_t d);
     void move(object * o);
     object * fix_object_ptr(object * o);

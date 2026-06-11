@@ -90,7 +90,7 @@ inductive Format where
   ```lean example
   open Std Format in
   def fmtList (l : List Format) : Format :=
-    let f := joinSep l  (", " ++ Format.line)
+    let f := joinSep l  ("," ++ Format.line)
     group (nest 1 <| "[" ++ f ++ "]")
   ```
 

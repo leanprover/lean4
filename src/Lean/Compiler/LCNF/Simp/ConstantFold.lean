@@ -546,14 +546,14 @@ def arithmeticFolders : List (Name × Folder) := [
   (``UInt16.lor, Folder.first #[Folder.mkBinary UInt16.lor, Folder.leftRightNeutral 0 UInt16.lor @UInt16.zero_or @UInt16.or_zero]),
   (``UInt32.lor, Folder.first #[Folder.mkBinary UInt32.lor, Folder.leftRightNeutral 0 UInt32.lor @UInt32.zero_or @UInt32.or_zero]),
   (``UInt64.lor, Folder.first #[Folder.mkBinary UInt64.lor, Folder.leftRightNeutral 0 UInt64.lor @UInt64.zero_or @UInt64.or_zero]),
-  (``USize.lor, Folder.first #[Folder.mkBinaryUSize UInt64.lor UInt32.lor, Folder.leftNeutralUSize 0 0]),
+  (``USize.lor, Folder.first #[Folder.mkBinaryUSize UInt64.lor UInt32.lor, Folder.leftRightNeutralUSize 0 0]),
 
   (``Nat.xor, Folder.first #[Folder.mkBinary Nat.xor, Folder.leftRightNeutral 0 Nat.xor]),
   (``UInt8.xor, Folder.first #[Folder.mkBinary UInt8.xor, Folder.leftRightNeutral 0 UInt8.xor @UInt8.zero_xor @UInt8.xor_zero]),
   (``UInt16.xor, Folder.first #[Folder.mkBinary UInt16.xor, Folder.leftRightNeutral 0 UInt16.xor @UInt16.zero_xor @UInt16.xor_zero]),
   (``UInt32.xor, Folder.first #[Folder.mkBinary UInt32.xor, Folder.leftRightNeutral 0 UInt32.xor @UInt32.zero_xor @UInt32.xor_zero]),
   (``UInt64.xor, Folder.first #[Folder.mkBinary UInt64.xor, Folder.leftRightNeutral 0 UInt64.xor @UInt64.zero_xor @UInt64.xor_zero]),
-  (``USize.xor, Folder.first #[Folder.mkBinaryUSize UInt64.xor UInt32.xor, Folder.leftNeutralUSize 0 0]),
+  (``USize.xor, Folder.first #[Folder.mkBinaryUSize UInt64.xor UInt32.xor, Folder.leftRightNeutralUSize 0 0]),
 
   (``Nat.pow, foldNatPow),
   (``Nat.nextPowerOfTwo, Folder.mkUnary Nat.nextPowerOfTwo),

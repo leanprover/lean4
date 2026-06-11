@@ -269,3 +269,135 @@ trace: [Compiler.saveMono] size: 1
 #guard_msgs in
 set_option trace.Compiler.saveMono true in
 def testUSizeToNatPos : Nat := USize.toNat 42
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def testLandPos : USize :=
+      let _x.1 := 8;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+public def testLandPos : USize :=
+  let x1 : USize := 12
+  let x2 : USize := 10
+  x1 &&& x2
+
+/--
+trace: [Compiler.saveMono] size: 3
+    def testLandNoOp : USize :=
+      let x1 := 4294967297;
+      let x2 := 4294967296;
+      let _x.1 := USize.land x1 x2;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+public def testLandNoOp : USize :=
+  let x1 : USize := 4294967297
+  let x2 : USize := 4294967296
+  x1 &&& x2
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def testLorPos : USize :=
+      let _x.1 := 14;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+public def testLorPos : USize :=
+  let x1 : USize := 12
+  let x2 : USize := 10
+  x1 ||| x2
+
+/--
+trace: [Compiler.saveMono] size: 3
+    def testLorNoOp : USize :=
+      let x1 := 4294967297;
+      let x2 := 4294967296;
+      let _x.1 := USize.lor x1 x2;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+public def testLorNoOp : USize :=
+  let x1 : USize := 4294967297
+  let x2 : USize := 4294967296
+  x1 ||| x2
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def testXorPos : USize :=
+      let _x.1 := 6;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+public def testXorPos : USize :=
+  let x1 : USize := 12
+  let x2 : USize := 10
+  x1 ^^^ x2
+
+/--
+trace: [Compiler.saveMono] size: 3
+    def testXorNoOp : USize :=
+      let x1 := 18446497783090249727;
+      let x2 := 1311784886829608959;
+      let _x.1 := USize.xor x1 x2;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+public def testXorNoOp : USize :=
+  let x1 : USize := 0xffff1fffff1fffff
+  let x2 : USize := 0x1234656789346fff
+  x1 ^^^ x2
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def testShiftLeftPos : USize :=
+      let _x.1 := 16;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+public def testShiftLeftPos : USize :=
+  let x1 : USize := 1
+  let x2 : USize := 4
+  x1 <<< x2
+
+/--
+trace: [Compiler.saveMono] size: 1
+    def testShiftRightPos : USize :=
+      let _x.1 := 16;
+      return _x.1
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+public def testShiftRightPos : USize :=
+  let x1 : USize := 64
+  let x2 : USize := 2
+  x1 >>> x2
+
+/--
+trace: [Compiler.saveMono] size: 2
+    def testMulShift x : USize :=
+      let _x.1 := 3;
+      let _x.2 := USize.shiftLeft x _x.1;
+      return _x.2
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+public def testMulShift (x : USize) : USize := x * 8
+
+/--
+trace: [Compiler.saveMono] size: 2
+    def testDivShift x : USize :=
+      let _x.1 := 3;
+      let _x.2 := USize.shiftRight x _x.1;
+      return _x.2
+-/
+#guard_msgs in
+set_option trace.Compiler.saveMono true in
+public def testDivShift (x : USize) : USize := x / 8

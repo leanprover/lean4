@@ -1,7 +1,4 @@
 4171.lean:203:9-203:25: warning: declaration uses `sorry`
-4171.lean:203:9-203:25: warning: declaration uses `sorry`
-4171.lean:203:9-203:25: warning: declaration uses `sorry`
-4171.lean:297:9-297:26: warning: declaration uses `sorry`
 4171.lean:297:9-297:26: warning: declaration uses `sorry`
 4171.lean:350:8-350:20: warning: declaration uses `sorry`
 4171.lean:354:8-354:20: warning: declaration uses `sorry`
@@ -10,18 +7,14 @@
 4171.lean:424:4-424:19: warning: declaration uses `sorry`
 4171.lean:462:4-462:12: warning: declaration uses `sorry`
 4171.lean:487:4-487:11: warning: declaration uses `sorry`
-4171.lean:487:4-487:11: warning: declaration uses `sorry`
 4171.lean:486:2-486:6: warning: declaration uses `sorry`
-4171.lean:507:0-507:8: warning: declaration uses `sorry`
 4171.lean:507:0-507:8: warning: declaration uses `sorry`
 4171.lean:515:8-515:11: warning: declaration uses `sorry`
 4171.lean:518:8-518:15: warning: declaration uses `sorry`
 4171.lean:521:8-521:17: warning: declaration uses `sorry`
 4171.lean:536:9-536:26: warning: declaration uses `sorry`
-4171.lean:536:9-536:26: warning: declaration uses `sorry`
 4171.lean:535:2-535:6: warning: declaration uses `sorry`
 4171.lean:565:9-565:20: warning: declaration uses `sorry`
-4171.lean:601:0-601:8: warning: declaration uses `sorry`
 4171.lean:601:0-601:8: warning: declaration uses `sorry`
 4171.lean:608:15-608:18: warning: declaration uses `sorry`
 4171.lean:620:4-620:27: warning: declaration uses `sorry`

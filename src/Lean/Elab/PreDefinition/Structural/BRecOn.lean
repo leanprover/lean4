@@ -123,11 +123,11 @@ partial def toBelow (below : Expr) (numIndParams : Nat) (positions : Positions) 
       toBelowAux Cs[fnIndex]! belowDict recArg below
 
 private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions : Positions)
-    (below : Expr) (e : Expr) : M Expr :=
+    (below : Expr) (e : Expr) : MetaM Expr :=
   let recFnNames := recArgInfos.map (·.fnName)
-  let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) M Bool :=
+  let containsRecFn (e : Expr) : StateRefT (HasConstCache recFnNames) MetaM Bool :=
     modifyGet (HasConstCache.contains e |>.run ·)
-  let rec loop (below : Expr) (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr := do
+  let rec loop (below : Expr) (e : Expr) : StateRefT (HasConstCache recFnNames) MetaM Expr := do
     if !(← containsRecFn e) then
       return e
     match e with
@@ -147,7 +147,7 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
         return mkMData d (← loop below b)
     | Expr.proj n i e => return mkProj n i (← loop below e)
     | Expr.app _ _ =>
-      let processApp (e : Expr) : StateRefT (HasConstCache recFnNames) M Expr :=
+      let processApp (e : Expr) : StateRefT (HasConstCache recFnNames) MetaM Expr :=
         e.withApp fun f args => do
           if let .some fnIdx := recArgInfos.findFinIdx? (f.isConstOf ·.fnName) then
             let recArgInfo := recArgInfos[fnIdx]
@@ -208,10 +208,11 @@ private partial def replaceRecApps (recArgInfos : Array RecArgInfo) (positions :
 /--
 Calculates the `.brecOn` motive corresponding to one structural recursive function.
 The `value` is the function with (only) the fixed parameters moved into the context.
+The `type` is the corresponding function type with (only) the fixed parameters instantiated.
 -/
-def mkBRecOnMotive (recArgInfo : RecArgInfo) (value : Expr) : M Expr := do
-  lambdaTelescope value fun xs value => do
-    let type  := (← inferType value).headBeta
+def mkBRecOnMotive (recArgInfo : RecArgInfo) (value : Expr) (type : Expr) : MetaM Expr := do
+  lambdaTelescope value fun xs _value => do
+    let type ← instantiateForall type xs
     let (indexMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
     let motive ← mkForallFVars otherArgs type
     mkLambdaFVars indexMajorArgs motive
@@ -224,7 +225,7 @@ The `recArgInfos` is used to transform the body of the function to replace recur
 uses of the `below` induction hypothesis.
 -/
 def mkBRecOnF (recArgInfos : Array RecArgInfo) (positions : Positions)
-    (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) : M Expr := do
+    (recArgInfo : RecArgInfo) (value : Expr) (FType : Expr) : MetaM Expr := do
   lambdaTelescope value fun xs value => do
     let (indicesMajorArgs, otherArgs) := recArgInfo.pickIndicesMajor xs
     let FType ← instantiateForall FType indicesMajorArgs

@@ -1,5 +1,4 @@
 import Std
-set_option cbv.warning false
 
 -- String append
 theorem testAppend : "abc" ++ "def" = "abcdef" := by cbv

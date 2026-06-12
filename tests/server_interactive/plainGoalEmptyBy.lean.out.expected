@@ -1,0 +1,12 @@
+{"textDocument": {"uri": "file:///plainGoalEmptyBy.lean"},
+ "position": {"line": 1, "character": 18}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///plainGoalEmptyBy.lean"},
+ "position": {"line": 3, "character": 2}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///plainGoalEmptyBy.lean"},
+ "position": {"line": 5, "character": 0}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}
+{"textDocument": {"uri": "file:///plainGoalEmptyBy.lean"},
+ "position": {"line": 11, "character": 0}}
+{"rendered": "```lean\n⊢ True\n```", "goals": ["⊢ True"]}

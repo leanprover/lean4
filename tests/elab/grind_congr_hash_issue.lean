@@ -24,3 +24,9 @@ example
       a = b →
       x = y := by
   grind
+
+-- funCC congruence: `h a` and `k` are in the same equivalence class as functions,
+-- so `h a b c = k b c` should follow.
+example (h : Nat → Nat → Nat → Nat) (k : Nat → Nat → Nat)
+    : h a = k → h a b c = k b c := by
+  grind

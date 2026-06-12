@@ -1,5 +1,3 @@
-set_option cbv.warning false
-
 -- Default limit works on a normal computation
 example : (List.replicate 10 1).length = 10 := by cbv
 

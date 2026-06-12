@@ -1,5 +1,4 @@
 import Std
-set_option cbv.warning false
 
 -- Basic test: inverted cbv_eval attribute
 -- The theorem `42 = myConst` with ← becomes `myConst = 42`

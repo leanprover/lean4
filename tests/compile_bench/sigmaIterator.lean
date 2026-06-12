@@ -164,10 +164,10 @@ def f._at_.g.spec_0._redArg _x.1 _x.2 _x.3 it : Nat :=
 ...
 ```
 -/
-def g : Nat := Id.run do
-  (*...30000000).iter.filter (fun _ => True)
+def g (n : Nat) : Nat := Id.run do
+  (*...n).iter.filter (fun _ => True)
     |>.sigma (α := fun _ => _) (param := 0)
     |> f (acc := 0)
 
-def main : IO Unit :=
-  IO.println g
+def main (args : List String) : IO Unit :=
+  IO.println (g args[0]!.toNat!)

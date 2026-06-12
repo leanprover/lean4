@@ -39,18 +39,16 @@ lean_object* v_val_31_;
 lean_dec(v_declName_2_);
 v_val_31_ = lean_ctor_get(v___x_30_, 0);
 lean_inc(v_val_31_);
-lean_dec_ref(v___x_30_);
+lean_dec_ref_known(v___x_30_, 1);
 v___y_6_ = v_val_31_;
 goto v___jp_5_;
 }
 v___jp_5_:
 {
 lean_object* v_exts_7_; lean_object* v_spellings_8_; lean_object* v___x_9_; 
-lean_inc(v___y_6_);
-lean_inc_ref(v_env_1_);
+lean_inc_n(v___y_6_, 2);
+lean_inc_ref_n(v_env_1_, 2);
 v_exts_7_ = l_Lean_Parser_Tactic_Doc_getTacticExtensionString(v_env_1_, v___y_6_);
-lean_inc(v___y_6_);
-lean_inc_ref(v_env_1_);
 v_spellings_8_ = l_Lean_Parser_Term_Doc_getRecommendedSpellingString(v_env_1_, v___y_6_);
 v___x_9_ = l_Lean_findSimpleDocString_x3f(v_env_1_, v___y_6_, v_includeBuiltin_3_);
 if (lean_obj_tag(v___x_9_) == 0)

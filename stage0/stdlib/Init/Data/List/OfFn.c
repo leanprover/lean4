@@ -120,8 +120,7 @@ lean_object* v_toApplicative_47_; lean_object* v_toFunctor_48_; lean_object* v_m
 v_toApplicative_47_ = lean_ctor_get(v_inst_45_, 0);
 v_toFunctor_48_ = lean_ctor_get(v_toApplicative_47_, 0);
 v_map_49_ = lean_ctor_get(v_toFunctor_48_, 0);
-lean_inc(v_map_49_);
-lean_inc(v_map_49_);
+lean_inc_n(v_map_49_, 2);
 v___f_50_ = lean_alloc_closure((void*)(l_List_ofFnM___redArg___lam__1), 4, 2);
 lean_closure_set(v___f_50_, 0, v_f_46_);
 lean_closure_set(v___f_50_, 1, v_map_49_);

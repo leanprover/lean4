@@ -31,6 +31,8 @@ info: go1.induct (ss : Int) (motive : St → Prop)
       have st1 := { m := x.m, map := x.map.insert };
       st1.map.get? ss = none → motive x)
   (st0 : St) : motive st0
+---
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #check go1.induct
@@ -58,6 +60,8 @@ info: go2.induct : ∀ (motive : St → Prop),
       have st1 := { m := x.m, map := x.map.insert };
       motive st1 → motive x) →
     ∀ (st0 : St), motive st0
+---
+warning: declaration uses `sorry`
 -/
 #guard_msgs in
 #check @go2.induct

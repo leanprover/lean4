@@ -1,5 +1,5 @@
 module
-import Lean.Meta.Tactic.Grind.Arith.CommRing.Poly
+import Lean.Meta.Sym.Arith.Poly
 open Lean.Grind.CommRing
 
 def w : Expr := .var 0
@@ -44,22 +44,3 @@ example : check_spoly (2*x + 3) (3*z + 1) (9*z - 2*x) := by native_decide
 example : check_spoly (2*y^2 - x + 1) (2*x*y - 1 + y) (-x^2 + y + x - y^2) := by native_decide
 example : check_spoly (2*y^2 - x + 1) (4*x*y - 1 + y) (-2*x^2 + y + 2*x - y^2) := by native_decide
 example : check_spoly (6*y^2 - x + 1) (4*x*y - 1 + y) (-2*x^2 + 3*y + 2*x - 3*y^2) := by native_decide
-
-def simp? (p₁ p₂ : Poly) : Option Poly :=
-  (·.p) <$> p₁.simp? p₂
-
-partial def simp' (p₁ p₂ : Poly) : Poly :=
-  if let some r := p₁.simp? p₂ then
-    assert! r.p == (p₂.mulMon r.k₂ r.m₂).combine (p₁.mulConst r.k₁)
-    simp' r.p p₂
-  else
-    p₁
-
-def check_simp' (e₁ e₂ r : Expr) : Bool :=
-  r.toPoly == simp' e₁.toPoly e₂.toPoly
-
-example : check_simp' (x^2*y - 1) (x*y - y) (y - 1) := by native_decide
-example : check_simp' (x^2 + x + 1) (2*x + 1) 3 := by native_decide
-example : check_simp' (3*x^2 + x + y + 1) (2*x + 1) (4*y + 5) := by native_decide
-example : check_simp' (3*x^2 + x + y + 1) (2*x + y) (3*y^2 + 2*y + 4) := by native_decide
-example : check_simp' (z^4 + w^3 + x^2 + x + 1) (2*x + 1) (4*z^4 + 4*w^3 + 3) := by native_decide

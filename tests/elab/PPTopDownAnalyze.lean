@@ -55,7 +55,7 @@ syntax (name := testDelabTDN) "#testDelabN " ident : command
     let name := name.getId
     let [name] ← resolveGlobalConst (mkIdent name) | throwError "cannot resolve name"
     let some cInfo := (← getEnv).find? name | throwError "no decl for name"
-    let some value ← pure cInfo.value? | throwError "decl has no value"
+    let some value ← pure (cInfo.value? (allowOpaque := true)) | throwError "decl has no value"
     modify fun s => { s with levelNames := cInfo.levelParams }
     withTheReader Core.Context (fun ctx => { ctx with currNamespace := name.getPrefix, openDecls := [] }) do
       checkDelab value none (some name)

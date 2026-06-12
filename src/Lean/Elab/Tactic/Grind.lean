@@ -15,3 +15,10 @@ public import Lean.Elab.Tactic.Grind.Config
 public import Lean.Elab.Tactic.Grind.Lint
 public import Lean.Elab.Tactic.Grind.LintExceptions
 public import Lean.Elab.Tactic.Grind.Annotated
+public import Lean.Elab.Tactic.Grind.Sym
+public import Lean.Elab.Tactic.Grind.SimprocDSL
+public import Lean.Elab.Tactic.Grind.SimprocDSLBuiltin
+public import Lean.Elab.Tactic.Grind.RegisterSymSimp
+public import Lean.Elab.Tactic.Grind.DSimprocDSL
+public import Lean.Elab.Tactic.Grind.DSimprocDSLBuiltin
+public import Lean.Elab.Tactic.Grind.RegisterSymDSimp

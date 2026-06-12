@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 uint8_t l___private_Lean_Data_Name_0__Lean_Name_quickCmpImpl(lean_object*, lean_object*);
 lean_object* l_Lean_mkMVar(lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 uint8_t l_Lean_Expr_hasMVar(lean_object*);
 lean_object* lean_replace_expr(lean_object*, lean_object*);
 lean_object* l_Std_DTreeMap_Internal_Impl_insert___at___00Lean_MVarIdSet_insert_spec__1___redArg(lean_object*, lean_object*, lean_object*);
@@ -163,7 +163,7 @@ _start:
 {
 lean_object* v___x_36_; lean_object* v___x_37_; 
 v___x_36_ = lean_box(0);
-v___x_37_ = lean_panic_fn(v___x_36_, v_msg_35_);
+v___x_37_ = lean_panic_fn_borrowed(v___x_36_, v_msg_35_);
 return v___x_37_;
 }
 }
@@ -197,7 +197,7 @@ else
 lean_object* v_val_52_; 
 v_val_52_ = lean_ctor_get(v___x_49_, 0);
 lean_inc(v_val_52_);
-lean_dec_ref(v___x_49_);
+lean_dec_ref_known(v___x_49_, 1);
 return v_val_52_;
 }
 }
@@ -238,7 +238,7 @@ return v___x_64_;
 else
 {
 lean_object* v_val_65_; lean_object* v___x_67_; uint8_t v_isShared_68_; uint8_t v_isSharedCheck_73_; 
-lean_dec_ref(v_e_61_);
+lean_dec_ref_known(v_e_61_, 1);
 v_val_65_ = lean_ctor_get(v___x_63_, 0);
 v_isSharedCheck_73_ = !lean_is_exclusive(v___x_63_);
 if (v_isSharedCheck_73_ == 0)

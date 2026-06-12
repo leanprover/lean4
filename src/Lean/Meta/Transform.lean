@@ -50,6 +50,7 @@ partial def transform {m} [Monad m] [MonadLiftT CoreM m] [MonadControlT CoreM m]
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := CoreM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Core.withIncRecDepth do
+      Core.checkSystem "transform"
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match (← post e) with
         | .done e      => pure e
@@ -107,6 +108,7 @@ partial def transformWithCache {m} [Monad m] [MonadLiftT MetaM m] [MonadControlT
   let _ : MonadLiftT (ST IO.RealWorld) m := { monadLift := fun x => liftM (m := MetaM) (liftM (m := ST IO.RealWorld) x) }
   let rec visit (e : Expr) : MonadCacheT ExprStructEq Expr m Expr :=
     checkCache { val := e : ExprStructEq } fun _ => Meta.withIncRecDepth do
+      (Core.checkSystem "transform" : MetaM Unit)
       let rec visitPost (e : Expr) : MonadCacheT ExprStructEq Expr m Expr := do
         match (← post e) with
         | .done e      => pure e
@@ -240,8 +242,8 @@ def unfoldDeclsFrom (biggerEnv : Environment) (e : Expr) : CoreM Expr := do
       if env.contains declName then
         return .done e
       let some info := biggerEnv.find? declName | return .done e
-      if info.hasValue then
-        return .visit (← instantiateValueLevelParams info us)
+      if info.hasValue (allowOpaque := true) then
+        return .visit (← instantiateValueLevelParams info us (allowOpaque := true))
       else
         return .done e
     Core.transform e (pre := pre)
@@ -282,7 +284,7 @@ def unfoldIfArgIsAppOf (fnNames : Array Name) (numSectionVars : Nat) (e : Expr) 
         -/
         if revArgs.any isInterestingArg then
           if let some info@(.thmInfo _) := env.find? f.constName! then
-            return .visit <| (← instantiateValueLevelParams info f.constLevels!).betaRev revArgs
+            return .visit <| (← instantiateValueLevelParams info f.constLevels! (allowOpaque := true)).betaRev revArgs
       return .continue)
   where
     isInterestingArg (a : Expr) : Bool := a.withApp fun af axs =>

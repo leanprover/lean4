@@ -521,9 +521,6 @@ theorem Perm.eq_of_pairwise : ∀ {l₁ l₂ : List α}
       h₁.tail h₂.tail h
     simp_all
 
-@[deprecated Perm.eq_of_pairwise (since := "2025-10-23")]
-abbrev Perm.eq_of_sorted := @Perm.eq_of_pairwise
-
 theorem Nodup.perm {l l' : List α} (hR : l.Nodup) (hl : l ~ l') : l'.Nodup :=
   Pairwise.perm hR hl (by intro x y h h'; simp_all)
 
@@ -606,6 +603,13 @@ theorem sum_nat {l₁ l₂ : List Nat} (h : l₁ ~ l₂) : l₁.sum = l₂.sum :
   | swap => simpa [List.sum_cons] using Nat.add_left_comm ..
   | trans _ _ ih₁ ih₂ => simp [ih₁, ih₂]
 
+theorem prod_nat {l₁ l₂ : List Nat} (h : l₁ ~ l₂) : l₁.prod = l₂.prod := by
+  induction h with
+  | nil => simp
+  | cons _ _ ih => simp [ih]
+  | swap => simpa [List.prod_cons] using Nat.mul_left_comm ..
+  | trans _ _ ih₁ ih₂ => simp [ih₁, ih₂]
+
 theorem all_eq {l₁ l₂ : List α} {f : α → Bool} (hp : l₁.Perm l₂) : l₁.all f = l₂.all f := by
   rw [Bool.eq_iff_iff]; simp [hp.mem_iff]
 
@@ -614,6 +618,9 @@ theorem any_eq {l₁ l₂ : List α} {f : α → Bool} (hp : l₁.Perm l₂) : l
 
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₁.sum
 grind_pattern Perm.sum_nat => l₁ ~ l₂, l₂.sum
+
+grind_pattern Perm.prod_nat => l₁ ~ l₂, l₁.prod
+grind_pattern Perm.prod_nat => l₁ ~ l₂, l₂.prod
 
 end Perm
 

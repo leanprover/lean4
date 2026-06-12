@@ -34,8 +34,6 @@ warning: declaration uses `sorry`
 warning: declaration uses `sorry`
 ---
 warning: declaration uses `sorry`
----
-warning: declaration uses `sorry`
 -/
 #guard_msgs in
 def bar (distance : Nat) (idx : Nat) (a : Fin distance) (fuel : Nat) :

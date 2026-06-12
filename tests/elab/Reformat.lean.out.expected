@@ -45,7 +45,7 @@ def inferInstance {α : Type u} [i : α] : α :=
   i
 
 @[reducible]
-def inferInstanceAs (α : Type u) [i : α] : α :=
+def «inferInstanceAs» (α : Type u) [i : α] : α :=
   i
 
 set_option bootstrap.inductiveCheckResultingUniverse false in

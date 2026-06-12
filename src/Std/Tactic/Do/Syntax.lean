@@ -9,6 +9,7 @@ prelude
 public import Std.Do
 public import Std.Tactic.Do.ProofMode -- For (meta) importing `mgoalStx`; otherwise users might experience
 public import Init.Data.Array.GetLit
+public import Init.Grind.Interactive
                                       -- a broken goal view due to the builtin delaborator for `MGoalEntails`
 
 @[expose] public section
@@ -45,6 +46,28 @@ structure Config where
   This is helpful for bisecting bugs in `mvcgen` and tracing its execution.
   -/
   stepLimit : Option Nat := none
+  /--
+  If `true` (the default), report a hard error when no `@[spec]` theorem matches the
+  current program head. If `false`, leave such goals as unsolved VCs for the user to
+  discharge manually. This is the behaviour that `mvcgen` exhibits implicitly;
+  the new prototypical `mvcgen'` opts into it via `(errorOnMissingSpec := false)`.
+  -/
+  errorOnMissingSpec : Bool := true
+  /--
+  If `true`, `mvcgen'` checks failed `BackwardRule.apply` calls by retrying after
+  `unfoldReducible`-normalizing the goal. If the rule then succeeds, an earlier step
+  forgot a normalization; `mvcgen'` raises a hard error pointing at the offending
+  rule and the missing reduction. Off by default; only consulted by `mvcgen'`.
+  -/
+  debug : Bool := false
+  /--
+  If `true` (the default in grind mode), `mvcgen'` calls `Grind.processHypotheses` on
+  each emitted VC, internalising local hypotheses into the parent's E-graph so that
+  downstream grind steps share context. The tactic-level entry point disables this
+  when there is no `with` clause (no grind step will consume the E-graph anyway).
+  Ignored by `mvcgen`.
+  -/
+  internalize : Bool := true
 end Lean.Elab.Tactic.Do.VCGen
 
 namespace Lean.Parser
@@ -364,29 +387,14 @@ macro "mvcgen_trivial" : tactic =>
   )
 
 /--
-A goal section alternative of the form `· term`, one per goal.
-Used by both `invariants` and `witnesses` sections.
+An invariant alternative of the form `· term`, one per invariant goal.
 -/
-syntax goalDotAlt := ppDedent(ppLine) cdotTk (colGe term)
+syntax invariantDotAlt := ppDedent(ppLine) cdotTk (colGe term)
 
 /--
-A goal section alternative of the form `| label<n> a b c => term`, one per goal.
-Used by both `invariants` and `witnesses` sections.
+An invariant alternative of the form `| inv<n> a b c => term`, one per invariant goal.
 -/
-syntax goalCaseAlt := ppDedent(ppLine) "| " caseArg " => " (colGe term)
-
-/--
-The contextual keyword ` witnesses `.
--/
-syntax witnessesKW := &"witnesses "
-
-/--
-After `mvcgen [...]`, there can be an optional `witnesses` followed by either
-* a bulleted list of witnesses `· term; · term`.
-* a labelled list of witnesses `| witness1 => term; witness2 a b c => term`, which is useful for
-  naming inaccessibles.
--/
-syntax witnessAlts := witnessesKW withPosition((colGe (goalDotAlt <|> goalCaseAlt))*)
+syntax invariantCaseAlt := ppDedent(ppLine) "| " caseArg " => " (colGe term)
 
 /--
 Either the contextual keyword ` invariants ` or its tracing form ` invariants? ` which suggests
@@ -395,14 +403,14 @@ skeletons for missing invariants as a hint.
 syntax invariantsKW := &"invariants " <|> &"invariants? "
 
 /--
-After `mvcgen [...] witnesses ...`, there can be an optional `invariants` followed by either
+After `mvcgen [...]`, there can be an optional `invariants` followed by either
 * a bulleted list of invariants `· term; · term`.
 * a labelled list of invariants `| inv1 => term; inv2 a b c => term`, which is useful for naming
   inaccessibles.
 The tracing variant ` invariants? ` will suggest a skeleton for missing invariants; see the
 docstring for `mvcgen`.
 -/
-syntax invariantAlts := invariantsKW withPosition((colGe (goalDotAlt <|> goalCaseAlt))*)
+syntax invariantAlts := invariantsKW withPosition((colGe (invariantDotAlt <|> invariantCaseAlt))*)
 
 /--
 In induction alternative, which can have 1 or more cases on the left
@@ -419,10 +427,37 @@ syntax vcAlts := "with " (ppSpace colGt tactic)? withPosition((colGe vcAlt)*)
 @[tactic_alt Lean.Parser.Tactic.mvcgenMacro]
 syntax (name := mvcgen) "mvcgen" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
-  (witnessAlts)? (invariantAlts)? (vcAlts)? : tactic
+  (invariantAlts)? (vcAlts)? : tactic
 
 /--
 A hint tactic that expands to `mvcgen invariants?`.
 -/
 syntax (name := mvcgenHint) "mvcgen?" optConfig
   (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")? : tactic
+
+-- Prototypical Sym-based variant of `mvcgen`; see `mvcgen` for documentation.
+-- Same surface syntax modulo `vcAlts`, replaced by `simplifying_assumptions … with …`.
+-- The optional `with $g` form is sugar for `sym => mvcgen' … <;> $g`: it enters grind
+-- mode to share the internalised goal context with the user-supplied grind step (the only
+-- way to do so from tactic mode). `$g` is a single grind-mode step, so passing a
+-- multi-step sequence requires explicit grouping (e.g. `with (s₁; s₂)`).
+@[tactic_alt Lean.Parser.Tactic.mvcgen'Macro]
+syntax (name := mvcgen') "mvcgen'" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (&" until " term)?
+  (invariantAlts)?
+  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
+  (&" with " grind)? : tactic
+
+namespace Grind
+
+/-- `mvcgen'` step for `sym => …` blocks. No `with` clause: compose with subsequent grind
+steps using `<;>` instead. -/
+syntax (name := mvcgen') "mvcgen'" optConfig
+  (" [" withoutPosition((simpStar <|> simpErase <|> simpLemma),*,?) "] ")?
+  (&" until " term)?
+  (invariantAlts)?
+  (&" simplifying_assumptions" (ppSpace colGt ident)? (" [" ident,* "]")?)?
+  : grind
+
+end Grind

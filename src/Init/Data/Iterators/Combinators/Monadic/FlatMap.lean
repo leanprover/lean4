@@ -301,7 +301,6 @@ def Flatten.instFinitenessRelation [Monad m] [Iterator α m (IterM (α := α₂)
     case innerDone =>
       apply Flatten.rel_of_right₂
 
-@[no_expose]
 public instance Flatten.instFinite [Monad m] [Iterator α m (IterM (α := α₂) m β)] [Iterator α₂ m β]
     [Finite α m] [Finite α₂ m] : Finite (Flatten α α₂ β m) m :=
   .of_finitenessRelation instFinitenessRelation

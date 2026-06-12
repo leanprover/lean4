@@ -93,7 +93,7 @@ where
     match type with
     | .forallE _ d b _ =>
       let d := d.instantiateRev xs
-      let p ← mkAuxParam d
+      let p ← mkAuxParam d (isMarkedBorrowed d)
       go b (xs.push (.fvar p.fvarId)) (ps.push p)
     | _ =>
       let type := type.instantiateRev xs

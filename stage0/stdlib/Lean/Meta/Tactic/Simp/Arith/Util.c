@@ -392,7 +392,7 @@ return v___x_95_;
 else
 {
 uint8_t v___x_96_; 
-lean_dec_ref(v___x_94_);
+lean_dec_ref_known(v___x_94_, 1);
 v___x_96_ = 1;
 return v___x_96_;
 }

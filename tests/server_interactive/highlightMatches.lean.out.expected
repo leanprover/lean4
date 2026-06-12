@@ -1,5 +1,6 @@
 {"version": 1,
  "uri": "file:///highlightMatches.lean",
+ "isIncremental": false,
  "diagnostics":
  [{"source": "Lean 4",
    "severity": 3,
@@ -16,21 +17,17 @@
   [{"trace":
     {"msg":
      {"append":
-      [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-       {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
-       {"tag": [{"expr": {"text": "root"}}, {"text": ""}]}]},
+      [{"text": "✅️ "}, {"tag": [{"expr": {"text": "root"}}, {"text": ""}]}]},
      "indent": 0,
      "collapsed": true,
      "cls": "Meta.debug",
-     "children": {"lazy": {"p": "0"}}}},
+     "children": {"lazy": {"__rpcref": "0"}}}},
    {"text": ""}]}}
 {"tag":
  [{"trace":
    {"msg":
     {"append":
-     [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-      {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
-      {"tag": [{"expr": {"text": "root"}}, {"text": ""}]}]},
+     [{"text": "✅️ "}, {"tag": [{"expr": {"text": "root"}}, {"text": ""}]}]},
     "indent": 0,
     "collapsed": false,
     "cls": "Meta.debug",
@@ -40,8 +37,7 @@
        [{"trace":
          {"msg":
           {"append":
-           [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-            {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+           [{"text": "✅️ "},
             {"tag":
              [{"expr": {"tag": ["highlighted", {"text": "child1"}]}},
               {"text": ""}]}]},
@@ -97,25 +93,23 @@
        [{"trace":
          {"msg":
           {"append":
-           [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-            {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+           [{"text": "✅️ "},
             {"tag": [{"expr": {"text": "child2"}}, {"text": ""}]}]},
           "indent": 2,
           "collapsed": true,
           "cls": "Meta.debug",
-          "children": {"lazy": {"p": "1"}}}},
+          "children": {"lazy": {"__rpcref": "1"}}}},
         {"text": ""}]},
       {"tag":
        [{"trace":
          {"msg":
           {"append":
-           [{"tag": [{"expr": {"text": "✅️"}}, {"text": ""}]},
-            {"tag": [{"expr": {"text": " "}}, {"text": ""}]},
+           [{"text": "✅️ "},
             {"tag": [{"expr": {"text": "child3"}}, {"text": ""}]}]},
           "indent": 2,
           "collapsed": true,
           "cls": "Meta.debug",
-          "children": {"lazy": {"p": "2"}}}},
+          "children": {"lazy": {"__rpcref": "2"}}}},
         {"text": ""}]},
       {"tag":
        [{"trace":

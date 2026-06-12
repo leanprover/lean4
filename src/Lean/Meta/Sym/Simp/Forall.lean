@@ -98,40 +98,52 @@ partial def simpArrows (e : Expr) (infos : List ArrowInfo) (simpBody : Simproc) 
   | [] => return ((← simpBody e), [])
   | info :: infos' =>
     let_expr f@Arrow p q := e | return ((← simpBody e), infos)
+    -- **cd propagation**: `cd` from `simp p` and `simp q` (via recursive `simpArrows`)
+    -- must be propagated through ALL branches. Even when `p` is already False/True
+    -- and hasn't changed, `cd = true` means `simp p` might take a different code path
+    -- in another local context (e.g., a conditional rewrite could succeed), which would
+    -- lead to a completely different result for the arrow expression.
     let p_r ← simp p
     if (← isFalseExpr (p_r.getResultExpr p)) && info.v.isZero then
       match p_r with
-      | .rfl _ => return (.step (← getTrueExpr) (mkApp (mkConst ``false_arrow) q), [])
-      | .step _ h _ => return (.step (← getTrueExpr) (mkApp3 (mkConst ``false_arrow_congr) p q h), [])
+      | .rfl _ cd => return (.step (← getTrueExpr) (mkApp (mkConst ``false_arrow) q) (contextDependent := cd), [])
+      | .step _ h _ cd => return (.step (← getTrueExpr) (mkApp3 (mkConst ``false_arrow_congr) p q h) (contextDependent := cd), [])
     let (q_r, infos') ← simpArrows q infos' simpBody
     if (← isTrueExpr (q_r.getResultExpr q)) then
+      let cd := p_r.isContextDependent || q_r.isContextDependent
       match q_r with
-      | .rfl _ => return (.step (← getTrueExpr) (mkApp (mkConst ``arrow_true [info.u]) p), [])
-      | .step _ h _ => return (.step (← getTrueExpr) (mkApp3 (mkConst ``arrow_true_congr [info.u]) p q h), [])
+      | .rfl _ _ => return (.step (← getTrueExpr) (mkApp (mkConst ``arrow_true [info.u]) p) (contextDependent := cd), [])
+      | .step _ h _ _ => return (.step (← getTrueExpr) (mkApp3 (mkConst ``arrow_true_congr [info.u]) p q h) (contextDependent := cd), [])
     match p_r, q_r with
-    | .rfl _, .rfl _ =>
+    | .rfl _ cd₁, .rfl _ cd₂ =>
+      let cd := cd₁ || cd₂
       if (← isTrueExpr p) && info.v.isZero then
-        return (.step q (mkApp (mkConst ``true_arrow) q), infos')
+        return (.step q (mkApp (mkConst ``true_arrow) q) (contextDependent := cd), infos')
       else
-        return (.rfl, infos)
-    | .step p' h _, .rfl _ =>
+        return (mkRflResultCD cd, infos)
+    | .step p' h _ cd₁, .rfl _ cd₂ =>
+      let cd := cd₁ || cd₂
       if (← isTrueExpr p') && info.v.isZero then
-        return (.step q (mkApp3 (mkConst ``true_arrow_congr_left) p q h), infos')
+        return (.step q (mkApp3 (mkConst ``true_arrow_congr_left) p q h) (contextDependent := cd), infos')
       else
         let e' ← mkAppS₂ f p' q
-        return (.step e' <| mkApp4 (mkConst ``arrow_congr_left f.constLevels!) p p' q h, info :: infos')
-    | .rfl _, .step q' h _ =>
+        let proof := mkApp4 (mkConst ``arrow_congr_left f.constLevels!) p p' q h
+        return (.step e' proof (contextDependent := cd), info :: infos')
+    | .rfl _ cd₁, .step q' h _ cd₂ =>
+      let cd := cd₁ || cd₂
       if (← isTrueExpr p) && info.v.isZero then
-        return (.step q' (mkApp3 (mkConst ``true_arrow_congr_right) q q' h), infos')
+        return (.step q' (mkApp3 (mkConst ``true_arrow_congr_right) q q' h) (contextDependent := cd), infos')
       else
         let e' ← mkAppS₂ f p q'
-        return (.step e' <| mkApp4 (mkConst ``arrow_congr_right f.constLevels!) p q q' h, info :: infos')
-    | .step p' h₁ _, .step q' h₂ _ =>
+        let proof := mkApp4 (mkConst ``arrow_congr_right f.constLevels!) p q q' h
+        return (.step e' proof (contextDependent := cd), info :: infos')
+    | .step p' h₁ _ cd₁, .step q' h₂ _ cd₂ =>
       if (← isTrueExpr p') && info.v.isZero then
-        return (.step q' (mkApp5 (mkConst ``true_arrow_congr) p q q' h₁ h₂), infos')
+        return (.step q' (mkApp5 (mkConst ``true_arrow_congr) p q q' h₁ h₂) (contextDependent := cd₁ || cd₂), infos')
       else
         let e' ← mkAppS₂ f p' q'
-        return (.step e' <| mkApp6 (mkConst ``arrow_congr f.constLevels!) p p' q q' h₁ h₂, info :: infos')
+        let proof := mkApp6 (mkConst ``arrow_congr f.constLevels!) p p' q q' h₁ h₂
+        return (.step e' proof (contextDependent := cd₁ || cd₂), info :: infos')
 
 /--
 Simplifies a telescope of non-dependent arrows `p₁ → p₂ → ... → pₙ → q` by:
@@ -159,55 +171,60 @@ result as fully simplified to prevent `simpArrow` from being applied.
 public def simpArrowTelescope (simpBody : Simproc := simp) : Simproc := fun e => do
   unless e.isArrow do return .rfl -- not applicable
   let { arrow, infos, v } ← toArrow e
-  let (.step arrow' h _, infos) ← simpArrows arrow infos simpBody | return .rfl (done := true)
+  match (← simpArrows arrow infos simpBody) with
+  | (.rfl _ cd, _) => return mkRflResult (done := true) (contextDependent := cd)
+  | (.step arrow' h _ cd, infos) =>
   let e' ← toForall arrow' infos
   let α := mkSort v
   let v1 := v.succ
   let h := mkApp6 (mkConst ``Eq.trans [v1]) α e arrow arrow' (mkApp2 (mkConst ``Eq.refl [v1]) α arrow) h
   let h := mkApp6 (mkConst ``Eq.trans [v1]) α e arrow' e' h (mkApp2 (mkConst ``Eq.refl [v1]) α e')
-  return .step e' h (done := true)
+  return .step e' h (done := true) (contextDependent := cd)
 
 public def simpArrow (e : Expr) : SimpM Result := do
   let p := e.bindingDomain!
   let q := e.bindingBody!
+  -- Propagate `cd` from both domain and codomain: if either sub-simplification
+  -- was context-dependent, `simp` might take a different path in another context.
   match (← simp p), (← simp q) with
-  | .rfl _, .rfl _ =>
-    return .rfl
-  | .step p' h _, .rfl _ =>
+  | .rfl _ cd₁, .rfl _ cd₂ =>
+    return mkRflResultCD (cd₁ || cd₂)
+  | .step p' h _ cd₁, .rfl _ cd₂ =>
     let u ← getLevel p
     let v ← getLevel q
     let e' ← e.updateForallS! p' q
-    return .step e' <| mkApp4 (mkConst ``implies_congr_left [u, v]) p p' q h
-  | .rfl _, .step q' h _ =>
+    return .step e' (mkApp4 (mkConst ``implies_congr_left [u, v]) p p' q h) (contextDependent := cd₁ || cd₂)
+  | .rfl _ cd₁, .step q' h _ cd₂ =>
     let u ← getLevel p
     let v ← getLevel q
     let e' ← e.updateForallS! p q'
-    return .step e' <| mkApp4 (mkConst ``implies_congr_right [u, v]) p q q' h
-  | .step p' h₁ _, .step q' h₂ _ =>
+    return .step e' (mkApp4 (mkConst ``implies_congr_right [u, v]) p q q' h) (contextDependent := cd₁ || cd₂)
+  | .step p' h₁ _ cd₁, .step q' h₂ _ cd₂ =>
     let u ← getLevel p
     let v ← getLevel q
     let e' ← e.updateForallS! p' q'
-    return .step e' <| mkApp6 (mkConst ``implies_congr [u, v]) p p' q q' h₁ h₂
+    return .step e' (mkApp6 (mkConst ``implies_congr [u, v]) p p' q q' h₁ h₂) (contextDependent := cd₁ || cd₂)
 
 public def simpForall' (simpArrow : Simproc) (simpBody : Simproc) (e : Expr) : SimpM Result := do
   if e.isArrow then
     simpArrow e
   else if (← isProp e) then
     let n := getForallTelescopeSize e.bindingBody! 1
-    forallBoundedTelescope e n fun xs b => withoutModifyingCacheIfNotWellBehaved do
+    forallBoundedTelescope e n fun xs b => withFreshTransientCache do
       main xs (← shareCommon b)
   else
     return .rfl
 where
   main (xs : Array Expr) (b : Expr) : SimpM Result := do
+    -- Propagate `cd` from the body: in another context the body might simplify differently.
     match (← simpBody b) with
-    | .rfl _ => return .rfl
-    | .step b' h _ =>
+    | .rfl _ cd => return mkRflResultCD cd
+    | .step b' h _ cd =>
       let h ← mkLambdaFVars xs h
       let e' ← shareCommon (← mkForallFVars xs b')
       -- **Note**: consider caching the forall-congr theorems
       let hcongr ← mkForallCongrFor xs
-      return .step e' (mkApp3 hcongr (← mkLambdaFVars xs b) (← mkLambdaFVars xs b') h)
+      return .step e' (mkApp3 hcongr (← mkLambdaFVars xs b) (← mkLambdaFVars xs b') h) (contextDependent := cd)
 
   -- **Note**: Optimize if this is quadratic in practice
   getForallTelescopeSize (e : Expr) (n : Nat) : Nat :=

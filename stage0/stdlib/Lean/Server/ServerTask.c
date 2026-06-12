@@ -280,7 +280,7 @@ v___x_2_ = lean_task_pure(v_inst_1_);
 return v___x_2_;
 }
 }
-LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedServerTask_default(lean_object* v_a_3_, lean_object* v_inst_4_){
+LEAN_EXPORT lean_object* l_Lean_Server_instInhabitedServerTask_default(lean_object* v_00_u03b1_3_, lean_object* v_inst_4_){
 _start:
 {
 lean_object* v___x_5_; 
@@ -1103,7 +1103,7 @@ if (lean_obj_tag(v___x_372_) == 0)
 lean_object* v_a_373_; 
 v_a_373_ = lean_ctor_get(v___x_372_, 0);
 lean_inc(v_a_373_);
-lean_dec_ref(v___x_372_);
+lean_dec_ref_known(v___x_372_, 1);
 return v_a_373_;
 }
 else
@@ -1547,7 +1547,7 @@ if (lean_obj_tag(v___x_548_) == 0)
 lean_object* v_a_549_; 
 v_a_549_ = lean_ctor_get(v___x_548_, 0);
 lean_inc(v_a_549_);
-lean_dec_ref(v___x_548_);
+lean_dec_ref_known(v___x_548_, 1);
 return v_a_549_;
 }
 else

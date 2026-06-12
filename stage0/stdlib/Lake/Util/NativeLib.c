@@ -147,6 +147,7 @@ goto v___jp_36_;
 v___jp_29_:
 {
 lean_object* v___x_31_; lean_object* v___x_32_; lean_object* v___x_33_; lean_object* v___x_34_; lean_object* v___x_35_; 
+lean_inc_ref(v___y_30_);
 v___x_31_ = lean_string_append(v___y_30_, v_name_27_);
 v___x_32_ = ((lean_object*)(l_Lake_nameToSharedLib___closed__0));
 v___x_33_ = lean_string_append(v___x_31_, v___x_32_);
@@ -219,7 +220,7 @@ else
 lean_object* v_val_56_; lean_object* v___x_57_; 
 v_val_56_ = lean_ctor_get(v___x_54_, 0);
 lean_inc(v_val_56_);
-lean_dec_ref(v___x_54_);
+lean_dec_ref_known(v___x_54_, 1);
 v___x_57_ = l_System_SearchPath_parse(v_val_56_);
 return v___x_57_;
 }

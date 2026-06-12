@@ -32,7 +32,7 @@ run_meta
     Lean.logInfo m!"{name}"
 
 
-/- Check that the compiler is producin good code -/
+/- Check that the compiler is producing good code -/
 
 set_option trace.Compiler.saveBase true
 

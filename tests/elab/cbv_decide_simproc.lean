@@ -1,5 +1,3 @@
-set_option cbv.warning false
-
 -- Case 1: p is literally True/False
 theorem test1 : decide True = true := by cbv
 theorem test2 : decide False = false := by cbv

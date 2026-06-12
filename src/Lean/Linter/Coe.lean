@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Elab.Command
 public import Lean.Server.InfoUtils
-import Lean.Linter.Basic
+import Lean.Linter.Init
 import all Lean.Elab.Term.TermElabM
 
 public section

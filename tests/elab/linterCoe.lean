@@ -27,7 +27,7 @@ Note: This linter can be disabled with `set_option linter.deprecatedCoercions fa
 #guard_msgs in
 def h (foo : X) : Y := foo
 
-/-- -/
+/-- A docstring to make `missingDocs` linter happy-/
 notation a " +' " b => a + b
 
 @[deprecated "" (since := "")]

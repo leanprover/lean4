@@ -26,7 +26,7 @@ COMMANDS:
   check-build           check if any default build targets are configured
   test                  test the package using the configured test driver
   check-test            check if there is a properly configured test driver
-  lint                  lint the package using the configured lint driver
+  lint                  lint the package
   check-lint            check if there is a properly configured lint driver
   clean                 remove build outputs
   shake                 minimize imports in source files
@@ -55,6 +55,7 @@ BASIC OPTIONS:
   --packages=file       JSON file of package entries that override the manifest
   --reconfigure, -R     elaborate configuration files instead of using OLeans
   --keep-toolchain      do not update toolchain on workspace update
+  --allow-empty         accept bare builds with no default targets configured
   --no-build            exit immediately if a build target is not up-to-date
   --no-cache            build packages locally; do not download build caches
   --try-cache           attempt to download build caches for supported packages
@@ -242,17 +243,57 @@ package or its dependencies. It merely verifies that one is specified.
 "
 
 def helpLint :=
-"Lint the workspace's root package using its configured lint driver
+"Lint the workspace's root package
 
 USAGE:
-  lake lint [-- <args>...]
+  lake lint [OPTIONS] [<MODULE>...] [-- <args>...]
+
+By default, runs the package's configured lint driver. If `builtinLint` is
+set to `true` in the package configuration, builtin lints also run.
+
+Builtin linting (`--builtin-lint`, `--builtin-only`, `--linters`,
+`--lint-only`, or `builtinLint = true` in the package configuration) drives a
+build of the targeted modules with the requested linter options enabled.
+The lint driver path on its own does not trigger a build.
+
+Which environment linters run on a declaration is determined by the linter
+options in effect when that declaration was built (e.g. via `set_option` in
+the source, or via `--linters`/`--lint-only` below). Both override those
+options for the lint build; `--lint-only` additionally restricts the reported
+output to exactly the linters its spec enables.
+
+Positional `MODULE` arguments narrow only the builtin lints; if omitted,
+the workspace's default target roots are used. The lint driver is invoked
+with `lintDriverArgs` from the package config plus any arguments after
+`--`; the `MODULE` list is not passed to it.
+
+OPTIONS:
+  --builtin-lint        run builtin environment and text linters
+  --builtin-only        run only builtin linters, skip the lint driver
+  --linters <spec>      override linter options for the lint build; <spec> is a
+                        comma-separated list of linter option names, each
+                        optionally prefixed with `-` to disable it. A name
+                        beginning with `.` is shorthand for the `linter.`
+                        prefix, so `.foo` means `linter.foo`. E.g.
+                        `--linters=.foo,-linter.bar`. Repeatable; later
+                        entries override earlier ones for the same linter
+  --lint-only <spec>    like `--linters`, but report ONLY the linters the spec
+                        positively enables, suppressing every other linter
+                        (including default-on linters that are not named).
+                        Expands `linter.all` and linter sets. Uses the same
+                        `<spec>` syntax as `--linters`; switching between
+                        `--linters` and `--lint-only` replaces the prior spec
+  --record-exceptions   record each linter warning as a
+                        `set_option <linter> false in` exception by editing the
+                        offending source files in place, silencing the warning
+                        for that declaration. Implies `--builtin-lint`.
 
 A lint driver can be configured by either setting the `lintDriver` package
-configuration option by tagging a script or executable `@[lint_driver]`.
-A definition in dependency can be used as a test driver by using the
-`<pkg>/<name>` syntax for the 'testDriver' configuration option.
+configuration option or by tagging a script or executable `@[lint_driver]`.
+A definition in a dependency can be used as a lint driver by using the
+`<pkg>/<name>` syntax for the 'lintDriver' configuration option.
 
-A script lint driver will be run with the  package configuration's
+A script lint driver will be run with the package configuration's
 `lintDriverArgs` plus the CLI `args`. An executable lint driver will be
 built and then run like a script.
 "
@@ -356,10 +397,15 @@ USAGE:
 
 COMMANDS:
   get [<mappings>]      download build outputs into the local Lake cache
-  put <mappings>        upload build ouptuts to a remote cache
+  put <mappings>        upload build outputs to a remote cache
   add <mappings>        add input-to-output mappings to the Lake cache
-  clean                 removes ALL froms the local Lake cache
+  clean                 removes ALL from the local Lake cache
   services              print configured remote cache services
+
+STAGING COMMANDS:
+  stage <map> <dir>     copy build outputs from the cache to a directory
+  unstage <dir>         cache build outputs from a staging directory
+  put-staged <dir>      upload build outputs from a staging directory
 
 See `lake cache help <command>` for more information on a specific command."
 
@@ -377,11 +423,11 @@ OPTIONS:
   --platform=<target-triple>      with Reservoir or --repo, sets the platform
   --toolchain=<name>              with Reservoir or --repo, sets the toolchain
   --scope=<remote-scope>          scope for a custom endpoint
-  --download-arts                 download artifacts now, not on demand
+  --mappings-only                 only download mappings, delay artifacts
   --force-download                redownload existing files
 
 Downloads build outputs for packages in the workspace from a remote cache
-service. The cache service used can be specifed via the `--service` option.
+service. The cache service used can be specified via the `--service` option.
 Otherwise, Lake will the system default, or, if none is configured, Reservoir.
 See `lake cache services` for more information on how to configure services.
 
@@ -408,10 +454,9 @@ artifacts. If no mappings are found, Lake will backtrack the Git history up to
 `--max-revs`, looking for a revision with mappings. If `--max-revs` is 0, Lake
 will search the repository's entire history (or as far as Git will allow).
 
-With a named service and without a mappings file, Lake will only download
-the input-to-output mappings for packages. It will delay downloading of the
-corresponding artifacts to the next `lake build` that requires them. Using
-`--download-arts` will force Lake to download all artifacts eagerly.
+By default, Lake will download both the input-to-output mappings and the
+output artifacts for a package. By using `--mappings-onlys`, Lake will only
+download the mappings and delay downloading artifacts until they are needed.
 
 If a download for an artifact fails or the download process for a whole
 package fails, Lake will report this and continue on to the next. Once done,
@@ -425,7 +470,7 @@ USAGE:
 
 Uploads the input-to-output mappings contained in the specified file along
 with the corresponding output artifacts to a remote cache. The cache service
-used via be specified via `--service` option. If not specifed, Lake will used
+used can be specified via the `--service` option. If not specified, Lake will use
 the system default, or error if none is configured. See the help page of
 `lake cache services` for more information on how to configure services.
 
@@ -455,7 +500,7 @@ full scope). As such, the command will warn if the work tree currently
 has changes."
 
 def helpCacheAdd :=
-"Addd input-to-output mappings to the Lake cache
+"Add input-to-output mappings to the Lake cache
 
 USAGE:
   lake cache add <mappings>
@@ -465,7 +510,7 @@ OPTIONS:
   --scope=<remote-scope>          the prefix of artifacts within the service
   --repo=<github-repo>            for Reservoir, a GitHub repository scope
 
-Reads a list of input-to-output mapppings from the provided file and adds
+Reads a list of input-to-output mappings from the provided file and adds
 them to the local Lake cache. If `--service` is provided, the output artifacts
 can then be fetched lazily from that service during a Lake build. The service
 must either be `reservoir` or  be configured through the Lake system
@@ -476,6 +521,48 @@ artifacts and outputs, artifacts in a cache service are prefixed with a scope
 to avoid clashes. For Reservoir, this scope can either be a package (set via
 `--scope`) or a repository (set via `--repo`). For S3 services, both options
 are synonymous."
+
+def helpCacheStage :=
+"Copy build outputs from the cache to a staging directory
+
+USAGE:
+  lake cache stage <mappings> <staging-directory>
+
+Creates the staging directory and copies the mappings file to it. Then, it
+copies all artifacts described within the mappings file from the cache to the
+staging directory. Errors if any of the artifacts described cannot be found in
+the cache."
+
+def helpCacheUnstage :=
+"Cache build outputs from a staging directory
+
+USAGE:
+  lake cache unstage <staging-directory>
+
+Copies the mappings and artifacts stored in staging directory (e.g., via
+`lake cache stage`) back into the cache.
+
+Reads the mappings file located at `outputs.jsonl` within the staging
+directory and writes the mappings to the Lake cache. Then, it copies the
+described artifacts from the staging directory into the cache."
+
+def helpCachePutStaged :=
+"Upload build outputs from a staging directory to a remote service
+
+USAGE:
+  lake cache put-staged <staging-directory>
+
+OPTIONS:
+  --scope=<remote-scope>          verbatim scope
+  --repo=<github-repo>            scope with repository + toolchain & platform
+  --toolchain=<name>              with --repo, sets the toolchain
+  --platform=<target-triple>      with --repo, sets the platform
+
+Works like `lake cache put` but uploads outputs from the staging directory
+instead of the Lake cache. Does not configure the workspace and thus does not
+execute arbitrary user code. However, because of this, the package's platform
+and toolchain settings will not be automatically detected and must be
+specified manually via `--platform` and `--toolchain` (if desired)."
 
 def helpCacheClean :=
 "Removes ALL files from the local Lake cache
@@ -642,6 +729,9 @@ public def helpCache : (cmd : String) → String
 | "get"                 => helpCacheGet
 | "put"                 => helpCachePut
 | "add"                 => helpCacheAdd
+| "stage"               => helpCacheStage
+| "unstage"             => helpCacheUnstage
+| "put-staged"          => helpCachePutStaged
 | "clean"               => helpCacheClean
 | "services"            => helpCacheServices
 | _                     => helpCacheCli

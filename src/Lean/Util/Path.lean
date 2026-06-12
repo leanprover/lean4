@@ -18,6 +18,7 @@ import Init.Data.String.TakeDrop
 import Init.Data.List.Monadic
 import Init.Data.Option.BasicAux
 import Init.Data.ToString.Macro
+import Init.Data.String.Length
 
 public section
 

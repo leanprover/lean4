@@ -54,7 +54,7 @@ eq_norm ctx p q (eagerReduce (Eq.refl true)) h
 to instruct the kernel to use eager reduction when establishing that `(p.norm == q) = true` is
 definitionally equal to `true = true`.
 -/
-@[expose] def eagerReduce {α : Sort u} (a : α) : α := a
+def eagerReduce {α : Sort u} (a : α) : α := a
 
 /--
 `flip f a b` is `f b a`. It is useful for "point-free" programming,
@@ -171,6 +171,8 @@ Constructs a new thunk that applies `f` to the result of `x` when forced.
 instance thunkCoe : CoeTail α (Thunk α) where
   -- Since coercions are expanded eagerly, `a` is evaluated lazily.
   coe a := ⟨fun _ => a⟩
+
+instance [Inhabited α] : Inhabited (Thunk α) := ⟨.pure default⟩
 
 /-- A variation on `Eq.ndrec` with the equality argument first. -/
 abbrev Eq.ndrecOn.{u1, u2} {α : Sort u2} {a : α} {motive : α → Sort u1} {b : α} (h : a = b) (m : motive a) : motive b :=

@@ -210,13 +210,14 @@ theorem Iterator.isSome_next_of_isPlausibleIndirectOutput
     obtain ⟨a, ha, _⟩ := h
     simp [ha]
 
-private def List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
+
+private theorem List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
     List.Sublist (l.filter P) (l.filter Q) := by
   apply List.Sublist.trans (l₂ := (l.filter Q).filter P)
   · simp [Bool.and_eq_left_iff_imp.mpr (h _)]
   · apply List.filter_sublist
 
-private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
+private theorem List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
     (h : ∀ a, P a → Q a) (ha : a ∈ l) (hPa : ¬ P a) (hQa : Q a) :
     (l.filter P).length < (l.filter Q).length := by
   have hsl : List.Sublist (l.filter P) (l.filter Q) := by
@@ -279,7 +280,6 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LE α] [Decid
           · cases h
   subrelation := id
 
-@[no_expose]
 instance Iterator.instFinite [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] [Rxc.IsAlwaysFinite α] :
     Finite (Rxc.Iterator α) Id :=
@@ -300,7 +300,6 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LE α] [D
       · cases h
       · cases h
 
-@[no_expose]
 instance Iterator.instProductive [UpwardEnumerable α] [LE α] [DecidableLE α]
     [LawfulUpwardEnumerable α] :
     Productive (Rxc.Iterator α) Id :=
@@ -597,7 +596,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LE α] [Decidabl
     LawfulIteratorLoop (Rxc.Iterator α) Id n where
   lawful := by
     intro lift instLawfulMonadLiftFunction γ it init Pl wf f
-    simp +instances only [IteratorLoop.forIn, IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
+    simp only [IteratorLoop.forIn, IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
     rw [IterM.DefaultConsumers.forIn'.wf]
     split; rotate_left
     · simp only [IterM.step_eq,
@@ -636,7 +635,7 @@ The pure function mapping a range iterator of type {name}`IterM` to the next ste
 This function is prefixed with {lit}`Monadic` in order to disambiguate it from the version for iterators
 of type {name}`Iter`.
 -/
-@[inline]
+@[inline, implicit_reducible]
 def Iterator.Monadic.step [UpwardEnumerable α] [LT α] [DecidableLT α]
     (it : IterM (α := Rxo.Iterator α) Id α) :
     IterStep (IterM (α := Rxo.Iterator α) Id α) α :=
@@ -792,13 +791,13 @@ theorem Iterator.isSome_next_of_isPlausibleIndirectOutput
     obtain ⟨a, ha, _⟩ := h
     simp [ha]
 
-private def List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
+private theorem List.Sublist.filter_mono {l : List α} {P Q : α → Bool} (h : ∀ a, P a → Q a) :
     List.Sublist (l.filter P) (l.filter Q) := by
   apply List.Sublist.trans (l₂ := (l.filter Q).filter P)
   · simp [Bool.and_eq_left_iff_imp.mpr (h _)]
   · apply List.filter_sublist
 
-private def List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
+private theorem List.length_filter_strict_mono {l : List α} {P Q : α → Bool} {a : α}
     (h : ∀ a, P a → Q a) (ha : a ∈ l) (hPa : ¬ P a) (hQa : Q a) :
     (l.filter P).length < (l.filter Q).length := by
   have hsl : List.Sublist (l.filter P) (l.filter Q) := by
@@ -861,7 +860,6 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α] [LT α] [Decid
           · cases h
   subrelation := id
 
-@[no_expose]
 instance Iterator.instFinite [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [Rxo.IsAlwaysFinite α] :
     Finite (Rxo.Iterator α) Id :=
@@ -882,7 +880,6 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α] [LT α] [D
       · cases h
       · cases h
 
-@[no_expose]
 instance Iterator.instProductive [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] :
     Productive (Rxo.Iterator α) Id :=
@@ -1113,7 +1110,6 @@ private theorem Iterator.instIteratorLoop.loop_eq_wf [UpwardEnumerable α] [LT �
     · rw [WellFounded.fix_eq]
       simp_all
 
-set_option backward.isDefEq.respectTransparency false in
 private theorem Iterator.instIteratorLoop.loopWf_eq [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] (γ : Type u)
@@ -1165,14 +1161,13 @@ termination_by IteratorLoop.WithWF.mk ⟨⟨some next, upperBound⟩⟩ acc (hwf
 decreasing_by
   simp [IteratorLoop.rel, Monadic.isPlausibleStep_iff, Monadic.step, *]
 
-set_option backward.isDefEq.respectTransparency false in
 instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α] [LT α] [DecidableLT α]
     [LawfulUpwardEnumerable α] [LawfulUpwardEnumerableLT α]
     {n : Type u → Type w} [Monad n] [LawfulMonad n] :
     LawfulIteratorLoop (Rxo.Iterator α) Id n where
   lawful := by
     intro lift instLawfulMonadLiftFunction γ it init Pl wf f
-    simp +instances only [IteratorLoop.forIn, IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
+    simp only [IteratorLoop.forIn, IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
     rw [IterM.DefaultConsumers.forIn'.wf]
     split; rotate_left
     · simp [IterM.step_eq, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure (liftBind := lift)]
@@ -1376,7 +1371,6 @@ private def Iterator.instFinitenessRelation [UpwardEnumerable α]
           exact ih
   subrelation := id
 
-@[no_expose]
 instance Iterator.instFinite [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] [Rxi.IsAlwaysFinite α] :
     Finite (Rxi.Iterator α) Id :=
@@ -1393,7 +1387,6 @@ private def Iterator.instProductivenessRelation [UpwardEnumerable α]
       Iterator.IsPlausibleStep, Monadic.step, instIteratorIteratorIdOfUpwardEnumerable] at h -- TODO
     split at h <;> cases h
 
-@[no_expose]
 instance Iterator.instProductive [UpwardEnumerable α]
     [LawfulUpwardEnumerable α] :
     Productive (Rxi.Iterator α) Id :=
@@ -1637,7 +1630,7 @@ instance Iterator.instLawfulIteratorLoop [UpwardEnumerable α]
     LawfulIteratorLoop (Rxi.Iterator α) Id n where
   lawful := by
     intro lift instLawfulMonadLiftFunction γ it init Pl wf f
-    simp +instances only [IteratorLoop.forIn, IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
+    simp only [IteratorLoop.forIn, IterM.DefaultConsumers.forIn'_eq_wf Pl wf]
     rw [IterM.DefaultConsumers.forIn'.wf]
     split; rotate_left
     · simp [Monadic.step_eq_step, Monadic.step, Internal.LawfulMonadLiftBindFunction.liftBind_pure]

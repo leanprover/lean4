@@ -262,14 +262,14 @@ def cbvSimprocDispatch (tree : DiscrTree CbvSimprocEntry)
       let simprocName := (privateToUserName entry.declName).replacePrefix `Lean.Meta.Sym.Simp .anonymous |>.replacePrefix `Lean.Meta.Tactic.Cbv .anonymous
       let result ← withTraceNode `Meta.Tactic.cbv.simprocs (fun
           | .ok (Result.step e' ..) => return m!"simproc {simprocName}:{indentExpr e}\n==>{indentExpr e'}"
-          | .ok (Result.rfl true)   => return m!"simproc {simprocName}: done{indentExpr e}"
+          | .ok (Result.rfl true _) => return m!"simproc {simprocName}: done{indentExpr e}"
           | .ok _                   => return m!"simproc {simprocName}: no change"
           | .error err              => return m!"simproc {simprocName}: {err.toMessageData}") do
         if numExtra == 0 then
           entry.proc e
         else
           simpOverApplied e numExtra entry.proc
-      if result matches .step _ _ _ then
+      if result matches .step _ _ _ _ then
         return result
       if result matches .rfl (done := true) then
         return result

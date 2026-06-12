@@ -150,6 +150,7 @@ where
   | _,        withContext ctx d        => go nCtx ctx d
   | ctx,      withNamingContext nCtx d => go nCtx ctx d
   | ctx,      tagged _ d               => go nCtx ctx d
+  | ctx,      ofOriginatingSyntax _ d   => go nCtx ctx d
   | ctx,      nest n d                 => Format.nest n <$> go nCtx ctx d
   | ctx,      compose d₁ d₂            => do let d₁ ← go nCtx ctx d₁; let d₂ ← go nCtx ctx d₂; pure $ d₁ ++ d₂
   | ctx,      group d                  => Format.group <$> go nCtx ctx d
@@ -161,6 +162,9 @@ where
       return .join (← children.mapM (go nCtx ctx)).toList
 
     let mut header := (← go nCtx ctx header).nest 4
+    header := match data.result? with
+      | some r => f!"{r.toEmoji} {header}"
+      | none => header
     if data.startTime != 0 then
       header := f!"[{data.stopTime - data.startTime}] {header}"
     let nodes ←

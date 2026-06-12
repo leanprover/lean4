@@ -69,6 +69,8 @@ private def throwCtorExpected {α} (ident : Option Syntax) : M α := do
 
   if candidates.size = 0 then
     throwError message
+  -- Sort for deterministic output (iteration order of `env.constants` is not stable)
+  candidates := candidates.qsort Name.lt
   let oneOfThese := if h : candidates.size = 1 then m!"`{candidates[0]}`" else m!"one of these"
   let hint ← m!"Using {oneOfThese} would be valid:".hint (ref? := idStx) (candidates.map fun candidate => {
     suggestion := mkIdent candidate
@@ -320,7 +322,7 @@ where
     if f.getKind == ``Parser.Term.dotIdent then
       let namedArgsNew ← namedArgs.mapM fun
         -- We must ensure that `ref[1]` remains original to allow named-argument hints
-        | { ref, name, val := Arg.stx arg } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
+        | { ref, name, val := Arg.stx arg, .. } => withRef ref do `(Lean.Parser.Term.namedArgument| ($(ref[1]) := $(← collect arg)))
         | _ => unreachable!
       let mut argsNew ← args.mapM fun | Arg.stx arg => collect arg | _ => unreachable!
       if ellipsis then

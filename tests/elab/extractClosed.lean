@@ -7,6 +7,7 @@ trace: [Compiler.IR] [result]
       ret x_3
     def f : obj :=
       let x_1 : obj := f._closed_0;
+      inc x_1;
       ret x_1
 -/
 #guard_msgs in

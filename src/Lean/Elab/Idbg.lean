@@ -8,7 +8,7 @@ module
 prelude
 public import Lean.Elab.Do.Basic
 meta import Lean.Parser.Do
-import Std.Internal.Async.TCP
+import Std.Async.TCP
 
 /-!
 # Interactive Debug Expression Evaluator (`idbg`)
@@ -22,7 +22,7 @@ and client (compiled program side) compute a deterministic port from the source 
 -/
 
 open Lean Lean.Elab Lean.Elab.Term Lean.Meta
-open Std.Net Std.Internal.IO.Async
+open Std.Net Std.Async
 
 namespace Lean.Idbg
 
@@ -235,8 +235,8 @@ def idbgCompileAndEval (α : Type) [Nonempty α]
   | .error msg => throw (.userError s!"idbg evalConst failed: {msg}")
 
 /-- Connect to the debug server, receive expressions, evaluate, send results. Loops forever. -/
-@[nospecialize, export lean_idbg_client_loop] def idbgClientLoopImpl {α : Type} [Nonempty α]
-    (siteId : String) (imports : Array Import) (apply : α → String) : IO Unit := do
+@[nospecialize, export lean_idbg_client_loop] def idbgClientLoopImpl
+    (siteId : String) (imports : Array Import) (apply : NonScalar → String) : IO Unit := do
   let baseEnv ← idbgLoadEnv imports
   let port := idbgPort siteId
   let addr := SocketAddressV4.mk (.ofParts 127 0 0 1) port
@@ -249,7 +249,7 @@ def idbgCompileAndEval (α : Type) [Nonempty α]
       let json ← IO.ofExcept (Json.parse msg)
       let type ← IO.ofExcept (exprFromJson? (← IO.ofExcept (json.getObjVal? "type")))
       let value ← IO.ofExcept (exprFromJson? (← IO.ofExcept (json.getObjVal? "value")))
-      let fnVal ← idbgCompileAndEval α baseEnv type value
+      let fnVal ← idbgCompileAndEval NonScalar baseEnv type value
       let result := apply fnVal
       sendMsg client result
       let t ← client.shutdown |>.toIO
@@ -364,8 +364,9 @@ def elabIdbgTerm : TermElab := fun stx expectedType? => do
 
 @[builtin_doElem_elab Lean.Parser.Term.doIdbg]
 def elabDoIdbg : DoElab := fun stx dec => do
-  let `(Lean.Parser.Term.doIdbg| idbg $e) := stx | throwUnsupportedSyntax
-  let mγ ← mkMonadicType (← read).doBlockResultType
+  let `(Lean.Parser.Term.doIdbg| idbg%$tk $e) := stx | throwUnsupportedSyntax
+  let mγ ← mkMonadApp (← read).doBlockResultType
+  let dec ← dec.ensureUnitAt tk
   doElabToSyntax "idbg body" dec.continueWithUnit fun body => do
     elabIdbgCore (e := e) (body := body) (ref := stx) mγ
 

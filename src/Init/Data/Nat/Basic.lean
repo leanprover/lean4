@@ -59,9 +59,9 @@ Examples:
 * `Nat.repeat f 3 a = f <| f <| f <| a`
 * `Nat.repeat (· ++ "!") 4 "Hello" = "Hello!!!!"`
 -/
-@[specialize, expose] def repeat {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
+@[specialize, expose] def «repeat» {α : Type u} (f : α → α) : (n : Nat) → (a : α) → α
   | 0,      a => a
-  | succ n, a => f (repeat f n a)
+  | succ n, a => f («repeat» f n a)
 
 /--
 Applies a function to a starting value the specified number of times.
@@ -549,6 +549,7 @@ protected abbrev not_lt_of_lt := @Nat.lt_asymm
 protected theorem lt_iff_le_and_not_ge {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m :=
   ⟨fun h => ⟨Nat.le_of_lt h, Nat.not_le_of_gt h⟩, fun ⟨_, h⟩ => Nat.lt_of_not_ge h⟩
 
+set_option linter.defProp false in
 /-- Deprecated alias for `Nat.lt_iff_le_and_not_ge`. -/
 @[deprecated Nat.lt_iff_le_and_not_ge (since := "2026-02-11")]
 protected abbrev lt_iff_le_not_le := @Nat.lt_iff_le_and_not_ge
@@ -558,11 +559,13 @@ protected theorem lt_iff_le_and_ne {m n : Nat} : m < n ↔ m ≤ n ∧ m ≠ n :
 
 protected theorem ne_iff_lt_or_gt {a b : Nat} : a ≠ b ↔ a < b ∨ b < a :=
   ⟨Nat.lt_or_gt_of_ne, fun | .inl h => Nat.ne_of_lt h | .inr h => Nat.ne_of_gt h⟩
+
 /-- Alias for `Nat.ne_iff_lt_or_gt`. -/
 protected abbrev lt_or_gt := @Nat.ne_iff_lt_or_gt
 
 /-- Alias for `Nat.le_total`. -/
 protected abbrev le_or_ge := @Nat.le_total
+
 /-- Alias for `Nat.le_total`. -/
 protected abbrev le_or_le := @Nat.le_total
 
@@ -1221,9 +1224,9 @@ theorem not_lt_eq (a b : Nat) : (¬ (a < b)) = (b ≤ a) :=
 theorem not_gt_eq (a b : Nat) : (¬ (a > b)) = (a ≤ b) :=
   not_lt_eq b a
 
-@[csimp] theorem repeat_eq_repeatTR : @repeat = @repeatTR :=
+@[csimp] theorem repeat_eq_repeatTR : @«repeat» = @repeatTR :=
   funext fun α => funext fun f => funext fun n => funext fun init =>
-  let rec go : ∀ m n, repeatTR.loop f m (repeat f n init) = repeat f (m + n) init
+  let rec go : ∀ m n, repeatTR.loop f m («repeat» f n init) = «repeat» f (m + n) init
     | 0,      n => by simp [repeatTR.loop]
     | succ m, n => by rw [repeatTR.loop, succ_add]; exact go m (succ n)
   (go n 0).symm

@@ -719,6 +719,7 @@ inductive WF : {α : Type u} → {β : α → Type v} → [BEq α] → [Hashable
 
 -- TODO: this needs to be deprecated, but there is a bootstrapping issue.
 -- @[deprecated WF.emptyWithCapacity₀ (since := "2025-03-12")]
+set_option linter.defProp false in
 @[inherit_doc Raw.WF.emptyWithCapacity₀]
 abbrev WF.empty₀ := @WF.emptyWithCapacity₀
 

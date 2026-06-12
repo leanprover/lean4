@@ -255,8 +255,8 @@
               n_1))
           (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n n_1)
 [Elab.definition.structural] FArgs: [fun {m} x x_1 x_2 =>
-       @mul'.match_1_6 n funType_1 (fun m x x_3 below => Power2 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n m))
-         m x_2 x x_1
+       @mul'.match_1_10 n funType_1
+         (fun m x x_3 below => Power2 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n m)) m x_2 x x_1
          (fun h1 =>
            @of_eq_true
              (Power2
@@ -282,8 +282,8 @@
                (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n_1))
            (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n n_1)]
 [Elab.definition.structural] packedFArgs: [fun {m} x x_1 x_2 =>
-       @mul'.match_1_6 n funType_1 (fun m x x_3 below => Power2 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n m))
-         m x_2 x x_1
+       @mul'.match_1_10 n funType_1
+         (fun m x x_3 below => Power2 (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat) n m)) m x_2 x x_1
          (fun h1 =>
            @of_eq_true
              (Power2
@@ -308,10 +308,3 @@
              (@HMul.hMul Nat Nat Nat (@instHMul Nat instMulNat)
                (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n_1))
            (mul_left_comm (@OfNat.ofNat Nat (nat_lit 2) (instOfNatNat (nat_lit 2))) n n_1)]
-[Elab.definition.structural] tryAllArgs report:
-    Not considering parameter n of Ex.Power2.mul':
-      it is unchanged in the recursive calls
-    Cannot use parameter #3:
-      failed to eliminate recursive application
-        @mul' n n✝ h1 h2
-    

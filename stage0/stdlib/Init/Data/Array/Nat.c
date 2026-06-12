@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Init.Data.Array.Nat
-// Imports: public import Init.Data.Array.MinMax import Init.Data.List.Nat.Sum import Init.Data.Array.Lemmas
+// Imports: public import Init.Data.Array.MinMax import Init.Data.List.Nat.Sum import Init.Data.List.Nat.Prod import Init.Data.Array.Lemmas
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -15,6 +15,7 @@ extern "C" {
 #endif
 lean_object* runtime_initialize_Init_Data_Array_MinMax(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_List_Nat_Sum(uint8_t builtin);
+lean_object* runtime_initialize_Init_Data_List_Nat_Prod(uint8_t builtin);
 lean_object* runtime_initialize_Init_Data_Array_Lemmas(uint8_t builtin);
 static bool _G_runtime_initialized = false;
 LEAN_EXPORT lean_object* runtime_initialize_Init_Data_Array_Nat(uint8_t builtin) {
@@ -25,6 +26,9 @@ res = runtime_initialize_Init_Data_Array_MinMax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_List_Nat_Sum(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Init_Data_List_Nat_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Init_Data_Array_Lemmas(builtin);
@@ -41,6 +45,7 @@ return lean_io_result_mk_ok(lean_box(0));
 }
 lean_object* initialize_Init_Data_Array_MinMax(uint8_t builtin);
 lean_object* initialize_Init_Data_List_Nat_Sum(uint8_t builtin);
+lean_object* initialize_Init_Data_List_Nat_Prod(uint8_t builtin);
 lean_object* initialize_Init_Data_Array_Lemmas(uint8_t builtin);
 static bool _G_initialized = false;
 LEAN_EXPORT lean_object* initialize_Init_Data_Array_Nat(uint8_t builtin) {
@@ -51,6 +56,9 @@ res = initialize_Init_Data_Array_MinMax(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_List_Nat_Sum(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Init_Data_List_Nat_Prod(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Init_Data_Array_Lemmas(builtin);

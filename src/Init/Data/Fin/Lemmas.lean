@@ -123,7 +123,7 @@ For example, for `x : Fin k` and `n : Nat`,
 it causes `x < n` to be elaborated as `x < ↑n` rather than `↑x < n`,
 silently introducing wraparound arithmetic.
 -/
-@[expose, implicit_reducible]
+@[implicit_reducible]
 def instNatCast (n : Nat) [NeZero n] : NatCast (Fin n) where
   natCast a := Fin.ofNat n a
 
@@ -131,7 +131,6 @@ attribute [scoped instance] instNatCast
 
 end NatCast
 
-@[expose]
 def intCast [NeZero n] (a : Int) : Fin n :=
   if 0 ≤ a then
     Fin.ofNat n a.natAbs
@@ -145,7 +144,7 @@ This is not a global instance, but may be activated locally via `open Fin.IntCas
 
 See the doc-string for `Fin.NatCast.instNatCast` for more details.
 -/
-@[expose, implicit_reducible]
+@[implicit_reducible]
 def instIntCast (n : Nat) [NeZero n] : IntCast (Fin n) where
   intCast := Fin.intCast
 
@@ -521,11 +520,17 @@ theorem coe_cast (h : n = m) (i : Fin n) : (i.cast h : Nat) = i := rfl
 @[simp, grind =] theorem cast_cast {k : Nat} (h : n = m) (h' : m = k) {i : Fin n} :
     (i.cast h).cast h' = i.cast (Eq.trans h h') := rfl
 
-@[deprecated cast_cast (since := "2025-09-03")] abbrev cast_trans := @cast_cast
-
 theorem castLE_of_eq {m n : Nat} (h : m = n) {h' : m ≤ n} : castLE h' = Fin.cast h := rfl
 
 @[simp, grind =] theorem val_castAdd (m : Nat) (i : Fin n) : (castAdd m i : Nat) = i := rfl
+
+/-
+**Note**
+The current pattern inference heuristic includes the implicit term `n + m` as pattern of the pattern,
+but arithmetic is problematic in patterns because it is an interpreted symbol. For example,
+we will fail to match `@val n (castNat 0 i)`. Thus, we mark the implicit subterm with `no_index`
+-/
+grind_pattern val_castAdd => @val (no_index _) (castAdd m i)
 
 @[deprecated val_castAdd (since := "2025-11-21")]
 theorem coe_castAdd (m : Nat) (i : Fin n) : (castAdd m i : Nat) = i := rfl
@@ -578,7 +583,7 @@ theorem castSucc_lt_succ {i : Fin n} : i.castSucc < i.succ :=
   lt_def.2 <| by simp only [val_castSucc, val_succ, Nat.lt_succ_self]
 
 theorem le_castSucc_iff {i : Fin (n + 1)} {j : Fin n} : i ≤ j.castSucc ↔ i < j.succ := by
-  simpa only [lt_def, le_def] using Nat.add_one_le_add_one_iff.symm
+  simpa only [lt_def, le_def] using! Nat.add_one_le_add_one_iff.symm
 
 theorem castSucc_lt_iff_succ_le {n : Nat} {i : Fin n} {j : Fin (n + 1)} :
     i.castSucc < j ↔ i.succ ≤ j := .rfl
@@ -637,7 +642,15 @@ theorem exists_castSucc_eq {n : Nat} {i : Fin (n + 1)} : (∃ j, castSucc j = i)
 
 theorem succ_castSucc {n : Nat} (i : Fin n) : i.castSucc.succ = i.succ.castSucc := rfl
 
-@[simp, grind =] theorem val_addNat (m : Nat) (i : Fin n) : (addNat i m : Nat) = i + m := rfl
+@[simp] theorem val_addNat (m : Nat) (i : Fin n) : (addNat i m : Nat) = i + m := rfl
+
+/-
+**Note**
+The current pattern inference heuristic includes the implicit term `n + m` as pattern of the pattern,
+but arithmetic is problematic in patterns because it is an interpreted symbol. For example,
+we will fail to match `@val n (addNat i 0)`. Thus, we mark the implicit subterm with `no_index`
+-/
+grind_pattern val_addNat => @val (no_index _) (addNat i m)
 
 @[deprecated val_addNat (since := "2025-11-21")]
 theorem coe_addNat (m : Nat) (i : Fin n) : (addNat i m : Nat) = i + m := rfl
@@ -893,7 +906,7 @@ parameter, `Fin.cases` is the corresponding case analysis operator, and `Fin.rev
 version that starts at the greatest value instead of `0`.
 -/
 -- FIXME: Performance review
-@[elab_as_elim, expose] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
+@[elab_as_elim] def induction {motive : Fin (n + 1) → Sort _} (zero : motive 0)
     (succ : ∀ i : Fin n, motive (castSucc i) → motive i.succ) :
     ∀ i : Fin (n + 1), motive i
   | ⟨i, hi⟩ => go i hi
@@ -935,7 +948,7 @@ The two cases are:
 
 The corresponding induction principle is `Fin.induction`.
 -/
-@[elab_as_elim, expose] def cases {motive : Fin (n + 1) → Sort _}
+@[elab_as_elim] def cases {motive : Fin (n + 1) → Sort _}
     (zero : motive 0) (succ : ∀ i : Fin n, motive i.succ) :
     ∀ i : Fin (n + 1), motive i := induction zero fun i _ => succ i
 

@@ -22,9 +22,13 @@ public import Lean.Meta.Sym.Pattern
 public import Lean.Meta.Sym.Apply
 public import Lean.Meta.Sym.InferType
 public import Lean.Meta.Sym.Simp
+public import Lean.Meta.Sym.DSimp
 public import Lean.Meta.Sym.Util
 public import Lean.Meta.Sym.Eta
+public import Lean.Meta.Sym.Canon
+public import Lean.Meta.Sym.Arith
 public import Lean.Meta.Sym.Grind
+public import Lean.Meta.Sym.SynthInstance
 
 /-!
 # Symbolic computation support.

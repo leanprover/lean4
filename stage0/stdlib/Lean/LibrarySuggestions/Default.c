@@ -96,6 +96,10 @@ _start:
 {
 lean_object* v_res_33_; 
 v_res_33_ = l_Lean_LibrarySuggestions___librarySuggestions_00___x40_Lean_LibrarySuggestions_Default_2105568102____hygCtx___hyg_2_(v_a_26_, v_a_27_, v_a_28_, v_a_29_, v_a_30_, v_a_31_);
+lean_dec(v_a_31_);
+lean_dec_ref(v_a_30_);
+lean_dec(v_a_29_);
+lean_dec_ref(v_a_28_);
 return v_res_33_;
 }
 }

@@ -7,6 +7,7 @@ module
 
 prelude
 public import Init.Data.String.Defs
+public import Init.Data.Int.Repr
 
 public section
 
@@ -38,6 +39,4 @@ instance [ToString α] : ToString (Array α) where
 instance : ToString ByteArray := ⟨fun bs => bs.toList.toString⟩
 
 instance : ToString Int where
-  toString
-    | Int.ofNat m   => toString m
-    | Int.negSucc m => "-" ++ toString (m + 1)
+  toString := Int.repr

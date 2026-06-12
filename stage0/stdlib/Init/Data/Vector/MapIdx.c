@@ -55,20 +55,36 @@ return v_res_13_;
 LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Vector_mapFinIdxM_map_match__1_splitter(lean_object* v_n_14_, lean_object* v_j_15_, lean_object* v_motive_16_, lean_object* v_i_17_, lean_object* v_inv_18_, lean_object* v_h__1_19_, lean_object* v_h__2_20_){
 _start:
 {
-lean_object* v___x_21_; 
-v___x_21_ = l___private_Init_Data_Vector_MapIdx_0__Vector_mapFinIdxM_map_match__1_splitter___redArg(v_i_17_, v_h__1_19_, v_h__2_20_);
-return v___x_21_;
+lean_object* v_zero_21_; uint8_t v_isZero_22_; 
+v_zero_21_ = lean_unsigned_to_nat(0u);
+v_isZero_22_ = lean_nat_dec_eq(v_i_17_, v_zero_21_);
+if (v_isZero_22_ == 1)
+{
+lean_object* v___x_23_; 
+lean_dec(v_h__2_20_);
+v___x_23_ = lean_apply_1(v_h__1_19_, lean_box(0));
+return v___x_23_;
+}
+else
+{
+lean_object* v_one_24_; lean_object* v_n_25_; lean_object* v___x_26_; 
+lean_dec(v_h__1_19_);
+v_one_24_ = lean_unsigned_to_nat(1u);
+v_n_25_ = lean_nat_sub(v_i_17_, v_one_24_);
+v___x_26_ = lean_apply_2(v_h__2_20_, v_n_25_, lean_box(0));
+return v___x_26_;
 }
 }
-LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Vector_mapFinIdxM_map_match__1_splitter___boxed(lean_object* v_n_22_, lean_object* v_j_23_, lean_object* v_motive_24_, lean_object* v_i_25_, lean_object* v_inv_26_, lean_object* v_h__1_27_, lean_object* v_h__2_28_){
+}
+LEAN_EXPORT lean_object* l___private_Init_Data_Vector_MapIdx_0__Vector_mapFinIdxM_map_match__1_splitter___boxed(lean_object* v_n_27_, lean_object* v_j_28_, lean_object* v_motive_29_, lean_object* v_i_30_, lean_object* v_inv_31_, lean_object* v_h__1_32_, lean_object* v_h__2_33_){
 _start:
 {
-lean_object* v_res_29_; 
-v_res_29_ = l___private_Init_Data_Vector_MapIdx_0__Vector_mapFinIdxM_map_match__1_splitter(v_n_22_, v_j_23_, v_motive_24_, v_i_25_, v_inv_26_, v_h__1_27_, v_h__2_28_);
-lean_dec(v_i_25_);
-lean_dec(v_j_23_);
-lean_dec(v_n_22_);
-return v_res_29_;
+lean_object* v_res_34_; 
+v_res_34_ = l___private_Init_Data_Vector_MapIdx_0__Vector_mapFinIdxM_map_match__1_splitter(v_n_27_, v_j_28_, v_motive_29_, v_i_30_, v_inv_31_, v_h__1_32_, v_h__2_33_);
+lean_dec(v_i_30_);
+lean_dec(v_j_28_);
+lean_dec(v_n_27_);
+return v_res_34_;
 }
 }
 lean_object* runtime_initialize_Init_Data_Array_Basic(uint8_t builtin);

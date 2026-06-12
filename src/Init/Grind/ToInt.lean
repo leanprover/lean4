@@ -47,9 +47,9 @@ inductive IntInterval : Type where
 namespace IntInterval
 
 /-- The interval `[0, 2^n)`. -/
-@[expose] abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
+abbrev uint (n : Nat) := IntInterval.co 0 (2 ^ n)
 /-- The interval `[-2^(n-1), 2^(n-1))`. -/
-@[expose] abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
+abbrev sint (n : Nat) := IntInterval.co (-(2 ^ (n - 1))) (2 ^ (n - 1))
 
 /-- The lower bound of the interval, if finite. -/
 @[expose] def lo? (i : IntInterval) : Option Int :=
@@ -348,6 +348,7 @@ theorem wrap_toInt (I : IntInterval) [ToInt α I] (x : α) :
   rw [I.wrap_eq_self_iff (I.nonEmpty_of_mem (toInt_mem x))]
   exact ToInt.toInt_mem x
 
+set_option linter.defProp false in
 /-- Construct a `ToInt.Sub` instance from a `ToInt.Add` and `ToInt.Neg` instance and
 a `sub_eq_add_neg` assumption. -/
 @[implicit_reducible]

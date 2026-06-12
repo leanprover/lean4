@@ -91,20 +91,8 @@ void lean_initialize();
 #if defined(WIN32) || defined(_WIN32)
 #include <windows.h>
 #endif
-int main(int argc, char ** argv) {
-#if defined(WIN32) || defined(_WIN32)
-  SetErrorMode(SEM_FAILCRITICALERRORS);
-  SetConsoleOutputCP(CP_UTF8);
-#endif
-  lean_object* in; lean_object* res;
-  argv = lean_setup_args(argc, argv);
-  lean_initialize();
-  res = runtime_initialize_LakeMain(1 /* builtin */);
-  lean_io_mark_end_initialization();
-  if (lean_io_result_is_ok(res)) {
-    lean_dec_ref(res);
-    lean_init_task_manager();
-    in = lean_box(0);
+lean_object* run_main(int argc, char ** argv) {
+    lean_object* in = lean_box(0);
     int i = argc;
     while (i > 1) {
       lean_object* n;
@@ -112,7 +100,22 @@ int main(int argc, char ** argv) {
       n = lean_alloc_ctor(1,2,0); lean_ctor_set(n, 0, lean_mk_string(argv[i])); lean_ctor_set(n, 1, in);
       in = n;
     }
-    res = _lean_main(in);
+    return _lean_main(in);
+}
+int main(int argc, char ** argv) {
+#if defined(WIN32) || defined(_WIN32)
+  SetErrorMode(SEM_FAILCRITICALERRORS);
+  SetConsoleOutputCP(CP_UTF8);
+#endif
+  lean_object* res;
+  argv = lean_setup_args(argc, argv);
+  lean_initialize();
+  res = runtime_initialize_LakeMain(1 /* builtin */);
+  lean_io_mark_end_initialization();
+  if (lean_io_result_is_ok(res)) {
+    lean_dec_ref(res);
+    lean_init_task_manager();
+    res = lean_run_main(&run_main, argc, argv);
   }
   lean_finalize_task_manager();
   if (lean_io_result_is_ok(res)) {

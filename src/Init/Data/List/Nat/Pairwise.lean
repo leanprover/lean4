@@ -73,6 +73,6 @@ theorem pairwise_iff_getElem {l : List α} : Pairwise R l ↔
     have ⟨is, h', hij⟩ := sublist_eq_map_getElem h'
     rcases is with ⟨⟩ | ⟨a', ⟨⟩ | ⟨b', ⟨⟩⟩⟩ <;> simp at h'
     rcases h' with ⟨rfl, rfl⟩
-    apply h; simpa using hij
+    apply h; simpa using! hij
 
 end List

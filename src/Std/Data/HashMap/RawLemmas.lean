@@ -2967,14 +2967,14 @@ theorem getElem_modify [EquivBEq α] [LawfulHashable α] {k k' : α} {f : β →
       else
         haveI h' : k' ∈ m := mem_modify h |>.mp hc
         m[k']'h' := by
-  simpa only [← get_eq_getElem] using DHashMap.Raw.Const.get_modify h.out
+  simpa only [← get_eq_getElem] using! DHashMap.Raw.Const.get_modify h.out
 
 @[simp]
 theorem getElem_modify_self [EquivBEq α] [LawfulHashable α] {k : α} {f : β → β} (h : m.WF)
     {hc : k ∈ modify m k f} :
     haveI h' : k ∈ m := mem_modify h |>.mp hc
     (modify m k f)[k]'hc = f (m[k]'h') := by
-  simpa only [← get_eq_getElem] using DHashMap.Raw.Const.get_modify_self h.out
+  simpa only [← get_eq_getElem] using! DHashMap.Raw.Const.get_modify_self h.out
 
 @[grind =]
 theorem getElem!_modify [EquivBEq α] [LawfulHashable α] {k k' : α} [Inhabited β] {f : β → β}

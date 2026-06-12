@@ -287,12 +287,11 @@ lean_object* v_ns_85_; lean_object* v_except_86_; uint8_t v___x_87_; lean_object
 v_ns_85_ = lean_ctor_get(v_decl_84_, 0);
 lean_inc(v_ns_85_);
 v_except_86_ = lean_ctor_get(v_decl_84_, 1);
-lean_inc(v_except_86_);
-lean_dec_ref(v_decl_84_);
+lean_inc_n(v_except_86_, 2);
+lean_dec_ref_known(v_decl_84_, 2);
 v___x_87_ = 1;
 v___x_88_ = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(v_ns_85_, v___x_87_);
 v___x_89_ = lean_box(0);
-lean_inc(v_except_86_);
 v___x_90_ = l_List_beq___redArg(v___x_82_, v_except_86_, v___x_89_);
 if (v___x_90_ == 0)
 {
@@ -321,7 +320,7 @@ v_id_95_ = lean_ctor_get(v_decl_84_, 0);
 lean_inc(v_id_95_);
 v_declName_96_ = lean_ctor_get(v_decl_84_, 1);
 lean_inc(v_declName_96_);
-lean_dec_ref(v_decl_84_);
+lean_dec_ref_known(v_decl_84_, 2);
 v___x_97_ = 1;
 v___x_98_ = l_Lean_Name_toStringWithToken___at___00Lean_Name_toString_spec__0(v_id_95_, v___x_97_);
 v___x_99_ = ((lean_object*)(l_Lean_OpenDecl_instToString___lam__0___closed__1));

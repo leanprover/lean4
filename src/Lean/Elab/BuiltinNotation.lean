@@ -559,10 +559,14 @@ def elabUnsafe : TermElab := fun stx expectedType? =>
     let t ← elabTermAndSynthesize t expectedType?
     if (← logUnassignedUsingErrorInfos (← getMVars t)) then
       throwAbortTerm
-    let t ← mkAuxDefinitionFor (← mkAuxName `unsafe) t
+    let t ← mkAuxDefinitionFor (compile := false) (← mkAuxName `unsafe) t
     let .const unsafeFn unsafeLvls .. := t.getAppFn | unreachable!
     let .defnInfo unsafeDefn ← getConstInfo unsafeFn | unreachable!
     let implName ← mkAuxName `unsafe_impl
+    if (← read).declName?.any (isMarkedMeta (← getEnv)) then
+      modifyEnv (markMeta · unsafeFn)
+      modifyEnv (markMeta · implName)
+    compileDecls #[unsafeFn]
     addDecl <| Declaration.opaqueDecl {
       name        := implName
       type        := unsafeDefn.type

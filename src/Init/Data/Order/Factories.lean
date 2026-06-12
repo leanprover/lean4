@@ -208,7 +208,7 @@ public instance LawfulOrderLT.of_lt {α : Type u} [LT α] [i : Asymm (α := α) 
     haveI := LE.ofLT α
     LawfulOrderLT α :=
   letI := LE.ofLT α
-  { lt_iff a b := by simp +instances [LE.le]; apply Asymm.asymm }
+  { lt_iff a b := by simp [LE.le]; apply Asymm.asymm }
 
 /--
 If an `LT α` instance is asymmetric and its negation is transitive, then `LE.ofLT α` represents a
@@ -220,12 +220,12 @@ public theorem IsLinearPreorder.of_lt {α : Type u} [LT α]
     haveI := LE.ofLT α
     IsLinearPreorder α :=
   letI := LE.ofLT α
-  { le_trans := by simpa [LE.ofLT] using fun a b c hab hbc => not_lt_trans.trans hbc hab
+  { le_trans := by simpa [LE.ofLT] using! fun a b c hab hbc => not_lt_trans.trans hbc hab
     le_total a b := by
       apply Or.symm
-      open Classical in simpa [LE.ofLT, Decidable.imp_iff_not_or] using lt_asymm.asymm a b
+      open Classical in simpa [LE.ofLT, Decidable.imp_iff_not_or] using! lt_asymm.asymm a b
     le_refl a := by
-      open Classical in simpa [LE.ofLT] using lt_asymm.asymm a a }
+      open Classical in simpa [LE.ofLT] using! lt_asymm.asymm a a }
 
 /--
 If an `LT α` instance is asymmetric and its negation is transitive and antisymmetric, then
@@ -240,7 +240,7 @@ public theorem IsLinearOrder.of_lt {α : Type u} [LT α]
   letI := LE.ofLT α
   haveI : IsLinearPreorder α := .of_lt
   { le_antisymm := by
-      simpa [LE.ofLT] using fun a b hab hba => lt_trichotomous.trichotomous a b hba hab }
+      simpa [LE.ofLT] using! fun a b hab hba => lt_trichotomous.trichotomous a b hba hab }
 
 /--
 This lemma characterizes in terms of `LT α` when a `Min α` instance
@@ -253,8 +253,7 @@ public theorem LawfulOrderInf.of_lt {α : Type u} [Min α] [LT α]
   letI := LE.ofLT α
   { le_min_iff a b c := by
       open Classical in
-      simp +instances only [LE.le]
-      simp [← not_or, Decidable.not_iff_not]
+      simp only [LE.le, ← not_or, Decidable.not_iff_not]
       simpa [Decidable.imp_iff_not_or] using min_lt_iff a b c }
 
 /--
@@ -283,8 +282,7 @@ public theorem LawfulOrderSup.of_lt {α : Type u} [Max α] [LT α]
   letI := LE.ofLT α
   { max_le_iff a b c := by
       open Classical in
-      simp +instances only [LE.le]
-      simp [← not_or, Decidable.not_iff_not]
+      simp only [LE.le, ← not_or, Decidable.not_iff_not]
       simpa [Decidable.imp_iff_not_or] using lt_max_iff a b c }
 
 /--

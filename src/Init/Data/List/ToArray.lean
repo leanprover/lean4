@@ -116,7 +116,7 @@ theorem toArray_cons (a : α) (l : List α) : (a :: l).toArray = #[a] ++ l.toArr
   simp
 
 @[simp, grind =] theorem _root_.Array.getLast_toList (xs : Array α) (h) :
-    xs.toList.getLast h = xs.back (by simpa [ne_nil_iff_length_pos] using h) := by
+    xs.toList.getLast h = xs.back (by simpa [ne_nil_iff_length_pos] using! h) := by
   rcases xs with ⟨xs⟩
   simp
 
@@ -212,6 +212,9 @@ theorem forM_toArray [Monad m] (l : List α) (f : α → m PUnit) :
 
 @[simp, grind =] theorem sum_toArray [Add α] [Zero α] (l : List α) : l.toArray.sum = l.sum := by
   simp [Array.sum, List.sum]
+
+@[simp, grind =] theorem prod_toArray [Mul α] [One α] (l : List α) : l.toArray.prod = l.prod := by
+  simp [Array.prod, List.prod]
 
 @[simp, grind =] theorem append_toArray (l₁ l₂ : List α) :
     l₁.toArray ++ l₂.toArray = (l₁ ++ l₂).toArray := by
@@ -574,7 +577,7 @@ theorem flatMap_toArray_cons {β} (f : α → Array β) (a : α) (as : List α) 
   suffices ∀ xs, List.foldl (fun ys a => ys ++ f a) (f a ++ xs) as =
       f a ++ List.foldl (fun ys a => ys ++ f a) xs as by
     erw [empty_append] -- Why doesn't this work via `simp`?
-    simpa using this #[]
+    simpa using! this #[]
   intro xs
   induction as generalizing xs <;> simp_all
 

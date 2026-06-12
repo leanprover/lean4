@@ -514,9 +514,10 @@ macro_rules
   | `(bif $c then $t else $e) => `(cond $c $t $e)
 
 /--
-Haskell-like pipe operator `<|`. `f <| x` means the same as `f x`,
-except that it parses `x` with lower precedence, which means that `f <| g <| x`
-is interpreted as `f (g x)` rather than `(f g) x`.
+A pipe operator that feeds values from the right into functions on the left.
+
+`f <| x` means the same as `f x`, except that it parses `x` with lower precedence, which means that
+`f <| g <| x` is interpreted as `f (g x)` rather than `(f g) x`.
 -/
 syntax:min term " <| " term:min : term
 
@@ -538,8 +539,9 @@ macro_rules
       `($f $a)
 
 /--
-Haskell-like pipe operator `|>`. `x |> f` means the same as `f x`,
-and it chains such that `x |> f |> g` is interpreted as `g (f x)`.
+A pipe operator that feeds values from the left into functions on the right.
+
+`x |> f` means the same as `f x`, and it chains such that `x |> f |> g` is interpreted as `g (f x)`.
 -/
 syntax:min term " |> " term:min1 : term
 
@@ -622,6 +624,23 @@ existing code. It may be removed in a future version of the library.
 * `@[deprecated (since := "2024-04-21")]` records when the deprecation was first applied.
 -/
 syntax (name := deprecated) "deprecated" (ppSpace ident)? (ppSpace str)?
+    (" (" &"since" " := " str ")")? : attr
+
+/--
+The attribute `@[deprecated_arg old new]` marks a named parameter as deprecated.
+
+When a caller uses the old name with a replacement available, a deprecation warning is emitted
+and the argument is silently forwarded to the new parameter. When no replacement is provided,
+the parameter is treated as removed and using it produces an error.
+
+* `@[deprecated_arg old new (since := "2026-03-18")]` marks `old` as a deprecated alias for `new`.
+* `@[deprecated_arg old new "use foo instead" (since := "2026-03-18")]` adds a custom message.
+* `@[deprecated_arg old (since := "2026-03-18")]` marks `old` as a removed parameter (no replacement).
+* `@[deprecated_arg old "no longer needed" (since := "2026-03-18")]` removed with a custom message.
+
+A warning is emitted if `(since := "...")` is omitted.
+-/
+syntax (name := deprecated_arg) "deprecated_arg" ppSpace ident (ppSpace ident)? (ppSpace str)?
     (" (" &"since" " := " str ")")? : attr
 
 /--
@@ -722,12 +741,14 @@ syntax (name := runElab) "run_elab " doSeq : command
 
 /--
 The `run_meta doSeq` command executes code in `MetaM Unit`.
-This is the same as `#eval show MetaM Unit from do discard doSeq`.
+This is the same as `#eval show MetaM Unit from discard do doSeq`.
 
 (This is effectively a synonym for `run_elab` since `MetaM` lifts to `TermElabM`.)
 -/
 syntax (name := runMeta) "run_meta " doSeq : command
 
+/-- Configuration for the `#reduce` command. -/
+syntax reduceConfig := many(colGt atomic(" (" ident " := ") term ")")
 /--
 `#reduce <expression>` reduces the expression `<expression>` to its normal form. This
 involves applying reduction rules until no further reduction is possible.
@@ -742,7 +763,7 @@ especially for complex expressions.
 Consider using `#eval <expression>` for simple evaluation/execution
 of expressions.
 -/
-syntax (name := reduceCmd) "#reduce " (atomic("(" &"proofs" " := " &"true" ")"))? (atomic("(" &"types" " := " &"true" ")"))? term : command
+syntax (name := reduceCmd) "#reduce" reduceConfig term : command
 
 set_option linter.missingDocs false in
 syntax guardMsgsFilterAction := &"check" <|> &"drop" <|> &"pass"

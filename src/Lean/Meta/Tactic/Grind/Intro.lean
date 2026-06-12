@@ -289,6 +289,7 @@ def assertNext : Action := fun goal kna kp => do
     | kna goal
   let goal := { goal with newRawFacts }
   withSplitSource fact.splitSource do
+  withEmatchDiagSource fact.ematchDiagSource do
     assertAt fact.proof fact.prop fact.generation goal kna kp
 
 /--
@@ -299,5 +300,17 @@ def assertAll : Action :=
   assertNext.loop hugeNumber
 
 end Action
+
+/-
+Creates an action that tries all solver extensions using `Action.andAlso`,
+then drains the `newRawFacts` queue via `assertAll`.
+The `assertAll` step is necessary because `processNewFacts` (called by `solverAction` on the
+`.propagated` path) drains the `newFacts` queue (equations and propositions for the e-graph),
+but the resulting propagation cascade (e.g., congruence closure, or-propagation,
+`propagateForallPropDown`) can call `addNewRawFact`, which enqueues to the separate
+`newRawFacts` queue. Without this step, these raw facts are never asserted. See issue #12581.
+-/
+def Solvers.mkAction : IO Action := do
+  return (← Solvers.mkActionCore) >> Action.assertAll
 
 end Lean.Meta.Grind

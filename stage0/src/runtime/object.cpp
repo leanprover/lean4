@@ -34,7 +34,7 @@ Author: Leonardo de Moura
 // Lean-exported demangler from Lean.Compiler.NameDemangling.
 // Declared as a weak symbol so leanrt doesn't require libLean at link time.
 // When the Lean demangler is linked in, it overrides this stub.
-extern "C" __attribute__((weak)) lean_object * lean_demangle_bt_line_cstr(lean_object * s) {
+extern "C" __attribute__((weak)) lean_obj_res lean_demangle_bt_line_cstr(lean_obj_arg s) {
     lean_dec(s);
     return lean_mk_string("");
 }
@@ -106,6 +106,10 @@ extern "C" LEAN_EXPORT void lean_internal_panic_rc_overflow() {
     lean_internal_panic("reference counter overflowed");
 }
 
+extern "C" LEAN_EXPORT void lean_internal_panic_overflow() {
+    lean_internal_panic("integer overflow in runtime computation");
+}
+
 bool g_exit_on_panic = false;
 bool g_panic_messages = true;
 
@@ -150,11 +154,9 @@ static void print_backtrace(bool force_stderr) {
                 if (result_str[0] != '\0') {
                     panic_eprintln(result_str, force_stderr);
                     lean_dec(result);
-                    lean_dec(line_obj);
                     continue;
                 }
                 lean_dec(result);
-                lean_dec(line_obj);
             }
             panic_eprintln(symbols[i], force_stderr);
         }
@@ -196,6 +198,11 @@ extern "C" LEAN_EXPORT object * lean_panic_fn(object * default_val, object * msg
     lean_panic_impl(lean_string_cstr(msg), lean_string_size(msg) - 1);  // remove the null terminator
     lean_dec(msg);
     return default_val;
+}
+
+extern "C" LEAN_EXPORT object * lean_panic_fn_borrowed(b_obj_arg default_val, object * msg) {
+    lean_inc(default_val);
+    return lean_panic_fn(default_val, msg);
 }
 
 extern "C" LEAN_EXPORT object * lean_sorry(uint8) {
@@ -284,13 +291,30 @@ static inline lean_object * get_next(lean_object * o) {
     }
 }
 
+// See the docstring on `lean_object*` for details about pointer packing.
+#if defined(__has_feature)
+    #if __has_feature(hwaddress_sanitizer)
+        #define LEAN_HAS_HWASAN 1
+    #endif
+#endif
+#if defined(LEAN_HAS_HWASAN) || defined(__SANITIZE_HWADDRESS__) || \
+    defined(__ARM_FEATURE_MEMORY_TAGGING)
+    #define LEAN_PTR_PACKING_SAFE false
+#else
+    #define LEAN_PTR_PACKING_SAFE true
+#endif
+
+static_assert(sizeof(void*) != 8 || LEAN_PTR_PACKING_SAFE,
+    "Cannot compile with HWASAN or ARM MTE enabled; on 64-bit machines, "
+    "the pointer packing in `set_next` truncates the top byte used by these features.\n"
+    "See https://github.com/leanprover/lean4/issues/13113.");
+
 static inline void set_next(lean_object * o, lean_object * n) {
     if (sizeof(void*) == 8) {
-        size_t new_header = (size_t)n;
-        LEAN_BYTE(new_header, 7) = o->m_tag;
-        LEAN_BYTE(new_header, 6) = o->m_other;
-        ((size_t*)o)[0] = new_header;
-        lean_assert(get_next(o) == n);
+        uint16_t hi;
+        memcpy(&hi, (char*)o + 6, 2);
+        size_t header = ((size_t)hi << 48) | (size_t)n;
+        memcpy(o, &header, 8);
     } else {
         // 32-bit version
         ((lean_object**)o)[0] = n;
@@ -354,61 +378,65 @@ extern "C" LEAN_EXPORT lean_object * lean_alloc_object(size_t sz) {
 static void deactivate_task(lean_task_object * t);
 static void deactivate_promise(lean_promise_object * t);
 
+static void lean_del_core_other(object * o, uint8 tag, object * & todo) {
+    switch (tag) {
+    case LeanClosure: {
+        object ** it  = lean_closure_arg_cptr(o);
+        object ** end = it + lean_closure_num_fixed(o);
+        for (; it != end; ++it) dec(*it, todo);
+        lean_dealloc(o, lean_closure_byte_size(o));
+        break;
+    }
+    case LeanArray: {
+        object ** it  = lean_array_cptr(o);
+        object ** end = it + lean_array_size(o);
+        for (; it != end; ++it) dec(*it, todo);
+        lean_dealloc(o, lean_array_byte_size(o));
+        break;
+    }
+    case LeanScalarArray:
+        lean_dealloc(o, lean_sarray_byte_size(o));
+        break;
+    case LeanString:
+        lean_dealloc(o, lean_string_byte_size(o));
+        break;
+    case LeanMPZ:
+        to_mpz(o)->m_value.~mpz();
+        lean_free_small_object(o);
+        break;
+    case LeanThunk:
+        if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
+        if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
+        lean_free_small_object(o);
+        break;
+    case LeanRef:
+        if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
+        lean_free_small_object(o);
+        break;
+    case LeanTask:
+        deactivate_task(lean_to_task(o));
+        break;
+    case LeanPromise:
+        deactivate_promise(lean_to_promise(o));
+        break;
+    case LeanExternal:
+        lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
+        lean_free_small_object(o);
+        break;
+    default:
+        lean_unreachable();
+    }
+}
+
 static void lean_del_core(object * o, object * & todo) {
     uint8 tag = lean_ptr_tag(o);
-    if (tag <= LeanMaxCtorTag) {
+    if (LEAN_LIKELY(tag <= LeanMaxCtorTag)) {
         object ** it  = lean_ctor_obj_cptr(o);
         object ** end = it + lean_ctor_num_objs(o);
         for (; it != end; ++it) dec(*it, todo);
         lean_free_small_object(o);
     } else {
-        switch (tag) {
-        case LeanClosure: {
-            object ** it  = lean_closure_arg_cptr(o);
-            object ** end = it + lean_closure_num_fixed(o);
-            for (; it != end; ++it) dec(*it, todo);
-            lean_dealloc(o, lean_closure_byte_size(o));
-            break;
-        }
-        case LeanArray: {
-            object ** it  = lean_array_cptr(o);
-            object ** end = it + lean_array_size(o);
-            for (; it != end; ++it) dec(*it, todo);
-            lean_dealloc(o, lean_array_byte_size(o));
-            break;
-        }
-        case LeanScalarArray:
-            lean_dealloc(o, lean_sarray_byte_size(o));
-            break;
-        case LeanString:
-            lean_dealloc(o, lean_string_byte_size(o));
-            break;
-        case LeanMPZ:
-            to_mpz(o)->m_value.~mpz();
-            lean_free_small_object(o);
-            break;
-        case LeanThunk:
-            if (object * c = lean_to_thunk(o)->m_closure) dec(c, todo);
-            if (object * v = lean_to_thunk(o)->m_value) dec(v, todo);
-            lean_free_small_object(o);
-            break;
-        case LeanRef:
-            if (object * v = lean_to_ref(o)->m_value) dec(v, todo);
-            lean_free_small_object(o);
-            break;
-        case LeanTask:
-            deactivate_task(lean_to_task(o));
-            break;
-        case LeanPromise:
-            deactivate_promise(lean_to_promise(o));
-            break;
-        case LeanExternal:
-            lean_to_external(o)->m_class->m_finalize(lean_to_external(o)->m_data);
-            lean_free_small_object(o);
-            break;
-        default:
-            lean_unreachable();
-        }
+        lean_del_core_other(o, tag, todo);
     }
 }
 
@@ -791,7 +819,7 @@ class task_manager {
                 // idle before picking up new work.
                 // But during shutdown, we skip this throttling:
                 // because the finalizer might have called m_queue_cv.notify_all() for the last
-                // time, we don't want to get stuck behind the wait(). 
+                // time, we don't want to get stuck behind the wait().
                 if (!m_shutting_down &&
                     m_std_workers.size() - m_idle_std_workers >= m_max_std_workers) {
                     m_queue_cv.wait(lock);
@@ -1241,7 +1269,12 @@ extern "C" LEAN_EXPORT b_obj_res lean_io_wait_any_core(b_obj_arg task_list) {
 }
 
 obj_res lean_promise_new() {
-    lean_always_assert(g_task_manager);
+    if (!g_task_manager) {
+        lean_internal_panic(
+            "`IO.Promise.new` called before the task manager is running; this typically "
+            "happens when called (directly or transitively, e.g. via `IO.CancelToken.new`) "
+            "from an `initialize` block. Construct lazily on first use instead.");
+    }
 
     bool keep_alive = false;
     unsigned prio = 0;
@@ -2075,6 +2108,11 @@ extern "C" LEAN_EXPORT bool lean_string_eq_cold(b_lean_obj_arg s1, b_lean_obj_ar
     return std::memcmp(lean_string_cstr(s1), lean_string_cstr(s2), lean_string_size(s1)) == 0;
 }
 
+extern "C" LEAN_EXPORT bool lean_sarray_eq_cold(b_lean_obj_arg a1, b_lean_obj_arg a2) {
+    size_t len = lean_sarray_elem_size(a1) * lean_sarray_size(a1);
+    return std::memcmp(lean_sarray_cptr(a1), lean_sarray_cptr(a2), len) == 0;
+}
+
 bool string_eq(object * s1, char const * s2) {
     if (lean_string_size(s1) != strlen(s2) + 1)
         return false;
@@ -2086,6 +2124,18 @@ extern "C" LEAN_EXPORT bool lean_string_lt(object * s1, object * s2) {
     size_t sz2 = lean_string_size(s2) - 1; // ignore null char in the end
     int r      = std::memcmp(lean_string_cstr(s1), lean_string_cstr(s2), std::min(sz1, sz2));
     return r < 0 || (r == 0 && sz1 < sz2);
+}
+
+// Constructor indices of `Ordering`: lt = 0, eq = 1, gt = 2.
+extern "C" LEAN_EXPORT uint8_t lean_string_compare(b_obj_arg s1, b_obj_arg s2) {
+    size_t sz1 = lean_string_size(s1) - 1; // ignore null char in the end
+    size_t sz2 = lean_string_size(s2) - 1; // ignore null char in the end
+    int r      = std::memcmp(lean_string_cstr(s1), lean_string_cstr(s2), std::min(sz1, sz2));
+    if (r < 0) return 0;
+    if (r > 0) return 2;
+    if (sz1 < sz2) return 0;
+    if (sz1 > sz2) return 2;
+    return 1;
 }
 
 static obj_res string_to_list_core(std::string const & s, bool reverse = false) {
@@ -2736,7 +2786,7 @@ extern "C" LEAN_EXPORT object * lean_dbg_sleep(uint32 ms, obj_arg fn) {
 }
 
 extern "C" LEAN_EXPORT object * lean_dbg_trace_if_shared(obj_arg s, obj_arg a) {
-    if (!lean_is_scalar(a) && lean_is_shared(a)) {
+    if (!lean_is_scalar(a) && !lean_is_exclusive(a)) {
         io_eprintln(mk_string(std::string("shared RC ") + lean_string_cstr(s)));
     }
     return a;

@@ -172,7 +172,7 @@ def mkMatchNew (header : Header) (indVal : InductiveVal) (auxFunName : Name) : T
   if indVal.numCtors == 1 then
     `( $(mkCIdent casesOnSameCtorName) $x1:term $x2:term rfl $alts:term* )
   else
-    `( match decEq ($(mkCIdent ctorIdxName) $x1:ident) ($(mkCIdent ctorIdxName) $x2:ident) with
+    `( match Nat.decEq ($(mkCIdent ctorIdxName) $x1:ident) ($(mkCIdent ctorIdxName) $x2:ident) with
       | .isTrue h => $(mkCIdent casesOnSameCtorName) $x1:term $x2:term h $alts:term*
       | .isFalse _ => false)
 

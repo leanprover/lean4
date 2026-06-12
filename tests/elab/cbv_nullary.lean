@@ -1,5 +1,3 @@
-set_option cbv.warning false
-
 /-! Tests for `cbv` evaluation of nullary (non-function) constants.
 
 Nullary definitions like `def myNat : Nat := 42` should be unfolded by `cbv`

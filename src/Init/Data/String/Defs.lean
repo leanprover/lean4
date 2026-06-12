@@ -187,6 +187,9 @@ theorem append_right_inj (s : String) {t₁ t₂ : String} :
 theorem append_assoc {s₁ s₂ s₃ : String} : s₁ ++ s₂ ++ s₃ = s₁ ++ (s₂ ++ s₃) := by
   simp [← toByteArray_inj, ByteArray.append_assoc]
 
+instance : Std.Associative (α := String) (· ++ ·) where
+  assoc _ _ _ := append_assoc
+
 @[simp]
 theorem utf8ByteSize_eq_zero_iff {s : String} : s.utf8ByteSize = 0 ↔ s = "" := by
   refine ⟨fun h => ?_, fun h => h ▸ utf8ByteSize_empty⟩
@@ -230,7 +233,7 @@ Examples:
  * `"empty".isEmpty = false`
  * `" ".isEmpty = false`
 -/
-@[inline] def isEmpty (s : String) : Bool :=
+@[inline, expose] def isEmpty (s : String) : Bool :=
   s.utf8ByteSize == 0
 
 @[export lean_string_isempty]
@@ -682,7 +685,20 @@ abbrev endValidPos (s : String) : s.Pos :=
   s.endPos
 
 @[deprecated String.toByteArray (since := "2025-11-24")]
-abbrev String.bytes (s : String) : ByteArray :=
+abbrev bytes (s : String) : ByteArray :=
   s.toByteArray
+
+/--
+Returns the length of the string `s`, assuming the string is comprised only of ASCII characters.
+
+This is implemented as a synonym for `s.utf8ByteSize`, which takes constant time.
+-/
+@[inline]
+def lengthAssumingAscii (s : String) : Nat :=
+  s.utf8ByteSize
+
+@[simp]
+theorem lengthAssumingAscii_eq {s : String} : s.lengthAssumingAscii = s.utf8ByteSize :=
+  (rfl)
 
 end String

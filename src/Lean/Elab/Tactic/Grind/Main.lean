@@ -7,7 +7,7 @@ module
 prelude
 public import Lean.Meta.Tactic.Grind.Main
 public import Lean.Meta.Tactic.TryThis
-public import Lean.Elab.Tactic.Config
+public import Lean.Elab.Tactic.Grind.Config
 public import Lean.LibrarySuggestions.Basic
 import Lean.Meta.Tactic.Grind.SimpUtil
 import Lean.Elab.Tactic.Grind.Param
@@ -17,12 +17,6 @@ import Lean.Meta.Tactic.Grind.Parser
 public section
 namespace Lean.Elab.Tactic
 open Meta
-declare_config_elab elabGrindConfig Grind.Config
-declare_config_elab elabGrindConfigInteractive Grind.ConfigInteractive
-declare_config_elab elabCutsatConfig Grind.CutsatConfig
-declare_config_elab elabLinarithConfig Grind.LinarithConfig
-declare_config_elab elabOrderConfig Grind.OrderConfig
-declare_config_elab elabGrobnerConfig Grind.GrobnerConfig
 
 open Command Term in
 open Lean.Parser.Command.GrindCnstr in
@@ -242,15 +236,21 @@ def mkGrindParams
     params := { params with config.clean := false }
   return params
 
+def checkTerminalAsSorry (mvarId : MVarId) : TacticM Bool := do
+  if debug.terminalTacticsAsSorry.get (← getOptions) then
+    mvarId.admit
+    replaceMainGoal []
+    return true
+  else
+    return false
+
 def grind
     (mvarId : MVarId) (config : Grind.Config)
     (only : Bool)
     (ps   :  TSyntaxArray ``Parser.Tactic.grindParam)
     (seq? : Option (TSyntax `Lean.Parser.Tactic.Grind.grindSeq))
     : TacticM Unit := do
-  if debug.terminalTacticsAsSorry.get (← getOptions) then
-    mvarId.admit
-    return ()
+  if (← checkTerminalAsSorry mvarId) then return ()
   mvarId.withContext do
     let params ← mkGrindParams config only ps mvarId
     let params := if Grind.grind.unusedLemmaThreshold.get (← getOptions) > 0 then
@@ -260,7 +260,7 @@ def grind
       let finalize (result : Grind.Result) : TacticM Unit := do
         if result.hasFailed then
           throwError "`grind` failed\n{← result.toMessageData}"
-        return ()
+        replaceMainGoal []
       if let some seq := seq? then
         let (result, _) ← Grind.GrindTacticM.runAtGoal mvarId' params do
           Grind.evalGrindTactic seq
@@ -286,9 +286,7 @@ def evalGrindCore
   let params := if let some params := params? then params.getElems else #[]
   if Grind.grind.warning.get (← getOptions) then
     logWarningAt ref "The `grind` tactic is new and its behavior may change in the future. This project has used `set_option grind.warning true` to discourage its use."
-  withMainContext do
-    grind (← getMainGoal) config only params seq?
-    replaceMainGoal []
+  grind (← getMainGoal) config only params seq?
 
 /-- Position for the `[..]` child syntax in the `grind` tactic. -/
 def grindParamsPos := 3
@@ -330,7 +328,7 @@ def filterSuggestionsAndLocalsFromGrindConfig (config : TSyntax ``Lean.Parser.Ta
 
 private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (interactive : Bool) : TacticM Grind.Config := do
   if interactive then
-    return (← elabGrindConfigInteractive config).toConfig
+    elabGrindConfigInteractive config
   else
     elabGrindConfig config
 
@@ -342,6 +340,25 @@ private def elabGrindConfig' (config : TSyntax ``Lean.Parser.Tactic.optConfig) (
   let interactive := seq.isSome
   let config ← elabGrindConfig' config interactive
   evalGrindCore stx config only params seq
+
+@[builtin_tactic Lean.Parser.Tactic.sym] def evalSym : Tactic := fun stx => do
+  recordExtraModUse (isMeta := false) `Init.Grind.Tactics
+  let `(tactic| sym $config:optConfig $[only%$only]?  $[ [$params:grindParam,*] ]? => $seq:grindSeq) := stx
+    | throwUnsupportedSyntax
+  let config ← elabGrindConfig' config true
+  let only' := only.isSome
+  let params := if let some params := params then params.getElems else #[]
+  let mvarId ← getMainGoal
+  if (← checkTerminalAsSorry mvarId) then return ()
+  mvarId.withContext do
+    let params ← mkGrindParams config only' params mvarId
+    Grind.withProtectedMCtx config mvarId fun mvarId' => do
+      let (result, _) ← Grind.GrindTacticM.runAtGoal mvarId' params (sym := true) do
+        Grind.evalGrindTactic seq
+        let goal? := if let goal :: _ := (← get).goals then some goal else none
+        Grind.liftGrindM <| Grind.mkResult params goal?
+      if result.hasFailed then
+        throwError "`sym` failed\n{← result.toMessageData}"
 
 def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorry := true) : TacticM (Array (TSyntax `tactic)) := withMainContext do
   let `(tactic| grind? $configStx:optConfig $[only%$only]?  $[ [$params?:grindParam,*] ]?) := stx
@@ -357,20 +374,29 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   -- is a local variable) must be preserved because they produce anchors that need
   -- the original term to be loaded during replay.
   -- Non-ident terms (like `show P by tac`) need to be preserved explicitly.
+  -- Params that mark types for case-splitting (e.g., `[EqvGen]` where `EqvGen` is an
+  -- inductive predicate, or `[cases T]`) must also be preserved: the marking is not
+  -- representable in the generated script, and without it `cases` steps on facts of
+  -- these types fail during replay.
+  -- **TODO**: This syntactic filtering is a stopgap: it duplicates parameter-elaboration
+  -- logic and silently depends on which side effects are representable in scripts.
+  -- A more robust solution is to make the script self-contained, e.g., a script step that
+  -- marks a type for case-splitting, and tracking which parameters were actually used.
+  let keepIdentParam (mod? : Option (TSyntax ``Parser.Attr.grindMod)) (id : Ident) : TacticM Bool := do
+    if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+      return true
+    else if let some mod := mod? then
+      return (← Grind.getAttrKindCore mod) matches .cases _
+    else
+      let declName? ← try pure (some (← realizeGlobalConstNoOverload id)) catch _ => pure none
+      if let some declName := declName? then
+        Grind.isCasesAttrCandidate declName false
+      else
+        return false
   let termParamStxs : Array Grind.TParam ← paramStxs.filterM fun p => do
     match p with
-    | `(Parser.Tactic.grindParam| $[$_:grindMod]? $id:ident) =>
-      -- Check if this ident resolves to local variable dot notation
-      -- If so, keep it because it's not a simple global declaration
-      if let some (_, _ :: _) := (← resolveLocalName id.getId) then
-        return true
-      else
-        return false
-    | `(Parser.Tactic.grindParam| ! $[$_:grindMod]? $id:ident) =>
-      if let some (_, _ :: _) := (← resolveLocalName id.getId) then
-        return true
-      else
-        return false
+    | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) => keepIdentParam mod? id
+    | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) => keepIdentParam mod? id
     | `(Parser.Tactic.grindParam| - $_:ident) => return false
     | `(Parser.Tactic.grindParam| #$_:hexnum) => return false
     | _ => return true
@@ -396,7 +422,15 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
           let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
           let tacs ← Grind.mkGrindOnlyTactics configStx' seq termParamStxs
           let seq := Grind.Action.mkGrindSeq seq
-          let tac ← `(tactic| grind $configStx':optConfig => $seq:grindSeq)
+          /-
+          **Note**: The script must carry the preserved parameters (e.g., types marked for
+          case-splitting). The tactic was verified with these parameters active, and `cases`
+          steps may fail without them.
+          -/
+          let tac ← if termParamStxs.isEmpty then
+            `(tactic| grind $configStx':optConfig => $seq:grindSeq)
+          else
+            `(tactic| grind $configStx':optConfig [$termParamStxs,*] => $seq:grindSeq)
           let tacs := tacs.push tac
           return tacs
         | .stuck gs =>

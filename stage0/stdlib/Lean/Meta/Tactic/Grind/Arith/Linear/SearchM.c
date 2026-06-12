@@ -21,7 +21,6 @@ lean_object* lean_st_ref_set(lean_object*, lean_object*);
 lean_object* l_Lean_Name_mkStr1(lean_object*);
 lean_object* l_Lean_Expr_const___override(lean_object*, lean_object*);
 extern lean_object* l_Lean_Meta_Grind_Arith_Linear_instInhabitedStruct_default;
-extern lean_object* l_Lean_instInhabitedFVarId_default;
 lean_object* lean_array_get_size(lean_object*);
 uint8_t lean_nat_dec_lt(lean_object*, lean_object*);
 lean_object* lean_array_fget(lean_object*, lean_object*);
@@ -96,7 +95,7 @@ _start:
 {
 lean_object* v___x_13_; lean_object* v___x_14_; lean_object* v___x_15_; lean_object* v___x_16_; 
 v___x_13_ = l_Lean_Meta_Grind_Arith_Linear_instInhabitedStruct_default;
-v___x_14_ = l_Lean_instInhabitedFVarId_default;
+v___x_14_ = lean_box(0);
 v___x_15_ = lean_obj_once(&l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4, &l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4_once, _init_l_Lean_Meta_Grind_Arith_Linear_instInhabitedCase_default___closed__4);
 v___x_16_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_16_, 0, v___x_15_);
@@ -595,14 +594,14 @@ if (lean_obj_tag(v___x_190_) == 0)
 lean_object* v_a_191_; lean_object* v___x_192_; 
 v_a_191_ = lean_ctor_get(v___x_190_, 0);
 lean_inc(v_a_191_);
-lean_dec_ref(v___x_190_);
+lean_dec_ref_known(v___x_190_, 1);
 v___x_192_ = l_Lean_Meta_Grind_Arith_Linear_LinearM_getStruct(v_a_178_, v_a_179_, v_a_180_, v_a_181_, v_a_182_, v_a_183_, v_a_184_, v_a_185_, v_a_186_, v_a_187_, v_a_188_);
 if (lean_obj_tag(v___x_192_) == 0)
 {
 lean_object* v_a_193_; lean_object* v___x_194_; lean_object* v_cases_195_; lean_object* v_decVars_196_; lean_object* v___x_198_; uint8_t v_isShared_199_; uint8_t v_isSharedCheck_226_; 
 v_a_193_ = lean_ctor_get(v___x_192_, 0);
 lean_inc(v_a_193_);
-lean_dec_ref(v___x_192_);
+lean_dec_ref_known(v___x_192_, 1);
 v___x_194_ = lean_st_ref_take(v_a_177_);
 v_cases_195_ = lean_ctor_get(v___x_194_, 0);
 v_decVars_196_ = lean_ctor_get(v___x_194_, 1);
@@ -625,13 +624,12 @@ goto v_resetjp_197_;
 v_resetjp_197_:
 {
 lean_object* v___x_200_; lean_object* v___x_201_; lean_object* v___x_202_; lean_object* v___x_204_; 
-lean_inc(v_a_191_);
+lean_inc_n(v_a_191_, 2);
 v___x_200_ = lean_alloc_ctor(0, 3, 0);
 lean_ctor_set(v___x_200_, 0, v_c_176_);
 lean_ctor_set(v___x_200_, 1, v_a_191_);
 lean_ctor_set(v___x_200_, 2, v_a_193_);
 v___x_201_ = l_Lean_PersistentArray_push___redArg(v_cases_195_, v___x_200_);
-lean_inc(v_a_191_);
 v___x_202_ = l_Lean_FVarIdSet_insert(v_decVars_196_, v_a_191_);
 if (v_isShared_199_ == 0)
 {
@@ -653,6 +651,7 @@ v_reusejp_203_:
 {
 lean_object* v___x_205_; lean_object* v___f_206_; lean_object* v___x_207_; lean_object* v___x_208_; 
 v___x_205_ = lean_st_ref_set(v_a_177_, v___x_204_);
+lean_inc(v_a_178_);
 v___f_206_ = lean_alloc_closure((void*)(l_Lean_Meta_Grind_Arith_Linear_mkCase___lam__0___boxed), 2, 1);
 lean_closure_set(v___f_206_, 0, v_a_178_);
 v___x_207_ = l_Lean_Meta_Grind_Arith_Linear_linearExt;
@@ -749,7 +748,6 @@ else
 {
 lean_object* v_a_227_; lean_object* v___x_229_; uint8_t v_isShared_230_; uint8_t v_isSharedCheck_234_; 
 lean_dec(v_a_191_);
-lean_dec(v_a_178_);
 lean_dec_ref(v_c_176_);
 v_a_227_ = lean_ctor_get(v___x_192_, 0);
 v_isSharedCheck_234_ = !lean_is_exclusive(v___x_192_);
@@ -792,7 +790,6 @@ return v___x_232_;
 }
 else
 {
-lean_dec(v_a_178_);
 lean_dec_ref(v_c_176_);
 return v___x_190_;
 }
@@ -813,6 +810,7 @@ lean_dec(v_a_241_);
 lean_dec_ref(v_a_240_);
 lean_dec(v_a_239_);
 lean_dec(v_a_238_);
+lean_dec(v_a_237_);
 lean_dec(v_a_236_);
 return v_res_249_;
 }

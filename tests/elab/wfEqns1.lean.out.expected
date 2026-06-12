@@ -1,2 +1,2 @@
 wfEqns1.lean:2:6-2:12: warning: declaration uses `sorry`
-wfEqns1.lean:2:6-2:12: warning: declaration uses `sorry`
+wfEqns1.lean:1:0-13:3: warning: declaration uses `sorry`

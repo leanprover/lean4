@@ -182,7 +182,7 @@ LEAN_EXPORT lean_object* l_Lake_Package_leanLibs(lean_object* v_self_40_){
 _start:
 {
 lean_object* v_targetDecls_41_; lean_object* v___x_42_; lean_object* v___x_43_; lean_object* v___x_44_; lean_object* v___x_45_; uint8_t v___x_46_; 
-v_targetDecls_41_ = lean_ctor_get(v_self_40_, 13);
+v_targetDecls_41_ = lean_ctor_get(v_self_40_, 15);
 lean_inc_ref(v_targetDecls_41_);
 v___x_42_ = lean_unsigned_to_nat(0u);
 v___x_43_ = ((lean_object*)(l_Lake_Package_leanLibs___closed__0));
@@ -356,7 +356,7 @@ lean_dec_ref(v_self_82_);
 v_dir_86_ = lean_ctor_get(v_pkg_83_, 4);
 lean_inc_ref(v_dir_86_);
 lean_dec_ref(v_pkg_83_);
-v_srcDir_87_ = lean_ctor_get(v_config_84_, 5);
+v_srcDir_87_ = lean_ctor_get(v_config_84_, 4);
 lean_inc_ref(v_srcDir_87_);
 lean_dec_ref(v_config_84_);
 v_srcDir_88_ = lean_ctor_get(v_config_85_, 1);
@@ -383,7 +383,7 @@ lean_dec_ref(v_self_93_);
 v_dir_97_ = lean_ctor_get(v_pkg_94_, 4);
 lean_inc_ref(v_dir_97_);
 lean_dec_ref(v_pkg_94_);
-v_srcDir_98_ = lean_ctor_get(v_config_95_, 5);
+v_srcDir_98_ = lean_ctor_get(v_config_95_, 4);
 lean_inc_ref(v_srcDir_98_);
 lean_dec_ref(v_config_95_);
 v_srcDir_99_ = lean_ctor_get(v_config_96_, 1);
@@ -583,8 +583,8 @@ lean_object* v_pkg_160_; lean_object* v_config_161_; lean_object* v_dir_162_; le
 v_pkg_160_ = lean_ctor_get(v_self_159_, 0);
 v_config_161_ = lean_ctor_get(v_pkg_160_, 6);
 v_dir_162_ = lean_ctor_get(v_pkg_160_, 4);
-v_buildDir_163_ = lean_ctor_get(v_config_161_, 6);
-v_nativeLibDir_164_ = lean_ctor_get(v_config_161_, 8);
+v_buildDir_163_ = lean_ctor_get(v_config_161_, 5);
+v_nativeLibDir_164_ = lean_ctor_get(v_config_161_, 7);
 lean_inc_ref(v_buildDir_163_);
 v___x_165_ = l_System_FilePath_normalize(v_buildDir_163_);
 lean_inc_ref(v_dir_162_);
@@ -606,8 +606,8 @@ lean_object* v_pkg_175_; lean_object* v_config_176_; lean_object* v_dir_177_; le
 v_pkg_175_ = lean_ctor_get(v_self_174_, 0);
 v_config_176_ = lean_ctor_get(v_pkg_175_, 6);
 v_dir_177_ = lean_ctor_get(v_pkg_175_, 4);
-v_buildDir_178_ = lean_ctor_get(v_config_176_, 6);
-v_nativeLibDir_179_ = lean_ctor_get(v_config_176_, 8);
+v_buildDir_178_ = lean_ctor_get(v_config_176_, 5);
+v_nativeLibDir_179_ = lean_ctor_get(v_config_176_, 7);
 lean_inc_ref(v_buildDir_178_);
 v___x_180_ = l_System_FilePath_normalize(v_buildDir_178_);
 lean_inc_ref(v_dir_177_);
@@ -642,8 +642,8 @@ lean_object* v_pkg_195_; lean_object* v_config_196_; lean_object* v_dir_197_; le
 v_pkg_195_ = lean_ctor_get(v_self_194_, 0);
 v_config_196_ = lean_ctor_get(v_pkg_195_, 6);
 v_dir_197_ = lean_ctor_get(v_pkg_195_, 4);
-v_buildDir_198_ = lean_ctor_get(v_config_196_, 6);
-v_nativeLibDir_199_ = lean_ctor_get(v_config_196_, 8);
+v_buildDir_198_ = lean_ctor_get(v_config_196_, 5);
+v_nativeLibDir_199_ = lean_ctor_get(v_config_196_, 7);
 lean_inc_ref(v_buildDir_198_);
 v___x_200_ = l_System_FilePath_normalize(v_buildDir_198_);
 lean_inc_ref(v_dir_197_);

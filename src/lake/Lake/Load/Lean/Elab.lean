@@ -88,6 +88,7 @@ def elabConfigFile
   else
     return s.commandState.env
 
+set_option compiler.ignoreBorrowAnnotation true in
 /--
 `Lean.Kernel.Environment.add` is now private, this is an exported helper wrapping it for
 `Lean.Environment`.
@@ -179,8 +180,7 @@ toolchain). Otherwise, elaborate the configuration and save it to the `.olean`.
 public def importConfigFile (cfg : LoadConfig) : LogIO Environment := do
   let some configName := FilePath.mk <$> cfg.configFile.fileName
     | error "invalid configuration file name"
-  let pkgName := cfg.pkgName.toString (escape := false)
-  let configDir := cfg.lakeDir / "config" / pkgName
+  let configDir := cfg.configDir
   IO.FS.createDirAll configDir
   let olean := configDir / configName.withExtension "olean"
   let traceFile := configDir / configName.withExtension "olean.trace"

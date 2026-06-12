@@ -54,6 +54,7 @@ namespace Primitives
   open Lean.Order
 
   instance : PartialOrder (Result α) := inferInstanceAs (PartialOrder (FlatOrder (.fail .nontermination)))
+  set_option backward.inferInstanceAs.wrap.reuseSubInstances false in
   noncomputable instance : CCPO (Result α) := inferInstanceAs (CCPO (FlatOrder (.fail .nontermination)))
   noncomputable instance : MonoBind Result where
     bind_mono_left h := by

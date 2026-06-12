@@ -16,7 +16,7 @@ extern "C" {
 lean_object* l_Lean_Json_getObjValD(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getStr_x3f(lean_object*);
 lean_object* l_mkPanicMessageWithDecl(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-lean_object* lean_panic_fn(lean_object*, lean_object*);
+lean_object* lean_panic_fn_borrowed(lean_object*, lean_object*);
 lean_object* l_Lean_Json_getArrVal_x3f(lean_object*, lean_object*);
 lean_object* l_Lean_Json_pretty(lean_object*, lean_object*);
 lean_object* lean_string_append(lean_object*, lean_object*);
@@ -539,7 +539,7 @@ _start:
 {
 lean_object* v___x_143_; lean_object* v___x_144_; 
 v___x_143_ = ((lean_object*)(l_panic___at___00Lean_Lsp_CompletionItem_getFileSource_x21_spec__0___closed__0));
-v___x_144_ = lean_panic_fn(v___x_143_, v_msg_142_);
+v___x_144_ = lean_panic_fn_borrowed(v___x_143_, v_msg_142_);
 return v___x_144_;
 }
 }
@@ -573,7 +573,7 @@ lean_inc_ref(v_data_x3f_170_);
 lean_dec_ref(v_item_157_);
 v_val_171_ = lean_ctor_get(v_data_x3f_170_, 0);
 lean_inc(v_val_171_);
-lean_dec_ref(v_data_x3f_170_);
+lean_dec_ref_known(v_data_x3f_170_, 1);
 switch(lean_obj_tag(v_val_171_))
 {
 case 5:
@@ -594,7 +594,7 @@ if (lean_obj_tag(v___x_175_) == 0)
 lean_object* v_a_176_; 
 v_a_176_ = lean_ctor_get(v___x_175_, 0);
 lean_inc(v_a_176_);
-lean_dec_ref(v___x_175_);
+lean_dec_ref_known(v___x_175_, 1);
 v_a_159_ = v_a_176_;
 goto v___jp_158_;
 }
@@ -603,7 +603,7 @@ else
 lean_object* v_a_177_; lean_object* v___x_178_; 
 v_a_177_ = lean_ctor_get(v___x_175_, 0);
 lean_inc(v_a_177_);
-lean_dec_ref(v___x_175_);
+lean_dec_ref_known(v___x_175_, 1);
 v___x_178_ = l_Lean_Json_getStr_x3f(v_a_177_);
 v___y_167_ = v___x_178_;
 goto v___jp_166_;
@@ -653,7 +653,7 @@ if (lean_obj_tag(v___y_167_) == 0)
 lean_object* v_a_168_; 
 v_a_168_ = lean_ctor_get(v___y_167_, 0);
 lean_inc(v_a_168_);
-lean_dec_ref(v___y_167_);
+lean_dec_ref_known(v___y_167_, 1);
 v_a_159_ = v_a_168_;
 goto v___jp_158_;
 }
@@ -662,7 +662,7 @@ else
 lean_object* v_a_169_; 
 v_a_169_ = lean_ctor_get(v___y_167_, 0);
 lean_inc(v_a_169_);
-lean_dec_ref(v___y_167_);
+lean_dec_ref_known(v___y_167_, 1);
 return v_a_169_;
 }
 }

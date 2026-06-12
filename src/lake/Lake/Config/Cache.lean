@@ -7,6 +7,7 @@ module
 
 prelude
 import Init.Control.Do
+public import Lake.Util.Git
 public import Lake.Util.Log
 public import Lake.Util.Version
 public import Lake.Config.Artifact
@@ -26,42 +27,65 @@ namespace Lake
 
 /-! ## Cache Map -/
 
+public structure CacheMap.Entry where
+  private mk ::
+    out : Json
+    platformIndependent : Bool
+
 /--
 Maps an input hash to a structure of output artifact content hashes.
 
 These mappings are stored in a per-package JSON Lines file in the Lake cache.
 -/
-public abbrev CacheMap := Std.HashMap Hash Json
+public abbrev CacheMap := Std.HashMap Hash CacheMap.Entry
 
 namespace CacheMap
 
 /-- The current version of the input-to-output mappings file format. -/
-public def schemaVersion : String := "2025-09-10"
+public def schemaVersion : Date := {year := 2026, month := 3, day := 17}
 
 def checkSchemaVersion (inputName : String) (line : String) : LogIO Unit := do
   if line.isEmpty then
     error s!"{inputName}: expected schema version on line 1"
   match Json.parse line >>= fromJson? with
-  | .ok (ver : String) =>
-      if ver != schemaVersion then
-        logWarning s!"{inputName}: unknown schema version '{ver}'; may not parse correctly"
+  | .ok (ver : Date) =>
+    if ver < schemaVersion then
+      logWarning s!"{inputName}: unknown schema version '{ver}'; may not parse correctly"
   | .error e =>
-    logWarning s!"{inputName}: invalid schema version on line 1: {e}"
+    logWarning s!"{inputName}: invalid header on line 1: {e}"
 
-/-- Parse a `Cache` from a JSON Lines string. -/
-public partial def parse (inputName : String) (contents : String) : LoggerIO CacheMap := do
+def parseCacheEntry [Monad m] [MonadLog m]
+  (inputName : String) (lineNo : Nat) (cache : CacheMap) (line : String)
+  (platformIndependent : Bool)
+: m CacheMap := do
+  match go with
+  | .ok cache =>
+    return cache
+  | .error e =>
+    logWarning s!"{inputName}: invalid JSON on line {lineNo}: {e}"
+    return cache
+where go : Except String CacheMap := do
+  let json ← Json.parse line
+  let a : Array Json ← fromJson? json
+  let inputHash ← a[0]?.elim (throw "expected array of size > 0") (fromJson? ·)
+  let out ← a[1]?.elim (throw "expected array of size > 1") (fromJson? ·)
+  return cache.insert inputHash {out, platformIndependent}
+
+/--
+Parse a `Cache` from a JSON Lines string.
+
+If `platformIndependent := true`, all mappings within the file are considered
+platform-independent. Otherwise, they are considered platform-dependent.
+-/
+public partial def parse
+  (inputName : String) (contents : String) (platformIndependent := false)
+: LoggerIO CacheMap := do
   let rec loop (i : Nat) (cache : CacheMap) {contents : String} (pos : contents.Pos) := do
     let lfPos := pos.find '\n'
     let line := contents.slice pos lfPos (by simp [lfPos])
     if line.trimAscii.isEmpty then
       return cache
-    let cache ← id do
-      match Json.parse line.copy >>= fromJson? with
-      | .ok (inputHash, arts) =>
-        return cache.insert inputHash arts
-      | .error e =>
-        logWarning s!"{inputName}: invalid JSON on line {i}: {e}"
-        return cache
+    let cache ← parseCacheEntry inputName i cache line.copy platformIndependent
     if h : lfPos.IsAtEnd then
       return cache
     else
@@ -74,19 +98,15 @@ public partial def parse (inputName : String) (contents : String) : LoggerIO Cac
   else
     loop 2 {} (lfPos.next h)
 
-@[inline] private partial def loadCore
-  (h : IO.FS.Handle) (fileName : String)
+@[inline] partial def loadCore
+  (h : IO.FS.Handle) (fileName : String) (platformIndependent : Bool)
 : LogIO CacheMap := do
   let rec loop (i : Nat) (cache : CacheMap) := do
     let line ← h.getLine
     if line.isEmpty then
       return cache
-    match Json.parse line >>= fromJson? with
-    | .ok (inputHash, arts) =>
-      loop (i+1) (cache.insert inputHash arts)
-    | .error e =>
-      logWarning s!"{fileName}: invalid JSON on line {i}: {e}"
-      loop (i+1) cache
+    let cache ← parseCacheEntry fileName i cache line platformIndependent
+    loop (i+1) cache
   let line ← h.getLine
   checkSchemaVersion fileName line
   loop 2 {}
@@ -94,80 +114,108 @@ public partial def parse (inputName : String) (contents : String) : LoggerIO Cac
 /--
 Loads a `CacheMap` from a JSON Lines file.
 Errors if the file is ill-formatted or the read fails for other reasons.
+
+If `platformIndependent := true`, all mappings within the file are considered
+platform-independent. Otherwise, they are considered platform-dependent.
 -/
-public def load (file : FilePath) : LogIO CacheMap := do
+public def load (file : FilePath) (platformIndependent := false) : LogIO CacheMap := do
   match (← IO.FS.Handle.mk file .read |>.toBaseIO) with
   | .ok h =>
     h.lock (exclusive := false)
-    loadCore h file.toString
+    loadCore h file.toString platformIndependent
   | .error e =>
     error s!"{file}: failed to open file: {e}"
 
-/-
+/--
 Loads a `CacheMap` from a JSON Lines file. Returns `none` if the file does not exist.
 Errors if the manifest is ill-formatted or the read fails for other reasons.
+
+If `platformIndependent := true`, all mappings within the file are considered
+platform-independent. Otherwise, they are considered platform-dependent.
 -/
-public def load? (file : FilePath) : LogIO (Option CacheMap) := do
+public def load? (file : FilePath) (platformIndependent := false) : LogIO (Option CacheMap) := do
   match (← IO.FS.Handle.mk file .read |>.toBaseIO) with
   | .ok h =>
     h.lock (exclusive := false)
-    loadCore h file.toString
+    loadCore h file.toString platformIndependent
   | .error (.noFileOrDirectory ..) =>
     return none
   | .error e =>
     error s!"{file}: failed to open file: {e}"
 
+def writeCacheEntries
+  (h : IO.FS.Handle) (cache : CacheMap) (platformIndependent : Bool)
+: LogIO Unit :=
+  if platformIndependent then
+    cache.forM fun k ⟨v, platformIndependentMapping⟩ => do
+      -- skip platform-dependent outputs in platform-independent maps
+      if platformIndependentMapping then
+        h.putStrLn (Json.arr #[toJson k, toJson v]).compress
+  else
+    cache.forM fun k ⟨v, _⟩ => do
+      h.putStrLn (Json.arr #[toJson k, toJson v]).compress
+
 /--
 Save a `CacheMap` to a JSON Lines file.
 Entries already in the file but not in the map will not be removed.
 -/
-public def updateFile (file : FilePath) (cache : CacheMap) : LogIO Unit := do
+public def updateFile
+  (file : FilePath) (cache : CacheMap)
+: LogIO Unit := do
   createParentDirs file
   discard <| IO.FS.Handle.mk file .append -- ensure file exists
   match (← IO.FS.Handle.mk file .readWrite |>.toBaseIO) with
   | .ok h =>
     h.lock (exclusive := true)
-    let currEntries ← loadCore h file.toString
+    let currEntries ← loadCore h file.toString false
     let cache := cache.fold (fun m k v => m.insert k v) currEntries
     h.rewind
-    cache.forM fun k v =>
-       h.putStrLn (toJson (k, v)).compress
+    writeCacheEntries h cache false
   | .error e =>
     error s!"{file}: failed to open file: {e}"
 
-/-- Write a `CacheMap` to a JSON Lines file. -/
-public def writeFile (file : FilePath) (cache : CacheMap) : LogIO Unit := do
+/--
+Write a `CacheMap` to a JSON Lines file.
+
+If `platformIndependent := true`, platform-dependent mappings within the map
+will not be written to the file.
+-/
+public def writeFile
+  (file : FilePath) (cache : CacheMap) (platformIndependent := false)
+: LogIO Unit := do
   createParentDirs file
   match (← IO.FS.Handle.mk file .write |>.toBaseIO) with
   | .ok h =>
     h.lock (exclusive := true)
     h.putStrLn (toJson schemaVersion).compress
-    cache.forM fun k v =>
-       h.putStrLn (toJson (k, v)).compress
+    writeCacheEntries h cache platformIndependent
   | .error e =>
     error s!"{file}: failed to open file: {e}"
 
 /-- Returns the output data associated with the input hash in the cache. -/
 public nonrec def get? (inputHash : Hash) (cache : CacheMap) : Option Json :=
-  cache.get? inputHash
+  cache.get? inputHash >>= (·.out) -- specializes `get?`
 
 /-- Associate output data (as JSON) with the given the input hash. -/
-public def insertCore (inputHash : Hash) (val : Json) (cache : CacheMap) : CacheMap :=
-  cache.insert inputHash val
+def insertCore
+  (inputHash : Hash) (out : Json) (cache : CacheMap)
+  (platformIndependent : Bool)
+: CacheMap := cache.insert inputHash {out, platformIndependent}
 
 /-- Associate output data with the given the input hash. -/
-@[inline] public def insert [ToJson α] (inputHash : Hash) (val : α) (cache : CacheMap) : CacheMap :=
-  cache.insertCore inputHash (toJson val)
+@[inline] public def insert
+  [ToJson α] (inputHash : Hash) (val : α) (cache : CacheMap)
+  (platformIndependent := false)
+: CacheMap := cache.insertCore inputHash (toJson val) platformIndependent
 
 /-- Extract each output from their structured data into a flat array of artifact descriptions. -/
 public partial def collectOutputDescrs (map : CacheMap) : LogIO (Array ArtifactDescr) := do
-  throwIfLogs <| map.foldM (init := #[]) fun as _ o => go as o
+  throwIfLogs <| map.foldM (init := #[]) fun as _ e => go as e.out
 where go as o := do
   match o with
   | .null =>
     return as
-  | .bool b =>
-    logError s!"unsupported output: {b}"
+  | .bool _ => -- boolean metadata is allowed (as of 2025-03-13)
     return as
   | .num o =>
     match Hash.ofJsonNumber? o with
@@ -202,8 +250,10 @@ public def get? (inputHash : Hash) (cache : CacheRef) : BaseIO (Option Json) :=
   cache.modifyGet fun m => (m.get? inputHash, m)
 
 @[inline, inherit_doc CacheMap.insert]
-public def insert [ToJson α] (inputHash : Hash) (val : α) (cache : CacheRef) : BaseIO Unit :=
-  cache.modify (·.insert inputHash (toJson val))
+public def insert
+  [ToJson α] (inputHash : Hash) (val : α) (cache : CacheRef)
+  (platformIndependent := false)
+: BaseIO Unit := cache.modify (·.insert inputHash (toJson val) platformIndependent)
 
 end CacheRef
 
@@ -297,7 +347,8 @@ public structure CacheOutput where
 
 namespace CacheOutput
 
-@[inline] def ofData (data : Json) : CacheOutput := {data}
+/-- **For internal use only.** -/
+@[inline] public def ofData (data : Json) : CacheOutput := {data}
 
 public protected def toJson (out : CacheOutput) : Json := Id.run do
   let mut obj :=
@@ -371,19 +422,6 @@ public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Arti
   | .error e =>
     error s!"failed to retrieve artifact from cache: {e}"
 
-/--
-**For internal use only.**
-Returns path to the artifact for each output. Errors if any are missing.
--/
-public def getArtifactPaths
-  (cache : Cache) (descrs : Array ArtifactDescr)
-: LogIO (Vector FilePath descrs.size) := throwIfLogs do
-  (Vector.mk descrs rfl).mapM fun out => do
-    let art := cache.artifactDir / out.relPath
-    unless (← art.pathExists) do
-      logError s!"artifact not found in cache: {art}"
-    return art
-
 /-- The directory where input-to-output mappings are stored in the Lake cache. -/
 @[inline] public def outputsDir (cache : Cache) : FilePath :=
   cache.dir / "outputs"
@@ -411,7 +449,7 @@ def writeOutputsCore
 public def writeMap
   (cache : Cache) (scope : String) (map : CacheMap)
   (service? : Option CacheServiceName := none) (remoteScope? : Option CacheServiceScope := none)
-: IO Unit := map.forM fun i o => cache.writeOutputsCore scope i o service? remoteScope?
+: IO Unit := map.forM fun i e => cache.writeOutputsCore scope i e.out service? remoteScope?
 
 /-- Retrieve the cached outputs corresponding to the given input for the package (if any). -/
 public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : LogIO (Option CacheOutput) := do
@@ -432,10 +470,12 @@ public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : Lo
   cache.dir / "revisions"
 
 /-- Returns path to the input-to-output mappings of a downloaded package revision. -/
-@[inline] public def revisionPath (cache : Cache) (scope : String) (rev : String)   : FilePath :=
+@[inline] public def revisionPath (cache : Cache) (scope : String) (rev : GitRev) : FilePath :=
   cache.revisionDir / scope / s!"{rev}.jsonl"
 
 end Cache
+
+/-! ## Cache Platform -/
 
 /-- The type of platform identifiers used by the Lake ache. -/
 public structure CachePlatform where
@@ -457,7 +497,7 @@ public def system : CachePlatform := ⟨System.Platform.target⟩
 @[inline] public def ofString (s : String) : CachePlatform := ⟨s⟩
 
 /-- Returns the length of the platform identifier in Unicode code points. -/
-public def length (self : CachePlatform) : Nat := self.raw.length
+public def length (self : CachePlatform) : Nat := self.raw.chars.length
 
 /-- Returns a string representation of the platform identifier. -/
 public protected def toString (self : CachePlatform) : String :=
@@ -466,6 +506,8 @@ public protected def toString (self : CachePlatform) : String :=
 instance : ToString CachePlatform := ⟨CachePlatform.toString⟩
 
 end CachePlatform
+
+/-! ## Cache Toolchain -/
 
 /-- The type of toolchain identifiers used by the Lake ache. -/
 public structure CacheToolchain where
@@ -487,7 +529,7 @@ public def ofString (s : String) : CacheToolchain := ⟨normalizeToolchain s⟩
 @[inline] public def ofElanToolchain (s : String) : CacheToolchain := ⟨s⟩
 
 /-- Returns the length of the toolchain identifier in Unicode code points. -/
-public def length (self : CacheToolchain) : Nat := self.raw.length
+public def length (self : CacheToolchain) : Nat := self.raw.chars.length
 
 /-- Returns a string representation of the toolchain identifier. -/
 public protected def toString (self : CacheToolchain) : String :=
@@ -504,9 +546,10 @@ public def downloadArtifactCore (hash : Hash) (url : String) (path : FilePath) :
   download url path
   let actualHash ← computeFileHash path
   if actualHash != hash then
-    logError s!"{path}: downloaded artifact does not have the expected hash"
+    let errPos ← getLogPos
+    logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
     IO.FS.removeFile path
-    failure
+    throw errPos
 
 /-- Uploads a file to an online bucket using the Amazon S3 protocol. -/
 def uploadS3
@@ -533,7 +576,7 @@ def uploadS3
   | .error e =>
     error s!"curl produced invalid JSON output: {e}; received:\n{out.stderr}"
 
-private structure CacheServiceImpl where
+structure CacheServiceImpl where
   mk ::
     name? : Option CacheServiceName := none
     /- S3 Bucket -/
@@ -599,11 +642,11 @@ namespace CacheService
 /-- The MIME type of a Lake/Reservoir artifact. -/
 public def artifactContentType : String := "application/vnd.reservoir.artifact"
 
-private def appendScope (endpoint : String) (scope : String) : String :=
+def appendScope (endpoint : String) (scope : String) : String :=
   scope.split '/' |>.fold (init := endpoint) fun s component =>
     uriEncode component.copy (s.push '/')
 
-private def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope) : String :=
+def s3ArtifactUrl (contentHash : Hash) (service : CacheService) (scope : CacheServiceScope) : String :=
   let endpoint :=
     match scope.impl with
     | .repo scope => appendScope service.impl.artifactEndpoint scope
@@ -628,33 +671,10 @@ public def downloadArtifact
   let path := cache.artifactDir / descr.relPath
   if (← path.pathExists) && !force then
     return
-  logInfo s!"\
-    {scope}: downloading artifact {descr.hash}\
+  logInfo s!"{scope}: downloading artifact {descr.hash}\
     \n  local path: {path}\
     \n  remote URL: {url}"
   downloadArtifactCore descr.hash url path
-
-public def downloadArtifacts
-   (descrs : Array ArtifactDescr) (cache : Cache)
-   (service : CacheService) (scope : CacheServiceScope) (force := false)
-: LoggerIO Unit := do
-  let ok ← descrs.foldlM (init := true) fun ok descr =>
-    try
-      service.downloadArtifact descr cache scope force
-      return ok
-    catch _ =>
-      return false
-  unless ok do
-    error s!"{scope}: failed to download some artifacts"
-
-@[deprecated "Deprecated without replacement." (since := "2026-02-27")]
-public def downloadOutputArtifacts
-  (map : CacheMap) (cache : Cache) (service : CacheService)
-  (localScope : String) (remoteScope : CacheServiceScope) (force := false)
-: LoggerIO Unit := do
-  cache.writeMap localScope map service.name? remoteScope
-  let descrs ← map.collectOutputDescrs
-  service.downloadArtifacts descrs cache remoteScope force
 
 public def uploadArtifact
   (contentHash : Hash) (art : FilePath) (service : CacheService) (scope : CacheServiceScope)
@@ -666,18 +686,264 @@ public def uploadArtifact
     \n  remote URL: {url}"
   uploadS3 art artifactContentType url service.impl.key
 
+/-! ## Multi-Artifact Transfer -/
+
+inductive TransferKind
+  | get
+  | put
+  deriving DecidableEq
+
+structure TransferInfo where
+  url : String
+  path : FilePath
+  descr : ArtifactDescr
+
+structure TransferConfig where
+  kind : TransferKind
+  scope : CacheServiceScope
+  infos : Array TransferInfo
+  key : String := ""
+
+structure TransferState where
+  didError : Bool := false
+  numSuccesses : Nat := 0
+
+partial def monitorTransfer
+  (cfg : TransferConfig) (h hOut : IO.FS.Handle) (s : TransferState)
+: LoggerIO TransferState := do
+  let line ← h.getLine
+  if line.trimAscii.isEmpty then
+    return s
+  else
+    let s ← (·.2) <$> StateT.run (s := s) do
+      match Json.parse line >>= fromJson? with
+      | .ok (out : JsonObject) =>
+        let some info@{url, path, descr} := getInfo? out
+          | logError s!"{cfg.scope}: unidentifiable transfer completed: {line.trimAscii}"
+            modify ({· with didError := true})
+            return
+        match out.get "http_code" with
+        | .ok 200
+        | .ok 201 =>
+          match cfg.kind with
+          | .get =>
+            logInfo s!"{cfg.scope}: downloaded artifact {descr.hash}\
+              \n  local path: {path}\
+              \n  remote URL: {url}"
+            let actualHash ← computeFileHash path
+            if actualHash != descr.hash then
+              logError s!"{path}: downloaded artifact hash mismatch, got {actualHash}"
+              IO.FS.removeFile path
+              modify ({· with didError := true})
+            else
+              modify fun s => {s with numSuccesses := s.numSuccesses + 1}
+          | .put =>
+            logInfo s!"{cfg.scope}: uploaded artifact {descr.hash}\
+              \n  local path: {path}\
+              \n  remote URL: {url}"
+            modify fun s => {s with numSuccesses := s.numSuccesses + 1}
+        | code? =>
+          handleFailure info code? out line
+          modify ({· with didError := true})
+      | .error e =>
+        logError s!"curl produced invalid JSON: {e}; received: {line.trimAscii}"
+        modify ({· with didError := true})
+    monitorTransfer cfg h hOut s
+where
+  getInfo? out :=
+    match out.getAs Nat "urlnum" with
+    | .ok i => cfg.infos[i]?
+    | _ => none
+  handleFailure info code? out line : LoggerIO Unit := do
+    let action := match cfg.kind with | .get => "download" | .put => "upload"
+    let mut msg := s!"{cfg.scope}: failed to {action} artifact {info.descr.hash}"
+    if let .ok code := code? then
+      msg := s!"{msg} (status code: {code})"
+    if let .ok errMsg := out.getAs String "errormsg" then
+      msg := s!"{msg}\n  curl error: {errMsg}"
+    msg := s!"{msg}\
+      \n  local path: {info.path}\
+      \n  remote URL: {info.url}"
+    match cfg.kind with
+    | .get =>
+      unless code? matches .ok 404 do -- ignore response bodies on 404s
+        if let .ok size := out.getAs Nat "size_download" then
+          if size > 0 then
+            if let .ok contentType := out.getAs String "content_type" then
+              if contentType != artifactContentType then
+                if let .ok resp ← IO.FS.readFile info.path |>.toBaseIO then
+                  msg := s!"{msg}\nunexpected response:\n{resp}"
+      removeFileIfExists info.path
+    | .put =>
+      if let .ok size := out.getAs Nat "size_download" then
+        if size > 0 then
+          if let some resp := String.fromUTF8? (← hOut.read size.toUSize) then
+            msg := s!"{msg}\nunexpected response:\n{resp}"
+    logError msg
+    logVerbose s!"curl JSON: {line.trimAsciiEnd}"
+
+def transferArtifacts
+  (cfg : TransferConfig)
+: LoggerIO Unit := IO.FS.withTempFile fun h path => do
+  let args ← id do
+    match cfg.kind with
+    | .get =>
+      cfg.infos.forM fun info => do
+        h.putStrLn s!"url = {info.url.quote}"
+        h.putStrLn s!"-o {info.path.toString.quote}"
+      h.flush
+      return #[
+        "-Z", "-X", "GET", "-L",
+        "--retry", "3", -- intermittent network errors can occur
+        "-s", "-w", "%{stderr}%{json}\n", "--config", path.toString
+      ]
+    | .put =>
+      cfg.infos.forM fun info => do
+        h.putStrLn s!"-T {info.path.toString.quote}"
+        h.putStrLn s!"url = {info.url.quote}"
+      h.flush
+      return #[
+        "-Z", "-X", "PUT", "-L",
+        "-H", s!"Content-Type: {artifactContentType}",
+        "--retry", "3", -- intermittent network errors can occur
+        "--aws-sigv4", "aws:amz:auto:s3", "--user", cfg.key,
+        "-s", "-w", "%{stderr}%{json}\n", "--config", path.toString
+      ]
+  let child ← IO.Process.spawn {
+    cmd := "curl", args
+    stdout := .piped, stderr := .piped
+  }
+  let s ← monitorTransfer cfg child.stderr child.stdout {}
+  let rc ← child.wait
+  let stdout ← child.stdout.readToEnd
+  let mut didError := s.didError
+  if s.numSuccesses < cfg.infos.size then
+    let action := match cfg.kind with | .get => "download" | .put => "upload"
+    logError s!"{cfg.scope}: failed to {action} some artifacts"
+    didError := true
+  unless stdout.isEmpty do
+    logWarning s!"{cfg.scope}: curl produced unexpected output:\n{stdout.trimAsciiEnd}"
+  if rc != 0 then
+    logError s!"{cfg.scope}: curl exited with code {rc}"
+    didError := true
+  if s.didError then
+    failure
+
+private def reservoirArtifactsUrl (service : CacheService) (scope : CacheServiceScope) : String :=
+  let endpoint :=
+    match scope.impl with
+    | .repo scope => appendScope s!"{service.impl.apiEndpoint}/repositories" scope
+    | .str scope => appendScope s!"{service.impl.apiEndpoint}/packages" scope
+  s!"{endpoint}/artifacts"
+
+public def downloadArtifacts
+   (descrs : Array ArtifactDescr) (cache : Cache)
+   (service : CacheService) (scope : CacheServiceScope) (force := false)
+: LoggerIO Unit := do
+  if descrs.isEmpty then
+    logWarning "no artifacts to download"
+    return
+  let infos ← descrs.foldlM (init := #[]) fun s descr => do
+    let path := cache.artifactDir / descr.relPath
+    if force then
+      removeFileIfExists path
+    else if (← path.pathExists) then
+      return s
+    let url := service.artifactUrl descr.hash scope
+    return s.push {url, path, descr}
+  if infos.isEmpty then
+    return
+  let infos ← id do
+    if service.isReservoir then
+      -- Artifact cloud storage URLs are fetched in a single request
+      -- to avoid hammering the Reservoir web host
+      fetchUrls (service.reservoirArtifactsUrl scope) infos
+    else return infos
+  IO.FS.createDirAll cache.artifactDir
+  transferArtifacts {scope, infos, kind := .get}
+where
+  fetchUrls url infos := IO.FS.withTempFile fun h path => do
+    let body := Json.arr <| infos.map (toJson ·.descr.hash)
+    h.putStr body.compress
+    h.flush
+    let args := #[
+        "-X", "POST", "-L", "-d", s!"@{path}",
+        "--retry", "3", -- intermittent network errors can occur
+        "-s", "-w", "%{stderr}%{json}\n",
+        "-H", "Content-Type: application/json",
+      ]
+    let args := Reservoir.lakeHeaders.foldl (· ++ #["-H", ·]) args
+    let spawnArgs := {
+      cmd := "curl", args := args.push url
+      stdout := .piped, stderr := .piped
+    }
+    logVerbose (mkCmdLog spawnArgs)
+    let {stdout, stderr, exitCode} ← IO.Process.output spawnArgs
+    match Json.parse stdout >>= fromJson? with
+    | .ok (resp :  ReservoirResp (Array String)) =>
+      match resp with
+      | .data urls =>
+        if h : infos.size = urls.size then
+          let s := infos.size.fold (init := infos.toVector) fun i hi s =>
+            s.set i {s[i] with url := urls[i]'(h ▸ hi)}
+          return s.toArray
+        else
+          error s!"failed to fetch artifact URLs\
+          \n  POST {url}\
+          \nIncorrect number of results: expected {infos.size}, got {urls.size}"
+      | .error status message =>
+        error s!"failed to fetch artifact URLs (status code: {status})\
+          \n  POST {url}\
+          \nReservoir error: {message}"
+    | .error _ =>
+      match Json.parse stderr >>= fromJson? with
+      | .ok (out : JsonObject) =>
+        let mut msg := "failed to fetch artifact URLs"
+        if let .ok code := out.getAs Nat "http_code" then
+          msg := s!"{msg} (status code: {code})"
+        msg := s!"{msg}\n  POST {url}"
+        if let .ok errMsg := out.getAs String "errormsg" then
+          msg := s!"{msg}\n  Transfer error: {errMsg}"
+        unless stdout.isEmpty do
+          msg := s!"{msg}\nstdout:\n{stdout.trimAsciiEnd}"
+        logError msg
+        logVerbose s!"curl JSON:\n{stderr.trimAsciiEnd}"
+      | .error e =>
+        logError s!"failed to fetch artifact URLs\
+          \n  POST {url}
+          \nInvalid curl JSON: {e}; received: {stderr.trimAscii}"
+        unless stdout.isEmpty do
+          logWarning s!"curl produced unexpected output:\n{stdout.trimAsciiEnd}"
+      error s!"curl exited with code {exitCode}"
+
+@[deprecated "Deprecated without replacement." (since := "2026-02-27")]
+public def downloadOutputArtifacts
+  (map : CacheMap) (cache : Cache) (service : CacheService)
+  (localScope : String) (remoteScope : CacheServiceScope) (force := false)
+: LoggerIO Unit := do
+  cache.writeMap localScope map service.name? remoteScope
+  let descrs ← map.collectOutputDescrs
+  service.downloadArtifacts descrs cache remoteScope force
+
 public def uploadArtifacts
   (descrs : Vector ArtifactDescr n) (paths : Vector FilePath n)
   (service : CacheService) (scope : CacheServiceScope)
-: LoggerIO Unit := n.forM fun n h => service.uploadArtifact descrs[n].hash paths[n] scope
+: LoggerIO Unit := do
+  if n = 0 then
+    logWarning "no artifacts to upload"
+    return
+  let infos ← n.foldM (init := #[]) fun i _ s => do
+    let url := service.artifactUrl descrs[i].hash scope
+    return s.push {url, path := paths[i], descr := descrs[i]}
+  transferArtifacts {scope, infos, kind := .put, key := service.impl.key}
 
 /-! ### Output Transfer -/
 
 /-- The MIME type of a Lake/Reservoir input-to-output mappings for a Git revision. -/
 public def mapContentType : String := "application/vnd.reservoir.outputs+json-lines"
 
-private def s3RevisionUrl
-  (rev : String) (service : CacheService) (scope : CacheServiceScope)
+def s3RevisionUrl
+  (rev : GitRev) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : String :=
   match scope.impl with
@@ -691,7 +957,7 @@ private def s3RevisionUrl
     return s!"{url}/{rev}.jsonl"
 
 public def revisionUrl
-  (rev : String) (service : CacheService) (scope : CacheServiceScope)
+  (rev : GitRev) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : String :=
   if service.isReservoir then Id.run do
@@ -709,14 +975,14 @@ public def revisionUrl
     service.s3RevisionUrl rev scope platform toolchain
 
 public def downloadRevisionOutputs?
-  (rev : String) (cache : Cache) (service : CacheService)
+  (rev : GitRev) (cache : Cache) (service : CacheService)
   (localScope : String) (remoteScope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none) (force := false)
 : LoggerIO (Option CacheMap) := do
   -- TODO: toolchain-scoped revision paths for system cache?
   let path := cache.revisionPath localScope rev
   if (← path.pathExists) && !force then
-    return ← CacheMap.load path
+    return ← CacheMap.load path platform.isNone
   let url := service.revisionUrl rev remoteScope platform toolchain
   logInfo s!"\
     {localScope}: downloading build outputs for revision {rev}\
@@ -730,10 +996,10 @@ public def downloadRevisionOutputs?
     | return none
   createParentDirs path
   IO.FS.writeFile path contents
-  CacheMap.load path
+  CacheMap.load path platform.isNone
 
 public def uploadRevisionOutputs
-  (rev : String) (outputs : FilePath) (service : CacheService) (scope : CacheServiceScope)
+  (rev : GitRev) (outputs : FilePath) (service : CacheService) (scope : CacheServiceScope)
   (platform := CachePlatform.none) (toolchain := CacheToolchain.none)
 : LoggerIO Unit := do
   let url := service.s3RevisionUrl rev scope platform toolchain

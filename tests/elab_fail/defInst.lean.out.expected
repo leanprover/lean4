@@ -11,4 +11,5 @@ false
 true
 true
 @[implicit_reducible] def instMonadM : Monad M :=
-ReaderT.instMonad
+{ map := @instMonadM._aux_1, mapConst := @instMonadM._aux_3, pure := @instMonadM._aux_5, seq := @instMonadM._aux_7,
+  seqLeft := @instMonadM._aux_9, seqRight := @instMonadM._aux_11, bind := @instMonadM._aux_13 }

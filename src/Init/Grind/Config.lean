@@ -35,6 +35,11 @@ structure Config where
   The input goal terms have generation 0. When we instantiate a theorem using a term from generation `n`,
   the new terms have generation `n+1`. Thus, this parameter limits the length of an instantiation chain. -/
   gen : Nat := 8
+  /--
+  Maximum term generation for local theorems (e.g., hypotheses).
+  See `gen`.
+  -/
+  genLocal : Nat := 8
   /-- Maximum number of theorem instances generated using E-matching in a proof search tree branch. -/
   instances : Nat := 1000
   /-- If `matchEqs` is `true`, `grind` uses `match`-equations as E-matching theorems. -/
@@ -111,11 +116,14 @@ structure Config where
   ring := true
   /--
   Maximum number of steps performed by the `ring` solver.
-  A step is counted whenever one polynomial is used to simplify another.
-  For example, given `x^2 + 1` and `x^2 * y^3 + x * y`, the first can be
-  used to simplify the second to `-1 * y^3 + x * y`.
+  A step is counted whenever one polynomial is used to simplify another,
+  weighted by the number of terms in the resulting polynomial.
   -/
-  ringSteps := 10000
+  ringSteps := 100000
+  /--
+  Maximum degree of polynomials processed by the `ring` solver.
+  -/
+  ringMaxDegree := 1024
   /--
   When `true` (default: `true`), uses procedure for handling linear arithmetic for `IntModule`, and
   `CommRing`.
@@ -258,6 +266,9 @@ structure NoopConfig extends Config where
   lia       := false
   ac        := false
   order     := false
+
+  -- Disable model-based theory combination
+  mbtc      := false
 
 /--
 A `grind` configuration that only uses `cutsat` and splitting.

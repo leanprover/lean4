@@ -1,5 +1,5 @@
 splitIssue3.lean:8:4-8:7: warning: declaration uses `sorry`
-splitIssue3.lean:8:4-8:7: warning: declaration uses `sorry`
+splitIssue3.lean:8:0-16:17: warning: declaration uses `sorry`
 @len.eq_1 : ∀ {α : Type u_1}, len [] = 0
 @len.eq_2 : ∀ {α : Type u_1} (a : α), len [a] = 1
 @len.eq_3 : ∀ {α : Type u_1} (fst snd : List α),

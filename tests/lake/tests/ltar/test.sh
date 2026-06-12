@@ -54,6 +54,15 @@ test_run -f restoreAll.toml build +Test -v --wfail -o .lake/outputs.jsonl
 test_cmd ls .lake/cache/artifacts/*.ltar
 test_exp -f .lake/build/ir/Test.ltar
 
+# Test that the cache input-to-output mapping is overwritten without
+# `--keep-local`. Since the build mapping includes module outputs and the
+# tracked mapping only includes the `ltar`, the tracking mapping should
+# require an unpack, whereas the build mapping should not.
+test_run cache add .lake/outputs.jsonl --keep-local
+LAKE_ARTIFACT_CACHE=true test_not_out "leantar" build +Test --no-build -v
+test_run cache add .lake/outputs.jsonl
+LAKE_ARTIFACT_CACHE=true test_out "leantar" build +Test --no-build -v
+
 # Test producing an `ltar` without already restored artifacts
 rm -rf .lake/cache .lake/build
 LAKE_ARTIFACT_CACHE=true test_run build +Test -v

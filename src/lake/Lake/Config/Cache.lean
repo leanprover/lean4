@@ -434,22 +434,28 @@ public def getArtifact (cache : Cache) (descr : ArtifactDescr) : EIO String Arti
 def writeOutputsCore
   (cache : Cache) (scope : String) (inputHash : Hash) (out : Json)
   (service? : Option CacheServiceName) (remoteScope? : Option CacheServiceScope)
+  (overwrite : Bool)
 : IO Unit := do
   let file := cache.outputsFile scope inputHash
   createParentDirs file
   let out := {service?, scope? := remoteScope?, data := out : CacheOutput}
-  IO.FS.writeFile file (toJson out).pretty
+  let contents := (toJson out).pretty
+  if overwrite then
+    IO.FS.writeFile file contents
+  else
+    writeFileIfNew file contents
 
 /-- Cache the outputs corresponding to the given input for the package.  -/
 @[inline] public def writeOutputs
-  [ToJson α] (cache : Cache) (scope : String) (inputHash : Hash) (outputs : α)
-: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) none none
+  [ToJson α] (cache : Cache) (scope : String) (inputHash : Hash) (outputs : α) (overwrite := true)
+: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) none none overwrite
 
 /-- Cache the input-to-outputs mappings from a `CacheMap`.  -/
 public def writeMap
   (cache : Cache) (scope : String) (map : CacheMap)
   (service? : Option CacheServiceName := none) (remoteScope? : Option CacheServiceScope := none)
-: IO Unit := map.forM fun i e => cache.writeOutputsCore scope i e.out service? remoteScope?
+  (overwrite := true)
+: IO Unit := map.forM fun i e => cache.writeOutputsCore scope i e.out service? remoteScope? overwrite
 
 /-- Retrieve the cached outputs corresponding to the given input for the package (if any). -/
 public def readOutputs? (cache : Cache) (scope : String) (inputHash : Hash) : LogIO (Option CacheOutput) := do

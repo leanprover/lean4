@@ -65,6 +65,7 @@ public structure LakeOptions where
   outFormat : OutFormat := .text
   offline : Bool := false
   outputsFile? : Option FilePath := none
+  overwriteInputs : Bool := true
   forceDownload : Bool := false
   mappingsOnly : Bool := false
   service? : Option String := none
@@ -285,6 +286,7 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--offline"     => modifyThe LakeOptions ({· with offline := true})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
+| "--keep-local"  => modifyThe LakeOptions ({· with overwriteInputs := false})
 | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
 | "--download-arts" => modifyThe LakeOptions ({· with mappingsOnly := false})
 | "--mappings-only" => modifyThe LakeOptions ({· with mappingsOnly := true})
@@ -485,7 +487,7 @@ protected def get : CliM PUnit := do
       else
         return ws.defaultCacheService
     let map ← CacheMap.load file
-    cache.writeMap ws.root.cacheScope map service.name? (some remoteScope)
+    cache.writeMap ws.root.cacheScope map service.name? (some remoteScope) opts.overwriteInputs
     let descrs ← map.collectOutputDescrs
     service.downloadArtifacts descrs cache remoteScope opts.forceDownload
   else
@@ -530,7 +532,7 @@ protected def get : CliM PUnit := do
           return map
         else
           findOutputs cache service pkg remoteScope opts platform toolchain
-      cache.writeMap pkg.cacheScope map service.name? (some remoteScope)
+      cache.writeMap pkg.cacheScope map service.name? (some remoteScope) opts.overwriteInputs
       unless opts.mappingsOnly do
         let descrs ← map.collectOutputDescrs
         service.downloadArtifacts descrs cache remoteScope opts.forceDownload
@@ -544,7 +546,7 @@ protected def get : CliM PUnit := do
         let toolchain := cacheToolchain pkg toolchain
         try
           let map ← findOutputs cache service pkg remoteScope opts platform toolchain
-          cache.writeMap pkg.cacheScope map service.name? (some remoteScope)
+          cache.writeMap pkg.cacheScope map service.name? (some remoteScope) opts.overwriteInputs
           unless opts.mappingsOnly do
             let descrs ← map.collectOutputDescrs
             service.downloadArtifacts descrs cache remoteScope opts.forceDownload
@@ -677,7 +679,7 @@ protected def add : CliM PUnit := do
       error (serviceNotFound service ws.lakeConfig.config.cache.services)
     return some (.ofString service)
   let map ← CacheMap.load file
-  ws.lakeCache.writeMap localScope map service? opts.scope?
+  ws.lakeCache.writeMap localScope map service? opts.scope? opts.overwriteInputs
 
 private def stagingOutputsFile := "outputs.jsonl"
 
@@ -754,7 +756,7 @@ protected def unstage : CliM PUnit := do
   unless ok do
     logError "failed to copy all outputs to the staging directory"
     exit 1
-  ws.lakeCache.writeMap localScope map service? opts.scope?
+  ws.lakeCache.writeMap localScope map service? opts.scope? opts.overwriteInputs
 
 protected def putStaged : CliM PUnit := do
   processOptions lakeOption

@@ -229,6 +229,13 @@ def runFrontend
     let incr ← unsafe loadIncrSnapshot incrFile
     if let some res := incr.snap.processedResult.get then
       withImporting do
+        -- The central incr HACK:
+        -- Initializers roughly perform one of two functions: initializing their own variable, or
+        -- contributing to some IO.Ref whose value will likely end up in the environment. Any
+        -- environment changes should already be available in the loaded env, but we still need to
+        -- initialize global vars used even after the environment is assembled, so we run all
+        -- initializers. This works in practice but at least in theory, it could lead to some
+        -- divergence in behavior when strange initializers are involved.
         unsafe Lean.runInitAttrsForModules res.cmdState.env incr.initModIdxs opts
       -- `withImporting` resets the initializer-execution flag in `finally`, but the slow path in
       -- `Language.Lean.process` (taken when the loaded header doesn't match the new file's

@@ -177,18 +177,18 @@ static object_compactor * to_compactor(lean_object * o) {
 }
 
 // Field layout of the Lean `CompactedRegion` structure (see `Lean/CompactedRegion.lean`). A region
-// is identified with its whole mapping: object fields 0 = `filePath`, 1 = `depPaths`, 2 = `root`
-// (a `NonScalar` pointer to the root object); usize slots 3..5 = `size` (mapping size), `baseAddr`
+// is identified with its whole mapping: object fields 0 = `filePath`, 1 = `root`
+// (a `NonScalar` pointer to the root object); usize slots 2..4 = `size` (mapping size), `baseAddr`
 // (logical mapping base), `bufferOffset` (`root - mappingBase`); a uint8 `isMemoryMapped` at byte
-// offset `sizeof(void*) * 6`.
-static char * region_root(b_obj_arg r)      { return reinterpret_cast<char *>(lean_ctor_get(r, 2)); }
-static size_t region_size(b_obj_arg r)      { return lean_ctor_get_usize(r, 3); }
-static size_t region_base_addr(b_obj_arg r) { return lean_ctor_get_usize(r, 4); }
+// offset `sizeof(void*) * 5`.
+static char * region_root(b_obj_arg r)      { return reinterpret_cast<char *>(lean_ctor_get(r, 1)); }
+static size_t region_size(b_obj_arg r)      { return lean_ctor_get_usize(r, 2); }
+static size_t region_base_addr(b_obj_arg r) { return lean_ctor_get_usize(r, 3); }
 // `root` may legitimately sit below the mapping base (its object can be deduplicated into a
 // lower-addressed dep), making `bufferOffset` "negative"; recover the base in integer space so the
 // wrap is defined rather than UB pointer arithmetic.
 static char * region_buffer(b_obj_arg r) {
-    return reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(region_root(r)) - lean_ctor_get_usize(r, 5));
+    return reinterpret_cast<char *>(reinterpret_cast<uintptr_t>(region_root(r)) - lean_ctor_get_usize(r, 4));
 }
 
 // Extract address-range views from an `Array CompactedRegion` for cross-region pointer relocation.
@@ -430,26 +430,18 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_save(b_obj_arg ofname, b_o
     return io_result_mk_ok(cs_obj.steal());
 }
 
-static object * mk_compacted_region(b_obj_arg ofname, b_obj_arg odep_regions, object * root,
+static object * mk_compacted_region(b_obj_arg ofname, object * root,
                                     char * buffer, size_t base_addr, size_t full_sz, bool is_mmap) {
-    size_t n = lean_array_size(odep_regions);
-    object * dep_paths = lean_alloc_array(n, n);
-    for (size_t i = 0; i < n; i++) {
-        object * dep_file_path = lean_ctor_get(lean_array_get_core(odep_regions, i), 0);
-        lean_inc(dep_file_path);
-        lean_array_set_core(dep_paths, i, dep_file_path);
-    }
-    object * r = lean_alloc_ctor(0, 3, sizeof(size_t) * 3 + 1);
+    object * r = lean_alloc_ctor(0, 2, sizeof(size_t) * 3 + 1);
     lean_inc(ofname);
     lean_ctor_set(r, 0, ofname);
-    lean_ctor_set(r, 1, dep_paths);
-    lean_ctor_set(r, 2, root);
-    lean_ctor_set_usize(r, 3, full_sz);
-    lean_ctor_set_usize(r, 4, base_addr);
+    lean_ctor_set(r, 1, root);
+    lean_ctor_set_usize(r, 2, full_sz);
+    lean_ctor_set_usize(r, 3, base_addr);
     // Integer subtraction: `root` may be below `buffer` (see `region_buffer`), and the two can be
     // unrelated allocations, so a pointer subtraction would be UB.
-    lean_ctor_set_usize(r, 5, reinterpret_cast<uintptr_t>(root) - reinterpret_cast<uintptr_t>(buffer));
-    lean_ctor_set_uint8(r, sizeof(void*) * 6, is_mmap ? 1 : 0);
+    lean_ctor_set_usize(r, 4, reinterpret_cast<uintptr_t>(root) - reinterpret_cast<uintptr_t>(buffer));
+    lean_ctor_set_uint8(r, sizeof(void*) * 5, is_mmap ? 1 : 0);
     return r;
 }
 
@@ -607,7 +599,7 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
         cnstr_set(pair, 0, mod);
         // The Lean region is framed by its whole mapping (`buffer`, `base_addr` = the mapped-at
         // logical address, `size` = the file size), not the inner data section.
-        cnstr_set(pair, 1, mk_compacted_region(ofname, odep_regions, mod,
+        cnstr_set(pair, 1, mk_compacted_region(ofname, mod,
             buffer, reinterpret_cast<size_t>(base_addr), size, is_mmap));
         return io_result_mk_ok(pair);
     } catch (exception & ex) {
@@ -618,12 +610,12 @@ extern "C" LEAN_EXPORT object * lean_compacted_region_read(b_obj_arg ofname, b_o
 extern "C" LEAN_EXPORT obj_res lean_compacted_region_free(obj_arg region, object *) {
     char * buffer = region_buffer(region);
     size_t full_sz = region_size(region);
-    bool is_mmap = lean_ctor_get_uint8(region, sizeof(void*) * 6) != 0;
+    bool is_mmap = lean_ctor_get_uint8(region, sizeof(void*) * 5) != 0;
     // `root` points into the buffer we are about to release. Overwrite it with a scalar so that
     // decrementing this structure now, or any reference to it that outlives the `free` (e.g. one
     // still sitting in `env.header.regions`), does not dereference freed memory. The old value is a
     // refcount-free buffer object, so it needs no decrement.
-    lean_ctor_set(region, 2, lean_box(0));
+    lean_ctor_set(region, 1, lean_box(0));
     lean_dec_ref(region);
     if (is_mmap) {
 #ifdef LEAN_WINDOWS

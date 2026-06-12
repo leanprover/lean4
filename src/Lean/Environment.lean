@@ -2039,20 +2039,20 @@ abbrev ImportStateM := StateRefT ImportState IO
 @[inline] nonrec def ImportStateM.run (x : ImportStateM α) (s : ImportState := default) : IO (α × ImportState) :=
   x.run s
 
-private def findOLeanParts (mod : Name) : IO (Array System.FilePath) := do
+private def readModuleDataPartsOfMod (mod : Name) : IO (Array (ModuleData × CompactedRegion)) := do
   let mFile ← findOLean mod
   unless (← mFile.pathExists) do
     throw <| IO.userError s!"object file '{mFile}' of module {mod} does not exist"
-  let mut fnames := #[mFile]
+  let main ← unsafe CompactedRegion.read (α := ModuleData) mFile #[]
+  if !main.1.isModule then
+    return #[main]
   -- Opportunistically load all available parts.
   -- Necessary because the import level may be upgraded a later import.
   let sFile := OLeanLevel.server.adjustFileName mFile
-  if (← sFile.pathExists) then
-    fnames := fnames.push sFile
-    let pFile := OLeanLevel.private.adjustFileName mFile
-    if (← pFile.pathExists) then
-      fnames := fnames.push pFile
-  return fnames
+  let server ← unsafe CompactedRegion.read (α := ModuleData) sFile #[main.2]
+  let pFile := OLeanLevel.private.adjustFileName mFile
+  let priv ← unsafe CompactedRegion.read (α := ModuleData) pFile #[main.2, server.2]
+  return #[main, server, priv]
 
 partial def importModulesCore
     (imports : Array Import) (globalLevel : OLeanLevel := .private)
@@ -2171,13 +2171,13 @@ where
         moduleNames := s.moduleNames.push i.module
       }
   loadData i := do
-    let fnames ← if let some arts := arts.find? i.module then
+    if let some arts := arts.find? i.module then
       -- Opportunistically load all available parts.
       -- Producer (e.g., Lake) should limit parts to the proper import level.
-      pure (arts.oleanParts (inServer := globalLevel ≥ .server))
+      let fnames := arts.oleanParts (inServer := globalLevel ≥ .server)
+      readModuleDataParts fnames
     else
-      findOLeanParts i.module
-    readModuleDataParts fnames
+      readModuleDataPartsOfMod i.module
   loadIR? i := do
     let irFile? ← if let some arts := arts.find? i.module then
       pure arts.ir?

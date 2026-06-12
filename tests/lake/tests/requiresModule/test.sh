@@ -4,10 +4,42 @@ source ../common.sh
 ./clean.sh
 
 # ---
-# Tests the package-level `requiresModuleSystem` flag.
-# A package that sets `requiresModuleSystem = true` should cause Lake
-# to warn whenever a downstream module imports it without a `module` header.
+# Tests the package-level `requiresModuleSystem` flag and its companion
+# `allowNonModules` opt-out.
+#
+# A package that sets `requiresModuleSystem = true` should cause Lake to warn
+# whenever a module imports it without a `module` header -- both for downstream
+# consumers and for non-module files within the package itself. An importing
+# package can opt out by setting `allowNonModules = true`.
+#
+# The lakefiles are generated here rather than committed as the opt-out phase
+# mutates them (to add `allowNonModules`).
 # ---
+
+# Generate the base lakefiles (without `allowNonModules`).
+cat > lakefile.toml <<'EOF'
+name = "test"
+defaultTargets = ["Test"]
+
+[[lean_lib]]
+name = "Test"
+globs = "Test.+"
+
+[[require]]
+name = "dep"
+path = "dep"
+EOF
+
+cat > dep/lakefile.toml <<'EOF'
+name = "dep"
+requiresModuleSystem = true
+
+[[lean_lib]]
+name = "Dep"
+
+[[lean_lib]]
+name = "DepLegacy"
+EOF
 
 # Warm up: create the manifest and resolve dependencies so subsequent
 # invocations don't emit setup messages that would confuse the warning checks.
@@ -27,15 +59,16 @@ test_out "Test/NonModuleConsumer.lean: imports \`Dep\` from package \`dep\`, whi
 test_out "DepLegacy.lean: missing \`module\` header as required by \`requiresModuleSystem\` package option" \
   build "@dep/DepLegacy"
 
-# Opt out of the warning by setting `allowNonModules` on the importing package.
-# After a clean rebuild, neither the cross-package nor the intra-package warning
-# should appear.
+# Opt out by setting `allowNonModules` on the importing package. The flag is a
+# root package option, so insert it after the `name` line rather than appending
+# (which would bind it to the trailing table section). The cross-package
+# consumer lives in `test`; the intra-package consumer lives in `dep`.
 sed_i '1a allowNonModules = true' lakefile.toml
 sed_i '1a allowNonModules = true' dep/lakefile.toml
+
+# After a clean rebuild, neither warning should appear.
 test_run clean
 test_not_out "module system" build Test.NonModuleConsumer "@dep/DepLegacy"
+no_match_text "missing \`module\` header as required by \`requiresModuleSystem\`" produced.out
 
-# Restore the lakefiles and clean up.
-sed_i '/^allowNonModules = true$/d' lakefile.toml
-sed_i '/^allowNonModules = true$/d' dep/lakefile.toml
 rm -f produced*

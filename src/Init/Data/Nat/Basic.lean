@@ -549,6 +549,7 @@ protected abbrev not_lt_of_lt := @Nat.lt_asymm
 protected theorem lt_iff_le_and_not_ge {m n : Nat} : m < n ↔ m ≤ n ∧ ¬ n ≤ m :=
   ⟨fun h => ⟨Nat.le_of_lt h, Nat.not_le_of_gt h⟩, fun ⟨_, h⟩ => Nat.lt_of_not_ge h⟩
 
+set_option linter.defProp false in
 /-- Deprecated alias for `Nat.lt_iff_le_and_not_ge`. -/
 @[deprecated Nat.lt_iff_le_and_not_ge (since := "2026-02-11")]
 protected abbrev lt_iff_le_not_le := @Nat.lt_iff_le_and_not_ge
@@ -558,11 +559,13 @@ protected theorem lt_iff_le_and_ne {m n : Nat} : m < n ↔ m ≤ n ∧ m ≠ n :
 
 protected theorem ne_iff_lt_or_gt {a b : Nat} : a ≠ b ↔ a < b ∨ b < a :=
   ⟨Nat.lt_or_gt_of_ne, fun | .inl h => Nat.ne_of_lt h | .inr h => Nat.ne_of_gt h⟩
+
 /-- Alias for `Nat.ne_iff_lt_or_gt`. -/
 protected abbrev lt_or_gt := @Nat.ne_iff_lt_or_gt
 
 /-- Alias for `Nat.le_total`. -/
 protected abbrev le_or_ge := @Nat.le_total
+
 /-- Alias for `Nat.le_total`. -/
 protected abbrev le_or_le := @Nat.le_total
 

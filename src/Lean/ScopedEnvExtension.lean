@@ -39,7 +39,7 @@ structure Descr (α : Type) (β : Type) (σ : Type) where
   toOLeanEntry   : β → α
   addEntry       : σ → β → σ
   finalizeImport : σ → σ := id
-  exportEntry?   : OLeanLevel → α → Option α := fun _ => some
+  exportEntry?   : Environment → α → OLeanEntries (Option α) := fun _ a => .uniform (some a)
 
 instance [Inhabited α] : Inhabited (Descr α β σ) where
   default := {
@@ -93,12 +93,23 @@ def addEntryFn (descr : Descr α β σ) (s : StateStack α β σ) (e : Entry β)
             s
       }
 
-def exportEntriesFn (descr : Descr α β σ) (s : StateStack α β σ) : OLeanEntries (Array (Entry α)) :=
-  let forLevel (level : OLeanLevel) :=
-    s.newEntries.toArray.reverse.filterMap fun
-      | .global e => .global <$> descr.exportEntry? level e
-      | .scoped ns e => .scoped ns <$> descr.exportEntry? level e
-  { exported := forLevel .exported, server := forLevel .server, «private» := forLevel .private }
+def exportEntriesFn (descr : Descr α β σ) (env : Environment) (s : StateStack α β σ) : OLeanEntries (Array (Entry α)) := Id.run do
+  let mut exported : Array (Entry α) := #[]
+  let mut server   : Array (Entry α) := #[]
+  let mut priv     : Array (Entry α) := #[]
+  for entry in s.newEntries.toArray.reverse do
+    match entry with
+    | .global e =>
+      let r := descr.exportEntry? env e
+      if let some e := r.exported then exported := exported.push (.global e)
+      if let some e := r.server   then server   := server.push   (.global e)
+      if let some e := r.private  then priv     := priv.push     (.global e)
+    | .scoped ns e =>
+      let r := descr.exportEntry? env e
+      if let some e := r.exported then exported := exported.push (.scoped ns e)
+      if let some e := r.server   then server   := server.push   (.scoped ns e)
+      if let some e := r.private  then priv     := priv.push     (.scoped ns e)
+  return { exported, server, «private» := priv }
 
 end ScopedEnvExtension
 
@@ -117,7 +128,7 @@ unsafe def registerScopedEnvExtensionUnsafe (descr : Descr α β σ) : IO (Scope
     mkInitial       := mkInitial descr
     addImportedFn   := addImportedFn descr
     addEntryFn      := addEntryFn descr
-    exportEntriesFnEx := fun _ s => exportEntriesFn descr s
+    exportEntriesFnEx := exportEntriesFn descr
     statsFn         := fun s => format "number of local entries: " ++ format s.newEntries.length
     -- We restrict addition of global and `scoped` entries to the main thread but allow addition of
     -- scopes and local entries in any thread, which are visible only in that thread (see uses of
@@ -249,7 +260,7 @@ structure SimpleScopedEnvExtension.Descr (α : Type) (σ : Type) where
   addEntry       : σ → α → σ
   initial        : σ
   finalizeImport : σ → σ := id
-  exportEntry?   : OLeanLevel → α → Option α := fun _ => some
+  exportEntry?   : Environment → α → OLeanEntries (Option α) := fun _ a => .uniform (some a)
 
 def registerSimpleScopedEnvExtension (descr : SimpleScopedEnvExtension.Descr α σ) : IO (SimpleScopedEnvExtension α σ) := do
   registerScopedEnvExtension {

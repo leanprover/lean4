@@ -13,13 +13,13 @@
       "binaryDir": "${sourceDir}/build/release"
     },
     {
-      "name": "dev",
+      "name": "dev-release",
       "displayName": "Default development optimized build config",
       "cacheVariables": {
         "STRIP_BINARIES": "OFF"
       },
       "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/build/dev"
+      "binaryDir": "${sourceDir}/build/release"
     },
     {
       "name": "debug",
@@ -33,14 +33,14 @@
       "binaryDir": "${sourceDir}/build/debug"
     },
     {
-      "name": "reldebug",
+      "name": "relwithassert",
       "displayName": "Release with assertions enabled",
       "cacheVariables": {
         "CMAKE_BUILD_TYPE": "RelWithAssert",
         "STRIP_BINARIES": "OFF"
       },
       "generator": "Unix Makefiles",
-      "binaryDir": "${sourceDir}/build/reldebug"
+      "binaryDir": "${sourceDir}/build/relwithassert"
     },
     {
       "name": "sanitize",
@@ -71,16 +71,16 @@
       "configurePreset": "release"
     },
     {
-      "name": "dev",
-      "configurePreset": "dev"
+      "name": "dev-release",
+      "configurePreset": "dev-release"
     },
     {
       "name": "debug",
       "configurePreset": "debug"
     },
     {
-      "name": "reldebug",
-      "configurePreset": "reldebug"
+      "name": "relwithassert",
+      "configurePreset": "relwithassert"
     },
     {
       "name": "sanitize",
@@ -98,8 +98,8 @@
       "output": {"outputOnFailure": true, "shortProgress": true}
     },
     {
-      "name": "dev",
-      "configurePreset": "dev",
+      "name": "dev-release",
+      "configurePreset": "dev-release",
       "output": {"outputOnFailure": true, "shortProgress": true}
     },
     {
@@ -108,8 +108,8 @@
       "inherits": "release"
     },
     {
-      "name": "reldebug",
-      "configurePreset": "reldebug",
+      "name": "relwithassert",
+      "configurePreset": "relwithassert",
       "inherits": "release"
     },
     {

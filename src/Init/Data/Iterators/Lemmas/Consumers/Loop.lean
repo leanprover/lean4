@@ -468,6 +468,7 @@ theorem Iter.length_eq_length_toIterM {α β : Type w} [Iterator α Id β]
     it.length = it.toIterM.length.run.down :=
   (rfl)
 
+set_option linter.defProp false in
 @[deprecated Iter.length_eq_length_toIterM (since := "2026-01-28")]
 def Iter.count_eq_count_toIterM := @Iter.length_eq_length_toIterM
 
@@ -480,6 +481,7 @@ theorem Iter.length_eq_fold {α β : Type w} [Iterator α Id β]
   rw [← fold_hom (f := ULift.down)]
   simp
 
+set_option linter.defProp false in
 @[deprecated Iter.length_eq_fold (since := "2026-01-28")]
 def Iter.count_eq_fold := @Iter.length_eq_fold
 
@@ -490,6 +492,7 @@ theorem Iter.length_eq_forIn {α β : Type w} [Iterator α Id β]
     it.length = (ForIn.forIn (m := Id) it 0 (fun _ acc => return .yield (acc + 1))).run := by
   rw [length_eq_fold, forIn_pure_yield_eq_fold, Id.run_pure]
 
+set_option linter.defProp false in
 @[deprecated Iter.length_eq_forIn (since := "2026-01-28")]
 def Iter.count_eq_forIn := @Iter.length_eq_forIn
 
@@ -505,6 +508,7 @@ theorem Iter.length_eq_match_step {α β : Type w} [Iterator α Id β]
   simp only [bind_pure_comp, id_map', Id.run_bind, Iter.step]
   cases it.toIterM.step.run.inflate using PlausibleIterStep.casesOn <;> simp
 
+set_option linter.defProp false in
 @[deprecated Iter.length_eq_match_step (since := "2026-01-28")]
 def Iter.count_eq_match_step := @Iter.length_eq_match_step
 
@@ -516,9 +520,7 @@ theorem Iter.size_toArray_eq_length {α β : Type w} [Iterator α Id β] [Finite
   simp only [toArray_eq_toArray_toIterM, length_eq_length_toIterM, Id.run_map,
     ← IterM.up_size_toArray_eq_length]
 
-@[deprecated Iter.size_toArray_eq_length (since := "2025-10-29")]
-def Iter.size_toArray_eq_size := @size_toArray_eq_length
-
+set_option linter.defProp false in
 @[deprecated Iter.size_toArray_eq_length (since := "2026-01-28")]
 def Iter.size_toArray_eq_count := @size_toArray_eq_length
 
@@ -529,9 +531,7 @@ theorem Iter.length_toList_eq_length {α β : Type w} [Iterator α Id β] [Finit
     it.toList.length = it.length := by
   rw [← toList_toArray, Array.length_toList, size_toArray_eq_length]
 
-@[deprecated Iter.length_toList_eq_length (since := "2025-10-29")]
-def Iter.length_toList_eq_size := @length_toList_eq_length
-
+set_option linter.defProp false in
 @[deprecated Iter.length_toList_eq_length (since := "2026-01-28")]
 def Iter.length_toList_eq_count := @length_toList_eq_length
 
@@ -542,9 +542,7 @@ theorem Iter.length_toListRev_eq_length {α β : Type w} [Iterator α Id β] [Fi
     it.toListRev.length = it.length := by
   rw [toListRev_eq, List.length_reverse, length_toList_eq_length]
 
-@[deprecated Iter.length_toListRev_eq_length (since := "2025-10-29")]
-def Iter.length_toListRev_eq_size := @length_toListRev_eq_length
-
+set_option linter.defProp false in
 @[deprecated Iter.length_toListRev_eq_length (since := "2026-01-28")]
 def Iter.length_toListRev_eq_count := @length_toListRev_eq_length
 

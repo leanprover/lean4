@@ -70,6 +70,9 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#co
 #eval checkMatch "<1.2.3-"
   #["1.0.0-alpha.9", "1.2.3-alpha.1"] #["1.2.3", "1.2.4-beta.2"]
 
+/-- error: invalid comparison: expected version after `>` -/
+#guard_msgs in #eval runParse ">"
+
 /-- error: invalid version core: incorrect number of components: got 2, expected 3 -/
 #guard_msgs in #eval runParse ">1.2"
 
@@ -150,7 +153,7 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#ca
 #eval checkParse "^1.2.3-beta.2"  "≥1.2.3-beta.2, <2.0.0-"
 #eval checkParse "^0.0.0-beta.2"  "≥0.0.0-beta.2, <0.0.1-"
 
-/-- error: invalid major version: expected numeral, got '' -/
+/-- error: invalid caret range: expected version after `^` -/
 #guard_msgs in #eval runParse "^"
 
 /-- error: invalid version: '-' suffix cannot be empty -/
@@ -190,7 +193,7 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#ti
   #["1.2.3-beta.2", "1.2.3-beta.7", "1.2.3", "1.2.7"]
   #["1.2.1", "1.2.3-alpha.3", "1.2.3-beta.1"]
 
-/-- error: invalid major version: expected numeral, got '' -/
+/-- error: invalid tilde range: expected version after `~` -/
 #guard_msgs in #eval runParse "~"
 
 /-- error: invalid version: '-' suffix cannot be empty -/
@@ -225,14 +228,14 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#wi
 
 /-! ### Errors -/
 
-/-- error: invalid wildcard range: wildcard versions do not support suffixes -/
-#guard_msgs in #eval runParse "1.*.*-*"
+/-- error: invalid major version: expected numeral or wildcard, got 'v4' -/
+#guard_msgs in #eval runParse "v4.31.0-rc1"
 
 /-- error: invalid major version: expected numeral or wildcard, got 'a' -/
-#guard_msgs in #eval runParse "a.*.*"
+#guard_msgs in #eval runParse "a"
 
 /-- error: invalid minor version: expected numeral or wildcard, got 'b' -/
-#guard_msgs in #eval runParse "*.b.*"
+#guard_msgs in #eval runParse "*.b"
 
 /-- error: invalid patch version: expected numeral or wildcard, got 'c' -/
 #guard_msgs in #eval runParse "*.*.c"
@@ -248,3 +251,6 @@ https://doc.rust-lang.org/stable/cargo/reference/specifying-dependencies.html#wi
 
 /-- error: invalid wildcard range: incorrect number of components: got 4, expected 1-3 -/
 #guard_msgs in #eval runParse "1.*.*.*"
+
+/-- error: invalid wildcard range: wildcard versions do not support suffixes -/
+#guard_msgs in #eval runParse "1.*.*-*"

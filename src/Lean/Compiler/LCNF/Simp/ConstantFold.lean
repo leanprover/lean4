@@ -66,7 +66,7 @@ def mkAuxLit [Literal α] (x : α) (prefixName := `_x) : FolderM FVarId := do
   let lit ← mkLit x
   mkAuxLetDecl lit prefixName
 
-partial def getNatLit (fvarId : FVarId) : CompilerM (Option Nat) := do
+def getNatLit (fvarId : FVarId) : CompilerM (Option Nat) := do
   let some (.lit (.nat n)) ← findLetValue? (pu := .pure) fvarId | return none
   return n
 
@@ -127,6 +127,10 @@ instance : Literal UInt8 := mkUIntInstance (fun | .uint8 x => some x | _ => none
 instance : Literal UInt16 := mkUIntInstance (fun | .uint16 x => some x | _ => none) .uint16
 instance : Literal UInt32 := mkUIntInstance (fun | .uint32 x => some x | _ => none) .uint32
 instance : Literal UInt64 := mkUIntInstance (fun | .uint64 x => some x | _ => none) .uint64
+
+def getUSizeLit (fvarId : FVarId) : CompilerM (Option UInt64) := do
+  let some (.lit (.usize n)) ← findLetValue? (pu := .pure) fvarId | return none
+  return n
 
 end Literals
 
@@ -227,6 +231,26 @@ def Folder.mkBinaryDecisionProcedure [Literal α] [Literal β] {r : α → β �
       return some <| .const ``Decidable.isFalse [] #[.erased, .erased]
   else
     mkLit result
+
+/-
+We handle `USize` separately as the interpretation of `USize` literals is in general platform dependent
+-/
+def Folder.mkBinaryUSizeDecisionProcedure {r64 : UInt64 → UInt64 → Prop} {r32 : UInt32 → UInt32 → Prop}
+    (f64 : (a b : UInt64) → Decidable (r64 a b)) (f32 : (a b : UInt32) → Decidable (r32 a b)) :
+    Folder := fun args => do
+  let #[.fvar fvarId₁, .fvar fvarId₂] := args | return none
+  let some arg₁ ← getUSizeLit fvarId₁ | return none
+  let some arg₂ ← getUSizeLit fvarId₂ | return none
+  let res64 := (f64 arg₁ arg₂).decide
+  let res32 := (f32 arg₁.toUInt32 arg₂.toUInt32).decide
+  if res64 != res32 then return none
+  if (← getPhase) < .mono then
+    if res64 then
+      return some <| .const ``Decidable.isTrue [] #[.erased, .erased]
+    else
+      return some <| .const ``Decidable.isFalse [] #[.erased, .erased]
+  else
+    mkLit res64
 
 /--
 Provide a folder for an operation with a left neutral element.
@@ -409,6 +433,9 @@ def relationFolders : List (Name × Folder) := [
   (``UInt64.decEq, Folder.mkBinaryDecisionProcedure UInt64.decEq),
   (``UInt64.decLt, Folder.mkBinaryDecisionProcedure UInt64.decLt),
   (``UInt64.decLe, Folder.mkBinaryDecisionProcedure UInt64.decLe),
+  (``USize.decEq, Folder.mkBinaryUSizeDecisionProcedure UInt64.decEq UInt32.decEq),
+  (``USize.decLt, Folder.mkBinaryUSizeDecisionProcedure UInt64.decLt UInt32.decLt),
+  (``USize.decLe, Folder.mkBinaryUSizeDecisionProcedure UInt64.decLe UInt32.decLe),
   (``Bool.decEq, Folder.mkBinaryDecisionProcedure Bool.decEq),
   (``String.decEq, Folder.mkBinaryDecisionProcedure String.decEq)
 ]

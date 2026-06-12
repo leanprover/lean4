@@ -394,18 +394,10 @@ theorem IterM.mk_internalState {α m β} (it : IterM (α := α) m β) :
     ⟨it.internalState⟩ = it := by
   simp
 
-set_option linter.missingDocs false in
-@[deprecated IterM.mk_internalState (since := "2025-12-01")]
-def Iterators.toIterM_internalState := @IterM.mk_internalState
-
 @[simp]
 theorem IterM.internalState_mk {α m β} (it : α) :
     (⟨it⟩ : IterM m β).internalState = it :=
   rfl
-
-set_option linter.missingDocs false in
-@[expose, deprecated IterM.internalState_mk (since := "2025-01-29")]
-def internalState_toIterM := @IterM.internalState_mk
 
 @[simp]
 theorem Iter.internalState_toIterM {α β} (it : Std.Iter (α := α) β) :

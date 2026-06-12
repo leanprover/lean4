@@ -9,6 +9,7 @@ prelude
 public import Std.Internal.Parsec.Basic
 public import Init.Data.String.Slice
 public import Init.Data.String.Termination
+import Init.Data.String.Length
 
 public section
 

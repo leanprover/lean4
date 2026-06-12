@@ -29,9 +29,9 @@ Recall that we only (fully) simplify them when adding them to the basis.
 def checkSeq (s : AC.Seq) (simplified : Bool) : ACM Unit := do
   if (← isCommutative) then
     assert! s.isSorted
-  if (← hasNeutral) then
-    assert! !s.contains 0 || s == .var 0
   if simplified then
+    if (← hasNeutral) then
+      assert! !s.contains 0 || s == .var 0
     if (← isIdempotent) then
       assert! s.noAdjacentDuplicates
 

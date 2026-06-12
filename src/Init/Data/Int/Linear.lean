@@ -262,6 +262,7 @@ theorem cmod_eq_zero_iff_emod_eq_zero (a b : Int) : cmod a b = 0 ↔ a%b = 0 := 
   simp only [emod_self, sub_emod_left] at this
   rw [Int.neg_eq_zero, ← this, Eq.comm]
 
+set_option linter.defProp false in
 private abbrev div_mul_cancel_of_mod_zero :=
   @Int.ediv_mul_cancel_of_emod_eq_zero
 
@@ -1757,11 +1758,11 @@ private theorem ex_of_dvd {α β a b d x : Int}
     rw [one_emod_eq_one h₀] at h₂
     assumption
   have : ((α * a) * x) % d = (- α * b) % d := by
-    replace h₁ := congrArg (α * ·) h₁; simp only at h₁
+    replace h₁ := congrArg (α * ·) h₁; try simp only at h₁ -- TODO(kmill): remove simp after stage0 update
     rw [Int.mul_add] at h₁
     replace h₁ := congrArg (· - α * b) h₁; simp only [Int.add_sub_cancel] at h₁
     rw [← Int.mul_assoc, Int.mul_left_comm, Int.sub_eq_add_neg] at h₁
-    replace h₁ := congrArg (· % d) h₁; simp only at h₁
+    replace h₁ := congrArg (· % d) h₁; try simp only at h₁ -- TODO(kmill): remove simp after stage0 update
     rw [Int.add_emod, Int.mul_emod_right, Int.zero_add, Int.emod_emod, ← Int.neg_mul] at h₁
     assumption
   have : x % d = (- α * b) % d := by

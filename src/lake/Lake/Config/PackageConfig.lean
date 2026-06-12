@@ -293,8 +293,10 @@ public configuration PackageConfig (p : Name) (n : Name) extends WorkspaceConfig
   artifacts into the build directory. This ensures the build results are available
   to external consumers who expect them in the build directory.
 
-  If `none` (the default), this will follow the workspace's `restoreAllArtifacts` configuration
-  (if set and this package is a dependency). If that is also unset, this will default to `false`.
+  If `none` (the default), this will fallback to (in order):
+  * The `LAKE_RESTORE_ARTIFACTS` environment variable (if set).
+  * The workspace root's `restoreAllArtifacts` configuration (if set and this package is a dependency).
+  * **Lake's default**: `false`.
   -/
   restoreAllArtifacts?, restoreAllArtifacts : Option Bool := none
 

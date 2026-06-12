@@ -35,6 +35,11 @@ structure Config where
   The input goal terms have generation 0. When we instantiate a theorem using a term from generation `n`,
   the new terms have generation `n+1`. Thus, this parameter limits the length of an instantiation chain. -/
   gen : Nat := 8
+  /--
+  Maximum term generation for local theorems (e.g., hypotheses).
+  See `gen`.
+  -/
+  genLocal : Nat := 8
   /-- Maximum number of theorem instances generated using E-matching in a proof search tree branch. -/
   instances : Nat := 1000
   /-- If `matchEqs` is `true`, `grind` uses `match`-equations as E-matching theorems. -/

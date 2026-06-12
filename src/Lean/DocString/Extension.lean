@@ -37,7 +37,9 @@ instance : Repr ElabInline where
 
 instance : Doc.MarkdownInline ElabInline where
   -- TODO extensibility
-  toMarkdown go _i content := content.forM go
+  toMarkdown go _i content := do
+    let parts ← content.mapM go
+    return Doc.joinInlines parts
 
 
 /--
@@ -57,7 +59,9 @@ instance : Repr ElabBlock where
 
 -- TODO extensible toMarkdown
 instance : Doc.MarkdownBlock ElabInline ElabBlock where
-  toMarkdown _goI goB _b content := content.forM goB
+  toMarkdown _goI goB _b content := do
+    let parts ← content.mapM goB
+    return Doc.joinBlocks parts
 
 structure VersoDocString where
   text : Array (Doc.Block ElabInline ElabBlock)
@@ -176,10 +180,9 @@ def findSimpleDocString? (env : Environment) (declName : Name) (includeBuiltin :
 where
   toMarkdown : VersoDocString → String
   | .mk bs ps => Doc.MarkdownM.run' do
-      for b in bs do
-        Doc.ToMarkdown.toMarkdown b
-      for p in ps do
-        Doc.ToMarkdown.toMarkdown p
+      let blockLines ← bs.mapM Doc.ToMarkdown.toMarkdown
+      let partLines ← ps.mapM Doc.ToMarkdown.toMarkdown
+      return Doc.joinBlocks (blockLines ++ partLines)
 
 
 structure ModuleDoc where
@@ -273,19 +276,13 @@ def addPart (snippet : Snippet) (level : Nat) (range : DeclarationRange) (part :
 
 end VersoModuleDocs.Snippet
 
-open Lean Doc ToMarkdown MarkdownM in
+open Lean Doc ToMarkdown in
 instance : ToMarkdown VersoModuleDocs.Snippet where
   toMarkdown
     | {text, sections, ..} => do
-      text.forM toMarkdown
-      endBlock
-      for (level, _, part) in sections do
-        push ("".pushn '#' (level + 1))
-        push " "
-        for i in part.title do toMarkdown i
-        endBlock
-        for b in part.content do toMarkdown b
-        endBlock
+      let textBlocks ← text.mapM toMarkdown
+      let sectionBlocks ← sections.mapM fun (level, _, part) => partMarkdown level part
+      return joinBlocks (textBlocks ++ sectionBlocks)
 
 structure VersoModuleDocs where
   snippets : PersistentArray VersoModuleDocs.Snippet := {}

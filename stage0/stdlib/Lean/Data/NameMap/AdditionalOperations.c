@@ -33,7 +33,7 @@ v_l_5_ = lean_ctor_get(v_t_2_, 3);
 lean_inc(v_l_5_);
 v_r_6_ = lean_ctor_get(v_t_2_, 4);
 lean_inc(v_r_6_);
-lean_dec_ref(v_t_2_);
+lean_dec_ref_known(v_t_2_, 5);
 lean_inc_ref(v_f_1_);
 v___x_7_ = lean_apply_2(v_f_1_, v_k_3_, v_v_4_);
 if (lean_obj_tag(v___x_7_) == 0)
@@ -51,7 +51,7 @@ else
 lean_object* v_val_11_; lean_object* v_impl_12_; lean_object* v_impl_13_; lean_object* v___x_14_; 
 v_val_11_ = lean_ctor_get(v___x_7_, 0);
 lean_inc(v_val_11_);
-lean_dec_ref(v___x_7_);
+lean_dec_ref_known(v___x_7_, 1);
 lean_inc_ref(v_f_1_);
 v_impl_12_ = l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0___redArg(v_f_1_, v_l_5_);
 v_impl_13_ = l_Std_DTreeMap_Internal_Impl_filterMap___at___00Lean_NameMap_filterMap_spec__0___redArg(v_f_1_, v_r_6_);

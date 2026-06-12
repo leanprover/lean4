@@ -33,7 +33,7 @@ public structure BuildConfig extends LogConfig where
   `M`, the `LeanOptions` associated with `M.pkg.baseName` (if any) are appended
   to `M.leanOptions`, overriding clashing entries.
 
-  Used by `lake lint` to inject `linter.clippy`/`linter.all` into every module
+  Used by `lake lint` to inject `linter.extra`/`linter.all` into every module
   of a target package (so transitively-imported first-party modules capture
   linter-tagged warnings), without touching dependencies.
   -/

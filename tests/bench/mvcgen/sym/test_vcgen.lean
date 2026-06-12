@@ -6,6 +6,8 @@ Authors: Sebastian Graf
 import Cases
 import Driver
 
+set_option mvcgen.warning false
+
 /-!
 # VCGen Test Suite
 
@@ -69,7 +71,8 @@ h✝³ : ¬6 < s✝ + 6
 h✝² : ¬7 < s✝ + 7
 h✝¹ : ¬8 < s✝ + 8
 h✝ : ¬9 < s✝ + 9
-⊢ ⌜s✝ = 0⌝ ⊢ₛ ⌜s✝ + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 = 10⌝
+a✝ : s✝ = 0
+⊢ s✝ + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 + 1 = 10
 -/
 #guard_msgs in
 open GetThrowSet in

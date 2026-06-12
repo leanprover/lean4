@@ -29,7 +29,7 @@ theorem dropEnd_eq_sliceTo {s : Slice} {n : Nat} : s.dropEnd n = s.sliceTo (s.en
 
 @[simp]
 theorem toList_copy_dropEnd {s : Slice} {n : Nat} :
-    (s.dropEnd n).copy.toList = s.copy.toList.take (s.copy.length - n) := by
+    (s.dropEnd n).copy.toList = s.copy.toList.take (s.copy.toList.length - n) := by
   simp [dropEnd_eq_sliceTo, (s.splits_prevn_endPos n).copy_sliceTo_eq]
 
 theorem take_eq_sliceTo {s : Slice} {n : Nat} : s.take n = s.sliceTo (s.startPos.nextn n) :=
@@ -44,7 +44,7 @@ theorem takeEnd_eq_sliceFrom {s : Slice} {n : Nat} : s.takeEnd n = s.sliceFrom (
 
 @[simp]
 theorem toList_copy_takeEnd {s : Slice} {n : Nat} :
-    (s.takeEnd n).copy.toList = s.copy.toList.drop (s.copy.length - n) := by
+    (s.takeEnd n).copy.toList = s.copy.toList.drop (s.copy.toList.length - n) := by
   simp [takeEnd_eq_sliceFrom, (s.splits_prevn_endPos n).copy_sliceFrom_eq]
 
 end Slice
@@ -63,7 +63,7 @@ theorem dropEnd_toSlice {s : String} {n : Nat} : s.toSlice.dropEnd n = s.dropEnd
 
 @[simp]
 theorem toList_copy_dropEnd {s : String} {n : Nat} :
-    (s.dropEnd n).copy.toList = s.toList.take (s.length - n) := by
+    (s.dropEnd n).copy.toList = s.toList.take (s.toList.length - n) := by
   simp [← dropEnd_toSlice]
 
 @[simp]
@@ -80,7 +80,7 @@ theorem takeEnd_toSlice {s : String} {n : Nat} : s.toSlice.takeEnd n = s.takeEnd
 
 @[simp]
 theorem toList_copy_takeEnd {s : String} {n : Nat} :
-    (s.takeEnd n).copy.toList = s.toList.drop (s.length - n) := by
+    (s.takeEnd n).copy.toList = s.toList.drop (s.toList.length - n) := by
   simp [← takeEnd_toSlice]
 
 end String

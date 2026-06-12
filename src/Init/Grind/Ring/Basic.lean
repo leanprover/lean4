@@ -500,6 +500,7 @@ private theorem mk'_aux {x y : Nat} (p : Nat) (h : y ≤ x) :
       simp [Nat.mul_sub, Nat.mul_comm p k₁, Nat.mul_comm p k₂]
       omega
 
+set_option linter.defProp false in
 /-- Alternative constructor when `α` is a `Ring`. -/
 @[implicit_reducible]
 def mk' (p : Nat) (α : Type u) [Ring α]
@@ -601,7 +602,8 @@ theorem no_int_zero_divisors {α : Type u} [IntModule α] [NoNatZeroDivisors α]
     rw [IntModule.neg_zsmul]
     intro _ h
     replace h := congrArg (-·) h
-    dsimp only at h
+    -- TODO(kmill): remove after stage0 update
+    try dsimp only at h
     rw [neg_neg, neg_zero] at h
     rw [IntModule.zsmul_natCast_eq_nsmul] at h
     exact NoNatZeroDivisors.eq_zero_of_mul_eq_zero (Nat.succ_ne_zero _) h

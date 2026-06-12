@@ -10,6 +10,7 @@ public import Lean.Elab.Tactic.Basic
 public import Lean.Meta.Tactic.Cleanup
 import Lean.Meta.Native
 import Lean.Elab.Tactic.ElabTerm
+import Lean.Elab.ConfigEval
 
 public section
 

@@ -1071,7 +1071,7 @@ if (lean_obj_tag(v_arg_211_) == 9)
 lean_object* v_a_216_; 
 v_a_216_ = lean_ctor_get(v_arg_211_, 0);
 lean_inc_ref(v_a_216_);
-lean_dec_ref(v_arg_211_);
+lean_dec_ref_known(v_arg_211_, 1);
 if (lean_obj_tag(v_a_216_) == 0)
 {
 lean_object* v_val_217_; lean_object* v___x_219_; uint8_t v_isShared_220_; uint8_t v_isSharedCheck_224_; 

@@ -791,7 +791,7 @@ return v___x_166_;
 else
 {
 lean_object* v___x_169_; 
-lean_dec_ref(v_x_158_);
+lean_dec_ref_known(v_x_158_, 1);
 v___x_169_ = ((lean_object*)(l_Std_Async_Sleep_selector___lam__0___closed__1));
 return v___x_169_;
 }
@@ -1260,7 +1260,7 @@ if (lean_obj_tag(v___x_306_) == 0)
 lean_object* v_a_307_; lean_object* v___x_309_; 
 v_a_307_ = lean_ctor_get(v___x_306_, 0);
 lean_inc(v_a_307_);
-lean_dec_ref(v___x_306_);
+lean_dec_ref_known(v___x_306_, 1);
 if (v_isShared_298_ == 0)
 {
 lean_ctor_set(v___x_297_, 0, v_a_307_);
@@ -1286,7 +1286,7 @@ else
 lean_object* v_a_311_; lean_object* v___x_313_; 
 v_a_311_ = lean_ctor_get(v___x_306_, 0);
 lean_inc(v_a_311_);
-lean_dec_ref(v___x_306_);
+lean_dec_ref_known(v___x_306_, 1);
 if (v_isShared_298_ == 0)
 {
 lean_ctor_set_tag(v___x_297_, 0);

@@ -38,6 +38,12 @@ where
   -- `stx[0]` is the next tactic step, if any
   goEven stx := do
     if stx.getNumArgs == 0 then
+      -- No more tactic steps, but if the parent still passed us a tactic snapshot
+      -- bundle (e.g. for an empty `by` body) we must resolve its promise so that
+      -- consumers walking the snapshot tree (like the language-server info-tree
+      -- lookup) don't block waiting on a promise nothing else will resolve.
+      if let some snap := (← readThe Term.Context).tacSnap? then
+        snap.new.resolve default
       return
     let tac := stx[0]
     /-

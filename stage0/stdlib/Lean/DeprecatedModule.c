@@ -293,7 +293,7 @@ else
 lean_object* v_val_87_; 
 v_val_87_ = lean_ctor_get(v___x_86_, 0);
 lean_inc(v_val_87_);
-lean_dec_ref(v___x_86_);
+lean_dec_ref_known(v___x_86_, 1);
 return v_val_87_;
 }
 }
@@ -436,7 +436,7 @@ else
 lean_object* v_val_200_; 
 v_val_200_ = lean_ctor_get(v_message_x3f_180_, 0);
 lean_inc(v_val_200_);
-lean_dec_ref(v_message_x3f_180_);
+lean_dec_ref_known(v_message_x3f_180_, 1);
 v___y_183_ = v_val_200_;
 goto v___jp_182_;
 }

@@ -180,7 +180,15 @@ structure Result where
 private def countersToMessageData (header : String) (cls : Name) (data : Array (Name × Nat)) : MetaM MessageData := do
   let data := data.qsort fun (d₁, c₁) (d₂, c₂) => if c₁ == c₂ then Name.lt d₁ d₂ else c₁ > c₂
   let data ← data.mapM fun (declName, counter) =>
-    return .trace { cls } m!"{.ofConst (← mkConstWithLevelParams declName)} ↦ {counter}" #[]
+    return .trace { cls } m!"{.ofConstName declName} ↦ {counter}" #[]
+  return .trace { cls } header data
+
+private def countersWithOriginToMessageData (header : String) (cls : Name) (data : Array (Origin × Name × Nat)) : MetaM MessageData := do
+  let data := data.qsort fun (_, n₁, c₁) (_, n₂, c₂) => if c₁ == c₂ then Name.lt n₁ n₂ else c₁ > c₂
+  let data ← data.mapM fun (origin, name, counter) =>
+    match origin with
+    | .decl _ => return .trace { cls } m!"{.ofConstName name} ↦ {counter}" #[]
+    | _ => return .trace { cls } m!"{name} ↦ {counter}" #[]
   return .trace { cls } header data
 
 private def splitDiagInfoToMessageData (ss : Array SplitDiagInfo) : MetaM MessageData := do
@@ -199,15 +207,19 @@ private def splitDiagInfoToMessageData (ss : Array SplitDiagInfo) : MetaM Messag
 
 -- Diagnostics information for the whole search
 private def mkGlobalDiag (cs : Counters) (simp : Simp.Stats) (ss : PArray SplitDiagInfo) : MetaM (Option MessageData) := do
-  let thms := cs.thm.toList.toArray.filterMap fun (origin, c) =>
-    match origin with
-    | .decl declName => some (declName, c)
-    | _ => none
   -- We do not report `cases` applications on builtin types
   let cases := cs.case.toList.toArray.filter fun (declName, _) => !isBuiltinEagerCases declName
   let mut msgs := #[]
-  unless thms.isEmpty do
-    msgs := msgs.push <| (← countersToMessageData "E-Matching instances" `thm thms)
+  unless cs.thm.isEmpty do
+    let thms := cs.thm.toList.toArray.map fun (origin, c) => Id.run do
+      match origin with
+      | .fvar fvarId =>
+        let some userName := cs.fvarUserNames.find? fvarId | unreachable!
+        return (origin, userName, c)
+      | .decl n => return (origin, n, c)
+      | .local n => return (origin, n, c)
+      | .stx n _ => return (origin, n, c)
+    msgs := msgs.push <| (← countersWithOriginToMessageData "E-Matching instances" `thm thms)
   let ss := ss.toArray.filter fun { numCases, .. } => numCases > 1
   unless ss.isEmpty do
     msgs := msgs.push <| (← splitDiagInfoToMessageData ss)

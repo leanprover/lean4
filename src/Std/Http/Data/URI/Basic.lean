@@ -11,6 +11,7 @@ public import Std.Net
 public import Std.Http.Internal
 public import Std.Http.Data.URI.Encoding
 public import Init.Data.String.Search
+public import Init.Data.String.Length
 
 public section
 

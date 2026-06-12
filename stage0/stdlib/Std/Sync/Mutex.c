@@ -13,7 +13,7 @@
 #ifdef __cplusplus
 extern "C" {
 #endif
-lean_object* l___private_Init_While_0__Lean_Loop_forIn_loop(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+lean_object* l___private_Init_While_0__whileM_erased___redArg(lean_object*, lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_instMonad___redArg(lean_object*);
 lean_object* l_instMonadLiftT___lam__0___boxed(lean_object*, lean_object*);
 lean_object* l_StateRefT_x27_lift___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
@@ -39,11 +39,12 @@ lean_object* lean_io_condvar_notify_one(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_notifyOne___boxed(lean_object*, lean_object*);
 lean_object* lean_io_condvar_notify_all(lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_notifyAll___boxed(lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__0(lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__1(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__1___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__3(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__0(lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__1(lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__2(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, uint8_t);
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__2___boxed(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__3(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__4(lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil(lean_object*, lean_object*, lean_object*, lean_object*, lean_object*, lean_object*);
 LEAN_EXPORT lean_object* l_Std_instCoeOutMutexBaseMutex___lam__0(lean_object*);
@@ -173,458 +174,556 @@ lean_dec(v_condvar_39_);
 return v_res_41_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__0(lean_object* v___x_42_, lean_object* v_toPure_43_, lean_object* v_r_44_){
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__0(lean_object* v_toPure_42_, lean_object* v_____do__lift_43_){
 _start:
 {
-lean_object* v___x_45_; lean_object* v___x_46_; 
-v___x_45_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_45_, 0, v___x_42_);
-v___x_46_ = lean_apply_2(v_toPure_43_, lean_box(0), v___x_45_);
-return v___x_46_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__1(lean_object* v_condvar_47_, lean_object* v_mutex_48_, lean_object* v_inst_49_, lean_object* v_toBind_50_, lean_object* v___f_51_, lean_object* v___x_52_, lean_object* v_toPure_53_, uint8_t v_____do__lift_54_){
-_start:
+if (lean_obj_tag(v_____do__lift_43_) == 0)
 {
-if (v_____do__lift_54_ == 0)
+lean_object* v_a_44_; lean_object* v___x_46_; uint8_t v_isShared_47_; uint8_t v_isSharedCheck_52_; 
+v_a_44_ = lean_ctor_get(v_____do__lift_43_, 0);
+v_isSharedCheck_52_ = !lean_is_exclusive(v_____do__lift_43_);
+if (v_isSharedCheck_52_ == 0)
 {
-lean_object* v___x_55_; lean_object* v___x_56_; lean_object* v___x_57_; 
-lean_dec(v_toPure_53_);
-v___x_55_ = lean_alloc_closure((void*)(l_Std_Condvar_wait___boxed), 3, 2);
-lean_closure_set(v___x_55_, 0, v_condvar_47_);
-lean_closure_set(v___x_55_, 1, v_mutex_48_);
-v___x_56_ = lean_apply_2(v_inst_49_, lean_box(0), v___x_55_);
-v___x_57_ = lean_apply_4(v_toBind_50_, lean_box(0), lean_box(0), v___x_56_, v___f_51_);
-return v___x_57_;
+v___x_46_ = v_____do__lift_43_;
+v_isShared_47_ = v_isSharedCheck_52_;
+goto v_resetjp_45_;
 }
 else
 {
-lean_object* v___x_58_; lean_object* v___x_59_; 
-lean_dec(v___f_51_);
-lean_dec(v_toBind_50_);
-lean_dec(v_inst_49_);
-lean_dec(v_mutex_48_);
-lean_dec(v_condvar_47_);
-v___x_58_ = lean_alloc_ctor(0, 1, 0);
-lean_ctor_set(v___x_58_, 0, v___x_52_);
-v___x_59_ = lean_apply_2(v_toPure_53_, lean_box(0), v___x_58_);
+lean_inc(v_a_44_);
+lean_dec(v_____do__lift_43_);
+v___x_46_ = lean_box(0);
+v_isShared_47_ = v_isSharedCheck_52_;
+goto v_resetjp_45_;
+}
+v_resetjp_45_:
+{
+lean_object* v___x_49_; 
+if (v_isShared_47_ == 0)
+{
+lean_ctor_set_tag(v___x_46_, 1);
+v___x_49_ = v___x_46_;
+goto v_reusejp_48_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_51_; 
+v_reuseFailAlloc_51_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_51_, 0, v_a_44_);
+v___x_49_ = v_reuseFailAlloc_51_;
+goto v_reusejp_48_;
+}
+v_reusejp_48_:
+{
+lean_object* v___x_50_; 
+v___x_50_ = lean_apply_2(v_toPure_42_, lean_box(0), v___x_49_);
+return v___x_50_;
+}
+}
+}
+else
+{
+lean_object* v_a_53_; lean_object* v___x_55_; uint8_t v_isShared_56_; uint8_t v_isSharedCheck_61_; 
+v_a_53_ = lean_ctor_get(v_____do__lift_43_, 0);
+v_isSharedCheck_61_ = !lean_is_exclusive(v_____do__lift_43_);
+if (v_isSharedCheck_61_ == 0)
+{
+v___x_55_ = v_____do__lift_43_;
+v_isShared_56_ = v_isSharedCheck_61_;
+goto v_resetjp_54_;
+}
+else
+{
+lean_inc(v_a_53_);
+lean_dec(v_____do__lift_43_);
+v___x_55_ = lean_box(0);
+v_isShared_56_ = v_isSharedCheck_61_;
+goto v_resetjp_54_;
+}
+v_resetjp_54_:
+{
+lean_object* v___x_58_; 
+if (v_isShared_56_ == 0)
+{
+lean_ctor_set_tag(v___x_55_, 0);
+v___x_58_ = v___x_55_;
+goto v_reusejp_57_;
+}
+else
+{
+lean_object* v_reuseFailAlloc_60_; 
+v_reuseFailAlloc_60_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v_reuseFailAlloc_60_, 0, v_a_53_);
+v___x_58_ = v_reuseFailAlloc_60_;
+goto v_reusejp_57_;
+}
+v_reusejp_57_:
+{
+lean_object* v___x_59_; 
+v___x_59_ = lean_apply_2(v_toPure_42_, lean_box(0), v___x_58_);
 return v___x_59_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__1___boxed(lean_object* v_condvar_60_, lean_object* v_mutex_61_, lean_object* v_inst_62_, lean_object* v_toBind_63_, lean_object* v___f_64_, lean_object* v___x_65_, lean_object* v_toPure_66_, lean_object* v_____do__lift_67_){
+}
+}
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__1(lean_object* v___x_62_, lean_object* v_toPure_63_, lean_object* v_r_64_){
 _start:
 {
-uint8_t v_____do__lift_155__boxed_68_; lean_object* v_res_69_; 
-v_____do__lift_155__boxed_68_ = lean_unbox(v_____do__lift_67_);
-v_res_69_ = l_Std_Condvar_waitUntil___redArg___lam__1(v_condvar_60_, v_mutex_61_, v_inst_62_, v_toBind_63_, v___f_64_, v___x_65_, v_toPure_66_, v_____do__lift_155__boxed_68_);
-return v_res_69_;
+lean_object* v___x_65_; lean_object* v___x_66_; 
+v___x_65_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_65_, 0, v___x_62_);
+v___x_66_ = lean_apply_2(v_toPure_63_, lean_box(0), v___x_65_);
+return v___x_66_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__2(lean_object* v_toBind_70_, lean_object* v_pred_71_, lean_object* v___f_72_, lean_object* v_x_73_, lean_object* v_____s_74_){
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__2(lean_object* v_condvar_67_, lean_object* v_mutex_68_, lean_object* v_inst_69_, lean_object* v_toBind_70_, lean_object* v___f_71_, lean_object* v___x_72_, lean_object* v_toPure_73_, uint8_t v_____do__lift_74_){
 _start:
 {
-lean_object* v___x_75_; 
-v___x_75_ = lean_apply_4(v_toBind_70_, lean_box(0), lean_box(0), v_pred_71_, v___f_72_);
-return v___x_75_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__3(lean_object* v_toPure_76_, lean_object* v___x_77_, lean_object* v_____s_78_){
-_start:
+if (v_____do__lift_74_ == 0)
 {
-lean_object* v___x_79_; 
-v___x_79_ = lean_apply_2(v_toPure_76_, lean_box(0), v___x_77_);
-return v___x_79_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg(lean_object* v_inst_80_, lean_object* v_inst_81_, lean_object* v_condvar_82_, lean_object* v_mutex_83_, lean_object* v_pred_84_){
-_start:
-{
-lean_object* v_toApplicative_85_; lean_object* v_toBind_86_; lean_object* v_toPure_87_; lean_object* v___x_88_; lean_object* v___f_89_; lean_object* v___f_90_; lean_object* v___f_91_; lean_object* v___f_92_; lean_object* v___x_93_; lean_object* v___x_94_; 
-v_toApplicative_85_ = lean_ctor_get(v_inst_80_, 0);
-v_toBind_86_ = lean_ctor_get(v_inst_80_, 1);
-lean_inc_n(v_toBind_86_, 3);
-v_toPure_87_ = lean_ctor_get(v_toApplicative_85_, 1);
-v___x_88_ = lean_box(0);
-lean_inc_n(v_toPure_87_, 3);
-v___f_89_ = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__0), 3, 2);
-lean_closure_set(v___f_89_, 0, v___x_88_);
-lean_closure_set(v___f_89_, 1, v_toPure_87_);
-v___f_90_ = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__1___boxed), 8, 7);
-lean_closure_set(v___f_90_, 0, v_condvar_82_);
-lean_closure_set(v___f_90_, 1, v_mutex_83_);
-lean_closure_set(v___f_90_, 2, v_inst_81_);
-lean_closure_set(v___f_90_, 3, v_toBind_86_);
-lean_closure_set(v___f_90_, 4, v___f_89_);
-lean_closure_set(v___f_90_, 5, v___x_88_);
-lean_closure_set(v___f_90_, 6, v_toPure_87_);
-v___f_91_ = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__2), 5, 3);
-lean_closure_set(v___f_91_, 0, v_toBind_86_);
-lean_closure_set(v___f_91_, 1, v_pred_84_);
-lean_closure_set(v___f_91_, 2, v___f_90_);
-v___f_92_ = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__3), 3, 2);
-lean_closure_set(v___f_92_, 0, v_toPure_87_);
-lean_closure_set(v___f_92_, 1, v___x_88_);
-v___x_93_ = l___private_Init_While_0__Lean_Loop_forIn_loop(lean_box(0), lean_box(0), v_inst_80_, v___f_91_, v___x_88_);
-v___x_94_ = lean_apply_4(v_toBind_86_, lean_box(0), lean_box(0), v___x_93_, v___f_92_);
-return v___x_94_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil(lean_object* v_m_95_, lean_object* v_inst_96_, lean_object* v_inst_97_, lean_object* v_condvar_98_, lean_object* v_mutex_99_, lean_object* v_pred_100_){
-_start:
-{
-lean_object* v___x_101_; 
-v___x_101_ = l_Std_Condvar_waitUntil___redArg(v_inst_96_, v_inst_97_, v_condvar_98_, v_mutex_99_, v_pred_100_);
-return v___x_101_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_instCoeOutMutexBaseMutex___lam__0(lean_object* v_self_102_){
-_start:
-{
-lean_object* v_mutex_103_; 
-v_mutex_103_ = lean_ctor_get(v_self_102_, 1);
-lean_inc(v_mutex_103_);
-return v_mutex_103_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_instCoeOutMutexBaseMutex___lam__0___boxed(lean_object* v_self_104_){
-_start:
-{
-lean_object* v_res_105_; 
-v_res_105_ = l_Std_instCoeOutMutexBaseMutex___lam__0(v_self_104_);
-lean_dec_ref(v_self_104_);
-return v_res_105_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_instCoeOutMutexBaseMutex(lean_object* v_00_u03b1_107_){
-_start:
-{
-lean_object* v___f_108_; 
-v___f_108_ = ((lean_object*)(l_Std_instCoeOutMutexBaseMutex___closed__0));
-return v___f_108_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_new___redArg(lean_object* v_a_109_){
-_start:
-{
-lean_object* v___x_111_; lean_object* v___x_112_; lean_object* v___x_113_; 
-v___x_111_ = lean_st_mk_ref(v_a_109_);
-v___x_112_ = lean_io_basemutex_new();
-v___x_113_ = lean_alloc_ctor(0, 2, 0);
-lean_ctor_set(v___x_113_, 0, v___x_111_);
-lean_ctor_set(v___x_113_, 1, v___x_112_);
-return v___x_113_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_new___redArg___boxed(lean_object* v_a_114_, lean_object* v_a_115_){
-_start:
-{
-lean_object* v_res_116_; 
-v_res_116_ = l_Std_Mutex_new___redArg(v_a_114_);
-return v_res_116_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_new(lean_object* v_00_u03b1_117_, lean_object* v_a_118_){
-_start:
-{
-lean_object* v___x_120_; 
-v___x_120_ = l_Std_Mutex_new___redArg(v_a_118_);
-return v___x_120_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_new___boxed(lean_object* v_00_u03b1_121_, lean_object* v_a_122_, lean_object* v_a_123_){
-_start:
-{
-lean_object* v_res_124_; 
-v_res_124_ = l_Std_Mutex_new(v_00_u03b1_121_, v_a_122_);
-return v_res_124_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg___lam__0(lean_object* v_k_125_, lean_object* v_ref_126_, lean_object* v_____r_127_){
-_start:
-{
-lean_object* v___x_128_; 
-v___x_128_ = lean_apply_1(v_k_125_, v_ref_126_);
-return v___x_128_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg___lam__1(lean_object* v_x_129_){
-_start:
-{
-lean_object* v_fst_130_; 
-v_fst_130_ = lean_ctor_get(v_x_129_, 0);
-lean_inc(v_fst_130_);
-return v_fst_130_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg___lam__1___boxed(lean_object* v_x_131_){
-_start:
-{
-lean_object* v_res_132_; 
-v_res_132_ = l_Std_Mutex_atomically___redArg___lam__1(v_x_131_);
-lean_dec_ref(v_x_131_);
-return v_res_132_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg___lam__2(lean_object* v___x_133_, lean_object* v_x_134_){
-_start:
-{
-lean_inc(v___x_133_);
-return v___x_133_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg___lam__2___boxed(lean_object* v___x_135_, lean_object* v_x_136_){
-_start:
-{
-lean_object* v_res_137_; 
-v_res_137_ = l_Std_Mutex_atomically___redArg___lam__2(v___x_135_, v_x_136_);
-lean_dec(v_x_136_);
-lean_dec(v___x_135_);
-return v_res_137_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg(lean_object* v_inst_139_, lean_object* v_inst_140_, lean_object* v_inst_141_, lean_object* v_mutex_142_, lean_object* v_k_143_){
-_start:
-{
-lean_object* v_toApplicative_144_; lean_object* v_toFunctor_145_; lean_object* v_toBind_146_; lean_object* v_ref_147_; lean_object* v_mutex_148_; lean_object* v_map_149_; lean_object* v___x_150_; lean_object* v___x_151_; lean_object* v___f_152_; lean_object* v___f_153_; lean_object* v___x_154_; lean_object* v___x_155_; lean_object* v___x_156_; lean_object* v___f_157_; lean_object* v_y_158_; lean_object* v___x_159_; 
-v_toApplicative_144_ = lean_ctor_get(v_inst_139_, 0);
-v_toFunctor_145_ = lean_ctor_get(v_toApplicative_144_, 0);
-lean_inc_ref(v_toFunctor_145_);
-v_toBind_146_ = lean_ctor_get(v_inst_139_, 1);
-lean_inc(v_toBind_146_);
-lean_dec_ref(v_inst_139_);
-v_ref_147_ = lean_ctor_get(v_mutex_142_, 0);
-lean_inc(v_ref_147_);
-v_mutex_148_ = lean_ctor_get(v_mutex_142_, 1);
-lean_inc_n(v_mutex_148_, 2);
-lean_dec_ref(v_mutex_142_);
-v_map_149_ = lean_ctor_get(v_toFunctor_145_, 0);
-lean_inc(v_map_149_);
-lean_dec_ref(v_toFunctor_145_);
-v___x_150_ = lean_alloc_closure((void*)(l_Std_BaseMutex_lock___boxed), 2, 1);
-lean_closure_set(v___x_150_, 0, v_mutex_148_);
-lean_inc(v_inst_140_);
-v___x_151_ = lean_apply_2(v_inst_140_, lean_box(0), v___x_150_);
-v___f_152_ = lean_alloc_closure((void*)(l_Std_Mutex_atomically___redArg___lam__0), 3, 2);
-lean_closure_set(v___f_152_, 0, v_k_143_);
-lean_closure_set(v___f_152_, 1, v_ref_147_);
-v___f_153_ = ((lean_object*)(l_Std_Mutex_atomically___redArg___closed__0));
-v___x_154_ = lean_apply_4(v_toBind_146_, lean_box(0), lean_box(0), v___x_151_, v___f_152_);
-v___x_155_ = lean_alloc_closure((void*)(l_Std_BaseMutex_unlock___boxed), 2, 1);
-lean_closure_set(v___x_155_, 0, v_mutex_148_);
-v___x_156_ = lean_apply_2(v_inst_140_, lean_box(0), v___x_155_);
-v___f_157_ = lean_alloc_closure((void*)(l_Std_Mutex_atomically___redArg___lam__2___boxed), 2, 1);
-lean_closure_set(v___f_157_, 0, v___x_156_);
-v_y_158_ = lean_apply_4(v_inst_141_, lean_box(0), lean_box(0), v___x_154_, v___f_157_);
-v___x_159_ = lean_apply_4(v_map_149_, lean_box(0), lean_box(0), v___f_153_, v_y_158_);
-return v___x_159_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_atomically(lean_object* v_m_160_, lean_object* v_00_u03b1_161_, lean_object* v_00_u03b2_162_, lean_object* v_inst_163_, lean_object* v_inst_164_, lean_object* v_inst_165_, lean_object* v_mutex_166_, lean_object* v_k_167_){
-_start:
-{
-lean_object* v___x_168_; 
-v___x_168_ = l_Std_Mutex_atomically___redArg(v_inst_163_, v_inst_164_, v_inst_165_, v_mutex_166_, v_k_167_);
-return v___x_168_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__0(lean_object* v_x_169_){
-_start:
-{
-lean_object* v_fst_170_; 
-v_fst_170_ = lean_ctor_get(v_x_169_, 0);
-lean_inc(v_fst_170_);
-return v_fst_170_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__0___boxed(lean_object* v_x_171_){
-_start:
-{
-lean_object* v_res_172_; 
-v_res_172_ = l_Std_Mutex_tryAtomically___redArg___lam__0(v_x_171_);
-lean_dec_ref(v_x_171_);
-return v_res_172_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__1(lean_object* v_val_173_){
-_start:
-{
-lean_object* v___x_174_; 
-v___x_174_ = lean_alloc_ctor(1, 1, 0);
-lean_ctor_set(v___x_174_, 0, v_val_173_);
-return v___x_174_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__2(lean_object* v___x_175_, lean_object* v_x_176_){
-_start:
-{
-lean_inc(v___x_175_);
-return v___x_175_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__2___boxed(lean_object* v___x_177_, lean_object* v_x_178_){
-_start:
-{
-lean_object* v_res_179_; 
-v_res_179_ = l_Std_Mutex_tryAtomically___redArg___lam__2(v___x_177_, v_x_178_);
-lean_dec(v_x_178_);
-lean_dec(v___x_177_);
-return v_res_179_;
-}
-}
-LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__3(lean_object* v_toApplicative_180_, lean_object* v_k_181_, lean_object* v_ref_182_, lean_object* v___f_183_, lean_object* v_mutex_184_, lean_object* v_inst_185_, lean_object* v_inst_186_, lean_object* v___f_187_, uint8_t v_____do__lift_188_){
-_start:
-{
-if (v_____do__lift_188_ == 0)
-{
-lean_object* v_toPure_189_; lean_object* v___x_190_; lean_object* v___x_191_; 
-lean_dec_ref(v___f_187_);
-lean_dec(v_inst_186_);
-lean_dec(v_inst_185_);
-lean_dec(v_mutex_184_);
-lean_dec_ref(v___f_183_);
-lean_dec(v_ref_182_);
-lean_dec(v_k_181_);
-v_toPure_189_ = lean_ctor_get(v_toApplicative_180_, 1);
-lean_inc(v_toPure_189_);
-lean_dec_ref(v_toApplicative_180_);
-v___x_190_ = lean_box(0);
-v___x_191_ = lean_apply_2(v_toPure_189_, lean_box(0), v___x_190_);
-return v___x_191_;
+lean_object* v___x_75_; lean_object* v___x_76_; lean_object* v___x_77_; 
+lean_dec(v_toPure_73_);
+v___x_75_ = lean_alloc_closure((void*)(l_Std_Condvar_wait___boxed), 3, 2);
+lean_closure_set(v___x_75_, 0, v_condvar_67_);
+lean_closure_set(v___x_75_, 1, v_mutex_68_);
+v___x_76_ = lean_apply_2(v_inst_69_, lean_box(0), v___x_75_);
+v___x_77_ = lean_apply_4(v_toBind_70_, lean_box(0), lean_box(0), v___x_76_, v___f_71_);
+return v___x_77_;
 }
 else
 {
-lean_object* v_toFunctor_192_; lean_object* v_map_193_; lean_object* v___x_194_; lean_object* v___x_195_; lean_object* v___x_196_; lean_object* v___x_197_; lean_object* v___f_198_; lean_object* v_y_199_; lean_object* v___x_200_; 
-v_toFunctor_192_ = lean_ctor_get(v_toApplicative_180_, 0);
-lean_inc_ref(v_toFunctor_192_);
-lean_dec_ref(v_toApplicative_180_);
-v_map_193_ = lean_ctor_get(v_toFunctor_192_, 0);
-lean_inc_n(v_map_193_, 2);
-lean_dec_ref(v_toFunctor_192_);
-v___x_194_ = lean_apply_1(v_k_181_, v_ref_182_);
-v___x_195_ = lean_apply_4(v_map_193_, lean_box(0), lean_box(0), v___f_183_, v___x_194_);
-v___x_196_ = lean_alloc_closure((void*)(l_Std_BaseMutex_unlock___boxed), 2, 1);
-lean_closure_set(v___x_196_, 0, v_mutex_184_);
-v___x_197_ = lean_apply_2(v_inst_185_, lean_box(0), v___x_196_);
-v___f_198_ = lean_alloc_closure((void*)(l_Std_Mutex_tryAtomically___redArg___lam__2___boxed), 2, 1);
-lean_closure_set(v___f_198_, 0, v___x_197_);
-v_y_199_ = lean_apply_4(v_inst_186_, lean_box(0), lean_box(0), v___x_195_, v___f_198_);
-v___x_200_ = lean_apply_4(v_map_193_, lean_box(0), lean_box(0), v___f_187_, v_y_199_);
-return v___x_200_;
+lean_object* v___x_78_; lean_object* v___x_79_; 
+lean_dec(v___f_71_);
+lean_dec(v_toBind_70_);
+lean_dec(v_inst_69_);
+lean_dec(v_mutex_68_);
+lean_dec(v_condvar_67_);
+v___x_78_ = lean_alloc_ctor(0, 1, 0);
+lean_ctor_set(v___x_78_, 0, v___x_72_);
+v___x_79_ = lean_apply_2(v_toPure_73_, lean_box(0), v___x_78_);
+return v___x_79_;
 }
 }
 }
-LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__3___boxed(lean_object* v_toApplicative_201_, lean_object* v_k_202_, lean_object* v_ref_203_, lean_object* v___f_204_, lean_object* v_mutex_205_, lean_object* v_inst_206_, lean_object* v_inst_207_, lean_object* v___f_208_, lean_object* v_____do__lift_209_){
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__2___boxed(lean_object* v_condvar_80_, lean_object* v_mutex_81_, lean_object* v_inst_82_, lean_object* v_toBind_83_, lean_object* v___f_84_, lean_object* v___x_85_, lean_object* v_toPure_86_, lean_object* v_____do__lift_87_){
 _start:
 {
-uint8_t v_____do__lift_140__boxed_210_; lean_object* v_res_211_; 
-v_____do__lift_140__boxed_210_ = lean_unbox(v_____do__lift_209_);
-v_res_211_ = l_Std_Mutex_tryAtomically___redArg___lam__3(v_toApplicative_201_, v_k_202_, v_ref_203_, v___f_204_, v_mutex_205_, v_inst_206_, v_inst_207_, v___f_208_, v_____do__lift_140__boxed_210_);
-return v_res_211_;
+uint8_t v_____do__lift_261__boxed_88_; lean_object* v_res_89_; 
+v_____do__lift_261__boxed_88_ = lean_unbox(v_____do__lift_87_);
+v_res_89_ = l_Std_Condvar_waitUntil___redArg___lam__2(v_condvar_80_, v_mutex_81_, v_inst_82_, v_toBind_83_, v___f_84_, v___x_85_, v_toPure_86_, v_____do__lift_261__boxed_88_);
+return v_res_89_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg(lean_object* v_inst_214_, lean_object* v_inst_215_, lean_object* v_inst_216_, lean_object* v_mutex_217_, lean_object* v_k_218_){
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__3(lean_object* v_toBind_90_, lean_object* v_pred_91_, lean_object* v___f_92_, lean_object* v___f_93_, lean_object* v_b_94_){
 _start:
 {
-lean_object* v_toApplicative_219_; lean_object* v_toBind_220_; lean_object* v_ref_221_; lean_object* v_mutex_222_; lean_object* v___f_223_; lean_object* v___f_224_; lean_object* v___f_225_; lean_object* v___x_226_; lean_object* v___x_227_; lean_object* v___x_228_; 
-v_toApplicative_219_ = lean_ctor_get(v_inst_214_, 0);
-lean_inc_ref(v_toApplicative_219_);
-v_toBind_220_ = lean_ctor_get(v_inst_214_, 1);
-lean_inc(v_toBind_220_);
-lean_dec_ref(v_inst_214_);
-v_ref_221_ = lean_ctor_get(v_mutex_217_, 0);
-lean_inc(v_ref_221_);
-v_mutex_222_ = lean_ctor_get(v_mutex_217_, 1);
-lean_inc_n(v_mutex_222_, 2);
-lean_dec_ref(v_mutex_217_);
-v___f_223_ = ((lean_object*)(l_Std_Mutex_tryAtomically___redArg___closed__0));
-v___f_224_ = ((lean_object*)(l_Std_Mutex_tryAtomically___redArg___closed__1));
-lean_inc(v_inst_215_);
-v___f_225_ = lean_alloc_closure((void*)(l_Std_Mutex_tryAtomically___redArg___lam__3___boxed), 9, 8);
-lean_closure_set(v___f_225_, 0, v_toApplicative_219_);
-lean_closure_set(v___f_225_, 1, v_k_218_);
-lean_closure_set(v___f_225_, 2, v_ref_221_);
-lean_closure_set(v___f_225_, 3, v___f_224_);
-lean_closure_set(v___f_225_, 4, v_mutex_222_);
-lean_closure_set(v___f_225_, 5, v_inst_215_);
-lean_closure_set(v___f_225_, 6, v_inst_216_);
-lean_closure_set(v___f_225_, 7, v___f_223_);
-v___x_226_ = lean_alloc_closure((void*)(l_Std_BaseMutex_tryLock___boxed), 2, 1);
-lean_closure_set(v___x_226_, 0, v_mutex_222_);
-v___x_227_ = lean_apply_2(v_inst_215_, lean_box(0), v___x_226_);
-v___x_228_ = lean_apply_4(v_toBind_220_, lean_box(0), lean_box(0), v___x_227_, v___f_225_);
-return v___x_228_;
+lean_object* v___x_95_; lean_object* v___x_96_; 
+lean_inc(v_toBind_90_);
+v___x_95_ = lean_apply_4(v_toBind_90_, lean_box(0), lean_box(0), v_pred_91_, v___f_92_);
+v___x_96_ = lean_apply_4(v_toBind_90_, lean_box(0), lean_box(0), v___x_95_, v___f_93_);
+return v___x_96_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically(lean_object* v_m_229_, lean_object* v_00_u03b1_230_, lean_object* v_00_u03b2_231_, lean_object* v_inst_232_, lean_object* v_inst_233_, lean_object* v_inst_234_, lean_object* v_mutex_235_, lean_object* v_k_236_){
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg___lam__4(lean_object* v_toPure_97_, lean_object* v___x_98_, lean_object* v_____s_99_){
 _start:
 {
-lean_object* v___x_237_; 
-v___x_237_ = l_Std_Mutex_tryAtomically___redArg(v_inst_232_, v_inst_233_, v_inst_234_, v_mutex_235_, v_k_236_);
-return v___x_237_;
+lean_object* v___x_100_; 
+v___x_100_ = lean_apply_2(v_toPure_97_, lean_box(0), v___x_98_);
+return v___x_100_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce___redArg___lam__0(lean_object* v_k_238_, lean_object* v_____r_239_, lean_object* v___y_240_){
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil___redArg(lean_object* v_inst_101_, lean_object* v_inst_102_, lean_object* v_condvar_103_, lean_object* v_mutex_104_, lean_object* v_pred_105_){
 _start:
 {
-lean_object* v___x_241_; 
-lean_inc(v___y_240_);
-v___x_241_ = lean_apply_1(v_k_238_, v___y_240_);
-return v___x_241_;
+lean_object* v_toApplicative_106_; lean_object* v_toBind_107_; lean_object* v_toPure_108_; lean_object* v___x_109_; lean_object* v___f_110_; lean_object* v___f_111_; lean_object* v___f_112_; lean_object* v___f_113_; lean_object* v___f_114_; lean_object* v___x_115_; lean_object* v___x_116_; 
+v_toApplicative_106_ = lean_ctor_get(v_inst_101_, 0);
+v_toBind_107_ = lean_ctor_get(v_inst_101_, 1);
+lean_inc_n(v_toBind_107_, 3);
+v_toPure_108_ = lean_ctor_get(v_toApplicative_106_, 1);
+v___x_109_ = lean_box(0);
+lean_inc_n(v_toPure_108_, 4);
+v___f_110_ = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__0), 2, 1);
+lean_closure_set(v___f_110_, 0, v_toPure_108_);
+v___f_111_ = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__1), 3, 2);
+lean_closure_set(v___f_111_, 0, v___x_109_);
+lean_closure_set(v___f_111_, 1, v_toPure_108_);
+v___f_112_ = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__2___boxed), 8, 7);
+lean_closure_set(v___f_112_, 0, v_condvar_103_);
+lean_closure_set(v___f_112_, 1, v_mutex_104_);
+lean_closure_set(v___f_112_, 2, v_inst_102_);
+lean_closure_set(v___f_112_, 3, v_toBind_107_);
+lean_closure_set(v___f_112_, 4, v___f_111_);
+lean_closure_set(v___f_112_, 5, v___x_109_);
+lean_closure_set(v___f_112_, 6, v_toPure_108_);
+v___f_113_ = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__3), 5, 4);
+lean_closure_set(v___f_113_, 0, v_toBind_107_);
+lean_closure_set(v___f_113_, 1, v_pred_105_);
+lean_closure_set(v___f_113_, 2, v___f_112_);
+lean_closure_set(v___f_113_, 3, v___f_110_);
+v___f_114_ = lean_alloc_closure((void*)(l_Std_Condvar_waitUntil___redArg___lam__4), 3, 2);
+lean_closure_set(v___f_114_, 0, v_toPure_108_);
+lean_closure_set(v___f_114_, 1, v___x_109_);
+v___x_115_ = l___private_Init_While_0__whileM_erased___redArg(v_inst_101_, v___f_113_, v___x_109_);
+v___x_116_ = lean_apply_4(v_toBind_107_, lean_box(0), lean_box(0), v___x_115_, v___f_114_);
+return v___x_116_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce___redArg___lam__0___boxed(lean_object* v_k_242_, lean_object* v_____r_243_, lean_object* v___y_244_){
+LEAN_EXPORT lean_object* l_Std_Condvar_waitUntil(lean_object* v_m_117_, lean_object* v_inst_118_, lean_object* v_inst_119_, lean_object* v_condvar_120_, lean_object* v_mutex_121_, lean_object* v_pred_122_){
 _start:
 {
-lean_object* v_res_245_; 
-v_res_245_ = l_Std_Mutex_atomicallyOnce___redArg___lam__0(v_k_242_, v_____r_243_, v___y_244_);
-lean_dec(v___y_244_);
-return v_res_245_;
+lean_object* v___x_123_; 
+v___x_123_ = l_Std_Condvar_waitUntil___redArg(v_inst_118_, v_inst_119_, v_condvar_120_, v_mutex_121_, v_pred_122_);
+return v___x_123_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce___redArg(lean_object* v_inst_248_, lean_object* v_inst_249_, lean_object* v_inst_250_, lean_object* v_mutex_251_, lean_object* v_condvar_252_, lean_object* v_pred_253_, lean_object* v_k_254_){
+LEAN_EXPORT lean_object* l_Std_instCoeOutMutexBaseMutex___lam__0(lean_object* v_self_124_){
 _start:
 {
-lean_object* v___x_255_; lean_object* v_mutex_256_; lean_object* v___f_257_; lean_object* v___f_258_; lean_object* v___x_259_; lean_object* v___f_260_; lean_object* v_x_261_; lean_object* v___f_262_; lean_object* v___x_263_; lean_object* v___x_264_; lean_object* v___x_265_; 
-lean_inc_ref_n(v_inst_248_, 2);
-v___x_255_ = l_StateRefT_x27_instMonad___redArg(v_inst_248_);
-v_mutex_256_ = lean_ctor_get(v_mutex_251_, 1);
-v___f_257_ = lean_alloc_closure((void*)(l_Std_Mutex_atomicallyOnce___redArg___lam__0___boxed), 3, 1);
-lean_closure_set(v___f_257_, 0, v_k_254_);
-v___f_258_ = ((lean_object*)(l_Std_Mutex_atomicallyOnce___redArg___closed__0));
-v___x_259_ = ((lean_object*)(l_Std_Mutex_atomicallyOnce___redArg___closed__1));
-lean_inc(v_inst_249_);
-v___f_260_ = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___redArg___lam__0), 4, 2);
-lean_closure_set(v___f_260_, 0, v_inst_249_);
-lean_closure_set(v___f_260_, 1, v___x_259_);
-v_x_261_ = lean_alloc_closure((void*)(l_liftM), 5, 3);
-lean_closure_set(v_x_261_, 0, lean_box(0));
-lean_closure_set(v_x_261_, 1, lean_box(0));
-lean_closure_set(v_x_261_, 2, v___f_260_);
-v___f_262_ = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___redArg___lam__0), 4, 2);
-lean_closure_set(v___f_262_, 0, v___f_258_);
-lean_closure_set(v___f_262_, 1, v_x_261_);
-lean_inc(v_mutex_256_);
-v___x_263_ = l_Std_Condvar_waitUntil___redArg(v___x_255_, v___f_262_, v_condvar_252_, v_mutex_256_, v_pred_253_);
-v___x_264_ = lean_alloc_closure((void*)(l_StateRefT_x27_instMonad___aux__13___boxed), 9, 8);
-lean_closure_set(v___x_264_, 0, lean_box(0));
-lean_closure_set(v___x_264_, 1, lean_box(0));
-lean_closure_set(v___x_264_, 2, lean_box(0));
-lean_closure_set(v___x_264_, 3, v_inst_248_);
-lean_closure_set(v___x_264_, 4, lean_box(0));
-lean_closure_set(v___x_264_, 5, lean_box(0));
-lean_closure_set(v___x_264_, 6, v___x_263_);
-lean_closure_set(v___x_264_, 7, v___f_257_);
-v___x_265_ = l_Std_Mutex_atomically___redArg(v_inst_248_, v_inst_249_, v_inst_250_, v_mutex_251_, v___x_264_);
-return v___x_265_;
+lean_object* v_mutex_125_; 
+v_mutex_125_ = lean_ctor_get(v_self_124_, 1);
+lean_inc(v_mutex_125_);
+return v_mutex_125_;
 }
 }
-LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce(lean_object* v_m_266_, lean_object* v_00_u03b1_267_, lean_object* v_00_u03b2_268_, lean_object* v_inst_269_, lean_object* v_inst_270_, lean_object* v_inst_271_, lean_object* v_mutex_272_, lean_object* v_condvar_273_, lean_object* v_pred_274_, lean_object* v_k_275_){
+LEAN_EXPORT lean_object* l_Std_instCoeOutMutexBaseMutex___lam__0___boxed(lean_object* v_self_126_){
 _start:
 {
-lean_object* v___x_276_; 
-v___x_276_ = l_Std_Mutex_atomicallyOnce___redArg(v_inst_269_, v_inst_270_, v_inst_271_, v_mutex_272_, v_condvar_273_, v_pred_274_, v_k_275_);
-return v___x_276_;
+lean_object* v_res_127_; 
+v_res_127_ = l_Std_instCoeOutMutexBaseMutex___lam__0(v_self_126_);
+lean_dec_ref(v_self_126_);
+return v_res_127_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_instCoeOutMutexBaseMutex(lean_object* v_00_u03b1_129_){
+_start:
+{
+lean_object* v___f_130_; 
+v___f_130_ = ((lean_object*)(l_Std_instCoeOutMutexBaseMutex___closed__0));
+return v___f_130_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_new___redArg(lean_object* v_a_131_){
+_start:
+{
+lean_object* v___x_133_; lean_object* v___x_134_; lean_object* v___x_135_; 
+v___x_133_ = lean_st_mk_ref(v_a_131_);
+v___x_134_ = lean_io_basemutex_new();
+v___x_135_ = lean_alloc_ctor(0, 2, 0);
+lean_ctor_set(v___x_135_, 0, v___x_133_);
+lean_ctor_set(v___x_135_, 1, v___x_134_);
+return v___x_135_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_new___redArg___boxed(lean_object* v_a_136_, lean_object* v_a_137_){
+_start:
+{
+lean_object* v_res_138_; 
+v_res_138_ = l_Std_Mutex_new___redArg(v_a_136_);
+return v_res_138_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_new(lean_object* v_00_u03b1_139_, lean_object* v_a_140_){
+_start:
+{
+lean_object* v___x_142_; 
+v___x_142_ = l_Std_Mutex_new___redArg(v_a_140_);
+return v___x_142_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_new___boxed(lean_object* v_00_u03b1_143_, lean_object* v_a_144_, lean_object* v_a_145_){
+_start:
+{
+lean_object* v_res_146_; 
+v_res_146_ = l_Std_Mutex_new(v_00_u03b1_143_, v_a_144_);
+return v_res_146_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg___lam__0(lean_object* v_k_147_, lean_object* v_ref_148_, lean_object* v_____r_149_){
+_start:
+{
+lean_object* v___x_150_; 
+v___x_150_ = lean_apply_1(v_k_147_, v_ref_148_);
+return v___x_150_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg___lam__1(lean_object* v_x_151_){
+_start:
+{
+lean_object* v_fst_152_; 
+v_fst_152_ = lean_ctor_get(v_x_151_, 0);
+lean_inc(v_fst_152_);
+return v_fst_152_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg___lam__1___boxed(lean_object* v_x_153_){
+_start:
+{
+lean_object* v_res_154_; 
+v_res_154_ = l_Std_Mutex_atomically___redArg___lam__1(v_x_153_);
+lean_dec_ref(v_x_153_);
+return v_res_154_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg___lam__2(lean_object* v___x_155_, lean_object* v_x_156_){
+_start:
+{
+lean_inc(v___x_155_);
+return v___x_155_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg___lam__2___boxed(lean_object* v___x_157_, lean_object* v_x_158_){
+_start:
+{
+lean_object* v_res_159_; 
+v_res_159_ = l_Std_Mutex_atomically___redArg___lam__2(v___x_157_, v_x_158_);
+lean_dec(v_x_158_);
+lean_dec(v___x_157_);
+return v_res_159_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_atomically___redArg(lean_object* v_inst_161_, lean_object* v_inst_162_, lean_object* v_inst_163_, lean_object* v_mutex_164_, lean_object* v_k_165_){
+_start:
+{
+lean_object* v_toApplicative_166_; lean_object* v_toFunctor_167_; lean_object* v_toBind_168_; lean_object* v_ref_169_; lean_object* v_mutex_170_; lean_object* v_map_171_; lean_object* v___x_172_; lean_object* v___x_173_; lean_object* v___f_174_; lean_object* v___f_175_; lean_object* v___x_176_; lean_object* v___x_177_; lean_object* v___x_178_; lean_object* v___f_179_; lean_object* v_y_180_; lean_object* v___x_181_; 
+v_toApplicative_166_ = lean_ctor_get(v_inst_161_, 0);
+v_toFunctor_167_ = lean_ctor_get(v_toApplicative_166_, 0);
+lean_inc_ref(v_toFunctor_167_);
+v_toBind_168_ = lean_ctor_get(v_inst_161_, 1);
+lean_inc(v_toBind_168_);
+lean_dec_ref(v_inst_161_);
+v_ref_169_ = lean_ctor_get(v_mutex_164_, 0);
+lean_inc(v_ref_169_);
+v_mutex_170_ = lean_ctor_get(v_mutex_164_, 1);
+lean_inc_n(v_mutex_170_, 2);
+lean_dec_ref(v_mutex_164_);
+v_map_171_ = lean_ctor_get(v_toFunctor_167_, 0);
+lean_inc(v_map_171_);
+lean_dec_ref(v_toFunctor_167_);
+v___x_172_ = lean_alloc_closure((void*)(l_Std_BaseMutex_lock___boxed), 2, 1);
+lean_closure_set(v___x_172_, 0, v_mutex_170_);
+lean_inc(v_inst_162_);
+v___x_173_ = lean_apply_2(v_inst_162_, lean_box(0), v___x_172_);
+v___f_174_ = lean_alloc_closure((void*)(l_Std_Mutex_atomically___redArg___lam__0), 3, 2);
+lean_closure_set(v___f_174_, 0, v_k_165_);
+lean_closure_set(v___f_174_, 1, v_ref_169_);
+v___f_175_ = ((lean_object*)(l_Std_Mutex_atomically___redArg___closed__0));
+v___x_176_ = lean_apply_4(v_toBind_168_, lean_box(0), lean_box(0), v___x_173_, v___f_174_);
+v___x_177_ = lean_alloc_closure((void*)(l_Std_BaseMutex_unlock___boxed), 2, 1);
+lean_closure_set(v___x_177_, 0, v_mutex_170_);
+v___x_178_ = lean_apply_2(v_inst_162_, lean_box(0), v___x_177_);
+v___f_179_ = lean_alloc_closure((void*)(l_Std_Mutex_atomically___redArg___lam__2___boxed), 2, 1);
+lean_closure_set(v___f_179_, 0, v___x_178_);
+v_y_180_ = lean_apply_4(v_inst_163_, lean_box(0), lean_box(0), v___x_176_, v___f_179_);
+v___x_181_ = lean_apply_4(v_map_171_, lean_box(0), lean_box(0), v___f_175_, v_y_180_);
+return v___x_181_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_atomically(lean_object* v_m_182_, lean_object* v_00_u03b1_183_, lean_object* v_00_u03b2_184_, lean_object* v_inst_185_, lean_object* v_inst_186_, lean_object* v_inst_187_, lean_object* v_mutex_188_, lean_object* v_k_189_){
+_start:
+{
+lean_object* v___x_190_; 
+v___x_190_ = l_Std_Mutex_atomically___redArg(v_inst_185_, v_inst_186_, v_inst_187_, v_mutex_188_, v_k_189_);
+return v___x_190_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__0(lean_object* v_x_191_){
+_start:
+{
+lean_object* v_fst_192_; 
+v_fst_192_ = lean_ctor_get(v_x_191_, 0);
+lean_inc(v_fst_192_);
+return v_fst_192_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__0___boxed(lean_object* v_x_193_){
+_start:
+{
+lean_object* v_res_194_; 
+v_res_194_ = l_Std_Mutex_tryAtomically___redArg___lam__0(v_x_193_);
+lean_dec_ref(v_x_193_);
+return v_res_194_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__1(lean_object* v_val_195_){
+_start:
+{
+lean_object* v___x_196_; 
+v___x_196_ = lean_alloc_ctor(1, 1, 0);
+lean_ctor_set(v___x_196_, 0, v_val_195_);
+return v___x_196_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__2(lean_object* v___x_197_, lean_object* v_x_198_){
+_start:
+{
+lean_inc(v___x_197_);
+return v___x_197_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__2___boxed(lean_object* v___x_199_, lean_object* v_x_200_){
+_start:
+{
+lean_object* v_res_201_; 
+v_res_201_ = l_Std_Mutex_tryAtomically___redArg___lam__2(v___x_199_, v_x_200_);
+lean_dec(v_x_200_);
+lean_dec(v___x_199_);
+return v_res_201_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__3(lean_object* v_toApplicative_202_, lean_object* v_k_203_, lean_object* v_ref_204_, lean_object* v___f_205_, lean_object* v_mutex_206_, lean_object* v_inst_207_, lean_object* v_inst_208_, lean_object* v___f_209_, uint8_t v_____do__lift_210_){
+_start:
+{
+if (v_____do__lift_210_ == 0)
+{
+lean_object* v_toPure_211_; lean_object* v___x_212_; lean_object* v___x_213_; 
+lean_dec_ref(v___f_209_);
+lean_dec(v_inst_208_);
+lean_dec(v_inst_207_);
+lean_dec(v_mutex_206_);
+lean_dec_ref(v___f_205_);
+lean_dec(v_ref_204_);
+lean_dec(v_k_203_);
+v_toPure_211_ = lean_ctor_get(v_toApplicative_202_, 1);
+lean_inc(v_toPure_211_);
+lean_dec_ref(v_toApplicative_202_);
+v___x_212_ = lean_box(0);
+v___x_213_ = lean_apply_2(v_toPure_211_, lean_box(0), v___x_212_);
+return v___x_213_;
+}
+else
+{
+lean_object* v_toFunctor_214_; lean_object* v_map_215_; lean_object* v___x_216_; lean_object* v___x_217_; lean_object* v___x_218_; lean_object* v___x_219_; lean_object* v___f_220_; lean_object* v_y_221_; lean_object* v___x_222_; 
+v_toFunctor_214_ = lean_ctor_get(v_toApplicative_202_, 0);
+lean_inc_ref(v_toFunctor_214_);
+lean_dec_ref(v_toApplicative_202_);
+v_map_215_ = lean_ctor_get(v_toFunctor_214_, 0);
+lean_inc_n(v_map_215_, 2);
+lean_dec_ref(v_toFunctor_214_);
+v___x_216_ = lean_apply_1(v_k_203_, v_ref_204_);
+v___x_217_ = lean_apply_4(v_map_215_, lean_box(0), lean_box(0), v___f_205_, v___x_216_);
+v___x_218_ = lean_alloc_closure((void*)(l_Std_BaseMutex_unlock___boxed), 2, 1);
+lean_closure_set(v___x_218_, 0, v_mutex_206_);
+v___x_219_ = lean_apply_2(v_inst_207_, lean_box(0), v___x_218_);
+v___f_220_ = lean_alloc_closure((void*)(l_Std_Mutex_tryAtomically___redArg___lam__2___boxed), 2, 1);
+lean_closure_set(v___f_220_, 0, v___x_219_);
+v_y_221_ = lean_apply_4(v_inst_208_, lean_box(0), lean_box(0), v___x_217_, v___f_220_);
+v___x_222_ = lean_apply_4(v_map_215_, lean_box(0), lean_box(0), v___f_209_, v_y_221_);
+return v___x_222_;
+}
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg___lam__3___boxed(lean_object* v_toApplicative_223_, lean_object* v_k_224_, lean_object* v_ref_225_, lean_object* v___f_226_, lean_object* v_mutex_227_, lean_object* v_inst_228_, lean_object* v_inst_229_, lean_object* v___f_230_, lean_object* v_____do__lift_231_){
+_start:
+{
+uint8_t v_____do__lift_140__boxed_232_; lean_object* v_res_233_; 
+v_____do__lift_140__boxed_232_ = lean_unbox(v_____do__lift_231_);
+v_res_233_ = l_Std_Mutex_tryAtomically___redArg___lam__3(v_toApplicative_223_, v_k_224_, v_ref_225_, v___f_226_, v_mutex_227_, v_inst_228_, v_inst_229_, v___f_230_, v_____do__lift_140__boxed_232_);
+return v_res_233_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically___redArg(lean_object* v_inst_236_, lean_object* v_inst_237_, lean_object* v_inst_238_, lean_object* v_mutex_239_, lean_object* v_k_240_){
+_start:
+{
+lean_object* v_toApplicative_241_; lean_object* v_toBind_242_; lean_object* v_ref_243_; lean_object* v_mutex_244_; lean_object* v___f_245_; lean_object* v___f_246_; lean_object* v___f_247_; lean_object* v___x_248_; lean_object* v___x_249_; lean_object* v___x_250_; 
+v_toApplicative_241_ = lean_ctor_get(v_inst_236_, 0);
+lean_inc_ref(v_toApplicative_241_);
+v_toBind_242_ = lean_ctor_get(v_inst_236_, 1);
+lean_inc(v_toBind_242_);
+lean_dec_ref(v_inst_236_);
+v_ref_243_ = lean_ctor_get(v_mutex_239_, 0);
+lean_inc(v_ref_243_);
+v_mutex_244_ = lean_ctor_get(v_mutex_239_, 1);
+lean_inc_n(v_mutex_244_, 2);
+lean_dec_ref(v_mutex_239_);
+v___f_245_ = ((lean_object*)(l_Std_Mutex_tryAtomically___redArg___closed__0));
+v___f_246_ = ((lean_object*)(l_Std_Mutex_tryAtomically___redArg___closed__1));
+lean_inc(v_inst_237_);
+v___f_247_ = lean_alloc_closure((void*)(l_Std_Mutex_tryAtomically___redArg___lam__3___boxed), 9, 8);
+lean_closure_set(v___f_247_, 0, v_toApplicative_241_);
+lean_closure_set(v___f_247_, 1, v_k_240_);
+lean_closure_set(v___f_247_, 2, v_ref_243_);
+lean_closure_set(v___f_247_, 3, v___f_246_);
+lean_closure_set(v___f_247_, 4, v_mutex_244_);
+lean_closure_set(v___f_247_, 5, v_inst_237_);
+lean_closure_set(v___f_247_, 6, v_inst_238_);
+lean_closure_set(v___f_247_, 7, v___f_245_);
+v___x_248_ = lean_alloc_closure((void*)(l_Std_BaseMutex_tryLock___boxed), 2, 1);
+lean_closure_set(v___x_248_, 0, v_mutex_244_);
+v___x_249_ = lean_apply_2(v_inst_237_, lean_box(0), v___x_248_);
+v___x_250_ = lean_apply_4(v_toBind_242_, lean_box(0), lean_box(0), v___x_249_, v___f_247_);
+return v___x_250_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_tryAtomically(lean_object* v_m_251_, lean_object* v_00_u03b1_252_, lean_object* v_00_u03b2_253_, lean_object* v_inst_254_, lean_object* v_inst_255_, lean_object* v_inst_256_, lean_object* v_mutex_257_, lean_object* v_k_258_){
+_start:
+{
+lean_object* v___x_259_; 
+v___x_259_ = l_Std_Mutex_tryAtomically___redArg(v_inst_254_, v_inst_255_, v_inst_256_, v_mutex_257_, v_k_258_);
+return v___x_259_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce___redArg___lam__0(lean_object* v_k_260_, lean_object* v_____r_261_, lean_object* v___y_262_){
+_start:
+{
+lean_object* v___x_263_; 
+lean_inc(v___y_262_);
+v___x_263_ = lean_apply_1(v_k_260_, v___y_262_);
+return v___x_263_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce___redArg___lam__0___boxed(lean_object* v_k_264_, lean_object* v_____r_265_, lean_object* v___y_266_){
+_start:
+{
+lean_object* v_res_267_; 
+v_res_267_ = l_Std_Mutex_atomicallyOnce___redArg___lam__0(v_k_264_, v_____r_265_, v___y_266_);
+lean_dec(v___y_266_);
+return v_res_267_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce___redArg(lean_object* v_inst_270_, lean_object* v_inst_271_, lean_object* v_inst_272_, lean_object* v_mutex_273_, lean_object* v_condvar_274_, lean_object* v_pred_275_, lean_object* v_k_276_){
+_start:
+{
+lean_object* v___x_277_; lean_object* v_mutex_278_; lean_object* v___f_279_; lean_object* v___f_280_; lean_object* v___x_281_; lean_object* v___f_282_; lean_object* v_x_283_; lean_object* v___f_284_; lean_object* v___x_285_; lean_object* v___x_286_; lean_object* v___x_287_; 
+lean_inc_ref_n(v_inst_270_, 2);
+v___x_277_ = l_StateRefT_x27_instMonad___redArg(v_inst_270_);
+v_mutex_278_ = lean_ctor_get(v_mutex_273_, 1);
+v___f_279_ = lean_alloc_closure((void*)(l_Std_Mutex_atomicallyOnce___redArg___lam__0___boxed), 3, 1);
+lean_closure_set(v___f_279_, 0, v_k_276_);
+v___f_280_ = ((lean_object*)(l_Std_Mutex_atomicallyOnce___redArg___closed__0));
+v___x_281_ = ((lean_object*)(l_Std_Mutex_atomicallyOnce___redArg___closed__1));
+lean_inc(v_inst_271_);
+v___f_282_ = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___redArg___lam__0), 4, 2);
+lean_closure_set(v___f_282_, 0, v_inst_271_);
+lean_closure_set(v___f_282_, 1, v___x_281_);
+v_x_283_ = lean_alloc_closure((void*)(l_liftM), 5, 3);
+lean_closure_set(v_x_283_, 0, lean_box(0));
+lean_closure_set(v_x_283_, 1, lean_box(0));
+lean_closure_set(v_x_283_, 2, v___f_282_);
+v___f_284_ = lean_alloc_closure((void*)(l_instMonadLiftTOfMonadLift___redArg___lam__0), 4, 2);
+lean_closure_set(v___f_284_, 0, v___f_280_);
+lean_closure_set(v___f_284_, 1, v_x_283_);
+lean_inc(v_mutex_278_);
+v___x_285_ = l_Std_Condvar_waitUntil___redArg(v___x_277_, v___f_284_, v_condvar_274_, v_mutex_278_, v_pred_275_);
+v___x_286_ = lean_alloc_closure((void*)(l_StateRefT_x27_instMonad___aux__13___boxed), 9, 8);
+lean_closure_set(v___x_286_, 0, lean_box(0));
+lean_closure_set(v___x_286_, 1, lean_box(0));
+lean_closure_set(v___x_286_, 2, lean_box(0));
+lean_closure_set(v___x_286_, 3, v_inst_270_);
+lean_closure_set(v___x_286_, 4, lean_box(0));
+lean_closure_set(v___x_286_, 5, lean_box(0));
+lean_closure_set(v___x_286_, 6, v___x_285_);
+lean_closure_set(v___x_286_, 7, v___f_279_);
+v___x_287_ = l_Std_Mutex_atomically___redArg(v_inst_270_, v_inst_271_, v_inst_272_, v_mutex_273_, v___x_286_);
+return v___x_287_;
+}
+}
+LEAN_EXPORT lean_object* l_Std_Mutex_atomicallyOnce(lean_object* v_m_288_, lean_object* v_00_u03b1_289_, lean_object* v_00_u03b2_290_, lean_object* v_inst_291_, lean_object* v_inst_292_, lean_object* v_inst_293_, lean_object* v_mutex_294_, lean_object* v_condvar_295_, lean_object* v_pred_296_, lean_object* v_k_297_){
+_start:
+{
+lean_object* v___x_298_; 
+v___x_298_ = l_Std_Mutex_atomicallyOnce___redArg(v_inst_291_, v_inst_292_, v_inst_293_, v_mutex_294_, v_condvar_295_, v_pred_296_, v_k_297_);
+return v___x_298_;
 }
 }
 lean_object* runtime_initialize_Std_Sync_Basic(uint8_t builtin);

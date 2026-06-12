@@ -652,12 +652,12 @@ else
 lean_object* v_val_214_; 
 v_val_214_ = lean_ctor_get(v___x_212_, 0);
 lean_inc(v_val_214_);
-lean_dec_ref(v___x_212_);
+lean_dec_ref_known(v___x_212_, 1);
 if (lean_obj_tag(v_val_214_) == 1)
 {
 uint8_t v_v_215_; 
 v_v_215_ = lean_ctor_get_uint8(v_val_214_, 0);
-lean_dec_ref(v_val_214_);
+lean_dec_ref_known(v_val_214_, 0);
 return v_v_215_;
 }
 else
@@ -933,7 +933,7 @@ if (lean_obj_tag(v___x_304_) == 0)
 lean_object* v_a_305_; lean_object* v_macroStack_306_; lean_object* v___x_307_; lean_object* v_a_308_; lean_object* v___x_309_; lean_object* v___x_310_; lean_object* v_a_311_; lean_object* v___x_313_; uint8_t v_isShared_314_; uint8_t v_isSharedCheck_319_; 
 v_a_305_ = lean_ctor_get(v___x_304_, 0);
 lean_inc(v_a_305_);
-lean_dec_ref(v___x_304_);
+lean_dec_ref_known(v___x_304_, 1);
 v_macroStack_306_ = lean_ctor_get(v___y_301_, 4);
 v___x_307_ = l_Lean_addMessageContextPartial___at___00Lean_throwError___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__1_spec__1___redArg(v_msg_300_, v___y_302_);
 v_a_308_ = lean_ctor_get(v___x_307_, 0);
@@ -1086,7 +1086,7 @@ if (lean_obj_tag(v___x_357_) == 0)
 lean_object* v_a_358_; lean_object* v___x_359_; lean_object* v___x_360_; lean_object* v___x_361_; lean_object* v___x_362_; lean_object* v___x_363_; lean_object* v___x_364_; 
 v_a_358_ = lean_ctor_get(v___x_357_, 0);
 lean_inc(v_a_358_);
-lean_dec_ref(v___x_357_);
+lean_dec_ref_known(v___x_357_, 1);
 v___x_359_ = lean_obj_once(&l___private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated___closed__5, &l___private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated___closed__5_once, _init_l___private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated___closed__5);
 v___x_360_ = l_Lean_stringToMessageData(v_a_358_);
 v___x_361_ = lean_alloc_ctor(7, 2, 0);
@@ -1102,7 +1102,7 @@ return v___x_364_;
 else
 {
 lean_object* v___x_365_; lean_object* v_a_366_; lean_object* v___x_368_; uint8_t v_isShared_369_; uint8_t v_isSharedCheck_399_; 
-lean_dec_ref(v___x_357_);
+lean_dec_ref_known(v___x_357_, 1);
 v___x_365_ = l_Lean_getMainModule___at___00__private_Lean_Elab_Tactic_Grind_Annotated_0__Lean_Elab_Tactic_Grind_elabGrindAnnotated_spec__2___redArg(v_a_349_);
 v_a_366_ = lean_ctor_get(v___x_365_, 0);
 v_isSharedCheck_399_ = !lean_is_exclusive(v___x_365_);

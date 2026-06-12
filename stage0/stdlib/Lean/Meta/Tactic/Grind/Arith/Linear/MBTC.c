@@ -247,7 +247,7 @@ if (lean_obj_tag(v_a_39_) == 9)
 lean_object* v_a_53_; 
 v_a_53_ = lean_ctor_get(v_a_39_, 0);
 lean_inc_ref(v_a_53_);
-lean_dec_ref(v_a_39_);
+lean_dec_ref_known(v_a_39_, 1);
 if (lean_obj_tag(v_a_53_) == 0)
 {
 lean_object* v_val_54_; lean_object* v___x_56_; uint8_t v_isShared_57_; uint8_t v_isSharedCheck_64_; 
@@ -327,7 +327,7 @@ else
 lean_object* v_val_70_; lean_object* v___x_71_; lean_object* v___x_72_; 
 v_val_70_ = lean_ctor_get(v___x_69_, 0);
 lean_inc(v_val_70_);
-lean_dec_ref(v___x_69_);
+lean_dec_ref_known(v___x_69_, 1);
 v___x_71_ = l_Lean_Expr_appArg_x21(v_a_39_);
 lean_dec_ref(v_a_39_);
 v___x_72_ = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_toRatValue_x3f(v___x_71_);
@@ -523,7 +523,7 @@ return v___x_116_;
 else
 {
 lean_object* v___x_121_; uint8_t v_isShared_122_; uint8_t v_isSharedCheck_128_; 
-lean_dec_ref(v___x_119_);
+lean_dec_ref_known(v___x_119_, 1);
 v_isSharedCheck_128_ = !lean_is_exclusive(v___x_116_);
 if (v_isSharedCheck_128_ == 0)
 {
@@ -892,7 +892,7 @@ if (lean_obj_tag(v___x_293_) == 0)
 lean_object* v_a_294_; lean_object* v___x_295_; 
 v_a_294_ = lean_ctor_get(v___x_293_, 0);
 lean_inc(v_a_294_);
-lean_dec_ref(v___x_293_);
+lean_dec_ref_known(v___x_293_, 1);
 v___x_295_ = l_Lean_Meta_Grind_Arith_Linear_get_x27___redArg(v_a_290_, v_a_291_);
 if (lean_obj_tag(v___x_295_) == 0)
 {
@@ -947,7 +947,7 @@ lean_object* v_val_304_; lean_object* v___x_305_;
 lean_del_object(v___x_298_);
 v_val_304_ = lean_ctor_get(v___y_303_, 0);
 lean_inc(v_val_304_);
-lean_dec_ref(v___y_303_);
+lean_dec_ref_known(v___y_303_, 1);
 v___x_305_ = l_Lean_Meta_Grind_Arith_Linear_get_x27___redArg(v_a_290_, v_a_291_);
 if (lean_obj_tag(v___x_305_) == 0)
 {
@@ -1014,7 +1014,7 @@ if (lean_obj_tag(v___x_318_) == 1)
 lean_object* v_val_319_; lean_object* v___x_320_; 
 v_val_319_ = lean_ctor_get(v___x_318_, 0);
 lean_inc(v_val_319_);
-lean_dec_ref(v___x_318_);
+lean_dec_ref_known(v___x_318_, 1);
 v___x_320_ = l___private_Lean_Meta_Tactic_Grind_Arith_Linear_MBTC_0__Lean_Meta_Grind_Arith_Linear_getAssignmentExt_x3f(v___x_311_, v_b_289_);
 lean_dec(v___x_311_);
 if (lean_obj_tag(v___x_320_) == 1)
@@ -1022,7 +1022,7 @@ if (lean_obj_tag(v___x_320_) == 1)
 lean_object* v_val_321_; uint8_t v___x_322_; lean_object* v___x_323_; lean_object* v___x_325_; 
 v_val_321_ = lean_ctor_get(v___x_320_, 0);
 lean_inc(v_val_321_);
-lean_dec_ref(v___x_320_);
+lean_dec_ref_known(v___x_320_, 1);
 v___x_322_ = l_instDecidableEqRat_decEq(v_val_319_, v_val_321_);
 lean_dec(v_val_321_);
 lean_dec(v_val_319_);

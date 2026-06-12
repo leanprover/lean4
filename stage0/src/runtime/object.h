@@ -289,6 +289,11 @@ inline void io_cancel_core(b_obj_arg t) { return lean_io_cancel_core(t); }
 inline bool io_get_task_state_core(b_obj_arg t) { return lean_io_get_task_state_core(t); }
 inline b_obj_res io_wait_any_core(b_obj_arg task_list) { return lean_io_wait_any_core(task_list); }
 
+/* Whether the promise's underlying task has been resolved. */
+inline bool promise_is_resolved(b_obj_arg p) {
+    return lean_io_get_task_state_core((lean_object *)lean_to_promise(p)->m_result) == LEAN_TASK_STATE_FINISHED;
+}
+
 // =======================================
 // External
 

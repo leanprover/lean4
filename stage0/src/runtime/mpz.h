@@ -62,14 +62,14 @@ public:
             return mpz((unsigned) v); // NOLINT
     }
     mpz(mpz const & s);
-    mpz(mpz && s);
+    mpz(mpz && s) noexcept;
     ~mpz();
 
 #ifdef LEAN_USE_GMP
     void set(mpz_t r) const;
 #endif
 
-    friend void swap(mpz & a, mpz & b);
+    friend void swap(mpz & a, mpz & b) noexcept;
 
     unsigned hash() const {
 #ifdef LEAN_USE_GMP

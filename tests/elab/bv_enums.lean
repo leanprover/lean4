@@ -1,5 +1,6 @@
 import Std.Tactic.BVDecide
 import Lean.Elab.Tactic.BVDecide
+import Lean.Meta.Tactic.BVDecide
 
 namespace Ex1
 
@@ -135,31 +136,31 @@ open Lean Meta
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f1.match_1
+  let res ← Lean.Meta.Tactic.BVDecide.Normalize.isSupportedMatch ``Foo.f1.match_1
   return res matches some (.simpleEnum ..)
 
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f2.match_1
+  let res ← Lean.Meta.Tactic.BVDecide.Normalize.isSupportedMatch ``Foo.f2.match_1
   return res matches some (.enumWithDefault ..)
 
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f3.match_1
+  let res ← Lean.Meta.Tactic.BVDecide.Normalize.isSupportedMatch ``Foo.f3.match_1
   return res matches none
 
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f4.match_1
+  let res ← Lean.Meta.Tactic.BVDecide.Normalize.isSupportedMatch ``Foo.f4.match_1
   return res matches none
 
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f4.match_3
+  let res ← Lean.Meta.Tactic.BVDecide.Normalize.isSupportedMatch ``Foo.f4.match_3
   return res matches none
 
 def Foo.f5 : Foo → BitVec 64
@@ -202,13 +203,13 @@ def Foo.f7 : Foo → Foo
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f6.match_1
+  let res ← Lean.Meta.Tactic.BVDecide.Normalize.isSupportedMatch ``Foo.f6.match_1
   return res matches some (.simpleEnum ..)
 
 /-- info: true -/
 #guard_msgs in
 #eval show MetaM _ from do
-  let res ← Lean.Elab.Tactic.BVDecide.Frontend.Normalize.isSupportedMatch ``Foo.f7.match_1
+  let res ← Lean.Meta.Tactic.BVDecide.Normalize.isSupportedMatch ``Foo.f7.match_1
   return res matches some (.enumWithDefault ..)
 
 example (x : Foo) : x.f1 = x.f6 := by

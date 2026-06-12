@@ -61,7 +61,7 @@ mpz::mpz(mpz const & s) {
     mpz_init_set(m_val, s.m_val);
 }
 
-mpz::mpz(mpz && s):mpz() {
+mpz::mpz(mpz && s) noexcept : mpz() {
     mpz_swap(m_val, s.m_val);
 }
 
@@ -73,7 +73,7 @@ void mpz::set(mpz_t r) const {
     mpz_set(r, m_val);
 }
 
-void swap(mpz & a, mpz & b) {
+void swap(mpz & a, mpz & b) noexcept {
     mpz_swap(a.m_val, b.m_val);
 }
 
@@ -320,11 +320,16 @@ std::ostream & operator<<(std::ostream & out, mpz const & v) {
 
 static void *mpz_alloc(size_t size) {
 #ifdef LEAN_SMALL_ALLOCATOR
+    // the small allocator already panics on memory exhaustion
     return alloc(size);
 #elif defined(LEAN_MIMALLOC)
-    return mi_malloc(size);
+    void * r = mi_malloc(size);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
 #else
-    return malloc(size);
+    void * r = malloc(size);
+    if (r == nullptr) lean_internal_panic_out_of_memory();
+    return r;
 #endif
 }
 
@@ -441,7 +446,7 @@ mpz::mpz(mpz const & s) {
     init_mpz(s);
 }
 
-mpz::mpz(mpz && s):
+mpz::mpz(mpz && s) noexcept :
     m_sign(s.m_sign),
     m_size(s.m_size),
     m_digits(s.m_digits) {
@@ -454,7 +459,7 @@ mpz::~mpz() {
     }
 }
 
-void swap(mpz & a, mpz & b) {
+void swap(mpz & a, mpz & b) noexcept {
     std::swap(a.m_sign, b.m_sign);
     std::swap(a.m_size, b.m_size);
     std::swap(a.m_digits, b.m_digits);

@@ -62,6 +62,8 @@ test_run cache add .lake/outputs.jsonl --keep-local
 LAKE_ARTIFACT_CACHE=true test_not_out "leantar" build +Test --no-build -v
 test_run cache add .lake/outputs.jsonl
 LAKE_ARTIFACT_CACHE=true test_out "leantar" build +Test --no-build -v
+# Unpack should have overwritten the cached input with the module outputs
+LAKE_ARTIFACT_CACHE=true test_not_out "leantar" build +Test --no-build -v
 
 # Test producing an `ltar` without already restored artifacts
 rm -rf .lake/cache .lake/build

@@ -19,7 +19,7 @@ test_err "archive does not exist and needs to be built" \
   build +Test:ltar --no-build -v
 
 # Test the build of the `ltar` facet
-test_run build +Test:ltar -v
+test_out "Built Test:ltar" build +Test:ltar -v
 test_exp -f .lake/build/ir/Test.ltar
 
 # Test that Lake unpacks the archive if the module's artifacts are missing

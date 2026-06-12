@@ -871,6 +871,7 @@ def Module.recBuildLtar (self : Module) : FetchM (Job FilePath) := do
         modify ({· with wantsRebuild := true})
         error "archive does not exist and needs to be built"
       else
+        updateAction .build
         self.packLtar arts
     newTrace s!"{self.name.toString}:ltar"
     addTrace art.trace

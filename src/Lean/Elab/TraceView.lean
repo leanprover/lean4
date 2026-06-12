@@ -24,9 +24,9 @@ irrelevant subtrees, focusing on a single trace class, or pre-expanding the path
 A trace postprocessor (`Lean.TraceView.TracePostprocessor`) receives the array of trace roots of
 one trace message — traces are reported as one message per source range inside the command — and
 returns the transformed roots. The `Lean.TraceView` namespace provides basic combinators
-(`focusOn`, `hideSucceeded`, `maxDepth`, `minTimeMs`, `grep`, `expandAll`, `collapseAll`,
-`expandFailures`, `onRoots`, …); users can define their own postprocessors as ordinary functions
-and compose them with `>=>`.
+(`focusOn`, `hideSucceeded`, `maxDepth`, `minTimeMs`, `grep`, `expandMatches`, `expandAll`,
+`collapseAll`, `expandFailures`, `onRoots`, …); users can define their own postprocessors as
+ordinary functions and compose them with `>=>`.
 
 Entry points:
 - `trace_view post in cmd` transforms the trace messages produced by `cmd` with `post`.
@@ -218,15 +218,34 @@ Timing information is only available with `set_option trace.profiler true`.
 def minTimeMs (ms : Float) : TracePostprocessor := fun roots =>
   roots.filterMapM (·.filterSubtrees fun t => return t.elapsed * 1000 ≥ ms)
 
+/-- Whether the trace class or head message of `t` contains `pat` as a substring. -/
+private def matchesPattern (pat : String) (t : TraceTree) : BaseIO Bool := do
+  if (t.cls?.map (·.toString)).any (containsSubstr · pat) then
+    return true
+  return containsSubstr (← t.headText) pat
+
 /--
 Keeps only the subtrees whose trace class or head message contains `pat` as a substring, and
 their ancestors for context.
 -/
 def grep (pat : String) : TracePostprocessor := fun roots =>
-  roots.filterMapM (·.filterSubtrees fun t => do
-    if (t.cls?.map (·.toString)).any (containsSubstr · pat) then
-      return true
-    return containsSubstr (← t.headText) pat)
+  roots.filterMapM (·.filterSubtrees (matchesPattern pat))
+
+/--
+Expands all transitive parents of the nodes whose trace class or head message contains `pat` as
+a substring, so that the trace opens already showing all matches. Unlike `grep`, no nodes are
+removed, and all other nodes — including the matches themselves — keep their expansion state.
+-/
+partial def expandMatches (pat : String) : TracePostprocessor := fun roots =>
+  roots.mapM fun root => return (← go root).1
+where
+  /-- Returns the transformed tree and whether it contains a match. -/
+  go (t : TraceTree) : BaseIO (TraceTree × Bool) := do
+    let results ← t.children.mapM go
+    let hasMatchBelow := results.any (·.2)
+    let t := t.withChildren (results.map (·.1))
+    let t := if hasMatchBelow then t.modifyData ({ · with collapsed := false }) else t
+    return (t, hasMatchBelow || (← matchesPattern pat t))
 
 /-- Expands all trace nodes in the editor by default. -/
 def expandAll : TracePostprocessor := fun roots =>

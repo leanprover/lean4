@@ -158,3 +158,49 @@ end Nested
 /-- info: #0 [Meta.synthInstance] 155:28 (7 nodes) ✅️ Inhabited Bool -/
 #guard_msgs in
 #trace_roots Nested.inner
+
+/-!
+`expandMatches` only changes `TraceData.collapsed` flags, which are invisible in textual
+output, so we test the flags directly on a synthetic tree.
+-/
+
+open Lean TraceView in
+private def mkTree (cls : Name) (msg : String) (kids : Array TraceTree := #[])
+    (collapsed := true) : TraceTree :=
+  .node { cls, collapsed } m!"{msg}" kids id
+
+open Lean TraceView in
+private partial def collapsedFlags (t : TraceTree) : String :=
+  let state := if (t.data?.map (·.collapsed)).getD true then "closed" else "open"
+  let head := s!"{t.cls?.getD .anonymous}:{state}"
+  if t.children.isEmpty then head
+  else head ++ "[" ++ ",".intercalate (t.children.map collapsedFlags).toList ++ "]"
+
+open Lean TraceView in
+private def sampleTree : TraceTree :=
+  mkTree `a "root" #[
+    mkTree `b "mid" #[mkTree `c "the needle is here"],
+    mkTree `d "other branch" #[mkTree `zeta "leaf"] (collapsed := false)
+  ]
+
+-- The parents of the message match open; the match itself stays closed, and the unrelated
+-- node `d` keeps its (open) expansion state.
+/-- info: "a:open[b:open[c:closed],d:open[zeta:closed]]" -/
+#guard_msgs in
+open Lean.TraceView in
+#eval show Lean.CoreM _ from do
+  return collapsedFlags (← expandMatches "needle" #[sampleTree])[0]!
+
+-- Matching by trace class works too.
+/-- info: "a:open[b:closed[c:closed],d:open[zeta:closed]]" -/
+#guard_msgs in
+open Lean.TraceView in
+#eval show Lean.CoreM _ from do
+  return collapsedFlags (← expandMatches "zeta" #[sampleTree])[0]!
+
+-- Without a match, all expansion states are unchanged.
+/-- info: "a:closed[b:closed[c:closed],d:open[zeta:closed]]" -/
+#guard_msgs in
+open Lean.TraceView in
+#eval show Lean.CoreM _ from do
+  return collapsedFlags (← expandMatches "no such text" #[sampleTree])[0]!

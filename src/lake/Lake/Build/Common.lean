@@ -560,16 +560,16 @@ Retrieve artifacts from the Lake cache using only the outputs stored in the save
 open ResolveOutputs in
 /--
 Retrieve artifacts from the Lake cache using the outputs stored in either
-the saved trace file or (unless `traceOnly` is `true`) in the cached input-to-content mapping.
+the saved trace file or in the cached input-to-content mapping.
 
 **For internal use only.**
 -/
 @[inline] public nonrec def getArtifacts?
   [ResolveOutputs α] (inputHash : Hash) (savedTrace : SavedTrace) (pkg : Package)
 : JobM (Option α) := do
-  if let some a ← getArtifactsUsingCache? inputHash pkg then
-    return some a
   if let some a ← getArtifactsUsingTrace? inputHash savedTrace pkg then
+    return some a
+  if let some a ← getArtifactsUsingCache? inputHash pkg then
     return some a
   return none
 

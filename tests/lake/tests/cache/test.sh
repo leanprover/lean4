@@ -280,9 +280,11 @@ if command -v jq > /dev/null; then # skip if no jq found
   test_cmd rm -f $libPath
   inputHash=$(jq -r '.depHash' $libPath.trace)
   echo $inputHash
+  test_cmd rm -f $libPath.trace
   echo bogus > "$CACHE_DIR/outputs/test/$inputHash.json"
   test_out 'invalid JSON' build Test:static
-  test_cmd rm -f $libPath
+  test_exp -f $libPath
+  test_cmd rm -f $libPath $libPath.trace
   echo '"bogus"' > "$CACHE_DIR/outputs/test/$inputHash.json"
   test_out 'some output(s) have issues' build Test:static
   test_exp -f $libPath

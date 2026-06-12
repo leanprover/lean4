@@ -7,7 +7,7 @@ source ../common.sh
 export LAKE_CACHE_DIR=
 
 #-------------------------------------------------------------------------------
-# The tests covers the (offline) use of `leantar` in Lake
+# This test suite covers the (offline) use of `leantar` in Lake
 #-------------------------------------------------------------------------------
 
 # Test regular build does not produce an `ltar`
@@ -58,11 +58,19 @@ test_exp -f .lake/build/ir/Test.ltar
 # `--keep-local`. Since the build mapping includes module outputs and the
 # tracked mapping only includes the `ltar`, the tracking mapping should
 # require an unpack, whereas the build mapping should not.
+rm -rf .lake/build
 test_run cache add .lake/outputs.jsonl --keep-local
 LAKE_ARTIFACT_CACHE=true test_not_out "leantar" build +Test --no-build -v
+rm -rf .lake/build
 test_run cache add .lake/outputs.jsonl
 LAKE_ARTIFACT_CACHE=true test_out "leantar" build +Test --no-build -v
+rm -rf .lake/build
 # Unpack should have overwritten the cached input with the module outputs
+LAKE_ARTIFACT_CACHE=true test_not_out "leantar" build +Test --no-build -v
+
+# Test that Lake prefers the local trace outputs over the cache
+rm -f .lake/build/lib/lean/*.[!t]*
+test_run cache add .lake/outputs.jsonl
 LAKE_ARTIFACT_CACHE=true test_not_out "leantar" build +Test --no-build -v
 
 # Test producing an `ltar` without already restored artifacts

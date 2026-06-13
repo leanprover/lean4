@@ -68,6 +68,8 @@ globs = [
   "Lean.Compiler.IR.EmitLLVM",
   # New compiler orphan file used in tests
   "Lean.Compiler.LCNF.Probing",
+  # Deliberate orphan file so `import Lean` does not induce a Zig dependency
+  "Lean.Compiler.LCNF.EmitZig",
 ]
 
 [[lean_lib]]

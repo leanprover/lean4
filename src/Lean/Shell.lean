@@ -11,6 +11,8 @@ import Lean.Elab.ParseImportsFast
 import Lean.Server.Watchdog
 import Lean.Server.FileWorker
 import Lean.Compiler.LCNF.EmitC
+import Lean.Compiler.LCNF.EmitZig
+
 import Init.System.Platform
 import Lean.Compiler.Options
 
@@ -49,6 +51,15 @@ Before calling this function, the LLVM subsystem must first be successfully init
 @[extern "lean_emit_llvm"]
 opaque emitLLVM (env : Environment) (modName : Name) (filepath : FilePath) : IO Unit
 
+/--
+Emits Zig code for the module from LCNF.
+-/
+def emitZig (mainModuleName : Name) (env : Environment) : IO String := do
+  let data ← Compiler.LCNF.emitZig mainModuleName
+    |>.toIO' { fileName := "<emitZig>", fileMap := default } { env }
+  return data
+
+
 /-- Whether Lean was built with an address sanitizer enabled. -/
 @[extern "lean_internal_has_address_sanitizer"]
 opaque Internal.hasAddressSanitizer (_ : Unit) : Bool
@@ -66,15 +77,11 @@ opaque Internal.isDebug (_ : Unit) : Bool
 opaque Internal.getBuildType (_ : Unit) : String
 
 /--
-Returns the default max memory (in megabytes) Lean was built with
-(i.e., `LEAN_DEFAULT_MAX_MEMORY`).
+Sets Lean's internal maximum memory (in bytes) for the C runtime.
 -/
-@[extern "lean_internal_get_default_max_memory"]
-opaque Internal.getDefaultMaxMemory (_ : Unit) : Nat
-
-/-- Sets Lean's internal maximum memory (in bytes) for the C runtime. -/
 @[extern "lean_internal_set_max_memory"]
 opaque Internal.setMaxMemory (max : USize) : BaseIO Unit
+
 
 /--
 Returns the default max heartbeats (in thousands) Lean was built with
@@ -244,6 +251,7 @@ structure ShellOptions where
   ileanFileName? : Option System.FilePath := none
   cFileName? : Option System.FilePath := none
   bcFileName? : Option System.FilePath := none
+  zigFileName? : Option System.FilePath := none
   jsonOutput : Bool := false
   errorOnKinds : Array Name := #[]
   printStats : Bool := false
@@ -326,6 +334,8 @@ def ShellOptions.process (opts : ShellOptions)
     return {opts with cFileName? := ← checkOptArg "c" optArg?}
   | 'b' => -- `-b, --bc=fname`
     return {opts with bcFileName? := ← checkOptArg "b" optArg?}
+  | 'z' => -- `-z, --zig=fname`
+    return {opts with zigFileName? := ← checkOptArg "z" optArg?}
   | 's' => -- `-s, --tstack=num`
     let arg ← checkOptArg "s" optArg?
     let some stackSize := arg.toNat?
@@ -536,15 +546,14 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
       pure setup.name
     else if let some fileName := fileName? then
       try moduleNameOfFileName fileName opts.rootDir? catch e =>
-        if opts.oleanFileName?.isNone && opts.cFileName?.isNone then
+        if opts.oleanFileName?.isNone && opts.cFileName?.isNone && opts.zigFileName?.isNone then
           pure `_stdin
         else
           throw e
     else
       pure `_stdin
   let env? ← Elab.runFrontend contents opts.leanOpts fileName mainModuleName
-    opts.trustLevel opts.oleanFileName? opts.ileanFileName? opts.jsonOutput opts.errorOnKinds
-    #[] opts.printStats setup?
+    opts.trustLevel opts.oleanFileName? opts.ileanFileName? opts.jsonOutput opts.errorOnKinds #[] opts.printStats setup?
   if let some env := env? then
     if opts.run then
       return ← runMain env opts.leanOpts args
@@ -560,6 +569,13 @@ def shellMain (args : List String) (opts : ShellOptions) : IO UInt32 := do
       initLLVM
       profileitIO "LLVM code generation" opts.leanOpts do
         emitLLVM env mainModuleName bc
+    if let some z := opts.zigFileName? then
+      let .ok out ← IO.FS.Handle.mk z .write |>.toBaseIO
+        | IO.eprintln s!"failed to create '{z}'"
+          return 1
+      profileitIO "Zig code generation" opts.leanOpts do
+        let data ← emitZig mainModuleName env
+        out.write data.toUTF8
   displayCumulativeProfilingTimes
   if Internal.hasAddressSanitizer () then
     return if env?.isSome then 0 else 1

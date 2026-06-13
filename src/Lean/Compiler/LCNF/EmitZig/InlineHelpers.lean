@@ -1,0 +1,488 @@
+/-
+Copyright (c) 2026 Lean FRO, LLC. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Factory
+-/
+module
+
+prelude
+public import Lean.Data.NameMap.Basic
+import Lean
+
+open Lean
+
+namespace InlineHelpers
+
+private def joinLines (lines : List String) : String :=
+  String.intercalate "\n" lines
+
+private def supportInlineDecls : List String := [
+  joinLines [
+    "const LeanMaxCtorTag: c_uint = @as(c_uint, 243);",
+    "const LeanMaxCtorFields: c_uint = @as(c_uint, 256);",
+    "const LeanMaxCtorScalarsSize: usize = @as(usize, 1024);",
+    "const LeanMaxSmallNat: usize = std.math.maxInt(usize) >> 1;"
+  ],
+  joinLines [
+    "inline fn lean_heap_obj(o: LeanObj) *lean_object {",
+    "  return @alignCast(o.?);",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_is_scalar(o: LeanObj) bool {",
+    "  return (@intFromPtr(o.?) & 1) == 1;",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_unbox(o: LeanObj) usize {",
+    "  return @intFromPtr(o.?) >> 1;",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_ptr_tag(o: LeanObj) u8 {",
+    "  return lean_heap_obj(o).m_tag;",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_ptr_other(o: LeanObj) u8 {",
+    "  return lean_heap_obj(o).m_other;",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_is_st(o: LeanObj) bool {",
+    "  return lean_heap_obj(o).m_rc > 0;",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_get_rc_mt_addr(o: LeanObj) *i32 {",
+    "  return &lean_heap_obj(o).m_rc;",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_is_ctor(o: LeanObj) bool {",
+    "  return @as(c_uint, lean_ptr_tag(o)) <= LeanMaxCtorTag;",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_ctor_num_objs(o: LeanObj) c_uint {",
+    "  std.debug.assert(lean_is_ctor(o));",
+    "  return @as(c_uint, lean_ptr_other(o));",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_ctor_obj_cptr(o: LeanObj) [*]LeanObj {",
+    "  std.debug.assert(lean_is_ctor(o));",
+    "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(o));",
+    "  return @ptrCast(@alignCast(bytes + @sizeOf(lean_object)));",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_set_st_header(o: LeanObj, tag: c_uint, other: c_uint) void {",
+    "  const obj = lean_heap_obj(o);",
+    "  obj.m_rc = 1;",
+    "  obj.m_tag = @as(u8, @intCast(tag));",
+    "  obj.m_other = @as(u8, @intCast(other));",
+    "  obj.m_cs_sz = 0;",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_usize_mul_checked(a: usize, b: usize) usize {",
+    "  return std.math.mul(usize, a, b) catch @panic(\"lean_usize_mul_checked overflow\");",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_usize_add_checked(a: usize, b: usize) usize {",
+    "  return std.math.add(usize, a, b) catch @panic(\"lean_usize_add_checked overflow\");",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_usize_to_nat(n: usize) LeanObj {",
+    "  if (n <= LeanMaxSmallNat) {",
+    "    return lean_box(n);",
+    "  } else {",
+    "    return lean_big_usize_to_nat(n);",
+    "  }",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_array_fields(o: LeanObj) [*]usize {",
+    "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(o));",
+    "  return @ptrCast(@alignCast(bytes + @sizeOf(lean_object)));",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_array_size(o: LeanObj) usize {",
+    "  return lean_array_fields(o)[0];",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_array_cptr(o: LeanObj) [*]LeanObj {",
+    "  const bytes: [*]u8 = @ptrCast(lean_heap_obj(o));",
+    "  return @ptrCast(@alignCast(bytes + @sizeOf(lean_object) + 2 * @sizeOf(usize)));",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_array_get_core(o: LeanObj, i: usize) LeanObj {",
+    "  std.debug.assert(i < lean_array_size(o));",
+    "  return lean_array_cptr(o)[i];",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_alloc_array(size: usize, capacity: usize) LeanObj {",
+    "  const total = lean_usize_add_checked(",
+    "    @sizeOf(lean_object) + 2 * @sizeOf(usize),",
+    "    lean_usize_mul_checked(@sizeOf(usize), capacity)",
+    "  );",
+    "  const o = lean_alloc_object(total);",
+    "  lean_set_st_header(o, @as(c_uint, 246), @as(c_uint, 0));",
+    "  const fields = lean_array_fields(o);",
+    "  fields[0] = size;",
+    "  fields[1] = capacity;",
+    "  return o;",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_nat_le(a1: LeanObj, a2: LeanObj) bool {",
+    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "    return @intFromPtr(a1.?) <= @intFromPtr(a2.?);",
+    "  } else {",
+    "    return lean_nat_big_le(a1, a2);",
+    "  }",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_nat_lt(a1: LeanObj, a2: LeanObj) bool {",
+    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "    return @intFromPtr(a1.?) < @intFromPtr(a2.?);",
+    "  } else {",
+    "    return lean_nat_big_lt(a1, a2);",
+    "  }",
+    "}"
+  ],
+  joinLines [
+    "inline fn lean_inc_ref_n(o: LeanObj, n: usize) void {",
+    "  const obj = lean_heap_obj(o);",
+    "  if (lean_is_st(o)) {",
+    "    obj.m_rc += @as(i32, @intCast(n));",
+    "  } else if (obj.m_rc != 0) {",
+    "    _ = @atomicRmw(i32, lean_get_rc_mt_addr(o), .Sub, @as(i32, @intCast(n)), .monotonic);",
+    "  }",
+    "}"
+  ]
+]
+
+private def mvpInlineHelperEntries : List (String × String) := [
+  ("lean_box", joinLines [
+    "inline fn lean_box(n: usize) LeanObj {",
+    "  const ptr: *align(1) lean_object = @ptrFromInt((n << 1) | 1);",
+    "  return ptr;",
+    "}"
+  ]),
+  ("lean_unsigned_to_nat", joinLines [
+    "inline fn lean_unsigned_to_nat(n: c_uint) LeanObj {",
+    "  return lean_usize_to_nat(@as(usize, n));",
+    "}"
+  ]),
+  ("lean_unbox_uint32", joinLines [
+    "inline fn lean_unbox_uint32(o: LeanObj) u32 {",
+    "  if (@sizeOf(usize) == 4) {",
+    "    return lean_ctor_get_uint32(o, @as(c_uint, 0));",
+    "  } else {",
+    "    return @as(u32, @intCast(lean_unbox(o)));",
+    "  }",
+    "}"
+  ]),
+  ("lean_io_result_mk_ok", joinLines [
+    "inline fn lean_io_result_mk_ok(a: LeanObj) LeanObj {",
+    "  const r = lean_alloc_ctor(@as(c_uint, 0), @as(c_uint, 1), @as(usize, 0));",
+    "  lean_ctor_set(r, @as(c_uint, 0), a);",
+    "  return r;",
+    "}"
+  ]),
+  ("lean_io_mk_world", joinLines [
+    "inline fn lean_io_mk_world() LeanObj {",
+    "  return lean_box(@as(usize, 0));",
+    "}"
+  ]),
+  ("lean_obj_tag", joinLines [
+    "inline fn lean_obj_tag(o: LeanObj) c_uint {",
+    "  if (lean_is_scalar(o)) {",
+    "    return @as(c_uint, @intCast(lean_unbox(o)));",
+    "  } else {",
+    "    return @as(c_uint, lean_ptr_tag(o));",
+    "  }",
+    "}"
+  ]),
+  ("lean_ctor_get", joinLines [
+    "inline fn lean_ctor_get(o: LeanObj, i: c_uint) LeanObj {",
+    "  std.debug.assert(i < lean_ctor_num_objs(o));",
+    "  return lean_ctor_obj_cptr(o)[@as(usize, i)];",
+    "}"
+  ]),
+  ("lean_ctor_set_tag", joinLines [
+    "inline fn lean_ctor_set_tag(o: LeanObj, new_tag: u8) void {",
+    "  std.debug.assert(@as(c_uint, new_tag) <= LeanMaxCtorTag);",
+    "  lean_heap_obj(o).m_tag = new_tag;",
+    "}"
+  ]),
+  ("lean_inc_ref", joinLines [
+    "inline fn lean_inc_ref(o: LeanObj) void {",
+    "  lean_inc_ref_n(o, @as(usize, 1));",
+    "}"
+  ]),
+  ("lean_dec_ref", joinLines [
+    "inline fn lean_dec_ref(o: LeanObj) void {",
+    "  const obj = lean_heap_obj(o);",
+    "  if (obj.m_rc > 1) {",
+    "    obj.m_rc -= 1;",
+    "  } else if (obj.m_rc != 0) {",
+    "    lean_dec_ref_cold(o);",
+    "  }",
+    "}"
+  ]),
+  ("lean_inc", joinLines [
+    "inline fn lean_inc(o: LeanObj) void {",
+    "  if (!lean_is_scalar(o)) lean_inc_ref(o);",
+    "}"
+  ]),
+  ("lean_dec", joinLines [
+    "inline fn lean_dec(o: LeanObj) void {",
+    "  if (!lean_is_scalar(o)) lean_dec_ref(o);",
+    "}"
+  ]),
+  ("lean_alloc_ctor", joinLines [
+    "inline fn lean_alloc_ctor(tag: c_uint, num_objs: c_uint, scalar_sz: usize) LeanObj {",
+    "  std.debug.assert(tag <= LeanMaxCtorTag and num_objs < LeanMaxCtorFields and scalar_sz < LeanMaxCtorScalarsSize);",
+    "  const total = lean_usize_add_checked(",
+    "    lean_usize_add_checked(@sizeOf(lean_object), lean_usize_mul_checked(@sizeOf(usize), @as(usize, num_objs))),",
+    "    scalar_sz",
+    "  );",
+    "  const o = lean_alloc_object(total);",
+    "  lean_set_st_header(o, tag, num_objs);",
+    "  return o;",
+    "}"
+  ]),
+  ("lean_array_get_size", joinLines [
+    "inline fn lean_array_get_size(a: LeanObj) LeanObj {",
+    "  return lean_box(lean_array_size(a));",
+    "}"
+  ]),
+  ("lean_array_uget", joinLines [
+    "inline fn lean_array_uget(a: LeanObj, i: usize) LeanObj {",
+    "  const r = lean_array_get_core(a, i);",
+    "  lean_inc(r);",
+    "  return r;",
+    "}"
+  ]),
+  ("lean_array_uget_borrowed", joinLines [
+    "inline fn lean_array_uget_borrowed(a: LeanObj, i: usize) LeanObj {",
+    "  return lean_array_get_core(a, i);",
+    "}"
+  ]),
+  ("lean_mk_empty_array_with_capacity", joinLines [
+    "inline fn lean_mk_empty_array_with_capacity(capacity: LeanObj) LeanObj {",
+    "  if (!lean_is_scalar(capacity)) lean_internal_panic_out_of_memory();",
+    "  return lean_alloc_array(@as(usize, 0), lean_unbox(capacity));",
+    "}"
+  ]),
+  ("lean_nat_dec_le", joinLines [
+    "inline fn lean_nat_dec_le(a1: LeanObj, a2: LeanObj) u8 {",
+    "  return @intFromBool(lean_nat_le(a1, a2));",
+    "}"
+  ]),
+  ("lean_nat_dec_lt", joinLines [
+    "inline fn lean_nat_dec_lt(a1: LeanObj, a2: LeanObj) u8 {",
+    "  return @intFromBool(lean_nat_lt(a1, a2));",
+    "}"
+  ]),
+  ("lean_uint32_to_nat", joinLines [
+    "inline fn lean_uint32_to_nat(a: u32) LeanObj {",
+    "  return lean_usize_to_nat(@as(usize, a));",
+    "}"
+  ]),
+  ("lean_uint32_add", joinLines [
+    "inline fn lean_uint32_add(a1: u32, a2: u32) u32 {",
+    "  return a1 +% a2;",
+    "}"
+  ]),
+  ("lean_usize_of_nat", joinLines [
+    "inline fn lean_usize_of_nat(a: LeanObj) usize {",
+    "  if (lean_is_scalar(a)) {",
+    "    return lean_unbox(a);",
+    "  } else {",
+    "    return lean_usize_of_big_nat(a);",
+    "  }",
+    "}"
+  ]),
+  ("lean_usize_add", joinLines [
+    "inline fn lean_usize_add(a1: usize, a2: usize) usize {",
+    "  return a1 +% a2;",
+    "}"
+  ]),
+  ("lean_usize_dec_eq", joinLines [
+    "inline fn lean_usize_dec_eq(a1: usize, a2: usize) u8 {",
+    "  return @intFromBool(a1 == a2);",
+    "}"
+  ])
+]
+
+private def bignumExternHelperEntries : List (String × String) := [
+  ("lean_nat_big_succ", "extern fn lean_nat_big_succ(a: LeanObj) callconv(.c) LeanObj;"),
+  ("lean_nat_big_add", "extern fn lean_nat_big_add(a1: LeanObj, a2: LeanObj) callconv(.c) LeanObj;"),
+  ("lean_nat_big_sub", "extern fn lean_nat_big_sub(a1: LeanObj, a2: LeanObj) callconv(.c) LeanObj;"),
+  ("lean_nat_overflow_mul", "extern fn lean_nat_overflow_mul(a1: usize, a2: usize) callconv(.c) LeanObj;"),
+  ("lean_nat_big_mul", "extern fn lean_nat_big_mul(a1: LeanObj, a2: LeanObj) callconv(.c) LeanObj;"),
+  ("lean_nat_big_div", "extern fn lean_nat_big_div(a1: LeanObj, a2: LeanObj) callconv(.c) LeanObj;"),
+  ("lean_nat_big_mod", "extern fn lean_nat_big_mod(a1: LeanObj, a2: LeanObj) callconv(.c) LeanObj;"),
+  ("lean_nat_big_eq", "extern fn lean_nat_big_eq(a1: LeanObj, a2: LeanObj) callconv(.c) bool;"),
+  ("lean_nat_big_le", "extern fn lean_nat_big_le(a1: LeanObj, a2: LeanObj) callconv(.c) bool;"),
+  ("lean_nat_big_lt", "extern fn lean_nat_big_lt(a1: LeanObj, a2: LeanObj) callconv(.c) bool;"),
+  ("lean_nat_pow", "extern fn lean_nat_pow(a1: LeanObj, a2: LeanObj) callconv(.c) LeanObj;"),
+  ("lean_cstr_to_nat", "extern fn lean_cstr_to_nat(s: [*c]const u8) callconv(.c) LeanObj;"),
+  ("lean_big_uint64_to_nat", "extern fn lean_big_uint64_to_nat(n: u64) callconv(.c) LeanObj;"),
+  ("lean_uint32_of_big_nat", "extern fn lean_uint32_of_big_nat(a: LeanObj) callconv(.c) u32;"),
+  ("lean_uint64_of_big_nat", "extern fn lean_uint64_of_big_nat(a: LeanObj) callconv(.c) u64;")
+]
+
+private def bignumInlineHelperEntries : List (String × String) := [
+  ("lean_uint64_to_nat", joinLines [
+    "inline fn lean_uint64_to_nat(n: u64) LeanObj {",
+    "  if (n <= LeanMaxSmallNat) {",
+    "    return lean_box(@as(usize, @intCast(n)));",
+    "  } else {",
+    "    return lean_big_uint64_to_nat(n);",
+    "  }",
+    "}"
+  ]),
+  ("lean_nat_succ", joinLines [
+    "inline fn lean_nat_succ(a: LeanObj) LeanObj {",
+    "  if (lean_is_scalar(a)) {",
+    "    return lean_usize_to_nat(lean_unbox(a) +% @as(usize, 1));",
+    "  } else {",
+    "    return lean_nat_big_succ(a);",
+    "  }",
+    "}"
+  ]),
+  ("lean_nat_add", joinLines [
+    "inline fn lean_nat_add(a1: LeanObj, a2: LeanObj) LeanObj {",
+    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "    return lean_usize_to_nat(lean_unbox(a1) +% lean_unbox(a2));",
+    "  } else {",
+    "    return lean_nat_big_add(a1, a2);",
+    "  }",
+    "}"
+  ]),
+  ("lean_nat_sub", joinLines [
+    "inline fn lean_nat_sub(a1: LeanObj, a2: LeanObj) LeanObj {",
+    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "    const n1 = lean_unbox(a1);",
+    "    const n2 = lean_unbox(a2);",
+    "    if (n1 < n2) {",
+    "      return lean_box(@as(usize, 0));",
+    "    } else {",
+    "      return lean_box(n1 - n2);",
+    "    }",
+    "  } else {",
+    "    return lean_nat_big_sub(a1, a2);",
+    "  }",
+    "}"
+  ]),
+  ("lean_nat_mul", joinLines [
+    "inline fn lean_nat_mul(a1: LeanObj, a2: LeanObj) LeanObj {",
+    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "    const n1 = lean_unbox(a1);",
+    "    if (n1 == 0) {",
+    "      return a1;",
+    "    }",
+    "    const n2 = lean_unbox(a2);",
+    "    const r = n1 *% n2;",
+    "    if (r <= LeanMaxSmallNat and r / n1 == n2) {",
+    "      return lean_box(r);",
+    "    } else {",
+    "      return lean_nat_overflow_mul(n1, n2);",
+    "    }",
+    "  } else {",
+    "    return lean_nat_big_mul(a1, a2);",
+    "  }",
+    "}"
+  ]),
+  ("lean_nat_div", joinLines [
+    "inline fn lean_nat_div(a1: LeanObj, a2: LeanObj) LeanObj {",
+    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "    const n1 = lean_unbox(a1);",
+    "    const n2 = lean_unbox(a2);",
+    "    if (n2 == 0) {",
+    "      return lean_box(@as(usize, 0));",
+    "    } else {",
+    "      return lean_box(n1 / n2);",
+    "    }",
+    "  } else {",
+    "    return lean_nat_big_div(a1, a2);",
+    "  }",
+    "}"
+  ]),
+  ("lean_nat_mod", joinLines [
+    "inline fn lean_nat_mod(a1: LeanObj, a2: LeanObj) LeanObj {",
+    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "    const n1 = lean_unbox(a1);",
+    "    const n2 = lean_unbox(a2);",
+    "    if (n2 == 0) {",
+    "      return lean_box(n1);",
+    "    } else {",
+    "      return lean_box(n1 % n2);",
+    "    }",
+    "  } else {",
+    "    return lean_nat_big_mod(a1, a2);",
+    "  }",
+    "}"
+  ]),
+  ("lean_nat_eq", joinLines [
+    "inline fn lean_nat_eq(a1: LeanObj, a2: LeanObj) bool {",
+    "  if (lean_is_scalar(a1) and lean_is_scalar(a2)) {",
+    "    return a1 == a2;",
+    "  } else {",
+    "    return lean_nat_big_eq(a1, a2);",
+    "  }",
+    "}"
+  ]),
+  ("lean_nat_dec_eq", joinLines [
+    "inline fn lean_nat_dec_eq(a1: LeanObj, a2: LeanObj) u8 {",
+    "  return @intFromBool(lean_nat_eq(a1, a2));",
+    "}"
+  ]),
+  ("lean_uint32_of_nat", joinLines [
+    "inline fn lean_uint32_of_nat(a: LeanObj) u32 {",
+    "  if (lean_is_scalar(a)) {",
+    "    return @as(u32, @intCast(lean_unbox(a)));",
+    "  } else {",
+    "    return lean_uint32_of_big_nat(a);",
+    "  }",
+    "}"
+  ]),
+  ("lean_uint64_of_nat", joinLines [
+    "inline fn lean_uint64_of_nat(a: LeanObj) u64 {",
+    "  if (lean_is_scalar(a)) {",
+    "    return @as(u64, @intCast(lean_unbox(a)));",
+    "  } else {",
+    "    return lean_uint64_of_big_nat(a);",
+    "  }",
+    "}"
+  ])
+]
+
+public def inlineHelpers : NameMap String :=
+  (mvpInlineHelperEntries ++ bignumExternHelperEntries ++ bignumInlineHelperEntries).foldl (init := {}) fun acc (name, decl) =>
+    acc.insert (.str .anonymous name) decl
+
+public def emittedInlineNames : List String :=
+  ["lean_is_scalar", "lean_unbox"] ++
+    (mvpInlineHelperEntries ++ bignumExternHelperEntries ++ bignumInlineHelperEntries).map Prod.fst
+
+public def isInlineHelperName (name : String) : Bool :=
+  emittedInlineNames.contains name
+
+public def inlineHelperDecls : List String :=
+  supportInlineDecls ++
+    (mvpInlineHelperEntries ++ bignumExternHelperEntries ++ bignumInlineHelperEntries).map Prod.snd
+
+end InlineHelpers

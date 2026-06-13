@@ -56,10 +56,17 @@ folder to gdb, or use `gdb $(elan which lean)`.
 
 It is also possible to generate releases that others can use,
 simply by pushing a tag to your fork of the Lean 4 github repository
-(and waiting about an hour; check the `Actions` tab for completion).
+(and waiting for some time; check the `Actions` tab for completion).
 If you push `my-tag` to a fork in your github account `my_name`,
 you can then put `my_name/lean4:my-tag` in your `lean-toolchain` file in a project using `lake`.
-(You must use a tag name that does not start with a numeral, or contain `_`).
+(You must use a tag name that does not start with a numeral, or contains `_`).
+
+Some tests that run when generating a release are a bit flaky and workflows
+occasionally have to be re-run. When the `master` branch of the official
+repository is in a state that cannot pass all tests, you can filter for
+`workflow:CI branch:master event:schedule` in the Actions tab of the official
+repository. That lists the scheduled nightly releases. There you can find a
+recent state of `master` that did pass the tests.
 
 ### VS Code
 

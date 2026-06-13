@@ -949,7 +949,11 @@ where
         -- end up in the build directory and, if writable, the cache
         let arts ← mod.restoreAllArtifacts {arts with ltar? := some ltar}
         if (← mod.pkg.isArtifactCacheWritable) then
-          .inl <$> mod.cacheOutputArtifacts setup.isModule restoreAll
+          let arts ← mod.cacheOutputArtifacts setup.isModule restoreAll
+          -- Note: Cache service metadata is not preserved on an output update because it would
+          -- result in downloading module outputs that are not available on the remote.
+          (← getLakeCache).writeOutputs mod.pkg.cacheScope inputHash arts.descrs (overwrite := true)
+          return .inl arts
         else
           return .inl arts
       else

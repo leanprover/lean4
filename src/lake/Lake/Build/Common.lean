@@ -538,6 +538,9 @@ open ResolveOutputs in
 /--
 Retrieve artifacts from the Lake cache using only the outputs stored in the saved trace file.
 
+If the cache is writable, saves the input-to-output mapping derived from the trace to the cache,
+unless a mapping for the `inputHash` already exists.
+
 **For internal use only.**
 -/
 @[specialize] public def getArtifactsUsingTrace?
@@ -549,7 +552,7 @@ Retrieve artifacts from the Lake cache using only the outputs stored in the save
         try
           let arts ← resolveOutputs (.ofData out)
           if (← pkg.isArtifactCacheWritable) then
-            let act := (← getLakeCache).writeOutputs pkg.cacheScope inputHash out
+            let act := (← getLakeCache).writeOutputs pkg.cacheScope inputHash out (overwrite := false)
             if let .error e ← act.toBaseIO then
               logWarning s!"could not write outputs to cache: {e}"
           return some arts

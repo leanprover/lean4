@@ -59,19 +59,31 @@ test_exp -f .lake/build/ir/Test.ltar
 # tracked mapping only includes the `ltar`, the tracking mapping should
 # require an unpack, whereas the build mapping should not.
 rm -rf .lake/build
+no_match_text ltar .lake/cache/outputs/test/*.json
 test_run cache add .lake/outputs.jsonl --keep-local
+no_match_text ltar .lake/cache/outputs/test/*.json
 LAKE_ARTIFACT_CACHE=true test_not_out "leantar" build +Test --no-build -v
 rm -rf .lake/build
-test_run cache add .lake/outputs.jsonl
+no_match_text ltar .lake/cache/outputs/test/*.json
+test_run cache add .lake/outputs.jsonl --service reservoir --repo 'foo/bar'
+match_text ltar .lake/cache/outputs/test/*.json
+match_text reservoir .lake/cache/outputs/test/*.json
 LAKE_ARTIFACT_CACHE=true test_out "leantar" build +Test --no-build -v
+# Unpack should have updated the cached mapping: added module outputs,
+# removed service metadata, and left the ltar.
 rm -rf .lake/build
-# Unpack should have overwritten the cached input with the module outputs
+match_text ltar .lake/cache/outputs/test/*.json
+match_text olean .lake/cache/outputs/test/*.json
+no_match_text reservoir .lake/cache/outputs/test/*.json
 LAKE_ARTIFACT_CACHE=true test_not_out "leantar" build +Test --no-build -v
 
 # Test that Lake prefers the local trace outputs over the cache
 rm -f .lake/build/lib/lean/*.[!t]*
 test_run cache add .lake/outputs.jsonl
+match_text ltar .lake/cache/outputs/test/*.json
 LAKE_ARTIFACT_CACHE=true test_not_out "leantar" build +Test --no-build -v
+# Test that the cache output is not overwritten without an unpack
+match_text ltar .lake/cache/outputs/test/*.json
 
 # Test producing an `ltar` without already restored artifacts
 rm -rf .lake/cache .lake/build

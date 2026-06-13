@@ -447,8 +447,10 @@ def writeOutputsCore
 
 /-- Cache the outputs corresponding to the given input for the package.  -/
 @[inline] public def writeOutputs
-  [ToJson α] (cache : Cache) (scope : String) (inputHash : Hash) (outputs : α) (overwrite := true)
-: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) none none overwrite
+  [ToJson α] (cache : Cache) (scope : String) (inputHash : Hash) (outputs : α)
+  (service? : Option CacheServiceName := none) (remoteScope? : Option CacheServiceScope := none)
+  (overwrite := true)
+: IO Unit := cache.writeOutputsCore scope inputHash (toJson outputs) service? remoteScope? overwrite
 
 /-- Cache the input-to-outputs mappings from a `CacheMap`.  -/
 public def writeMap

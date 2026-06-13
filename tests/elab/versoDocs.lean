@@ -855,3 +855,46 @@ error: Expected two or three code arguments: the two sides of the equality, opti
 /-! {assert'}[`Nat.zero`] -/
 
 end AssertRoleTests
+
+/-!
+Test that the {name}`kw` and {name}`kw?` roles store their payloads as {name}`Lean.Doc.Data.Atom`.
+-/
+
+section KwAtomPublicTests
+open Doc Elab
+
+private partial def findAtomInInline : Inline ElabInline → Array (Name × Data.Atom)
+  | .other container _ =>
+    if let some (a : Data.Atom) := container.val.get? Data.Atom then
+      #[(container.name, a)]
+    else #[]
+  | .emph xs | .bold xs | .concat xs | .link xs _ | .footnote _ xs =>
+    xs.flatMap findAtomInInline
+  | .text .. | .code .. | .math .. | .linebreak .. | .image .. => #[]
+
+private partial def findAtomInBlock : Block ElabInline ElabBlock → Array (Name × Data.Atom)
+  | .para inlines => inlines.flatMap findAtomInInline
+  | .concat blocks | .blockquote blocks => blocks.flatMap findAtomInBlock
+  | .dl items => items.flatMap fun ⟨x, y⟩ =>
+    x.flatMap findAtomInInline ++ y.flatMap findAtomInBlock
+  | .ol _ xs | .ul xs => xs.flatMap fun ⟨x⟩ => x.flatMap findAtomInBlock
+  | .other .. | .code .. => #[]
+
+/--
+{kw (cat := term)}`Type`
+-/
+def kwAtomDisplay := ()
+
+/--
+info: container: Lean.Doc.Data.Atom
+category: term
+-/
+#guard_msgs in
+#eval show TermElabM Unit from do
+  let some (.inr doc) ← findInternalDocString? (← getEnv) ``kwAtomDisplay
+    | throwError "expected verso doc"
+  for (containerName, atom) in doc.text.flatMap findAtomInBlock do
+    IO.println s!"container: {containerName}"
+    IO.println s!"category: {atom.category}"
+
+end KwAtomPublicTests

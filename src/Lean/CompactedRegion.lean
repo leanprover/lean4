@@ -16,21 +16,38 @@ A compacted region holds multiple Lean objects in a contiguous memory region, wh
 read/written to/from disk. Objects inside the region do not have reference counters and cannot be
 freed individually. The contents of `.olean` files are compacted regions.
 -/
-@[expose] public def CompactedRegion := USize
-
-@[extern "lean_compacted_region_is_memory_mapped"]
-public opaque CompactedRegion.isMemoryMapped : CompactedRegion → Bool
-
-/-- Size in bytes. -/
-@[extern "lean_compacted_region_size"]
-public opaque CompactedRegion.size : CompactedRegion → USize
-
-/--
-Frees a compacted region and its contents. No live references to the contents may exist at the
-time of invocation.
+/-
+This structure carries the region's loading metadata (`filePath`, `size`, ...) as plain Lean values
+plus a private `root` pointer to the region's root object. Because `root` is an ordinary pointer
+into the buffer rather than an opaque external handle, embedding a `CompactedRegion` in compacted
+data is sound as long as the region is supplied as one of the `depRegions`: the object compactor
+then relocates `root` like any other cross-region pointer, and it is re-resolved against the freshly
+mapped buffer on load.
 -/
-@[extern "lean_compacted_region_free"]
-public unsafe opaque CompactedRegion.free : CompactedRegion → IO Unit
+public structure CompactedRegion where
+  /-- Path the region was loaded from. -/
+  filePath       : System.FilePath
+  /-- Size in bytes of the region's mapping (the backing `.olean` file). -/
+  size           : USize
+  /-- Whether the region's buffer is backed by a memory mapping of its file. -/
+  isMemoryMapped : Bool
+  /--
+  Logical base address the region's mapping is relative to (`olean_header.base_addr`), used to
+  translate cross-region pointers when this region is used as a dependency.
+  -/
+  private baseAddr     : USize
+  /--
+  Byte offset of the region's root object from the start of the mapping; `root - bufferOffset`
+  recovers the mapping base (the address to unmap/free and the start of the dependency range).
+  -/
+  private bufferOffset : USize
+  /--
+  Pointer to the region's root object. A plain pointer into the data buffer (not an external handle),
+  so the object compactor relocates it as a cross-region pointer when the region is embedded in
+  compacted data with itself supplied as a `depRegion`.
+  -/
+  private root         : NonScalar
+  deriving Nonempty
 
 opaque CompactorSpec : NonemptyType.{0}
 /--
@@ -45,6 +62,13 @@ subsequent saves will dereference dangling pointers.
 public def Compactor := CompactorSpec.type
 
 /--
+Frees a compacted region and its contents. No live references to the contents may exist at the
+time of invocation.
+-/
+@[extern "lean_compacted_region_free"]
+public unsafe opaque CompactedRegion.free (region : CompactedRegion) : IO Unit
+
+/--
 Saves arbitrary data to a compacted region on disk.
 
 The `α` type parameter is erased at the runtime/extern boundary: the compactor walks the live
@@ -56,14 +80,20 @@ align save and load sites. Mismatched types between save and load yield undefine
 not be re-serialized. `prev`, when present, likewise allows for reuse of objects from prior saves
 in the same session.
 
+If `allowClosures` is `true`, closures in the compacted data are tolerated and the file is written
+in the extended `v3` olean format (which may become the default in the future). This is an
+EXPERIMENTAL option. The saving and loading process must be using identical executables, including
+dependent libraries. When `false`, encountering a closure is an error and the file is written in the
+old `v2` format.
+
 Returns a `Compactor` that may be passed as `prev` to subsequent saves. Unsafe because the
 returned `Compactor` carries thread-safety and `depRegions` lifetime contracts the type system
 cannot enforce; see `Compactor`.
 -/
 @[extern "lean_compacted_region_save"]
 public unsafe opaque CompactedRegion.save {α : Type} (fname : @& System.FilePath) (key : @& Name)
-    (data : @& α) (depRegions : @& Array CompactedRegion) (prev : Option Compactor) :
-    IO Compactor
+    (data : @& α) (depRegions : @& Array CompactedRegion) (prev : Option Compactor)
+    (allowClosures := false) : IO Compactor
 
 /--
 Reads a compacted region from disk.

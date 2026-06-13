@@ -205,7 +205,7 @@ theorem exists_ge_and_testBit_of_ge_two_pow {x : Nat} (p : x ≥ 2^n) : ∃ i �
       exact Exists.intro j (And.intro (Nat.zero_le _) jp)
     | succ n =>
       have x_ge_n : x / 2 ≥ 2 ^ n := by
-          simpa [le_div_iff_mul_le, ← Nat.pow_succ'] using p
+          simpa [le_div_iff_mul_le, ← Nat.pow_succ'] using! p
       have ⟨j, jp⟩ := @hyp x_pos n x_ge_n
       apply Exists.intro (j+1)
       apply And.intro
@@ -592,9 +592,6 @@ theorem and_or_distrib_right (x y z : Nat) : (x ||| y) &&& z = (x &&& z) ||| (y 
    apply Nat.eq_of_testBit_eq
    simp [Bool.and_or_distrib_right]
 
-@[deprecated and_or_distrib_right (since := "2025-10-02")]
-abbrev and_distrib_right := and_or_distrib_right
-
 theorem or_and_distrib_left (x y z : Nat) : x ||| (y &&& z) = (x ||| y) &&& (x ||| z) := by
    apply Nat.eq_of_testBit_eq
    simp [Bool.or_and_distrib_left]
@@ -756,6 +753,11 @@ theorem two_pow_add_eq_or_of_lt {b : Nat} (b_lt : b < 2^i) (a : Nat) :
             calc b < 2 ^ i := b_lt
                  _ ≤ 2 ^ j := Nat.pow_le_pow_right Nat.zero_lt_two i_le
     simp [i_le, j_lt, testBit_lt_two_pow, b_lt_j]
+
+theorem or_two_pow_eq_add_of_lt {a n : Nat} (h : a < 2 ^ n) : a ||| 2 ^ n = a + 2 ^ n := by
+  have h' := Nat.two_pow_add_eq_or_of_lt h 1
+  simp only [Nat.mul_one] at h'
+  rw [Nat.or_comm, ← h', Nat.add_comm]
 
 /-! ### shiftLeft and shiftRight -/
 

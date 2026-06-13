@@ -494,7 +494,7 @@ def unusedVariables : Linter where
 
     let infoTrees := (← get).infoState.trees.toArray
 
-    let linterSets := linterSetsExt.getState (← getEnv)
+    let linterSets := (linterSetsExt.getState (← getEnv)).merged
 
     -- Run the main collection pass, resulting in `s : References`.
     let (_, s) ← (collectReferences infoTrees cmdStxRange linterSets).run {}

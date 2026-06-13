@@ -374,20 +374,29 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
   -- is a local variable) must be preserved because they produce anchors that need
   -- the original term to be loaded during replay.
   -- Non-ident terms (like `show P by tac`) need to be preserved explicitly.
+  -- Params that mark types for case-splitting (e.g., `[EqvGen]` where `EqvGen` is an
+  -- inductive predicate, or `[cases T]`) must also be preserved: the marking is not
+  -- representable in the generated script, and without it `cases` steps on facts of
+  -- these types fail during replay.
+  -- **TODO**: This syntactic filtering is a stopgap: it duplicates parameter-elaboration
+  -- logic and silently depends on which side effects are representable in scripts.
+  -- A more robust solution is to make the script self-contained, e.g., a script step that
+  -- marks a type for case-splitting, and tracking which parameters were actually used.
+  let keepIdentParam (mod? : Option (TSyntax ``Parser.Attr.grindMod)) (id : Ident) : TacticM Bool := do
+    if let some (_, _ :: _) := (← resolveLocalName id.getId) then
+      return true
+    else if let some mod := mod? then
+      return (← Grind.getAttrKindCore mod) matches .cases _
+    else
+      let declName? ← try pure (some (← realizeGlobalConstNoOverload id)) catch _ => pure none
+      if let some declName := declName? then
+        Grind.isCasesAttrCandidate declName false
+      else
+        return false
   let termParamStxs : Array Grind.TParam ← paramStxs.filterM fun p => do
     match p with
-    | `(Parser.Tactic.grindParam| $[$_:grindMod]? $id:ident) =>
-      -- Check if this ident resolves to local variable dot notation
-      -- If so, keep it because it's not a simple global declaration
-      if let some (_, _ :: _) := (← resolveLocalName id.getId) then
-        return true
-      else
-        return false
-    | `(Parser.Tactic.grindParam| ! $[$_:grindMod]? $id:ident) =>
-      if let some (_, _ :: _) := (← resolveLocalName id.getId) then
-        return true
-      else
-        return false
+    | `(Parser.Tactic.grindParam| $[$mod?:grindMod]? $id:ident) => keepIdentParam mod? id
+    | `(Parser.Tactic.grindParam| ! $[$mod?:grindMod]? $id:ident) => keepIdentParam mod? id
     | `(Parser.Tactic.grindParam| - $_:ident) => return false
     | `(Parser.Tactic.grindParam| #$_:hexnum) => return false
     | _ => return true
@@ -413,7 +422,15 @@ def evalGrindTraceCore (stx : Syntax) (trace := true) (verbose := true) (useSorr
           let configStx' := filterSuggestionsAndLocalsFromGrindConfig configStx
           let tacs ← Grind.mkGrindOnlyTactics configStx' seq termParamStxs
           let seq := Grind.Action.mkGrindSeq seq
-          let tac ← `(tactic| grind $configStx':optConfig => $seq:grindSeq)
+          /-
+          **Note**: The script must carry the preserved parameters (e.g., types marked for
+          case-splitting). The tactic was verified with these parameters active, and `cases`
+          steps may fail without them.
+          -/
+          let tac ← if termParamStxs.isEmpty then
+            `(tactic| grind $configStx':optConfig => $seq:grindSeq)
+          else
+            `(tactic| grind $configStx':optConfig [$termParamStxs,*] => $seq:grindSeq)
           let tacs := tacs.push tac
           return tacs
         | .stuck gs =>

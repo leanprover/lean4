@@ -131,7 +131,7 @@ else
 lean_object* v_val_12_; lean_object* v___x_13_; 
 v_val_12_ = lean_ctor_get(v___x_9_, 0);
 lean_inc(v_val_12_);
-lean_dec_ref(v___x_9_);
+lean_dec_ref_known(v___x_9_, 1);
 v___x_13_ = lean_alloc_ctor(0, 2, 0);
 lean_ctor_set(v___x_13_, 0, v_val_12_);
 lean_ctor_set(v___x_13_, 1, v_a_7_);
@@ -278,7 +278,7 @@ else
 lean_object* v_val_70_; lean_object* v___x_71_; lean_object* v___x_72_; 
 v_val_70_ = lean_ctor_get(v___x_69_, 0);
 lean_inc(v_val_70_);
-lean_dec_ref(v___x_69_);
+lean_dec_ref_known(v___x_69_, 1);
 v___x_71_ = lean_apply_1(v_f_53_, v_val_70_);
 v___x_72_ = l_Std_DHashMap_Internal_Raw_u2080_insert___redArg(v_inst_50_, v_inst_51_, v_data_57_, v_a_52_, v___x_71_);
 v___y_64_ = v___x_72_;
@@ -506,7 +506,7 @@ return v___x_127_;
 }
 else
 {
-lean_dec_ref(v_v_105_);
+lean_dec_ref_known(v_v_105_, 1);
 return v_d_106_;
 }
 }
@@ -940,7 +940,7 @@ lean_dec(v_fst_305_);
 if (v_onStack_315_ == 0)
 {
 lean_object* v_snd_316_; lean_object* v___x_318_; uint8_t v_isShared_319_; uint8_t v_isSharedCheck_324_; 
-lean_dec_ref(v_index_x3f_306_);
+lean_dec_ref_known(v_index_x3f_306_, 1);
 lean_dec(v_a_301_);
 lean_dec_ref(v_inst_299_);
 lean_dec_ref(v_inst_298_);
@@ -1033,7 +1033,7 @@ return v___x_344_;
 else
 {
 lean_object* v_snd_345_; lean_object* v___x_347_; uint8_t v_isShared_348_; uint8_t v_isSharedCheck_353_; 
-lean_dec_ref(v_index_x3f_342_);
+lean_dec_ref_known(v_index_x3f_342_, 1);
 lean_dec(v_a_338_);
 lean_dec_ref(v_successorsOf_337_);
 lean_dec_ref(v_inst_336_);

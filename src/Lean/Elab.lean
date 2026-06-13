@@ -69,4 +69,5 @@ public import Lean.Elab.Parallel
 public import Lean.Elab.BuiltinDo
 public import Lean.Elab.Idbg
 public import Lean.Elab.ConfigEval
+public import Lean.Elab.ConfigEval.Builtins
 public import Lean.Elab.Tactic.Config

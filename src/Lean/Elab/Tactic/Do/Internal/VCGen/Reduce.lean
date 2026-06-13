@@ -7,7 +7,8 @@ module
 
 prelude
 public import Lean.Meta.Sym.SymM
-public import Lean.Meta.WHNF
+import Lean.Meta.WHNF
+import Lean.Meta.Sym
 
 open Lean Meta Sym
 
@@ -20,6 +21,16 @@ SymM-level head-redex reducer used throughout VCGen.
 -/
 
 /--
+Like `Meta.reduceProj?` but also `Sym.unfoldReducible`s the projected field when whnf
+reduced the structure. Transparency is the caller's choice.
+-/
+private def reduceProjAndUnfold? (e : Expr) : MetaM (Option Expr) := do
+  let .proj _ idx s := e | return none
+  let s' ← Lean.Meta.whnf s
+  let some f ← Lean.Meta.projectCore? s' idx | return none
+  if isSameExpr s s' then return some f else return some (← Sym.unfoldReducible f)
+
+/--
 Repeatedly reduces head redexes in `e`, cycling through the following reductions until
 no further progress is made:
 
@@ -30,7 +41,8 @@ no further progress is made:
 4. **Projection delta**: `Struct.field x` → `x.5` (unfolds projection *functions*,
    progress only if followed by proj-reduction)
 
-Returns `none` when no reduction was possible. Maintains maximal sharing via `shareCommonInc`.
+Returns `none` when no reduction was possible. Maintains maximal sharing via `shareCommonInc`
+and the SymM no-exposed-reducibles invariant.
 -/
 public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
   withReducible <| go none e.getAppFn e.getAppRevArgs
@@ -56,10 +68,11 @@ public partial def reduceHead? (e : Expr) : SymM (Option Expr) :=
           go (some e') e'.getAppFn e'.getAppRevArgs
         else
           pure lastReduction
-      | .proj .. => match ← reduceProj? f with
+      | .proj .. =>
+        match ← withReducibleAndInstances <| reduceProjAndUnfold? f with
         | some f' =>
+          let f' ← Sym.shareCommonInc f'
           let e' := mkAppRev f' rargs
-          let e' ← Sym.shareCommonInc e'
           go (some e') e'.getAppFn e'.getAppRevArgs
         | none    => pure lastReduction
       | _ => pure lastReduction

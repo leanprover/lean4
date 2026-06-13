@@ -46,12 +46,14 @@ info: Try these:
 example (a b : Nat) (h : a = b) : b = a :=
   ∎
 
--- Check that error messages are appropriate when try? fails
+-- Check that error messages are appropriate when try? fails. We use an opaque
+-- Prop so the default branches (including `impossible by …`) can't dispatch it.
+opaque QedTestOpaque : Prop
 /--
 error: Tactic `try?` failed: consider using `grind` manually, or `try? +missing` for partial proofs containing `sorry`
 
-⊢ False
+⊢ QedTestOpaque
 -/
 #guard_msgs in
-example : False := by
+example : QedTestOpaque := by
   ∎

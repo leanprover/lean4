@@ -8,7 +8,9 @@ module
 prelude
 public import Lean.Linter.Util
 public import Lean.Linter.Builtin
+public import Lean.Linter.CheckUnivs
 public import Lean.Linter.ConstructorAsVariable
+public import Lean.Linter.DefProp
 public import Lean.Linter.Deprecated
 public import Lean.Linter.DocsOnAlt
 public import Lean.Linter.UnusedVariables

@@ -9,6 +9,7 @@ prelude
 public import Lean.Elab.Tactic.Do.VCGen.Basic
 public import Lean.Elab.Tactic.Do.Internal.VCGen.SpecDB
 public import Lean.Meta.Sym.Apply
+public import Lean.Meta.Sym.Simp.DiscrTree
 public import Lean.Meta.Sym.Simp.SimpM
 public import Lean.Meta.Tactic.Grind.Types
 
@@ -19,26 +20,32 @@ open Std.Do
 namespace Lean.Elab.Tactic.Do.Internal
 
 /-!
-The `VCGenM` monad: its read-only `Context` (spec database + a fixed bundle of
-pre-built `BackwardRule`s + user-customisable simp methods + pre-tactic) and
-its mutable `State` (rule caches, accumulated invariants/VCs, simp cache).
+The `VCGenM` monad: its read-only `Context` (a fixed bundle of pre-built
+`BackwardRule`s + user-customisable simp methods) and its mutable `State`
+(rule caches, accumulated invariants/VCs, simp cache).
 -/
 
-/-- Pre-tactic to try on each emitted VC before returning it to the user. -/
-public inductive VCGen.PreTac where
-  /-- No pre-tactic; VCs are returned as-is. -/
-  | none
-  /-- Use grind with the given hypothesis simplification methods. -/
-  | grind (silent : Bool := false)
-  /-- Use a user-provided tactic syntax. -/
-  | tactic (tac : Syntax)
+/-- A lazily elaborated `until` pattern, stored behind an `IO.Ref` so the first `force` caches its
+result. The pattern is elaborated against the monad of the first program encountered in `solve`
+(supplied as the expected type). -/
+public inductive UntilPatternThunk where
+  /-- Not yet elaborated; `elabFn m` elaborates the pattern against the program monad `m`. -/
+  | deferred (elabFn : Expr → MetaM Sym.Pattern)
+  /-- Already elaborated and cached. -/
+  | elaborated (pat : Sym.Pattern)
 
-public def VCGen.PreTac.isGrind : VCGen.PreTac → Bool
-  | .grind .. => true
-  | _ => false
+/-- Force the thunk in `ref` against the program monad `m`, elaborating, tracing, and caching the
+pattern on first use; later calls return the cached pattern. -/
+public def UntilPatternThunk.force (ref : IO.Ref UntilPatternThunk) (m : Expr) : MetaM Sym.Pattern := do
+  match ← ref.get with
+  | .elaborated pat => return pat
+  | .deferred elabFn =>
+    let pat ← elabFn m
+    trace[Elab.Tactic.Do.vcgen] "`until` pattern elaborated to {pat.pattern}"
+    ref.set (.elaborated pat)
+    return pat
 
 public structure VCGen.Context where
-  specThms : SpecTheoremsNew
   /-- The backward rule for `SPred.entails_cons_intro`. -/
   entailsConsIntroRule : BackwardRule
   /-- The backward rule for `SPred.entails_nil_pure_intro`. Preferred over `entails_nil_intro`
@@ -78,8 +85,6 @@ public structure VCGen.Context where
   andIntroRule : BackwardRule
   /-- User-customizable simp methods used to pre-simplify hypotheses. -/
   hypSimpMethods : Option Sym.Simp.Methods := none
-  /-- Pre-tactic to try on each emitted VC. -/
-  preTac : PreTac := .none
   /-- The `trivial` config option: when `true` (default), `Driver.emitVC` runs
   `repeatAndRfl` to collapse trivial `And.intro` chains; when `false`, the goal is
   emitted as-is. -/
@@ -99,11 +104,27 @@ public structure VCGen.Context where
   `BackwardRule.apply` calls after `unfoldReducible` and reports an error when the
   retry succeeds, pinpointing missing normalization steps in `mvcgen'`. -/
   debug : Bool := false
+  /-- The `internalize` config option: when `true` (default), `emitVC` and the
+  multi-subgoal fork in `Driver.work` call `Grind.processHypotheses`. The tactic-mode
+  entry point disables this when there is no `with` clause. -/
+  internalize : Bool := true
   /-- Pre-parsed `invariants`/`invariants?` alternatives, indexed by 1-based invariant
   number. Bullet form maps positions to entries (`bullet n+1 → alt`); labelled form maps
   the parsed `inv<n>` numbers (out-of-order labels are supported). Empty when no
   `invariants` clause is provided or in `invariants?` (suggest) mode (handled separately). -/
   invariantAlts : Std.HashMap Nat Syntax := {}
+  /-- The `until` pattern: when `some ref`, VC generation stops and emits the current goal as a VC
+  once the program in `wp⟦e⟧` matches the (lazily elaborated) pattern, before applying a spec. -/
+  untilPat? : Option (IO.Ref UntilPatternThunk) := none
+
+public structure VCGen.Scope where
+  /-- Spec database in scope: globals plus locals from in-scope hypotheses. -/
+  specs : SpecTheoremsNew
+  /-- `__do_jp` fvars currently in scope. -/
+  jps : FVarIdMap JumpSiteInfo := {}
+  /-- Index of the next local declaration to consider for local specs. -/
+  nextDeclIdx : Nat := 0
+  deriving Inhabited
 
 public structure VCGen.State where
   /--
@@ -123,21 +144,16 @@ public structure VCGen.State where
   -/
   invariants : Array MVarId := #[]
   /--
-  The verification conditions that have been generated so far.
+  The verification conditions that have been generated so far. Each entry
+  shares the parent `Grind.Goal`'s state.
   -/
-  vcs : Array MVarId := #[]
+  vcs : Array Grind.Goal := #[]
   /--
   Persistent cache for the `Sym.Simp` simplifier used to pre-simplify hypotheses
   before grind internalization. Threading this cache across VCGen iterations avoids
   re-simplifying shared subexpressions (e.g., `s + 1 + 1 + ...` chains).
   -/
   simpState : Sym.Simp.State := {}
-  /--
-  Map from `__do_jp` fvar id to its `JumpSiteInfo`. Populated when `tryLetIntro`
-  registers a join point (`Context.useJP = true`); consulted by `tryFvarZeta` /
-  `tryJumpSite` to short-circuit zeta-unfolding at call sites.
-  -/
-  jps : FVarIdMap JumpSiteInfo := {}
   /--
   Remaining VC-generation steps. Initialized from `Context.config.stepLimit` (or
   `.unlimited` when no limit is set). Decremented at each successful program-shape
@@ -151,21 +167,35 @@ public structure VCGen.State where
   this to know which user-provided alts have already been consumed (so it doesn't
   warn about them). -/
   inlineHandledInvariants : Std.HashSet Nat := {}
-  /-- Set when a pre-tactic failed on some VC; `elabMVCGen'` throws if true. -/
-  preTacFailed : Bool := false
 
 public abbrev VCGenM := ReaderT VCGen.Context (StateRefT VCGen.State Grind.GrindM)
 
 namespace VCGen
 
-/-- Register a join-point `JumpSiteInfo` for the given fvar. Called when a
-`let __do_jp := …` is detected as a shared continuation. -/
-public def registerJP (fv : FVarId) (info : JumpSiteInfo) : VCGenM Unit :=
-  modify fun s => { s with jps := s.jps.insert fv info }
+public def Scope.registerJP (s : Scope) (fv : FVarId) (info : JumpSiteInfo) : Scope :=
+  { s with jps := s.jps.insert fv info }
 
-/-- Look up a previously-registered join point by fvar id. -/
-public def knownJP? (fv : FVarId) : VCGenM (Option JumpSiteInfo) :=
-  return (← get).jps.get? fv
+public def Scope.knownJP? (s : Scope) (fv : FVarId) : Option JumpSiteInfo :=
+  s.jps.get? fv
+
+public def Scope.insertSpec (s : Scope) (thm : SpecTheoremNew) : Scope :=
+  { s with specs := { s.specs with specs := Sym.insertPattern s.specs.specs thm.pattern thm } }
+
+/-- Walk `goal`'s local context from `scope.nextDeclIdx` onward, registering any
+spec-shaped hypotheses as local specs. Advances `nextDeclIdx` to the current
+context size so siblings share work. -/
+public def Scope.collectLocalSpecs (scope : Scope) (goal : MVarId) : VCGenM Scope :=
+  goal.withContext do
+    let lctx ← getLCtx
+    if scope.nextDeclIdx == lctx.decls.size then return scope
+    let scope ← lctx.foldlM (init := scope) (start := scope.nextDeclIdx) fun scope decl => do
+      if decl.isAuxDecl then return scope
+      try
+        if let some thm ← mkSpecTheoremNew (.local decl.fvarId) (eval_prio low) then
+          return scope.insertSpec thm
+      catch _ => pure ()
+      return scope
+    return { scope with nextDeclIdx := lctx.decls.size }
 
 /-- True iff fuel has been exhausted (`Fuel.limited 0`). -/
 public def outOfFuel : VCGenM Bool :=

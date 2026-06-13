@@ -131,7 +131,7 @@ if (lean_obj_tag(v___x_28_) == 0)
 lean_object* v_a_29_; lean_object* v___x_30_; 
 v_a_29_ = lean_ctor_get(v___x_28_, 0);
 lean_inc(v_a_29_);
-lean_dec_ref(v___x_28_);
+lean_dec_ref_known(v___x_28_, 1);
 v___x_30_ = l_Lean_Meta_Grind_Order_getExpr(v_v_26_, v_a_12_, v_a_13_, v_a_14_, v_a_15_, v_a_16_, v_a_17_, v_a_18_, v_a_19_, v_a_20_, v_a_21_, v_a_22_);
 if (lean_obj_tag(v___x_30_) == 0)
 {
@@ -779,7 +779,7 @@ v_k_225_ = lean_ctor_get(v_todo_209_, 4);
 lean_inc_ref(v_k_225_);
 v_k_x27_226_ = lean_ctor_get(v_todo_209_, 5);
 lean_inc_ref(v_k_x27_226_);
-lean_dec_ref(v_todo_209_);
+lean_dec_ref_known(v_todo_209_, 6);
 v___x_227_ = l_Lean_Meta_Grind_Order_getExpr(v_u_223_, v_a_210_, v_a_211_, v_a_212_, v_a_213_, v_a_214_, v_a_215_, v_a_216_, v_a_217_, v_a_218_, v_a_219_, v_a_220_);
 lean_dec(v_u_223_);
 if (lean_obj_tag(v___x_227_) == 0)
@@ -787,7 +787,7 @@ if (lean_obj_tag(v___x_227_) == 0)
 lean_object* v_a_228_; lean_object* v___x_229_; 
 v_a_228_ = lean_ctor_get(v___x_227_, 0);
 lean_inc(v_a_228_);
-lean_dec_ref(v___x_227_);
+lean_dec_ref_known(v___x_227_, 1);
 v___x_229_ = l_Lean_Meta_Grind_Order_getExpr(v_v_224_, v_a_210_, v_a_211_, v_a_212_, v_a_213_, v_a_214_, v_a_215_, v_a_216_, v_a_217_, v_a_218_, v_a_219_, v_a_220_);
 lean_dec(v_v_224_);
 if (lean_obj_tag(v___x_229_) == 0)
@@ -1029,7 +1029,7 @@ v_k_292_ = lean_ctor_get(v_todo_209_, 4);
 lean_inc_ref(v_k_292_);
 v_k_x27_293_ = lean_ctor_get(v_todo_209_, 5);
 lean_inc_ref(v_k_x27_293_);
-lean_dec_ref(v_todo_209_);
+lean_dec_ref_known(v_todo_209_, 6);
 v___x_294_ = l_Lean_Meta_Grind_Order_getExpr(v_u_290_, v_a_210_, v_a_211_, v_a_212_, v_a_213_, v_a_214_, v_a_215_, v_a_216_, v_a_217_, v_a_218_, v_a_219_, v_a_220_);
 lean_dec(v_u_290_);
 if (lean_obj_tag(v___x_294_) == 0)
@@ -1037,7 +1037,7 @@ if (lean_obj_tag(v___x_294_) == 0)
 lean_object* v_a_295_; lean_object* v___x_296_; 
 v_a_295_ = lean_ctor_get(v___x_294_, 0);
 lean_inc(v_a_295_);
-lean_dec_ref(v___x_294_);
+lean_dec_ref_known(v___x_294_, 1);
 v___x_296_ = l_Lean_Meta_Grind_Order_getExpr(v_v_291_, v_a_210_, v_a_211_, v_a_212_, v_a_213_, v_a_214_, v_a_215_, v_a_216_, v_a_217_, v_a_218_, v_a_219_, v_a_220_);
 lean_dec(v_v_291_);
 if (lean_obj_tag(v___x_296_) == 0)
@@ -1297,7 +1297,7 @@ if (lean_obj_tag(v___x_361_) == 0)
 lean_object* v_a_362_; lean_object* v___x_363_; 
 v_a_362_ = lean_ctor_get(v___x_361_, 0);
 lean_inc(v_a_362_);
-lean_dec_ref(v___x_361_);
+lean_dec_ref_known(v___x_361_, 1);
 v___x_363_ = l_Lean_Meta_Grind_Order_getExpr(v_v_357_, v_a_210_, v_a_211_, v_a_212_, v_a_213_, v_a_214_, v_a_215_, v_a_216_, v_a_217_, v_a_218_, v_a_219_, v_a_220_);
 lean_dec(v_v_357_);
 if (lean_obj_tag(v___x_363_) == 0)

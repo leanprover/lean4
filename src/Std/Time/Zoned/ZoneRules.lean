@@ -6,8 +6,9 @@ Authors: Sofia Rodrigues
 module
 
 prelude
-public import Std.Time.DateTime
 public import Std.Time.Zoned.TimeZone
+public import Std.Time.DateTime.Timestamp
+public import Std.Time.DateTime.WallTime
 
 public section
 
@@ -82,7 +83,7 @@ structure LocalTimeType where
   ID of the timezone
   -/
   identifier : String
-  deriving Repr, Inhabited
+deriving Repr, Inhabited
 
 namespace LocalTimeType
 
@@ -177,6 +178,7 @@ def timezoneAt (transitions : Array Transition) (tm : Timestamp) : Except String
     else .error "cannot find local timezone."
 
 end Transition
+
 namespace ZoneRules
 
 /--

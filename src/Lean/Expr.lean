@@ -683,7 +683,18 @@ def mkForall (x : Name) (bi : BinderInfo) (t : Expr) (b : Expr) : Expr :=
 
 /-- Return `Unit -> type`. Do not confuse with `Thunk type` -/
 def mkSimpleThunkType (type : Expr) : Expr :=
-  mkForall Name.anonymous .default (mkConst `Unit) type
+  /-
+  **Note**: We must not use `Name.anonymous` as the binder name.  If a tactic introduces
+  this binder using its name, the resulting local declaration named `Name.anonymous`
+  matches the terminal step of `resolveLocalName`'s component-stripping, capturing every
+  identifier in scope and breaking name resolution and pretty printing for the entire
+  local context.
+
+  Another possible fix is to modify `resolveLocalName` to ignore local declarations
+  whose user name is `Name.anonymous`, making name resolution robust against any
+  producer of anonymous local declarations.
+  -/
+  mkForall `_ .default (mkConst `Unit) type
 
 /-- Return `fun (_ : Unit), e` -/
 def mkSimpleThunk (type : Expr) : Expr :=

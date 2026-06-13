@@ -1118,7 +1118,7 @@ if (lean_obj_tag(v___x_348_) == 0)
 lean_object* v_a_349_; uint8_t v___x_350_; 
 v_a_349_ = lean_ctor_get(v___x_348_, 0);
 lean_inc(v_a_349_);
-lean_dec_ref(v___x_348_);
+lean_dec_ref_known(v___x_348_, 1);
 v___x_350_ = lean_unbox(v_a_349_);
 lean_dec(v_a_349_);
 if (v___x_350_ == 0)

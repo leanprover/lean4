@@ -143,7 +143,7 @@ v_head_4_ = lean_ctor_get(v_x_2_, 0);
 lean_inc(v_head_4_);
 v_tail_5_ = lean_ctor_get(v_x_2_, 1);
 lean_inc(v_tail_5_);
-lean_dec_ref(v_x_2_);
+lean_dec_ref_known(v_x_2_, 2);
 v_fst_6_ = lean_ctor_get(v_head_4_, 0);
 lean_inc(v_fst_6_);
 v_snd_7_ = lean_ctor_get(v_head_4_, 1);

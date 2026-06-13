@@ -675,7 +675,7 @@ if (lean_obj_tag(v___x_212_) == 0)
 lean_object* v___x_213_; lean_object* v___x_214_; lean_object* v___x_215_; lean_object* v___x_216_; lean_object* v___x_217_; lean_object* v___x_218_; lean_object* v___x_219_; lean_object* v___x_220_; lean_object* v___x_221_; 
 v___x_213_ = ((lean_object*)(l_Std_Http_Header_Name_ofString_x21___closed__0));
 v___x_214_ = ((lean_object*)(l_Std_Http_Header_Name_ofString_x21___closed__1));
-v___x_215_ = lean_unsigned_to_nat(102u);
+v___x_215_ = lean_unsigned_to_nat(107u);
 v___x_216_ = lean_unsigned_to_nat(12u);
 v___x_217_ = ((lean_object*)(l_Std_Http_Header_Name_ofString_x21___closed__2));
 v___x_218_ = l_String_quote(v_s_211_);
@@ -692,7 +692,7 @@ lean_object* v_val_222_;
 lean_dec_ref(v_s_211_);
 v_val_222_ = lean_ctor_get(v___x_212_, 0);
 lean_inc(v_val_222_);
-lean_dec_ref(v___x_212_);
+lean_dec_ref_known(v___x_212_, 1);
 return v_val_222_;
 }
 }
@@ -982,7 +982,7 @@ else
 lean_object* v_val_319_; 
 v_val_319_ = lean_ctor_get(v___x_317_, 0);
 lean_inc(v_val_319_);
-lean_dec_ref(v___x_317_);
+lean_dec_ref_known(v___x_317_, 1);
 return v_val_319_;
 }
 }
@@ -1044,7 +1044,7 @@ else
 lean_object* v_val_341_; 
 v_val_341_ = lean_ctor_get(v___x_339_, 0);
 lean_inc(v_val_341_);
-lean_dec_ref(v___x_339_);
+lean_dec_ref_known(v___x_339_, 1);
 return v_val_341_;
 }
 }

@@ -205,7 +205,7 @@ def handleProj : Simproc := fun e => do
   let res ← simp struct
   match res with
   | .rfl _ cd =>
-    let some reduced ← withCbvOpaqueGuard <| reduceProj? <| .proj typeName idx struct | do
+    let some reduced ← withCbvOpaqueGuard <| withDefault <| reduceProj? <| .proj typeName idx struct | do
       return .rfl (done := true) cd
 
     let reduced ← Sym.share reduced
@@ -223,7 +223,7 @@ def handleProj : Simproc := fun e => do
       return .step (← Lean.Expr.updateProjS! e e') newProof cd
     else
       -- If the type of the projection function is dependent, we first try to reduce the projection
-      let reduced ← withCbvOpaqueGuard <| reduceProj? e
+      let reduced ← withCbvOpaqueGuard <| withDefault <| reduceProj? e
       match reduced with
       | .some reduced =>
         let reduced ← Sym.share reduced
@@ -332,7 +332,62 @@ public def cbvEntry (e : Expr) : MetaM Result := do
     let e ← Sym.shareCommon e
     SimpM.run' (simp e) (methods := methods) (config := config)
 
-/-- Reduce goal target and/or hypothesis types using call-by-value evaluation.
+/--
+Core of `cbvGoal`: reduces the selected hypotheses and/or target of an already
+preprocessed `mvarId` using call-by-value evaluation, within the caller's `SymM` context.
+-/
+public def cbvGoalCore (mvarId : MVarId) (simplifyTarget : Bool := true)
+    (fvarIdsToSimp : Array FVarId := #[]) : Sym.SymM (Option MVarId) := do
+  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+  mvarId.withContext do
+    let mut mvarIdNew := mvarId
+    let mut toAssert : Array Hypothesis := #[]
+    -- Process hypotheses
+    for fvarId in fvarIdsToSimp do
+      let localDecl ← fvarId.getDecl
+      let type := localDecl.type
+      let result ← withTraceNode `Meta.Tactic.cbv (fun
+          | .ok (Result.step type' ..) => return m!"hypothesis `{localDecl.userName}`:{indentExpr type}\n==>{indentExpr type'}"
+          | .ok (Result.rfl ..)        => return m!"hypothesis `{localDecl.userName}`: no change"
+          | .error err                 => return m!"hypothesis `{localDecl.userName}`: {err.toMessageData}") do
+        cbvCore type config
+      match result with
+      | .rfl _ _ => pure ()
+      | .step type' proof _ _ =>
+        if type'.isFalse then
+          let u ← Sym.getLevel type
+          mvarIdNew.assign (← mkFalseElim (← mvarIdNew.getType) (mkApp4 (mkConst ``Eq.mp [u]) type type' proof (mkFVar fvarId)))
+          return none
+        else
+          let u ← Sym.getLevel type
+          toAssert := toAssert.push { userName := localDecl.userName, type := type', value := mkApp4 (mkConst ``Eq.mp [u]) type type' proof (mkFVar fvarId) }
+    -- Process target
+    if simplifyTarget then
+      let target ← mvarIdNew.getType
+      let result ← withTraceNode `Meta.Tactic.cbv (fun
+          | .ok (Result.step target' ..) => return m!"target:{indentExpr target}\n==>{indentExpr target'}"
+          | .ok (Result.rfl ..)          => return m!"target: no change"
+          | .error err                   => return m!"target: {err.toMessageData}") do
+        cbvCore target config
+      match result with
+      | .rfl _ _ => pure ()
+      | .step target' proof _ _ =>
+        if target'.isTrue then
+          mvarIdNew.assign (← mkOfEqTrue proof)
+          return none
+        else
+          mvarIdNew ← mvarIdNew.replaceTargetEq target' proof
+    -- Assert new hypotheses and clear old ones
+    let (_, mvarIdNew') ← mvarIdNew.assertHypotheses toAssert
+    mvarIdNew := mvarIdNew'
+    mvarIdNew ← mvarIdNew.tryClearMany fvarIdsToSimp
+    -- Try refl to close equation goals
+    let s ← Meta.saveState
+    try mvarIdNew.refl; return none
+    catch _ => s.restore; return some mvarIdNew
+
+/--
+Reduce goal target and/or hypothesis types using call-by-value evaluation.
 
 Preprocesses the goal via `Sym.preprocessMVar` (instantiates metavariables, unfolds
 reducibles, shares common subterms), then runs `cbvCore` on each selected hypothesis
@@ -345,57 +400,11 @@ is replaced with the reduced type.
 If `simplifyTarget` is true, reduces the goal type via `cbvCore`. If the reduced
 type is `True`, the goal is closed. Otherwise, the target is replaced.
 
-After all reductions, attempts `refl` to close equation goals of the form `v = v`. -/
-public def cbvGoal (mvarId : MVarId) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) : MetaM (Option MVarId) := do
-  let config : Sym.Simp.Config := { maxSteps := cbv.maxSteps.get (← getOptions) }
+After all reductions, attempts `refl` to close equation goals of the form `v = v`.
+-/
+public def cbvGoal (mvarId : MVarId) (simplifyTarget : Bool := true) (fvarIdsToSimp : Array FVarId := #[]) : MetaM (Option MVarId) :=
   Sym.SymM.run do
-    let mvarId ← Sym.preprocessMVar mvarId
-    mvarId.withContext do
-      let mut mvarIdNew := mvarId
-      let mut toAssert : Array Hypothesis := #[]
-      -- Process hypotheses
-      for fvarId in fvarIdsToSimp do
-        let localDecl ← fvarId.getDecl
-        let type := localDecl.type
-        let result ← withTraceNode `Meta.Tactic.cbv (fun
-            | .ok (Result.step type' ..) => return m!"hypothesis `{localDecl.userName}`:{indentExpr type}\n==>{indentExpr type'}"
-            | .ok (Result.rfl ..)        => return m!"hypothesis `{localDecl.userName}`: no change"
-            | .error err                 => return m!"hypothesis `{localDecl.userName}`: {err.toMessageData}") do
-          cbvCore type config
-        match result with
-        | .rfl _ _ => pure ()
-        | .step type' proof _ _ =>
-          if type'.isFalse then
-            let u ← Sym.getLevel type
-            mvarIdNew.assign (← mkFalseElim (← mvarIdNew.getType) (mkApp4 (mkConst ``Eq.mp [u]) type type' proof (mkFVar fvarId)))
-            return none
-          else
-            let u ← Sym.getLevel type
-            toAssert := toAssert.push { userName := localDecl.userName, type := type', value := mkApp4 (mkConst ``Eq.mp [u]) type type' proof (mkFVar fvarId) }
-      -- Process target
-      if simplifyTarget then
-        let target ← mvarIdNew.getType
-        let result ← withTraceNode `Meta.Tactic.cbv (fun
-            | .ok (Result.step target' ..) => return m!"target:{indentExpr target}\n==>{indentExpr target'}"
-            | .ok (Result.rfl ..)          => return m!"target: no change"
-            | .error err                   => return m!"target: {err.toMessageData}") do
-          cbvCore target config
-        match result with
-        | .rfl _ _ => pure ()
-        | .step target' proof _ _ =>
-          if target'.isTrue then
-            mvarIdNew.assign (← mkOfEqTrue proof)
-            return none
-          else
-            mvarIdNew ← mvarIdNew.replaceTargetEq target' proof
-      -- Assert new hypotheses and clear old ones
-      let (_, mvarIdNew') ← mvarIdNew.assertHypotheses toAssert
-      mvarIdNew := mvarIdNew'
-      mvarIdNew ← mvarIdNew.tryClearMany fvarIdsToSimp
-      -- Try refl to close equation goals
-      let s ← Meta.saveState
-      try mvarIdNew.refl; return none
-      catch _ => s.restore; return some mvarIdNew
+    cbvGoalCore (← Sym.preprocessMVar mvarId) simplifyTarget fvarIdsToSimp
 
 /--
 Attempt to close a goal of the form `decide P = true` by reducing only the LHS using `cbv`.

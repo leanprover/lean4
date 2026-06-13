@@ -159,9 +159,9 @@ private theorem hexDigit_isHexDigit (h₀ : x < 16) : isHexDigitByte (hexDigit x
     have h₄ : x.toNat - 10 + 65 < 256 := by omega
 
     refine Or.inr ⟨?_, ?_⟩
-    · simpa [UInt8.ofNat_sub (by omega : 10 ≤ x.toNat)] using
+    · simpa [UInt8.ofNat_sub (by omega : 10 ≤ x.toNat)] using!
         UInt8.ofNat_le_iff_le (by decide : 65 < 256) h₄ |>.mpr h₃
-    · simpa [UInt8.ofNat_add, UInt8.ofNat_sub (by omega : 10 ≤ x.toNat)] using
+    · simpa [UInt8.ofNat_add, UInt8.ofNat_sub (by omega : 10 ≤ x.toNat)] using!
         UInt8.ofNat_le_iff_le h₄ (by decide : 70 < 256) |>.mpr h₅
 
 private theorem isHexDigit_isAscii {c : UInt8} (h : isHexDigitByte c) : isAsciiByte c := by

@@ -115,13 +115,22 @@ structure Data.ModuleName where
 deriving TypeName, Repr
 
 
-private def onlyCode [Monad m] [MonadError m] (xs : TSyntaxArray `inline) : m StrLit := do
-  if h : xs.size = 1 then
-    match xs[0] with
-    | `(inline|code($s)) => return s
+
+private def onlyCodes [Monad m] [MonadError m] (stxs : TSyntaxArray `inline) : m (Array StrLit) := do
+  let mut codes := #[]
+  for stx in stxs do
+    match stx with
+    | `(inline|code($s)) => codes := codes.push s
+    | `(inline|$s:str) =>
+      unless s.getString.all (·.isWhitespace) do
+        throwErrorAt stx "Expected code"
     | other => throwErrorAt other "Expected code"
-  else
-    throwError "Expected precisely 1 code argument"
+  return codes
+
+private def onlyCode [Monad m] [MonadError m] (stxs : TSyntaxArray `inline) : m StrLit := do
+  let codes ← onlyCodes stxs
+  if h : codes.size = 1 then return codes[0]
+  else throwError "Expected precisely 1 code argument"
 
 private def strLitRange [Monad m] [MonadFileMap m] (s : StrLit) : m Lean.Syntax.Range := do
   let pos := (s.raw.getPos? (canonicalOnly := true)).get!
@@ -1171,10 +1180,21 @@ def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
         let decl ← getOptionDecl optionName
         pushInfoLeaf <| .ofOptionInfo { stx := id, optionName, declName := decl.declName }
         validateOptionValue optionName decl val
+        let valStr :=
+          match val with
+          | .ofString v => v.quote
+          | v => toString v
+        let valHl : DocHighlight ←
+          match val with
+          | .ofBool b =>
+            let constName := if b then ``Bool.true else ``Bool.false
+            let sig ← PrettyPrinter.ppSignature constName
+            pure <| .const constName sig.fmt
+          | _ => pure <| .literal stx[3].getKind none
         let code := #[
           ("set_option", some .keyword), (" ", none),
-          (toString stx[1][0].getId, some <| .option optionName decl.declName), (" ", none),
-          (toString stx[2].getAtomVal, some <| .literal stx[2].getKind none)
+          (toString optionName, some <| .option optionName decl.declName), (" ", none),
+          (valStr, some valHl)
         ]
         return .other {name := ``Data.SetOption, val := .mk <| Data.SetOption.mk ⟨code⟩} #[
           .code s.getString
@@ -1205,35 +1225,51 @@ def option (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
           return .code s.getString
 
 
-private def assertContents : ParserFn :=
-  whitespace >>
-  nodeFn nullKind
-    (termParser.fn >>
-     chFn '=' (trailingWs := true) >>
-     termParser.fn >>
-     optionalFn (symbolFn ":" >> termParser.fn))
+private def assertTermContents : ParserFn :=
+  whitespace >> termParser.fn
 
 /--
-Asserts that an equality holds.
+Asserts that two terms are definitionally equal.
 
-This doesn't use the equality type because it is needed in the prelude, before the = notation is
-introduced.
+The terms are provided as two separate code elements, optionally followed by a third code element
+that contains the type at which the terms are elaborated e.g.
+`` {assert'}[`Nat.zero` `Nat.zero` `Nat`] ``.
+
+Unlike `assert`, this role doesn't use the equality type, because it is needed in the prelude,
+before the `=` notation is introduced.
 -/
 @[builtin_doc_role]
 def assert' (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
-  let s ← onlyCode xs
-  let stx ← parseStrLit assertContents s
-  let ty? ←
-    withoutErrToSorry <|
-    if stx[3][1].isMissing then -- no colon
-      pure none
-    else -- type after colon
-      some <$> elabType stx[3][1]
-  let lhs ← elabExtraTerm stx[0] ty?
-  let rhs ← elabExtraTerm stx[2] ty?
-  unless ← Meta.withTransparency .all <| Meta.isDefEq lhs rhs do
-    throwErrorAt stx m!"Expected {lhs} = {rhs}, which is {← Meta.whnf lhs} = {← Meta.whnf rhs}, reducing to {← Meta.reduceAll lhs} = {← Meta.reduceAll rhs} but they are not equal."
-  pure (.code s.getString)
+  let codes ← onlyCodes xs
+  let (lhsCode, rhsCode, tyCode?) ←
+    match h : codes.size with
+    | 2 => pure (codes[0], codes[1], none)
+    | 3 => pure (codes[0], codes[1], some codes[2])
+    | _ => throwError "Expected two or three code arguments: the two sides of the equality, \
+        optionally followed by their type, but got {codes.size} arguments."
+  let lhsStx ← parseStrLit assertTermContents lhsCode
+  let rhsStx ← parseStrLit assertTermContents rhsCode
+  let tyStx? ← tyCode?.mapM (parseStrLit assertTermContents)
+  withSaveInfoContext do
+    let ty? ← withoutErrToSorry <|
+      match tyStx? with
+      | some tyStx => some <$> elabType tyStx
+      | none => pure none
+    let lhs ← elabExtraTerm lhsStx ty?
+    let rhs ← elabExtraTerm rhsStx ty?
+    unless ← Meta.withTransparency .all <| Meta.isDefEq lhs rhs do
+      throwError m!"Expected {lhs} = {rhs}, which is {← Meta.whnf lhs} = {← Meta.whnf rhs}, reducing to {← Meta.reduceAll lhs} = {← Meta.reduceAll rhs} but they are not equal."
+  let str := lhsCode.getString ++ " = " ++ rhsCode.getString ++
+    (tyCode?.map (" : " ++ ·.getString) |>.getD "")
+  let trees ← getInfoTrees
+  if trees.size > 0 then
+    let mut code := (← highlightSyntax trees lhsStx) ++ " = " ++ (← highlightSyntax trees rhsStx)
+    if let some tyStx := tyStx? then
+      code := code ++ " : " ++ (← highlightSyntax trees tyStx)
+    return .other {name := ``Data.LeanTerm, val := .mk <| Data.LeanTerm.mk code} #[.code str]
+  else
+    -- No info
+    return .code str
 
 /--
 Asserts that an equality holds.
@@ -1242,14 +1278,20 @@ Asserts that an equality holds.
 def assert (xs : TSyntaxArray `inline) : DocM (Inline ElabInline) := do
   let s ← onlyCode xs
   let stx ← parseStrLit termParser.fn s
-  let ty ← withoutErrToSorry <| elabType stx
-  match_expr (← Meta.whnf ty) with
-  | Eq _ lhs rhs =>
-    unless (← Meta.isDefEq lhs rhs) do
-      throwErrorAt stx m!"Expected {lhs} = {rhs}, but they are not definitionally equal"
-  | _ => throwErrorAt stx m!"Expected equality type"
-
-  pure (.code s.getString)
+  withSaveInfoContext do
+    let ty ← withoutErrToSorry <| elabType stx
+    match_expr (← Meta.whnf ty) with
+    | Eq _ lhs rhs =>
+      unless (← Meta.isDefEq lhs rhs) do
+        throwErrorAt stx m!"Expected {lhs} = {rhs}, but they are not definitionally equal"
+    | _ => throwErrorAt stx m!"Expected equality type"
+  let trees ← getInfoTrees
+  if trees.size > 0 then
+    let tm := Data.LeanTerm.mk (← highlightSyntax trees stx)
+    return .other {name := ``Data.LeanTerm, val := .mk tm} #[.code s.getString]
+  else
+    -- No info
+    return .code s.getString
 
 /--
 Opens a namespace in the remainder of the documentation comment.

@@ -327,14 +327,14 @@ if (lean_obj_tag(v___x_94_) == 0)
 lean_object* v_a_95_; lean_object* v___x_96_; 
 v_a_95_ = lean_ctor_get(v___x_94_, 0);
 lean_inc(v_a_95_);
-lean_dec_ref(v___x_94_);
+lean_dec_ref_known(v___x_94_, 1);
 v___x_96_ = l_Lean_Elab_Tactic_saveState___redArg(v___y_86_, v___y_88_, v___y_90_, v___y_92_);
 if (lean_obj_tag(v___x_96_) == 0)
 {
 lean_object* v_a_97_; lean_object* v___x_98_; 
 v_a_97_ = lean_ctor_get(v___x_96_, 0);
 lean_inc(v_a_97_);
-lean_dec_ref(v___x_96_);
+lean_dec_ref_known(v___x_96_, 1);
 v___x_98_ = l_Lean_Elab_Tactic_evalTactic(v___x_82_, v___y_85_, v___y_86_, v___y_87_, v___y_88_, v___y_89_, v___y_90_, v___y_91_, v___y_92_);
 if (lean_obj_tag(v___x_98_) == 0)
 {
@@ -811,13 +811,13 @@ if (lean_obj_tag(v___x_333_) == 0)
 lean_object* v_a_334_; uint8_t v___x_335_; lean_object* v___x_336_; 
 v_a_334_ = lean_ctor_get(v___x_333_, 0);
 lean_inc(v_a_334_);
-lean_dec_ref(v___x_333_);
+lean_dec_ref_known(v___x_333_, 1);
 v___x_335_ = 0;
 v___x_336_ = l_Lean_Elab_Term_synthesizeSyntheticMVarsNoPostponing(v___x_335_, v_a_320_, v_a_321_, v_a_322_, v_a_323_, v_a_324_, v_a_325_);
 if (lean_obj_tag(v___x_336_) == 0)
 {
 lean_object* v___x_337_; lean_object* v_a_338_; lean_object* v___x_340_; uint8_t v_isShared_341_; uint8_t v_isSharedCheck_367_; 
-lean_dec_ref(v___x_336_);
+lean_dec_ref_known(v___x_336_, 1);
 lean_inc(v_a_334_);
 v___x_337_ = l_Lean_instantiateMVars___at___00Lean_Elab_Tactic_ShowTerm_elabShowTerm_spec__1___redArg(v_a_334_, v_a_323_);
 v_a_338_ = lean_ctor_get(v___x_337_, 0);

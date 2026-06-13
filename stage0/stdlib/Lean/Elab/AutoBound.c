@@ -437,7 +437,7 @@ lean_ctor_set(v___x_136_, 1, v___x_134_);
 lean_ctor_set(v___x_136_, 2, v___x_135_);
 v___x_137_ = lean_unsigned_to_nat(1u);
 v___x_138_ = l_Substring_Raw_nextn(v___x_136_, v___x_137_, v___x_134_);
-lean_dec_ref(v___x_136_);
+lean_dec_ref_known(v___x_136_, 3);
 v___x_139_ = lean_string_is_valid_pos(v_s_120_, v___x_138_);
 if (v___x_139_ == 0)
 {
@@ -592,7 +592,7 @@ goto v___jp_171_;
 else
 {
 lean_object* v___x_203_; lean_object* v___x_204_; 
-lean_dec_ref(v_n_166_);
+lean_dec_ref_known(v_n_166_, 2);
 v___x_203_ = lean_box(v_allowed_167_);
 v___x_204_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_204_, 0, v___x_203_);
@@ -602,7 +602,7 @@ return v___x_204_;
 else
 {
 lean_object* v___x_205_; lean_object* v___x_206_; 
-lean_dec_ref(v_n_166_);
+lean_dec_ref_known(v_n_166_, 2);
 v___x_205_ = lean_box(v_allowed_167_);
 v___x_206_ = lean_alloc_ctor(1, 1, 0);
 lean_ctor_set(v___x_206_, 0, v___x_205_);
@@ -613,14 +613,14 @@ return v___x_206_;
 else
 {
 lean_object* v___x_207_; 
-lean_dec_ref(v_n_166_);
+lean_dec_ref_known(v_n_166_, 2);
 v___x_207_ = ((lean_object*)(l_Lean_Elab_checkValidAutoBoundImplicitName___closed__0));
 return v___x_207_;
 }
 }
 else
 {
-lean_dec_ref(v_n_166_);
+lean_dec_ref_known(v_n_166_, 2);
 goto v___jp_169_;
 }
 }
@@ -712,7 +712,7 @@ v_pre_216_ = lean_ctor_get(v_n_214_, 0);
 lean_inc(v_pre_216_);
 v_str_217_ = lean_ctor_get(v_n_214_, 1);
 lean_inc_ref(v_str_217_);
-lean_dec_ref(v_n_214_);
+lean_dec_ref_known(v_n_214_, 2);
 if (lean_obj_tag(v_pre_216_) == 0)
 {
 lean_object* v___x_227_; lean_object* v___x_228_; uint8_t v___x_229_; 
@@ -730,7 +730,7 @@ lean_ctor_set(v___x_230_, 0, v_str_217_);
 lean_ctor_set(v___x_230_, 1, v___x_228_);
 lean_ctor_set(v___x_230_, 2, v___x_227_);
 v___x_231_ = l_String_Slice_Pos_get_x3f(v___x_230_, v___x_228_);
-lean_dec_ref(v___x_230_);
+lean_dec_ref_known(v___x_230_, 3);
 if (lean_obj_tag(v___x_231_) == 0)
 {
 uint32_t v___x_232_; 
@@ -743,7 +743,7 @@ else
 lean_object* v_val_233_; uint32_t v___x_234_; 
 v_val_233_ = lean_ctor_get(v___x_231_, 0);
 lean_inc(v_val_233_);
-lean_dec_ref(v___x_231_);
+lean_dec_ref_known(v___x_231_, 1);
 v___x_234_ = lean_unbox_uint32(v_val_233_);
 lean_dec(v_val_233_);
 v___y_222_ = v___x_234_;

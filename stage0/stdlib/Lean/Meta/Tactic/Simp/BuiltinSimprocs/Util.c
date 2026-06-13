@@ -173,7 +173,7 @@ if (lean_obj_tag(v___x_47_) == 0)
 lean_object* v_a_48_; uint8_t v___x_49_; 
 v_a_48_ = lean_ctor_get(v___x_47_, 0);
 lean_inc(v_a_48_);
-lean_dec_ref(v___x_47_);
+lean_dec_ref_known(v___x_47_, 1);
 v___x_49_ = 1;
 if (v_result_41_ == 0)
 {

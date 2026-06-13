@@ -1550,7 +1550,7 @@ v_resetjp_488_:
 lean_object* v_val_491_; lean_object* v_fst_492_; lean_object* v___x_494_; uint8_t v_isShared_495_; uint8_t v_isSharedCheck_519_; 
 v_val_491_ = lean_ctor_get(v_rightIndex_449_, 0);
 lean_inc(v_val_491_);
-lean_dec_ref(v_rightIndex_449_);
+lean_dec_ref_known(v_rightIndex_449_, 1);
 v_fst_492_ = lean_ctor_get(v_val_480_, 0);
 v_isSharedCheck_519_ = !lean_is_exclusive(v_val_480_);
 if (v_isSharedCheck_519_ == 0)
@@ -1899,7 +1899,7 @@ if (lean_obj_tag(v___x_605_) == 1)
 lean_object* v_val_606_; lean_object* v_snd_607_; lean_object* v_snd_608_; lean_object* v_fst_609_; lean_object* v_fst_610_; lean_object* v_snd_611_; lean_object* v___x_612_; lean_object* v_fst_613_; lean_object* v_snd_614_; lean_object* v___x_615_; lean_object* v_fst_616_; lean_object* v_snd_617_; lean_object* v___x_618_; lean_object* v___x_619_; lean_object* v___x_620_; lean_object* v___x_621_; lean_object* v___x_622_; lean_object* v___x_623_; lean_object* v___x_624_; lean_object* v___x_625_; lean_object* v___x_626_; lean_object* v___x_627_; lean_object* v___x_628_; 
 v_val_606_ = lean_ctor_get(v___x_605_, 0);
 lean_inc(v_val_606_);
-lean_dec_ref(v___x_605_);
+lean_dec_ref_known(v___x_605_, 1);
 v_snd_607_ = lean_ctor_get(v_val_606_, 1);
 lean_inc(v_snd_607_);
 lean_dec(v_val_606_);

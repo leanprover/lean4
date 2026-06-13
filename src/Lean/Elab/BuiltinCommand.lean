@@ -628,9 +628,14 @@ open Lean.Parser.Command.InternalSyntax in
 @[builtin_command_elab Parser.Command.where] def elabWhere : CommandElab := fun _ => do
   let scope ← getScope
   let mut msg : Array MessageData := #[]
-  -- Noncomputable
-  if scope.isNoncomputable then
-    msg := msg.push <| ← `(Parser.Command.section| noncomputable section)
+  let isExpose := scope.attrs.any (· matches `(attrInstance| expose))
+  -- Section header
+  if isExpose || scope.isPublic || scope.isNoncomputable || scope.isMeta then
+    let expTk? := if isExpose then some Syntax.missing else none
+    let publicTk? := if scope.isPublic then some Syntax.missing else none
+    let ncTk? := if scope.isNoncomputable then some Syntax.missing else none
+    let metaTk? := if scope.isMeta then some Syntax.missing else none
+    msg := msg.push <| ← `(Parser.Command.section| $[@[expose%$expTk?]]? $[public%$publicTk?]? $[noncomputable%$ncTk?]? $[meta%$metaTk?]? section)
   -- Namespace
   if !scope.currNamespace.isAnonymous then
     msg := msg.push <| ← `(command| namespace $(mkIdent scope.currNamespace))
@@ -648,6 +653,9 @@ open Lean.Parser.Command.InternalSyntax in
   -- Included variables
   if !scope.includedVars.isEmpty then
     msg := msg.push <| ← `(command| include $(scope.includedVars.toArray.map (mkIdent ·.eraseMacroScopes))*)
+  -- Omitted variables
+  if !scope.omittedVars.isEmpty then
+    msg := msg.push <| ← `(command| omit $(scope.omittedVars.toArray.map (mkIdent ·.eraseMacroScopes))*)
   -- Options
   if let some optionsMsg ← describeOptions scope.opts then
     msg := msg.push optionsMsg

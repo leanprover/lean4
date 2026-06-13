@@ -278,7 +278,7 @@ theorem data_set {as : ByteArray} {i : Nat} {h : i < as.size} {a : UInt8} :
 theorem set_eq_push_extract_append_extract {as : ByteArray} {i : Nat} (h : i < as.size) {a : UInt8} :
     as.set i a h = (as.extract 0 i).push a ++ as.extract (i + 1) as.size := by
   ext1
-  simpa using Array.set_eq_push_extract_append_extract _
+  simpa using! Array.set_eq_push_extract_append_extract _
 
 @[simp]
 theorem append_toByteArray_singleton {as : ByteArray} {a : UInt8} :

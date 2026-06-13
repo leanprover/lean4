@@ -119,11 +119,9 @@ first resolving to an absolute instant.
 ## Zoned date and times.
 Combines date, time and time zones.
 
-- **`DateTime`**: Represents both date and time but with a time zone in the type constructor.
-- **`ZonedDateTime`**: Is a way to represent date and time that includes `ZoneRules`, which consider
-Daylight Saving Time (DST). This means it can handle local time changes throughout the year better
-than a regular `DateTime`. If you want to use a specific time zone without worrying about DST, you can
-use the `ofTimestampWithZone` function, which gives you a `ZonedDateTime` based only on that time zone,
+- **`DateTime`**: Is a way to represent date and time that includes `ZoneRules`, which consider
+Daylight Saving Time (DST). If you want to use a specific time zone without worrying about DST, you can
+use the `ofTimestampWithZone` function, which gives you a `DateTime` based only on that time zone,
 without considering the zone rules, otherwise you can use `ofTimestamp` or `ofTimestampWithIdentifier`.
 
 ## Duration
@@ -243,8 +241,8 @@ The `.sssssssss` can be omitted in most cases.
 - **`offset("+HH:mm")`**: Represents a timezone offset in the format `+HH:mm`, where `+` or `-` indicates the direction from UTC.
 - **`timezone("NAME/ID ZZZ")`**: Specifies a timezone using a region-based name or ID, along with its associated offset.
 - **`datespec("FORMAT")`**: Defines a compile-time date format based on the provided string.
-- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssssZZZ")`**: Represents a `ZonedDateTime` with a fixed timezone and optional nanosecond precision.
-- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssss[IDENTIFIER]")`**: Defines an `IO ZonedDateTime`, where the timezone identifier is dynamically retrieved from the default timezone database.
-- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssss, timezone")`**: Represents an `IO ZonedDateTime`, using a specified `timezone` term and allowing optional nanoseconds.
+- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssssZZZ")`**: Represents a `DateTime` with a fixed timezone and optional nanosecond precision.
+- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssss[IDENTIFIER]")`**: Defines an `IO DateTime`, where the timezone identifier is dynamically retrieved from the default timezone database.
+- **`zoned("uuuu-MM-ddTHH:mm:ss.sssssssss, timezone")`**: Represents an `IO DateTime`, using a specified `timezone` term and allowing optional nanoseconds.
 
 -/

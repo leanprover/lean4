@@ -7,7 +7,6 @@ module
 
 prelude
 public import Init.Control.Id
-public import Init.Control.Ensures
 public import Init.Grind.Tactics
 import Init.Ext
 
@@ -109,6 +108,19 @@ attribute [simp] map_pure seq_pure
 
 @[simp] theorem pure_id_seq [Applicative f] [LawfulApplicative f] (x : f α) : pure id <*> x = x := by
   simp [pure_seq]
+
+@[simp] theorem pure_seqRight [Applicative f] [LawfulApplicative f] (x : α) (y : f β) : pure x *> y = y := by
+  simp [seqRight_eq]
+
+@[simp] theorem seqLeft_pure [Applicative f] [LawfulApplicative f] (x : f α) (y : β) : x <* pure y = x := by
+  simp [seqLeft_eq]
+
+@[simp] theorem seqRight_pure_unit [Applicative f] [LawfulApplicative f] (x : f Unit) : x *> pure () = x := by
+  simp [seqRight_eq]
+
+@[simp] theorem pure_unit_seqLeft [Applicative f] [LawfulApplicative f] (x : f Unit) : pure () <* x = x := by
+  simp [seqLeft_eq, pure_seq, map_pure]
+  apply LawfulFunctor.id_map
 
 /--
 Lawful monads are those that satisfy a certain behavioral specification. While all instances of
@@ -260,9 +272,3 @@ instance : LawfulMonad Id := by
 @[simp] theorem run_seq (f : Id (α → β)) (x : Id α) : (f <*> x).run = f.run x.run := rfl
 
 end Id
-
-/-- An `ErasesTo`-witnessed refinement `x` of `y` recovers `y` by projecting out the property. -/
-public theorem Internal.ErasesTo.map_eq {α : Type u} {m : Type u → Type v} {P : α → Prop}
-    {x : m {b : α // P b}} {y : m α} [Monad m] [LawfulMonad m] (h : Internal.ErasesTo x y) :
-    Subtype.val <$> x = y := by
-  simpa using h.bind_eq pure

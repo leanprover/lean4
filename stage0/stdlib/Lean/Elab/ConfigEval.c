@@ -1,6 +1,6 @@
 // Lean compiler output
 // Module: Lean.Elab.ConfigEval
-// Imports: public import Lean.Elab.ConfigEval.Types public import Lean.Elab.ConfigEval.Basic public import Lean.Elab.ConfigEval.Commands public import Lean.Elab.ConfigEval.Instances public import Lean.Elab.ConfigEval.MetaInstances public import Lean.Elab.ConfigEval.Extra
+// Imports: public import Lean.Elab.ConfigEval.Types public import Lean.Elab.ConfigEval.Basic public import Lean.Elab.ConfigEval.Commands public import Lean.Elab.ConfigEval.DeriveEvalTerm public import Lean.Elab.ConfigEval.DeriveEvalExpr public import Lean.Elab.ConfigEval.DeriveEvalConfigItem public import Lean.Elab.ConfigEval.Instances public import Lean.Elab.ConfigEval.MetaInstances public import Lean.Elab.ConfigEval.Extra
 #include <lean/lean.h>
 #if defined(__clang__)
 #pragma clang diagnostic ignored "-Wunused-parameter"
@@ -16,6 +16,9 @@ extern "C" {
 lean_object* runtime_initialize_Lean_Elab_ConfigEval_Types(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_ConfigEval_Basic(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_ConfigEval_Commands(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_ConfigEval_DeriveEvalTerm(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_ConfigEval_DeriveEvalExpr(uint8_t builtin);
+lean_object* runtime_initialize_Lean_Elab_ConfigEval_DeriveEvalConfigItem(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_ConfigEval_Instances(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_ConfigEval_MetaInstances(uint8_t builtin);
 lean_object* runtime_initialize_Lean_Elab_ConfigEval_Extra(uint8_t builtin);
@@ -31,6 +34,15 @@ res = runtime_initialize_Lean_Elab_ConfigEval_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_ConfigEval_Commands(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_ConfigEval_DeriveEvalTerm(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_ConfigEval_DeriveEvalExpr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = runtime_initialize_Lean_Elab_ConfigEval_DeriveEvalConfigItem(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = runtime_initialize_Lean_Elab_ConfigEval_Instances(builtin);
@@ -54,6 +66,9 @@ return lean_io_result_mk_ok(lean_box(0));
 lean_object* initialize_Lean_Elab_ConfigEval_Types(uint8_t builtin);
 lean_object* initialize_Lean_Elab_ConfigEval_Basic(uint8_t builtin);
 lean_object* initialize_Lean_Elab_ConfigEval_Commands(uint8_t builtin);
+lean_object* initialize_Lean_Elab_ConfigEval_DeriveEvalTerm(uint8_t builtin);
+lean_object* initialize_Lean_Elab_ConfigEval_DeriveEvalExpr(uint8_t builtin);
+lean_object* initialize_Lean_Elab_ConfigEval_DeriveEvalConfigItem(uint8_t builtin);
 lean_object* initialize_Lean_Elab_ConfigEval_Instances(uint8_t builtin);
 lean_object* initialize_Lean_Elab_ConfigEval_MetaInstances(uint8_t builtin);
 lean_object* initialize_Lean_Elab_ConfigEval_Extra(uint8_t builtin);
@@ -69,6 +84,15 @@ res = initialize_Lean_Elab_ConfigEval_Basic(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_ConfigEval_Commands(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_ConfigEval_DeriveEvalTerm(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_ConfigEval_DeriveEvalExpr(builtin);
+if (lean_io_result_is_error(res)) return res;
+lean_dec_ref(res);
+res = initialize_Lean_Elab_ConfigEval_DeriveEvalConfigItem(builtin);
 if (lean_io_result_is_error(res)) return res;
 lean_dec_ref(res);
 res = initialize_Lean_Elab_ConfigEval_Instances(builtin);

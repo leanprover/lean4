@@ -14,7 +14,28 @@ Author: Leonardo de Moura
 namespace lean {
 typedef lean_object * object_offset;
 
-class compacted_region;
+class region_reader;
+
+/** Information about a loaded library, used for closure function pointer relocation. */
+struct lib_info {
+    size_t base_addr;
+    // Loader-reported identity, used as an opaque key to match a saved library against a
+    // currently-loaded one
+    std::string id;
+};
+
+/** Builds the sorted table of all currently loaded libraries. */
+LEAN_EXPORT std::vector<lib_info> get_loaded_libs();
+
+/** A lightweight, non-owning view of a compacted region's address range, used as a cross-region
+    pointer-relocation dependency. The owning buffer is managed on the Lean side (`CompactedRegion`),
+    not here. `begin`/`size` give the physical data range; `base_addr` is the logical base its
+    pointers are relative to. */
+struct region_view {
+    void * begin;
+    size_t size;
+    void * base_addr;
+};
 
 class LEAN_EXPORT object_compactor {
     struct max_sharing_table;
@@ -25,7 +46,12 @@ class LEAN_EXPORT object_compactor {
     std::vector<object*> m_todo;
     std::vector<object_offset> m_tmp;
     // Dependency regions sorted by `begin` address for binary search in `to_offset`
-    std::vector<compacted_region *> m_dep_regions;
+    std::vector<region_view> m_dep_regions;
+    // Sorted table of loaded libraries for closure function pointer mapping
+    std::vector<lib_info> m_libs;
+    // Buffer-relative byte offsets of every compacted closure's `m_fun` field
+    std::vector<size_t> m_closure_offsets;
+    bool m_allow_closures = false;
     // On-disk base address used for `mmap`ing compacted regions without relocations
     // References within the compacted region are rewritten by subtracting `m_begin` and adding `m_base_addr`
     // In the simplest case `base_addr == nullptr`, we get region-relative pointers
@@ -38,7 +64,7 @@ class LEAN_EXPORT object_compactor {
     void save_max_sharing(object * o, object * new_o, size_t new_o_sz);
     object_offset to_offset(object * o);
     void insert_terminator(object * o);
-    object * copy_object(object * o);
+    object * copy_object(object * o, size_t sz = 0);
     bool insert_constructor(object * o);
     bool insert_array(object * o);
     void insert_sarray(object * o);
@@ -48,8 +74,10 @@ class LEAN_EXPORT object_compactor {
     bool insert_promise(object * o);
     bool insert_ref(object * o);
     void insert_mpz(object * o);
+    bool insert_closure(object * o);
 public:
-    object_compactor(void * base_addr = nullptr, std::vector<compacted_region *> dep_regions = {});
+    object_compactor(void * base_addr = nullptr, std::vector<region_view> dep_regions = {},
+                     bool allow_closures = false);
     object_compactor(object_compactor const &) = delete;
     object_compactor(object_compactor &&) = delete;
     ~object_compactor();
@@ -61,20 +89,35 @@ public:
     // Allocate `sz` bytes of zeroed memory.
     void * alloc(size_t sz);
     void const * base_addr() const { return m_base_addr; }
-    std::vector<compacted_region *> const & dep_regions() const { return m_dep_regions; }
+    /** Returns the distinct loaded libraries that contain a compacted closure's `m_fun` pointer
+        — the subset of loaded libraries needed to relocate this region's closures on load.
+        Throws if a closure's fn pointer lies in no loaded library. */
+    std::vector<lib_info> used_libs() const;
+    /** Buffer-relative offsets of all closure `m_fun` fields compacted so far. */
+    std::vector<size_t> & closure_offsets() { return m_closure_offsets; }
 };
 
-class LEAN_EXPORT compacted_region {
+// A transient, non-owning read context: it walks a just-mapped buffer to fix up its pointers
+// (`read`), then is discarded. The buffer itself is owned by the Lean `CompactedRegion` and freed
+// via `lean_compacted_region_free`, not here, so this class holds no finalizer.
+class LEAN_EXPORT region_reader {
     size_t m_size;
     // see `object_compactor::m_base_addr`
     void * m_base_addr;
-    bool m_is_mmap;
-    std::function<void()> m_free_data;
     void * m_begin;
     void * m_next;
     void * m_end;
+    // Path of the file this region was loaded from (empty when constructed in-memory rather
+    // than read from disk). Lets snapshot save re-derive its dep paths from `env.header.regions`.
+    std::string m_fname;
     // Dependency regions for cross-region pointer fixup
-    std::vector<compacted_region *> m_dep_regions;
+    std::vector<region_view> m_dep_regions;
+    // Sorted (old_base, delta) pairs for closure function pointer relocation
+    std::vector<std::pair<size_t, ptrdiff_t>> m_lib_relocs;
+    // Data-relative byte offsets of every closure's `m_fun` field. Used to patch fn
+    // pointers on load without scanning the compacted region. Empty if no closures.
+    std::vector<size_t> m_closure_offsets;
+    void sort_and_validate_dep_regions();
     void move(size_t d);
     void move(object * o);
     object * fix_object_ptr(object * o);
@@ -85,23 +128,18 @@ class LEAN_EXPORT compacted_region {
     void fix_task(object * o);
     void fix_promise(object * o);
     void fix_mpz(object * o);
+    void fix_closure(object * o);
 public:
-    /* Creates a compacted object region using the given region in memory.
-       This object takes ownership of the region. */
-    compacted_region(size_t sz, void * data, void * base_addr, bool is_mmap, std::function<void()> free_data,
-                     std::vector<compacted_region *> dep_regions = {});
-    /* Creates a compacted object region using the object_compactor current state.
-       It creates a copy of the compacted region generated by the object compactor. */
-    explicit compacted_region(object_compactor const & c);
-    compacted_region(compacted_region const &) = delete;
-    compacted_region(compacted_region &&) = delete;
-    ~compacted_region();
-    compacted_region operator=(compacted_region const &) = delete;
-    compacted_region operator=(compacted_region &&) = delete;
+    /* Creates a read context over the given just-mapped buffer. Does not take ownership of the
+       buffer; see the class comment. */
+    region_reader(size_t sz, void * data, void * base_addr,
+                  std::vector<region_view> dep_regions = {},
+                  std::vector<std::pair<size_t, ptrdiff_t>> lib_relocs = {},
+                  std::vector<size_t> closure_offsets = {});
+    region_reader(region_reader const &) = delete;
+    region_reader(region_reader &&) = delete;
+    region_reader operator=(region_reader const &) = delete;
+    region_reader operator=(region_reader &&) = delete;
     object * read();
-    bool is_memory_mapped() const { return m_is_mmap; }
-    size_t size() const { return m_size; }
-    void * base_addr() const { return m_base_addr; }
-    void * begin() const { return m_begin; }
 };
 }

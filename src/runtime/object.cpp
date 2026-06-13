@@ -1550,6 +1550,14 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_big_shiftr(b_lean_obj_arg a1, b_lea
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_arg a2) {
     if (!lean_is_scalar(a2) || lean_unbox(a2) > UINT_MAX) {
+        // The exponent does not fit in a machine word, so the result would
+        // overflow memory for any base `≥ 2`. The exponent is positive here, so
+        // `0 ^ e = 0` and `1 ^ e = 1` are still cheap and total; otherwise panic.
+        if (lean_is_scalar(a1)) {
+            size_t b = lean_unbox(a1);
+            if (b == 0) return lean_box(0);
+            if (b == 1) return lean_box(1);
+        }
         lean_internal_panic("Nat.pow exponent is too big");
     }
     if (lean_is_scalar(a1))
@@ -1559,12 +1567,15 @@ extern "C" LEAN_EXPORT lean_obj_res lean_nat_pow(b_lean_obj_arg a1, b_lean_obj_a
 }
 
 extern "C" LEAN_EXPORT lean_obj_res lean_nat_powmod(b_lean_obj_arg b, b_lean_obj_arg e, b_lean_obj_arg m) {
-    mpz mb = lean_is_scalar(b) ? mpz::of_size_t(lean_unbox(b)) : mpz_value(b);
-    mpz me = lean_is_scalar(e) ? mpz::of_size_t(lean_unbox(e)) : mpz_value(e);
     if (lean_is_scalar(m) && lean_unbox(m) == 0) {
         // Lean convention: `_ % 0 = _`, so `Nat.powMod b e 0 = b ^ e`.
-        return mpz_to_nat(mb.pow(me));
+        // Defer to `lean_nat_pow`, which (like `Nat.pow`) panics on an exponent
+        // that does not fit in a machine word rather than attempting a hopeless
+        // computation.
+        return lean_nat_pow(b, e);
     }
+    mpz mb = lean_is_scalar(b) ? mpz::of_size_t(lean_unbox(b)) : mpz_value(b);
+    mpz me = lean_is_scalar(e) ? mpz::of_size_t(lean_unbox(e)) : mpz_value(e);
     mpz mm = lean_is_scalar(m) ? mpz::of_size_t(lean_unbox(m)) : mpz_value(m);
     return mpz_to_nat(mb.powm(me, mm));
 }

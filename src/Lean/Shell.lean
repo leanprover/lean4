@@ -163,7 +163,7 @@ def displayHelp (useStderr : Bool) : IO Unit := do
   out.putStrLn    "  -i, --i=iname          create ilean file"
   out.putStrLn    "  -c, --c=fname          name of the C output file"
   out.putStrLn    "  -b, --bc=fname         name of the LLVM bitcode file"
-  out.putStrLn    "      --stdin            take input from stdin"
+  out.putStrLn    "  -z, --zig=fname        name of the Zig output file"
   out.putStrLn    "  -R, --root=dir         set package root directory from which the module name\n"
   out.putStrLn    "                         of the input file is calculated\n"
   out.putStrLn    "                         (default: current working directory)\n";

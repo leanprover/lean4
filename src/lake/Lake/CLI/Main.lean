@@ -704,6 +704,9 @@ protected def stage : CliM PUnit := do
   let ok ← descrs.foldlM (init := true) fun ok descr => do
     let cachePath := cache.artifactDir / descr.relPath
     let stagingPath := stagingDir / descr.relPath
+    -- artifacts are content-addressed: an existing file already has the right contents
+    if (← stagingPath.pathExists) then
+      return ok
     match (← copyFile cachePath stagingPath |>.toBaseIO) with
     | .ok _ =>
       return ok
@@ -744,6 +747,11 @@ protected def unstage : CliM PUnit := do
   let ok ← descrs.foldlM (init := true) fun ok descr => do
     let cachePath := artDir/ descr.relPath
     let stagingPath := stagingDir / descr.relPath
+    -- artifacts are content-addressed: an existing file already has the right
+    -- contents (and may be read-only when cached by a build, so overwriting
+    -- it would fail)
+    if (← cachePath.pathExists) then
+      return ok
     match (← copyFile stagingPath cachePath |>.toBaseIO) with
     | .ok _ =>
       return ok

@@ -22,7 +22,7 @@ public structure ArtifactDescr where
   hash : Hash
   /-- The artifact's file extension. -/
   ext : String := "art"
-  deriving Inhabited, Repr
+  deriving Inhabited, Repr, BEq
 
 /--
 A content-hashed artifact that should have the file extension `ext`.

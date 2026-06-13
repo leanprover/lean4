@@ -23,7 +23,7 @@ open scoped Lean.Doc.Syntax
 set_option linter.missingDocs true
 
 /-- The code represents an atom drawn from some syntax. -/
-structure Data.Atom where
+public structure Data.Atom where
   /-- The syntax kind's name. -/
   name : Name
   /-- The syntax category -/

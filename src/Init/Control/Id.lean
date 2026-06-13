@@ -61,7 +61,7 @@ This function is the identity function. Because its parameter has type `Id α`, 
 -/
 /- One might expect/hope that this was `implicit_reducible` rather than `instance_reducible`.
 Currently, the stage 2 build fails in `Init/Data/Iterators/Lemmas/Consumers/Loop.lean` if we make this change. -/
-@[always_inline, inline, expose, instance_reducible]
+@[always_inline, inline, expose, implicit_reducible]
 protected def run (x : Id α) : α := x
 
 instance [OfNat α n] : OfNat (Id α) n :=

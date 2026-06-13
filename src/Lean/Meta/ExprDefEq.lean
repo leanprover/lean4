@@ -423,7 +423,7 @@ private partial def isDefEqArgs (f : Expr) (args₁ args₂ : Array Expr) : Meta
       -- Instance-implicit `[..]` arguments: bump to `.instances` so type class instances
       -- (`[instance_reducible]`) unfold for diamond resolution. `[implicit_reducible]`
       -- annotations have no effect here — they should not corrupt TC-tier defeq.
-      unless (← withInstanceConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
+      unless (← withImplicitConfig <| Meta.isExprDefEqAux a₁ a₂) do return false
     else if respectTransparency && implicitBump then
       -- Other implicit arguments: bump to `.implicit` so that `[instance_reducible]` definitions
       -- (e.g. `Nat.add`, `Array.size`) and user-marked `[implicit_reducible]` definitions both

@@ -37,15 +37,9 @@ instance [NeZero n] : Pow (Fin n) Nat where
   pow := Fin.npow
 
 @[simp] theorem pow_zero [NeZero n] (a : Fin n) : a ^ 0 = 1 := by
-  ext
-  show (Fin.npow a 0).val = (1 : Fin n).val
-  rw [val_npow, Nat.pow_zero]
-  rfl
+  ext; exact Nat.powMod_zero a.val n
 @[simp] theorem pow_succ [NeZero n] (a : Fin n) (k : Nat) : a ^ (k+1) = a ^ k * a := by
-  ext
-  show (Fin.npow a (k+1)).val = (Fin.npow a k * a).val
-  rw [val_npow, Fin.val_mul, val_npow, Nat.pow_succ]
-  simp [Nat.mul_mod]
+  ext; exact Nat.powMod_succ a.val k n
 
 theorem add_assoc (a b c : Fin n) : a + b + c = a + (b + c) := by
   cases a; cases b; cases c; simp [Fin.add_def, Nat.add_assoc]

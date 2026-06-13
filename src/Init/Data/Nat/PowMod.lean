@@ -33,7 +33,7 @@ theorem powMod_def (b e m : Nat) : powMod b e m = b ^ e % m := (rfl)
 @[simp] theorem powMod_one (b m : Nat) : powMod b 1 m = b % m := by
   simp [powMod_def]
 
-theorem powMod_succ (b e m : Nat) : powMod b (e + 1) m = powMod b e m * b % m := by
+theorem powMod_succ (b e m : Nat) : powMod b (e + 1) m = (powMod b e m * b) % m := by
   simp [powMod_def, Nat.pow_succ, Nat.mul_mod, Nat.mod_mod]
 
 @[simp] theorem powMod_mod (b e m : Nat) : powMod b e m % m = powMod b e m := by

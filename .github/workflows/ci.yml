@@ -490,6 +490,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Update release.lean-lang.org
+        if: github.repository == 'leanprover/lean4'
         run: |
           gh workflow -R leanprover/release-index run update-index.yml
         env:

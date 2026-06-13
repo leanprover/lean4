@@ -55,12 +55,12 @@ test_cmd ls .lake/cache/artifacts/*.ltar
 test_exp -f .lake/build/ir/Test.ltar
 
 # Test that the cache input-to-output mapping is overwritten without
-# `--keep-local`. Since the build mapping includes module outputs and the
+# `--no-overwrite`. Since the build mapping includes module outputs and the
 # tracked mapping only includes the `ltar`, the tracking mapping should
 # require an unpack, whereas the build mapping should not.
 rm -rf .lake/build
 no_match_text ltar .lake/cache/outputs/test/*.json
-test_run cache add .lake/outputs.jsonl --keep-local
+test_run cache add .lake/outputs.jsonl --no-overwrite
 no_match_text ltar .lake/cache/outputs/test/*.json
 LAKE_ARTIFACT_CACHE=true test_not_out "leantar" build +Test --no-build -v
 rm -rf .lake/build

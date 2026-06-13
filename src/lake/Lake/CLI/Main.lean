@@ -65,7 +65,7 @@ public structure LakeOptions where
   outFormat : OutFormat := .text
   offline : Bool := false
   outputsFile? : Option FilePath := none
-  forceOverwrite : Bool := true
+  overwrite? : Option Bool := none
   forceDownload : Bool := false
   mappingsOnly : Bool := false
   service? : Option String := none
@@ -286,7 +286,8 @@ def lakeLongOption : (opt : String) → CliM PUnit
 | "--offline"     => modifyThe LakeOptions ({· with offline := true})
 | "--wfail"       => modifyThe LakeOptions ({· with failLv := .warning})
 | "--iofail"      => modifyThe LakeOptions ({· with failLv := .info})
-| "--keep-local"  => modifyThe LakeOptions ({· with forceOverwrite := false})
+| "--no-overwrite" => modifyThe LakeOptions ({· with overwrite? := some false})
+| "--force-overwrite" => modifyThe LakeOptions ({· with overwrite? := some true})
 | "--force-download" => modifyThe LakeOptions ({· with forceDownload := true})
 | "--download-arts" => modifyThe LakeOptions ({· with mappingsOnly := false})
 | "--mappings-only" => modifyThe LakeOptions ({· with mappingsOnly := true})
@@ -467,6 +468,7 @@ protected def get : CliM PUnit := do
   let cfg ← mkLoadConfig opts
   let ws ← loadWorkspace cfg
   let cache := ws.lakeCache
+  let overwrite := opts.overwrite?.getD true
   if let some file := mappings? then liftM (m := LoggerIO) do
     if opts.mappingsOnly then
       error "`--mappings-only` is not supported with a mappings file; use `lake cache add` instead"
@@ -487,7 +489,7 @@ protected def get : CliM PUnit := do
       else
         return ws.defaultCacheService
     let map ← CacheMap.load file
-    cache.writeMap ws.root.cacheScope map service.name? (some remoteScope) opts.forceOverwrite
+    cache.writeMap ws.root.cacheScope map service.name? (some remoteScope) overwrite
     let descrs ← map.collectOutputDescrs
     service.downloadArtifacts descrs cache remoteScope opts.forceDownload
   else
@@ -532,7 +534,7 @@ protected def get : CliM PUnit := do
           return map
         else
           findOutputs cache service pkg remoteScope opts platform toolchain
-      cache.writeMap pkg.cacheScope map service.name? (some remoteScope) opts.forceOverwrite
+      cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
       unless opts.mappingsOnly do
         let descrs ← map.collectOutputDescrs
         service.downloadArtifacts descrs cache remoteScope opts.forceDownload
@@ -546,7 +548,7 @@ protected def get : CliM PUnit := do
         let toolchain := cacheToolchain pkg toolchain
         try
           let map ← findOutputs cache service pkg remoteScope opts platform toolchain
-          cache.writeMap pkg.cacheScope map service.name? (some remoteScope) opts.forceOverwrite
+          cache.writeMap pkg.cacheScope map service.name? (some remoteScope) overwrite
           unless opts.mappingsOnly do
             let descrs ← map.collectOutputDescrs
             service.downloadArtifacts descrs cache remoteScope opts.forceDownload
@@ -679,7 +681,8 @@ protected def add : CliM PUnit := do
       error (serviceNotFound service ws.lakeConfig.config.cache.services)
     return some (.ofString service)
   let map ← CacheMap.load file
-  ws.lakeCache.writeMap localScope map service? opts.scope? opts.forceOverwrite
+  let overwrite := opts.overwrite?.getD true
+  ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
 
 private def stagingOutputsFile := "outputs.jsonl"
 
@@ -701,10 +704,11 @@ protected def stage : CliM PUnit := do
   let descrs ← map.collectOutputDescrs
   IO.FS.createDirAll stagingDir
   copyFile mappingsFile (stagingDir / stagingOutputsFile)
+  let overwrite := opts.overwrite?.getD false
   let ok ← descrs.foldlM (init := true) fun ok descr => do
     let cachePath := cache.artifactDir / descr.relPath
     let stagingPath := stagingDir / descr.relPath
-    unless opts.forceOverwrite || !(← stagingPath.pathExists) do
+    unless overwrite || !(← stagingPath.pathExists) do
       return ok
     match (← copyFile cachePath stagingPath |>.toBaseIO) with
     | .ok _ =>
@@ -743,11 +747,12 @@ protected def unstage : CliM PUnit := do
   let descrs ← map.collectOutputDescrs
   let artDir := ws.lakeCache.artifactDir
   IO.FS.createDirAll artDir
+  let overwrite := opts.overwrite?.getD false
   let ok ← descrs.foldlM (init := true) fun ok descr => do
     let cachePath := artDir/ descr.relPath
     let stagingPath := stagingDir / descr.relPath
     if (← cachePath.pathExists) then
-      if opts.forceOverwrite then
+      if overwrite then
         -- Cache artifacts are read-only, so the old artifact must be deleted first.
         IO.FS.removeFile cachePath
       else
@@ -764,7 +769,7 @@ protected def unstage : CliM PUnit := do
   unless ok do
     logError "failed to copy all outputs to the staging directory"
     exit 1
-  ws.lakeCache.writeMap localScope map service? opts.scope? opts.forceOverwrite
+  ws.lakeCache.writeMap localScope map service? opts.scope? overwrite
 
 protected def putStaged : CliM PUnit := do
   processOptions lakeOption

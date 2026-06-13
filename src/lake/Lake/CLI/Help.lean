@@ -420,6 +420,7 @@ OPTIONS:
   --toolchain=<name>              with Reservoir or --repo, sets the toolchain
   --scope=<remote-scope>          scope for a custom endpoint
   --mappings-only                 only download mappings, delay artifacts
+  --no-overwrite                  do not overwrite existing mappings
   --force-download                redownload existing files
 
 Downloads build outputs for packages in the workspace from a remote cache
@@ -451,8 +452,10 @@ artifacts. If no mappings are found, Lake will backtrack the Git history up to
 will search the repository's entire history (or as far as Git will allow).
 
 By default, Lake will download both the input-to-output mappings and the
-output artifacts for a package. By using `--mappings-onlys`, Lake will only
+output artifacts for a package. By using `--mappings-only`, Lake will only
 download the mappings and delay downloading artifacts until they are needed.
+Mappings already in the cache are overwritten unless `--no-overwrite` is
+specified.
 
 If a download for an artifact fails or the download process for a whole
 package fails, Lake will report this and continue on to the next. Once done,
@@ -505,12 +508,16 @@ OPTIONS:
   --service=<name>                cache service to fetch from on demand
   --scope=<remote-scope>          the prefix of artifacts within the service
   --repo=<github-repo>            for Reservoir, a GitHub repository scope
+  --no-overwrite                  do not overwrite existing mappings
 
 Reads a list of input-to-output mappings from the provided file and adds
-them to the local Lake cache. If `--service` is provided, the output artifacts
-can then be fetched lazily from that service during a Lake build. The service
-must either be `reservoir` or  be configured through the Lake system
-configuration (see the help page of `lake cache services` for details).
+them to the local Lake cache. Mappings already in the cache are overwritten
+unless `--no-overwrite` is specified.
+
+If `--service` is provided, the output artifacts can then be fetched lazily
+from that service during a Lake build. The service must either be `reservoir`
+or be configured through the Lake system configuration (see the help page of
+`lake cache services` for details).
 
 Since Lake does not currently use cryptographically secure hashes for
 artifacts and outputs, artifacts in a cache service are prefixed with a scope
@@ -522,25 +529,28 @@ def helpCacheStage :=
 "Copy build outputs from the cache to a staging directory
 
 USAGE:
-  lake cache stage <mappings> <staging-directory>
+  lake cache stage <mappings> <staging-directory> [--force-overwrite]
 
-Creates the staging directory and copies the mappings file to it. Then, it
-copies all artifacts described within the mappings file from the cache to the
-staging directory. Errors if any of the artifacts described cannot be found in
-the cache."
+Creates the staging directory and copies the mappings file to it. Then,
+it copies all artifacts described within the mappings file from the cache to
+the staging directory. Artifacts in the staging directory are not overwritten
+unless `--force-overwrite` is specified. Errors if any of the artifacts
+described cannot be found in the cache."
 
 def helpCacheUnstage :=
 "Cache build outputs from a staging directory
 
 USAGE:
-  lake cache unstage <staging-directory>
+  lake cache unstage <staging-directory> [--force-overwrite]
 
 Copies the mappings and artifacts stored in staging directory (e.g., via
 `lake cache stage`) back into the cache.
 
 Reads the mappings file located at `outputs.jsonl` within the staging
 directory and writes the mappings to the Lake cache. Then, it copies the
-described artifacts from the staging directory into the cache."
+described artifacts from the staging directory into the cache. Mappings and
+artifacts already in the cache are not overwritten unless `--force-overwrite`
+is specified."
 
 def helpCachePutStaged :=
 "Upload build outputs from a staging directory to a remote service

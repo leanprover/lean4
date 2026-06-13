@@ -7,7 +7,9 @@ module
 
 prelude
 public import Lean.Data.NameMap.Basic
-import Lean
+import Lean.CoreM
+import Lean.Expr
+import Lean.Data.Name
 
 open Lean
 

@@ -45,3 +45,6 @@ public import Lean.Compiler.LCNF.ReduceArity
 public import Lean.Compiler.LCNF.Probing
 public import Lean.Compiler.LCNF.Irrelevant
 public import Lean.Compiler.LCNF.SplitSCC
+-- Orphan import to keep EmitZig from being dropped without inducing a Zig dependency in `import Lean`.
+public import Lean.Compiler.LCNF.EmitZig
+public import Lean.Compiler.LCNF.EmitZig.InlineHelpers

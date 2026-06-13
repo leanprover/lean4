@@ -17,6 +17,7 @@ import Lean.Compiler.InitAttr
 import Lean.Compiler.NameMangling
 import Lean.Compiler.ModPkgExt
 import Lean.Runtime
+import Init.Data.String.Legacy
 
 open Lean Compiler LCNF
 namespace Lean.Compiler.LCNF
@@ -718,6 +719,8 @@ partial def emitBasicBlock : Code .impure → EmitM Unit
   | .cases cs => do
       let shortIf? :=
         if h : cs.alts.size = 2 then
+          have : 0 < cs.alts.size := by rw [h]; decide
+          have : 1 < cs.alts.size := by rw [h]; decide
           match cs.alts[0] with
           | .ctorAlt info k => some (info.cidx, k, cs.alts[1].getCode)
           | _ => none
@@ -991,7 +994,7 @@ def emitZigForDecls (modName : Name) (decls : Array Name) : CoreM String := do
   let (_, state) ← emitFile.run { localDecls, otherModuleDecls, modName } |>.run {}
   return state.buf
 
-def emitZig (modName : Name) : CoreM String := do
+public def emitZig (modName : Name) : CoreM String := do
   emitZigForDecls modName (← getLocalImpureDecls)
 
 end Lean.Compiler.LCNF

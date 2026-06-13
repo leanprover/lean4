@@ -55,7 +55,7 @@ opaque emitLLVM (env : Environment) (modName : Name) (filepath : FilePath) : IO 
 Emits Zig code for the module from LCNF.
 -/
 def emitZig (mainModuleName : Name) (env : Environment) : IO String := do
-  let data ← Compiler.LCNF.emitZig mainModuleName
+  let data ← EmitZig.emitZig mainModuleName
     |>.toIO' { fileName := "<emitZig>", fileMap := default } { env }
   return data
 
@@ -81,6 +81,12 @@ Sets Lean's internal maximum memory (in bytes) for the C runtime.
 -/
 @[extern "lean_internal_set_max_memory"]
 opaque Internal.setMaxMemory (max : USize) : BaseIO Unit
+
+/--
+Returns the default maximum memory (in bytes) Lean was built with.
+-/
+@[extern "lean_internal_get_default_max_memory"]
+opaque Internal.getDefaultMaxMemory (_ : Unit) : Nat
 
 
 /--

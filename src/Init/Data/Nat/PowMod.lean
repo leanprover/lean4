@@ -69,22 +69,22 @@ theorem powModAux_eq (fuel b e m : Nat) (h : e < 2 ^ fuel) :
       · have hod : 2 * (e / 2) + 1 = e := by rw [h2] at hdm; exact hdm
         rw [h2, if_pos rfl, Nat.mod_mul_mod, ← Nat.pow_succ, Nat.succ_eq_add_one, hod]
 
-theorem powMod_def (b e m : Nat) : powMod b e m = b ^ e % m :=
+/--
+`powMod` agrees with the naive `b ^ e % m`. Marked `@[simp]` so that symbolic
+reasoning unfolds to the naive form (with its full lemma library); concrete
+evaluation by `decide` instead reduces the efficient `powModAux` definition and
+is unaffected by this lemma.
+-/
+@[simp] theorem powMod_def (b e m : Nat) : powMod b e m = b ^ e % m :=
   powModAux_eq e b e m Nat.lt_two_pow_self
 
-@[simp] theorem powMod_zero (b m : Nat) : powMod b 0 m = 1 % m := by
-  simp [powMod_def]
+/-- `powMod b 0 m = 1 % m`. Recurrence base case; not `@[simp]` since `powMod_def`
+already simplifies `powMod`. -/
+theorem powMod_zero (b m : Nat) : powMod b 0 m = 1 % m := by simp
 
-@[simp] theorem powMod_one (b m : Nat) : powMod b 1 m = b % m := by
-  simp [powMod_def]
-
+/-- `powMod b (e + 1) m = (powMod b e m * b) % m`. Recurrence step; not `@[simp]`
+since `powMod_def` already simplifies `powMod`. -/
 theorem powMod_succ (b e m : Nat) : powMod b (e + 1) m = (powMod b e m * b) % m := by
-  simp [powMod_def, Nat.pow_succ, Nat.mul_mod, Nat.mod_mod]
-
-@[simp] theorem powMod_mod (b e m : Nat) : powMod b e m % m = powMod b e m := by
-  simp [powMod_def, Nat.mod_mod]
-
-theorem powMod_zero_right (b e : Nat) : powMod b e 0 = b ^ e := by
-  simp [powMod_def]
+  simp [Nat.pow_succ, Nat.mul_mod, Nat.mod_mod]
 
 end Nat

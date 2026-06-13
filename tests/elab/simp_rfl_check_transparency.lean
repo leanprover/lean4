@@ -45,3 +45,23 @@ at `.implicit` transparency. Possible solutions:
 
 #guard_msgs in
 @[simp] theorem add_zero' (n : Nat) : n + 0 = n := (rfl)
+
+
+section Config
+
+/-
+There was a bug that the `simp.rfl.checkTransparency` linter would check
+`LHS =?= RHS` at `.implicit` as expected, but with `proj := .no` config instead of `.yesWithDelta`.
+This led to a linter warning even though LHS and RHS are implicit-reducibly defeq.
+-/
+
+structure S where f : Nat → Nat
+
+@[implicit_reducible] def mkS : S := ⟨fun n => n⟩
+
+set_option simp.rfl.checkTransparency true
+
+#guard_msgs in
+@[simp, defeq] theorem mkS_f (n : Nat) : mkS.f n = n := rfl
+
+end Config

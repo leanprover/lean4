@@ -431,7 +431,9 @@ private def mkSimpTheoremCore (origin : Origin) (e : Expr) (levelParams : Array 
   if rfl && simp.rfl.checkTransparency.get (← getOptions) then
     forallTelescopeReducing type fun _ type => do
       let checkDefEq (lhs rhs : Expr) := do
-        unless (← withTransparency .implicit <| isDefEq lhs rhs) do
+        unless (← withConfig
+            (fun ctx => { ctx with proj := .yesWithDelta, transparency := .implicit })
+            (isDefEq lhs rhs)) do
           logWarning m!"`{origin.key}` is a `[defeq]` simp theorem, but its left-hand side{indentExpr lhs}\n\
             is not definitionally equal to the right-hand side{indentExpr rhs}\n\
             at `.implicit` transparency. Possible solutions:\n\

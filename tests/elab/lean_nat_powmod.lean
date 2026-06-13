@@ -56,6 +56,27 @@ example :
     Nat.powMod 1234567890123456789 5 (2^63 - 1) = 3256532376055551519 := by decide
 
 /-!
+Kernel reduction (`decide`) of `Nat.powMod` is efficient even for very large
+exponents: the square-and-multiply logical model reduces in `O(log e)` steps and
+never materializes `b ^ e`. With the previous `b ^ e % m` model none of these
+could be `decide`d — the kernel would exceed the exponentiation threshold or
+attempt to build the astronomically large `b ^ e`.
+-/
+example : Nat.powMod 3 1000 1000003 = 73216 := by decide
+example : Nat.powMod 7 65537 1000003 = 881993 := by decide
+-- Larger exponents need a deeper recursion limit (the reduction is `O(log e)`
+-- deep); the point is that `decide` can do these at all and stays fast.
+set_option maxRecDepth 4096 in
+example : Nat.powMod 3 (2 ^ 64) 1000003 = 66322 := by decide
+set_option maxRecDepth 4096 in
+example : Nat.powMod 5 (2 ^ 128) 1000000007 = 368498795 := by decide
+set_option maxRecDepth 4096 in
+example : Nat.powMod 2 (2 ^ 200) 1000000007 = 988385428 := by decide
+-- The kernel (`decide`) and the compiled extern (`native_decide`) agree on a
+-- large exponent, cross-validating the square-and-multiply model against `mpz_powm`.
+example : Nat.powMod 3 (2 ^ 64) 1000003 = 66322 := by native_decide
+
+/-!
 Large modular exponentiation (1024-bit prime), motivated by Mathlib's ZMod test.
 Prior to adding `lean_nat_powmod`, `Nat.powMod` would unfold to `b ^ e % m`
 which fails to terminate for this size of exponent.

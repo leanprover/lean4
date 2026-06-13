@@ -469,6 +469,9 @@ protected def get : CliM PUnit := do
   let ws ← loadWorkspace cfg
   let cache := ws.lakeCache
   let overwrite := opts.overwrite?.getD true
+  unless overwrite do
+    -- artifacts of skipped mappings with `--no-overwrite` cannot be cleanly handled
+    error "`--no-overwrite` is not supported for `cache get`"
   if let some file := mappings? then liftM (m := LoggerIO) do
     if opts.mappingsOnly then
       error "`--mappings-only` is not supported with a mappings file; use `lake cache add` instead"

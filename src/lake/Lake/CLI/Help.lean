@@ -420,7 +420,6 @@ OPTIONS:
   --toolchain=<name>              with Reservoir or --repo, sets the toolchain
   --scope=<remote-scope>          scope for a custom endpoint
   --mappings-only                 only download mappings, delay artifacts
-  --no-overwrite                  do not overwrite existing mappings
   --force-download                redownload existing files
 
 Downloads build outputs for packages in the workspace from a remote cache
@@ -454,8 +453,6 @@ will search the repository's entire history (or as far as Git will allow).
 By default, Lake will download both the input-to-output mappings and the
 output artifacts for a package. By using `--mappings-only`, Lake will only
 download the mappings and delay downloading artifacts until they are needed.
-Mappings already in the cache are overwritten unless `--no-overwrite` is
-specified.
 
 If a download for an artifact fails or the download process for a whole
 package fails, Lake will report this and continue on to the next. Once done,

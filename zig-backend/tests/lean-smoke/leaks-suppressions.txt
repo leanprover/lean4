@@ -1,1 +1,0 @@
-lean::mpz::mpz(lean::mpz const&)

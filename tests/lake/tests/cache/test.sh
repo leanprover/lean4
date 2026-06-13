@@ -235,9 +235,38 @@ test_cmd mkdir -p .lake/staging-empty
 test_cmd cp .lake/outputs.jsonl .lake/staging-empty/outputs.jsonl
 test_err 'artifact not found in staging directory' cache unstage .lake/staging-empty
 
+# Test stage/unstage behavior regarding `--keep-local`
+test_cmd rm -rf "$CACHE_DIR"
+test_run build Test:static -o .lake/outputs.jsonl
+cache_art=$(echo "$CACHE_DIR"/artifacts/*.a)
+test_exp -s $cache_art
+staging_art=$(echo .lake/staging/*.a)
+test_exp -s $staging_art
+# Verify stage overwrites artifacts at the destination without `--keep-local`
+test_cmd rm -rf .lake/staging
+test_run cache stage .lake/outputs.jsonl .lake/staging --keep-local
+test_exp -f $staging_art # verify copy can occur with `--keep-local`
+test_cmd rm $staging_art
+test_cmd touch $staging_art
+test_exp ! -s $staging_art
+test_run cache stage .lake/outputs.jsonl .lake/staging --keep-local
+test_exp ! -s $staging_art
+test_run cache stage .lake/outputs.jsonl .lake/staging
+test_exp -s $staging_art
+# Verify unstage overwrites artifacts at the destination without `--keep-local`
+test_cmd rm -rf "$CACHE_DIR"
+test_run cache unstage .lake/staging --keep-local
+test_exp -f $cache_art # verify copy can occur with `--keep-local`
+test_cmd rm $staging_art
+test_cmd touch $staging_art
+test_exp ! -s $staging_art
+test_run cache unstage .lake/staging --keep-local
+test_exp -s $cache_art
+test_run cache unstage .lake/staging
+test_exp ! -s $cache_art
+
 # Verify that `lake cache clean` deletes the cache directory
 test_exp -d "$CACHE_DIR"
-test_cmd cp -r "$CACHE_DIR" .lake/cache-backup
 test_run cache clean
 test_exp ! -d "$CACHE_DIR"
 

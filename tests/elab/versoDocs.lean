@@ -849,7 +849,7 @@ error: Expected Nat.zero = Nat.zero.succ, which is Nat.zero = 1, reducing to Nat
 /-! {assert'}[`Nat.zero` `Nat.succ Nat.zero`] -/
 
 /--
-error: Expected two or three code arguments: the two sides of the equality, optionally followed by the type at which they are compared
+error: Expected two or three code arguments: the two sides of the equality, optionally followed by their type, but got 1 arguments.
 -/
 #guard_msgs in
 /-! {assert'}[`Nat.zero`] -/

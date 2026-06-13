@@ -11,3 +11,6 @@ measurements.jsonl
 # Created by compile tests
 *.lean.c
 *.lean.out
+
+# Created by emitzig tests
+*.zig

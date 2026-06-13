@@ -36,7 +36,7 @@ class level : public object_ref {
     friend level mk_imax_core(level const & l1, level const & l2);
     friend level mk_univ_param(name const & n);
     friend level mk_univ_mvar(name const & n);
-    explicit level(object_ref && o) noexcept:object_ref(o) {}
+    explicit level(object_ref && o) noexcept:object_ref(std::move(o)) {}
 public:
     /** \brief Universe zero */
     level();
@@ -86,7 +86,7 @@ inline bool is_shared(level const & l) { return !is_exclusive(l.raw()); }
 
 inline optional<level> none_level() { return optional<level>(); }
 inline optional<level> some_level(level const & e) { return optional<level>(e); }
-inline optional<level> some_level(level && e) { return optional<level>(std::forward<level>(e)); }
+inline optional<level> some_level(level && e) { return optional<level>(std::move(e)); }
 
 level const & mk_level_zero();
 level const & mk_level_one();

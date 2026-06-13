@@ -24,7 +24,7 @@ public:
         T      m_head;
         list   m_tail;
         template<typename... Fields>
-        cell(bool, list const & t, Fields&&... head):m_rc(1), m_head(head...), m_tail(t) {}
+        cell(bool, list const & t, Fields&&... head):m_rc(1), m_head(std::forward<Fields>(head)...), m_tail(t) {}
     public:
         cell(T const & h, list const & t):m_rc(1), m_head(h), m_tail(t) {}
         ~cell() {}
@@ -105,7 +105,7 @@ public:
 
     template<typename... Args>
     void emplace_front(Args&&... args) {
-        cell * new_ptr = new cell(true, *this, args...);
+        cell * new_ptr = new cell(true, *this, std::forward<Args>(args)...);
         if (m_ptr) m_ptr->dec_ref();
         m_ptr = new_ptr;
     }

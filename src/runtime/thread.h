@@ -124,7 +124,7 @@ public:
     thread() {}
     template<typename Function, typename... Args>
     thread(Function && fun, Args &&... args) {
-        fun(std::forward<Args>(args)...);
+        std::forward<Function>(fun)(std::forward<Args>(args)...);
     }
     typedef unsigned id;
     bool joinable() const { return true; }

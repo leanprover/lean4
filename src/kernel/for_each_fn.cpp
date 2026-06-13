@@ -84,7 +84,7 @@ template<bool partial_apps> class for_each_fn {
     }
 
 public:
-    for_each_fn(std::function<bool(expr const &)> && f):m_f(f) {}        // NOLINT
+    for_each_fn(std::function<bool(expr const &)> && f):m_f(std::move(f)) {} // NOLINT
     for_each_fn(std::function<bool(expr const &)> const & f):m_f(f) {}   // NOLINT
     void operator()(expr const & e) { apply(e); }
 };
@@ -148,17 +148,17 @@ class for_each_offset_fn {
     }
 
 public:
-    for_each_offset_fn(std::function<bool(expr const &, unsigned)> && f):m_f(f) {}        // NOLINT
+    for_each_offset_fn(std::function<bool(expr const &, unsigned)> && f):m_f(std::move(f)) {} // NOLINT
     for_each_offset_fn(std::function<bool(expr const &, unsigned)> const & f):m_f(f) {}   // NOLINT
     void operator()(expr const & e) { apply(e, 0); }
 };
 
 void for_each(expr const & e, std::function<bool(expr const &)> && f) { // NOLINT
-    return for_each_fn<true>(f)(e);
+    return for_each_fn<true>(std::move(f))(e);
 }
 
 void for_each(expr const & e, std::function<bool(expr const &, unsigned)> && f) { // NOLINT
-    return for_each_offset_fn(f)(e);
+    return for_each_offset_fn(std::move(f))(e);
 }
 
 extern "C" LEAN_EXPORT obj_res lean_find_expr(b_obj_arg p, b_obj_arg e_) {

@@ -47,7 +47,7 @@ expr replace_visitor::visit_let(expr const & e) {
 expr replace_visitor::save_result(expr const & e, expr && r, bool shared) {
     if (shared)
         m_cache.insert(std::make_pair(e, r));
-    return expr(r);
+    return expr(std::move(r));
 }
 expr replace_visitor::visit(expr const & e) {
     check_system("expression replacer");

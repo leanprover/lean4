@@ -22,7 +22,7 @@ expr mk_bin_rop(expr const & op, expr const & unit, std::initializer_list<expr> 
 template<typename MkBin, typename MkUnit>
 expr foldr_compact(MkBin && mkb, MkUnit && mku, unsigned num_args, expr const * args) {
     if (num_args == 0) {
-        return mku();
+        return std::forward<MkUnit>(mku)();
     } else {
         expr r = args[num_args - 1];
         unsigned i = num_args - 1;
@@ -37,7 +37,7 @@ expr foldr_compact(MkBin && mkb, MkUnit && mku, unsigned num_args, expr const * 
 /** \brief Version of foldr that only uses unit when num_args == 0 */
 template<typename MkBin, typename MkUnit>
 expr foldr(MkBin && mkb, MkUnit && mku, unsigned num_args, expr const * args) {
-    expr r = mku();
+    expr r = std::forward<MkUnit>(mku)();
     unsigned i = num_args;
     while (i > 0) {
         --i;

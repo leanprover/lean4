@@ -83,7 +83,7 @@ inductive Expr
 */
 enum class expr_kind { BVar, FVar, MVar, Sort, Const, App, Lambda, Pi, Let, Lit, MData, Proj };
 class expr : public object_ref {
-    explicit expr(object_ref && o) noexcept:object_ref(o) {}
+    explicit expr(object_ref && o) noexcept:object_ref(std::move(o)) {}
 
     friend expr mk_lit(literal const & lit);
     friend expr mk_mdata(kvmap const & d, expr const & e);
@@ -117,7 +117,7 @@ typedef pair<expr, expr> expr_pair;
 
 inline optional<expr> none_expr() { return optional<expr>(); }
 inline optional<expr> some_expr(expr const & e) { return optional<expr>(e); }
-inline optional<expr> some_expr(expr && e) { return optional<expr>(std::forward<expr>(e)); }
+inline optional<expr> some_expr(expr && e) { return optional<expr>(std::move(e)); }
 
 inline bool is_eqp(optional<expr> const & a, optional<expr> const & b) {
     return static_cast<bool>(a) == static_cast<bool>(b) && (!a || is_eqp(*a, *b));
